@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 html,
-body {
+body,
+h2 {
   padding: 0;
   margin: 0;
   font-family: 'Noto Sans Thai',-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,

@@ -1,16 +1,12 @@
-const jwt = require('jsonwebtoken');
+import type { NextApiRequest, NextApiResponse } from 'next'
+import jwt from 'jsonwebtoken';
 import getConfig from 'next/config';
-
+import users from '../../../data/users.json';
 import { apiHandler } from '../../../helpers/api';
-
 const { serverRuntimeConfig } = getConfig();
 
 // users in JSON file for simplicity, store in a db for production applications
-const users = require('../../../data/users.json');
-
-export default apiHandler(handler);
-
-function handler(req, res) {
+const handler = (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case 'POST':
       return authenticate();
@@ -20,7 +16,7 @@ function handler(req, res) {
 
   function authenticate() {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find((u: any) => u.username === username && u.password === password);
 
     if (!user) throw 'Username or password is incorrect';
 
@@ -37,3 +33,5 @@ function handler(req, res) {
     });
   }
 }
+
+export default apiHandler(handler);

@@ -1,7 +1,8 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { errorHandler, jwtMiddleware } from '../../helpers/api';
 
 export const apiHandler = (handler: any) => {
-  return async (req: any, res: any) => {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       // global middleware
       await jwtMiddleware(req, res);

@@ -1,13 +1,12 @@
-import '../styles/globals.css'
+import Head from 'next/head';
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-
 import { userService } from '../services';
 import { Nav } from '../components';
-import Head from 'next/head';
+import '../styles/globals.css'
 
-function MyApp({ Component, pageProps }: AppProps) {
+const MyApp = ({ Component, pageProps }: AppProps) => {
 
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
@@ -31,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
 
-  function authCheck(url: string) {
+  const authCheck = (url: string) => {
     // userService.logout();
     // redirect to login page if accessing a private page and not logged in 
     const publicPaths = ['/login'];
@@ -51,15 +50,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>NKTC-App</title>
-
-        {/* bootstrap css */}
-        {/* <link href="//netdna.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" /> */}
+        <title>NKTC-App ระบบดูแลช่วยเหลือนักเรียนสำหรับวิทยาลัยเทคนิคหนองคาย</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet" />
       </Head>
-
 
       <Nav />
       {authorized &&

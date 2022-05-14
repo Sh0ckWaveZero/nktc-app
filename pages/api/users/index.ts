@@ -1,11 +1,11 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { apiHandler } from '../.../../../../helpers/api';
 
 // users in JSON file for simplicity, store in a db for production applications
-const users = require('../.../../../../data/users.json');
+import users from '../../../data/users.json';
 
-export default apiHandler(handler);
-
-function handler(req, res) {
+const handler = (req: NextApiRequest,
+  res: NextApiResponse) => {
   switch (req.method) {
     case 'GET':
       return getUsers();
@@ -22,3 +22,5 @@ function handler(req, res) {
     return res.status(200).json(response);
   }
 }
+
+export default apiHandler(handler);

@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import Nav from "../components/_nav";
 import Auth from "../components/auth";
 import Dashboard from "../components/dashboard";
 import { useEffect, useState } from "react";

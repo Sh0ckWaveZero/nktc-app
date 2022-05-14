@@ -13,6 +13,10 @@ const publicRuntimeConfig = {
     : 'http://localhost:3000/api' // production api
 }
 
+const images = {
+  domains: ["www.logo-th.com"]
+}
+
 // const optimizeFonts = true;
 
-module.exports = { nextConfig, serverRuntimeConfig, publicRuntimeConfig };
+module.exports = { nextConfig, serverRuntimeConfig, publicRuntimeConfig, images };
