@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, NextRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { object, string } from 'yup';
@@ -11,8 +11,8 @@ type FormLogin = {
   password: string;
 };
 
-const Login = () => {
-  const router = useRouter();
+export default function Login() {
+  const router: NextRouter = useRouter();
 
   useEffect(() => {
     // redirect to home if already logged in
@@ -25,7 +25,7 @@ const Login = () => {
   const validationSchema = object().shape({
     username: string().required('กรุณาป้อนชื่อผู้ใช้งาน'),
     password: string().required('กรุณาป้อนรหัสผ่าน')
-      .min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร')
+      .min(3, 'รหัสผ่านต้องมีความยาวอย่างน้อย 3 ตัวอักษร')
       .max(100, 'รหัสผ่านต้องมีความยาวมาก 100 ตัวอักษร')
   });
 
@@ -121,5 +121,3 @@ const Login = () => {
     </div>
   );
 }
-
-export default Login;
