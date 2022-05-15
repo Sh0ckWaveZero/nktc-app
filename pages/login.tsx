@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
+import { object, string } from 'yup';
 
 import { userService } from '../services';
 
@@ -22,9 +22,11 @@ const Login = () => {
   }, []);
 
   // form validation rules 
-  const validationSchema = Yup.object().shape({
-    username: Yup.string().required('กรุณาป้อนชื่อผู้ใช้งาน'),
-    password: Yup.string().required('กรุณาป้อนรหัสผ่าน')
+  const validationSchema = object().shape({
+    username: string().required('กรุณาป้อนชื่อผู้ใช้งาน'),
+    password: string().required('กรุณาป้อนรหัสผ่าน')
+      .min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร')
+      .max(100, 'รหัสผ่านต้องมีความยาวมาก 100 ตัวอักษร')
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
@@ -103,7 +105,7 @@ const Login = () => {
                   <div className="flex justify-between mb-2">
                     <label htmlFor="password" className="text-sm text-gray-600 dark:text-gray-200">รหัสผ่าน</label>
                   </div>
-                  <input type="password" id="password" {...register('password')} placeholder="******************" className="block w-full px-4 py-2 mt-2 mb-3 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                  <input type="password" id="password" {...register('password', { min: 3 })} placeholder="******************" className="block w-full px-4 py-2 mt-2 mb-3 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                   <p className="text-xs italic text-red-500">{errors.password?.message ? errors.password?.message : ''}</p>
                 </div>
                 <div className="mt-6">
