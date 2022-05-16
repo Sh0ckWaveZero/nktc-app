@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { errorHandler, jwtMiddleware } from '../../helpers/api';
+import { errorHandler, jwtMiddleware } from '@/helpers/api';
 
 export const apiHandler = (handler: any) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {

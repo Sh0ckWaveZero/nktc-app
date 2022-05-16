@@ -19,6 +19,21 @@
     "jsx": "preserve",
     "incremental": true,
     "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/services/*": [
+        "services/*"
+      ],
+      "@/helpers/*": [
+        "helpers/*"
+      ],
+      "@/utils/*": [
+        "utils/*"
+      ],
+    },
   },
   "include": [
     "next-env.d.ts",

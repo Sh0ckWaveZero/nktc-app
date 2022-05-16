@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { apiHandler } from '../.../../../../helpers/api';
+import { apiHandler } from '@/helpers/api';
 
 // users in JSON file for simplicity, store in a db for production applications
 import users from '../../../data/users.json';

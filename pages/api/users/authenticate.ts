@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken';
 import getConfig from 'next/config';
 import users from '../../../data/users.json';
-import { apiHandler } from '../../../helpers/api';
+import { apiHandler } from '@/helpers/api';
 const { serverRuntimeConfig } = getConfig();
 
 // users in JSON file for simplicity, store in a db for production applications

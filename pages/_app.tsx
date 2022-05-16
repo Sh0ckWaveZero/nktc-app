@@ -56,10 +56,10 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet" />
       </Head>
 
-      <Nav />
       {authorized &&
         <Component {...pageProps} />
       }
+
     </>
   );
 }

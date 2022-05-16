@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 import getConfig from 'next/config';
 import Router from 'next/router'
 
-import { fetchWrapper } from '../helpers';
+import { fetchWrapper } from '@/helpers/index';
 
 const { publicRuntimeConfig } = getConfig();
 const baseUrl = `${publicRuntimeConfig.apiUrl}/users`;

@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-
 import { userService } from '@/services/index';
 
-export { Nav };
+type Props = {}
 
-const Nav = () => {
+export default function Header({ }: Props) {
   const [user, setUser] = useState(null);
   useEffect(() => {
     const subscription = userService.user.subscribe(x => setUser(x));
@@ -16,17 +15,14 @@ const Nav = () => {
     userService.logout();
   }
 
-  // only show nav when logged in
-  // if (common.isEmpty(user)) return null;
-
 
   return (
     <header className="text-gray-600 body-font">
       <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
         <a className="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
           {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} className="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full" viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg> */}
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg> */}
           <Image src="https://www.logo-th.com/wp-content/uploads/2018/05/%E0%B8%AA%E0%B8%99%E0%B8%87-%E0%B8%AD%E0%B8%B2%E0%B8%8A%E0%B8%B5%E0%B8%A7%E0%B8%B0%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2.jpg" width={50} height={50} />
           <div className="flex row-auto ml-3 text-xl text-blue-800">
             NKTC App
@@ -59,6 +55,5 @@ const Nav = () => {
         </button>
       </div>
     </header>
-
-  );
+  )
 }
