@@ -5,7 +5,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { object, string } from 'yup';
 
 import { userService } from '@/services/index';
-import Head from 'next/head';
 
 type FormLogin = {
   username: string;
@@ -35,12 +34,9 @@ export default function Login() {
   // get functions to build form with useForm() hook
   const { register, handleSubmit, setError, formState } = useForm<any>(formOptions);
   const { errors } = formState;
-  console.log(errors);
-
   const onSubmit: SubmitHandler<FormLogin> = async ({ username, password }) => {
     try {
       await userService.login(username, password);
-      // get return url from query parameters or default to '/'
       const returnUrl: any = router.query.returnUrl || '/';
       router.push(returnUrl);
     } catch (error: any) {

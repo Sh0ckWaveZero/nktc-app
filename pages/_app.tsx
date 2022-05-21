@@ -3,7 +3,6 @@ import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { userService } from '../services';
-import { Nav } from '../components';
 import '../styles/globals.css'
 
 const MyApp = ({ Component, pageProps }: AppProps) => {

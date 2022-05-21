@@ -14,7 +14,9 @@ const publicRuntimeConfig = {
 }
 
 const images = {
-  domains: ["www.logo-th.com"]
+  domains: ['localhost', 'vercel.com', 'vercel.app'],
+  formats: ['image/avif', 'image/webp'],
+  minimumCacheTTL: 60,
 }
 
 // const optimizeFonts = true;
