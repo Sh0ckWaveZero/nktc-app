@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { userService } from '../services';
 import '../styles/globals.css'
+import { Provider } from 'react-redux';
+import { store } from '@/store/index';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
 
@@ -47,19 +49,21 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   }
 
   return (
-    <>
-      <Head>
-        <title>NKTC-App ระบบดูแลช่วยเหลือนักเรียนสำหรับวิทยาลัยเทคนิคหนองคาย</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet" />
-      </Head>
+    <Provider store={store}>
+      <>
+        <Head>
+          <title>NKTC-App ระบบดูแลช่วยเหลือนักเรียนสำหรับวิทยาลัยเทคนิคหนองคาย</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet" />
+        </Head>
 
-      {authorized &&
-        <Component {...pageProps} />
-      }
+        {authorized &&
+          <Component {...pageProps} />
+        }
 
-    </>
+      </>
+    </Provider>
   );
 }
 

@@ -1,6 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 export default function Dashboard() {
+  const userSelector = useSelector((store: any) => store.user);
+  console.log(userSelector.userName);
+
   return (
     <div className="h-screen">
       <header className="bg-white shadow">
