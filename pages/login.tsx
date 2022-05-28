@@ -5,14 +5,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { object, string } from 'yup';
 
 import { userService } from '@/services/index';
-
-type FormLogin = {
-  username: string;
-  password: string;
-};
+import { signIn, SignInAction, userSelector } from '@/store/slices/userSlice';
+import { useAppDispatch } from '@/store/index';
+import { useSelector } from 'react-redux';
 
 export default function Login() {
+  const dispatch = useAppDispatch();
   const router: NextRouter = useRouter();
+  const userData = useSelector(userSelector);
 
   useEffect(() => {
     // redirect to home if already logged in
@@ -34,11 +34,12 @@ export default function Login() {
   // get functions to build form with useForm() hook
   const { register, handleSubmit, setError, formState } = useForm<any>(formOptions);
   const { errors } = formState;
-  const onSubmit: SubmitHandler<FormLogin> = async ({ username, password }) => {
+  const onSubmit: SubmitHandler<SignInAction> = async ({ username, password }) => {
     try {
-      await userService.login(username, password);
-      const returnUrl: any = router.query.returnUrl || '/';
-      router.push(returnUrl);
+      dispatch(signIn({ username, password })).then(() => {
+        const returnUrl: any = router.query.returnUrl || '/';
+        router.push(returnUrl);
+      })
     } catch (error: any) {
       setError('apiError', { message: error });
     }

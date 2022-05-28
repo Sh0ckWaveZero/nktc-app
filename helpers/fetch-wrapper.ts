@@ -20,7 +20,7 @@ const post = async (url: RequestInfo, body: any) => {
     credentials: 'include',
     body: JSON.stringify(body)
   };
-  const res = await fetch(url, requestOptions).then(handleResponse);
+  const res = await fetch(url, requestOptions).then(handleResponse)
   return res;
 }
 

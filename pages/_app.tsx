@@ -7,6 +7,7 @@ import '../styles/globals.css'
 import { Provider } from 'react-redux';
 import { store } from '@/store/index';
 
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
 
   const router = useRouter();
@@ -53,15 +54,10 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       <>
         <Head>
           <title>NKTC-App ระบบดูแลช่วยเหลือนักเรียนสำหรับวิทยาลัยเทคนิคหนองคาย</title>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet" />
         </Head>
-
         {authorized &&
           <Component {...pageProps} />
         }
-
       </>
     </Provider>
   );

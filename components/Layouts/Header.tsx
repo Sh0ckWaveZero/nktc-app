@@ -2,10 +2,16 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import logo from '../../public/static/images/logo.webp'
 import { userService } from '@/services/index';
+import { useAppDispatch } from '@/store/store';
+import { useSelector } from 'react-redux';
+import { isAuthenticatedSelector } from '@/store/slices/userSlice';
+import { signOut } from '../../store/slices/userSlice';
 
 type Props = {}
 
 export default function Header({ }: Props) {
+  const dispatch = useAppDispatch();
+  const isLogin = useSelector(isAuthenticatedSelector);
   const [user, setUser] = useState(null);
   useEffect(() => {
     const subscription = userService.user.subscribe(x => setUser(x));
@@ -13,7 +19,7 @@ export default function Header({ }: Props) {
   }, []);
 
   const logout = () => {
-    userService.logout();
+    dispatch(signOut());
   }
 
 
@@ -46,7 +52,7 @@ export default function Header({ }: Props) {
           <a className="mr-5 hover:text-gray-900">Third Link</a>
           <a className="mr-5 hover:text-gray-900">Fourth Link</a>
         </nav>
-        <button className="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" onClick={logout}>Logout
+        <button className="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" onClick={logout}>{isLogin ? 'Logout' : 'Login'}
           <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} className="w-4 h-4 ml-1" viewBox="0 0 24 24">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
