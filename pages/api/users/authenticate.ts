@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken';
 import getConfig from 'next/config';
-import users from '../../../data/users.json';
 import { apiHandler } from '@/helpers/api';
+import prisma from '@/lib/prisma';
 const { serverRuntimeConfig } = getConfig();
 
 // users in JSON file for simplicity, store in a db for production applications
@@ -14,9 +14,14 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 
-  function authenticate() {
+  async function authenticate() {
     const { username, password } = req.body;
-    const user = users.find((u: any) => u.username === username && u.password === password);
+    const user = await prisma.user.findFirst({
+      where: {
+        username,
+        password
+      },
+    });
 
     if (!user) throw 'Username or password is incorrect';
 
@@ -27,8 +32,8 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(200).json({
       id: user.id,
       username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: 'John',
+      lastName: 'Doe',
       accessToken: accessToken
     });
   }
