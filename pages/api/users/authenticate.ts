@@ -23,7 +23,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
       },
     });
 
-    if (!user) throw 'Username or password is incorrect';
+    if (!user) throw 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
 
     // create a jwt token that is valid for 7 days
     const accessToken = jwt.sign({ sub: user.id }, serverRuntimeConfig.secret, { expiresIn: '7d' });

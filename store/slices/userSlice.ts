@@ -67,7 +67,7 @@ const userSlice = createSlice({
     });
     builder.addCase(signIn.rejected, (state, action: any) => {
       state.isAuthenticating = false;
-      state.error = 'Username or password is incorrect';
+      state.error = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
     });
     builder.addCase(signIn.pending, (state, action: any) => {
       state.isAuthenticating = true;
