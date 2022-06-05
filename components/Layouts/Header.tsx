@@ -14,6 +14,7 @@ type Props = {}
 export default function Header({ }: Props) {
   const dispatch = useAppDispatch();
   const isLogin = useSelector(isAuthenticatedSelector);
+  console.log(isLogin);
   const [user, setUser] = useState(null);
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);

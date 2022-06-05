@@ -67,6 +67,7 @@ const userSlice = createSlice({
     });
     builder.addCase(signIn.rejected, (state, action: any) => {
       state.isAuthenticating = false;
+      state.isAuthenticating = false;
       state.error = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
     });
     builder.addCase(signIn.pending, (state, action: any) => {
@@ -76,9 +77,9 @@ const userSlice = createSlice({
       state.isAuthenticating = true;
     });
     builder.addCase(signOut.fulfilled, (state, action: any) => {
+      state.isAuthenticating = true;
       state.isAuthenticated = false;
       state.user = undefined;
-      state.isAuthenticating = true;
       state.accessToken = '';
     });
     builder.addCase(signOut.rejected, (state, action: any) => {
@@ -93,5 +94,6 @@ export const { resetUsername } = userSlice.actions;
 // export common user selector
 export const userSelector = (store: RootState) => store.user;
 export const isAuthenticatedSelector = (store: RootState): boolean => store.user.isAuthenticated;
+export const isAuthentingSelector = (store: RootState): boolean => store.user.isAuthenticating;
 
 export default userSlice.reducer;

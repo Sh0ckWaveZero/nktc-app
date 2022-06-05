@@ -8,9 +8,9 @@ import { signIn, SignInAction, userSelector } from '@/store/slices/userSlice';
 import { useAppDispatch } from '@/store/index';
 import { useSelector } from 'react-redux';
 import toast, { Toaster } from 'react-hot-toast';
-import { SvgIcon } from '@/components/index';
+import { SvgIcon, WithAuth } from '@/components/index';
 
-export default function Login() {
+const Login = () => {
   const dispatch = useAppDispatch();
   const router: NextRouter = useRouter();
   const userData = useSelector(userSelector);
@@ -142,3 +142,5 @@ export default function Login() {
     </div>
   );
 }
+
+export default WithAuth(Login);
