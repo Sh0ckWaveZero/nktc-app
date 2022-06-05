@@ -44,8 +44,8 @@ export const signIn = createAsyncThunk(
 
 export const signOut = createAsyncThunk(
   'users/signOut',
-  async () => {
-    const res = await userService.logout();
+  () => {
+    const res = userService.logout();
     return res;
   }
 );
@@ -78,7 +78,7 @@ const userSlice = createSlice({
     builder.addCase(signOut.fulfilled, (state, action: any) => {
       state.isAuthenticated = false;
       state.user = undefined;
-      state.isAuthenticating = false;
+      state.isAuthenticating = true;
       state.accessToken = '';
     });
     builder.addCase(signOut.rejected, (state, action: any) => {
