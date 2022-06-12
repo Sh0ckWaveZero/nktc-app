@@ -11,6 +11,7 @@ const bootstrap = async () => {
     .setTitle('NKTC-API')
     .setDescription('The NKTC API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

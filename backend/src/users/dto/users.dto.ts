@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Account, Role, Student, Teacher } from '@prisma/client';
 
 export class LoginUserDto {
   @ApiProperty()
@@ -22,12 +22,16 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  firstName: string;
+  email: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  lastName: string;
+  accounts: Account[]
+
+  @ApiProperty()
+  student: Student
+
+  @ApiProperty()
+  teacher: Teacher[]
 
   @ApiProperty()
   @IsNotEmpty()

@@ -8,23 +8,39 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
-  oauth_token_secret String?
-  oauth_token        String?
-  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  userId        String
+  image         String?
+  firstName     String?
+  lastName      String?
+  firstNameEn   String?
+  lastNameEn    String?
+  idCard        String?
+  birthDate     DateTime?
+  bloodType     String?
+  fatherName    String?
+  fatherPhone   String?
+  motherName    String?
+  motherPhone   String?
+  parentName    String?
+  parentPhone   String?
+  addressLine1  String?
+  subdistrict   String?
+  district      String?
+  province      String?
+  postcode      String?
+  country       String?
+  phone         String?
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
@@ -36,22 +52,19 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  username      String?   @unique
-  password      String?
-  emailVerified DateTime?
-  image         String?
-  firstName     String?
-  lastName      String?
-  role          Role      @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  student       Student?
-  teacher       Teacher?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  updatedBy     String?
-  createdBy     String?
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String
+  email     String?
+  role      Role      @default(User)
+  accounts  Account[]
+  sessions  Session[]
+  student   Student?
+  teacher   Teacher?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  updatedBy String?
+  createdBy String?
 
   @@map("user")
 }
@@ -71,25 +84,6 @@ model Student {
   studentNo    Int         @unique
   classId      String
   departmentId String
-  firstNameEn  String?
-  lastNameEn   String?
-  idCard       String?
-  birthDate    DateTime?
-  bloodType    String?
-  fatherName   String?
-  fatherPhone  String?
-  motherName   String?
-  motherPhone  String?
-  parentName   String?
-  parentPhone  String?
-  addressLine1 String?
-  subdistrict  String?
-  district     String?
-  province     String?
-  postcode     String?
-  country      String?
-  email        String?
-  phone        String?
   user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   class        Class?      @relation(fields: [classId], references: [id], onDelete: Cascade)
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
@@ -102,20 +96,17 @@ model Student {
 }
 
 model Teacher {
-  id               String    @id @default(cuid())
-  userId           String    @unique
-  teacherId        String    @unique
+  id               String   @id @default(cuid())
+  userId           String   @unique
   classId          String?
   jobTitle         String?
   academicStanding String?
-  departmentId     String
+  departmentId     String?
   rfId             String?
-  idCard           String?
-  birthDate        DateTime?
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Class            Class?    @relation(fields: [classId], references: [id])
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class            Class?   @relation(fields: [classId], references: [id])
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
   updatedBy        String?
   createdBy        String?
 
@@ -140,7 +131,7 @@ model Department {
   id          String    @id @default(cuid())
   name        String?
   description String?
-  Student     Student[]
+  student     Student[]
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   updatedBy   String?
@@ -150,9 +141,9 @@ model Department {
 }
 
 enum Role {
-  ADMIN
-  USER
-  STUDENT
-  TEACHER
-  PARENT
+  Admin
+  User
+  Student
+  Teacher
+  Parent
 }
