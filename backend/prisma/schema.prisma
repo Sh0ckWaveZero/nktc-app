@@ -9,7 +9,7 @@ datasource db {
 
 model Account {
   id            String    @id @default(cuid())
-  userId        String
+  userId        String    @unique
   image         String?
   firstName     String?
   lastName      String?
@@ -57,7 +57,7 @@ model User {
   password  String
   email     String?
   role      Role      @default(User)
-  accounts  Account[]
+  account   Account?
   sessions  Session[]
   student   Student?
   teacher   Teacher?

@@ -1,2 +1,0 @@
-d:
-	yarn run dev

@@ -37,5 +37,7 @@ yarn-error.log*
 .vscode
 .env
 
-frontend/node_modules
+web/node_modules/
+web/.next/
+backend/node_modules/
 old
