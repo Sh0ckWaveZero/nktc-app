@@ -8,44 +8,44 @@ import {
   mdiFormatLetterCaseLower,
   mdiGoogleCircles,
   mdiHomeVariantOutline,
-  mdiLogin
-} from '@mdi/js';
+  mdiLogin,
+} from "@mdi/js";
 
 // ** Type import
-import { VerticalNavItemsType } from 'src/@core/layouts/types'
+import { VerticalNavItemsType } from "src/@core/layouts/types";
 
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'แดชบอร์ด',
+      title: "แดชบอร์ด",
       icon: mdiHomeVariantOutline,
-      path: '/'
+      path: "/",
     },
     {
-      title: 'การตั้งค่าบัญชี',
+      title: "การตั้งค่าบัญชี",
       icon: mdiAccountOutline,
-      path: '/account-settings'
+      path: "/account-settings",
     },
     {
-      sectionTitle: 'เพจที่สำคัญ'
+      sectionTitle: "เพจที่สำคัญ",
     },
     {
-      title: 'เข้าสู่ระบบ',
+      title: "เข้าสู่ระบบ",
       icon: mdiLogin,
-      path: '/pages/login',
-      openInNewTab: true
+      path: "/pages/login",
+      openInNewTab: true,
     },
     {
-      title: 'ลงทะเบียน',
+      title: "ลงทะเบียน",
       icon: mdiAccountPlusOutline,
-      path: '/pages/register',
-      openInNewTab: true
+      path: "/pages/register",
+      openInNewTab: true,
     },
     {
-      title: 'Error',
+      title: "Error",
       icon: mdiAlertCircleOutline,
-      path: '/pages/error',
-      openInNewTab: true
+      path: "/pages/error",
+      openInNewTab: true,
     },
     // {
     //   sectionTitle: 'User Interface'
@@ -75,7 +75,7 @@ const navigation = (): VerticalNavItemsType => {
     //   title: 'Form Layouts',
     //   path: '/form-layouts'
     // }
-  ]
-}
+  ];
+};
 
-export default navigation
+export default navigation;

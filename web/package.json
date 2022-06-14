@@ -1,20 +1,11 @@
 {
-  "name": "materio-mui-react-nextjs-admin-template-free",
-  "description": "Most Powerful & Comprehensive Free MUI React NextJS Admin Dashboard Template built for developers! 🚀",
+  "name": "nktc-web",
+  "description": "",
   "license": "MIT",
   "version": "1.0.0",
-  "author": {
-    "name": "ThemeSelection",
-    "url": "https://themeselection.com/"
-  },
-  "bugs": {
-    "url": "https://github.com/themeselection/materio-mui-react-nextjs-admin-template-free/issues"
-  },
+  "author": "",
   "private": false,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/themeselection/materio-mui-react-nextjs-admin-template-free.git"
-  },
+  "repository": "https://github.com/Sh0ckWaveZero/nktc-app.git",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -64,5 +55,6 @@
     "prettier": "^2.6.2",
     "typescript": "^4.7.3",
     "yarn-upgrade-all": "^0.7.1"
-  }
+  },
+  "main": "index.js"
 }
