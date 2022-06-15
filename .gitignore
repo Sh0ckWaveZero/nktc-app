@@ -39,6 +39,7 @@ yarn-error.log*
 
 web/node_modules/
 web/.next/
+web/.idea/
 backend/node_modules/
 old
 .vscode/
