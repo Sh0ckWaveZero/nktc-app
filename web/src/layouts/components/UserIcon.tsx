@@ -1,29 +1,35 @@
 // ** React Imports
-import { ReactNode } from 'react';
+import {ReactNode} from 'react';
 
 // ** MUI Imports
-import { SvgIconProps } from '@mui/material';
+import {SvgIconProps} from '@mui/material';
+import Icon from '@mdi/react'
+import Box from "@mui/material/Box";
 
 interface UserIconProps {
   iconProps?: SvgIconProps;
   icon: string | ReactNode;
+  size?: number;
+  styles?: object;
 }
 
 const UserIcon = (props: UserIconProps) => {
   // ** Props
-  const { icon, iconProps } = props;
+  const {icon, iconProps, size = 1, styles} = props;
 
-  const IconTag = icon;
+  const initStyles = {
+    ...styles,
+    display: 'flex',
+    alignItems: 'center',
+  }
 
-  let styles;
+  return (
+    <Box sx={initStyles}>
+      <Icon path={icon as string} size={size}/>
+    </Box>
+  )
 
-  /* styles = {
-    color: 'red',
-    fontSize: '2rem'
-  } */
 
-  // @ts-ignore
-  return <IconTag {...iconProps} style={{ ...styles }} />;
 };
 
 export default UserIcon;

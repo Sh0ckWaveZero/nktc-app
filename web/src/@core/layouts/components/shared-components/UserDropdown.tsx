@@ -1,8 +1,8 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment } from 'react';
+import {useState, SyntheticEvent, Fragment} from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router';
+import {useRouter} from 'next/router';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -11,20 +11,16 @@ import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 // ** Icons Imports
-import CogOutline from 'mdi-material-ui/CogOutline';
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd';
-import EmailOutline from 'mdi-material-ui/EmailOutline';
 import LogoutVariant from 'mdi-material-ui/LogoutVariant';
-import AccountOutline from 'mdi-material-ui/AccountOutline';
-import MessageOutline from 'mdi-material-ui/MessageOutline';
-import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline';
+import UserIcon from "../../../../layouts/components/UserIcon";
+import {mdiAccountOutline, mdiClipboardTextClockOutline, mdiCogOutline} from "@mdi/js";
 
 // ** Styled Components
-const BadgeContentSpan = styled('span')(({ theme }) => ({
+const BadgeContentSpan = styled('span')(({theme}) => ({
   width: 8,
   height: 8,
   borderRadius: '50%',
@@ -69,84 +65,65 @@ const UserDropdown = () => {
       <Badge
         overlap='circular'
         onClick={handleDropdownOpen}
-        sx={{ ml: 2, cursor: 'pointer' }}
-        badgeContent={<BadgeContentSpan />}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        sx={{ml: 2, cursor: 'pointer'}}
+        badgeContent={<BadgeContentSpan/>}
+        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
       >
         <Avatar
-          alt='John Doe'
+          alt='นายฐาปกรณ์ บุภู่'
           onClick={handleDropdownOpen}
-          sx={{ width: 40, height: 40 }}
-          src='/images/avatars/1.png'
+          sx={{width: 40, height: 40}}
+          src='/images/avatars/pakorn.jpeg'
         />
       </Badge>
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => handleDropdownClose()}
-        sx={{ '& .MuiMenu-paper': { width: 230, marginTop: 4 } }}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{'& .MuiMenu-paper': {width: 230, marginTop: 4}}}
+        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+        transformOrigin={{vertical: 'top', horizontal: 'right'}}
       >
-        <Box sx={{ pt: 2, pb: 3, px: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{pt: 2, pb: 3, px: 4}}>
+          <Box sx={{display: 'flex', alignItems: 'center'}}>
             <Badge
               overlap='circular'
-              badgeContent={<BadgeContentSpan />}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              badgeContent={<BadgeContentSpan/>}
+              anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt='นายฐาปกรณ์ บุภู่' src='/images/avatars/pakorn.jpeg' sx={{width: '2.5rem', height: '2.5rem'}}/>
             </Badge>
-            <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
-              <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                Admin
+            <Box sx={{display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column'}}>
+              <Typography sx={{fontWeight: 600}}>นายฐาปกรณ์ บุภู่</Typography>
+              <Typography variant='body2' sx={{fontSize: '0.8rem', color: 'text.disabled'}}>
+                Teacher
               </Typography>
             </Box>
           </Box>
         </Box>
-        <Divider sx={{ mt: 0, mb: 1 }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <Divider sx={{mt: 0, mb: 1}}/>
+        <MenuItem sx={{p: 0}} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <AccountOutline sx={{ marginRight: 2 }} />
-            Profile
+            <UserIcon icon={mdiAccountOutline} styles={{marginRight: 2}}/>
+            ข้อมูลส่วนตัว
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{p: 0}} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <EmailOutline sx={{ marginRight: 2 }} />
-            Inbox
+            <UserIcon icon={mdiClipboardTextClockOutline} styles={{marginRight: 2}}/>
+            ประวัติเข้าใช้งาน
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{p: 0}} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <MessageOutline sx={{ marginRight: 2 }} />
-            Chat
+            <UserIcon icon={mdiCogOutline} styles={{marginRight: 2}}/>
+            ตั้งค่า
           </Box>
         </MenuItem>
-        <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CogOutline sx={{ marginRight: 2 }} />
-            Settings
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CurrencyUsd sx={{ marginRight: 2 }} />
-            Pricing
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <HelpCircleOutline sx={{ marginRight: 2 }} />
-            FAQ
-          </Box>
-        </MenuItem>
-        <Divider />
-        <MenuItem sx={{ py: 2 }} onClick={() => handleDropdownClose('/pages/login')}>
-          <LogoutVariant sx={{ marginRight: 2, fontSize: '1.375rem', color: 'text.secondary' }} />
-          Logout
+        <Divider/>
+        <MenuItem sx={{py: 2}} onClick={() => handleDropdownClose('/pages/login')}>
+          <LogoutVariant sx={{marginRight: 2, fontSize: '1.375rem', color: 'text.secondary'}}/>
+          ลงชื่อออก
         </MenuItem>
       </Menu>
     </Fragment>

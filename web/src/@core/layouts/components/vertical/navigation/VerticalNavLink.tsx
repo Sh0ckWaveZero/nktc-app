@@ -109,7 +109,7 @@ const VerticalNavLink = ({ item, navVisible, toggleNavVisibility }: Props) => {
               transition: 'margin .25s ease-in-out'
             }}
           >
-            <UserIcon icon={IconTag} />
+            <UserIcon icon={IconTag}/>
           </ListItemIcon>
 
           <MenuItemTextMetaWrapper>

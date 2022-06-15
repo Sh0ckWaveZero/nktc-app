@@ -1,8 +1,8 @@
 // ** MUI Imports
-import { PaletteMode } from '@mui/material';
+import {PaletteMode} from '@mui/material';
 
 // ** Types
-import { ContentWidth } from 'src/@core/layouts/types';
+import {ContentWidth} from 'src/@core/layouts/types';
 
 type ThemeConfig = {
   mode: PaletteMode;
@@ -17,7 +17,7 @@ type ThemeConfig = {
 
 const themeConfig: ThemeConfig = {
   // ** Layout Configs
-  templateName: 'NKTC-APP' /* App Name */,
+  templateName: `${process.env.NEXT_PUBLIC_APP_NAME}`/* App Name */,
   mode: 'light' /* light | dark */,
   contentWidth: 'boxed' /* full | boxed */,
 
