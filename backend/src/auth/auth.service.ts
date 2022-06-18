@@ -42,20 +42,23 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto): Promise<any> {
     // find user in db
     const user = await this.usersService.findByLogin(loginUserDto);
+
     // generate and sign token
     const token = this._createToken(user);
     return {
-      ...token,
+      success: true,
+      message: 'login successfully',
       data: user,
+      ...token,
     }
   }
 
   private _createToken({ username }): any {
     const user: JwtPayload = { username };
-    const authorization = this.jwtService.sign(user);
+    const token = this.jwtService.sign(user);
     return {
       expiresIn: process.env.EXPIRESIN,
-      authorization,
+      token,
     };
   }
 

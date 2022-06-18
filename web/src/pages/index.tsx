@@ -1,9 +1,11 @@
+import withAuth from "../components/withAuth";
+
 const NktcHome = () => {
   return (
-  <>
-    <p>HOME</p>
-  </>
+    <>
+      <p>HOME</p>
+    </>
   );
 };
 
-export default NktcHome;
+export default withAuth(NktcHome);

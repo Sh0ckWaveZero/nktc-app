@@ -21,6 +21,7 @@ import StatisticsCard from 'src/views/dashboard/StatisticsCard';
 import WeeklyOverview from 'src/views/dashboard/WeeklyOverview';
 import DepositWithdraw from 'src/views/dashboard/DepositWithdraw';
 import SalesByCountries from 'src/views/dashboard/SalesByCountries';
+import withAuth from "../components/withAuth";
 
 const Dashboard = () => {
   return (
@@ -98,4 +99,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard);

@@ -62,8 +62,6 @@ export class UsersService {
       where: { username }
     });
 
-    console.log(user);
-
     if (!user) {
       throw new HttpException("invalid_credentials", HttpStatus.UNAUTHORIZED);
     }
