@@ -48,13 +48,23 @@ export class UsersService {
     if (user) {
       throw new HttpException("user_already_exists", HttpStatus.CONFLICT);
     }
+    console.log(userDto.account);
 
-    return await this.prisma.user.create({
-      data: {
-        ...(userDto),
-        password: await hash(userDto.password, 12),
-      }
-    });
+    let newUser: {}
+    try {
+      newUser = await this.prisma.user.create({
+        data: {
+          ...(userDto),
+          password: await hash(userDto.password, 12),
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException("Can't create user", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    console.log('newUser', newUser);
+
+    return newUser;
   }
   //use by auth module to login user
   async findByLogin({ username, password }: LoginUserDto): Promise<FormatLogin> {

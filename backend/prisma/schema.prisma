@@ -79,12 +79,12 @@ model VerificationToken {
 
 model Student {
   id           String      @id @default(cuid())
-  userId       String      @unique
-  studentId    String      @unique
-  studentNo    Int         @unique
-  classId      String
-  departmentId String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String?     @unique
+  studentId    String?     @unique
+  studentNo    Int?        @unique
+  classId      String?
+  departmentId String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   class        Class?      @relation(fields: [classId], references: [id], onDelete: Cascade)
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   createdAt    DateTime    @default(now()) @map("created_at")

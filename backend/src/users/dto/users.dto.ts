@@ -25,13 +25,13 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty()
-  accounts: Account[]
+  account: Account
 
   @ApiProperty()
   student: Student
 
   @ApiProperty()
-  teacher: Teacher[]
+  teacher: Teacher
 
   @ApiProperty()
   @IsNotEmpty()
