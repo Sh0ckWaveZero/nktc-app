@@ -1,10 +1,10 @@
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
-import * as serviceService from "../../services/server-service";
-import httpClient from "../../utils/http-client";
+import * as serviceService from "@/services/server-service";
 import {AxiosRequestConfig} from "axios";
-import {UserData} from "../../models/user-model";
-import {RootState} from "../store";
+import {UserData} from "@/models/user-model";
 import Router from "next/router";
+import {RootState} from "@/store/store";
+import httpClient from "@/utils/http-client";
 
 interface Login {
   username: string;

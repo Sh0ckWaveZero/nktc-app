@@ -30,8 +30,8 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 // ** Global css styles
 import '../../styles/globals.css';
 import {Provider} from "react-redux";
-import {store} from "../store/store";
-import {getSession} from "../store/slices/userSlice";
+import {store} from "@/store/store";
+import {getSession} from "@/store/slices/userSlice";
 import React, {useEffect} from "react";
 
 // ** Extend App Props with Emotion

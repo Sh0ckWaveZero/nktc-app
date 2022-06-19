@@ -3,7 +3,7 @@ import httpClient from "../../../utils/http-client";
 
 // @ts-ignore
 import {NextApiRequest, NextApiResponse} from "next";
-import {clearCookie, setCookie} from "../../../utils/cookies";
+import {clearCookie, setCookie} from "@/utils/cookies";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const action = req.query["nextAuth"][0];

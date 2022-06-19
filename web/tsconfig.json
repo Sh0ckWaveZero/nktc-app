@@ -27,6 +27,33 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/pages/*": [
+        "./src/pages/*"
+      ],
+      "@/models/*": [
+        "./src/models/*"
+      ],
+      "@/services/*": [
+        "./src/services/*"
+      ],
+      "@/store/*": [
+        "./src/store/*"
+      ],
+      "@/views/*": [
+        "./src/views/*"
+      ],
+      "@/configs/*": [
+        "./src/configs/*"
+      ],
+      "@/layouts/*": [
+        "./src/layouts/*"
+      ],
     }
   },
   "include": [

@@ -27,19 +27,19 @@ import MuiFormControlLabel, {FormControlLabelProps} from '@mui/material/FormCont
 import {EyeOffOutline, EyeOutline} from "mdi-material-ui";
 
 // ** Configs
-import themeConfig from 'src/configs/themeConfig';
+import themeConfig from '@/configs/themeConfig';
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout';
 
 // ** Demo Imports
-import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration';
+import FooterIllustrationsV1 from '@/views/pages/auth/FooterIllustration';
 import {SubmitHandler, useForm} from "react-hook-form";
 
 import {yupResolver} from '@hookform/resolvers/yup';
 import {object, string} from "yup";
-import {useAppDispatch} from "../../../store/store";
-import {signIn} from "../../../store/slices/userSlice";
+import {useAppDispatch} from "@/store/store";
+import {signIn} from "@/store/slices/userSlice";
 import toast, {Toaster} from "react-hot-toast";
 
 interface State {

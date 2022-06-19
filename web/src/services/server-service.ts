@@ -1,5 +1,5 @@
 import httpClient from "../utils/http-client";
-import {GetSession, SignUp} from "../models/auth-model";
+import {GetSession, SignUp} from "@/models/auth-model";
 
 type signProps = {
   username: string;
