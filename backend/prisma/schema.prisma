@@ -9,10 +9,12 @@ datasource db {
 
 model Account {
   id            String    @id @default(cuid())
-  userId        String    @unique
+  userId        String?   @unique
   image         String?
+  title         String?
   firstName     String?
   lastName      String?
+  titleEn       String?
   firstNameEn   String?
   lastNameEn    String?
   idCard        String?
@@ -38,7 +40,7 @@ model Account {
   scope         String?
   id_token      String?
   session_state String?
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("accounts")
 }
@@ -84,8 +86,9 @@ model Student {
   studentNo    Int?        @unique
   classId      String?
   departmentId String?
+  status       String?
   user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  class        Class?      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  class        ClassRoom?  @relation(fields: [classId], references: [id], onDelete: Cascade)
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
@@ -96,25 +99,27 @@ model Student {
 }
 
 model Teacher {
-  id               String   @id @default(cuid())
-  userId           String   @unique
+  id               String     @id @default(cuid())
+  userId           String?    @unique
   classId          String?
   jobTitle         String?
   academicStanding String?
   departmentId     String?
   rfId             String?
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  class            Class?   @relation(fields: [classId], references: [id])
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  user             User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class            ClassRoom? @relation(fields: [classId], references: [id])
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
   updatedBy        String?
   createdBy        String?
 
   @@map("teacher")
 }
 
-model Class {
+// กลุ่มเรียน
+model ClassRoom {
   id          String    @id @default(cuid())
+  classId     String?   @unique
   name        String?
   description String?
   teacher     Teacher[]
@@ -127,17 +132,78 @@ model Class {
   @@map("class")
 }
 
+// แผนกวิชา
+// ปวส.
+// เทคนิคยานยนต์
+// เทคนิคเครื่องกลอุตสาหกรรม
+// เทคนิคยานยนต์ (ทวิภาคี)
+// เทคนิคยานยนต์ (ม.6)
+// เทคนิคเครื่องกลอุตสาหกรรม (ม.6)
+// เครื่องมือกล
+// เครื่องมือกล (ทวิภาคี)
+// แม่พิมพ์โลหะ (ทวิภาคี)
+// เครื่องมือกล (ม.6)
+// แม่พิมพ์โลหะ (ม.6)
+// เทคโนโลยีงานเชื่อมฯ
+// เทคโนโลยีงานเชื่อมฯ (ม.6)
+// ไฟฟ้ากำลัง
+// ไฟฟ้ากำลัง (ทวิภาคี)
+// ไฟฟ้ากำลัง (ม.6)
+// อิเล็กทรอนิกส์
+// อิเล็กทรอนิกส์ (ทวิภาคี)
+// อิเล็กทรอนิกส์ (ม.6)
+// ก่อสร้าง
+// ก่อสร้าง (ม.6)
+// สถาปัตยกรรม
+// สถาปัตยกรรม (ม.6)
+// โยธา
+// โยธา (ม.6)
+// เมคคาทรอนิกส์และหุ่นยนต์
+// เมคคาทรอนิกส์และหุ่นยนต์ (ม.6)
+// เทคโนโลยีคอมพิวเตอร์
+// เทคโนโลยีคอมพิวเตอร์ (ม.6)
+// การจัดการโลจิสติกส์ฯ (ทวิภาคี)
+// เทคโนโลยีสารสนเทศ
+// เทคโนโลยีสารสนเทศ (ม.6)
+//
+// ปวช.
+// ช่างยนต์
+// ช่างกลโรงงาน
+// ช่างเชื่อมโลหะ
+// ช่างไฟฟ้ากำลัง
+// ช่างอิเล็กทรอนิกส์
+// ก่อสร้าง
+// สถาปัตยกรรม
+// โยธา
+// เมคคาทรอนิกส์
+// เทคนิคคอมพิวเตอร์
+// โลจิสติกส์
+// เทคโนโลยีสารสนเทศ
 model Department {
-  id          String    @id @default(cuid())
-  name        String?
-  description String?
-  student     Student[]
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id           String    @id @default(cuid())
+  departmentId String?   @unique
+  name         String?
+  description  String?
+  student      Student[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("department")
+}
+
+// รายวิชา
+model Course {
+  id          String   @id @default(cuid())
+  courseCode  String?  @unique
+  courseTitle String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
   updatedBy   String?
   createdBy   String?
 
-  @@map("department")
+  @@map("course")
 }
 
 enum Role {
