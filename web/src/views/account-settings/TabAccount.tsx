@@ -1,9 +1,9 @@
 // ** React Imports
-import {useState, ElementType, ChangeEvent, SyntheticEvent} from 'react';
+import { useState, ElementType, ChangeEvent, SyntheticEvent } from 'react';
 
 // ** MUI Imports
-import {styled} from '@mui/material/styles';
-import Button, {ButtonProps} from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import Button, { ButtonProps } from '@mui/material/Button';
 import {
   Alert,
   AlertTitle,
@@ -18,27 +18,26 @@ import {
   MenuItem,
   TextField,
   Typography
-} from "@mui/material";
+} from '@mui/material';
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close';
 
-
-const ImgStyled = styled('img')(({theme}) => ({
+const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
   marginRight: theme.spacing(6.25),
   borderRadius: theme.shape.borderRadius
 }));
 
-const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({theme}) => ({
+const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     width: '100%',
     textAlign: 'center'
   }
 }));
 
-const ResetButtonStyled = styled(Button)<ButtonProps>(({theme}) => ({
+const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   marginLeft: theme.spacing(4.5),
   [theme.breakpoints.down('sm')]: {
     width: '100%',
@@ -55,7 +54,7 @@ const TabAccount = () => {
 
   const onChange = (file: ChangeEvent) => {
     const reader = new FileReader();
-    const {files} = file.target as HTMLInputElement;
+    const { files } = file.target as HTMLInputElement;
     if (files && files.length !== 0) {
       reader.onload = () => setImgSrc(reader.result as string);
 
@@ -67,16 +66,12 @@ const TabAccount = () => {
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} sx={{marginTop: 4.8, marginBottom: 3}}>
-            <Box sx={{display: 'flex', alignItems: 'center'}}>
-              <ImgStyled src={imgSrc} alt='Profile Pic'/>
+          <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
-                <ButtonStyled
-                  component='label'
-                  variant='contained'
-                  htmlFor='account-settings-upload-image'
-                >
-                  Upload New Photo
+                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
+                  อัปโหลดรูปภาพใหม่
                   <input
                     hidden
                     type='file'
@@ -85,37 +80,34 @@ const TabAccount = () => {
                     id='account-settings-upload-image'
                   />
                 </ButtonStyled>
-                <ResetButtonStyled
-                  color='error'
-                  variant='outlined'
-                  onClick={() => setImgSrc('/images/avatars/1.png')}>
-                  Reset
+                <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('/images/avatars/1.png')}>
+                  ล้าง
                 </ResetButtonStyled>
-                <Typography variant='body2' sx={{marginTop: 5}}>
-                  Allowed PNG or JPEG. Max size of 800K.
+                <Typography variant='body2' sx={{ marginTop: 5 }}>
+                  อนุญาต PNG หรือ JPEG ขนาดสูงสุด 800กิโลไบต์.
                 </Typography>
               </Box>
             </Box>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Username' placeholder='johnDoe' defaultValue='johnDoe'/>
+            <TextField fullWidth label='ชื่อผู้ใช้งาน' placeholder='johnDoe' defaultValue='johnDoe' />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Name' placeholder='John Doe' defaultValue='John Doe'/>
+            <TextField fullWidth label='ชื่อ' placeholder='John Doe' defaultValue='John Doe' />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               type='email'
-              label='Email'
+              label='อีเมล์'
               placeholder='johnDoe@example.com'
               defaultValue='johnDoe@example.com'
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
+              <InputLabel>บทบาท</InputLabel>
               <Select label='Role' defaultValue='admin'>
                 <MenuItem value='admin'>Admin</MenuItem>
                 <MenuItem value='author'>Author</MenuItem>
@@ -127,7 +119,7 @@ const TabAccount = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
+              <InputLabel>สถานะ</InputLabel>
               <Select label='Status' defaultValue='active'>
                 <MenuItem value='active'>Active</MenuItem>
                 <MenuItem value='inactive'>Inactive</MenuItem>
@@ -136,34 +128,34 @@ const TabAccount = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Company' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.'/>
+            <TextField fullWidth label='Company' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.' />
           </Grid>
 
           {openAlert ? (
-            <Grid item xs={12} sx={{mb: 3}}>
+            <Grid item xs={12} sx={{ mb: 3 }}>
               <Alert
                 severity='warning'
-                sx={{'& a': {fontWeight: 400}}}
+                sx={{ '& a': { fontWeight: 400 } }}
                 action={
                   <IconButton size='small' color='inherit' aria-label='close' onClick={() => setOpenAlert(false)}>
-                    <Close fontSize='inherit'/>
+                    <Close fontSize='inherit' />
                   </IconButton>
                 }
               >
-                <AlertTitle>Your email is not confirmed. Please check your inbox.</AlertTitle>
+                <AlertTitle>อีเมลของคุณไม่ได้รับการยืนยัน โปรดตรวจสอบกล่องจดหมายของคุณ</AlertTitle>
                 <Link href='/' onClick={(e: SyntheticEvent) => e.preventDefault()}>
-                  Resend Confirmation
+                  ส่งการยืนยันอีกครั้ง
                 </Link>
               </Alert>
             </Grid>
           ) : null}
 
           <Grid item xs={12}>
-            <Button variant='contained' sx={{marginRight: 3.5}}>
-              Save Changes
+            <Button variant='contained' sx={{ marginRight: 3.5 }}>
+              บันทึกการเปลี่ยนแปลง
             </Button>
             <Button type='reset' variant='outlined' color='secondary'>
-              Reset
+              ล้างข้อมูล
             </Button>
           </Grid>
         </Grid>

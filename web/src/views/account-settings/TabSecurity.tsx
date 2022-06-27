@@ -82,9 +82,9 @@ const TabSecurity = () => {
             <Grid container spacing={5}>
               <Grid item xs={12} sx={{ marginTop: 4.75 }}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-current-password'>Current Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-current-password'>รหัสผ่านปัจจุบัน</InputLabel>
                   <OutlinedInput
-                    label='Current Password'
+                    label='รหัสผ่านปัจจุบัน'
                     value={values.currentPassword}
                     id='account-settings-current-password'
                     type={values.showCurrentPassword ? 'text' : 'password'}
@@ -93,7 +93,7 @@ const TabSecurity = () => {
                       <InputAdornment position='end'>
                         <IconButton
                           edge='end'
-                          aria-label='toggle password visibility'
+                          aria-label='สลับการมองเห็นรหัสผ่าน'
                           onClick={handleClickShowCurrentPassword}
                           onMouseDown={handleMouseDownCurrentPassword}
                         >
@@ -107,9 +107,9 @@ const TabSecurity = () => {
 
               <Grid item xs={12} sx={{ marginTop: 6 }}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-new-password'>New Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-new-password'>รหัสผ่านใหม่</InputLabel>
                   <OutlinedInput
-                    label='New Password'
+                    label='รหัสผ่านใหม่'
                     value={values.newPassword}
                     id='account-settings-new-password'
                     onChange={handleNewPasswordChange('newPassword')}
@@ -119,7 +119,7 @@ const TabSecurity = () => {
                         <IconButton
                           edge='end'
                           onClick={handleClickShowNewPassword}
-                          aria-label='toggle password visibility'
+                          aria-label='สลับการมองเห็นรหัสผ่าน'
                           onMouseDown={handleMouseDownNewPassword}
                         >
                           {values.showNewPassword ? <EyeOutline /> : <EyeOffOutline />}
@@ -132,9 +132,9 @@ const TabSecurity = () => {
 
               <Grid item xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-confirm-new-password'>Confirm New Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-confirm-new-password'>ยืนยันรหัสผ่านใหม่</InputLabel>
                   <OutlinedInput
-                    label='Confirm New Password'
+                    label='ยืนยันรหัสผ่านใหม่'
                     value={values.confirmNewPassword}
                     id='account-settings-confirm-new-password'
                     type={values.showConfirmNewPassword ? 'text' : 'password'}
@@ -143,7 +143,7 @@ const TabSecurity = () => {
                       <InputAdornment position='end'>
                         <IconButton
                           edge='end'
-                          aria-label='toggle password visibility'
+                          aria-label='สลับการมองเห็นรหัสผ่าน'
                           onClick={handleClickShowConfirmNewPassword}
                           onMouseDown={handleMouseDownConfirmNewPassword}
                         >
@@ -173,7 +173,7 @@ const TabSecurity = () => {
       <CardContent>
         <Box sx={{ mt: 1.75, display: 'flex', alignItems: 'center' }}>
           <KeyOutline sx={{ marginRight: 3 }} />
-          <Typography variant='h6'>Two-factor authentication</Typography>
+          <Typography variant='h6'>การรับรองความถูกต้องด้วยสองปัจจัย</Typography>
         </Box>
 
         <Box sx={{ mt: 5.75, display: 'flex', justifyContent: 'center' }}>
@@ -193,18 +193,18 @@ const TabSecurity = () => {
               <LockOpenOutline sx={{ fontSize: '1.75rem' }} />
             </Avatar>
             <Typography sx={{ fontWeight: 600, marginTop: 3.5, marginBottom: 3.5 }}>
-              Two factor authentication is not enabled yet.
+              ยังไม่ได้เปิดใช้งานการรับรองความถูกต้องด้วยสองปัจจัย
             </Typography>
             <Typography variant='body2'>
-              Two-factor authentication adds an additional layer of security to your account by requiring more than just
-              a password to log in. Learn more.
+              การรับรองความถูกต้องด้วยสองปัจจัยเพิ่มชั้นความปลอดภัยเพิ่มเติมให้กับบัญชีของคุณโดยต้องการมากกว่าเพียงแค่
+              รหัสผ่านเพื่อเข้าสู่ระบบ เรียนรู้เพิ่มเติม
             </Typography>
           </Box>
         </Box>
 
         <Box sx={{ mt: 11 }}>
           <Button variant='contained' sx={{ marginRight: 3.5 }}>
-            Save Changes
+            บันทึกการเปลี่ยนแปลง
           </Button>
           <Button
             type='reset'
@@ -212,7 +212,7 @@ const TabSecurity = () => {
             color='secondary'
             onClick={() => setValues({ ...values, currentPassword: '', newPassword: '', confirmNewPassword: '' })}
           >
-            Reset
+            ล้างข้อมูล
           </Button>
         </Box>
       </CardContent>

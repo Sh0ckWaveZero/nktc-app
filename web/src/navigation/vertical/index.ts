@@ -6,6 +6,7 @@ import {
   mdiLogin,
   mdiAccountPlusOutline,
   mdiAlertCircleOutline,
+  mdiHumanMaleBoard,
 } from '@mdi/js';
 
 // ** Type import
@@ -14,19 +15,27 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types';
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Home',
+      title: 'หน้าหลัก',
       icon: mdiHomeOutline,
       path: '/'
     },
     {
-      title: 'Dashboard',
+      title: 'แผงควบคุม',
       icon: mdiMonitorDashboard,
       path: '/dashboard'
     },
     {
-      title: 'Account Settings',
+      sectionTitle: 'การจัดการข้อมูล',
+    },
+    {
+      title: 'การตั้งค่าบัญชี',
       icon: mdiAccountCogOutline,
       path: '/account-settings'
+    },
+    {
+      title: 'จัดการครู/บุคลากร',
+      icon: mdiHumanMaleBoard,
+      path: '/teachers'
     },
     {
       sectionTitle: 'Pages'
