@@ -9,7 +9,8 @@ import TabInfo from '@/views/account-settings/TabInfo';
 import TabSecurity from '@/views/account-settings/TabSecurity';
 import { AccountOutline, LockOpenOutline, InformationOutline } from 'mdi-material-ui';
 import Icon from '@mdi/react';
-import { mdiHumanEdit } from '@mdi/js';
+import { mdiAccountGroupOutline, mdiHumanEdit } from '@mdi/js';
+import TableMainTeacher from '@/views/teachers/TableMainTeacher';
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -64,8 +65,13 @@ const Teachers = () => {
                 value='security'
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <LockOpenOutline />
-                    <TabName>ความปลอดภัย</TabName>
+                    <Icon
+                      id='mdiAccountGroupOutline'
+                      path={mdiAccountGroupOutline}
+                      title='รายละเอียดของครูทั้งหมด'
+                      size={1}
+                    />
+                    <TabName>รายละเอียดของครูทั้งหมด</TabName>
                   </Box>
                 }
               />
@@ -82,8 +88,8 @@ const Teachers = () => {
 
             <TabPanel sx={{ p: 0 }} value='main'>
               <Card>
-                <CardHeader title='Sticky Header' titleTypographyProps={{ variant: 'h6' }} />
-                <TableStickyHeader />
+                <CardHeader title='หน้าข้อมูลหลัก' titleTypographyProps={{ variant: 'h6' }} />
+                <TableMainTeacher />
               </Card>
             </TabPanel>
             {/* <TabPanel sx={{ p: 0 }} value='security'>

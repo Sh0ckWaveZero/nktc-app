@@ -35,7 +35,7 @@ const login = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     });
     res.json(response.data);
   } catch (error: any) {
-    res.status(401).json({ massage: error.response.data });
+    res.status(401).json({ massage: error.message });
   }
 }
 

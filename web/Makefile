@@ -5,4 +5,4 @@ i:
 b:
 	yarn run build
 f:
-	yarn run format
+	yarn run formatmak
