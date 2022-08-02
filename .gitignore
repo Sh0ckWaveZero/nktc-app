@@ -43,3 +43,4 @@ web/.idea/
 backend/node_modules/
 old
 .vscode/
+frontend/node_modules

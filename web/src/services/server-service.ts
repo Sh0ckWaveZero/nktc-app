@@ -36,14 +36,10 @@ export async function signOut() {
 
 // @ts-ignore
 export const getSession = async (): Promise<GetSession> => {
-  try {
-    const response = await httpClient.get(`/auth/session`,
-      {
-        baseURL: 'http://localhost:3000/api',
-      });
+  const response = await httpClient.get(`/auth/session`,
+    {
+      baseURL: 'http://localhost:3000/api',
+    });
 
-    return response.data;
-  } catch (error) {
-    console.log('error', error)
-  }
+  return response.data;
 };

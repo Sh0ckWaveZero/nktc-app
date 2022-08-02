@@ -7,7 +7,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TabAccount from '@/views/account-settings/TabAccount';
 import TabInfo from '@/views/account-settings/TabInfo';
 import TabSecurity from '@/views/account-settings/TabSecurity';
-import { AccountOutline, LockOpenOutline, InformationOutline } from 'mdi-material-ui';
+import { InformationOutline } from 'mdi-material-ui';
 import Icon from '@mdi/react';
 import { mdiAccountGroupOutline, mdiHumanEdit } from '@mdi/js';
 import TableMainTeacher from '@/views/teachers/TableMainTeacher';

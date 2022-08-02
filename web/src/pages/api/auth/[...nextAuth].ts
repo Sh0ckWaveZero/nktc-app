@@ -57,6 +57,7 @@ const getSession = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       res.json({ message: "No access token" });
     }
   } catch (error: any) {
+    console.log("🚀 ~ file: [...nextAuth].ts ~ line 60 ~ getSession ~ error", error)
     res.status(401).json({ massage: error.response.data });
   }
 }

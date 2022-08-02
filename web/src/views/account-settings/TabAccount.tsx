@@ -17,8 +17,14 @@ import {
   Select,
   MenuItem,
   TextField,
-  Typography
+  Typography,
+  Stack
 } from '@mui/material';
+
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { th } from 'date-fns/locale';
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close';
@@ -47,10 +53,89 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   }
 }));
 
+const getPosition = () => {
+  const position = [
+    {
+      value: 'director',
+      label: 'ผู้อำนวยการ'
+    },
+    {
+      value: 'deputyDirector',
+      label: 'รองผู้อำนวยการ'
+    },
+    {
+      value: 'governmentOfficer',
+      label: 'ข้าราชการ'
+    },
+    {
+      value: 'governmentEmployee',
+      label: 'พนักงานราชการ'
+    },
+    {
+      value: 'ContractTeachers',
+      label: 'ครูอัตราจ้าง'
+    },
+    {
+      value: 'administrativeStaff',
+      label: 'เจ้าหน้าที่ธุรการ'
+    },
+    {
+      value: 'securityGuard',
+      label: 'นักการภารโรง'
+    },
+    {
+      value: 'janitor',
+      label: 'พนักงานรักษาความปลอดภัย'
+    },
+    {
+      value: 'permanentEmployee',
+      label: 'ลูกจ้างประจำ'
+    },
+    {
+      value: 'other',
+      label: 'อื่นๆ'
+    }
+  ];
+
+  return position;
+};
+
+const getAcademicStanding = () => {
+  const academicStanding = [
+    {
+      value: 'as001',
+      label: 'ไม่มีวิทยฐานะ'
+    },
+    {
+      value: 'as002',
+      label: 'ชำนาญการ'
+    },
+    {
+      value: 'as003',
+      label: 'ชำนาญการพิเศษ'
+    },
+    {
+      value: 'as004',
+      label: 'เชี่ยวชาญ'
+    },
+    {
+      value: 'as005',
+      label: 'เชี่ยวชาญพิเศษ'
+    }
+  ];
+
+  return academicStanding;
+};
+
 const TabAccount = () => {
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(true);
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [value, setValue] = useState<Date | null | undefined>(null);
+
+  const handleChange = (newValue: any) => {
+    setValue(newValue);
+  };
 
   const onChange = (file: ChangeEvent) => {
     const reader = new FileReader();
@@ -90,12 +175,64 @@ const TabAccount = () => {
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='ชื่อผู้ใช้งาน' placeholder='johnDoe' defaultValue='johnDoe' />
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>คำนำหน้า</InputLabel>
+              <Select label='คำนำหน้า' defaultValue=''>
+                <MenuItem value='mr'>นาย</MenuItem>
+                <MenuItem value='ms'>นางสาว</MenuItem>
+                <MenuItem value='miss'>นาง</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='ชื่อ' placeholder='John Doe' defaultValue='John Doe' />
+          <Grid item xs={12}>
+            <TextField fullWidth label='ชื่อ' placeholder='johnDoe' defaultValue='johnDoe' />
           </Grid>
+          <Grid item xs={12}>
+            <TextField fullWidth label='นามสกุล' placeholder='John Doe' defaultValue='John Doe' />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>ตำแหน่ง</InputLabel>
+              <Select label='ตำแหน่ง' defaultValue=''>
+                {getPosition().map(({ value, label }) => {
+                  return (
+                    <MenuItem value={value} key={value}>
+                      {label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>วิทยฐานะ</InputLabel>
+              <Select label='วิทยฐานะ' defaultValue=''>
+                {getAcademicStanding().map(({ value, label }) => {
+                  return (
+                    <MenuItem value={value} key={value}>
+                      {label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
+              <Stack spacing={3}>
+                <DesktopDatePicker
+                  label='วัน/เดือน/ปีเกิด'
+                  inputFormat='dd/MM/yyyy'
+                  value={value}
+                  onChange={handleChange}
+                  renderInput={params => <TextField {...params} />}
+                />
+              </Stack>
+            </LocalizationProvider>
+          </Grid>
+
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth

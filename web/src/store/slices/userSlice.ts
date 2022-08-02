@@ -1,9 +1,9 @@
-import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as serviceService from "@/services/server-service";
-import {AxiosRequestConfig} from "axios";
-import {UserData} from "@/models/user-model";
+import { AxiosRequestConfig } from "axios";
+import { UserData } from "@/models/user-model";
 import Router from "next/router";
-import {RootState} from "@/store/store";
+import { RootState } from "@/store/store";
 import httpClient from "@/utils/http-client";
 
 interface Login {
@@ -41,7 +41,6 @@ export const signIn = createAsyncThunk(
   "user/sign-in",
   async (credential: Login) => {
     const response = await serviceService.sigIn(credential);
-    console.log("response", response);
     if (!response.success) {
       throw new Error(response.message);
     }
@@ -133,7 +132,7 @@ const userSlice = createSlice({
   }
 })
 
-export const {resetUsername} = userSlice.actions;
+export const { resetUsername } = userSlice.actions;
 
 // export common user selector
 export const userSelector = (store: RootState) => store.user;

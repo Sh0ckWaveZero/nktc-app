@@ -2,51 +2,56 @@
 import { useState, ChangeEvent } from 'react';
 
 // ** MUI Imports
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
+import {
+  Paper,
+  Table,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TablePagination,
+  Button
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface Column {
   id: 'no' | 'username' | 'fullName' | 'teacher' | 'teachingHours' | 'summaryLogin' | 'actions';
   label: string;
   minWidth?: number;
-  align?: 'right';
-  format?: (value: number) => string;
+  align?: 'right' | 'left' | 'center';
+  format?: (value: any) => any;
 }
 
 const columns: readonly Column[] = [
-  { id: 'no', label: 'ลำดับที่', minWidth: 60 },
+  { id: 'no', label: 'ลำดับที่', minWidth: 60, align: 'right' },
   { id: 'username', label: 'ชื่อผู้ใช้งาน', minWidth: 100 },
   {
     id: 'fullName',
     label: 'ชื่อ-นามสกุล',
     minWidth: 170,
-    align: 'right',
+    align: 'left',
     format: (value: number) => value.toLocaleString('en-US')
   },
   {
     id: 'teacher',
     label: 'ครูผู้สอน',
-    minWidth: 170,
-    align: 'right',
+    minWidth: 70,
+    align: 'left',
     format: (value: number) => value.toLocaleString('en-US')
   },
   {
     id: 'teachingHours',
     label: 'จำนวนชั่วโมงการเข้าสอน',
-    minWidth: 170,
+    minWidth: 70,
     align: 'right',
     format: (value: number) => value.toFixed(2)
   },
   {
     id: 'summaryLogin',
     label: 'จำนวนครั้งที่เข้าสู่ระบบ',
-    minWidth: 170,
+    minWidth: 70,
     align: 'right',
     format: (value: number) => value.toFixed(2)
   },
@@ -54,8 +59,7 @@ const columns: readonly Column[] = [
     id: 'actions',
     label: 'การดำเนินการ',
     minWidth: 170,
-    align: 'right',
-    format: (value: any) => value.toString()
+    align: 'center'
   }
 ];
 
@@ -82,16 +86,16 @@ function createData(
 }
 
 const rows = [
-  createData(1, 'sombut001', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(2, 'sombut002', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(3, 'sombut003', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(4, 'sombut004', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(5, 'sombut005', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(6, 'sombut006', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(7, 'sombut007', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(8, 'sombut008', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(9, 'sombut009', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' }),
-  createData(10, 'sombut010', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'edit', delete: 'delete' })
+  createData(1, 'sombut001', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(2, 'sombut002', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(3, 'sombut003', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(4, 'sombut004', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(5, 'sombut005', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(6, 'sombut006', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(7, 'sombut007', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(8, 'sombut008', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(9, 'sombut009', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' }),
+  createData(10, 'sombut010', 'นายสมชาย สมบัติ', 'ครูผู้สอน', 10, 10, { edit: 'แก้ไข', delete: 'ลบ' })
 ];
 
 const TableMainTeacher = () => {
@@ -126,11 +130,48 @@ const TableMainTeacher = () => {
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row.no}>
                   {columns.map(column => {
-                    const value = row[column.id];
+                    const value: any = row[column.id];
 
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value.toString()}
+                        {column.format && typeof value === 'number'
+                          ? column.format(value)
+                          : typeof value === 'object'
+                          ? Object.keys(value).map(key => {
+                              if (key === 'edit') {
+                                return (
+                                  <Button
+                                    key={key}
+                                    size='small'
+                                    color='success'
+                                    variant='outlined'
+                                    sx={{ marginRight: '10px' }}
+                                    startIcon={<EditIcon color='success' />}
+                                    onClick={() => {
+                                      alert(`Edit ${value[key]}`);
+                                    }}
+                                  >
+                                    {value[key]}
+                                  </Button>
+                                );
+                              } else if (key === 'delete') {
+                                return (
+                                  <Button
+                                    key={key}
+                                    size='small'
+                                    variant='outlined'
+                                    color='error'
+                                    startIcon={<DeleteIcon color='error' />}
+                                    onClick={() => {
+                                      alert(`Edit ${value[key]}`);
+                                    }}
+                                  >
+                                    {value[key]}
+                                  </Button>
+                                );
+                              }
+                            })
+                          : value}
                       </TableCell>
                     );
                   })}

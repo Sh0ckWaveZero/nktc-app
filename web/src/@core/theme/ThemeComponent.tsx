@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { thTH } from '@mui/material/locale';
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext';
@@ -38,10 +39,14 @@ const ThemeComponent = (props: Props) => {
   let theme = createTheme(coreThemeConfig);
 
   // ** Continue theme creation and pass merged component overrides to CreateTheme function
-  theme = createTheme(theme, {
-    components: { ...overrides(theme) },
-    typography: { ...typography(theme) }
-  });
+  theme = createTheme(
+    theme,
+    {
+      components: { ...overrides(theme) },
+      typography: { ...typography(theme) }
+    },
+    thTH
+  );
 
   // ** Set responsive font sizes to true
   if (themeConfig.responsiveFontSizes) {
