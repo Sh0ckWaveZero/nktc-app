@@ -12,7 +12,7 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Home',
+      title: 'หน้าหลัก',
       icon: HomeOutline,
       path: '/home'
     },
@@ -27,11 +27,6 @@ const navigation = (): VerticalNavItemsType => {
       path: '/acl',
       action: 'read',
       subject: 'acl-page'
-    },
-    {
-      title: '500',
-      icon: AlertCircleOutline,
-      path: '/500'
     },
   ]
 }

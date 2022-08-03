@@ -8,7 +8,7 @@ import { HorizontalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): HorizontalNavItemsType => [
   {
-    title: 'Home',
+    title: 'หน้าหลัก',
     icon: HomeOutline,
     path: '/home'
   },

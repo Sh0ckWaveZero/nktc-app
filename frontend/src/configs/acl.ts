@@ -20,9 +20,9 @@ const defineRulesFor = (role: string, subject: string) => {
   console.log("🚀 ~ file: acl.ts ~ line 20 ~ defineRulesFor ~ role", role)
   const { can, rules } = new AbilityBuilder(AppAbility)
 
-  if (role.toLocaleLowerCase() === 'admin') {
+  if (role === 'Admin') {
     can('manage', 'all')
-  } else if (role.toLocaleLowerCase() === 'client') {
+  } else if (role === 'client') {
     can(['read'], 'acl-page')
   } else {
     can(['read', 'create', 'update', 'delete'], subject)

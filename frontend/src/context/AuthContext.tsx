@@ -1,17 +1,23 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useEffect, useState, ReactNode } from "react";
 
 // ** Next Import
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 // ** Axios
-import axios from 'axios'
+import axios from "axios";
 
 // ** Config
-import authConfig from 'src/configs/auth'
+import authConfig from "src/configs/auth";
 
 // ** Types
-import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types'
+import {
+  AuthValuesType,
+  RegisterParams,
+  LoginParams,
+  ErrCallbackType,
+  UserDataType,
+} from "./types";
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -23,97 +29,111 @@ const defaultProvider: AuthValuesType = {
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   setIsInitialized: () => Boolean,
-  register: () => Promise.resolve()
-}
+  register: () => Promise.resolve(),
+};
 
-const AuthContext = createContext(defaultProvider)
+const AuthContext = createContext(defaultProvider);
 
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 const AuthProvider = ({ children }: Props) => {
   // ** States
-  const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
-  const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
-  const [isInitialized, setIsInitialized] = useState<boolean>(defaultProvider.isInitialized)
+  const [user, setUser] = useState<UserDataType | null>(defaultProvider.user);
+  const [loading, setLoading] = useState<boolean>(defaultProvider.loading);
+  const [isInitialized, setIsInitialized] = useState<boolean>(
+    defaultProvider.isInitialized
+  );
 
   // ** Hooks
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-      setIsInitialized(true)
-      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!
-      console.log('🚀 ~ file: AuthContext.tsx ~ line 48 ~ initAuth ~ storedToken', storedToken)
+      setIsInitialized(true);
+      const storedToken = window.localStorage.getItem(
+        authConfig.storageTokenKeyName
+      )!;
       if (storedToken) {
-        setLoading(true)
+        setLoading(true);
         await axios
           .get(authConfig.meEndpoint, {
             headers: {
-              Authorization: storedToken
-            }
+              Authorization: `Bearer ${storedToken}`,
+            },
           })
-          .then(async response => {
-            setLoading(false)
-            setUser({ ...response.data.userData })
+          .then((response) => {
+            const { data } = response;
+            setLoading(false);
+            setUser({ ...data });
           })
           .catch(() => {
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
-            setUser(null)
-            setLoading(false)
-          })
+            localStorage.removeItem("userData");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("accessToken");
+            setUser(null);
+            setLoading(false);
+          });
       } else {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    initAuth()
-  }, [])
+    };
+    initAuth();
+  }, []);
 
-  const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
+  const handleLogin = (
+    params: LoginParams,
+    errorCallback?: ErrCallbackType
+  ) => {
     axios
       .post(authConfig.loginEndpoint, params)
-      .then(async res => {
-        console.log('🚀 ~ file: AuthContext.tsx ~ line 79 ~ handleLogin ~ res', res)
+      .then(async (response: any) => {
+        const { data, token } = await response.data;
 
-        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.token)
-        const returnUrl = router.query.returnUrl
+        window.localStorage.setItem(authConfig.storageTokenKeyName, token);
 
-        setUser({ ...res.data.data })
-        await window.localStorage.setItem('userData', JSON.stringify(res.data.data))
+        const returnUrl = router.query.returnUrl;
 
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+        setUser({ ...data });
 
-        router.replace(redirectURL as string)
+        window.localStorage.setItem("userData", JSON.stringify(data));
+
+        const redirectURL = returnUrl && returnUrl !== "/" ? returnUrl : "/";
+
+        router.replace(redirectURL as string);
       })
 
-      .catch(err => {
-        if (errorCallback) errorCallback(err)
-      })
-  }
+      .catch((err) => {
+        if (errorCallback) errorCallback(err);
+      });
+  };
 
   const handleLogout = () => {
-    setUser(null)
-    setIsInitialized(false)
-    window.localStorage.removeItem('userData')
-    window.localStorage.removeItem(authConfig.storageTokenKeyName)
-    router.push('/login')
-  }
+    setUser(null);
+    setIsInitialized(false);
+    window.localStorage.removeItem("userData");
+    window.localStorage.removeItem(authConfig.storageTokenKeyName);
+    router.push("/login");
+  };
 
-  const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {
+  const handleRegister = (
+    params: RegisterParams,
+    errorCallback?: ErrCallbackType
+  ) => {
     axios
       .post(authConfig.registerEndpoint, params)
-      .then(res => {
+      .then((res) => {
         if (res.data.error) {
-          if (errorCallback) errorCallback(res.data.error)
+          if (errorCallback) errorCallback(res.data.error);
         } else {
-          handleLogin({ username: params.username, password: params.password })
+          handleLogin({ username: params.username, password: params.password });
         }
       })
-      .catch((err: { [key: string]: string }) => (errorCallback ? errorCallback(err) : null))
-  }
+      .catch((err: { [key: string]: string }) =>
+        errorCallback ? errorCallback(err) : null
+      );
+  };
 
   const values = {
     user,
@@ -124,10 +144,10 @@ const AuthProvider = ({ children }: Props) => {
     setIsInitialized,
     login: handleLogin,
     logout: handleLogout,
-    register: handleRegister
-  }
+    register: handleRegister,
+  };
 
-  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
-}
+  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
+};
 
-export { AuthContext, AuthProvider }
+export { AuthContext, AuthProvider };
