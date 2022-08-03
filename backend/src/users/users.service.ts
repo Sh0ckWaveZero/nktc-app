@@ -83,6 +83,7 @@ export class UsersService {
       throw new HttpException("invalid_credentials", HttpStatus.UNAUTHORIZED);
     }
 
+    // remove password from user object
     const { password: p, ...rest } = user;
     return rest;
   }

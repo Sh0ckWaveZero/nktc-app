@@ -42,6 +42,7 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto): Promise<any> {
     // find user in db
     const user = await this.usersService.findByLogin(loginUserDto);
+    console.log("🚀 ~ file: auth.service.ts ~ line 45 ~ AuthService ~ login ~ user", user)
 
     // generate and sign token
     const token = this._createToken(user);
@@ -67,6 +68,11 @@ export class AuthService {
     if (!user) {
       throw new HttpException("INVALID_TOKEN", HttpStatus.UNAUTHORIZED);
     }
+    return user;
+  }
+
+  private async getMe() {
+    const user = await this.usersService.findByPayload({ username: 'admin' });
     return user;
   }
 }

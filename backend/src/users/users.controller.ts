@@ -21,13 +21,14 @@ export class UsersController {
     private readonly usersService: UsersService
   ) { }
 
-  // @UseGuards(JwtAuthGuard)
-  // @ApiSecurity('access-key')
-  // @UseInterceptors(ClassSerializerInterceptor)
-  // @Get('me')
-  // public async me(@Request() req) {
-  //   return new RenderUser(req.user);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('me')
+  public async me(@Request() req) {
+    console.log("🚀 ~ file: users.controller.ts ~ line 29 ~ UsersController ~ me ~ req", req)
+    return this.usersService.findByPayload(req);
+  }
 
   @UseGuards(JwtAuthGuard)
   @ApiSecurity('access-key')
