@@ -99,7 +99,7 @@ const UserDropdown = (props: Props) => {
         }}
       >
         <Avatar
-          alt="John Doe"
+          alt={user?.username}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
           src="/images/avatars/1.png"
@@ -130,7 +130,7 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Avatar
-                alt="John Doe"
+                alt={user?.username}
                 src="/images/avatars/1.png"
                 sx={{ width: "2.5rem", height: "2.5rem" }}
               />
@@ -159,7 +159,7 @@ const UserDropdown = (props: Props) => {
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
             <AccountOutline sx={{ mr: 2 }} />
-            Profile
+            ข้อมูลส่วนตัว
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
@@ -178,7 +178,7 @@ const UserDropdown = (props: Props) => {
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
             <CogOutline sx={{ mr: 2 }} />
-            Settings
+            การตั้งค่า
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
@@ -202,7 +202,7 @@ const UserDropdown = (props: Props) => {
               color: "text.secondary",
             }}
           />
-          Logout
+          ออกจากระบบ
         </MenuItem>
       </Menu>
     </Fragment>
