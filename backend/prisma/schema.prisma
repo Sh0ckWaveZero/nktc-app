@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id            String    @id @default(cuid())
+  userId        String?   @unique
+  image         String?
+  title         String?
+  firstName     String?
+  lastName      String?
+  titleEn       String?
+  firstNameEn   String?
+  lastNameEn    String?
+  idCard        String?
+  birthDate     DateTime?
+  bloodType     String?
+  fatherName    String?
+  fatherPhone   String?
+  motherName    String?
+  motherPhone   String?
+  parentName    String?
+  parentPhone   String?
+  addressLine1  String?
+  subdistrict   String?
+  district      String?
+  province      String?
+  postcode      String?
+  country       String?
+  phone         String?
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String
+  email     String?
+  role      Role      @default(User)
+  account   Account?
+  sessions  Session[]
+  student   Student?
+  teacher   Teacher?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  updatedBy String?
+  createdBy String?
+
+  @@map("user")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Student {
+  id           String      @id @default(cuid())
+  userId       String?     @unique
+  studentId    String?     @unique
+  studentNo    Int?        @unique
+  classId      String?
+  departmentId String?
+  status       String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class        ClassRoom?  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("student")
+}
+
+model Teacher {
+  id               String     @id @default(cuid())
+  userId           String?    @unique
+  classId          String?
+  jobTitle         String?
+  academicStanding String?
+  departmentId     String?
+  rfId             String?
+  user             User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class            ClassRoom? @relation(fields: [classId], references: [id])
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+  updatedBy        String?
+  createdBy        String?
+
+  @@map("teacher")
+}
+
+// กลุ่มเรียน
+model ClassRoom {
+  id          String    @id @default(cuid())
+  classId     String?   @unique
+  name        String?
+  description String?
+  teacher     Teacher[]
+  student     Student[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  updatedBy   String?
+  createdBy   String?
+
+  @@map("class")
+}
+
+// แผนกวิชา
+// ปวส.
+// เทคนิคยานยนต์
+// เทคนิคเครื่องกลอุตสาหกรรม
+// เทคนิคยานยนต์ (ทวิภาคี)
+// เทคนิคยานยนต์ (ม.6)
+// เทคนิคเครื่องกลอุตสาหกรรม (ม.6)
+// เครื่องมือกล
+// เครื่องมือกล (ทวิภาคี)
+// แม่พิมพ์โลหะ (ทวิภาคี)
+// เครื่องมือกล (ม.6)
+// แม่พิมพ์โลหะ (ม.6)
+// เทคโนโลยีงานเชื่อมฯ
+// เทคโนโลยีงานเชื่อมฯ (ม.6)
+// ไฟฟ้ากำลัง
+// ไฟฟ้ากำลัง (ทวิภาคี)
+// ไฟฟ้ากำลัง (ม.6)
+// อิเล็กทรอนิกส์
+// อิเล็กทรอนิกส์ (ทวิภาคี)
+// อิเล็กทรอนิกส์ (ม.6)
+// ก่อสร้าง
+// ก่อสร้าง (ม.6)
+// สถาปัตยกรรม
+// สถาปัตยกรรม (ม.6)
+// โยธา
+// โยธา (ม.6)
+// เมคคาทรอนิกส์และหุ่นยนต์
+// เมคคาทรอนิกส์และหุ่นยนต์ (ม.6)
+// เทคโนโลยีคอมพิวเตอร์
+// เทคโนโลยีคอมพิวเตอร์ (ม.6)
+// การจัดการโลจิสติกส์ฯ (ทวิภาคี)
+// เทคโนโลยีสารสนเทศ
+// เทคโนโลยีสารสนเทศ (ม.6)
+//
+// ปวช.
+// ช่างยนต์
+// ช่างกลโรงงาน
+// ช่างเชื่อมโลหะ
+// ช่างไฟฟ้ากำลัง
+// ช่างอิเล็กทรอนิกส์
+// ก่อสร้าง
+// สถาปัตยกรรม
+// โยธา
+// เมคคาทรอนิกส์
+// เทคนิคคอมพิวเตอร์
+// โลจิสติกส์
+// เทคโนโลยีสารสนเทศ
+model Department {
+  id           String    @id @default(cuid())
+  departmentId String?   @unique
+  name         String?
+  description  String?
+  student      Student[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("department")
+}
+
+// รายวิชา
+model Course {
+  id          String   @id @default(cuid())
+  courseCode  String?  @unique
+  courseTitle String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedBy   String?
+  createdBy   String?
+
+  @@map("course")
+}
+
+enum Role {
+  Admin
+  User
+  Student
+  Teacher
+  Parent
+}
