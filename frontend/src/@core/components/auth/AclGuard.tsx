@@ -5,20 +5,20 @@ import { ReactNode, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Types
-import type { ACLObj, AppAbility } from 'src/configs/acl'
+import type { ACLObj, AppAbility } from "@/configs/acl";
 
 // ** Context Imports
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from "@/layouts/components/acl/Can";
 
 // ** Config Import
-import { buildAbilityFor } from 'src/configs/acl'
+import { buildAbilityFor } from "@/configs/acl";
 
 // ** Component Import
-import NotAuthorized from 'src/pages/401'
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import NotAuthorized from "@/pages/401";
+import BlankLayout from "@/@core/layouts/BlankLayout";
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+import { useAuth } from "@/hooks/useAuth";
 
 interface AclGuardProps {
   children: ReactNode

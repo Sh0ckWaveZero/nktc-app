@@ -4,7 +4,7 @@ import EmailOutline from 'mdi-material-ui/EmailOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 
 // ** Type import
-import { HorizontalNavItemsType } from 'src/@core/layouts/types'
+import { HorizontalNavItemsType } from '@/@core/layouts/types'
 
 const navigation = (): HorizontalNavItemsType => [
   {

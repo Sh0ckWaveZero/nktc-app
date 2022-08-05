@@ -2,7 +2,7 @@
 import { Theme } from '@mui/material/styles'
 
 // ** Type Import
-import { Settings } from 'src/@core/context/settingsContext'
+import { Settings } from '@/@core/context/settingsContext'
 
 // ** Overrides Imports
 import MuiCard from './card'

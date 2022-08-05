@@ -2,10 +2,10 @@
 import { ReactNode, useContext } from 'react'
 
 // ** Component Imports
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from "@/layouts/components/acl/Can";
 
 // ** Types
-import { NavGroup, NavLink } from 'src/@core/layouts/types'
+import { NavGroup, NavLink } from "@/@core/layouts/types";
 
 interface Props {
   navGroup?: NavGroup

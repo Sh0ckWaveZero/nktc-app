@@ -18,12 +18,12 @@ import BellOutline from 'mdi-material-ui/BellOutline'
 import PerfectScrollbarComponent from 'react-perfect-scrollbar'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import CustomChip from "@/@core/components/mui/chip";
+import CustomAvatar from "@/@core/components/mui/avatar";
 
 // ** Type Imports
-import { Settings } from 'src/@core/context/settingsContext'
-import { CustomAvatarProps } from 'src/@core/components/mui/avatar/types'
+import { Settings } from "@/@core/context/settingsContext";
+import { CustomAvatarProps } from "@/@core/components/mui/avatar/types";
 
 interface Props {
   settings: Settings

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "rootDir": "src",
     "target": "es6",
     "lib": [
@@ -20,6 +19,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": "src",
     "paths": {
       "apexcharts": [
         "./node_modules/apexcharts-clevision"
@@ -27,11 +27,37 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
+      "@/@core/*": [
+        "@core/*"
+      ],
+      "@/configs/*": [
+        "configs/*"
+      ],
+      "@/layouts/*": [
+        "layouts/*"
+      ],
+      "@/pages/*": [
+        "pages/*"
+      ],
+      "@/hooks/*": [
+        "hooks/*"
+      ],
+      "@/context/*": [
+        "context/*"
+      ],
+      "@/navigation/*": [
+        "navigation/*"
+      ],
+      "@/views/*": [
+        "views/*"
+      ],
     }
   },
   "include": [
     "src",
-    "declaration.d.ts"
+    "declaration.d.ts",
+    "**/*.tsx",
+    "**/*.ts",
   ],
   "exclude": [
     "node_modules"

@@ -29,7 +29,7 @@ import toast from 'react-hot-toast'
 import { CardSnippetProps } from './types'
 
 // ** Hooks
-import useClipboard from 'src/@core/hooks/useClipboard'
+import useClipboard from "@/@core/hooks/useClipboard";
 
 const CardSnippet = (props: CardSnippetProps) => {
   // ** Props

@@ -15,19 +15,19 @@ import { styled, useTheme } from '@mui/material/styles'
 import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'
 
 // ** Configs Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from "@/configs/themeConfig";
 
 // ** Types
-import { NavLink, NavGroup } from 'src/@core/layouts/types'
-import { Settings } from 'src/@core/context/settingsContext'
+import { NavLink, NavGroup } from "@/@core/layouts/types";
+import { Settings } from "@/@core/context/settingsContext";
 
 // ** Custom Components Imports
-import UserIcon from 'src/layouts/components/UserIcon'
-import Translations from 'src/layouts/components/Translations'
-import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
+import UserIcon from "@/layouts/components/UserIcon";
+import Translations from "@/layouts/components/Translations";
+import CanViewNavLink from "@/layouts/components/acl/CanViewNavLink";
 
 // ** Utils
-import { handleURLQueries } from 'src/@core/layouts/utils'
+import { handleURLQueries } from "@/@core/layouts/utils";
 
 interface Props {
   parent?: boolean

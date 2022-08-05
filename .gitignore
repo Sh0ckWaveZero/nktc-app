@@ -46,3 +46,4 @@ old
 frontend/node_modules/
 frontend/.next/
 frontend/.idea/
+web/

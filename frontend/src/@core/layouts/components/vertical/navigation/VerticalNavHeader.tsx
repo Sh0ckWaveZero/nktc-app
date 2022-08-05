@@ -16,10 +16,10 @@ import CircleOutline from "mdi-material-ui/CircleOutline";
 import RecordCircleOutline from "mdi-material-ui/RecordCircleOutline";
 
 // ** Type Import
-import { Settings } from "src/@core/context/settingsContext";
+import { Settings } from "@/@core/context/settingsContext";
 
 // ** Configs
-import themeConfig from "src/configs/themeConfig";
+import themeConfig from "@/configs/themeConfig";
 
 interface Props {
   hidden: boolean;

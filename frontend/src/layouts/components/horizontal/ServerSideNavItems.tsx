@@ -8,7 +8,7 @@ import * as Icons from 'mdi-material-ui'
 import axios from 'axios'
 
 // ** Type Import
-import { HorizontalNavItemsType } from 'src/@core/layouts/types'
+import { HorizontalNavItemsType } from "@/@core/layouts/types";
 
 const ServerSideNavItems = () => {
   // ** State

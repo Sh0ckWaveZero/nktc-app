@@ -6,10 +6,10 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from "@/@core/components/mui/chip";
 
 // ** Types Imports
-import { CardStatsCharacterProps } from 'src/@core/components/card-statistics/types'
+import { CardStatsCharacterProps } from "@/@core/components/card-statistics/types";
 
 interface Props {
   data: CardStatsCharacterProps

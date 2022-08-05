@@ -13,7 +13,7 @@ import Translate from 'mdi-material-ui/Translate'
 import { useTranslation } from 'react-i18next'
 
 // ** Type Import
-import { Settings } from 'src/@core/context/settingsContext'
+import { Settings } from "@/@core/context/settingsContext";
 
 interface Props {
   settings: Settings

@@ -5,12 +5,12 @@ import Typography, { TypographyProps } from '@mui/material/Typography'
 import MuiListSubheader, { ListSubheaderProps } from '@mui/material/ListSubheader'
 
 // ** Types
-import { NavSectionTitle } from 'src/@core/layouts/types'
-import { Settings } from 'src/@core/context/settingsContext'
+import { NavSectionTitle } from "@/@core/layouts/types";
+import { Settings } from "@/@core/context/settingsContext";
 
 // ** Custom Components Imports
-import Translations from 'src/layouts/components/Translations'
-import CanViewNavSectionTitle from 'src/layouts/components/acl/CanViewNavSectionTitle'
+import Translations from "@/layouts/components/Translations";
+import CanViewNavSectionTitle from "@/layouts/components/acl/CanViewNavSectionTitle";
 
 interface Props {
   navHover: boolean

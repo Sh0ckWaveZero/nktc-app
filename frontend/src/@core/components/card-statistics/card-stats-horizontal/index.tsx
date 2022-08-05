@@ -11,7 +11,7 @@ import ChevronUp from 'mdi-material-ui/ChevronUp'
 import ChevronDown from 'mdi-material-ui/ChevronDown'
 
 // ** Types Imports
-import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/types'
+import { CardStatsHorizontalProps } from "@/@core/components/card-statistics/types";
 
 // ** Styled Avatar component
 const Avatar = styled(MuiAvatar)<AvatarProps>(({ theme }) => ({

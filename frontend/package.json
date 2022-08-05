@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "export": "next export",
-    "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
+    "lint": "eslint --fix \"@/**/*.{js,jsx,ts,tsx}\"",
+    "format": "prettier --write \"@/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
     "@auth0/auth0-react": "1.10.1",
@@ -45,7 +45,7 @@
     "firebase": "9.7.0",
     "i18next": "21.7.1",
     "i18next-browser-languagedetector": "6.1.2",
-    "i18next-http-backend": "1.3.1",
+    "i18next-http-backend": "^1.4.1",
     "jsonwebtoken": "8.5.1",
     "keen-slider": "6.6.14",
     "mdi-material-ui": "7.1.0",

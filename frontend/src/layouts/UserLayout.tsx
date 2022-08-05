@@ -7,22 +7,22 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 // ** Layout Imports
 // !Do not remove this Layout import
-import Layout from 'src/@core/layouts/Layout'
+import Layout from "@/@core/layouts/Layout";
 
 // ** Navigation Imports
-import VerticalNavItems from 'src/navigation/vertical'
-import HorizontalNavItems from 'src/navigation/horizontal'
+import VerticalNavItems from "@/navigation/vertical";
+import HorizontalNavItems from "@/navigation/horizontal";
 
 // ** Component Import
 // Uncomment the below line (according to the layout type) when using server-side menu
 // import ServerSideVerticalNavItems from './components/vertical/ServerSideNavItems'
 // import ServerSideHorizontalNavItems from './components/horizontal/ServerSideNavItems'
 
-import VerticalAppBarContent from './components/vertical/AppBarContent'
-import HorizontalAppBarContent from './components/horizontal/AppBarContent'
+import VerticalAppBarContent from "./components/vertical/AppBarContent";
+import HorizontalAppBarContent from "./components/horizontal/AppBarContent";
 
 // ** Hook Import
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from "@/@core/hooks/useSettings";
 
 interface Props {
   children: ReactNode

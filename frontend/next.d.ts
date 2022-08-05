@@ -1,4 +1,4 @@
-import type { ACLObj } from 'src/configs/acl'
+import type { ACLObj } from '@/configs/acl'
 import type { ReactElement, ReactNode } from 'react'
 import type { NextComponentType, NextPageContext } from 'next/dist/shared/lib/utils'
 
