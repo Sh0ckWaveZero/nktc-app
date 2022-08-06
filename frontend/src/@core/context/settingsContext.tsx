@@ -5,7 +5,7 @@ import { createContext, useState, ReactNode, useEffect } from 'react'
 import { PaletteMode, Direction } from '@mui/material'
 
 // ** ThemeConfig Import
-import themeConfig from "@/../configs/themeConfig";
+import themeConfig from "@/configs/themeConfig";
 
 // ** Types Import
 import {
@@ -15,7 +15,7 @@ import {
   ThemeColor,
   ContentWidth,
   VerticalNavToggle,
-} from "@/../@core/layouts/types";
+} from "@/@core/layouts/types";
 
 export type Settings = {
   skin: Skin

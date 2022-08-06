@@ -1,51 +1,51 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Fab from '@mui/material/Fab'
-import AppBar from '@mui/material/AppBar'
-import { styled } from '@mui/material/styles'
-import MuiToolbar, { ToolbarProps } from '@mui/material/Toolbar'
+import Box from '@mui/material/Box';
+import Fab from '@mui/material/Fab';
+import AppBar from '@mui/material/AppBar';
+import { styled } from '@mui/material/styles';
+import MuiToolbar, { ToolbarProps } from '@mui/material/Toolbar';
 
 // ** Icons Imports
-import ArrowUp from 'mdi-material-ui/ArrowUp'
+import ArrowUp from 'mdi-material-ui/ArrowUp';
 
 // ** Theme Config Import
-import themeConfig from "@/../configs/themeConfig";
+import themeConfig from '@/configs/themeConfig';
 
 // ** Type Import
-import { LayoutProps } from "@/../@core/layouts/types";
+import { LayoutProps } from '@/@core/layouts/types';
 
 // ** Components
-import Customizer from "@/../@core/components/customizer";
-import Footer from "./components/shared-components/footer";
-import Navigation from "./components/horizontal/navigation";
-import ScrollToTop from "@/../@core/components/scroll-to-top";
-import AppBarContent from "./components/horizontal/app-bar-content";
+import Customizer from '@/@core/components/customizer';
+import Footer from './components/shared-components/footer';
+import Navigation from './components/horizontal/navigation';
+import ScrollToTop from '@/@core/components/scroll-to-top';
+import AppBarContent from './components/horizontal/app-bar-content';
 
 // ** Util Import
-import { hexToRGBA } from "@/../@core/utils/hex-to-rgba";
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
 // ** Styled Component
-import DatePickerWrapper from "@/../@core/styles/libs/react-datepicker";
+import DatePickerWrapper from '@/@core/styles/libs/react-datepicker';
 
 const HorizontalLayoutWrapper = styled('div')({
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column',
-  ...(themeConfig.horizontalMenuAnimation && { overflow: 'clip' })
-})
+  ...(themeConfig.horizontalMenuAnimation && { overflow: 'clip' }),
+});
 
 const Toolbar = styled(MuiToolbar)<ToolbarProps>(({ theme }) => ({
   width: '100%',
   padding: `${theme.spacing(0, 6)} !important`,
   [theme.breakpoints.down('sm')]: {
     paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(4)
+    paddingRight: theme.spacing(4),
   },
   [theme.breakpoints.down('xs')]: {
     paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2)
-  }
-}))
+    paddingRight: theme.spacing(2),
+  },
+}));
 
 const ContentWrapper = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -54,9 +54,9 @@ const ContentWrapper = styled('main')(({ theme }) => ({
   transition: 'padding .25s ease-in-out',
   [theme.breakpoints.down('sm')]: {
     paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4)
-  }
-}))
+    paddingRight: theme.spacing(4),
+  },
+}));
 
 const HorizontalLayout = (props: LayoutProps) => {
   // ** Props
@@ -66,11 +66,11 @@ const HorizontalLayout = (props: LayoutProps) => {
     settings,
     scrollToTop,
     saveSettings,
-    horizontalNavMenuContent: userHorizontalNavMenuContent
-  } = props
+    horizontalNavMenuContent: userHorizontalNavMenuContent,
+  } = props;
 
   // ** Vars
-  const { skin, appBar, navHidden, appBarBlur, contentWidth } = settings
+  const { skin, appBar, navHidden, appBarBlur, contentWidth } = settings;
 
   return (
     <HorizontalLayoutWrapper className='layout-wrapper'>
@@ -85,15 +85,19 @@ const HorizontalLayout = (props: LayoutProps) => {
           color: 'text.primary',
           justifyContent: 'center',
           ...(appBar === 'static' && { zIndex: 13 }),
-          backgroundColor: theme => theme.palette.background.paper,
-          ...(skin === 'bordered' && { borderBottom: theme => `1px solid ${theme.palette.divider}` }),
-          transition: 'border-bottom 0.2s ease-in-out, backdrop-filter .25s ease-in-out, box-shadow .25s ease-in-out',
+          backgroundColor: (theme) => theme.palette.background.paper,
+          ...(skin === 'bordered' && {
+            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          }),
+          transition:
+            'border-bottom 0.2s ease-in-out, backdrop-filter .25s ease-in-out, box-shadow .25s ease-in-out',
           ...(appBar === 'fixed'
             ? appBarBlur && {
                 backdropFilter: 'blur(8px)',
-                backgroundColor: theme => hexToRGBA(theme.palette.background.paper, 0.85)
+                backgroundColor: (theme) =>
+                  hexToRGBA(theme.palette.background.paper, 0.85),
               }
-            : {})
+            : {}),
         }}
       >
         {/* Navbar / AppBar */}
@@ -101,18 +105,32 @@ const HorizontalLayout = (props: LayoutProps) => {
           className='layout-navbar'
           sx={{
             width: '100%',
-            ...(navHidden ? {} : { borderBottom: theme => `1px solid ${theme.palette.divider}` })
+            ...(navHidden
+              ? {}
+              : {
+                  borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                }),
           }}
         >
           <Toolbar
             className='navbar-content-container'
             sx={{
               mx: 'auto',
-              ...(contentWidth === 'boxed' && { '@media (min-width:1440px)': { maxWidth: 1440 } }),
-              minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`
+              ...(contentWidth === 'boxed' && {
+                '@media (min-width:1440px)': { maxWidth: 1440 },
+              }),
+              minHeight: (theme) =>
+                `${
+                  (theme.mixins.toolbar.minHeight as number) - 1
+                }px !important`,
             }}
           >
-            <AppBarContent {...props} hidden={hidden} settings={settings} saveSettings={saveSettings} />
+            <AppBarContent
+              {...props}
+              hidden={hidden}
+              settings={settings}
+              saveSettings={saveSettings}
+            />
           </Toolbar>
         </Box>
 
@@ -123,12 +141,20 @@ const HorizontalLayout = (props: LayoutProps) => {
               className='horizontal-nav-content-container'
               sx={{
                 mx: 'auto',
-                ...(contentWidth === 'boxed' && { '@media (min-width:1440px)': { maxWidth: 1440 } }),
-                minHeight: theme =>
-                  `${(theme.mixins.toolbar.minHeight as number) - (skin === 'bordered' ? 1 : 0)}px !important`
+                ...(contentWidth === 'boxed' && {
+                  '@media (min-width:1440px)': { maxWidth: 1440 },
+                }),
+                minHeight: (theme) =>
+                  `${
+                    (theme.mixins.toolbar.minHeight as number) -
+                    (skin === 'bordered' ? 1 : 0)
+                  }px !important`,
               }}
             >
-              {(userHorizontalNavMenuContent && userHorizontalNavMenuContent(props)) || <Navigation {...props} />}
+              {(userHorizontalNavMenuContent &&
+                userHorizontalNavMenuContent(props)) || (
+                <Navigation {...props} />
+              )}
             </Toolbar>
           </Box>
         )}
@@ -141,8 +167,8 @@ const HorizontalLayout = (props: LayoutProps) => {
           ...(contentWidth === 'boxed' && {
             mx: 'auto',
             '@media (min-width:1440px)': { maxWidth: 1440 },
-            '@media (min-width:1200px)': { maxWidth: '100%' }
-          })
+            '@media (min-width:1200px)': { maxWidth: '100%' },
+          }),
         }}
       >
         {children}
@@ -170,7 +196,7 @@ const HorizontalLayout = (props: LayoutProps) => {
         </ScrollToTop>
       )}
     </HorizontalLayoutWrapper>
-  )
-}
+  );
+};
 
-export default HorizontalLayout
+export default HorizontalLayout;
