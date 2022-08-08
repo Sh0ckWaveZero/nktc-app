@@ -28,6 +28,9 @@ const CardMenu = (props: any) => {
               backgroundColor: '#f5f5f5',
               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
               cursor: 'pointer',
+              '& .MuiAvatar-root': {
+                backgroundColor: color,
+              },
             },
           }}
         >
@@ -40,7 +43,6 @@ const CardMenu = (props: any) => {
             >
               <CustomAvatar
                 sx={{
-                  backgroundColor: color,
                   boxShadow: 2,
                   m: 2,
                   height: '5rem',
