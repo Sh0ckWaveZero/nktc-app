@@ -1,2 +1,2 @@
 d:
-	yarn run dev
+	yarn dev

@@ -11,7 +11,7 @@ export type AppBar = 'fixed' | 'static' | 'hidden'
 
 export type Footer = 'fixed' | 'static' | 'hidden'
 
-export type ThemeColor = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success'
+export type ThemeColor = 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' | 'other'
 
 export type VerticalNavToggle = 'accordion' | 'collapse'
 

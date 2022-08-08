@@ -52,12 +52,6 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       white: '#FFF'
     },
     mode: mode,
-    // primary: {
-    //   light: '#9E69FD',
-    //   main: '#9155FD',
-    //   dark: '#804BDF',
-    //   contrastText: '#FFF'
-    // },
     primary: {
       light: '#32BAFF',
       main: '#16B1FF',
@@ -92,6 +86,12 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       light: '#32BAFF',
       main: '#16B1FF',
       dark: '#139CE0',
+      contrastText: '#FFF'
+    },
+    other: {
+      light: '#9E69FD',
+      main: '#9155FD',
+      dark: '#804BDF',
       contrastText: '#FFF'
     },
     grey: {

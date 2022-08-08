@@ -65,6 +65,7 @@
     "react-hook-form": "7.3.0",
     "react-hot-toast": "2.1.1",
     "react-i18next": "11.14.3",
+    "react-icons": "^4.4.0",
     "react-perfect-scrollbar": "1.5.8",
     "react-popper": "2.2.5",
     "react-redux": "8.0.1",
