@@ -1,5 +1,5 @@
 // ** MUI Imports
-import Grid from '@mui/material/Grid';
+import {Grid} from '@mui/material';
 
 // ** Custom Components Imports
 import CardMenu from '@/@core/components/card-statistics/card-menu';
@@ -25,129 +25,169 @@ import {
   MdOutlineTungsten,
   MdTagFaces,
 } from 'react-icons/md';
-
-type MenuCardProps = {
-  title: string;
-  subtitle?: string;
-  color?: string;
-  sx?: object;
-  icon?: React.ReactElement;
-  path?: string;
-};
+import { CardMenuProps } from '@/@core/components/card-statistics/types';
 
 const Home = () => {
-  const menuList: MenuCardProps[] = [
+  const menuList: CardMenuProps[] = [
     {
       title: 'Report',
       subtitle: 'สถิติการมาเรียน',
       color: '#49cbd5',
       icon: <HiOutlineClipboardList />,
-      path: '/second-page',
+      navLink: {
+        title: 'Report สถิติการมาเรียน',
+        path: '/second-page',
+      },
     },
     {
       title: 'Report',
       subtitle: 'เช็คชื่อนหน้าเสาธง',
       color: '#af7a4e',
       icon: <HiOutlineFlag />,
-      path: '/second-page',
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/second-page',
+      },
     },
     {
       title: 'Report',
       subtitle: 'สรุปเวลาเรียน',
       color: '#5b77c5',
       icon: <HiOutlineChartPie />,
-      path: '/second-page',
+      navLink: {
+        title: 'Report สรุปเวลาเรียน',
+        path: '/second-page',
+      },
     },
     {
       title: 'ตั้งค่าเพิ่ม/ลบ',
       subtitle: 'คะแนนอัตโนมัติ',
       color: '#bd5656',
       icon: <MdIso />,
-      path: '/second-page',
+      navLink: {
+        title: 'ตั้งค่าเพิ่ม/ลบ คะแนนอัตโนมัติ',
+        path: '/second-page',
+      },
     },
     {
       title: 'ตั้งค่าเกณฑ์คะแนน',
       subtitle: 'ความดี/พฤติกรรม',
       color: '#67ad9a',
       icon: <HiOutlineLightBulb />,
-      path: '/second-page',
+      navLink: {
+        title: 'ตั้งค่าเกณฑ์คะแนน ความดี/พฤติกรรม',
+        path: '/second-page',
+      },
     },
     {
       title: 'Report',
       subtitle: 'ความดี',
       color: '#c3e080',
       icon: <MdTagFaces />,
-      path: '/second-page',
+      navLink: {
+        title: 'Report ความดี',
+        path: '/second-page',
+      },
     },
     {
       title: 'Report',
       subtitle: 'พฤติกรรม',
       color: '#e25e25',
       icon: <MdOutlineSentimentDissatisfied />,
-      path: '/second-page',
+      navLink: {
+        title: 'Report พฤติกรรม',
+        path: '/second-page',
+      },
     },
     {
       title: 'ข้อมูลนักเรียน',
       subtitle: 'ทั้งหมด',
       color: '#353ad6',
       icon: <HiOutlineDatabase />,
-      path: '/second-page',
+      navLink: {
+        title: 'ข้อมูลนักเรียนทั้งหมด',
+        path: '/second-page',
+      },
     },
     {
       title: 'เพิ่ม ลบ แก้ไข',
       subtitle: 'ข้อมูลนักเรียน',
       color: '#2f8935',
       icon: <HiOutlineSelector />,
-      path: '/second-page',
+      navLink: {
+        title: 'เพิ่ม ลบ แก้ไข ข้อมูลนักเรียน',
+        path: '/second-page',
+      },
     },
     {
       title: 'จัดการข้อมูล',
       subtitle: 'ครู/ บุคลากร',
       color: '#f08383',
       icon: <MdManageAccounts />,
-      path: '/second-page',
+      navLink: {
+        title: 'จัดการข้อมูลครู/ บุคลากร',
+        path: '/second-page',
+      },
     },
     {
       title: 'จัดการข้อมูล',
       subtitle: 'จำนวนห้องเรียน',
       color: '#db64c1',
       icon: <MdOutlineClass />,
-      path: '/second-page',
+      navLink: {
+        title: 'จัดการข้อมูลจำนวนห้องเรียน',
+        path: '/second-page',
+      },
     },
     {
       title: 'เรียงลำดับ',
       subtitle: 'คะแนนความดี',
       color: '#6ef775',
       icon: <MdOutlineSort />,
-      path: '/second-page',
+      navLink: {
+        title: 'เรียงลำดับ คะแนนความดี',
+        path: '/second-page',
+      },
     },
     {
       title: 'เรียงลำดับ',
       subtitle: 'ความพฤติกรรม',
       color: '#a02d2d',
       icon: <MdOutlineTungsten />,
-      path: '/second-page',
+      navLink: {
+        title: 'เรียงลำดับ ความพฤติกรรม',
+        path: '/second-page',
+      },
     },
     {
       title: 'เปิด-ปิด ระบบ',
       subtitle: 'เช็คชื่อย้อนหลัง',
       color: '#2d8da8',
       icon: <MdHistoryToggleOff />,
-      path: '/second-page',
+      navLink: {
+        title: 'เปิด-ปิด ระบบ เช็คชื่อย้อนหลัง',
+        path: '/second-page',
+      },
     },
     {
       title: 'สรุปคัดกรอก',
       subtitle: 'SDQ EQ',
       color: '#9e4861',
       icon: <MdOutlineTrendingUp />,
-      path: '/second-page',
+      navLink: {
+        title: 'สรุปคัดกรอก SDQ EQ',
+        path: '/second-page',
+      },
     },
     {
       title: 'สรุปบันทึก',
       subtitle: 'เยี่ยมบ้านนักเรียน',
       color: '#72823e',
       icon: <MdOutlineHome />,
-      path: '/second-page',
+      navLink: {
+        title: 'สรุปบันทึก เยี่ยมบ้านนักเรียน',
+        path: '/second-page',
+      },
     },
   ];
 
@@ -198,7 +238,7 @@ const Home = () => {
             subtitle={item.subtitle}
             color={item.color}
             icon={item.icon}
-            path={item.path}
+            navLink={item.navLink}
           />
         </Grid>
       ))}

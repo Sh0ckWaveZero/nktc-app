@@ -12,16 +12,16 @@ import DotsVertical from 'mdi-material-ui/DotsVertical';
 import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Types Imports
-import { CardStatsVerticalProps } from '@/@core/components/card-statistics/types';
+import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 import Link from 'next/link';
 
-const CardMenu = (props: any) => {
+const CardMenu = (props: CardMenuProps) => {
   // ** Props
-  const { title, subtitle, color, icon, path, sx } = props;
+  const { title, subtitle, color, icon, navLink } = props;
   return (
-    <CanViewNavLink navLink={path}>
-      <Link href={`${path}`} passHref>
+    <CanViewNavLink navLink={navLink}>
+      <Link href={`${navLink?.path}`} passHref>
         <Card
           sx={{
             ':hover': {
@@ -36,10 +36,14 @@ const CardMenu = (props: any) => {
         >
           <CardContent>
             <Box
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-              flexDirection={'column'}
+              sx={{
+                height: '100%',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}
             >
               <CustomAvatar
                 sx={{

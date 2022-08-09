@@ -2,7 +2,7 @@
 import { ReactNode } from 'react'
 
 // ** Types
-import { ThemeColor } from '@/@core/layouts/types'
+import { NavLink, ThemeColor } from '@/@core/layouts/types'
 
 export type CardStatsHorizontalProps = {
   title: string
@@ -31,4 +31,12 @@ export type CardStatsCharacterProps = {
   trendNumber: string
   chipColor?: ThemeColor
   trend?: 'positive' | 'negative'
+}
+
+export type CardMenuProps = {
+  title: string
+  subtitle: string
+  icon: ReactNode
+  color?: string
+  navLink: NavLink | undefined
 }
