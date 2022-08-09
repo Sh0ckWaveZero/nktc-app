@@ -77,3 +77,12 @@ export type BlankLayoutProps = {
 export type BlankLayoutWithAppBarProps = {
   children: ReactNode
 }
+
+
+export type AppBarSearchType = {
+  id: number
+  url: string
+  icon: string
+  title: string
+  category: string
+}

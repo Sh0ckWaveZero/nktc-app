@@ -64,17 +64,23 @@ const Drawer = (props: Props) => {
     if (skin === 'semi-dark' && theme.palette.mode === 'light') {
       return {
         '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.dark}, 0.87)`
-        }
-      }
+          color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
+        },
+      };
     } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
       return {
         '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.light}, 0.87)`
-        }
-      }
-    } else return {}
-  }
+          color: `rgba(${theme.palette.customColors.light}, 0.87)`,
+        },
+      };
+    } else {
+      return {
+        '& .MuiListItemIcon-root': {
+          fontSize: '1.5rem',
+        },
+      };
+    }
+  };
 
   const drawerBgColor = () => {
     if (skin === 'semi-dark' && theme.palette.mode === 'light') {
