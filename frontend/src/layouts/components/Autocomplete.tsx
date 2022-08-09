@@ -551,7 +551,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
       // ** Shortcut keys to open searchbox (Ctrl + /)
-      if (!openDialog && event.ctrlKey && event.which === 191) {
+      if (!openDialog && event.ctrlKey && event.key === '/') {
         setOpenDialog(true);
       }
     },
@@ -562,7 +562,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const handleKeyUp = useCallback(
     (event: KeyboardEvent) => {
       // ** ESC key to close searchbox
-      if (openDialog && event.keyCode === 27) {
+      if (openDialog && event.key === 'Escape') {
         setOpenDialog(false);
       }
     },
@@ -596,7 +596,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
         </IconButton>
         {!hidden && layout === 'vertical' ? (
           <Typography sx={{ color: 'text.disabled' }}>
-            Search (Ctrl+/)
+            ค้นหา (Ctrl+/)
           </Typography>
         ) : null}
         <Dialog
