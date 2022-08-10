@@ -8,7 +8,7 @@ import {
   HumanMaleBoard,
 } from 'mdi-material-ui'
 import { MdAccountCircle, MdOutlineFaceRetouchingNatural } from "react-icons/md";
-import { RiUser5Line } from "react-icons/ri";
+import { RiUser5Line, RiUser6Line } from "react-icons/ri";
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types'
@@ -66,6 +66,13 @@ const navigation = (): VerticalNavItemsType => {
           path: '/apps/user/view',
         }
       ]
+    },
+    {
+      title: 'ข้อมูลส่วนตัว',
+      icon: RiUser6Line,
+      path: '/pages/account-settings',
+      action: 'read',
+      subject: 'account-page'
     },
     {
       sectionTitle: 'รายงาน'
