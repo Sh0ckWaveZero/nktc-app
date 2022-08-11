@@ -84,9 +84,9 @@ const TabSecurity = () => {
             <Grid container spacing={5}>
               <Grid item xs={12} sx={{ mt: 4.75 }}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-current-password'>Current Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-current-password'>รหัสผ่านปัจจุบัน</InputLabel>
                   <OutlinedInput
-                    label='Current Password'
+                    label='รหัสผ่านปัจจุบัน'
                     value={values.currentPassword}
                     id='account-settings-current-password'
                     type={values.showCurrentPassword ? 'text' : 'password'}
@@ -109,9 +109,9 @@ const TabSecurity = () => {
 
               <Grid item xs={12} sx={{ mt: 6 }}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-new-password'>New Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-new-password'>รหัสผ่านใหม่</InputLabel>
                   <OutlinedInput
-                    label='New Password'
+                    label='รหัสผ่านใหม่'
                     value={values.newPassword}
                     id='account-settings-new-password'
                     onChange={handleNewPasswordChange('newPassword')}
@@ -134,9 +134,9 @@ const TabSecurity = () => {
 
               <Grid item xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor='account-settings-confirm-new-password'>Confirm New Password</InputLabel>
+                  <InputLabel htmlFor='account-settings-confirm-new-password'>ยืนยันรหัสผ่านใหม่</InputLabel>
                   <OutlinedInput
-                    label='Confirm New Password'
+                    label='ยืนยันรหัสผ่านใหม่'
                     value={values.confirmNewPassword}
                     id='account-settings-confirm-new-password'
                     type={values.showConfirmNewPassword ? 'text' : 'password'}
@@ -175,7 +175,7 @@ const TabSecurity = () => {
       <CardContent>
         <Box sx={{ mb: 5.75, display: 'flex', alignItems: 'center' }}>
           <KeyOutline sx={{ mr: 3 }} />
-          <Typography variant='h6'>Two-factor authentication</Typography>
+          <Typography variant='h6'>การยืนยันตัวตนแบบสองขั้นตอน</Typography>
         </Box>
 
         <Box sx={{ mb: 11, display: 'flex', justifyContent: 'center' }}>
@@ -191,17 +191,17 @@ const TabSecurity = () => {
             <CustomAvatar skin='light' variant='rounded' sx={{ mb: 3.5, width: 48, height: 48 }}>
               <LockOpenOutline sx={{ fontSize: '1.75rem' }} />
             </CustomAvatar>
-            <Typography sx={{ fontWeight: 600, mb: 3.5 }}>Two factor authentication is not enabled yet.</Typography>
+            <Typography sx={{ fontWeight: 600, mb: 3.5 }}>ยังไม่ได้เปิดใช้การตรวจสอบสิทธิ์แบบสองปัจจัย</Typography>
             <Typography variant='body2'>
-              Two-factor authentication adds an additional layer of security to your account by requiring more than just
-              a password to log in. Learn more.
+            การรับรองความถูกต้องด้วยสองปัจจัยเพิ่มชั้นความปลอดภัยเพิ่มเติมให้กับบัญชีของคุณโดยต้องการมากกว่าแค่
+               รหัสผ่านเพื่อเข้าสู่ระบบ เรียนรู้เพิ่มเติม
             </Typography>
           </Box>
         </Box>
 
         <Box>
           <Button variant='contained' sx={{ mr: 3.5 }}>
-            Save Changes
+            บันทึกการเปลี่ยนแปลง
           </Button>
           <Button
             type='reset'
@@ -209,7 +209,7 @@ const TabSecurity = () => {
             color='secondary'
             onClick={() => setValues({ ...values, currentPassword: '', newPassword: '', confirmNewPassword: '' })}
           >
-            Reset
+            รีเซ็ต
           </Button>
         </Box>
       </CardContent>
