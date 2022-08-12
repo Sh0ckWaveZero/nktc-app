@@ -9,7 +9,7 @@ datasource db {
   url      = env("MONGOGB_DATABASE_URL")
 }
 
-model User {
+model Appbar {
   key      String @id @default(auto()) @map("_id") @db.ObjectId
   id       Int    @unique
   url      String
