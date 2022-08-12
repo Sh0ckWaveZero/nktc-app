@@ -8,10 +8,11 @@ import { ClassModule } from './class/class.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { StudentsModule } from './students/students.module';
 import { AccountsModule } from './accounts/accounts.module';
+import { AppBarModule } from './app-bar/app-bar.module';
 
 
 @Module({
-  imports: [AuthModule, UsersModule, ClassModule, TeachersModule, StudentsModule, AccountsModule],
+  imports: [AuthModule, UsersModule, ClassModule, TeachersModule, StudentsModule, AccountsModule, AppBarModule],
   controllers: [AppController],
   providers: [AppService],
 })
