@@ -1,0 +1,19 @@
+// prisma-mongodb/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@internal/prisma/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGOGB_DATABASE_URL")
+}
+
+model User {
+  key      String @id @default(auto()) @map("_id") @db.ObjectId
+  id       Int    @unique
+  url      String
+  icon     String
+  title    String
+  category String
+}

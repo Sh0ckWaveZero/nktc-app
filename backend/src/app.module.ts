@@ -9,12 +9,12 @@ import { TeachersModule } from './teachers/teachers.module';
 import { StudentsModule } from './students/students.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { AppBarModule } from './app-bar/app-bar.module';
-
+import { PrismaService as PrismaMongoDbService } from './prisma/prisma-mongodb.service';
 
 @Module({
   imports: [AuthModule, UsersModule, ClassModule, TeachersModule, StudentsModule, AccountsModule, AppBarModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaMongoDbService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
