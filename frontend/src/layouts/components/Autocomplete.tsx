@@ -68,6 +68,8 @@ import UserIcon from '@/layouts/components/UserIcon';
 import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 
+// ** Config
+import authConfig from "@/configs/auth";
 interface Props {
   hidden: boolean;
   settings: Settings;
@@ -519,9 +521,16 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   // Get all data using API
   useEffect(() => {
+    const storedToken = window.localStorage.getItem(
+      authConfig.storageTokenKeyName
+    )!;
+
     axios
-      .get('/app-bar/search', {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/app-bar/search`, {
         params: { q: searchValue },
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
       })
       .then((response) => {
         if (response.data && response.data.length) {
