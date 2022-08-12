@@ -1,4 +1,4 @@
-import { AppBarSearchType } from './types';
+import { AppBarSearchType } from './dto/types';
 
 export const SearchData: AppBarSearchType[] = [
   {
