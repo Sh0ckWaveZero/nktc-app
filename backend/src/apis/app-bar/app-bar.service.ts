@@ -1,4 +1,4 @@
-import { PrismaService as PrismaMongoDbService } from './../prisma/prisma-mongodb.service';
+import { PrismaService as PrismaMongoDbService } from '../../prisma/prisma-mongodb.service';
 import { Injectable, Query } from "@nestjs/common";
 import { SearchData } from './db';
 import { CreateAppBarDto } from './dto/create-app-bar.dto';

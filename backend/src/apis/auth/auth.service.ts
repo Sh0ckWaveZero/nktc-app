@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { CreateUserDto, LoginUserDto } from 'src/users/dto/users.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
+import { UsersService } from 'src/apis/users/users.service';
 import { JwtPayload } from './jwt.strategy';
 
 export interface RegistrationStatus {
