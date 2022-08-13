@@ -10,9 +10,22 @@ import { StudentsModule } from './students/students.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { AppBarModule } from './app-bar/app-bar.module';
 import { PrismaService as PrismaMongoDbService } from './prisma/prisma-mongodb.service';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
-  imports: [AuthModule, UsersModule, ClassModule, TeachersModule, StudentsModule, AccountsModule, AppBarModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    ClassModule,
+    TeachersModule,
+    StudentsModule,
+    AccountsModule,
+    AppBarModule,
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaMongoDbService],
 })
