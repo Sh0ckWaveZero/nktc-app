@@ -8,6 +8,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { AuthController } from './auth.conroller';
 import { UsersModule } from '../users/users.module';
 import { LocalStrategy } from './local.strategy';
+import configuration from 'src/config/configuration';
 
 @Module({
   imports: [
@@ -18,9 +19,9 @@ import { LocalStrategy } from './local.strategy';
       session: false,
     }),
     JwtModule.register({
-      secret: process.env.SECRET,
+      secret: configuration().jwtSecret,
       signOptions: {
-        expiresIn: process.env.EXPIRESIN,
+        expiresIn: configuration().jwtExpiresIn,
       },
     }),
   ],

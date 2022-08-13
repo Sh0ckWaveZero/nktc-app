@@ -33,6 +33,7 @@
     "@nestjs/platform-express": "^9.0.9",
     "@nestjs/swagger": "^6.0.5",
     "bcrypt": "^5.0.1",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "csurf": "^1.11.0",
     "helmet": "^5.1.1",

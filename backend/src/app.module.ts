@@ -12,6 +12,7 @@ import { AppBarModule } from './apis/app-bar/app-bar.module';
 import { PrismaService as PrismaMongoDbService } from './prisma/prisma-mongodb.service';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
+import { validate } from './config/validation';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import configuration from './config/configuration';
     AppBarModule,
     ConfigModule.forRoot({
       load: [configuration],
+      validate
     }),
   ],
   controllers: [AppController],
