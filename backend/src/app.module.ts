@@ -25,7 +25,7 @@ import { validate } from './config/validation';
     AppBarModule,
     ConfigModule.forRoot({
       load: [configuration],
-      validate
+      validate,
     }),
   ],
   controllers: [AppController],
