@@ -62,7 +62,7 @@
     "react-dom": "18.1.0",
     "react-draft-wysiwyg": "1.14.7",
     "react-dropzone": "14.2.0",
-    "react-hook-form": "7.3.0",
+    "react-hook-form": "^7.34.1",
     "react-hot-toast": "2.1.1",
     "react-i18next": "11.14.3",
     "react-icons": "^4.4.0",
