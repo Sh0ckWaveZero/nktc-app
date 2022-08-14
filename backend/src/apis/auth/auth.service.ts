@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
 import { UsersService } from 'src/apis/users/users.service';
+import configuration from 'src/config/configuration';
 import { JwtPayload } from './jwt.strategy';
 
 export interface RegistrationStatus {
@@ -57,7 +58,7 @@ export class AuthService {
     const user: JwtPayload = { username };
     const token = this.jwtService.sign(user);
     return {
-      expiresIn: process.env.EXPIRESIN,
+      expiresIn: configuration().jwtExpiresIn,
       token,
     };
   }

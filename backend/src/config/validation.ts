@@ -21,7 +21,7 @@ class EnvironmentVariables {
   JWT_EXPIRES_IN: string;
 }
 
-export function validate(config: Record<string, unknown>) {
+const validate = (config: Record<string, unknown>) => {
   const validatedConfig = plainToInstance(
     EnvironmentVariables,
     config,
@@ -34,3 +34,5 @@ export function validate(config: Record<string, unknown>) {
   }
   return validatedConfig;
 }
+
+export default validate;
