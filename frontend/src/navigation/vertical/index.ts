@@ -6,34 +6,34 @@ import {
   AlertCircleOutline,
   AccountOutline,
   HumanMaleBoard,
-} from 'mdi-material-ui'
-import { MdAccountCircle, MdOutlineFaceRetouchingNatural } from "react-icons/md";
-import { RiUser5Line, RiUser6Line } from "react-icons/ri";
+} from 'mdi-material-ui';
+import { MdAccountCircle, MdOutlineFaceRetouchingNatural } from 'react-icons/md';
+import { RiUser5Line, RiUser6Line } from 'react-icons/ri';
 
 // ** Type import
-import { VerticalNavItemsType } from '@/@core/layouts/types'
+import { VerticalNavItemsType } from '@/@core/layouts/types';
 
 const navigation = (): VerticalNavItemsType => {
   return [
     {
       title: 'หน้าหลัก',
       icon: HomeOutline,
-      path: '/home'
+      path: '/home',
     },
     {
       title: 'Second Page',
       icon: EmailOutline,
-      path: '/second-page'
+      path: '/second-page',
     },
     {
       title: 'Access Control',
       icon: ShieldOutline,
       path: '/acl',
       action: 'read',
-      subject: 'acl-page'
+      subject: 'acl-page',
     },
     {
-      sectionTitle: 'จัดการข้อมูล'
+      sectionTitle: 'จัดการข้อมูล',
     },
     {
       title: 'ครู / บุคลากร',
@@ -43,13 +43,13 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'List',
           icon: ShieldOutline,
-          path: '/apps/user/list'
+          path: '/apps/user/list',
         },
         {
           title: 'View',
           path: '/apps/user/view',
-        }
-      ]
+        },
+      ],
     },
     {
       title: 'นักเรียน',
@@ -59,25 +59,25 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'List',
           icon: ShieldOutline,
-          path: '/apps/user/list'
+          path: '/apps/user/list',
         },
         {
           title: 'View',
           path: '/apps/user/view',
-        }
-      ]
+        },
+      ],
     },
     {
       title: 'ข้อมูลส่วนตัว',
       icon: RiUser6Line,
       path: '/pages/account-settings',
       action: 'read',
-      subject: 'account-page'
+      subject: 'account-page',
     },
     {
-      sectionTitle: 'รายงาน'
+      sectionTitle: 'รายงาน',
     },
-  ]
-}
+  ];
+};
 
-export default navigation
+export default navigation;

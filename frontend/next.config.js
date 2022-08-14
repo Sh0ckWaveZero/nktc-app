@@ -8,7 +8,7 @@ const withTM = require('next-transpile-modules')([
   '@fullcalendar/react',
   '@fullcalendar/daygrid',
   '@fullcalendar/list',
-  '@fullcalendar/timegrid'
+  '@fullcalendar/timegrid',
 ])
 
 module.exports = withTM({
@@ -18,12 +18,12 @@ module.exports = withTM({
   //   esmExternals: false,
   //   jsconfigPaths: true // enables it for both jsconfig.json and tsconfig.json
   // },
-  webpack: config => {
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
+      apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision'),
     }
 
     return config
-  }
+  },
 })

@@ -1,23 +1,17 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useEffect, useState, ReactNode } from 'react';
 
 // ** Next Import
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 
 // ** Axios
-import axios from "axios";
+import axios from 'axios';
 
 // ** Config
-import authConfig from "@/configs/auth";
+import authConfig from '@/configs/auth';
 
 // ** Types
-import {
-  AuthValuesType,
-  RegisterParams,
-  LoginParams,
-  ErrCallbackType,
-  UserDataType,
-} from "./types";
+import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -42,9 +36,7 @@ const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user);
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading);
-  const [isInitialized, setIsInitialized] = useState<boolean>(
-    defaultProvider.isInitialized
-  );
+  const [isInitialized, setIsInitialized] = useState<boolean>(defaultProvider.isInitialized);
 
   // ** Hooks
   const router = useRouter();
@@ -52,9 +44,7 @@ const AuthProvider = ({ children }: Props) => {
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
       setIsInitialized(true);
-      const storedToken = window.localStorage.getItem(
-        authConfig.storageTokenKeyName
-      )!;
+      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
       if (storedToken) {
         setLoading(true);
         await axios
@@ -69,9 +59,9 @@ const AuthProvider = ({ children }: Props) => {
             setUser({ ...data });
           })
           .catch(() => {
-            localStorage.removeItem("userData");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("accessToken");
+            localStorage.removeItem('userData');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('accessToken');
             setUser(null);
             setLoading(false);
           });
@@ -82,10 +72,7 @@ const AuthProvider = ({ children }: Props) => {
     initAuth();
   }, []);
 
-  const handleLogin = (
-    params: LoginParams,
-    errorCallback?: ErrCallbackType
-  ) => {
+  const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
     axios
       .post(authConfig.loginEndpoint, params)
       .then(async (response: any) => {
@@ -97,9 +84,9 @@ const AuthProvider = ({ children }: Props) => {
 
         setUser({ ...data });
 
-        window.localStorage.setItem("userData", JSON.stringify(data));
+        window.localStorage.setItem('userData', JSON.stringify(data));
 
-        const redirectURL = returnUrl && returnUrl !== "/" ? returnUrl : "/";
+        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
 
         router.replace(redirectURL as string);
       })
@@ -112,15 +99,12 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogout = () => {
     setUser(null);
     setIsInitialized(false);
-    window.localStorage.removeItem("userData");
+    window.localStorage.removeItem('userData');
     window.localStorage.removeItem(authConfig.storageTokenKeyName);
-    router.push("/login");
+    router.push('/login');
   };
 
-  const handleRegister = (
-    params: RegisterParams,
-    errorCallback?: ErrCallbackType
-  ) => {
+  const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {
     axios
       .post(authConfig.registerEndpoint, params)
       .then((res) => {
@@ -130,9 +114,7 @@ const AuthProvider = ({ children }: Props) => {
           handleLogin({ username: params.username, password: params.password });
         }
       })
-      .catch((err: { [key: string]: string }) =>
-        errorCallback ? errorCallback(err) : null
-      );
+      .catch((err: { [key: string]: string }) => (errorCallback ? errorCallback(err) : null));
   };
 
   const values = {

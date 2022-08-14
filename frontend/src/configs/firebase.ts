@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import Firebase from 'firebase/compat/app'
-import 'firebase/compat/auth'
+import Firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -14,12 +14,12 @@ const firebaseConfig = {
   storageBucket: '',
   messagingSenderId: '',
   appId: '',
-  measurementId: ''
-}
+  measurementId: '',
+};
 
 // Initialize Firebase
 if (!Firebase.apps.length) {
-  Firebase.initializeApp(firebaseConfig)
+  Firebase.initializeApp(firebaseConfig);
 }
 
-export default Firebase
+export default Firebase;

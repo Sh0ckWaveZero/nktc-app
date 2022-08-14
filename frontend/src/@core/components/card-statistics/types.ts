@@ -1,42 +1,42 @@
 // ** React Imports
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
 // ** Types
-import { NavLink, ThemeColor } from '@/@core/layouts/types'
+import { NavLink, ThemeColor } from '@/@core/layouts/types';
 
 export type CardStatsHorizontalProps = {
-  title: string
-  stats: string
-  icon: ReactNode
-  color?: ThemeColor
-  trendNumber: string
-  trend?: 'positive' | 'negative'
-}
+  title: string;
+  stats: string;
+  icon: ReactNode;
+  color?: ThemeColor;
+  trendNumber: string;
+  trend?: 'positive' | 'negative';
+};
 
 export type CardStatsVerticalProps = {
-  title: string
-  stats: string
-  icon: ReactNode
-  subtitle: string
-  color?: ThemeColor
-  trendNumber: string
-  trend?: 'positive' | 'negative'
-}
+  title: string;
+  stats: string;
+  icon: ReactNode;
+  subtitle: string;
+  color?: ThemeColor;
+  trendNumber: string;
+  trend?: 'positive' | 'negative';
+};
 
 export type CardStatsCharacterProps = {
-  src: string
-  title: string
-  stats: string
-  chipText: string
-  trendNumber: string
-  chipColor?: ThemeColor
-  trend?: 'positive' | 'negative'
-}
+  src: string;
+  title: string;
+  stats: string;
+  chipText: string;
+  trendNumber: string;
+  chipColor?: ThemeColor;
+  trend?: 'positive' | 'negative';
+};
 
 export type CardMenuProps = {
-  title: string
-  subtitle: string
-  icon: ReactNode
-  color?: string
-  navLink: NavLink | undefined
-}
+  title: string;
+  subtitle: string;
+  icon: ReactNode;
+  color?: string;
+  navLink: NavLink | undefined;
+};

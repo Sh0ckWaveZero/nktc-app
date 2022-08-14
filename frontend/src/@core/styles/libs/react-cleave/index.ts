@@ -1,6 +1,6 @@
 // ** MUI Imports
-import { styled } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
+import { styled } from '@mui/material/styles';
+import Box, { BoxProps } from '@mui/material/Box';
 
 const CleaveWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   '& input': {
@@ -20,12 +20,12 @@ const CleaveWrapper = styled(Box)<BoxProps>(({ theme }) => ({
       outline: 0,
       borderWidth: 2,
       padding: '15.5px 13px',
-      borderColor: `${theme.palette.primary.main} !important`
+      borderColor: `${theme.palette.primary.main} !important`,
     },
     '&::-webkit-input-placeholder': {
-      color: theme.palette.text.secondary
-    }
-  }
-}))
+      color: theme.palette.text.secondary,
+    },
+  },
+}));
 
-export default CleaveWrapper
+export default CleaveWrapper;

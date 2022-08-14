@@ -1,47 +1,54 @@
 // ** React Imports
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
 // ** Next Import
-import Link from 'next/link'
+import Link from 'next/link';
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import { styled, useTheme } from '@mui/material/styles'
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { styled, useTheme } from '@mui/material/styles';
 
 // ** Type Import
-import { Settings } from "@/@core/context/settingsContext";
+import { Settings } from '@/@core/context/settingsContext';
 
 // ** Theme Config Import
-import themeConfig from "@/configs/themeConfig";
+import themeConfig from '@/configs/themeConfig';
 
 interface Props {
-  hidden: boolean
-  settings: Settings
-  saveSettings: (values: Settings) => void
-  horizontalAppBarContent?: (props?: any) => ReactNode
-  horizontalAppBarBranding?: (props?: any) => ReactNode
+  hidden: boolean;
+  settings: Settings;
+  saveSettings: (values: Settings) => void;
+  horizontalAppBarContent?: (props?: any) => ReactNode;
+  horizontalAppBarBranding?: (props?: any) => ReactNode;
 }
 
 const StyledLink = styled('a')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   textDecoration: 'none',
-  marginRight: theme.spacing(8)
-}))
+  marginRight: theme.spacing(8),
+}));
 
 const AppBarContent = (props: Props) => {
   // ** Props
   const {
     horizontalAppBarContent: userHorizontalAppBarContent,
-    horizontalAppBarBranding: userHorizontalAppBarBranding
-  } = props
+    horizontalAppBarBranding: userHorizontalAppBarBranding,
+  } = props;
 
   // ** Hooks
-  const theme = useTheme()
+  const theme = useTheme();
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Box
+      sx={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
       {userHorizontalAppBarBranding ? (
         userHorizontalAppBarBranding(props)
       ) : (
@@ -112,7 +119,7 @@ const AppBarContent = (props: Props) => {
                 ml: 3,
                 fontWeight: 600,
                 lineHeight: 'normal',
-                textTransform: 'uppercase'
+                textTransform: 'uppercase',
               }}
             >
               {themeConfig.templateName}
@@ -122,7 +129,7 @@ const AppBarContent = (props: Props) => {
       )}
       {userHorizontalAppBarContent ? userHorizontalAppBarContent(props) : null}
     </Box>
-  )
-}
+  );
+};
 
-export default AppBarContent
+export default AppBarContent;

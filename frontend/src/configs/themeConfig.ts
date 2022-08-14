@@ -6,41 +6,41 @@
  */
 
 // ** MUI Imports
-import { PaletteMode, Direction } from '@mui/material'
+import { PaletteMode, Direction } from '@mui/material';
 
 // ** Icon Import
-import CircleOutline from 'mdi-material-ui/CircleOutline'
+import CircleOutline from 'mdi-material-ui/CircleOutline';
 
 // ** Types
-import { Skin, AppBar, Footer, ContentWidth, VerticalNavToggle, HorizontalMenuToggle } from '@/@core/layouts/types'
+import { Skin, AppBar, Footer, ContentWidth, VerticalNavToggle, HorizontalMenuToggle } from '@/@core/layouts/types';
 
 type ThemeConfig = {
-  skin: Skin
-  appBar: AppBar
-  footer: Footer
-  mode: PaletteMode
-  navHidden: boolean
-  appBarBlur: boolean
-  navSubItemIcon: any
-  direction: Direction
-  templateName: string
-  navCollapsed: boolean
-  routingLoader: boolean
-  disableRipple: boolean
-  navigationSize: number
-  menuTextTruncate: boolean
-  contentWidth: ContentWidth
-  disableCustomizer: boolean
-  responsiveFontSizes: boolean
-  collapsedNavigationSize: number
-  horizontalMenuAnimation: boolean
-  layout: 'vertical' | 'horizontal'
-  verticalNavToggleType: VerticalNavToggle
-  horizontalMenuToggle: HorizontalMenuToggle
-  afterVerticalNavMenuContentPosition: 'fixed' | 'static'
-  beforeVerticalNavMenuContentPosition: 'fixed' | 'static'
-  toastPosition: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
-}
+  skin: Skin;
+  appBar: AppBar;
+  footer: Footer;
+  mode: PaletteMode;
+  navHidden: boolean;
+  appBarBlur: boolean;
+  navSubItemIcon: any;
+  direction: Direction;
+  templateName: string;
+  navCollapsed: boolean;
+  routingLoader: boolean;
+  disableRipple: boolean;
+  navigationSize: number;
+  menuTextTruncate: boolean;
+  contentWidth: ContentWidth;
+  disableCustomizer: boolean;
+  responsiveFontSizes: boolean;
+  collapsedNavigationSize: number;
+  horizontalMenuAnimation: boolean;
+  layout: 'vertical' | 'horizontal';
+  verticalNavToggleType: VerticalNavToggle;
+  horizontalMenuToggle: HorizontalMenuToggle;
+  afterVerticalNavMenuContentPosition: 'fixed' | 'static';
+  beforeVerticalNavMenuContentPosition: 'fixed' | 'static';
+  toastPosition: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+};
 
 const themeConfig: ThemeConfig = {
   // ** Layout Configs
@@ -76,7 +76,7 @@ const themeConfig: ThemeConfig = {
   responsiveFontSizes: true /* true | false */,
   disableRipple: false /* true | false */,
   disableCustomizer: true /* true | false */,
-  toastPosition: 'top-right' /* top-left | top-center | top-right | bottom-left | bottom-center | bottom-right */
-}
+  toastPosition: 'top-right' /* top-left | top-center | top-right | bottom-left | bottom-center | bottom-right */,
+};
 
-export default themeConfig
+export default themeConfig;

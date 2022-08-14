@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { Theme } from '@mui/material/styles'
+import { Theme } from '@mui/material/styles';
 
 const DataGrid = (theme: Theme) => {
   return {
@@ -9,62 +9,62 @@ const DataGrid = (theme: Theme) => {
           border: 0,
           color: theme.palette.text.primary,
           '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-            outline: 'none'
-          }
+            outline: 'none',
+          },
         },
         toolbarContainer: {
           paddingRight: `${theme.spacing(5)} !important`,
-          paddingLeft: `${theme.spacing(3.25)} !important`
+          paddingLeft: `${theme.spacing(3.25)} !important`,
         },
         columnHeaders: {
           maxHeight: '54px !important',
           minHeight: '54px !important',
           lineHeight: '24px !important',
-          backgroundColor: theme.palette.customColors.tableHeaderBg
+          backgroundColor: theme.palette.customColors.tableHeaderBg,
         },
         columnHeader: {
           height: '54px',
           '&:not(.MuiDataGrid-columnHeaderCheckbox)': {
             padding: theme.spacing(4),
             '&:first-of-type': {
-              paddingLeft: theme.spacing(5)
-            }
+              paddingLeft: theme.spacing(5),
+            },
           },
           '&:last-of-type': {
-            paddingRight: theme.spacing(5)
-          }
+            paddingRight: theme.spacing(5),
+          },
         },
         columnHeaderCheckbox: {
           maxWidth: '58px !important',
-          minWidth: '58px !important'
+          minWidth: '58px !important',
         },
         columnHeaderTitleContainer: {
-          padding: 0
+          padding: 0,
         },
         columnHeaderTitle: {
           fontWeight: 600,
           fontSize: '0.75rem',
           letterSpacing: '0.17px',
-          textTransform: 'uppercase'
+          textTransform: 'uppercase',
         },
         columnSeparator: {
-          color: theme.palette.divider
+          color: theme.palette.divider,
         },
         virtualScroller: {
-          marginTop: '54px !important'
+          marginTop: '54px !important',
         },
         virtualScrollerRenderZone: {
           '& .MuiDataGrid-row': {
             maxHeight: '50px !important',
-            minHeight: '50px !important'
-          }
+            minHeight: '50px !important',
+          },
         },
         row: {
           '&:last-child': {
             '& .MuiDataGrid-cell': {
-              borderBottom: 0
-            }
-          }
+              borderBottom: 0,
+            },
+          },
         },
         cell: {
           maxHeight: '50px !important',
@@ -74,44 +74,44 @@ const DataGrid = (theme: Theme) => {
           '&:not(.MuiDataGrid-cellCheckbox)': {
             padding: theme.spacing(4),
             '&:first-of-type': {
-              paddingLeft: theme.spacing(5)
-            }
+              paddingLeft: theme.spacing(5),
+            },
           },
           '&:last-of-type': {
-            paddingRight: theme.spacing(5)
+            paddingRight: theme.spacing(5),
           },
           '&:focus, &:focus-within': {
-            outline: 'none'
-          }
+            outline: 'none',
+          },
         },
         cellCheckbox: {
           maxWidth: '58px !important',
-          minWidth: '58px !important'
+          minWidth: '58px !important',
         },
         editInputCell: {
           padding: 0,
           color: theme.palette.text.primary,
           '& .MuiInputBase-input': {
-            padding: 0
-          }
+            padding: 0,
+          },
         },
         footerContainer: {
           minHeight: '50px !important',
           borderTop: `1px solid ${theme.palette.divider}`,
           '& .MuiTablePagination-toolbar': {
-            minHeight: '50px !important'
+            minHeight: '50px !important',
           },
           '& .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel': {
-            color: theme.palette.text.primary
-          }
-        }
+            color: theme.palette.text.primary,
+          },
+        },
       },
       defaultProps: {
         rowHeight: 50,
-        headerHeight: 54
-      }
-    }
-  }
-}
+        headerHeight: 54,
+      },
+    },
+  };
+};
 
-export default DataGrid
+export default DataGrid;

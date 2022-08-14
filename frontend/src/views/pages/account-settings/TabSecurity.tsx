@@ -1,35 +1,35 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState } from 'react';
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import InputAdornment from '@mui/material/InputAdornment'
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import InputLabel from '@mui/material/InputLabel';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
 
 // ** Icons Imports
-import EyeOutline from 'mdi-material-ui/EyeOutline'
-import KeyOutline from 'mdi-material-ui/KeyOutline'
-import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
-import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
+import EyeOutline from 'mdi-material-ui/EyeOutline';
+import KeyOutline from 'mdi-material-ui/KeyOutline';
+import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
+import LockOpenOutline from 'mdi-material-ui/LockOpenOutline';
 
 // ** Custom Components Imports
-import CustomAvatar from '@/@core/components/mui/avatar'
+import CustomAvatar from '@/@core/components/mui/avatar';
 
 interface State {
-  newPassword: string
-  currentPassword: string
-  showNewPassword: boolean
-  confirmNewPassword: string
-  showCurrentPassword: boolean
-  showConfirmNewPassword: boolean
+  newPassword: string;
+  currentPassword: string;
+  showNewPassword: boolean;
+  confirmNewPassword: string;
+  showCurrentPassword: boolean;
+  showConfirmNewPassword: boolean;
 }
 
 const TabSecurity = () => {
@@ -40,41 +40,44 @@ const TabSecurity = () => {
     showNewPassword: false,
     confirmNewPassword: '',
     showCurrentPassword: false,
-    showConfirmNewPassword: false
-  })
+    showConfirmNewPassword: false,
+  });
 
   // Handle Current Password
   const handleCurrentPasswordChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
-    setValues({ ...values, [prop]: event.target.value })
-  }
+    setValues({ ...values, [prop]: event.target.value });
+  };
   const handleClickShowCurrentPassword = () => {
-    setValues({ ...values, showCurrentPassword: !values.showCurrentPassword })
-  }
+    setValues({ ...values, showCurrentPassword: !values.showCurrentPassword });
+  };
   const handleMouseDownCurrentPassword = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   // Handle New Password
   const handleNewPasswordChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
-    setValues({ ...values, [prop]: event.target.value })
-  }
+    setValues({ ...values, [prop]: event.target.value });
+  };
   const handleClickShowNewPassword = () => {
-    setValues({ ...values, showNewPassword: !values.showNewPassword })
-  }
+    setValues({ ...values, showNewPassword: !values.showNewPassword });
+  };
   const handleMouseDownNewPassword = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   // Handle Confirm New Password
   const handleConfirmNewPasswordChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
-    setValues({ ...values, [prop]: event.target.value })
-  }
+    setValues({ ...values, [prop]: event.target.value });
+  };
   const handleClickShowConfirmNewPassword = () => {
-    setValues({ ...values, showConfirmNewPassword: !values.showConfirmNewPassword })
-  }
+    setValues({
+      ...values,
+      showConfirmNewPassword: !values.showConfirmNewPassword,
+    });
+  };
   const handleMouseDownConfirmNewPassword = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   return (
     <form>
@@ -163,7 +166,12 @@ const TabSecurity = () => {
             item
             sm={6}
             xs={12}
-            sx={{ display: 'flex', mt: [7.5, 2.5], alignItems: 'center', justifyContent: 'center' }}
+            sx={{
+              display: 'flex',
+              mt: [7.5, 2.5],
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <img width={183} alt='avatar' height={256} src='/images/pages/pose-m-1.png' />
           </Grid>
@@ -185,7 +193,7 @@ const TabSecurity = () => {
               display: 'flex',
               textAlign: 'center',
               alignItems: 'center',
-              flexDirection: 'column'
+              flexDirection: 'column',
             }}
           >
             <CustomAvatar skin='light' variant='rounded' sx={{ mb: 3.5, width: 48, height: 48 }}>
@@ -193,8 +201,8 @@ const TabSecurity = () => {
             </CustomAvatar>
             <Typography sx={{ fontWeight: 600, mb: 3.5 }}>ยังไม่ได้เปิดใช้การตรวจสอบสิทธิ์แบบสองปัจจัย</Typography>
             <Typography variant='body2'>
-            การรับรองความถูกต้องด้วยสองปัจจัยเพิ่มชั้นความปลอดภัยเพิ่มเติมให้กับบัญชีของคุณโดยต้องการมากกว่าแค่
-               รหัสผ่านเพื่อเข้าสู่ระบบ เรียนรู้เพิ่มเติม
+              การรับรองความถูกต้องด้วยสองปัจจัยเพิ่มชั้นความปลอดภัยเพิ่มเติมให้กับบัญชีของคุณโดยต้องการมากกว่าแค่
+              รหัสผ่านเพื่อเข้าสู่ระบบ เรียนรู้เพิ่มเติม
             </Typography>
           </Box>
         </Box>
@@ -207,13 +215,20 @@ const TabSecurity = () => {
             type='reset'
             variant='outlined'
             color='secondary'
-            onClick={() => setValues({ ...values, currentPassword: '', newPassword: '', confirmNewPassword: '' })}
+            onClick={() =>
+              setValues({
+                ...values,
+                currentPassword: '',
+                newPassword: '',
+                confirmNewPassword: '',
+              })
+            }
           >
             รีเซ็ต
           </Button>
         </Box>
       </CardContent>
     </form>
-  )
-}
-export default TabSecurity
+  );
+};
+export default TabSecurity;

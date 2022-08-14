@@ -59,9 +59,7 @@ const CardMenu = (props: CardMenuProps) => {
               >
                 {icon}
               </CustomAvatar>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                {title}
-              </Typography>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</Typography>
               <Typography variant='subtitle2'>{subtitle}</Typography>
             </Box>
           </CardContent>

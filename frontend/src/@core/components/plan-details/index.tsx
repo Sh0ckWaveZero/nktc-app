@@ -1,39 +1,39 @@
 // ** MUI Imports
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import Box, { BoxProps } from '@mui/material/Box'
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import Box, { BoxProps } from '@mui/material/Box';
 
 // ** Icons Imports
-import CircleOutline from 'mdi-material-ui/CircleOutline'
+import CircleOutline from 'mdi-material-ui/CircleOutline';
 
 // ** Util Import
-import { hexToRGBA } from "@/@core/utils/hex-to-rgba";
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
 // ** Custom Components Imports
-import CustomChip from "@/@core/components/mui/chip";
+import CustomChip from '@/@core/components/mui/chip';
 
 // ** Types
-import { PricingPlanProps } from './types'
+import { PricingPlanProps } from './types';
 
 // ** Styled Component for the wrapper of whole component
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   position: 'relative',
   padding: theme.spacing(5),
-  borderRadius: theme.shape.borderRadius
-}))
+  borderRadius: theme.shape.borderRadius,
+}));
 
 // ** Styled Component for the wrapper of all the features of a plan
 const BoxFeature = styled(Box)<BoxProps>(({ theme }) => ({
   marginBottom: theme.spacing(5.75),
   '& > :not(:first-of-type)': {
-    marginTop: theme.spacing(3.5)
-  }
-}))
+    marginTop: theme.spacing(3.5),
+  },
+}));
 
 const PlanDetails = (props: PricingPlanProps) => {
   // ** Props
-  const { plan, data } = props
+  const { plan, data } = props;
 
   const renderFeatures = () => {
     return data?.planBenefits.map((item: string, index: number) => (
@@ -41,16 +41,16 @@ const PlanDetails = (props: PricingPlanProps) => {
         <CircleOutline sx={{ fontSize: '0.75rem', mr: 2, color: 'text.secondary' }} />
         <Typography variant='body2'>{item}</Typography>
       </Box>
-    ))
-  }
+    ));
+  };
 
   return (
     <BoxWrapper
       sx={{
-        border: theme =>
+        border: (theme) =>
           !data?.popularPlan
             ? `1px solid ${theme.palette.divider}`
-            : `1px solid ${hexToRGBA(theme.palette.primary.main, 0.5)}`
+            : `1px solid ${hexToRGBA(theme.palette.primary.main, 0.5)}`,
       }}
     >
       {data?.popularPlan ? (
@@ -66,8 +66,8 @@ const PlanDetails = (props: PricingPlanProps) => {
             '& .MuiChip-label': {
               px: 1.75,
               fontWeight: 600,
-              fontSize: '0.75rem'
-            }
+              fontSize: '0.75rem',
+            },
           }}
         />
       ) : null}
@@ -111,7 +111,7 @@ const PlanDetails = (props: PricingPlanProps) => {
         {data?.currentPlan ? 'Your Current Plan' : 'Upgrade'}
       </Button>
     </BoxWrapper>
-  )
-}
+  );
+};
 
-export default PlanDetails
+export default PlanDetails;

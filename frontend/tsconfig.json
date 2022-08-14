@@ -2,11 +2,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "target": "es6",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -21,45 +17,18 @@
     "incremental": true,
     "baseUrl": "src",
     "paths": {
-      "apexcharts": [
-        "./node_modules/apexcharts-clevision"
-      ],
-      "apexcharts/*": [
-        "./node_modules/apexcharts-clevision/*"
-      ],
-      "@/@core/*": [
-        "@core/*"
-      ],
-      "@/configs/*": [
-        "configs/*"
-      ],
-      "@/layouts/*": [
-        "layouts/*"
-      ],
-      "@/pages/*": [
-        "pages/*"
-      ],
-      "@/hooks/*": [
-        "hooks/*"
-      ],
-      "@/context/*": [
-        "context/*"
-      ],
-      "@/navigation/*": [
-        "navigation/*"
-      ],
-      "@/views/*": [
-        "views/*"
-      ],
+      "apexcharts": ["./node_modules/apexcharts-clevision"],
+      "apexcharts/*": ["./node_modules/apexcharts-clevision/*"],
+      "@/@core/*": ["@core/*"],
+      "@/configs/*": ["configs/*"],
+      "@/layouts/*": ["layouts/*"],
+      "@/pages/*": ["pages/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/context/*": ["context/*"],
+      "@/navigation/*": ["navigation/*"],
+      "@/views/*": ["views/*"]
     }
   },
-  "include": [
-    "src",
-    "declaration.d.ts",
-    "**/*.tsx",
-    "**/*.ts",
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src", "declaration.d.ts", "**/*.tsx", "**/*.ts"],
+  "exclude": ["node_modules"]
 }

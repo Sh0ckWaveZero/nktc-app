@@ -1,36 +1,36 @@
 // ** React Imports
-import { ReactNode, useContext } from 'react'
+import { ReactNode, useContext } from 'react';
 
 // ** Component Imports
-import { AbilityContext } from "@/layouts/components/acl/Can";
+import { AbilityContext } from '@/layouts/components/acl/Can';
 
 // ** Types
-import { NavGroup, NavLink } from "@/@core/layouts/types";
+import { NavGroup, NavLink } from '@/@core/layouts/types';
 
 interface Props {
-  navGroup?: NavGroup
-  children: ReactNode
+  navGroup?: NavGroup;
+  children: ReactNode;
 }
 
 const CanViewNavGroup = (props: Props) => {
   // ** Props
-  const { children, navGroup } = props
+  const { children, navGroup } = props;
 
   // ** Hook
-  const ability = useContext(AbilityContext)
+  const ability = useContext(AbilityContext);
 
   const canViewMenuGroup = (item: NavGroup) => {
     const hasAnyVisibleChild =
-      item.children && item.children.some((i: NavLink) => ability && ability.can(i.action, i.subject))
+      item.children && item.children.some((i: NavLink) => ability && ability.can(i.action, i.subject));
 
     if (!(item.action && item.subject)) {
-      return hasAnyVisibleChild
+      return hasAnyVisibleChild;
     }
 
-    return ability && ability.can(item.action, item.subject) && hasAnyVisibleChild
-  }
+    return ability && ability.can(item.action, item.subject) && hasAnyVisibleChild;
+  };
 
-  return navGroup && canViewMenuGroup(navGroup) ? <>{children}</> : null
-}
+  return navGroup && canViewMenuGroup(navGroup) ? <>{children}</> : null;
+};
 
-export default CanViewNavGroup
+export default CanViewNavGroup;

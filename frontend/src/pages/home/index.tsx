@@ -1,5 +1,5 @@
 // ** MUI Imports
-import {Grid} from '@mui/material';
+import { Grid } from '@mui/material';
 
 // ** Custom Components Imports
 import CardMenu from '@/@core/components/card-statistics/card-menu';
@@ -194,14 +194,7 @@ const Home = () => {
   return (
     <Grid container spacing={6}>
       {menuList.map((item, index) => (
-        <Grid
-          item
-          key={`grid-item-${index}`}
-          xs={12}
-          sm={6}
-          md={2}
-          sx={{ order: index }}
-        >
+        <Grid item key={`grid-item-${index}`} xs={12} sm={6} md={2} sx={{ order: index }}>
           <CardMenu
             key={`card-menu-${index}`}
             title={item.title}

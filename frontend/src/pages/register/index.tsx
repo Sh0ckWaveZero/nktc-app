@@ -1,63 +1,63 @@
 // ** React Imports
-import { ReactNode, useState, Fragment, MouseEvent } from 'react'
+import { ReactNode, useState, Fragment, MouseEvent } from 'react';
 
 // ** Next Imports
-import Link from 'next/link'
+import Link from 'next/link';
 
 // ** MUI Components
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
-import TextField from '@mui/material/TextField'
-import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
-import Box, { BoxProps } from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled, useTheme } from '@mui/material/styles'
-import FormHelperText from '@mui/material/FormHelperText'
-import InputAdornment from '@mui/material/InputAdornment'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Typography, { TypographyProps } from '@mui/material/Typography'
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import IconButton from '@mui/material/IconButton';
+import Box, { BoxProps } from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import { styled, useTheme } from '@mui/material/styles';
+import FormHelperText from '@mui/material/FormHelperText';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Typography, { TypographyProps } from '@mui/material/Typography';
 
 // ** Icons Imports
-import Google from 'mdi-material-ui/Google'
-import Github from 'mdi-material-ui/Github'
-import Twitter from 'mdi-material-ui/Twitter'
-import Facebook from 'mdi-material-ui/Facebook'
-import EyeOutline from 'mdi-material-ui/EyeOutline'
-import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
+import Google from 'mdi-material-ui/Google';
+import Github from 'mdi-material-ui/Github';
+import Twitter from 'mdi-material-ui/Twitter';
+import Facebook from 'mdi-material-ui/Facebook';
+import EyeOutline from 'mdi-material-ui/EyeOutline';
+import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
 // ** Third Party Imports
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm, Controller } from 'react-hook-form'
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, Controller } from 'react-hook-form';
 
 // ** Configs
-import themeConfig from "@/configs/themeConfig";
+import themeConfig from '@/configs/themeConfig';
 
 // ** Layout Import
-import BlankLayout from "@/@core/layouts/BlankLayout";
+import BlankLayout from '@/@core/layouts/BlankLayout';
 
 // ** Hooks
-import { useAuth } from "@/hooks/useAuth";
-import { useSettings } from "@/@core/hooks/useSettings";
+import { useAuth } from '@/hooks/useAuth';
+import { useSettings } from '@/@core/hooks/useSettings';
 
 // ** Demo Imports
-import FooterIllustrationsV2 from "@/views/pages/auth/FooterIllustrationsV2";
+import FooterIllustrationsV2 from '@/views/pages/auth/FooterIllustrationsV2';
 
 const defaultValues = {
   email: '',
   username: '',
   password: '',
-  terms: false
-}
+  terms: false,
+};
 interface FormData {
-  email: string
-  terms: boolean
-  username: string
-  password: string
+  email: string;
+  terms: boolean;
+  username: string;
+  password: string;
 }
 
 // ** Styled Components
@@ -65,107 +65,115 @@ const RegisterIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   padding: theme.spacing(20),
   paddingRight: '0 !important',
   [theme.breakpoints.down('lg')]: {
-    padding: theme.spacing(10)
-  }
-}))
+    padding: theme.spacing(10),
+  },
+}));
 
 const RegisterIllustration = styled('img')(({ theme }) => ({
   maxWidth: '46rem',
   [theme.breakpoints.down('lg')]: {
-    maxWidth: '35rem'
-  }
-}))
+    maxWidth: '35rem',
+  },
+}));
 
 const TreeIllustration = styled('img')(({ theme }) => ({
   bottom: 0,
   left: '1.875rem',
   position: 'absolute',
   [theme.breakpoints.down('lg')]: {
-    left: 0
-  }
-}))
+    left: 0,
+  },
+}));
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.up('md')]: {
-    maxWidth: 450
-  }
-}))
+    maxWidth: 450,
+  },
+}));
 
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   [theme.breakpoints.down('xl')]: {
-    width: '100%'
+    width: '100%',
   },
   [theme.breakpoints.down('md')]: {
-    maxWidth: 400
-  }
-}))
+    maxWidth: 400,
+  },
+}));
 
 const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontWeight: 600,
   marginBottom: theme.spacing(1.5),
-  [theme.breakpoints.down('md')]: { mt: theme.spacing(8) }
-}))
+  [theme.breakpoints.down('md')]: { mt: theme.spacing(8) },
+}));
 
 const LinkStyled = styled('a')(({ theme }) => ({
   textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
+  color: theme.palette.primary.main,
+}));
 
 const Register = () => {
   // ** States
-  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // ** Hooks
-  const theme = useTheme()
-  const { register } = useAuth()
-  const { settings } = useSettings()
-  const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const theme = useTheme();
+  const { register } = useAuth();
+  const { settings } = useSettings();
+  const hidden = useMediaQuery(theme.breakpoints.down('md'));
 
   // ** Vars
-  const { skin } = settings
+  const { skin } = settings;
   const schema = yup.object().shape({
     password: yup.string().min(5).required(),
     username: yup.string().min(3).required(),
     email: yup.string().email().required(),
-    terms: yup.bool().oneOf([true], 'You must accept the privacy policy & terms')
-  })
+    terms: yup.bool().oneOf([true], 'You must accept the privacy policy & terms'),
+  });
 
   const {
     control,
     setError,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
     defaultValues,
     mode: 'onBlur',
-    resolver: yupResolver(schema)
-  })
+    resolver: yupResolver(schema),
+  });
 
   const onSubmit = (data: FormData) => {
-    const { email, username, password } = data
-    register({ email, username, password }, err => {
+    const { email, username, password } = data;
+    register({ email, username, password }, (err) => {
       if (err.email) {
         setError('email', {
           type: 'manual',
-          message: err.email
-        })
+          message: err.email,
+        });
       }
       if (err.username) {
         setError('username', {
           type: 'manual',
-          message: err.username
-        })
+          message: err.username,
+        });
       }
-    })
-  }
+    });
+  };
 
-  const imageSource = skin === 'bordered' ? 'auth-v2-register-illustration-bordered' : 'auth-v2-register-illustration'
+  const imageSource = skin === 'bordered' ? 'auth-v2-register-illustration-bordered' : 'auth-v2-register-illustration';
 
   return (
     <Box className='content-right'>
       {!hidden ? (
-        <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            position: 'relative',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <RegisterIllustrationWrapper>
             <RegisterIllustration
               alt='register-illustration'
@@ -183,7 +191,7 @@ const Register = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'background.paper'
+            backgroundColor: 'background.paper',
           }}
         >
           <BoxWrapper>
@@ -194,7 +202,7 @@ const Register = () => {
                 display: 'flex',
                 position: 'absolute',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}
             >
               <svg
@@ -263,7 +271,7 @@ const Register = () => {
                   lineHeight: 1,
                   fontWeight: 600,
                   textTransform: 'uppercase',
-                  fontSize: '1.5rem !important'
+                  fontSize: '1.5rem !important',
                 }}
               >
                 {themeConfig.templateName}
@@ -334,7 +342,7 @@ const Register = () => {
                         <InputAdornment position='end'>
                           <IconButton
                             edge='end'
-                            onMouseDown={e => e.preventDefault()}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? <EyeOutline /> : <EyeOffOutline />}
@@ -359,7 +367,9 @@ const Register = () => {
                       <FormControlLabel
                         sx={{
                           ...(errors.terms ? { color: 'error.main' } : null),
-                          '& .MuiFormControlLabel-label': { fontSize: '0.875rem' }
+                          '& .MuiFormControlLabel-label': {
+                            fontSize: '0.875rem',
+                          },
                         }}
                         control={
                           <Checkbox
@@ -385,7 +395,7 @@ const Register = () => {
                           </Fragment>
                         }
                       />
-                    )
+                    );
                   }}
                 />
                 {errors.terms && (
@@ -395,7 +405,14 @@ const Register = () => {
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                 Sign up
               </Button>
-              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}
+              >
                 <Typography variant='body2' sx={{ mr: 2 }}>
                   Already have an account?
                 </Typography>
@@ -406,7 +423,13 @@ const Register = () => {
                 </Typography>
               </Box>
               <Divider sx={{ my: 5 }}>or</Divider>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 <Link href='/' passHref>
                   <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                     <Facebook sx={{ color: '#497ce2' }} />
@@ -420,7 +443,9 @@ const Register = () => {
                 <Link href='/' passHref>
                   <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                     <Github
-                      sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]) }}
+                      sx={{
+                        color: (theme) => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]),
+                      }}
                     />
                   </IconButton>
                 </Link>
@@ -435,11 +460,11 @@ const Register = () => {
         </Box>
       </RightWrapper>
     </Box>
-  )
-}
+  );
+};
 
-Register.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+Register.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>;
 
-Register.guestGuard = true
+Register.guestGuard = true;
 
-export default Register
+export default Register;

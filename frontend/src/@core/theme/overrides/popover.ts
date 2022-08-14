@@ -1,8 +1,8 @@
 // ** MUI Imports
-import { Theme } from '@mui/material/styles'
+import { Theme } from '@mui/material/styles';
 
 // ** Theme Type Import
-import { Skin } from '@/@core/layouts/types'
+import { Skin } from '@/@core/layouts/types';
 
 const Popover = (theme: Theme, skin: Skin) => {
   return {
@@ -11,12 +11,14 @@ const Popover = (theme: Theme, skin: Skin) => {
         root: {
           '& .MuiPopover-paper': {
             boxShadow: theme.shadows[skin === 'bordered' ? 0 : 6],
-            ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
-          }
-        }
-      }
-    }
-  }
-}
+            ...(skin === 'bordered' && {
+              border: `1px solid ${theme.palette.divider}`,
+            }),
+          },
+        },
+      },
+    },
+  };
+};
 
-export default Popover
+export default Popover;

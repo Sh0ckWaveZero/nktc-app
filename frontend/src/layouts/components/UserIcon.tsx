@@ -1,22 +1,22 @@
 // ** React Imports
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
 // ** MUI Imports
-import { SvgIconProps } from '@mui/material'
+import { SvgIconProps } from '@mui/material';
 
 interface UserIconProps {
-  iconProps?: SvgIconProps
-  icon: string | ReactNode
-  componentType: 'search' | 'vertical-menu' | 'horizontal-menu'
+  iconProps?: SvgIconProps;
+  icon: string | ReactNode;
+  componentType: 'search' | 'vertical-menu' | 'horizontal-menu';
 }
 
 const UserIcon = (props: UserIconProps) => {
   // ** Props
-  const { icon, iconProps, componentType } = props
+  const { icon, iconProps, componentType } = props;
 
-  const IconTag = icon
+  const IconTag = icon;
 
-  let styles
+  let styles;
 
   if (componentType === 'search') {
     // Conditional Props based on component type, like have different font size or icon color
@@ -37,11 +37,11 @@ const UserIcon = (props: UserIconProps) => {
       fontSize: '1rem'
     } */
   } else {
-    return null
+    return null;
   }
 
   // @ts-ignore
-  return <IconTag {...iconProps} style={{ ...styles }} />
-}
+  return <IconTag {...iconProps} style={{ ...styles }} />;
+};
 
-export default UserIcon
+export default UserIcon;

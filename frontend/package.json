@@ -1,6 +1,6 @@
 {
-  "name": "materio-mui-react-nextjs-admin-template",
-  "version": "1.4.0",
+  "name": "nktc-app",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -31,8 +31,10 @@
     "@mui/lab": "^5.0.0-alpha.94",
     "@mui/material": "^5.10.0",
     "@mui/x-data-grid": "^5.15.1",
+    "@mui/x-date-pickers": "^5.0.0-beta.5",
     "@popperjs/core": "2.11.2",
     "@reduxjs/toolkit": "1.8.1",
+    "@tarzui/date-fns-be": "^1.0.10",
     "apexcharts-clevision": "3.28.5",
     "aws-amplify": "4.3.22",
     "axios": "0.27.2",
@@ -88,16 +90,21 @@
     "@types/react-datepicker": "4.3.2",
     "@types/react-draft-wysiwyg": "1.13.3",
     "@types/react-redux": "7.1.24",
-    "@typescript-eslint/eslint-plugin": "5.6.0",
-    "@typescript-eslint/parser": "5.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
     "eslint": "8.14.0",
     "eslint-config-next": "12.1.6",
-    "eslint-config-prettier": "8.3.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-alias": "1.1.2",
     "eslint-import-resolver-typescript": "2.5.0",
     "eslint-plugin-import": "2.25.4",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "next-transpile-modules": "9.0.0",
-    "prettier": "2.6.2",
+    "prettier": "^2.7.1",
     "typescript": "4.6.4"
-  }
+  },
+  "author": "Midseelee",
+  "license": "UNLICENSED"
 }

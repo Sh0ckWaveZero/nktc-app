@@ -1,31 +1,31 @@
 // ** MUI Theme Provider
-import { deepmerge } from '@mui/utils'
-import { ThemeOptions } from '@mui/material'
+import { deepmerge } from '@mui/utils';
+import { ThemeOptions } from '@mui/material';
 
 // ** User Theme Options
-import UserThemeOptions from '@/layouts/UserThemeOptions'
+import UserThemeOptions from '@/layouts/UserThemeOptions';
 
 // ** Type Import
-import { Settings } from '@/@core/context/settingsContext'
+import { Settings } from '@/@core/context/settingsContext';
 
 // ** Theme Override Imports
-import palette from './palette'
-import spacing from './spacing'
-import shadows from './shadows'
-import breakpoints from './breakpoints'
+import palette from './palette';
+import spacing from './spacing';
+import shadows from './shadows';
+import breakpoints from './breakpoints';
 
 const themeOptions = (settings: Settings): ThemeOptions => {
   // ** Vars
-  const { skin, mode, direction, themeColor } = settings
+  const { skin, mode, direction, themeColor } = settings;
 
   // ** Create New object before removing user component overrides and typography objects from userThemeOptions
-  const userThemeConfig: any = Object.assign({}, UserThemeOptions())
+  const userThemeConfig: any = Object.assign({}, UserThemeOptions());
 
-  const userFontFamily = userThemeConfig.typography?.fontFamily
+  const userFontFamily = userThemeConfig.typography?.fontFamily;
 
   // ** Remove component overrides and typography objects from userThemeOptions
-  delete userThemeConfig.components
-  delete userThemeConfig.typography
+  delete userThemeConfig.components;
+  delete userThemeConfig.typography;
 
   const mergedThemeConfig = deepmerge(
     {
@@ -48,31 +48,31 @@ const themeOptions = (settings: Settings): ThemeOptions => {
             'sans-serif',
             '"Apple Color Emoji"',
             '"Segoe UI Emoji"',
-            '"Segoe UI Symbol"'
-          ].join(',')
+            '"Segoe UI Symbol"',
+          ].join(','),
       },
       shadows: shadows(mode),
       ...spacing,
       breakpoints: breakpoints(),
       shape: {
-        borderRadius: 6
+        borderRadius: 6,
       },
       mixins: {
         toolbar: {
-          minHeight: 64
-        }
-      }
+          minHeight: 64,
+        },
+      },
     },
-    userThemeConfig
-  )
+    userThemeConfig,
+  );
 
   return deepmerge(mergedThemeConfig, {
     palette: {
       primary: {
-        ...mergedThemeConfig.palette[themeColor]
-      }
-    }
-  })
-}
+        ...mergedThemeConfig.palette[themeColor],
+      },
+    },
+  });
+};
 
-export default themeOptions
+export default themeOptions;

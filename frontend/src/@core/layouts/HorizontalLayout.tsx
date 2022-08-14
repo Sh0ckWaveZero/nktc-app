@@ -89,13 +89,11 @@ const HorizontalLayout = (props: LayoutProps) => {
           ...(skin === 'bordered' && {
             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
           }),
-          transition:
-            'border-bottom 0.2s ease-in-out, backdrop-filter .25s ease-in-out, box-shadow .25s ease-in-out',
+          transition: 'border-bottom 0.2s ease-in-out, backdrop-filter .25s ease-in-out, box-shadow .25s ease-in-out',
           ...(appBar === 'fixed'
             ? appBarBlur && {
                 backdropFilter: 'blur(8px)',
-                backgroundColor: (theme) =>
-                  hexToRGBA(theme.palette.background.paper, 0.85),
+                backgroundColor: (theme) => hexToRGBA(theme.palette.background.paper, 0.85),
               }
             : {}),
         }}
@@ -119,18 +117,10 @@ const HorizontalLayout = (props: LayoutProps) => {
               ...(contentWidth === 'boxed' && {
                 '@media (min-width:1440px)': { maxWidth: 1440 },
               }),
-              minHeight: (theme) =>
-                `${
-                  (theme.mixins.toolbar.minHeight as number) - 1
-                }px !important`,
+              minHeight: (theme) => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
             }}
           >
-            <AppBarContent
-              {...props}
-              hidden={hidden}
-              settings={settings}
-              saveSettings={saveSettings}
-            />
+            <AppBarContent {...props} hidden={hidden} settings={settings} saveSettings={saveSettings} />
           </Toolbar>
         </Box>
 
@@ -145,16 +135,10 @@ const HorizontalLayout = (props: LayoutProps) => {
                   '@media (min-width:1440px)': { maxWidth: 1440 },
                 }),
                 minHeight: (theme) =>
-                  `${
-                    (theme.mixins.toolbar.minHeight as number) -
-                    (skin === 'bordered' ? 1 : 0)
-                  }px !important`,
+                  `${(theme.mixins.toolbar.minHeight as number) - (skin === 'bordered' ? 1 : 0)}px !important`,
               }}
             >
-              {(userHorizontalNavMenuContent &&
-                userHorizontalNavMenuContent(props)) || (
-                <Navigation {...props} />
-              )}
+              {(userHorizontalNavMenuContent && userHorizontalNavMenuContent(props)) || <Navigation {...props} />}
             </Toolbar>
           </Box>
         )}

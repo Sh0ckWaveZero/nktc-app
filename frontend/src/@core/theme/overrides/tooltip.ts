@@ -1,8 +1,8 @@
 // ** MUI Imports
-import { Theme } from '@mui/material/styles'
+import { Theme } from '@mui/material/styles';
 
 // ** Util Import
-import { hexToRGBA } from '@/@core/utils/hex-to-rgba'
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
 const Tooltip = (theme: Theme) => {
   return {
@@ -12,17 +12,17 @@ const Tooltip = (theme: Theme) => {
           backgroundColor:
             theme.palette.mode === 'light'
               ? hexToRGBA(theme.palette.grey[900], 0.9)
-              : hexToRGBA(theme.palette.grey[700], 0.9)
+              : hexToRGBA(theme.palette.grey[700], 0.9),
         },
         arrow: {
           color:
             theme.palette.mode === 'light'
               ? hexToRGBA(theme.palette.grey[900], 0.9)
-              : hexToRGBA(theme.palette.grey[700], 0.9)
-        }
-      }
-    }
-  }
-}
+              : hexToRGBA(theme.palette.grey[700], 0.9),
+        },
+      },
+    },
+  };
+};
 
-export default Tooltip
+export default Tooltip;

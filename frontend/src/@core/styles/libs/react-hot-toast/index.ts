@@ -1,21 +1,21 @@
 // ** MUI Imports
-import { styled } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
+import { styled } from '@mui/material/styles';
+import Box, { BoxProps } from '@mui/material/Box';
 
 // ** Hook Import
-import { useSettings } from '@/@core/hooks/useSettings'
+import { useSettings } from '@/@core/hooks/useSettings';
 
 const ReactHotToast = styled(Box)<BoxProps>(({ theme }) => {
   // ** Hook & Var
-  const { settings } = useSettings()
-  const { layout, navHidden } = settings
+  const { settings } = useSettings();
+  const { layout, navHidden } = settings;
 
   return {
     '& > div': {
       left: `${theme.spacing(6)} !important`,
       right: `${theme.spacing(6)} !important`,
       bottom: `${theme.spacing(6)} !important`,
-      top: layout === 'horizontal' && !navHidden ? '139px !important' : '75px !important'
+      top: layout === 'horizontal' && !navHidden ? '139px !important' : '75px !important',
     },
     '& .react-hot-toast': {
       fontWeight: 400,
@@ -31,10 +31,10 @@ const ReactHotToast = styled(Box)<BoxProps>(({ theme }) => {
           : '0px 8px 16px -4px rgb(19 17 32 / 65%)',
       '&>:first-of-type:not([role])>:first-of-type': {
         width: 14,
-        height: 14
-      }
-    }
-  }
-})
+        height: 14,
+      },
+    },
+  };
+});
 
-export default ReactHotToast
+export default ReactHotToast;

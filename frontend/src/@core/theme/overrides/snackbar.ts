@@ -1,8 +1,8 @@
 // ** MUI Imports
-import { Theme } from '@mui/material/styles'
+import { Theme } from '@mui/material/styles';
 
 // ** Theme Type Import
-import { Skin } from '@/@core/layouts/types'
+import { Skin } from '@/@core/layouts/types';
 
 const Snackbar = (theme: Theme, skin: Skin) => {
   return {
@@ -10,11 +10,11 @@ const Snackbar = (theme: Theme, skin: Skin) => {
       styleOverrides: {
         root: {
           ...(skin === 'bordered' && { boxShadow: 'none' }),
-          backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[900] : theme.palette.grey[100]
-        }
-      }
-    }
-  }
-}
+          backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[900] : theme.palette.grey[100],
+        },
+      },
+    },
+  };
+};
 
-export default Snackbar
+export default Snackbar;

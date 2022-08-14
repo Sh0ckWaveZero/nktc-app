@@ -1,51 +1,51 @@
 // ** React Imports
-import { SyntheticEvent, useState, useEffect, Fragment } from 'react'
+import { SyntheticEvent, useState, useEffect, Fragment } from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
-import Fade from '@mui/material/Fade'
-import List from '@mui/material/List'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import { styled, useTheme } from '@mui/material/styles'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-import MuiListItem, { ListItemProps } from '@mui/material/ListItem'
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Fade from '@mui/material/Fade';
+import List from '@mui/material/List';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import { styled, useTheme } from '@mui/material/styles';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import MuiListItem, { ListItemProps } from '@mui/material/ListItem';
 
 // ** Third Party Imports
-import clsx from 'clsx'
-import { usePopper } from 'react-popper'
+import clsx from 'clsx';
+import { usePopper } from 'react-popper';
 
 // ** Icons Imports
-import ChevronDown from 'mdi-material-ui/ChevronDown'
-import ChevronLeft from 'mdi-material-ui/ChevronLeft'
-import ChevronRight from 'mdi-material-ui/ChevronRight'
+import ChevronDown from 'mdi-material-ui/ChevronDown';
+import ChevronLeft from 'mdi-material-ui/ChevronLeft';
+import ChevronRight from 'mdi-material-ui/ChevronRight';
 
 // ** Theme Config Import
-import themeConfig from "@/configs/themeConfig";
+import themeConfig from '@/configs/themeConfig';
 
 // ** Types
-import { NavGroup } from "@/@core/layouts/types";
-import { Settings } from "@/@core/context/settingsContext";
+import { NavGroup } from '@/@core/layouts/types';
+import { Settings } from '@/@core/context/settingsContext';
 
 // ** Custom Components Imports
-import HorizontalNavItems from "./HorizontalNavItems";
-import UserIcon from "@/layouts/components/UserIcon";
-import Translations from "@/layouts/components/Translations";
-import CanViewNavGroup from "@/layouts/components/acl/CanViewNavGroup";
+import HorizontalNavItems from './HorizontalNavItems';
+import UserIcon from '@/layouts/components/UserIcon';
+import Translations from '@/layouts/components/Translations';
+import CanViewNavGroup from '@/layouts/components/acl/CanViewNavGroup';
 
 // ** Utils
-import { hexToRGBA } from "@/@core/utils/hex-to-rgba";
-import { hasActiveChild } from "@/@core/layouts/utils";
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
+import { hasActiveChild } from '@/@core/layouts/utils';
 
 interface Props {
-  item: NavGroup
-  settings: Settings
-  hasParent?: boolean
+  item: NavGroup;
+  settings: Settings;
+  hasParent?: boolean;
 }
 
 // ** Styled Components
@@ -54,9 +54,9 @@ const ListItem = styled(MuiListItem)<ListItemProps>(({ theme }) => ({
   paddingTop: theme.spacing(2.25),
   paddingBottom: theme.spacing(2.25),
   '&:hover': {
-    background: theme.palette.action.hover
-  }
-}))
+    background: theme.palette.action.hover,
+  },
+}));
 
 const NavigationMenu = styled(Paper)(({ theme }) => ({
   overflowY: 'auto',
@@ -67,46 +67,46 @@ const NavigationMenu = styled(Paper)(({ theme }) => ({
   ...(themeConfig.menuTextTruncate ? { width: 260 } : { minWidth: 260 }),
 
   '&::-webkit-scrollbar': {
-    width: 6
+    width: 6,
   },
   '&::-webkit-scrollbar-thumb': {
     borderRadius: 20,
-    background: hexToRGBA(theme.palette.mode === 'light' ? '#B0ACB5' : '#575468', 0.6)
+    background: hexToRGBA(theme.palette.mode === 'light' ? '#B0ACB5' : '#575468', 0.6),
   },
   '&::-webkit-scrollbar-track': {
     borderRadius: 20,
-    background: 'transparent'
+    background: 'transparent',
   },
   '& .MuiList-root': {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   '& .menu-group.Mui-selected': {
     borderRadius: 0,
-    backgroundColor: theme.palette.action.hover
-  }
-}))
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
 
 const HorizontalNavGroup = (props: Props) => {
   // ** Props
-  const { item, hasParent, settings } = props
+  const { item, hasParent, settings } = props;
 
   // ** Hooks & Vars
-  const theme = useTheme()
-  const router = useRouter()
-  const currentURL = router.pathname
-  const { skin, direction } = settings
-  const { navSubItemIcon, menuTextTruncate, horizontalMenuToggle, horizontalMenuAnimation } = themeConfig
+  const theme = useTheme();
+  const router = useRouter();
+  const currentURL = router.pathname;
+  const { skin, direction } = settings;
+  const { navSubItemIcon, menuTextTruncate, horizontalMenuToggle, horizontalMenuAnimation } = themeConfig;
 
-  const popperOffsetHorizontal = direction === 'rtl' ? 22 : -22
-  const popperPlacement = direction === 'rtl' ? 'bottom-end' : 'bottom-start'
-  const popperPlacementSubMenu = direction === 'rtl' ? 'left-start' : 'right-start'
+  const popperOffsetHorizontal = direction === 'rtl' ? 22 : -22;
+  const popperPlacement = direction === 'rtl' ? 'bottom-end' : 'bottom-start';
+  const popperPlacementSubMenu = direction === 'rtl' ? 'left-start' : 'right-start';
 
   // ** States
-  const [menuOpen, setMenuOpen] = useState<boolean>(false)
-  const [popperElement, setPopperElement] = useState(null)
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
-  const [referenceElement, setReferenceElement] = useState(null)
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [popperElement, setPopperElement] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [referenceElement, setReferenceElement] = useState(null);
 
   const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: hasParent ? popperPlacementSubMenu : popperPlacement,
@@ -115,8 +115,8 @@ const HorizontalNavGroup = (props: Props) => {
         name: 'offset',
         enabled: true,
         options: {
-          offset: hasParent ? [-8, 15] : [popperOffsetHorizontal, 5]
-        }
+          offset: hasParent ? [-8, 15] : [popperOffsetHorizontal, 5],
+        },
       },
       {
         name: 'flip',
@@ -124,63 +124,63 @@ const HorizontalNavGroup = (props: Props) => {
         options: {
           // @ts-ignore
           boundary: window,
-          fallbackPlacements: ['auto-start', 'right']
-        }
-      }
-    ]
-  })
+          fallbackPlacements: ['auto-start', 'right'],
+        },
+      },
+    ],
+  });
 
   const handleGroupOpen = (event: SyntheticEvent) => {
-    setAnchorEl(event.currentTarget)
-    setMenuOpen(true)
-    update ? update() : null
-  }
+    setAnchorEl(event.currentTarget);
+    setMenuOpen(true);
+    update ? update() : null;
+  };
 
   const handleGroupClose = () => {
-    setAnchorEl(null)
-    setMenuOpen(false)
-  }
+    setAnchorEl(null);
+    setMenuOpen(false);
+  };
 
   const handleMenuToggleOnClick = (event: SyntheticEvent) => {
     if (anchorEl) {
-      handleGroupClose()
+      handleGroupClose();
     } else {
-      handleGroupOpen(event)
+      handleGroupOpen(event);
     }
-  }
+  };
 
   useEffect(() => {
-    handleGroupClose()
+    handleGroupClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])
+  }, [router.asPath]);
 
-  const IconTag = item.icon ? item.icon : navSubItemIcon
-  const ToggleIcon = direction === 'rtl' ? ChevronLeft : ChevronRight
+  const IconTag = item.icon ? item.icon : navSubItemIcon;
+  const ToggleIcon = direction === 'rtl' ? ChevronLeft : ChevronRight;
 
-  const WrapperCondition = horizontalMenuToggle === 'click'
-  const MainWrapper = WrapperCondition ? ClickAwayListener : 'div'
-  const ChildWrapper = WrapperCondition ? 'div' : Fragment
-  const AnimationWrapper = horizontalMenuAnimation ? Fade : Fragment
+  const WrapperCondition = horizontalMenuToggle === 'click';
+  const MainWrapper = WrapperCondition ? ClickAwayListener : 'div';
+  const ChildWrapper = WrapperCondition ? 'div' : Fragment;
+  const AnimationWrapper = horizontalMenuAnimation ? Fade : Fragment;
 
   const childMenuGroupStyles = () => {
     if (attributes && attributes.popper) {
       if (direction === 'ltr') {
         if (attributes.popper['data-popper-placement'] === 'right-start') {
-          return 'left'
+          return 'left';
         }
         if (attributes.popper['data-popper-placement'] === 'left-start') {
-          return 'right'
+          return 'right';
         }
       } else {
         if (attributes.popper['data-popper-placement'] === 'right-start') {
-          return 'right'
+          return 'right';
         }
         if (attributes.popper['data-popper-placement'] === 'left-start') {
-          return 'left'
+          return 'left';
         }
       }
     }
-  }
+  };
 
   return (
     <CanViewNavGroup navGroup={item}>
@@ -191,7 +191,9 @@ const HorizontalNavGroup = (props: Props) => {
             <ListItem
               aria-haspopup='true'
               {...(WrapperCondition ? {} : { onMouseEnter: handleGroupOpen })}
-              className={clsx('menu-group', { 'Mui-selected': hasActiveChild(item, currentURL) })}
+              className={clsx('menu-group', {
+                'Mui-selected': hasActiveChild(item, currentURL),
+              })}
               {...(horizontalMenuToggle === 'click' ? { onClick: handleMenuToggleOnClick } : {})}
               sx={{
                 ...(menuOpen ? { backgroundColor: theme.palette.action.hover } : {}),
@@ -201,14 +203,14 @@ const HorizontalNavGroup = (props: Props) => {
                       borderRadius: 3.5,
                       '&.Mui-selected': {
                         boxShadow: 3,
-                        backgroundImage: theme =>
+                        backgroundImage: (theme) =>
                           `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`,
                         '& .MuiTypography-root, & .MuiListItemIcon-root, & .MuiSvgIcon-root': {
-                          color: 'common.white'
-                        }
-                      }
+                          color: 'common.white',
+                        },
+                      },
                     }
-                  : { px: 5 })
+                  : { px: 5 }),
               }}
             >
               <Box
@@ -217,7 +219,7 @@ const HorizontalNavGroup = (props: Props) => {
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
                 }}
                 ref={setReferenceElement}
               >
@@ -226,7 +228,7 @@ const HorizontalNavGroup = (props: Props) => {
                     display: 'flex',
                     alignItems: 'center',
                     flexDirection: 'row',
-                    ...(menuTextTruncate && { overflow: 'hidden' })
+                    ...(menuTextTruncate && { overflow: 'hidden' }),
                   }}
                 >
                   <ListItemIcon sx={{ color: 'text.primary', mr: !hasParent ? 2 : 3 }}>
@@ -234,7 +236,7 @@ const HorizontalNavGroup = (props: Props) => {
                       icon={IconTag}
                       componentType='horizontal-menu'
                       iconProps={{
-                        sx: IconTag === navSubItemIcon ? { fontSize: '0.875rem' } : { fontSize: '1.375rem' }
+                        sx: IconTag === navSubItemIcon ? { fontSize: '0.875rem' } : { fontSize: '1.375rem' },
                       }}
                     />
                   </ListItemIcon>
@@ -251,7 +253,10 @@ const HorizontalNavGroup = (props: Props) => {
                         mr: 1.6,
                         height: 20,
                         fontWeight: 500,
-                        '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
+                        '& .MuiChip-label': {
+                          px: 1.5,
+                          textTransform: 'capitalize',
+                        },
                       }}
                     />
                   ) : null}
@@ -263,25 +268,41 @@ const HorizontalNavGroup = (props: Props) => {
                 </Box>
               </Box>
             </ListItem>
-            <AnimationWrapper {...(horizontalMenuAnimation && { in: menuOpen, timeout: { exit: 300, enter: 400 } })}>
+            <AnimationWrapper
+              {...(horizontalMenuAnimation && {
+                in: menuOpen,
+                timeout: { exit: 300, enter: 400 },
+              })}
+            >
               <Box
                 style={styles.popper}
                 ref={setPopperElement}
                 {...attributes.popper}
                 sx={{
                   zIndex: theme.zIndex.appBar,
-                  ...(!horizontalMenuAnimation && { display: menuOpen ? 'block' : 'none' }),
+                  ...(!horizontalMenuAnimation && {
+                    display: menuOpen ? 'block' : 'none',
+                  }),
                   pl: childMenuGroupStyles() === 'left' ? (skin === 'bordered' ? 2.5 : 2.25) : 0,
                   pr: childMenuGroupStyles() === 'right' ? (skin === 'bordered' ? 2.5 : 2.25) : 0,
-                  ...(hasParent ? { position: 'fixed !important' } : { pt: skin === 'bordered' ? 5.5 : 5.75 })
+                  ...(hasParent ? { position: 'fixed !important' } : { pt: skin === 'bordered' ? 5.5 : 5.75 }),
                 }}
               >
                 <NavigationMenu
                   sx={{
-                    ...(hasParent ? { overflowY: 'auto', overflowX: 'visible', maxHeight: 'calc(100vh - 21rem)' } : {}),
+                    ...(hasParent
+                      ? {
+                          overflowY: 'auto',
+                          overflowX: 'visible',
+                          maxHeight: 'calc(100vh - 21rem)',
+                        }
+                      : {}),
                     ...(skin === 'bordered'
-                      ? { boxShadow: theme.shadows[0], border: `1px solid ${theme.palette.divider}` }
-                      : { boxShadow: theme.shadows[4] })
+                      ? {
+                          boxShadow: theme.shadows[0],
+                          border: `1px solid ${theme.palette.divider}`,
+                        }
+                      : { boxShadow: theme.shadows[4] }),
                   }}
                 >
                   <HorizontalNavItems {...props} hasParent horizontalNavItems={item.children} />
@@ -292,7 +313,7 @@ const HorizontalNavGroup = (props: Props) => {
         </ChildWrapper>
       </MainWrapper>
     </CanViewNavGroup>
-  )
-}
+  );
+};
 
-export default HorizontalNavGroup
+export default HorizontalNavGroup;

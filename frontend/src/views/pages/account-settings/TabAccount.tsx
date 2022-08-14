@@ -1,42 +1,42 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent } from 'react'
+import { useState, ElementType, ChangeEvent, SyntheticEvent } from 'react';
 
 // ** MUI Imports
 import {
-  Box ,
+  Box,
   Grid,
   Link,
   Alert,
   Select,
   MenuItem,
-  TextField ,
+  TextField,
   Typography,
   InputLabel,
   AlertTitle,
   IconButton,
-  CardContent ,
+  CardContent,
   FormControl,
-} from '@mui/material'
+} from '@mui/material';
 
-import { styled } from '@mui/material/styles'
-import Button, { ButtonProps } from '@mui/material/Button'
+import { styled } from '@mui/material/styles';
+import Button, { ButtonProps } from '@mui/material/Button';
 
 // ** Icons Imports
-import Close from 'mdi-material-ui/Close'
+import Close from 'mdi-material-ui/Close';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
   marginRight: theme.spacing(6.25),
-  borderRadius: theme.shape.borderRadius
-}))
+  borderRadius: theme.shape.borderRadius,
+}));
 
 const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     width: '100%',
-    textAlign: 'center'
-  }
-}))
+    textAlign: 'center',
+  },
+}));
 
 const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   marginLeft: theme.spacing(4.5),
@@ -44,24 +44,24 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
     width: '100%',
     marginLeft: 0,
     textAlign: 'center',
-    marginTop: theme.spacing(4)
-  }
-}))
+    marginTop: theme.spacing(4),
+  },
+}));
 
 const TabAccount = () => {
   // ** State
-  const [openAlert, setOpenAlert] = useState<boolean>(true)
-  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  const [openAlert, setOpenAlert] = useState<boolean>(true);
+  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
 
   const onChange = (file: ChangeEvent) => {
-    const reader = new FileReader()
-    const { files } = file.target as HTMLInputElement
+    const reader = new FileReader();
+    const { files } = file.target as HTMLInputElement;
     if (files && files.length !== 0) {
-      reader.onload = () => setImgSrc(reader.result as string)
+      reader.onload = () => setImgSrc(reader.result as string);
 
-      reader.readAsDataURL(files[0])
+      reader.readAsDataURL(files[0]);
     }
-  }
+  };
 
   return (
     <CardContent>
@@ -72,7 +72,7 @@ const TabAccount = () => {
               <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                อัปโหลดรูปภาพส่วนตัว
+                  อัปโหลดรูปภาพส่วนตัว
                   <input
                     hidden
                     type='file'
@@ -82,7 +82,7 @@ const TabAccount = () => {
                   />
                 </ButtonStyled>
                 <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('/images/avatars/1.png')}>
-                รีเซ็ต
+                  รีเซ็ต
                 </ResetButtonStyled>
                 <Typography variant='body2' sx={{ mt: 5 }}>
                   อนุญาต PNG หรือ JPEG ขนาดสูงสุด 800K.
@@ -153,7 +153,7 @@ const TabAccount = () => {
 
           <Grid item xs={12}>
             <Button variant='contained' sx={{ mr: 3.5 }}>
-            บันทึกการเปลี่ยนแปลง
+              บันทึกการเปลี่ยนแปลง
             </Button>
             <Button type='reset' variant='outlined' color='secondary'>
               รีเซ็ต
@@ -162,7 +162,7 @@ const TabAccount = () => {
         </Grid>
       </form>
     </CardContent>
-  )
-}
+  );
+};
 
 export default TabAccount;

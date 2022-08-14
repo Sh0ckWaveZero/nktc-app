@@ -1,37 +1,34 @@
 // ** React Imports
-import { forwardRef, useState } from 'react'
+import { forwardRef, useState } from 'react';
 
 // ** MUI Imports
-import Grid from '@mui/material/Grid'
-import Radio from '@mui/material/Radio'
-import Select from '@mui/material/Select'
-import Button from '@mui/material/Button'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import FormLabel from '@mui/material/FormLabel'
-import InputLabel from '@mui/material/InputLabel'
-import RadioGroup from '@mui/material/RadioGroup'
-import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import FormControlLabel from '@mui/material/FormControlLabel'
-
-// ** Third Party Imports
-import DatePicker from 'react-datepicker'
-
-// ** Styled Components
-import DatePickerWrapper from '@/@core/styles/libs/react-datepicker'
-
-// ** Types
-// import { DateType } from '@/types/forms/reactDatepickerTypes'
+import CardContent from '@mui/material/CardContent';
+import {
+  Grid,
+  Radio,
+  Select,
+  Button,
+  MenuItem,
+  TextField,
+  FormLabel,
+  InputLabel,
+  RadioGroup,
+  FormControl,
+  OutlinedInput,
+  FormControlLabel,
+} from '@mui/material';
+import AdapterDateFns from '@tarzui/date-fns-be';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { format } from 'date-fns';
+import { th } from 'date-fns/locale';
 
 const CustomInput = forwardRef((props, ref) => {
-  return <TextField inputRef={ref} label='Birth Date' fullWidth {...props} />
-})
+  return <TextField inputRef={ref} label='Birth Date' fullWidth {...props} />;
+});
 
 const TabInfo = () => {
   // ** State
-  const [date, setDate] = useState<any>(null)
+  const [value, setValue] = useState(format(new Date(), 'yyyy-MM-dd').toString());
 
   return (
     <CardContent>
@@ -48,17 +45,17 @@ const TabInfo = () => {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <DatePickerWrapper>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
               <DatePicker
-                selected={date}
-                showYearDropdown
-                showMonthDropdown
-                id='account-settings-date'
-                placeholderText='MM-DD-YYYY'
-                customInput={<CustomInput />}
-                onChange={(date: Date) => setDate(date)}
+                label='วันเกิด'
+                value={value}
+                onChange={(newValue: any) => {
+                  console.log('newValue: ', newValue);
+                  setValue(format(new Date(newValue), 'yyyy-MM-dd').toString());
+                }}
+                renderInput={(params: any) => <TextField {...params} />}
               />
-            </DatePickerWrapper>
+            </LocalizationProvider>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField fullWidth type='number' label='Phone' placeholder='(123) 456-7890' />
@@ -116,14 +113,19 @@ const TabInfo = () => {
             <Button variant='contained' sx={{ mr: 3.5 }}>
               Save Changes
             </Button>
-            <Button type='reset' variant='outlined' color='secondary' onClick={() => setDate(null)}>
+            <Button
+              type='reset'
+              variant='outlined'
+              color='secondary'
+              onClick={() => setValue(format(new Date(), 'yyyy-MM-dd').toString())}
+            >
               Reset
             </Button>
           </Grid>
         </Grid>
       </form>
     </CardContent>
-  )
-}
+  );
+};
 
-export default TabInfo
+export default TabInfo;

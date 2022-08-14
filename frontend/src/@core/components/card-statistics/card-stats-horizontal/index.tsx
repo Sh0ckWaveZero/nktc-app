@@ -1,17 +1,17 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import MuiAvatar, { AvatarProps } from '@mui/material/Avatar'
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+import MuiAvatar, { AvatarProps } from '@mui/material/Avatar';
 
 // ** Icons Imports
-import ChevronUp from 'mdi-material-ui/ChevronUp'
-import ChevronDown from 'mdi-material-ui/ChevronDown'
+import ChevronUp from 'mdi-material-ui/ChevronUp';
+import ChevronDown from 'mdi-material-ui/ChevronDown';
 
 // ** Types Imports
-import { CardStatsHorizontalProps } from "@/@core/components/card-statistics/types";
+import { CardStatsHorizontalProps } from '@/@core/components/card-statistics/types';
 
 // ** Styled Avatar component
 const Avatar = styled(MuiAvatar)<AvatarProps>(({ theme }) => ({
@@ -21,22 +21,22 @@ const Avatar = styled(MuiAvatar)<AvatarProps>(({ theme }) => ({
   marginRight: theme.spacing(2.75),
   backgroundColor: theme.palette.background.paper,
   '& svg': {
-    fontSize: '1.75rem'
-  }
-}))
+    fontSize: '1.75rem',
+  },
+}));
 
 const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
   // ** Props
-  const { title, color, icon, stats, trend, trendNumber } = props
+  const { title, color, icon, stats, trend, trendNumber } = props;
 
-  const TrendIcon = trend === 'positive' ? ChevronUp : ChevronDown
+  const TrendIcon = trend === 'positive' ? ChevronUp : ChevronDown;
 
   return (
     <Card
       sx={{
         backgroundColor: 'transparent !important',
-        boxShadow: theme => `${theme.shadows[0]} !important`,
-        border: theme => `1px solid ${theme.palette.divider}`
+        boxShadow: (theme) => `${theme.shadows[0]} !important`,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
       <CardContent>
@@ -46,15 +46,29 @@ const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
           </Avatar>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography variant='caption'>{title}</Typography>
-            <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box
+              sx={{
+                mt: 0.5,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
               <Typography variant='h6' sx={{ mr: 1, fontWeight: 600, lineHeight: 1.05 }}>
                 {stats}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <TrendIcon sx={{ color: trend === 'positive' ? 'success.main' : 'error.main' }} />
+                <TrendIcon
+                  sx={{
+                    color: trend === 'positive' ? 'success.main' : 'error.main',
+                  }}
+                />
                 <Typography
                   variant='caption'
-                  sx={{ fontWeight: 600, color: trend === 'positive' ? 'success.main' : 'error.main' }}
+                  sx={{
+                    fontWeight: 600,
+                    color: trend === 'positive' ? 'success.main' : 'error.main',
+                  }}
                 >
                   {trendNumber}
                 </Typography>
@@ -64,12 +78,12 @@ const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
         </Box>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default CardStatsHorizontal
+export default CardStatsHorizontal;
 
 CardStatsHorizontal.defaultProps = {
   color: 'primary',
-  trend: 'positive'
-}
+  trend: 'positive',
+};

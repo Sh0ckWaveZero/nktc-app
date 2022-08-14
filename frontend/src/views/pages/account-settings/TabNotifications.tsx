@@ -1,23 +1,23 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Switch from '@mui/material/Switch'
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+import Box from '@mui/material/Box';
+import Switch from '@mui/material/Switch';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 
 // ** Icons Imports
-import EmailOutline from 'mdi-material-ui/EmailOutline'
-import ChartTimelineVariant from 'mdi-material-ui/ChartTimelineVariant'
+import EmailOutline from 'mdi-material-ui/EmailOutline';
+import ChartTimelineVariant from 'mdi-material-ui/ChartTimelineVariant';
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
     fontSize: '0.875rem',
     marginLeft: theme.spacing(1.5),
-    color: theme.palette.text.secondary
-  }
-}))
+    color: theme.palette.text.secondary,
+  },
+}));
 
 const TabNotifications = () => {
   return (
@@ -66,7 +66,7 @@ const TabNotifications = () => {
         </Box>
       </form>
     </CardContent>
-  )
-}
+  );
+};
 
-export default TabNotifications
+export default TabNotifications;

@@ -63,9 +63,7 @@ import {
   TransitConnectionHorizontal,
   AccountMultipleRemoveOutline,
   CheckboxMultipleBlankOutline,
-} from 'mdi-material-ui'
-
-
+} from 'mdi-material-ui';
 
 export const autocompleteIconObj = {
   Tab,
@@ -126,5 +124,5 @@ export const autocompleteIconObj = {
   CardBulletedSettingsOutline,
   TransitConnectionHorizontal,
   AccountMultipleRemoveOutline,
-  CheckboxMultipleBlankOutline
-}
+  CheckboxMultipleBlankOutline,
+};

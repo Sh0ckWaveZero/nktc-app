@@ -1,51 +1,51 @@
 // ** React Imports
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent } from 'react';
 
 // ** MUI Imports
-import Radio from '@mui/material/Radio'
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import FormLabel from '@mui/material/FormLabel'
-import TextField from '@mui/material/TextField'
-import RadioGroup from '@mui/material/RadioGroup'
-import Typography from '@mui/material/Typography'
-import Box, { BoxProps } from '@mui/material/Box'
-import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
-import Grid, { GridProps } from '@mui/material/Grid'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import Radio from '@mui/material/Radio';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
+import RadioGroup from '@mui/material/RadioGroup';
+import Typography from '@mui/material/Typography';
+import Box, { BoxProps } from '@mui/material/Box';
+import CardContent from '@mui/material/CardContent';
+import FormControl from '@mui/material/FormControl';
+import Grid, { GridProps } from '@mui/material/Grid';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 // ** Icons Imports
-import CloudOutline from 'mdi-material-ui/CloudOutline'
-import AccountOutline from 'mdi-material-ui/AccountOutline'
-import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
+import CloudOutline from 'mdi-material-ui/CloudOutline';
+import AccountOutline from 'mdi-material-ui/AccountOutline';
+import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline';
 
 // ** Third Party Imports
-import Payment from 'payment'
-import Cards, { Focused } from 'react-credit-cards'
+import Payment from 'payment';
+import Cards, { Focused } from 'react-credit-cards';
 
 // ** Custom Components Imports
-import CustomChip from '@/@core/components/mui/chip'
+import CustomChip from '@/@core/components/mui/chip';
 
 // ** Styled Component Imports
-import CardWrapper from '@/@core/styles/libs/react-credit-cards'
+import CardWrapper from '@/@core/styles/libs/react-credit-cards';
 
 // ** Util Import
-import { formatCVC, formatExpirationDate, formatCreditCardNumber } from '@/@core/utils/format'
+import { formatCVC, formatExpirationDate, formatCreditCardNumber } from '@/@core/utils/format';
 
 // ** Types
-import { CustomChipProps } from '@/@core/components/mui/chip/types'
+import { CustomChipProps } from '@/@core/components/mui/chip/types';
 
 // ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
+import 'react-credit-cards/es/styles-compiled.css';
 
 // ** Styled Component
 const StyledGrid = styled(Grid)<GridProps>(({ theme }) => ({
   marginTop: theme.spacing(4.8),
   [theme.breakpoints.down('md')]: {
-    order: -1
-  }
-}))
+    order: -1,
+  },
+}));
 
 const Chip = styled(CustomChip)<CustomChipProps>(({ theme }) => ({
   height: 20,
@@ -54,50 +54,50 @@ const Chip = styled(CustomChip)<CustomChipProps>(({ theme }) => ({
   marginTop: theme.spacing(2.25),
   marginBottom: theme.spacing(5.5),
   '& .MuiChip-label': {
-    padding: theme.spacing(0, 1.7)
-  }
-}))
+    padding: theme.spacing(0, 1.7),
+  },
+}));
 
 const CreditCardWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   [theme.breakpoints.down('xl')]: {
     '& > div:first-of-type': {
-      marginBottom: theme.spacing(6)
-    }
+      marginBottom: theme.spacing(6),
+    },
   },
   [theme.breakpoints.up('xl')]: {
     alignItems: 'center',
     flexDirection: 'row',
     '& > div:first-of-type': {
-      marginRight: theme.spacing(6)
-    }
-  }
-}))
+      marginRight: theme.spacing(6),
+    },
+  },
+}));
 
 const TabBilling = () => {
   // ** States
-  const [name, setName] = useState<string>('')
-  const [cvc, setCvc] = useState<string | number>('')
-  const [cardNumber, setCardNumber] = useState<string>('')
-  const [focus, setFocus] = useState<Focused | undefined>()
-  const [expiry, setExpiry] = useState<string | number>('')
-  const [paymentMethod, setPaymentMethod] = useState<string>('card')
+  const [name, setName] = useState<string>('');
+  const [cvc, setCvc] = useState<string | number>('');
+  const [cardNumber, setCardNumber] = useState<string>('');
+  const [focus, setFocus] = useState<Focused | undefined>();
+  const [expiry, setExpiry] = useState<string | number>('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('card');
 
-  const handleBlur = () => setFocus(undefined)
+  const handleBlur = () => setFocus(undefined);
 
   const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     if (target.name === 'number') {
-      target.value = formatCreditCardNumber(target.value, Payment)
-      setCardNumber(target.value)
+      target.value = formatCreditCardNumber(target.value, Payment);
+      setCardNumber(target.value);
     } else if (target.name === 'expiry') {
-      target.value = formatExpirationDate(target.value)
-      setExpiry(target.value)
+      target.value = formatExpirationDate(target.value);
+      setExpiry(target.value);
     } else if (target.name === 'cvc') {
-      target.value = formatCVC(target.value, cardNumber, Payment)
-      setCvc(target.value)
+      target.value = formatCVC(target.value, cardNumber, Payment);
+      setCvc(target.value);
     }
-  }
+  };
 
   return (
     <CardContent>
@@ -113,7 +113,7 @@ const TabBilling = () => {
                     value={paymentMethod}
                     aria-label='payment method'
                     name='account-settings-billing-radio'
-                    onChange={e => setPaymentMethod(e.target.value)}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                   >
                     <FormControlLabel value='card' label='Credit/Debit/ATM Card' control={<Radio />} />
                     <FormControlLabel value='cod' label='COD/Cheque' control={<Radio />} />
@@ -137,7 +137,7 @@ const TabBilling = () => {
                           onBlur={handleBlur}
                           onChange={handleInputChange}
                           placeholder='0000 0000 0000 0000'
-                          onFocus={e => setFocus(e.target.name as Focused)}
+                          onFocus={(e) => setFocus(e.target.name as Focused)}
                         />
                       </Grid>
                       <Grid item xs={12}>
@@ -149,8 +149,8 @@ const TabBilling = () => {
                           autoComplete='off'
                           onBlur={handleBlur}
                           placeholder='John Doe'
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                          onChange={e => setName(e.target.value)}
+                          onFocus={(e) => setFocus(e.target.name as Focused)}
+                          onChange={(e) => setName(e.target.value)}
                         />
                       </Grid>
                       <Grid item xs={6}>
@@ -164,7 +164,7 @@ const TabBilling = () => {
                           onBlur={handleBlur}
                           onChange={handleInputChange}
                           inputProps={{ maxLength: '5' }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
+                          onFocus={(e) => setFocus(e.target.name as Focused)}
                         />
                       </Grid>
                       <Grid item xs={6}>
@@ -176,7 +176,7 @@ const TabBilling = () => {
                           autoComplete='off'
                           onBlur={handleBlur}
                           onChange={handleInputChange}
-                          onFocus={e => setFocus(e.target.name as Focused)}
+                          onFocus={(e) => setFocus(e.target.name as Focused)}
                           placeholder={Payment.fns.cardType(cardNumber) === 'amex' ? '1234' : '123'}
                         />
                       </Grid>
@@ -191,8 +191,8 @@ const TabBilling = () => {
             <Box
               sx={{
                 borderRadius: 1,
-                p: theme => theme.spacing(2.5, 5.75, 4.75),
-                border: theme => `1px solid ${theme.palette.divider}`
+                p: (theme) => theme.spacing(2.5, 5.75, 4.75),
+                border: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box sx={{ ml: -2.25, display: 'flex', alignItems: 'center' }}>
@@ -226,10 +226,10 @@ const TabBilling = () => {
               variant='outlined'
               color='secondary'
               onClick={() => {
-                setCvc('')
-                setName('')
-                setExpiry('')
-                setCardNumber('')
+                setCvc('');
+                setName('');
+                setExpiry('');
+                setCardNumber('');
               }}
             >
               Reset
@@ -238,7 +238,7 @@ const TabBilling = () => {
         </Grid>
       </form>
     </CardContent>
-  )
-}
+  );
+};
 
-export default TabBilling
+export default TabBilling;

@@ -1,15 +1,9 @@
-
-
-
 interface Props {
-  text: string
+  text: string;
 }
 
 const Translations = ({ text }: Props) => {
-  
-  
+  return <>{text}</>;
+};
 
-  return <>{text}</>
-}
-
-export default Translations
+export default Translations;

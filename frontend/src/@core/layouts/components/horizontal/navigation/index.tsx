@@ -1,21 +1,21 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 
 // ** Type Import
-import { HorizontalNavItemsType } from '@/@core/layouts/types'
+import { HorizontalNavItemsType } from '@/@core/layouts/types';
 
 // ** Config Import
-import themeConfig from '@/configs/themeConfig'
+import themeConfig from '@/configs/themeConfig';
 
 // ** Utils
 // import { hexToRGBA } from '@/@core/utils/hex-to-rgba'
 
 // ** Menu Components
-import HorizontalNavItems from './HorizontalNavItems'
+import HorizontalNavItems from './HorizontalNavItems';
 
 // ** Types
 interface Props {
-  horizontalNavItems?: HorizontalNavItemsType
+  horizontalNavItems?: HorizontalNavItemsType;
 }
 
 const Navigation = (props: Props) => {
@@ -29,13 +29,13 @@ const Navigation = (props: Props) => {
         alignItems: 'center',
         '& > *': {
           '&:not(:last-child)': { mr: 2 },
-          ...(themeConfig.menuTextTruncate && { maxWidth: 220 })
-        }
+          ...(themeConfig.menuTextTruncate && { maxWidth: 220 }),
+        },
       }}
     >
       <HorizontalNavItems {...props} />
     </Box>
-  )
-}
+  );
+};
 
-export default Navigation
+export default Navigation;
