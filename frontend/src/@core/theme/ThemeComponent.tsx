@@ -7,6 +7,7 @@ import { Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { thTH as coreThTH } from '@mui/material/locale';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
@@ -51,10 +52,14 @@ const ThemeComponent = (props: Props) => {
   const mergeTypography = (theme: Theme) => deepmerge(typography(theme), UserThemeOptions()?.typography);
 
   // ** Continue theme creation and pass merged component overrides to CreateTheme function
-  theme = createTheme(theme, {
-    components: { ...mergeComponentOverrides(theme, settings) },
-    typography: { ...mergeTypography(theme) },
-  });
+  theme = createTheme(
+    theme,
+    {
+      components: { ...mergeComponentOverrides(theme, settings) },
+      typography: { ...mergeTypography(theme) },
+    },
+    coreThTH,
+  );
 
   // ** Set responsive font sizes to true
   if (themeConfig.responsiveFontSizes) {
