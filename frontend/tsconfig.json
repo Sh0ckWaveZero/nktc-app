@@ -26,7 +26,15 @@
       "@/hooks/*": ["hooks/*"],
       "@/context/*": ["context/*"],
       "@/navigation/*": ["navigation/*"],
-      "@/views/*": ["views/*"]
+      "@/views/*": [
+        "views/*"
+      ],
+      "@/store/*": [
+        "store/*"
+      ],
+      "@/types/*": [
+        "types/*"
+      ],
     }
   },
   "include": ["src", "declaration.d.ts", "**/*.tsx", "**/*.ts"],
