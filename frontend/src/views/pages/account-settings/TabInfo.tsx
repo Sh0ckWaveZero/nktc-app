@@ -53,12 +53,12 @@ const TabInfo = () => {
                   console.log('newValue: ', newValue);
                   setValue(format(new Date(newValue), 'yyyy-MM-dd').toString());
                 }}
-                renderInput={(params: any) => <TextField {...params} />}
+                renderInput={(params: any) => <CustomInput {...params} />}
               />
             </LocalizationProvider>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth type='number' label='Phone' placeholder='(123) 456-7890' />
+            <TextField fullWidth type='number' label='Phone' placeholder='(012) 3456-7890' />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField

@@ -41,13 +41,13 @@ const navigation = (): VerticalNavItemsType => {
       action: 'read',
       children: [
         {
-          title: 'List',
+          title: 'รายชื่อทั้งหมด',
           icon: ShieldOutline,
-          path: '/apps/user/list',
+          path: '/apps/teacher/list',
         },
         {
           title: 'View',
-          path: '/apps/user/view',
+          path: '/apps/teacher/view',
         },
       ],
     },
