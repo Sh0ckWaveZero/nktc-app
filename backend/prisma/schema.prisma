@@ -42,6 +42,10 @@ model Account {
   id_token      String?
   session_state String?
   user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  updatedBy     String?
+  createdBy     String?
 
   @@map("accounts")
 }
@@ -85,7 +89,6 @@ model Student {
   id             String      @id @default(cuid())
   userId         String?     @unique
   studentId      String?     @unique
-  studentNo      Int?        @unique
   classroomId    String?
   departmentId   String?
   isGraduation   Boolean?
@@ -93,6 +96,8 @@ model Student {
   graduationDate DateTime?
   studentStatus  String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
   stutus         String?
+  levelId        String?
+  level          Level?      @relation(fields: [levelId], references: [id])
   user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   classroom      ClassRoom?  @relation(fields: [classroomId], references: [id])
   department     Department? @relation(fields: [departmentId], references: [id])
@@ -279,6 +284,7 @@ model Level {
   updatedAt     DateTime     @updatedAt @map("updated_at")
   updatedBy     String?
   createdBy     String?
+  Student       Student[]
 
   @@map("level")
 }
