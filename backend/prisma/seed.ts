@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcrypt";
+import { classRoomData } from "./db/class-room";
+import { departmentData } from "./db/department";
+import { levelData } from "./db/level";
+import { userStudentData } from "./db/user-student";
 
 
 const prisma = new PrismaClient();
@@ -7,31 +10,44 @@ const prisma = new PrismaClient();
 const main = async () => {
 
   console.log("Seeding...");
-
-  const user1 = await prisma.user.create({
-    data: {
-      username: "user1",
-      password: await hash("user1", 12),
-      email: "",
-      role: "Student",
-      account: {
-        create: {
-          firstName: "",
-          lastName: "",
-          firstNameEn: "",
-          lastNameEn: "",
-          idCard: "",
-          bloodType: "A",
-          birthDate: new Date(),
-          phone: "",
-        }
-      }
-    }
-  });
-
-  console.log({ user1 });
+  seedUsers()
+    // seedInitLevels()
+    // seedInitDepartment()
+    // seedInitClassRoom()
+    .then(() => {
+      console.log("Seeding complete 🎉")
+    }).catch(err => {
+      console.log("Seeding failed 😭", err);
+    });
 }
 
+const seedUsers = async () => {
+  const students = (await userStudentData()).map(async (item: any) => {
+    return await prisma.user.create({
+      data: item
+    })
+  });
+  console.log(students);
+}
+
+const seedInitLevels = async () => {
+  const level = await prisma.level.createMany({
+    data: levelData()
+  });
+  console.log(level);
+}
+
+const seedInitDepartment = async () => {
+  departmentData().forEach(async (item: any) => {
+    return await prisma.department.create({ data: item })
+  });
+}
+
+const seedInitClassRoom = async () => {
+  classRoomData().forEach(async (item: any) => {
+    return await prisma.classRoom.create({ data: item })
+  });
+}
 
 main()
   .catch((err: any) => console.log(err))

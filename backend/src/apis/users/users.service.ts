@@ -69,8 +69,24 @@ export class UsersService {
   //use by auth module to login user
   async findByLogin({ username, password }: LoginUserDto): Promise<FormatLogin> {
     const user = await this.prisma.user.findFirst({
-      where: { username }
+      where: { username },
+      include: {
+        account: {
+          select: {
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        },
+        student: {
+          include: {
+            classroom: true
+          }
+        }
+      },
     });
+    console.log("🚀 ~ file: users.service.ts ~ line 77 ~ UsersService ~ findByLogin ~ user", user)
 
     if (!user) {
       throw new HttpException("invalid_credentials", HttpStatus.UNAUTHORIZED);
@@ -82,6 +98,7 @@ export class UsersService {
     if (!isValid) {
       throw new HttpException("invalid_credentials", HttpStatus.UNAUTHORIZED);
     }
+
 
     // remove password from user object
     const { password: p, ...rest } = user;
