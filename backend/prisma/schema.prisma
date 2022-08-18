@@ -47,6 +47,7 @@ model Account {
   updatedBy     String?
   createdBy     String?
 
+  @@unique([userId, id])
   @@map("accounts")
 }
 
@@ -106,6 +107,7 @@ model Student {
   updatedBy      String?
   createdBy      String?
 
+  @@unique([userId, studentId])
   @@map("student")
 }
 
@@ -126,6 +128,7 @@ model Teacher {
   updatedBy String?
   createdBy String?
 
+  @@unique([userId, teacherId])
   @@map("teacher")
 }
 
