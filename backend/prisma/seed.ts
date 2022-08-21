@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { classRoomData } from "./db/class-room";
-import { departmentData } from "./db/department";
+import { programData } from "./db/program";
 import { levelData } from "./db/level";
 import { userStudentData } from "./db/user-student";
+import { departmentData } from './db/department';
 
 
 const prisma = new PrismaClient();
@@ -10,15 +11,41 @@ const prisma = new PrismaClient();
 const main = async () => {
 
   console.log("Seeding...");
-  seedUsers()
-    // seedInitLevels()
-    // seedInitDepartment()
-    // seedInitClassRoom()
+  // seedLevels()
+  // seedProgram()
+  seedDepartment()
+  // seedInitClassRoom()
+  // seedUsers()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
       console.log("Seeding failed 😭", err);
     });
+}
+
+const seedLevels = async () => {
+  const level = levelData().forEach(async (item: any) => {
+    return await prisma.level.create({ data: item })
+  });
+  console.log(level);
+}
+
+const seedProgram = async () => {
+  programData().forEach(async (item: any) => {
+    return await prisma.program.create({ data: item })
+  });
+}
+
+const seedDepartment = async () => {
+  departmentData().forEach(async (item: any) => {
+    return await prisma.department.create({ data: item })
+  });
+}
+
+const seedInitClassRoom = async () => {
+  classRoomData().forEach(async (item: any) => {
+    return await prisma.classroom.create({ data: item })
+  });
 }
 
 const seedUsers = async () => {
@@ -28,28 +55,6 @@ const seedUsers = async () => {
     })
   });
   console.log("🚀 ~ file: seed.ts ~ line 30 ~ students ~ students", students)
-  // console.log((await userStudentData()).map(async (item: any) => {
-  //   console.log(item);
-  // }));
-}
-
-const seedInitLevels = async () => {
-  const level = await prisma.level.createMany({
-    data: levelData()
-  });
-  console.log(level);
-}
-
-const seedInitDepartment = async () => {
-  departmentData().forEach(async (item: any) => {
-    return await prisma.department.create({ data: item })
-  });
-}
-
-const seedInitClassRoom = async () => {
-  classRoomData().forEach(async (item: any) => {
-    return await prisma.classRoom.create({ data: item })
-  });
 }
 
 main()

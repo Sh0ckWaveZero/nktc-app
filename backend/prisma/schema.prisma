@@ -59,6 +59,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// ผู้ใช้งาน
 model User {
   id        String    @id @default(cuid())
   username  String    @unique
@@ -86,23 +87,26 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// นักเรียน นักศึกษา
 model Student {
   id             String      @id @default(cuid())
-  userId         String?     @unique
   studentId      String?     @unique
-  classroomId    String?
-  departmentId   String?
   isGraduation   Boolean?
   graduationYear Int?
   graduationDate DateTime?
   studentStatus  String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
   group          String?
   stutus         String?
+  userId         String?     @unique
+  user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroomId    String?
+  classroom      Classroom?  @relation(fields: [classroomId], references: [id])
+  departmentId   String?
+  department     Department? @relation(fields: [departmentId], references: [id])
+  programId      String?
+  program        Program?    @relation(fields: [programId], references: [id])
   levelId        String?
   level          Level?      @relation(fields: [levelId], references: [id])
-  user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  classroom      ClassRoom?  @relation(fields: [classroomId], references: [id])
-  department     Department? @relation(fields: [departmentId], references: [id])
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
   updatedBy      String?
@@ -112,65 +116,31 @@ model Student {
   @@map("student")
 }
 
+// ครูผู้สอน ครูอาจารย์ ครูอาจารย์พิเศษ และบุคลากรอื่นๆ
 model Teacher {
   id               String      @id @default(cuid())
   teacherId        String?     @unique
-  userId           String?     @unique
-  classroomId      ClassRoom[] // ครูประจำชั้น
+  classroomId      Classroom[] // ครูประจำชั้น
   jobTitle         String? // ตำแหน่ง
   academicStanding String? // วิทยฐานะ
-  departmentId     String? // สาขาวิชา
+  programId        String? // สาขาวิชา
   rfId             String?
-  status           String?
+  userId           String?     @unique
   user             User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  updatedBy String?
-  createdBy String?
+  departmentId     String?
+  department       Department? @relation(fields: [departmentId], references: [id])
+  status           String?
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  updatedBy        String?
+  createdBy        String?
 
   @@unique([userId, teacherId])
   @@map("teacher")
 }
 
 // กลุ่มเรียน
-// ปวช.1/1
-// ปวช.1/2
-// ปวช.1/3
-// ปวช.1/4
-// ปวช.1/5
-// ปวช.1/6
-// ปวช.1/9
-// ปวช.2/1
-// ปวช.2/2
-// ปวช.2/3
-// ปวช.2/4
-// ปวช.2/5
-// ปวช.2/6
-// ปวช.2/7
-// ปวช.2/8
-// ปวช.2/9
-// ปวช.3/1
-// ปวช.3/2
-// ปวช.3/3
-// ปวช.3/4
-// ปวช.3/5
-// ปวช.3/6
-// ปวช.3/9
-// ปวส.1/1
-// ปวส.1/2
-// ปวส.1/3
-// ปวส.1/4
-// ปวส.1/5
-// ปวส.1/6
-// ปวส.2/1
-// ปวส.2/2
-// ปวส.2/3
-// ปวส.2/4
-// ปวส.2/5
-// ปวส.2/6
-// ปวส.2/7
-model ClassRoom {
+model Classroom {
   id          String    @id @default(cuid())
   classroomId String?   @unique
   name        String?
@@ -180,95 +150,70 @@ model ClassRoom {
   course      Course[]
   levelId     String?
   level       Level?    @relation(fields: [levelId], references: [id])
+  status      String?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   updatedBy   String?
   createdBy   String?
 
-  @@map("class")
+  @@map("classroom")
 }
 
 // แผนกวิชา
-// ปวส.
-// เทคนิคยานยนต์
-// เทคนิคเครื่องกลอุตสาหกรรม
-// เทคนิคยานยนต์ (ทวิภาคี)
-// เทคนิคยานยนต์ (ม.6)
-// เทคนิคเครื่องกลอุตสาหกรรม (ม.6)
-// เครื่องมือกล
-// เครื่องมือกล (ทวิภาคี)
-// แม่พิมพ์โลหะ (ทวิภาคี)
-// เครื่องมือกล (ม.6)
-// แม่พิมพ์โลหะ (ม.6)
-// เทคโนโลยีงานเชื่อมฯ
-// เทคโนโลยีงานเชื่อมฯ (ม.6)
-// ไฟฟ้ากำลัง
-// ไฟฟ้ากำลัง (ทวิภาคี)
-// ไฟฟ้ากำลัง (ม.6)
-// อิเล็กทรอนิกส์
-// อิเล็กทรอนิกส์ (ทวิภาคี)
-// อิเล็กทรอนิกส์ (ม.6)
-// ก่อสร้าง
-// ก่อสร้าง (ม.6)
-// สถาปัตยกรรม
-// สถาปัตยกรรม (ม.6)
-// โยธา
-// โยธา (ม.6)
-// เมคคาทรอนิกส์และหุ่นยนต์
-// เมคคาทรอนิกส์และหุ่นยนต์ (ม.6)
-// เทคโนโลยีคอมพิวเตอร์
-// เทคโนโลยีคอมพิวเตอร์ (ม.6)
-// การจัดการโลจิสติกส์ฯ (ทวิภาคี)
-// เทคโนโลยีสารสนเทศ
-// เทคโนโลยีสารสนเทศ (ม.6)
-//
-// ปวช.
-// ช่างยนต์
-// ช่างกลโรงงาน
-// ช่างเชื่อมโลหะ
-// ช่างไฟฟ้ากำลัง
-// ช่างอิเล็กทรอนิกส์
-// ก่อสร้าง
-// สถาปัตยกรรม
-// โยธา
-// เมคคาทรอนิกส์
-// เทคนิคคอมพิวเตอร์
-// โลจิสติกส์
-// เทคโนโลยีสารสนเทศ
 model Department {
   id           String    @id @default(cuid())
   departmentId String?   @unique
   name         String?
   description  String?
+  teacher      Teacher[]
   student      Student[]
-  course       Course[]
-  levelId      String?
-  level        Level?    @relation(fields: [levelId], references: [id])
+  program      Program[]
   status       String?
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   updatedBy    String?
   createdBy    String?
 
-  @@unique([departmentId, description])
   @@map("department")
+}
+
+// สาขาวิชา
+model Program {
+  id           String      @id @default(cuid())
+  programId    String?     @unique
+  name         String?
+  description  String?
+  student      Student[]
+  course       Course[]
+  levelId      String?
+  level        Level?      @relation(fields: [levelId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  status       String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@unique([programId, description])
+  @@map("program")
 }
 
 // รายวิชา
 model Course {
-  id             String      @id @default(cuid())
-  courseId       String?     @unique
+  id             String     @id @default(cuid())
+  courseId       String?    @unique
   courseName     String?
   numberOfCredit Int? // จำนวนหน่วยกิต
   type           String? // รายวิชาพื้นฐาน, รายวิชาเพิ่มเติม, กิจกรรมพัฒนาผู้เรียน
   evaluation     String? // ประเมินผลรายภาคเรียน, ประเมินผลรายปี
   status         String?
-  departmentId   String?
-  department     Department? @relation(fields: [departmentId], references: [id])
+  programId      String? // รหัสสาขาวิชา
+  program        Program?   @relation(fields: [programId], references: [id])
   classrommId    String?
-  classromm      ClassRoom?  @relation(fields: [classrommId], references: [id])
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
+  classromm      Classroom? @relation(fields: [classrommId], references: [id])
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
   updatedBy      String?
   createdBy      String?
 
@@ -276,20 +221,18 @@ model Course {
 }
 
 // ระดับชั้น
-// ประกาศนียบัตรวิชาชีพ (ปวช.)
-// ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)
 model Level {
-  id            String       @id @default(cuid())
-  levelId       String?      @unique
+  id            String      @id @default(cuid())
+  levelId       String?     @unique
   levelName     String?
   levelFullName String?
-  department    Department[]
-  classRoom     ClassRoom[]
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
+  program       Program[]
+  classRoom     Classroom[]
+  Student       Student[]
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
   updatedBy     String?
   createdBy     String?
-  Student       Student[]
 
   @@map("level")
 }
