@@ -27,7 +27,10 @@ const seedUsers = async () => {
       data: item
     })
   });
-  console.log(students);
+  console.log("🚀 ~ file: seed.ts ~ line 30 ~ students ~ students", students)
+  // console.log((await userStudentData()).map(async (item: any) => {
+  //   console.log(item);
+  // }));
 }
 
 const seedInitLevels = async () => {

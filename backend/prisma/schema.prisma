@@ -96,6 +96,7 @@ model Student {
   graduationYear Int?
   graduationDate DateTime?
   studentStatus  String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
+  group          String?
   stutus         String?
   levelId        String?
   level          Level?      @relation(fields: [levelId], references: [id])
@@ -249,6 +250,7 @@ model Department {
   updatedBy    String?
   createdBy    String?
 
+  @@unique([departmentId, description])
   @@map("department")
 }
 
