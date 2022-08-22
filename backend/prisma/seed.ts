@@ -4,6 +4,7 @@ import { programData } from "./db/program";
 import { levelData } from "./db/level";
 import { userStudentData } from "./db/user-student";
 import { departmentData } from './db/department';
+import { classNameData } from './db/class-name';
 
 
 const prisma = new PrismaClient();
@@ -13,9 +14,10 @@ const main = async () => {
   console.log("Seeding...");
   // seedLevels()
   // seedProgram()
-  seedDepartment()
+  // seedDepartment()
   // seedInitClassRoom()
-  // seedUsers()
+  seedClassName()
+    // seedUsers()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
@@ -46,6 +48,15 @@ const seedInitClassRoom = async () => {
   classRoomData().forEach(async (item: any) => {
     return await prisma.classroom.create({ data: item })
   });
+}
+
+const seedClassName = async () => {
+  const className = (await classNameData()).map(async (item: any) => {
+    return await prisma.classname.create({
+      data: item
+    })
+  });
+  console.log("🚀 ~ file: seed.ts ~ className", className)
 }
 
 const seedUsers = async () => {
