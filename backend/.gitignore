@@ -36,4 +36,4 @@ lerna-debug.log*
 
 # db migrations
 /prisma/migrations
-/prisma/db
+/prisma/db/import
