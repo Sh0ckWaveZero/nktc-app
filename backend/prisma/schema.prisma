@@ -99,6 +99,8 @@ model Student {
   stutus         String?
   userId         String?     @unique
   user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classnameId    String?
+  classname      Classname?  @relation(fields: [classnameId], references: [id])
   classroomId    String?
   classroom      Classroom?  @relation(fields: [classroomId], references: [id])
   departmentId   String?
@@ -125,6 +127,7 @@ model Teacher {
   academicStanding String? // วิทยฐานะ
   programId        String? // สาขาวิชา
   rfId             String?
+  classname        Classname[] // ครูประจำชั้น
   userId           String?     @unique
   user             User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   departmentId     String?
@@ -141,22 +144,49 @@ model Teacher {
 
 // กลุ่มเรียน
 model Classroom {
-  id          String    @id @default(cuid())
-  classroomId String?   @unique
+  id          String      @id @default(cuid())
+  classroomId String?     @unique
   name        String?
   description String?
   teacherId   Teacher[]
   student     Student[]
   course      Course[]
+  classname   Classname[]
   levelId     String?
-  level       Level?    @relation(fields: [levelId], references: [id])
+  level       Level?      @relation(fields: [levelId], references: [id])
   status      String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  updatedBy   String?
+  createdBy   String?
+  Program     Program?    @relation(fields: [programId], references: [id])
+  programId   String?
+
+  @@map("classroom")
+}
+
+// ชื่อชั้นเรียน
+model Classname {
+  id          String     @id @default(cuid())
+  classnameId String?    @unique
+  name        String?
+  description String?
+  status      String?
+  student     Student[]
+  classroom   Classroom? @relation(fields: [classroomId], references: [id])
+  classroomId String?
+  program     Program?   @relation(fields: [programId], references: [id])
+  programId   String?
+  teacher     Teacher[]
+  level       Level?     @relation(fields: [levelId], references: [id])
+  levelId     String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
   updatedBy   String?
   createdBy   String?
 
-  @@map("classroom")
+  @@unique([classnameId, classroomId, programId])
+  @@map("classname")
 }
 
 // แผนกวิชา
@@ -185,6 +215,7 @@ model Program {
   description  String?
   student      Student[]
   course       Course[]
+  classname    Classname[]
   levelId      String?
   level        Level?      @relation(fields: [levelId], references: [id])
   departmentId String?
@@ -194,6 +225,7 @@ model Program {
   updatedAt    DateTime    @updatedAt @map("updated_at")
   updatedBy    String?
   createdBy    String?
+  classroom    Classroom[]
 
   @@unique([programId, description])
   @@map("program")
@@ -229,6 +261,7 @@ model Level {
   program       Program[]
   classRoom     Classroom[]
   Student       Student[]
+  classname     Classname[]
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
   updatedBy     String?
