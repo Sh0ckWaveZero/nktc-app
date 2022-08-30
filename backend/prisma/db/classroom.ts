@@ -1,7 +1,7 @@
-import { getClassroomId, getPrgramId, readWorkSheeFromFile } from './utils';
+import { getClassroomId, getLevelClassroomId, getProgramId, readWorkSheetFromFile } from './utils';
 
-export const classNameData = async () => {
-  const workSheetsFromFile = readWorkSheeFromFile('ระดับชั้น');
+export const Classroom = async () => {
+  const workSheetsFromFile = readWorkSheetFromFile('classroom');
   const startDate = new Date();
   const admin = {
     createdBy: 'Admin',
@@ -27,20 +27,21 @@ export const classNameData = async () => {
     }
   }
 
-  const classNames: any[] = await Promise.all(workSheetsFromFile[0].data
-    .filter((data: any, id: number) => id > 0 && data)
+  const classroom: any[] = await Promise.all(workSheetsFromFile[0].data
+    .filter((data: any, id: number) => id > 1 && data)
     .map(async (item: any) => {
+      const classroomId = item[0];
+      const name = item[1];
+      const levelClassroomId = await getLevelClassroomId(item[2], item[3]);
+      const programId = await getProgramId(item[4], item[2].toString());
       const level = item[2].toString() === "ปวส." ? level002 : level001;
-      const programId = await getPrgramId(item[4], item[2].toString());
-      const classroomId = await getClassroomId(item[2] + item[3]);
 
       return {
-        classnameId: item[0],
-        name: item[1],
-        description: item[1],
-        classroom: {
+        classroomId,
+        name,
+        levelClassroom: {
           connect: {
-            classroomId: classroomId
+            levelClassroomId: levelClassroomId
           }
         },
         program: {
@@ -52,6 +53,5 @@ export const classNameData = async () => {
       }
     }));
 
-
-  return classNames;
+  return classroom;
 }
