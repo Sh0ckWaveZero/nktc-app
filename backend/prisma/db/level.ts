@@ -1,5 +1,3 @@
-import { Level } from '@prisma/client'
-
 export const levelData = () => {
   const startDate = new Date();
   const admin = {
