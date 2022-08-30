@@ -8,6 +8,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ผู้ใช้งาน
+model User {
+  id                String              @id @default(cuid())
+  username          String              @unique
+  password          String
+  email             String?
+  role              Role                @default(User)
+  account           Account?
+  student           Student?
+  teacher           Teacher?
+  sessions          Session[]
+  verificationToken VerificationToken[]
+  status            String?
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  updatedBy         String?
+  createdBy         String?
+
+  @@map("user")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+
+  @@unique([identifier, token])
+  @@map("verificationToken")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+
+  @@map("session")
+}
+
 model Account {
   id            String    @id @default(cuid())
   userId        String?   @unique
@@ -15,9 +57,6 @@ model Account {
   title         String?
   firstName     String?
   lastName      String?
-  titleEn       String?
-  firstNameEn   String?
-  lastNameEn    String?
   idCard        String?
   birthDate     DateTime?
   bloodType     String?
@@ -36,11 +75,7 @@ model Account {
   phone         String?
   refresh_token String?
   access_token  String?
-  expires_at    Int?
-  token_type    String?
   scope         String?
-  id_token      String?
-  session_state String?
   user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
@@ -51,68 +86,32 @@ model Account {
   @@map("accounts")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-// ผู้ใช้งาน
-model User {
-  id        String    @id @default(cuid())
-  username  String    @unique
-  password  String
-  email     String?
-  role      Role      @default(User)
-  account   Account?
-  sessions  Session[]
-  student   Student?
-  teacher   Teacher?
-  status    String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  updatedBy String?
-  createdBy String?
-
-  @@map("user")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
 // นักเรียน นักศึกษา
 model Student {
-  id             String      @id @default(cuid())
-  studentId      String?     @unique
-  isGraduation   Boolean?
-  graduationYear Int?
-  graduationDate DateTime?
-  studentStatus  String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
-  group          String?
-  stutus         String?
-  userId         String?     @unique
-  user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  classnameId    String?
-  classname      Classname?  @relation(fields: [classnameId], references: [id])
-  classroomId    String?
-  classroom      Classroom?  @relation(fields: [classroomId], references: [id])
-  departmentId   String?
-  department     Department? @relation(fields: [departmentId], references: [id])
-  programId      String?
-  program        Program?    @relation(fields: [programId], references: [id])
-  levelId        String?
-  level          Level?      @relation(fields: [levelId], references: [id])
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
-  updatedBy      String?
-  createdBy      String?
+  id               String          @id @default(cuid())
+  studentId        String?         @unique
+  isGraduation     Boolean?
+  graduationYear   Int?
+  graduationDate   DateTime?
+  studentStatus    String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
+  group            String?
+  stutus           String?
+  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String?         @unique
+  classroom        Classroom?      @relation(fields: [classroomId], references: [id])
+  classroomId      String?
+  department       Department?     @relation(fields: [departmentId], references: [id])
+  departmentId     String?
+  program          Program?        @relation(fields: [programId], references: [id])
+  programId        String?
+  level            Level?          @relation(fields: [levelId], references: [id])
+  levelId          String?
+  levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
+  levelClassroomId String?
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  updatedBy        String?
+  createdBy        String?
 
   @@unique([userId, studentId])
   @@map("student")
@@ -120,21 +119,23 @@ model Student {
 
 // ครูผู้สอน ครูอาจารย์ ครูอาจารย์พิเศษ และบุคลากรอื่นๆ
 model Teacher {
-  id               String      @id @default(cuid())
-  teacherId        String?     @unique
-  classroomId      Classroom[] // ครูประจำชั้น
+  id               String          @id @default(cuid())
+  teacherId        String?         @unique
   jobTitle         String? // ตำแหน่ง
   academicStanding String? // วิทยฐานะ
-  programId        String? // สาขาวิชา
+  classroom        Classroom[] // ครูประจำชั้น
   rfId             String?
-  classname        Classname[] // ครูประจำชั้น
-  userId           String?     @unique
-  user             User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program          Program?        @relation(fields: [programId], references: [id])
+  programId        String? // สาขาวิชา
+  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String?         @unique
+  department       Department?     @relation(fields: [departmentId], references: [id])
   departmentId     String?
-  department       Department? @relation(fields: [departmentId], references: [id])
+  levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
+  levelClassroomId String?
   status           String?
-  createdAt        DateTime    @default(now()) @map("created_at")
-  updatedAt        DateTime    @updatedAt @map("updated_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
   updatedBy        String?
   createdBy        String?
 
@@ -142,51 +143,51 @@ model Teacher {
   @@map("teacher")
 }
 
-// กลุ่มเรียน
+// ระดับชั้นเรียนรายสาขาวิชา
+// ปวช.1/1-ช่างก่อสร้าง
 model Classroom {
-  id          String      @id @default(cuid())
-  classroomId String?     @unique
-  name        String?
-  description String?
-  teacherId   Teacher[]
-  student     Student[]
-  course      Course[]
-  classname   Classname[]
-  levelId     String?
-  level       Level?      @relation(fields: [levelId], references: [id])
-  status      String?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  updatedBy   String?
-  createdBy   String?
-  Program     Program?    @relation(fields: [programId], references: [id])
-  programId   String?
+  id             String           @id @default(cuid())
+  classroomId    String?          @unique
+  name           String?
+  description    String?
+  teacher        Teacher[]
+  student        Student[]
+  course         Course[]
+  levelClassroom LevelClassroom[]
+  level          Level?           @relation(fields: [levelId], references: [id])
+  levelId        String?
+  program        Program?         @relation(fields: [programId], references: [id])
+  programId      String?
+  status         String?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  updatedBy      String?
+  createdBy      String?
 
   @@map("classroom")
 }
 
-// ชื่อชั้นเรียน
-model Classname {
-  id          String     @id @default(cuid())
-  classnameId String?    @unique
-  name        String?
-  description String?
-  status      String?
-  student     Student[]
-  classroom   Classroom? @relation(fields: [classroomId], references: [id])
-  classroomId String?
-  program     Program?   @relation(fields: [programId], references: [id])
-  programId   String?
-  teacher     Teacher[]
-  level       Level?     @relation(fields: [levelId], references: [id])
-  levelId     String?
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  updatedBy   String?
-  createdBy   String?
+// ระดับชั้นเรียน
+// ปวช.1/1
+model LevelClassroom {
+  id               String      @id @default(cuid())
+  levelClassroomId String?     @unique
+  name             String?
+  description      String?
+  status           String?
+  student          Student[]
+  teacher          Teacher[]
+  classroom        Classroom[]
+  program          Program?    @relation(fields: [programId], references: [id])
+  programId        String?
+  level            Level?      @relation(fields: [levelId], references: [id])
+  levelId          String?
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  updatedBy        String?
+  createdBy        String?
 
-  @@unique([classnameId, classroomId, programId])
-  @@map("classname")
+  @@map("levelClassroom")
 }
 
 // แผนกวิชา
@@ -209,23 +210,24 @@ model Department {
 
 // สาขาวิชา
 model Program {
-  id           String      @id @default(cuid())
-  programId    String?     @unique
-  name         String?
-  description  String?
-  student      Student[]
-  course       Course[]
-  classname    Classname[]
-  levelId      String?
-  level        Level?      @relation(fields: [levelId], references: [id])
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-  status       String?
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-  updatedBy    String?
-  createdBy    String?
-  classroom    Classroom[]
+  id             String           @id @default(cuid())
+  programId      String?          @unique
+  name           String?
+  description    String?
+  student        Student[]
+  course         Course[]
+  teacher        Teacher[]
+  levelClassroom LevelClassroom[]
+  classroom      Classroom[]
+  level          Level?           @relation(fields: [levelId], references: [id])
+  levelId        String?
+  department     Department?      @relation(fields: [departmentId], references: [id])
+  departmentId   String?
+  status         String?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  updatedBy      String?
+  createdBy      String?
 
   @@unique([programId, description])
   @@map("program")
@@ -253,19 +255,21 @@ model Course {
 }
 
 // ระดับชั้น
+// ปวช.
+// ปวส.
 model Level {
-  id            String      @id @default(cuid())
-  levelId       String?     @unique
-  levelName     String?
-  levelFullName String?
-  program       Program[]
-  classRoom     Classroom[]
-  Student       Student[]
-  classname     Classname[]
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
-  updatedBy     String?
-  createdBy     String?
+  id             String           @id @default(cuid())
+  levelId        String?          @unique
+  levelName      String?
+  levelFullName  String?
+  program        Program[]
+  classRoom      Classroom[]
+  student        Student[]
+  levelClassroom LevelClassroom[]
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  updatedBy      String?
+  createdBy      String?
 
   @@map("level")
 }
