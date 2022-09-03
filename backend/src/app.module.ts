@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './apis/auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { UsersModule } from "./apis/users/users.module";
+import { UsersModule } from './apis/users/users.module';
 import { ClassModule } from './apis/class/class.module';
 import { TeachersModule } from './apis/teachers/teachers.module';
 import { StudentsModule } from './apis/students/students.module';
@@ -33,8 +33,6 @@ import validate from './config/validation';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('auth');
+    consumer.apply(LoggerMiddleware).forRoutes('auth');
   }
 }

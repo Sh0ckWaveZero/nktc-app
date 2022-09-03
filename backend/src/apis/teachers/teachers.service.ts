@@ -22,7 +22,7 @@ export class TeachersService {
         currentPlan: 'enterprise',
         status: 'inactive',
         avatar: '',
-        avatarColor: 'primary'
+        avatarColor: 'primary',
       },
       {
         id: 2,
@@ -35,7 +35,7 @@ export class TeachersService {
         email: 'chaploo@imgur.com',
         currentPlan: 'team',
         status: 'pending',
-        avatar: '/images/avatars/3.png'
+        avatar: '/images/avatars/3.png',
       },
       {
         id: 3,
@@ -48,7 +48,7 @@ export class TeachersService {
         email: 'msicely2@who.int',
         currentPlan: 'enterprise',
         status: 'active',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 4,
@@ -61,7 +61,7 @@ export class TeachersService {
         email: 'crisby3@wordpress.com',
         currentPlan: 'team',
         status: 'inactive',
-        avatar: '/images/avatars/3.png'
+        avatar: '/images/avatars/3.png',
       },
       {
         id: 5,
@@ -74,7 +74,7 @@ export class TeachersService {
         email: 'mhurran4@yahoo.co.jp',
         currentPlan: 'enterprise',
         status: 'pending',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 6,
@@ -88,7 +88,7 @@ export class TeachersService {
         currentPlan: 'company',
         status: 'active',
         avatar: '',
-        avatarColor: 'error'
+        avatarColor: 'error',
       },
       {
         id: 7,
@@ -102,7 +102,7 @@ export class TeachersService {
         currentPlan: 'company',
         status: 'pending',
         avatar: '',
-        avatarColor: 'warning'
+        avatarColor: 'warning',
       },
       {
         id: 8,
@@ -115,7 +115,7 @@ export class TeachersService {
         email: 'kliger7@vinaora.com',
         currentPlan: 'enterprise',
         status: 'pending',
-        avatar: '/images/avatars/4.png'
+        avatar: '/images/avatars/4.png',
       },
       {
         id: 9,
@@ -128,7 +128,7 @@ export class TeachersService {
         email: 'fscotfurth8@dailymotion.com',
         currentPlan: 'team',
         status: 'pending',
-        avatar: '/images/avatars/2.png'
+        avatar: '/images/avatars/2.png',
       },
       {
         id: 10,
@@ -141,7 +141,7 @@ export class TeachersService {
         email: 'jbellany9@kickstarter.com',
         currentPlan: 'company',
         status: 'inactive',
-        avatar: '/images/avatars/5.png'
+        avatar: '/images/avatars/5.png',
       },
       {
         id: 11,
@@ -154,7 +154,7 @@ export class TeachersService {
         email: 'jwharltona@oakley.com',
         currentPlan: 'team',
         status: 'inactive',
-        avatar: '/images/avatars/4.png'
+        avatar: '/images/avatars/4.png',
       },
       {
         id: 12,
@@ -167,7 +167,7 @@ export class TeachersService {
         email: 'shallamb@hugedomains.com',
         currentPlan: 'team',
         status: 'pending',
-        avatar: '/images/avatars/5.png'
+        avatar: '/images/avatars/5.png',
       },
       {
         id: 13,
@@ -180,7 +180,7 @@ export class TeachersService {
         email: 'ypottiec@privacy.gov.au',
         currentPlan: 'basic',
         status: 'inactive',
-        avatar: '/images/avatars/7.png'
+        avatar: '/images/avatars/7.png',
       },
       {
         id: 14,
@@ -193,7 +193,7 @@ export class TeachersService {
         email: 'mkraused@stanford.edu',
         currentPlan: 'team',
         status: 'active',
-        avatar: '/images/avatars/6.png'
+        avatar: '/images/avatars/6.png',
       },
       {
         id: 15,
@@ -206,7 +206,7 @@ export class TeachersService {
         email: 'zmcclevertye@soundcloud.com',
         currentPlan: 'enterprise',
         status: 'active',
-        avatar: '/images/avatars/2.png'
+        avatar: '/images/avatars/2.png',
       },
       {
         id: 16,
@@ -219,7 +219,7 @@ export class TeachersService {
         email: 'bemblinf@wired.com',
         currentPlan: 'company',
         status: 'active',
-        avatar: '/images/avatars/6.png'
+        avatar: '/images/avatars/6.png',
       },
       {
         id: 17,
@@ -233,7 +233,7 @@ export class TeachersService {
         currentPlan: 'basic',
         status: 'active',
         avatar: '',
-        avatarColor: 'success'
+        avatarColor: 'success',
       },
       {
         id: 18,
@@ -246,7 +246,7 @@ export class TeachersService {
         email: 'bbinerh@mozilla.com',
         currentPlan: 'team',
         status: 'active',
-        avatar: '/images/avatars/7.png'
+        avatar: '/images/avatars/7.png',
       },
       {
         id: 19,
@@ -260,7 +260,7 @@ export class TeachersService {
         currentPlan: 'enterprise',
         status: 'active',
         avatar: '',
-        avatarColor: 'primary'
+        avatarColor: 'primary',
       },
       {
         id: 20,
@@ -273,7 +273,7 @@ export class TeachersService {
         email: 'wburlandj@uiuc.edu',
         currentPlan: 'team',
         status: 'inactive',
-        avatar: '/images/avatars/6.png'
+        avatar: '/images/avatars/6.png',
       },
       {
         id: 21,
@@ -286,7 +286,7 @@ export class TeachersService {
         email: 'irena.dubrovna@wayne.com',
         currentPlan: 'team',
         status: 'active',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 22,
@@ -299,7 +299,7 @@ export class TeachersService {
         email: 'jlysterl@guardian.co.uk',
         currentPlan: 'company',
         status: 'inactive',
-        avatar: '/images/avatars/8.png'
+        avatar: '/images/avatars/8.png',
       },
       {
         id: 23,
@@ -312,7 +312,7 @@ export class TeachersService {
         email: 'kskitterelm@ainyx.com',
         currentPlan: 'basic',
         status: 'pending',
-        avatar: '/images/avatars/3.png'
+        avatar: '/images/avatars/3.png',
       },
       {
         id: 24,
@@ -325,7 +325,7 @@ export class TeachersService {
         email: 'chatherleighn@washington.edu',
         currentPlan: 'team',
         status: 'pending',
-        avatar: '/images/avatars/2.png'
+        avatar: '/images/avatars/2.png',
       },
       {
         id: 25,
@@ -339,7 +339,7 @@ export class TeachersService {
         currentPlan: 'enterprise',
         status: 'pending',
         avatar: '',
-        avatarColor: 'error'
+        avatarColor: 'error',
       },
       {
         id: 26,
@@ -352,7 +352,7 @@ export class TeachersService {
         email: 'hhassonp@bizjournals.com',
         currentPlan: 'basic',
         status: 'inactive',
-        avatar: '/images/avatars/4.png'
+        avatar: '/images/avatars/4.png',
       },
       {
         id: 27,
@@ -365,7 +365,7 @@ export class TeachersService {
         email: 'gjacombsq@jigsy.com',
         currentPlan: 'enterprise',
         status: 'active',
-        avatar: '/images/avatars/5.png'
+        avatar: '/images/avatars/5.png',
       },
       {
         id: 28,
@@ -379,7 +379,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'active',
         avatar: '',
-        avatarColor: 'warning'
+        avatarColor: 'warning',
       },
       {
         id: 29,
@@ -392,7 +392,7 @@ export class TeachersService {
         email: 'cpinyons@behance.net',
         currentPlan: 'team',
         status: 'active',
-        avatar: '/images/avatars/7.png'
+        avatar: '/images/avatars/7.png',
       },
       {
         id: 30,
@@ -406,7 +406,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'pending',
         avatar: '',
-        avatarColor: 'info'
+        avatarColor: 'info',
       },
       {
         id: 31,
@@ -419,7 +419,7 @@ export class TeachersService {
         email: 'gmeinekenu@hc360.com',
         currentPlan: 'basic',
         status: 'pending',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 32,
@@ -432,7 +432,7 @@ export class TeachersService {
         email: 'rsnowballv@indiegogo.com',
         currentPlan: 'basic',
         status: 'pending',
-        avatar: '/images/avatars/5.png'
+        avatar: '/images/avatars/5.png',
       },
       {
         id: 33,
@@ -445,7 +445,7 @@ export class TeachersService {
         email: 'remerw@blogtalkradio.com',
         currentPlan: 'basic',
         status: 'active',
-        avatar: '/images/avatars/8.png'
+        avatar: '/images/avatars/8.png',
       },
       {
         id: 34,
@@ -458,7 +458,7 @@ export class TeachersService {
         email: 'ofibbensx@booking.com',
         currentPlan: 'company',
         status: 'active',
-        avatar: '/images/avatars/4.png'
+        avatar: '/images/avatars/4.png',
       },
       {
         id: 35,
@@ -472,7 +472,7 @@ export class TeachersService {
         currentPlan: 'company',
         status: 'pending',
         avatar: '',
-        avatarColor: 'error'
+        avatarColor: 'error',
       },
       {
         id: 36,
@@ -486,7 +486,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'inactive',
         avatar: '',
-        avatarColor: 'success'
+        avatarColor: 'success',
       },
       {
         id: 37,
@@ -499,7 +499,7 @@ export class TeachersService {
         email: 'shebblethwaite10@arizona.edu',
         currentPlan: 'company',
         status: 'inactive',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 38,
@@ -512,7 +512,7 @@ export class TeachersService {
         email: 'mpiccard11@vimeo.com',
         currentPlan: 'enterprise',
         status: 'inactive',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 39,
@@ -526,7 +526,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'pending',
         avatar: '',
-        avatarColor: 'primary'
+        avatarColor: 'primary',
       },
       {
         id: 40,
@@ -539,7 +539,7 @@ export class TeachersService {
         email: 'fdesporte13@omniture.com',
         currentPlan: 'company',
         status: 'active',
-        avatar: '/images/avatars/6.png'
+        avatar: '/images/avatars/6.png',
       },
       {
         id: 41,
@@ -553,7 +553,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'pending',
         avatar: '',
-        avatarColor: 'info'
+        avatarColor: 'info',
       },
       {
         id: 42,
@@ -567,7 +567,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'inactive',
         avatar: '',
-        avatarColor: 'warning'
+        avatarColor: 'warning',
       },
       {
         id: 43,
@@ -581,7 +581,7 @@ export class TeachersService {
         currentPlan: 'basic',
         status: 'inactive',
         avatar: '',
-        avatarColor: 'error'
+        avatarColor: 'error',
       },
       {
         id: 44,
@@ -595,7 +595,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'active',
         avatar: '',
-        avatarColor: 'success'
+        avatarColor: 'success',
       },
       {
         id: 45,
@@ -608,7 +608,7 @@ export class TeachersService {
         email: 'cperot18@goo.ne.jp',
         currentPlan: 'team',
         status: 'pending',
-        avatar: '/images/avatars/3.png'
+        avatar: '/images/avatars/3.png',
       },
       {
         id: 46,
@@ -622,7 +622,7 @@ export class TeachersService {
         currentPlan: 'enterprise',
         status: 'pending',
         avatar: '',
-        avatarColor: 'primary'
+        avatarColor: 'primary',
       },
       {
         id: 47,
@@ -635,7 +635,7 @@ export class TeachersService {
         email: 'kcourtliff1a@bbc.co.uk',
         currentPlan: 'basic',
         status: 'active',
-        avatar: '/images/avatars/1.png'
+        avatar: '/images/avatars/1.png',
       },
       {
         id: 48,
@@ -649,7 +649,7 @@ export class TeachersService {
         currentPlan: 'basic',
         status: 'pending',
         avatar: '',
-        avatarColor: 'error'
+        avatarColor: 'error',
       },
       {
         id: 49,
@@ -663,7 +663,7 @@ export class TeachersService {
         currentPlan: 'team',
         status: 'inactive',
         avatar: '',
-        avatarColor: 'warning'
+        avatarColor: 'warning',
       },
       {
         id: 50,
@@ -676,8 +676,8 @@ export class TeachersService {
         email: 'bkrabbe1d@home.pl',
         currentPlan: 'company',
         status: 'active',
-        avatar: '/images/avatars/2.png'
-      }
+        avatar: '/images/avatars/2.png',
+      },
     ];
   }
 

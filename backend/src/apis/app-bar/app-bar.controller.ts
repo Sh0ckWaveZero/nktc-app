@@ -6,7 +6,7 @@ import { AppBarService } from './app-bar.service';
 @ApiTags('app-bar')
 @Controller('app-bar')
 export class AppBarController {
-  constructor(private readonly appBarService: AppBarService) { }
+  constructor(private readonly appBarService: AppBarService) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiSecurity('access-key')
@@ -16,10 +16,9 @@ export class AppBarController {
     required: true,
     description: 'สำหรับค้นหาเมนูต่างๆของแอปพลิเคชัน',
     schema: { oneOf: [{ type: 'string' }] },
-    type: 'string'
+    type: 'string',
   })
   findOne(@Query() { q }) {
     return this.appBarService.search(q);
   }
-
 }

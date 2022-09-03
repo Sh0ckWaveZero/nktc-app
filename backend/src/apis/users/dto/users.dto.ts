@@ -25,17 +25,17 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty()
-  account: Account
+  account: Account;
 
   @ApiProperty()
-  student: Student
+  student: Student;
 
   @ApiProperty()
-  teacher: Teacher
+  teacher: Teacher;
 
   @ApiProperty()
   @IsNotEmpty()
-  role: Role
+  role: Role;
 }
 
 export class UpdatePasswordDto {

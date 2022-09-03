@@ -1,21 +1,21 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class Student {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
-  userId: string
+  userId: string;
 
   @ApiProperty()
-  studentId: string
+  studentId: string;
 
   @ApiProperty()
-  studentNo: string
+  studentNo: string;
 
   @ApiProperty()
-  classId: string
+  classId: string;
 
   @ApiProperty()
-  departmentId: string
+  departmentId: string;
 }

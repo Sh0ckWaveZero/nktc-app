@@ -6,11 +6,10 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import configuration from './config/configuration';
 
-
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
-  // Enable OpenAPI documentation for the application 
+  // Enable OpenAPI documentation for the application
   if (configuration().node_env === 'development') {
     const config = new DocumentBuilder()
       .setTitle('NKTC-API')
@@ -29,6 +28,6 @@ const bootstrap = async () => {
     module.hot.accept();
     module.hot.dispose(() => app.close());
   }
-}
+};
 
 bootstrap();

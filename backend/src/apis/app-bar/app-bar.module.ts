@@ -7,4 +7,4 @@ import { PrismaService as PrismaMongoDbService } from '../../prisma/prisma-mongo
   controllers: [AppBarController],
   providers: [AppBarService, PrismaMongoDbService],
 })
-export class AppBarModule { }
+export class AppBarModule {}

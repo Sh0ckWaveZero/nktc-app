@@ -22,12 +22,12 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
-    let status: RegistrationStatus = {
+    const status: RegistrationStatus = {
       success: true,
-      message: "ACCOUNT_CREATE_SUCCESS",
+      message: 'ACCOUNT_CREATE_SUCCESS',
     };
 
     try {
@@ -38,7 +38,6 @@ export class AuthService {
     }
     return status;
   }
-
 
   async login(loginUserDto: LoginUserDto): Promise<any> {
     // find user in db
@@ -51,7 +50,7 @@ export class AuthService {
       message: 'login successfully',
       data: user,
       ...token,
-    }
+    };
   }
 
   private _createToken({ username }): any {
@@ -66,7 +65,7 @@ export class AuthService {
   async validateUser(payload: JwtPayload): Promise<any> {
     const user = await this.usersService.findByPayload(payload);
     if (!user) {
-      throw new HttpException("INVALID_TOKEN", HttpStatus.UNAUTHORIZED);
+      throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
     }
     return user;
   }
