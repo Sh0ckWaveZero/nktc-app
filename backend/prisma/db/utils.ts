@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import xlsx from 'node-xlsx';
 import * as fs from 'fs'
 
@@ -54,7 +54,6 @@ export const getClassroomId = async (level: string) => {
 
 export const getLevelClassroomId = async (level: string, classroom: string) => {
   const name = `${level}${classroom}`;
-  console.log("🚀 ~ file: utils.ts ~ line 57 ~ getLevelClassroomId ~ name", name)
   const res = await prisma.levelClassroom.findFirst({
     where: {
       name: name,
@@ -83,4 +82,36 @@ export const readWorkSheetFromFile = (path: string) => {
     fs.readFileSync(`${__dirname}/import/${path}.xlsx`)
   );
   return workSheetsFromFile;
+}
+
+export const getLevelByName = (level: 'ปวช.' | 'ปวส.') => {
+  const admin = createByAdmin();
+  const level001 = {
+    ...admin,
+    level: {
+      connect: {
+        levelId: "L001"
+      }
+    }
+  }
+  const level002 = {
+    ...admin,
+    level: {
+      connect: {
+        levelId: "L002"
+      }
+    }
+  }
+
+  return level === "ปวช." ? level001 : level002;
+}
+
+export const createByAdmin = () => {
+  const startDate = new Date();
+  return {
+    createdBy: 'Admin',
+    updatedBy: 'Admin',
+    updatedAt: startDate,
+    createdAt: startDate,
+  };
 }

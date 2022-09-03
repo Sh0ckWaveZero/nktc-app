@@ -1,23 +1,22 @@
+import { Prisma } from '@prisma/client';
+import { createByAdmin } from './utils';
+
 export const levelData = () => {
-  const startDate = new Date();
-  const admin = {
-    createdBy: 'Admin',
-    updatedBy: 'Admin',
-    updatedAt: startDate,
-    createdAt: startDate,
-  };
-  return [
-    {
-      levelId: "L001",
-      levelName: "ปวช.",
-      levelFullName: "ประกาศนียบัตรวิชาชีพ",
-      ...admin,
-    },
-    {
-      levelId: "L002",
-      levelName: "ปวส.",
-      levelFullName: "ประกาศนียบัตรวิชาชีพชั้นสูง",
-      ...admin
-    }
-  ]
+  const admin = createByAdmin();
+  return Prisma.validator<Prisma.LevelCreateInput[]>()(
+    [
+      {
+        levelId: "L001",
+        levelName: "ปวช.",
+        levelFullName: "ประกาศนียบัตรวิชาชีพ",
+        ...admin,
+      },
+      {
+        levelId: "L002",
+        levelName: "ปวส.",
+        levelFullName: "ประกาศนียบัตรวิชาชีพชั้นสูง",
+        ...admin,
+      },
+    ],
+  );
 }
