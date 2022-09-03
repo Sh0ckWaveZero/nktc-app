@@ -10,22 +10,28 @@ datasource db {
 
 // ผู้ใช้งาน
 model User {
-  id                String              @id @default(cuid())
-  username          String              @unique
-  password          String
-  email             String?
-  role              Role                @default(User)
-  account           Account?
-  student           Student?
-  teacher           Teacher?
-  sessions          Session[]
-  verificationToken VerificationToken[]
-  status            String?
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  updatedBy         String?
-  createdBy         String?
+  id                 String             @id @default(cuid())
+  username           String             @unique
+  password           String
+  email              String?
+  role               Role               @default(User)
+  account            Account?
+  student            Student?
+  teacher            Teacher?
+  sessions           Session[]
+  status             String?
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  updatedBy          String?
+  createdBy          String?
+  verificationTokens VerificationToken? @relation(fields: [verificationToken], references: [token])
+  verificationToken  String?
+  refreshToken       String?
+  accessToken        String?
+  expiresAt          Int?
 
+  @@unique([username, verificationToken])
+  @@index([username, verificationToken])
   @@map("user")
 }
 
@@ -33,11 +39,10 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
+  User       User[]
 
   @@unique([identifier, token])
-  @@map("verificationToken")
+  @@map("verificationtokens")
 }
 
 model Session {
@@ -51,36 +56,33 @@ model Session {
 }
 
 model Account {
-  id            String    @id @default(cuid())
-  userId        String?   @unique
-  avatar        String? // avatar path
-  title         String?
-  firstName     String?
-  lastName      String?
-  idCard        String?
-  birthDate     DateTime?
-  bloodType     String?
-  fatherName    String?
-  fatherPhone   String?
-  motherName    String?
-  motherPhone   String?
-  parentName    String?
-  parentPhone   String?
-  addressLine1  String?
-  subdistrict   String?
-  district      String?
-  province      String?
-  postcode      String?
-  country       String?
-  phone         String?
-  refresh_token String?
-  access_token  String?
-  scope         String?
-  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  updatedBy     String?
-  createdBy     String?
+  id           String    @id @default(cuid())
+  userId       String?   @unique
+  avatar       String? // avatar path
+  title        String?
+  firstName    String?
+  lastName     String?
+  idCard       String?
+  birthDate    DateTime?
+  bloodType    String?
+  fatherName   String?
+  fatherPhone  String?
+  motherName   String?
+  motherPhone  String?
+  parentName   String?
+  parentPhone  String?
+  addressLine1 String?
+  subdistrict  String?
+  district     String?
+  province     String?
+  postcode     String?
+  country      String?
+  phone        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, id])
   @@map("accounts")
