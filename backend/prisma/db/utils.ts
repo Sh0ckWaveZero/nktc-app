@@ -79,7 +79,7 @@ export const getProgramId = async (name: string, level: string) => {
 
 export const readWorkSheetFromFile = (path: string) => {
   const workSheetsFromFile = xlsx.parse(
-    fs.readFileSync(`${__dirname}/import/${path}.xlsx`)
+    fs.readFileSync(`${__dirname}/nktc-services/db/import/${path}.xlsx`)
   );
   return workSheetsFromFile;
 }

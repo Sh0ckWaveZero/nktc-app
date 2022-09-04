@@ -21,8 +21,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "schema2:generate": "npx prisma generate --schema ./prisma-mongodb/schema.prisma",
-    "schema2:migrate": "npx prisma migrate dev --schema ./prisma-mongodb/schema.prisma"
+    "db:migrate": "npx prisma migrate dev --name nktc-app-db && npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:generate2": "npx prisma generate --schema ./prisma-mongodb/schema.prisma",
+    "db:push2": "npx prisma db push --schema ./prisma-mongodb/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.9",
