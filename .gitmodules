@@ -1,0 +1,3 @@
+[submodule "backend/prisma/db/nktc-services"]
+	path = backend/prisma/db/nktc-services
+	url = git@github.com:Sh0ckWaveZero/nktc-services.git
