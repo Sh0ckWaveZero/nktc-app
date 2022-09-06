@@ -1,34 +1,45 @@
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt'
-import { createByAdmin, getBirthday, getClassroomId, getProgramId, readWorkSheetFromFile, getLevelByName } from "./utils";
+import { createByAdmin, getBirthday, getClassroomId, getProgramId, readWorkSheetFromFile, getLevelByName, getLevelClassroomId, getLevelClassroomByName } from "./utils";
 
-export const userStudentData = async () => {
-  const workSheetsFromFile = readWorkSheetFromFile('ปวส_65');
+export const userStudentData = async (fileName: string) => {
+  const workSheetsFromFile = readWorkSheetFromFile(fileName);
   const admin = createByAdmin();
 
   const userStudent = await Promise.all(workSheetsFromFile[0].data
-    .filter((data: any, id: number) => id > 0 && data)
+    .filter((data: any, id: number) => id > 1 && data)
     .map(async (item: any) => {
-      const idCard = item[1].toString();
-      const studentId = item[2].toString();
-      const password = await hash(studentId, 12);
-      const levelName = item[4].toString().search(/ปวช/) !== -1 ? "ปวช." : "ปวส.";
+      const [
+        no,
+        idCard,
+        studentId,
+        levelClassroom,
+        title,
+        firstName,
+        lastName,
+        birthDateTh,
+        programName,
+        departmentName,
+        group
+      ] = item;
+      const password = await hash(studentId.toString(), 12);
+      const levelName = levelClassroom.toString().search(/ปวช/) !== -1 ? "ปวช." : "ปวส.";
+      const levelClassroomId = await getLevelClassroomByName(levelClassroom);
       const level = getLevelByName(levelName);
-      const birthDate = await getBirthday(item[8].toString());
-      const classroomId = await getClassroomId(item[4]);
-      const programId = await getProgramId(item[9], levelName);
+      const birthDate = await getBirthday(birthDateTh.toString());
+      const programId = await getProgramId(departmentName, levelName, programName);
 
       return Prisma.validator<Prisma.UserCreateInput>()(
         {
-          username: studentId,
+          username: studentId.toString(),
           password,
           role: "Student",
           account: {
             create: {
-              title: item[5],
-              firstName: item[6] ?? "",
-              lastName: item[7] ?? "",
-              idCard,
+              title: title ?? '',
+              firstName,
+              lastName,
+              idCard: idCard.toString() ?? null,
               birthDate,
               ...admin
             }
@@ -36,11 +47,9 @@ export const userStudentData = async () => {
           student: {
             create: {
               studentId,
-              studentStatus: item[10] ?? "",
-              group: item[3] ?? "",
-              classroom: {
+              levelClassroom: {
                 connect: {
-                  classroomId,
+                  levelClassroomId,
                 }
               },
               program: {
