@@ -65,10 +65,28 @@ export const getLevelClassroomId = async (level: string, classroom: string) => {
   return res?.levelClassroomId;
 }
 
-export const getProgramId = async (name: string, level: string) => {
+export const getLevelClassroomByName = async (name: string) => {
+  const res = await prisma.levelClassroom.findFirst({
+    where: {
+      name: name,
+    },
+    select: {
+      levelClassroomId: true,
+    }
+  });
+  return res?.levelClassroomId;
+}
+
+export const getProgramId = async (name: string, level: string, programName: string = '') => {
+  let query = '';
+  if (programName === '') {
+    query = `${name} ${level}`;
+  } else {
+    query = `${programName} ${level}`;
+  }
   const res = await prisma.program.findFirst({
     where: {
-      description: name + " " + level,
+      description: query,
     },
     select: {
       programId: true,
