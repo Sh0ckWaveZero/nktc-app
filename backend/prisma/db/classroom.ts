@@ -7,11 +7,10 @@ export const Classroom = async () => {
   const classroom = await Promise.all(workSheetsFromFile[0].data
     .filter((data: any, id: number) => id > 1 && data)
     .map(async (item: any) => {
-      const classroomId = item[0];
-      const name = item[1];
-      const levelClassroomId = await getLevelClassroomId(item[2], item[3]);
-      const programId = await getProgramId(item[4], item[2].toString());
-      const level = getLevelByName(item[2].toString());
+      const [classroomId, name, levelName, classroom, program] = item;
+      const levelClassroomId = await getLevelClassroomId(levelName, classroom);
+      const programId = await getProgramId(program, levelName);
+      const level = getLevelByName(levelName);
 
       return Prisma.validator<Prisma.ClassroomCreateInput>()(
         {
