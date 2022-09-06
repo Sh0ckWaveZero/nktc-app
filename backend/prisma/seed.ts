@@ -1,10 +1,12 @@
+
 import { PrismaClient } from "@prisma/client";
-import { classRoomData } from "./db/class-room";
+import { LevelClassroom } from "./db/level-classroom";
 import { programData } from "./db/program";
 import { levelData } from "./db/level";
 import { userStudentData } from "./db/user-student";
 import { departmentData } from './db/department';
-import { classNameData } from './db/class-name';
+import { Classroom } from './db/classroom';
+
 
 
 const prisma = new PrismaClient();
@@ -15,9 +17,9 @@ const main = async () => {
   // seedLevels()
   // seedProgram()
   // seedDepartment()
-  // seedInitClassRoom()
-  seedClassName()
-    // seedUsers()
+  // seedLevelClassroom()
+  // seedClassroom()
+  seedStudents()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
@@ -33,34 +35,35 @@ const seedLevels = async () => {
 }
 
 const seedProgram = async () => {
-  programData().forEach(async (item: any) => {
+  const program = (await programData()).forEach(async (item: any) => {
     return await prisma.program.create({ data: item })
   });
+  console.log(program);
 }
 
 const seedDepartment = async () => {
-  departmentData().forEach(async (item: any) => {
+  const result = (await departmentData()).forEach(async (item: any) => {
     return await prisma.department.create({ data: item })
   });
+  console.log(result);
 }
 
-const seedInitClassRoom = async () => {
-  classRoomData().forEach(async (item: any) => {
+const seedLevelClassroom = async () => {
+  const levelClassroom = (await LevelClassroom()).forEach(async (item: any) => {
+    return await prisma.levelClassroom.create({ data: item })
+  });
+  console.log(levelClassroom);
+}
+
+const seedClassroom = async () => {
+  const classroom = (await Classroom()).forEach(async (item: any) => {
     return await prisma.classroom.create({ data: item })
   });
+  console.log(classroom);
 }
 
-const seedClassName = async () => {
-  const className = (await classNameData()).map(async (item: any) => {
-    return await prisma.classname.create({
-      data: item
-    })
-  });
-  console.log("🚀 ~ file: seed.ts ~ className", className)
-}
-
-const seedUsers = async () => {
-  const students = (await userStudentData()).map(async (item: any) => {
+const seedStudents = async () => {
+  const students = (await userStudentData('student-hcv-2')).map(async (item: any) => {
     return await prisma.user.create({
       data: item
     })

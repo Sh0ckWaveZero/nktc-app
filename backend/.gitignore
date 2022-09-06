@@ -37,3 +37,6 @@ lerna-debug.log*
 # db migrations
 /prisma/migrations
 /prisma/db/import
+
+# Git Submodules
+.gitmodules
