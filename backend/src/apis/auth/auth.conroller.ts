@@ -9,7 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService, RegistrationStatus } from './auth.service';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -39,6 +39,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiSecurity('access-key')
   @Get('me')
   public async me(@Request() req): Promise<any> {

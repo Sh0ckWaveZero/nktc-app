@@ -85,6 +85,15 @@ export class UsersService {
             avatar: true,
           },
         },
+        teacher: {
+          select: {
+            teacherId: true,
+            jobTitle: true,
+            academicStanding: true,
+            classroom: true,
+            status: true,
+          },
+        },
         student: {
           include: {
             classroom: true,

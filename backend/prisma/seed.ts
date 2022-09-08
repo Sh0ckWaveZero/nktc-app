@@ -6,6 +6,8 @@ import { levelData } from "./db/level";
 import { userStudentData } from "./db/user-student";
 import { departmentData } from './db/department';
 import { Classroom } from './db/classroom';
+import { userTeacher } from './db/user-teacher';
+import { userAdmin } from './db/user-admin';
 
 
 
@@ -19,7 +21,9 @@ const main = async () => {
   // seedDepartment()
   // seedLevelClassroom()
   // seedClassroom()
-  seedStudents()
+  // seedStudents()
+  seedTeacher()
+  // seedAdmin()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
@@ -69,6 +73,23 @@ const seedStudents = async () => {
     })
   });
   console.log("🚀 ~ file: seed.ts ~ line 30 ~ students ~ students", students)
+}
+
+const seedTeacher = async () => {
+  const seedTeacher = (await userTeacher('user-teacher')).map(async (item: any) => {
+    return await prisma.user.create({
+      data: item
+    })
+  });
+  console.log("🚀 ~ file: seed.ts ~ line 80 ~ seedTeacher ~ seedTeacher", seedTeacher)
+}
+
+const seedAdmin = async () => {
+  const admin = await userAdmin()
+  const result = await prisma.user.create({
+    data: admin
+  })
+  console.log("🚀 ~ file: seed.ts ~ line 93 ~ result ~ result", result)
 }
 
 main()

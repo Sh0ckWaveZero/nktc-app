@@ -19,6 +19,12 @@ class EnvironmentVariables {
 
   @IsString()
   JWT_EXPIRES_IN: string;
+
+  @IsString()
+  USER_ADMIN: string;
+
+  @IsString()
+  USER_PASSWORD: string;
 }
 
 const validate = (config: Record<string, unknown>) => {
