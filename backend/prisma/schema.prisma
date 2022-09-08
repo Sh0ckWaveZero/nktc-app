@@ -30,8 +30,8 @@ model User {
   accessToken        String?
   expiresAt          Int?
 
-  @@unique([username, verificationToken])
-  @@index([username, verificationToken])
+  @@unique([username, verificationToken], name: "users_key_verificationToken")
+  @@index([username, verificationToken], name: "users_index_verificationToken")
   @@map("user")
 }
 
@@ -83,8 +83,11 @@ model Account {
   updatedBy    String?
   createdBy    String?
   user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teacher      Teacher?
+  student      Student?
 
-  @@unique([userId, id])
+  @@unique([userId, id], name: "account_key")
+  @@index([firstName, lastName], name: "account_name")
   @@map("accounts")
 }
 
@@ -100,6 +103,8 @@ model Student {
   stutus           String?
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
+  account          Account?        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        String?         @unique
   classroom        Classroom?      @relation(fields: [classroomId], references: [id])
   classroomId      String?
   department       Department?     @relation(fields: [departmentId], references: [id])
@@ -115,7 +120,7 @@ model Student {
   updatedBy        String?
   createdBy        String?
 
-  @@unique([userId, studentId])
+  @@unique([userId, studentId], name: "student_users")
   @@map("student")
 }
 
@@ -131,6 +136,8 @@ model Teacher {
   programId        String? // สาขาวิชา
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
+  account          Account?        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        String?         @unique
   department       Department?     @relation(fields: [departmentId], references: [id])
   departmentId     String?
   levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
@@ -141,7 +148,7 @@ model Teacher {
   updatedBy        String?
   createdBy        String?
 
-  @@unique([userId, teacherId])
+  @@unique([userId, teacherId], name: "teacher_users")
   @@map("teacher")
 }
 
@@ -231,7 +238,7 @@ model Program {
   updatedBy      String?
   createdBy      String?
 
-  @@unique([programId, description])
+  @@unique([programId, description], name: "program_key")
   @@map("program")
 }
 

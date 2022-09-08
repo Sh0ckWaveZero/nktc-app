@@ -35,7 +35,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # db migrations
-/prisma/migrations
 /prisma/db/import
 
 # Git Submodules
