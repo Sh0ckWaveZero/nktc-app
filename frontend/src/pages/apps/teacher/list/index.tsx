@@ -18,6 +18,14 @@ import {
   Card,
   Grid,
   Menu,
+  List,
+  Divider,
+  Stack,
+  Paper,
+  Popover,
+  Button,
+  Badge,
+  Tooltip,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
@@ -33,10 +41,13 @@ import {
   DotsVertical,
   EyeOutline,
   DeleteOutline,
+  HumanMaleBoard,
+  BriefcasePlusOutline,
+  AccountBoxMultipleOutline,
 } from 'mdi-material-ui';
 
 // ** Store Imports
-import { useDispatch, useSelector } from 'react-redux';
+import { useTeacherStore } from '../../../../store';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -45,17 +56,31 @@ import CustomAvatar from '@/@core/components/mui/avatar';
 // ** Utils Import
 import { getInitials } from '@/@core/utils/get-initials';
 
-// ** Actions Imports
-import { fetchData, deleteUser } from '@/store/apps/teacher';
-
 // ** Types Imports
-import { RootState, AppDispatch } from '@/store/index';
 import { ThemeColor } from '@/@core/layouts/types';
 import { teachersTypes } from '@/types/apps/teacherTypes';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
+import { userRoleType, userStatusType } from '@/@core/utils/types';
+import auth from '@/configs/auth';
+import { useDebounce } from '@/hooks/userCommon';
+
+type Teacher = {
+  id: number;
+  name: string;
+  fullName: string;
+  classroomTeacher: string; //ครูประจำชั้น
+  numberOfTeachingHours: number;
+  numberOfLoginHours: number;
+  report: string;
+  classSchedule: string;
+  status: string;
+  role: string;
+  avatar: string;
+  color: ThemeColor;
+};
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -69,16 +94,35 @@ interface TeacherStatusType {
 const userRoleObj: UserRoleType = {
   admin: <Laptop fontSize='small' sx={{ mr: 3, color: 'error.main' }} />,
   author: <CogOutline fontSize='small' sx={{ mr: 3, color: 'warning.main' }} />,
-  editor: <PencilOutline fontSize='small' sx={{ mr: 3, color: 'info.main' }} />,
-  maintainer: <ChartDonut fontSize='small' sx={{ mr: 3, color: 'success.main' }} />,
-  subscriber: <AccountOutline fontSize='small' sx={{ mr: 3, color: 'primary.main' }} />,
+  editor: <PencilOutline fontSize='small' sx={{ mr: 3, color: 'success.main' }} />,
+  maintainer: <ChartDonut fontSize='small' sx={{ mr: 3, color: 'primary.main' }} />,
+  teacher: <HumanMaleBoard fontSize='small' sx={{ mr: 3, color: 'info.main' }} />,
 };
 
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    right: -3,
+    top: 13,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+    fontSize: '0.65rem',
+  },
+}));
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
+
 interface CellType {
-  row: teachersTypes;
+  // row: teachersTypes;
+  row: any;
 }
 
-const userStatusObj: TeacherStatusType = {
+const userStatusObj: TeacherStatusType | any = {
   active: 'success',
   pending: 'warning',
   inactive: 'secondary',
@@ -96,7 +140,7 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
 }));
 
 // ** renders client column
-const renderClient = (row: teachersTypes) => {
+const renderClient = (row: any) => {
   if (row.avatar.length) {
     return (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
@@ -111,7 +155,7 @@ const renderClient = (row: teachersTypes) => {
           color={row.avatarColor || 'primary'}
           sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
         >
-          {getInitials(row.fullName ? row.fullName : 'John Doe')}
+          {getInitials(row.firstName + ' ' + row.lastName)}
         </CustomAvatar>
       </AvatarWithoutImageLink>
     );
@@ -130,13 +174,10 @@ const MenuItemLink = styled('a')(({ theme }) => ({
 
 const RowOptions = ({ id }: { id: number | string }) => {
   // ** Hooks
-  const dispatch = useDispatch<AppDispatch>();
 
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const rowOptionsOpen = Boolean(anchorEl);
-
   const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -145,7 +186,7 @@ const RowOptions = ({ id }: { id: number | string }) => {
   };
 
   const handleDelete = () => {
-    dispatch(deleteUser(id));
+    // dispatch(deleteUser(id));
     handleRowOptionsClose();
   };
 
@@ -172,17 +213,17 @@ const RowOptions = ({ id }: { id: number | string }) => {
         <MenuItem sx={{ p: 0 }}>
           <Link href={`/apps/user/view/${id}`} passHref>
             <MenuItemLink>
-              <EyeOutline fontSize='small' sx={{ mr: 2 }} />
+              <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
               ดู
             </MenuItemLink>
           </Link>
         </MenuItem>
         <MenuItem onClick={handleRowOptionsClose}>
-          <PencilOutline fontSize='small' sx={{ mr: 2 }} />
+          <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
           แก้ไข
         </MenuItem>
         <MenuItem onClick={handleDelete}>
-          <DeleteOutline fontSize='small' sx={{ mr: 2 }} />
+          <DeleteOutline fontSize='small' sx={{ mr: 2, color: 'error.main' }} />
           ลบ
         </MenuItem>
       </Menu>
@@ -190,110 +231,8 @@ const RowOptions = ({ id }: { id: number | string }) => {
   );
 };
 
-const columns = [
-  {
-    flex: 0.2,
-    minWidth: 100,
-    field: 'fullName',
-    headerName: 'ชื่อผู้ใช้ระบบ',
-    renderCell: ({ row }: CellType) => {
-      const { id, fullName, username } = row;
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {renderClient(row)}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <Link href={`/apps/user/view/${id}`} passHref>
-              <Typography
-                noWrap
-                component='a'
-                variant='body2'
-                sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
-              >
-                {fullName}
-              </Typography>
-            </Link>
-            <Link href={`/apps/user/view/${id}`} passHref>
-              <Typography noWrap component='a' variant='caption' sx={{ textDecoration: 'none' }}>
-                @{username}
-              </Typography>
-            </Link>
-          </Box>
-        </Box>
-      );
-    },
-  },
-  {
-    flex: 0.2,
-    minWidth: 250,
-    field: 'email',
-    headerName: 'Email',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Typography noWrap variant='body2'>
-          {row.email}
-        </Typography>
-      );
-    },
-  },
-  {
-    flex: 0.15,
-    field: 'role',
-    minWidth: 150,
-    headerName: 'Role',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {userRoleObj[row.role]}
-          <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-            {row.role}
-          </Typography>
-        </Box>
-      );
-    },
-  },
-  {
-    flex: 0.15,
-    minWidth: 120,
-    headerName: 'Plan',
-    field: 'currentPlan',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Typography noWrap sx={{ textTransform: 'capitalize' }}>
-          {row.currentPlan}
-        </Typography>
-      );
-    },
-  },
-  {
-    flex: 0.1,
-    minWidth: 110,
-    field: 'status',
-    headerName: 'Status',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <CustomChip
-          skin='light'
-          size='small'
-          label={row.status}
-          color={userStatusObj[row.status]}
-          sx={{ textTransform: 'capitalize' }}
-        />
-      );
-    },
-  },
-
-  {
-    flex: 0.1,
-    minWidth: 90,
-    sortable: false,
-    field: 'actions',
-    headerName: 'Actions',
-    renderCell: ({ row }: CellType) => <RowOptions id={row.id} />,
-  },
-];
-
-const UserList = () => {
-  // ** State
+const TeacherList = () => {
+  // ** Local State
   const [role, setRole] = useState<string>('');
   const [plan, setPlan] = useState<string>('');
   const [value, setValue] = useState<string>('');
@@ -301,21 +240,32 @@ const UserList = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const debouncedValue = useDebounce<string>(value, 500);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
   // ** Hooks
-  const dispatch = useDispatch<AppDispatch>();
-  const store = useSelector((state: RootState) => state.teacher);
-  console.log('🚀 ~ file: index.tsx ~ line 307 ~ UserList ~ store', store);
+  const fetch = useTeacherStore((state: any) => state.fetchTeacher);
+  const teacher = useTeacherStore((state: any) => state.teacher);
 
   useEffect(() => {
-    dispatch(
-      fetchData({
-        role,
-        status,
-        q: value,
-        currentPlan: plan,
-      }),
-    );
-  }, [dispatch, plan, role, status, value]);
+    fetch({
+      role,
+      status,
+      q: value,
+      currentPlan: plan,
+    });
+  }, [plan, role, status, debouncedValue]);
 
   const handleFilter = useCallback((val: string) => {
     setValue(val);
@@ -335,85 +285,164 @@ const UserList = () => {
 
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen);
 
+  const columns = [
+    {
+      flex: 0.25,
+      minWidth: 200,
+      field: 'fullName',
+      headerName: 'ชื่อผู้ใช้ระบบ',
+      renderCell: ({ row }: CellType) => {
+        const { id, title, firstName, lastName, username } = row;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderClient(row)}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+              <Link href={`/apps/user/view/${id}`} passHref>
+                <Typography
+                  noWrap
+                  component='a'
+                  variant='body2'
+                  sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
+                >
+                  {title + '' + firstName + ' ' + lastName}
+                </Typography>
+              </Link>
+              <Link href={`/apps/user/view/${id}`} passHref>
+                <Typography noWrap component='a' variant='caption' sx={{ textDecoration: 'none' }}>
+                  @{username}
+                </Typography>
+              </Link>
+            </Box>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 120,
+      field: 'levelClassroomId',
+      headerName: 'ครูประจำชั้น',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Stack direction='row' divider={<Divider orientation='vertical' flexItem />} spacing={2}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <>
+                  <Tooltip
+                    title={row.levelClassroomId.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}
+                  >
+                    <IconButton aria-label={id} aria-describedby={id} onClick={handleClick}>
+                      <Badge
+                        badgeContent={row.levelClassroomId.length > 0 ? row.levelClassroomId.length : '0'}
+                        color={row.levelClassroomId.length > 0 ? 'primary' : 'error'}
+                        sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
+                      >
+                        <AccountBoxMultipleOutline
+                          fontSize='small'
+                          sx={{ color: row.levelClassroomId.length > 0 ? 'warning.main' : 'error.main' }}
+                        />
+                      </Badge>
+                    </IconButton>
+                  </Tooltip>
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                  >
+                    <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+                  </Popover>
+                </>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <Tooltip title='เพิ่มห้องที่ปรึกษา'>
+                  <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
+                </Tooltip>
+              </Box>
+            </Stack>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      field: 'role',
+      minWidth: 120,
+      headerName: 'บทบาท',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {userRoleObj[row.role.toLowerCase()]}
+            <Typography
+              variant='body2'
+              noWrap
+              sx={{ fontWeight: 600, color: 'text.primary', textTransform: 'capitalize' }}
+            >
+              {userRoleType[row.role] ?? 'ไม่ระบุ'}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      minWidth: 130,
+      headerName: 'ลงชื่อเข้าใช้งานสะสม',
+      field: 'totalLogin',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography
+            variant='body2'
+            noWrap
+            sx={{ fontWeight: 600, color: 'text.primary', textTransform: 'capitalize' }}
+          >
+            {row.totalLogin ?? '0 '} วัน
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      minWidth: 80,
+      field: 'status',
+      headerName: 'สถานะ',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <CustomChip
+            skin='light'
+            size='small'
+            label={userStatusType[row.status]}
+            color={userStatusObj[row.status.toLowerCase()]}
+            sx={{ textTransform: 'capitalize' }}
+          />
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      minWidth: 90,
+      sortable: false,
+      field: 'actions',
+      headerName: 'การดำเนินการอื่น ๆ',
+      renderCell: ({ row }: CellType) => <RowOptions id={row.id} />,
+    },
+  ];
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='ตัวกรองการค้นหา' />
-          <CardContent>
-            <Grid container spacing={6}>
-              <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='role-select'>เลือกประเภทผู้ใช้งาน</InputLabel>
-                  <Select
-                    fullWidth
-                    value={role}
-                    id='select-role'
-                    label='เลือกประเภทผู้ใช้งาน'
-                    labelId='role-select'
-                    onChange={handleRoleChange}
-                    inputProps={{ placeholder: 'Select Role' }}
-                  >
-                    <MenuItem value=''>Select Role</MenuItem>
-                    <MenuItem value='admin'>Admin</MenuItem>
-                    <MenuItem value='author'>Author</MenuItem>
-                    <MenuItem value='editor'>Editor</MenuItem>
-                    <MenuItem value='maintainer'>Maintainer</MenuItem>
-                    <MenuItem value='subscriber'>Subscriber</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='plan-select'>Select Plan</InputLabel>
-                  <Select
-                    fullWidth
-                    value={plan}
-                    id='select-plan'
-                    label='Select Plan'
-                    labelId='plan-select'
-                    onChange={handlePlanChange}
-                    inputProps={{ placeholder: 'Select Plan' }}
-                  >
-                    <MenuItem value=''>Select Plan</MenuItem>
-                    <MenuItem value='basic'>Basic</MenuItem>
-                    <MenuItem value='company'>Company</MenuItem>
-                    <MenuItem value='enterprise'>Enterprise</MenuItem>
-                    <MenuItem value='team'>Team</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='status-select'>Select Status</InputLabel>
-                  <Select
-                    fullWidth
-                    value={status}
-                    id='select-status'
-                    label='Select Status'
-                    labelId='status-select'
-                    onChange={handleStatusChange}
-                    inputProps={{ placeholder: 'Select Role' }}
-                  >
-                    <MenuItem value=''>Select Role</MenuItem>
-                    <MenuItem value='pending'>Pending</MenuItem>
-                    <MenuItem value='active'>Active</MenuItem>
-                    <MenuItem value='inactive'>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
+          <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
           <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
           <DataGrid
-            autoHeight
-            rows={store.data}
+            autoHeight={true}
+            rows={teacher}
+            getRowHeight={() => 'auto'}
             columns={columns}
-            checkboxSelection
             pageSize={pageSize}
             disableSelectionOnClick
             rowsPerPageOptions={[10, 25, 50]}
@@ -427,4 +456,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default TeacherList;

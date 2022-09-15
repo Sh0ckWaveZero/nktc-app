@@ -26,13 +26,7 @@ import { useForm, Controller } from 'react-hook-form';
 import Close from 'mdi-material-ui/Close';
 
 // ** Store Imports
-import { useDispatch } from 'react-redux';
-
-// ** Actions Imports
-import { addUser } from '@/store/apps/teacher';
-
-// ** Types Imports
-import { AppDispatch } from '../../../../store';
+import { useUserStore } from '../../../../store';
 
 interface SidebarAddUserType {
   open: boolean;
@@ -103,7 +97,8 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
   const [role, setRole] = useState<string>('subscriber');
 
   // ** Hooks
-  const dispatch = useDispatch<AppDispatch>();
+  const addUser = useUserStore((state: any) => state.addUser);
+
   const {
     reset,
     control,
@@ -116,8 +111,8 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: UserData) => {
-    dispatch(addUser({ ...data, role, currentPlan: plan }));
+  const onSubmit: any = (data: UserData) => {
+    () => addUser({ ...data, role, currentPlan: plan });
     toggle();
     reset();
   };

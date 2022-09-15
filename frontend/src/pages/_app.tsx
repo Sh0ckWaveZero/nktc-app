@@ -55,10 +55,6 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 // ** Global css styles
 import '../../styles/globals.css';
 
-// ** Store Imports
-import { store } from '../store';
-import { Provider } from 'react-redux';
-
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage;
@@ -110,45 +106,42 @@ const App = (props: ExtendedAppProps) => {
   const guestGuard = Component.guestGuard ?? false;
 
   const aclAbilities = Component.acl ?? defaultACLObj;
-  console.log('🚀 ~ file: _app.tsx ~ line 153 ~ App ~ store', store);
 
   return (
-    <Provider store={store}>
-      <CacheProvider value={emotionCache}>
-        <Head>
-          <title>{`${themeConfig.templateName} - Material Design React Admin Template`}</title>
-          <meta
-            name='description'
-            content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
-          />
-          <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
-          <meta name='viewport' content='initial-scale=1, width=device-width' />
-        </Head>
+    <CacheProvider value={emotionCache}>
+      <Head>
+        <title>{`${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`}</title>
+        <meta
+          name='description'
+          content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
+        />
+        <meta name='keywords' content={themeConfig.templateName} />
+        <meta name='viewport' content='initial-scale=1, width=device-width' />
+      </Head>
 
-        <AuthProvider>
-          <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
-            <SettingsConsumer>
-              {({ settings }) => {
-                return (
-                  <ThemeComponent settings={settings}>
-                    <WindowWrapper>
-                      <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                        <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
-                          {getLayout(<Component {...pageProps} />)}
-                        </AclGuard>
-                      </Guard>
-                    </WindowWrapper>
-                    <ReactHotToast>
-                      <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-                    </ReactHotToast>
-                  </ThemeComponent>
-                );
-              }}
-            </SettingsConsumer>
-          </SettingsProvider>
-        </AuthProvider>
-      </CacheProvider>
-    </Provider>
+      <AuthProvider>
+        <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
+          <SettingsConsumer>
+            {({ settings }) => {
+              return (
+                <ThemeComponent settings={settings}>
+                  <WindowWrapper>
+                    <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                      <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
+                        {getLayout(<Component {...pageProps} />)}
+                      </AclGuard>
+                    </Guard>
+                  </WindowWrapper>
+                  <ReactHotToast>
+                    <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
+                  </ReactHotToast>
+                </ThemeComponent>
+              );
+            }}
+          </SettingsConsumer>
+        </SettingsProvider>
+      </AuthProvider>
+    </CacheProvider>
   );
 };
 

@@ -61,6 +61,8 @@ import { AppBarSearchType } from '@/@core/layouts/types';
 
 // ** Config
 import authConfig from '@/configs/auth';
+import { useAppbarStore } from '@/store/index';
+import { useDebounce } from '@/hooks/userCommon';
 interface Props {
   hidden: boolean;
   settings: Settings;
@@ -397,7 +399,6 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [options, setOptions] = useState<AppBarSearchType[]>([]);
 
   // ** Hooks & Vars
   const theme = useTheme();
@@ -406,25 +407,16 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const wrapper = useRef<HTMLDivElement>(null);
   const fullScreenDialog = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const fetch = useAppbarStore((state) => state.fetchAppbar);
+  const options = useAppbarStore((state) => state.appbar);
+
+  const debouncedValue = useDebounce<string>(searchValue, 500);
+
   // Get all data using API
   useEffect(() => {
     const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/app-bar/search`, {
-        params: { q: searchValue },
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
-      .then((response) => {
-        if (response.data && response.data.length) {
-          setOptions(response.data);
-        } else {
-          setOptions([]);
-        }
-      });
-  }, [searchValue]);
+    fetch(debouncedValue, storedToken);
+  }, [debouncedValue]);
 
   useEffect(() => {
     setIsMounted(true);
