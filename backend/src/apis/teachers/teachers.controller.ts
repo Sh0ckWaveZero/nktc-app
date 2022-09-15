@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
@@ -15,7 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('teachers')
 @Controller('teachers')
 export class TeachersController {
-  constructor(private readonly teachersService: TeachersService) {}
+  constructor(private readonly teachersService: TeachersService) { }
 
   @Post()
   create(@Body() createTeacherDto: CreateTeacherDto) {
@@ -23,8 +25,9 @@ export class TeachersController {
   }
 
   @Get()
-  findAll() {
-    return this.teachersService.findAll();
+  findAll(@Query() { role, status, q, currentPlan }) {
+    console.log('findAll', q);
+    return this.teachersService.findAll(q);
   }
 
   @Get(':id')

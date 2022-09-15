@@ -8,7 +8,6 @@ export class AppBarService {
 
   async search(q = ''): Promise<AppBarSearchType[]> {
     const queryLowered = q.toLowerCase();
-
     const searchData = await this.prisma.appbar.findMany({
       where: {
         OR: [
