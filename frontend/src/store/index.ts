@@ -3,6 +3,7 @@ import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware'
 // ** Config
 import authConfig from '@/configs/auth';
+import { Classroom } from "../@core/utils/types";
 interface TeacherQuery {
   q: string
   role: string
@@ -15,6 +16,11 @@ interface TeacherState {
   fetchTeacher: (params: TeacherQuery) => any
 }
 
+interface classroomState {
+  classroom: Classroom[]
+  fetchClassroom: (token: string) => any
+  clear: () => void
+}
 
 export const useTeacherStore = create<TeacherState>()(
   devtools(
@@ -89,3 +95,28 @@ export const useAppbarStore = create<any>()(
     }
   )
 );
+
+export const useClassroomStore = create<classroomState>()(
+  devtools(
+    persist(
+      (set) => ({
+        classroom: [],
+        fetchClassroom: async (token: string) => {
+          const response = await axios.get(
+            authConfig.classroomListEndpoint,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          set({ classroom: await response.data })
+        },
+        clear: () => set({ classroom: [] }),
+      }),
+      {
+        name: 'classroom-storage',
+      }
+    )
+  )
+)

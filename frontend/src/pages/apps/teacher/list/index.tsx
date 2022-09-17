@@ -66,6 +66,7 @@ import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 import auth from '@/configs/auth';
 import { useDebounce } from '@/hooks/userCommon';
+import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
 type Teacher = {
   id: number;
@@ -239,6 +240,8 @@ const TeacherList = () => {
   const [status, setStatus] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(10);
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
+  const [addClassroomOpen, setAddClassroomOpen] = useState<boolean>(false);
+  const [currentData, setCurrentData] = useState<any>(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const debouncedValue = useDebounce<string>(value, 500);
@@ -284,6 +287,7 @@ const TeacherList = () => {
   }, []);
 
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen);
+  const toggleAddClassroomDrawer = () => setAddClassroomOpen(!addClassroomOpen);
 
   const columns = [
     {
@@ -359,9 +363,17 @@ const TeacherList = () => {
                 </>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <Tooltip title='เพิ่มห้องที่ปรึกษา'>
-                  <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
-                </Tooltip>
+                <IconButton
+                  sx={{ mb: 2 }}
+                  onClick={() => {
+                    setAddClassroomOpen(true);
+                    setCurrentData(row);
+                  }}
+                >
+                  <Tooltip title='เพิ่มห้องที่ปรึกษา'>
+                    <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
+                  </Tooltip>
+                </IconButton>
               </Box>
             </Stack>
           </Box>
@@ -452,6 +464,7 @@ const TeacherList = () => {
       </Grid>
 
       <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
+      <SidebarAddClassroom open={addClassroomOpen} toggle={toggleAddClassroomDrawer} data={currentData} />
     </Grid>
   );
 };
