@@ -1,11 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
-@Controller()
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('health-check')
+@Controller('')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
+  @HttpCode(HttpStatus.OK)
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  healthCheck(): void { }
 }
