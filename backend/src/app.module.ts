@@ -15,6 +15,7 @@ import validate from './config/validation';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { ClassroomModule } from './apis/classroom/classroom.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { APP_GUARD } from '@nestjs/core';
         validate,
       },
     ),
+    ClassroomModule,
   ],
   controllers: [AppController],
   providers: [
