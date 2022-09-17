@@ -1,3 +1,4 @@
+
 export type DateFormatting = {
   localeMatcher?: 'best fit' | 'lookup';
   weekday?: 'long' | 'short' | 'narrow';
@@ -96,3 +97,45 @@ export const userStatusType: any = {
   Pending: 'รอการยืนยัน',
   Inactive: 'ปิดใช้งาน',
 };
+
+export type Classroom = {
+  id?: string;
+  classroomId?: string;
+  name?: string;
+  description?: string;
+  levelId?: string;
+  programId?: string;
+  status?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  createdBy?: string;
+  level?: Level;
+  program?: Program;
+}
+
+export type Level = {
+  id?: string;
+  levelId?: string;
+  levelName?: string;
+  levelFullName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  createdBy?: string;
+}
+
+export type Program = {
+  id?: string;
+  programId?: string;
+  name?: string;
+  description?: string;
+  levelId?: string;
+  departmentId?: string;
+  status?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  createdBy?: string;
+  level?: Level;
+}
