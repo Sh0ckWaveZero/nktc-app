@@ -68,6 +68,9 @@ import auth from '@/configs/auth';
 import { useDebounce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
+// ** Config
+import authConfig from '@/configs/auth';
+
 type Teacher = {
   id: number;
   name: string;
@@ -258,15 +261,13 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const fetch = useTeacherStore((state: any) => state.fetchTeacher);
-  const teacher = useTeacherStore((state: any) => state.teacher);
+  const { teacher, fetchTeacher } = useTeacherStore();
 
   useEffect(() => {
-    fetch({
-      role,
-      status,
+    const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
+    console.log('🚀 ~ file: index.tsx ~ line 269 ~ TeacherList ~ teacher', teacher);
+    fetchTeacher(storedToken, {
       q: value,
-      currentPlan: plan,
     });
   }, [plan, role, status, debouncedValue]);
 
@@ -324,7 +325,7 @@ const TeacherList = () => {
     {
       flex: 0.2,
       minWidth: 120,
-      field: 'levelClassroomId',
+      field: 'classroomIds',
       headerName: 'ครูประจำชั้น',
       renderCell: ({ row }: CellType) => {
         return (
@@ -332,18 +333,16 @@ const TeacherList = () => {
             <Stack direction='row' divider={<Divider orientation='vertical' flexItem />} spacing={2}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <>
-                  <Tooltip
-                    title={row.levelClassroomId.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}
-                  >
+                  <Tooltip title={row.classroomIds.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}>
                     <IconButton aria-label={id} aria-describedby={id} onClick={handleClick}>
                       <Badge
-                        badgeContent={row.levelClassroomId.length > 0 ? row.levelClassroomId.length : '0'}
-                        color={row.levelClassroomId.length > 0 ? 'primary' : 'error'}
+                        badgeContent={row.classroomIds.length > 0 ? row.classroomIds.length : '0'}
+                        color={row.classroomIds.length > 0 ? 'primary' : 'error'}
                         sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
                       >
                         <AccountBoxMultipleOutline
                           fontSize='small'
-                          sx={{ color: row.levelClassroomId.length > 0 ? 'warning.main' : 'error.main' }}
+                          sx={{ color: row.classroomIds.length > 0 ? 'warning.main' : 'error.main' }}
                         />
                       </Badge>
                     </IconButton>
@@ -464,7 +463,14 @@ const TeacherList = () => {
       </Grid>
 
       <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
-      <SidebarAddClassroom open={addClassroomOpen} toggle={toggleAddClassroomDrawer} data={currentData} />
+      {addClassroomOpen && (
+        <SidebarAddClassroom
+          open={addClassroomOpen}
+          toggle={toggleAddClassroomDrawer}
+          data={currentData}
+          onLoad={false}
+        />
+      )}
     </Grid>
   );
 };

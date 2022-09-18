@@ -34,11 +34,13 @@ import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
 import authConfig from '@/configs/auth';
+import { useTeacherStore } from '../../../../store/index';
 
 interface SidebarAddClassroomType {
   open: boolean;
   toggle: () => void;
   data: any;
+  onLoad: boolean;
 }
 
 interface UserData {
@@ -68,57 +70,49 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-const schema = yup.object().shape({
-  company: yup.string().required(),
-  country: yup.string().required(),
-  email: yup.string().email().required(),
-  contact: yup
-    .number()
-    .typeError('Contact Number field is required')
-    .min(10, (obj) => showErrors('Contact Number', obj.value.length, obj.min))
-    .required(),
-  fullName: yup
-    .string()
-    .min(3, (obj) => showErrors('First Name', obj.value.length, obj.min))
-    .required(),
-  username: yup
-    .string()
-    .min(3, (obj) => showErrors('Username', obj.value.length, obj.min))
-    .required(),
-});
-
 const icon = <MdCheckBoxOutlineBlank />;
 const checkedIcon = <MdCheckBox />;
 
 const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
   // ** Props
-  const { open, toggle, data } = props;
-  const theme = useTheme();
+  const { open, toggle, data, onLoad } = props;
 
   // ** State
   const [values, setValues] = useState([]);
+  const [loading, setLoading] = useState(onLoad);
 
   // ** Hooks
-  const addUser = useUserStore((state: any) => state.addUser);
+  const { fetchTeacher, updateTeacher } = useTeacherStore();
   const fetchClassroom = useClassroomStore((state: any) => state.fetchClassroom);
   const classroom = useClassroomStore((state: any) => state.classroom);
+  const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
 
   useEffectOnce(() => {
-    const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
     fetchClassroom(storedToken);
   });
 
-  const onSubmit: any = (event: any, value: any) => {
+  const onSubmit: any = async (event: any, classroomData: any) => {
     event.preventDefault();
-    console.log('🚀 ~ file: AddClassroomDrawer.tsx ~ line 127 ~ SidebarAddClassroom ~ data', value);
-    // () => addUser({ ...data, role, currentPlan: plan });
+    setLoading(true);
+    const classroom = classroomData.map((item: any) => item.id);
+    const info = { id: data.id, classroom };
+    const result = await updateTeacher(storedToken, info);
+    console.log('🚀 ~ file: AddClassroomDrawer.tsx ~ line 100 ~ constonSubmit:any= ~ result', data);
+    fetchTeacher(storedToken, {
+      q: '',
+    });
     handleClose();
   };
 
   const handleClose = () => {
+    setLoading(false);
     setValues([]);
     toggle();
   };
+
+  const defaultValue = classroom.filter((item: any) => data.classroomIds.includes(item.id)) ?? [];
+
+  const isEmpty = (obj: any) => [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
 
   return (
     <Drawer
@@ -137,22 +131,33 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
         <form onSubmit={(event) => onSubmit(event, values)}>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Autocomplete
-              multiple
               id='checkboxes-tags-classroom'
+              multiple
+              limitTags={15}
+              defaultValue={defaultValue}
               options={classroom}
-              value={values}
-              onChange={(event, value: any) => setValues(value)}
-              disableCloseOnSelect
-              getOptionLabel={(option: any) => option.name}
-              isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+              onChange={(_, newValue: any) => setValues(newValue)}
+              getOptionLabel={(option: any) => option?.name ?? ''}
+              isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
               renderOption={(props, option, { selected }) => (
                 <li key={option.classroomId} {...props}>
                   <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
                   {option.name}
                 </li>
               )}
-              groupBy={(option: any) => option.program.name}
-              renderInput={(params) => <TextField {...params} label='ระดับชั้น' placeholder='เลือกระดับชั้น' />}
+              renderInput={(params) => (
+                <TextField
+                  error={isEmpty(values) && loading}
+                  helperText={isEmpty(values) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
+                  {...params}
+                  label='ระดับชั้น'
+                  placeholder='เลือกระดับชั้น'
+                />
+              )}
+              disableCloseOnSelect
+              filterSelectedOptions
+              groupBy={(option: any) => option.program?.name}
+              noOptionsText='ไม่พบข้อมูล'
             />
           </FormControl>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
