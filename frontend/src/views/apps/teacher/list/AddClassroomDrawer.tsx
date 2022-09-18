@@ -83,8 +83,7 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
 
   // ** Hooks
   const { fetchTeacher, updateTeacher } = useTeacherStore();
-  const fetchClassroom = useClassroomStore((state: any) => state.fetchClassroom);
-  const classroom = useClassroomStore((state: any) => state.classroom);
+  const { classroom, fetchClassroom } = useClassroomStore();
   const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
 
   useEffectOnce(() => {
@@ -97,7 +96,6 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
     const classroom = classroomData.map((item: any) => item.id);
     const info = { id: data.id, classroom };
     const result = await updateTeacher(storedToken, info);
-    console.log('🚀 ~ file: AddClassroomDrawer.tsx ~ line 100 ~ constonSubmit:any= ~ result', data);
     fetchTeacher(storedToken, {
       q: '',
     });
@@ -110,7 +108,7 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
     toggle();
   };
 
-  const defaultValue = classroom.filter((item: any) => data.classroomIds.includes(item.id)) ?? [];
+  const defaultValue: any = classroom.filter((item: any) => data.classroomIds.includes(item.id)) ?? [];
 
   const isEmpty = (obj: any) => [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
 
