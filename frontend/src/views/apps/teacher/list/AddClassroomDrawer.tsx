@@ -2,65 +2,25 @@
 import { useState } from 'react';
 
 // ** MUI Imports
-import {
-  Drawer,
-  Typography,
-  FormControl,
-  TextField,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Button,
-  Box,
-  Select,
-  Autocomplete,
-  Checkbox,
-} from '@mui/material';
-import { styled, useTheme } from '@mui/material/styles';
+import { Drawer, Typography, FormControl, TextField, Button, Box, Autocomplete, Checkbox } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { BoxProps } from '@mui/material/Box';
-
-// ** Third Party Imports
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, Controller } from 'react-hook-form';
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close';
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 
-// ** Store Imports
-import { useClassroomStore, useUserStore } from '@/store/index';
-import { useEffectOnce } from '@/hooks/userCommon';
-
-// ** Config
-import authConfig from '@/configs/auth';
-import { useTeacherStore } from '../../../../store/index';
+// ** Utils
+import { isEmpty } from '@/@core/utils/utils';
 
 interface SidebarAddClassroomType {
   open: boolean;
   toggle: () => void;
+  onSubmitted: (event: any, value: any) => void;
+  defaultValues: any;
   data: any;
   onLoad: boolean;
 }
-
-interface UserData {
-  email: string;
-  company: string;
-  country: string;
-  contact: number;
-  fullName: string;
-  username: string;
-}
-
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `${field} field is required`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} must be at least ${min} characters`;
-  } else {
-    return '';
-  }
-};
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
@@ -75,32 +35,12 @@ const checkedIcon = <MdCheckBox />;
 
 const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
   // ** Props
-  const { open, toggle, data, onLoad } = props;
+  const { open, toggle, onSubmitted, defaultValues: defaultValues, data, onLoad } = props;
 
   // ** State
   const [values, setValues] = useState([]);
   const [loading, setLoading] = useState(onLoad);
-
-  // ** Hooks
-  const { fetchTeacher, updateTeacher } = useTeacherStore();
-  const { classroom, fetchClassroom } = useClassroomStore();
-  const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-
-  useEffectOnce(() => {
-    fetchClassroom(storedToken);
-  });
-
-  const onSubmit: any = async (event: any, classroomData: any) => {
-    event.preventDefault();
-    setLoading(true);
-    const classroom = classroomData.map((item: any) => item.id);
-    const info = { id: data.id, classroom };
-    const result = await updateTeacher(storedToken, info);
-    fetchTeacher(storedToken, {
-      q: '',
-    });
-    handleClose();
-  };
+  const [enable, setEnable] = useState(false);
 
   const handleClose = () => {
     setLoading(false);
@@ -108,9 +48,10 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
     toggle();
   };
 
-  const defaultValue: any = classroom.filter((item: any) => data.classroomIds.includes(item.id)) ?? [];
-
-  const isEmpty = (obj: any) => [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
+  const onHandleChange = (event: any, value: any) => {
+    isEmpty(value) ? setEnable(false) : setEnable(true);
+    setValues(value);
+  };
 
   return (
     <Drawer
@@ -126,15 +67,15 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
         <Close fontSize='small' onClick={handleClose} sx={{ cursor: 'pointer' }} />
       </Header>
       <Box sx={{ p: 5 }}>
-        <form onSubmit={(event) => onSubmit(event, values)}>
+        <form onSubmit={(event) => onSubmitted(event, values)}>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Autocomplete
               id='checkboxes-tags-classroom'
               multiple
               limitTags={15}
-              defaultValue={defaultValue}
-              options={classroom}
-              onChange={(_, newValue: any) => setValues(newValue)}
+              defaultValue={defaultValues}
+              options={data}
+              onChange={(_, newValue: any) => onHandleChange(_, newValue)}
               getOptionLabel={(option: any) => option?.name ?? ''}
               isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
               renderOption={(props, option, { selected }) => (
@@ -159,7 +100,7 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
             />
           </FormControl>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
+            <Button disabled={!enable} size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
               บันทึกข้อมูล
             </Button>
           </Box>

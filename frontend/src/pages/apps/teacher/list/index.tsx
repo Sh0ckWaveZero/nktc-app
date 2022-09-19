@@ -47,7 +47,7 @@ import {
 } from 'mdi-material-ui';
 
 // ** Store Imports
-import { useTeacherStore } from '../../../../store';
+import { useClassroomStore, useTeacherStore } from '@/store/index';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -65,7 +65,7 @@ import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 import auth from '@/configs/auth';
-import { useDebounce } from '@/hooks/userCommon';
+import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
 // ** Config
@@ -102,24 +102,6 @@ const userRoleObj: UserRoleType = {
   maintainer: <ChartDonut fontSize='small' sx={{ mr: 3, color: 'primary.main' }} />,
   teacher: <HumanMaleBoard fontSize='small' sx={{ mr: 3, color: 'info.main' }} />,
 };
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    right: -3,
-    top: 13,
-    border: `2px solid ${theme.palette.background.paper}`,
-    padding: '0 4px',
-    fontSize: '0.65rem',
-  },
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
 
 interface CellType {
   // row: teachersTypes;
@@ -237,10 +219,7 @@ const RowOptions = ({ id }: { id: number | string }) => {
 
 const TeacherList = () => {
   // ** Local State
-  const [role, setRole] = useState<string>('');
-  const [plan, setPlan] = useState<string>('');
   const [value, setValue] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(10);
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
   const [addClassroomOpen, setAddClassroomOpen] = useState<boolean>(false);
@@ -261,34 +240,43 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const { teacher, fetchTeacher } = useTeacherStore();
+  const { teacher, fetchTeacher, updateClassroom } = useTeacherStore();
+  const { classroom, fetchClassroom } = useClassroomStore();
+  const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
 
+  useEffectOnce(() => {
+    fetchClassroom(storedToken);
+  });
+
+  // ** fetch data on page load && when value changes
   useEffect(() => {
-    const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-    console.log('🚀 ~ file: index.tsx ~ line 269 ~ TeacherList ~ teacher', teacher);
     fetchTeacher(storedToken, {
       q: value,
     });
-  }, [plan, role, status, debouncedValue]);
+  }, [debouncedValue]);
+
+  const defaultValue: any = currentData
+    ? classroom.filter((item: any) => currentData.classroomIds.includes(item.id))
+    : [];
 
   const handleFilter = useCallback((val: string) => {
     setValue(val);
   }, []);
 
-  const handleRoleChange = useCallback((e: SelectChangeEvent) => {
-    setRole(e.target.value);
-  }, []);
-
-  const handlePlanChange = useCallback((e: SelectChangeEvent) => {
-    setPlan(e.target.value);
-  }, []);
-
-  const handleStatusChange = useCallback((e: SelectChangeEvent) => {
-    setStatus(e.target.value);
-  }, []);
-
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen);
+
   const toggleAddClassroomDrawer = () => setAddClassroomOpen(!addClassroomOpen);
+
+  const onSubmittedClassroom = async (event: any, data: any) => {
+    event.preventDefault();
+    const classrooms = data.map((item: any) => item.id);
+    const info = { id: currentData.id, classrooms };
+    const result = await updateClassroom(storedToken, info);
+    fetchTeacher(storedToken, {
+      q: '',
+    });
+    toggleAddClassroomDrawer();
+  };
 
   const columns = [
     {
@@ -467,7 +455,9 @@ const TeacherList = () => {
         <SidebarAddClassroom
           open={addClassroomOpen}
           toggle={toggleAddClassroomDrawer}
-          data={currentData}
+          onSubmitted={onSubmittedClassroom}
+          defaultValues={defaultValue}
+          data={classroom}
           onLoad={false}
         />
       )}

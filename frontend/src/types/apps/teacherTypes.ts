@@ -1,25 +1,24 @@
 // ** Types
-import { ThemeColor } from '@/@core/layouts/types'
+import { ThemeColor } from '@/@core/layouts/types';
 
 export type TeacherLayoutType = {
-  id: string | undefined
-}
+  id: string | undefined;
+};
 
 export type teachersTypes = {
-  id: number
-  role: string
-  email: string
-  status: string
-  avatar: string
-  company: string
-  country: string
-  contact: string
-  fullName: string
-  username: string
-  currentPlan: string
-  avatarColor?: ThemeColor
-}
-
+  id: number;
+  role: string;
+  email: string;
+  status: string;
+  avatar: string;
+  company: string;
+  country: string;
+  contact: string;
+  fullName: string;
+  username: string;
+  currentPlan: string;
+  avatarColor?: ThemeColor;
+};
 
 export type Classroom = {
   id?: string;
@@ -35,7 +34,7 @@ export type Classroom = {
   createdBy?: string;
   level?: Level;
   program?: Program;
-}
+};
 
 export type Level = {
   id?: string;
@@ -46,7 +45,7 @@ export type Level = {
   updatedAt?: string;
   updatedBy?: string;
   createdBy?: string;
-}
+};
 
 export type Program = {
   id?: string;
@@ -61,4 +60,4 @@ export type Program = {
   updatedBy?: string;
   createdBy?: string;
   level?: Level;
-}
+};
