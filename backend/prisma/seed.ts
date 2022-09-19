@@ -22,8 +22,8 @@ const main = async () => {
   // seedLevelClassroom()
   // seedClassroom()
   // seedStudents()
-  seedTeacher()
-  // seedAdmin()
+  // seedTeacher()
+  seedAdmin()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {

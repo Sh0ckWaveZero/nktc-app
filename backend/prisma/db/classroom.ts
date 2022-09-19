@@ -8,7 +8,7 @@ export const Classroom = async () => {
     .filter((data: any, id: number) => id > 1 && data)
     .map(async (item: any) => {
       const [classroomId, name, levelName, classroom, program] = item;
-      const levelClassroomId = await getLevelClassroomId(levelName, classroom);
+      // const levelClassroomId = await getLevelClassroomId(levelName, classroom);
       const programId = await getProgramId(program, levelName);
       const level = getLevelByName(levelName);
 
@@ -16,11 +16,11 @@ export const Classroom = async () => {
         {
           classroomId,
           name,
-          levelClassroom: {
-            connect: {
-              levelClassroomId: levelClassroomId
-            }
-          },
+          // levelClassroom: {
+          //   connect: {
+          //     id: levelClassroomId
+          //   }
+          // },
           program: {
             connect: {
               programId: programId

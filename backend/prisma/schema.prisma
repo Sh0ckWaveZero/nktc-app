@@ -130,7 +130,8 @@ model Teacher {
   teacherId        String?         @unique
   jobTitle         String? // ตำแหน่ง
   academicStanding String? // วิทยฐานะ
-  classroom        Classroom[] // ครูประจำชั้น
+  classroomIds     String[]        @default([]) // รหัสห้องเรียนที่สอน
+  classrooms       Classroom[] // ครูประจำชั้น
   rfId             String?
   program          Program?        @relation(fields: [programId], references: [id])
   programId        String? // สาขาวิชา
@@ -155,23 +156,25 @@ model Teacher {
 // ระดับชั้นเรียนรายสาขาวิชา
 // ปวช.1/1-ช่างก่อสร้าง
 model Classroom {
-  id             String           @id @default(cuid())
-  classroomId    String?          @unique
-  name           String?
-  description    String?
-  teacher        Teacher[]
-  student        Student[]
-  course         Course[]
-  levelClassroom LevelClassroom[]
-  level          Level?           @relation(fields: [levelId], references: [id])
-  levelId        String?
-  program        Program?         @relation(fields: [programId], references: [id])
-  programId      String?
-  status         String?
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  updatedBy      String?
-  createdBy      String?
+  id                String           @id @default(cuid())
+  classroomId       String?          @unique
+  name              String?          @unique
+  description       String?
+  teacherIds        String[]         @default([]) // รหัสครูประจำชั้น
+  teachers          Teacher[]
+  student           Student[]
+  course            Course[]
+  level             Level?           @relation(fields: [levelId], references: [id])
+  levelId           String?
+  program           Program?         @relation(fields: [programId], references: [id])
+  programId         String?
+  status            String?
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  updatedBy         String?
+  createdBy         String?
+  levelClassroomIds String[]         @default([]) // รหัสระดับชั้นเรียนรายสาขาวิชา
+  levelClassrooms   LevelClassroom[]
 
   @@map("classroom")
 }
@@ -186,7 +189,6 @@ model LevelClassroom {
   status           String?
   student          Student[]
   teacher          Teacher[]
-  classroom        Classroom[]
   program          Program?    @relation(fields: [programId], references: [id])
   programId        String?
   level            Level?      @relation(fields: [levelId], references: [id])
@@ -195,6 +197,8 @@ model LevelClassroom {
   updatedAt        DateTime    @updatedAt @map("updated_at")
   updatedBy        String?
   createdBy        String?
+  classroomIds     String[]    @default([]) // รหัสห้องเรียน
+  classrooms       Classroom[]
 
   @@map("levelClassroom")
 }

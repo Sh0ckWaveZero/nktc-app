@@ -12,7 +12,6 @@ export class TeachersService {
   }
 
   async findAll(q = '') {
-    console.log("🚀 ~ file: teachers.service.ts ~ line 17 ~ TeachersService ~ findAll ~ q", q)
     const [firstName, lastName] = q.split(' ');
     const teachers = await this.prisma.user.findMany({
       where: {
@@ -46,12 +45,6 @@ export class TeachersService {
     });
 
     return teachers.map((item: any) => {
-      // const teacherToClassroom = await this.prisma.teacherToClassroom.findMany({
-      //   where: {
-      //     teacherId: { in: [item.id] },
-      //   }
-      // });
-      // if (item.classroomIds.length > 0) console.log('teacherToClassroom', teacherToClassroom);
       return {
         id: item.id,
         username: item.username,
@@ -83,7 +76,6 @@ export class TeachersService {
   }
 
   async updateClassroom(id: string, updateTeacherDto: any) {
-    console.log("🚀 ~ file: teachers.service.ts ~ line 86 ~ TeachersService ~ update ~ updateTeacherDto", updateTeacherDto)
     const updated = await this.prisma.teacher.update({
       where: {
         userId: id,
@@ -92,17 +84,6 @@ export class TeachersService {
         classroomIds: updateTeacherDto.classrooms,
       }
     });
-
-    // const teacherClassroom = await this.prisma.teacherToClassroom.upsert({
-    //   where: {
-    //     teacherId_classroomId: {
-    //       teacherId: id,
-    //       classroomId: id,
-    //     }
-    //   }
-    // });
-
-    console.log('updated', updated);
     return updated;
   }
 

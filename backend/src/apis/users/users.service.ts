@@ -90,7 +90,7 @@ export class UsersService {
             teacherId: true,
             jobTitle: true,
             academicStanding: true,
-            classroom: true,
+            classrooms: true,
             status: true,
           },
         },
