@@ -38,7 +38,6 @@ const LanguageDropdown = ({ settings, saveSettings }: Props) => {
     } else {
       saveSettings({ ...settings, direction: 'ltr' });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18n.language, direction]);
 
   const handleLangDropdownOpen = (event: SyntheticEvent) => {

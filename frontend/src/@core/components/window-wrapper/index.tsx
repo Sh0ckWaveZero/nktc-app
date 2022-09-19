@@ -14,16 +14,11 @@ const WindowWrapper = ({ children }: Props) => {
 
   const router = useRouter();
 
-  useEffect(
-    () => {
-      if (typeof window !== 'undefined') {
-        setWindowReadyFlag(true);
-      }
-    },
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.route],
-  );
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowReadyFlag(true);
+    }
+  }, [router.route]);
 
   if (windowReadyFlag) {
     return <>{children}</>;

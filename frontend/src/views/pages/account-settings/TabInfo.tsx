@@ -22,6 +22,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 
+// eslint-disable-next-line react/display-name
 const CustomInput = forwardRef((props, ref) => {
   return <TextField inputRef={ref} label='Birth Date' fullWidth {...props} />;
 });

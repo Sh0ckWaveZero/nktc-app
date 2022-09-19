@@ -129,8 +129,6 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
     if (pageSettings) {
       setSettings({ ...settings, ...pageSettings });
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSettings]);
 
   useEffect(() => {
@@ -140,8 +138,6 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
     if (settings.layout === 'horizontal' && settings.appBar === 'hidden') {
       saveSettings({ ...settings, appBar: 'fixed' });
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.layout]);
 
   const saveSettings = (updatedSettings: Settings) => {

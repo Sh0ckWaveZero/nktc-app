@@ -12,6 +12,7 @@ import { ThemeColor } from '@/@core/layouts/types';
 // ** Hooks Imports
 import useBgColor, { UseBgColorType } from '@/@core/hooks/useBgColor';
 
+// eslint-disable-next-line react/display-name
 const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
   // ** Props
   const { sx, src, skin, color } = props;

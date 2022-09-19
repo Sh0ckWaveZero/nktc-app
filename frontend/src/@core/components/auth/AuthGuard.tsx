@@ -17,26 +17,22 @@ const AuthGuard = (props: AuthGuardProps) => {
   const auth = useAuth();
   const router = useRouter();
 
-  useEffect(
-    () => {
-      if (!router.isReady) {
-        return;
-      }
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
 
-      if (auth.user === null && !window.localStorage.getItem('userData')) {
-        if (router.asPath !== '/') {
-          router.replace({
-            pathname: '/login',
-            query: { returnUrl: router.asPath },
-          });
-        } else {
-          router.replace('/login');
-        }
+    if (auth.user === null && !window.localStorage.getItem('userData')) {
+      if (router.asPath !== '/') {
+        router.replace({
+          pathname: '/login',
+          query: { returnUrl: router.asPath },
+        });
+      } else {
+        router.replace('/login');
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.route],
-  );
+    }
+  }, [router.route]);
 
   if (auth.loading || auth.user === null) {
     return fallback;

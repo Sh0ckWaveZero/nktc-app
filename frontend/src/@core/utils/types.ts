@@ -1,4 +1,3 @@
-
 export type DateFormatting = {
   localeMatcher?: 'best fit' | 'lookup';
   weekday?: 'long' | 'short' | 'narrow';
@@ -20,43 +19,43 @@ export type DateFormatting = {
   dateStyle?: 'full' | 'long' | 'medium' | 'short';
   timeStyle?: 'full' | 'long' | 'medium' | 'short';
   calendar?:
-  | 'buddhist'
-  | 'chinese'
-  | ' coptic'
-  | 'ethiopia'
-  | 'ethiopic'
-  | 'gregory'
-  | ' hebrew'
-  | 'indian'
-  | 'islamic'
-  | 'iso8601'
-  | ' japanese'
-  | 'persian'
-  | 'roc';
+    | 'buddhist'
+    | 'chinese'
+    | ' coptic'
+    | 'ethiopia'
+    | 'ethiopic'
+    | 'gregory'
+    | ' hebrew'
+    | 'indian'
+    | 'islamic'
+    | 'iso8601'
+    | ' japanese'
+    | 'persian'
+    | 'roc';
   dayPeriod?: 'narrow' | 'short' | 'long';
   numberingSystem?:
-  | 'arab'
-  | 'arabext'
-  | 'bali'
-  | 'beng'
-  | 'deva'
-  | 'fullwide'
-  | ' gujr'
-  | 'guru'
-  | 'hanidec'
-  | 'khmr'
-  | ' knda'
-  | 'laoo'
-  | 'latn'
-  | 'limb'
-  | 'mlym'
-  | ' mong'
-  | 'mymr'
-  | 'orya'
-  | 'tamldec'
-  | ' telu'
-  | 'thai'
-  | 'tibt';
+    | 'arab'
+    | 'arabext'
+    | 'bali'
+    | 'beng'
+    | 'deva'
+    | 'fullwide'
+    | ' gujr'
+    | 'guru'
+    | 'hanidec'
+    | 'khmr'
+    | ' knda'
+    | 'laoo'
+    | 'latn'
+    | 'limb'
+    | 'mlym'
+    | ' mong'
+    | 'mymr'
+    | 'orya'
+    | 'tamldec'
+    | ' telu'
+    | 'thai'
+    | 'tibt';
   hourCycle?: 'h11' | 'h12' | 'h23' | 'h24';
   fractionalSecondDigits?: 0 | 1 | 2 | 3;
 };
@@ -82,7 +81,6 @@ export type PaymentTypes = {
   formatCardNumber(elem: HTMLInputElement): HTMLInputElement;
   formatCardExpiry(elem: HTMLInputElement): HTMLInputElement;
 };
-
 
 export const userRoleType: any = {
   Admin: 'แอดมิน',
