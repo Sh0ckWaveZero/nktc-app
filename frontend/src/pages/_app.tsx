@@ -132,9 +132,9 @@ const App = (props: ExtendedAppProps) => {
                       </AclGuard>
                     </Guard>
                   </WindowWrapper>
-                  <ReactHotToast>
-                    <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-                  </ReactHotToast>
+                  {/* <ReactHotToast>
+                    <Toaster position={settings.toastPosition} />
+                  </ReactHotToast> */}
                 </ThemeComponent>
               );
             }}
