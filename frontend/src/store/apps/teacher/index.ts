@@ -1,73 +1,57 @@
-// ** Redux Imports
-// import { Dispatch } from 'redux'
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios';
+import create from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
 
-// // ** Axios Imports
-// import axios from 'axios'
+// ** Config
+import authConfig from '@/configs/auth';
+interface TeacherQuery {
+  q: string;
+}
+interface TeacherState {
+  teacher: Array<any>;
+  loading: boolean,
+  hasErrors: boolean,
+  fetchTeacher: (token: string, params: TeacherQuery) => any;
+  updateClassroom: (token: string, data: any) => any;
+}
 
-// interface DataParams {
-//   q: string
-//   role: string
-//   status: string
-//   currentPlan: string
-// }
-
-// interface Redux {
-//   getState: any
-//   dispatch: Dispatch<any>
-// }
-
-// // ** Fetch Teachers
-// export const fetchData = createAsyncThunk('appUsers/fetchData', async (params: DataParams) => {
-//   const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/teachers`, {
-//     params
-//   })
-//   return response.data
-// })
-
-// // ** Add User
-// export const addUser = createAsyncThunk(
-//   'appUsers/addUser',
-//   async (data: { [key: string]: number | string }, { getState, dispatch }: Redux) => {
-//     const response = await axios.post('/apps/users/add-user', {
-//       data
-//     })
-//     dispatch(fetchData(getState().user.params))
-
-//     return response.data
-//   }
-// )
-
-// // ** Delete User
-// export const deleteUser = createAsyncThunk(
-//   'appUsers/deleteUser',
-//   async (id: number | string, { getState, dispatch }: Redux) => {
-//     const response = await axios.delete('/apps/users/delete', {
-//       data: id
-//     })
-//     dispatch(fetchData(getState().user.params))
-
-//     return response.data
-//   }
-// )
-
-// export const appUsersSlice = createSlice({
-//   name: 'appUsers',
-//   initialState: {
-//     data: [],
-//     total: 1,
-//     params: {},
-//     allData: []
-//   },
-//   reducers: {},
-//   extraReducers: builder => {
-//     builder.addCase(fetchData.fulfilled, (state, action) => {
-//       state.data = action.payload
-//       state.total = action.payload.length
-//       state.params = action.payload.params
-//       state.allData = action.payload
-//     })
-//   }
-// })
-
-// export default appUsersSlice.reducer
+export const useTeacherStore = create<TeacherState>()(
+  devtools(
+    persist((set) => ({
+      teacher: [],
+      loading: false,
+      hasErrors: false,
+      fetchTeacher: async (token: string, params: TeacherQuery) => {
+        set({ loading: true });
+        try {
+          const { data } = await axios.get(authConfig.teacherListEndpoint, {
+            params: params,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          set({ teacher: data, loading: false, hasErrors: false });
+        } catch (err) {
+          set({ loading: false, hasErrors: true });
+        }
+      },
+      updateClassroom: async (token: string, teacher: any) => {
+        set({ loading: true });
+        try {
+          const { data } = await axios.put(`${authConfig.teacherListEndpoint}/classroom/${teacher.id}`, teacher, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          set({ loading: false, hasErrors: false });
+          return data;
+        } catch (err) {
+          set({ loading: false, hasErrors: true });
+        }
+      },
+    })),
+    {
+      name: 'teacher-store',
+    },
+  ),
+);
