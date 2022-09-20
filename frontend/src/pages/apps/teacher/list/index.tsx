@@ -10,26 +10,18 @@ import {
   MenuItem,
   Typography,
   CardHeader,
-  CardContent,
-  FormControl,
-  InputLabel,
-  Select,
   Box,
   Card,
   Grid,
   Menu,
-  List,
   Divider,
   Stack,
-  Paper,
   Popover,
-  Button,
   Badge,
   Tooltip,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
-import { SelectChangeEvent } from '@mui/material/Select';
 
 // ** Icons Imports
 import {
@@ -37,7 +29,6 @@ import {
   CogOutline,
   PencilOutline,
   ChartDonut,
-  AccountOutline,
   DotsVertical,
   EyeOutline,
   DeleteOutline,
@@ -58,18 +49,18 @@ import { getInitials } from '@/@core/utils/get-initials';
 
 // ** Types Imports
 import { ThemeColor } from '@/@core/layouts/types';
-import { teachersTypes } from '@/types/apps/teacherTypes';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
-import auth from '@/configs/auth';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
 // ** Config
 import authConfig from '@/configs/auth';
+import toast, { Toaster } from 'react-hot-toast';
+import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 
 type Teacher = {
   id: number;
@@ -240,7 +231,7 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const { teacher, fetchTeacher, updateClassroom } = useTeacherStore();
+  const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
   const { classroom, fetchClassroom } = useClassroomStore();
   const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
 
@@ -271,7 +262,12 @@ const TeacherList = () => {
     event.preventDefault();
     const classrooms = data.map((item: any) => item.id);
     const info = { id: currentData.id, classrooms };
-    const result = await updateClassroom(storedToken, info);
+    toast.promise(updateClassroom(storedToken, info), {
+      loading: 'กำลังบันทึก...',
+      success: 'บันทึกสำเร็จ',
+      error: 'เกิดข้อผิดพลาด',
+    });
+
     fetchTeacher(storedToken, {
       q: '',
     });
@@ -432,36 +428,41 @@ const TeacherList = () => {
   ];
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
-          <DataGrid
-            autoHeight={true}
-            rows={teacher}
-            getRowHeight={() => 'auto'}
-            columns={columns}
-            pageSize={pageSize}
-            disableSelectionOnClick
-            rowsPerPageOptions={[10, 25, 50]}
-            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-          />
-        </Card>
-      </Grid>
+    <>
+      <ReactHotToast>
+        <Toaster position='top-right' reverseOrder={false} />
+      </ReactHotToast>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Card>
+            <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
+            <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+            <DataGrid
+              autoHeight={true}
+              rows={teacher}
+              getRowHeight={() => 'auto'}
+              columns={columns}
+              pageSize={pageSize}
+              disableSelectionOnClick
+              rowsPerPageOptions={[10, 25, 50]}
+              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            />
+          </Card>
+        </Grid>
 
-      <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
-      {addClassroomOpen && (
-        <SidebarAddClassroom
-          open={addClassroomOpen}
-          toggle={toggleAddClassroomDrawer}
-          onSubmitted={onSubmittedClassroom}
-          defaultValues={defaultValue}
-          data={classroom}
-          onLoad={false}
-        />
-      )}
-    </Grid>
+        <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
+        {addClassroomOpen && (
+          <SidebarAddClassroom
+            open={addClassroomOpen}
+            toggle={toggleAddClassroomDrawer}
+            onSubmitted={onSubmittedClassroom}
+            defaultValues={defaultValue}
+            data={classroom}
+            onLoad={loading}
+          />
+        )}
+      </Grid>
+    </>
   );
 };
 
