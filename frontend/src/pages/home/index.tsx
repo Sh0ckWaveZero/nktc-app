@@ -36,7 +36,7 @@ const Home = () => {
       icon: <HiOutlineClipboardList />,
       navLink: {
         title: 'Report สถิติการมาเรียน',
-        path: '/second-page',
+        path: '/apps/reports/check-in',
       },
     },
     {

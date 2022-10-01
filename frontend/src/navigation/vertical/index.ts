@@ -12,6 +12,7 @@ import { RiUser5Line, RiUser6Line } from 'react-icons/ri';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
+import { HiOutlineFlag } from 'react-icons/hi';
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -76,6 +77,14 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       sectionTitle: 'รายงาน',
+
+    },
+    {
+      title: 'เช็คชื่อหน้าเสาธง',
+      icon: HiOutlineFlag,
+      path: '/apps/reports/check-in',
+      action: 'read',
+      subject: 'เช็คชื่อหน้าเสาธง',
     },
   ];
 };

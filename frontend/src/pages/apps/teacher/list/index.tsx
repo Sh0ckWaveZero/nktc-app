@@ -430,7 +430,7 @@ const TeacherList = () => {
   return (
     <>
       <ReactHotToast>
-        <Toaster position='top-right' reverseOrder={false} />
+        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
       </ReactHotToast>
       <Grid container spacing={6}>
         <Grid item xs={12}>
@@ -438,6 +438,7 @@ const TeacherList = () => {
             <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
             <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
             <DataGrid
+              disableColumnMenu
               autoHeight={true}
               rows={teacher}
               getRowHeight={() => 'auto'}
