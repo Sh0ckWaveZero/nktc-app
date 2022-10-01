@@ -19,6 +19,7 @@ model User {
   student            Student?
   teacher            Teacher?
   sessions           Session[]
+  userRole           UserRole[]
   status             String?
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
@@ -33,6 +34,34 @@ model User {
   @@unique([username, verificationToken], name: "users_key_verificationToken")
   @@index([username, verificationToken], name: "users_index_verificationToken")
   @@map("user")
+}
+
+model RolePermisssion {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  label       String     @unique
+  permissions Json
+  userRole    UserRole[]
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  updatedBy   String?
+  createdBy   String?
+
+  @@map("role_permission")
+}
+
+model UserRole {
+  id                String           @id @default(cuid())
+  user              User             @relation(fields: [userId], references: [id])
+  userId            String
+  rolePermisssion   RolePermisssion? @relation(fields: [rolePermisssionId], references: [id])
+  rolePermisssionId String?
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  updatedBy         String?
+  createdBy         String?
+
+  @@map("user_role")
 }
 
 model VerificationToken {
