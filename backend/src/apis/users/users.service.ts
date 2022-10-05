@@ -14,7 +14,7 @@ interface FormatLogin extends Partial<User> {
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async updatePassword(payload: UpdatePasswordDto, id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
@@ -79,6 +79,7 @@ export class UsersService {
       include: {
         account: {
           select: {
+            id: true,
             title: true,
             firstName: true,
             lastName: true,
@@ -87,6 +88,7 @@ export class UsersService {
         },
         teacher: {
           select: {
+            id: true,
             teacherId: true,
             jobTitle: true,
             academicStanding: true,
@@ -101,6 +103,7 @@ export class UsersService {
         },
       },
     });
+    console.log("🚀 ~ file: users.service.ts ~ line 106 ~ UsersService ~ user", user)
     if (!user) {
       throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
     }

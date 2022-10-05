@@ -27,6 +27,11 @@ export class ClassroomController {
     return this.classroomService.findOne(+id);
   }
 
+  @Get('teacher/:id')
+  async findByTeacherId(@Param('id') id: string) {
+    return await this.classroomService.findByTeacherId(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateClassroomDto: UpdateClassroomDto) {
     return this.classroomService.update(+id, updateClassroomDto);

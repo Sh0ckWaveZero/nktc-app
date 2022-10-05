@@ -28,6 +28,7 @@ export const userStudentData = async (fileName: string) => {
       const level = getLevelByName(levelName);
       const birthDate = await getBirthday(birthDateTh.toString());
       const programId = await getProgramId(departmentName, levelName, programName);
+      const classroomId = await getClassroomId(levelClassroom, departmentName, group, programName);
 
       return Prisma.validator<Prisma.UserCreateInput>()(
         {
@@ -50,6 +51,11 @@ export const userStudentData = async (fileName: string) => {
               levelClassroom: {
                 connect: {
                   levelClassroomId,
+                }
+              },
+              classroom: {
+                connect: {
+                  classroomId
                 }
               },
               program: {

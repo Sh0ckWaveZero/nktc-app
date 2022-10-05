@@ -16,6 +16,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { ClassroomModule } from './apis/classroom/classroom.module';
+import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ClassroomModule } from './apis/classroom/classroom.module';
       },
     ),
     ClassroomModule,
+    ReportCheckInModule,
   ],
   controllers: [AppController],
   providers: [

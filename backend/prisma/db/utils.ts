@@ -40,10 +40,13 @@ const getBuddhistYear = async (date: string) => {
   return parseInt(fourDigitYear) - buddhistYear;
 }
 
-export const getClassroomId = async (level: string) => {
+export const getClassroomId = async (levelClassroomId: string, departmentName: string, group: string = '', programName: string) => {
+  let name = group === '' ? `${levelClassroomId}-${departmentName}` : `${levelClassroomId}-${programName}`;
+  console.log("🚀 ~ file: utils.ts ~ line 45 ~ getClassroomId ~ name", name)
+
   const res = await prisma.classroom.findFirst({
     where: {
-      name: level,
+      name,
     },
     select: {
       classroomId: true,

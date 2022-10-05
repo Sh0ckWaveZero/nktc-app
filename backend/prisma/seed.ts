@@ -20,10 +20,10 @@ const main = async () => {
   // seedProgram()
   // seedDepartment()
   // seedLevelClassroom()
-  // seedClassroom()
-  // seedStudents()
-  // seedTeacher()
-  seedAdmin()
+  // await seedClassroom()
+  await seedStudents()
+    // seedTeacher()
+    // seedAdmin()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
@@ -67,7 +67,7 @@ const seedClassroom = async () => {
 }
 
 const seedStudents = async () => {
-  const students = (await userStudentData('student-hcv-2')).map(async (item: any) => {
+  const students = (await userStudentData('student-cv-3')).map(async (item: any) => {
     return await prisma.user.create({
       data: item
     })

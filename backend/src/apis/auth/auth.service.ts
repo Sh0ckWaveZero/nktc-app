@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
@@ -22,7 +22,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
     const status: RegistrationStatus = {
@@ -70,7 +70,7 @@ export class AuthService {
     return user;
   }
 
-  private async getMe() {
+  public async getMe() {
     const user = await this.usersService.findByPayload({ username: 'admin' });
     return user;
   }

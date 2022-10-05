@@ -112,8 +112,6 @@ model Account {
   updatedBy    String?
   createdBy    String?
   user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teacher      Teacher?
-  student      Student?
 
   @@unique([userId, id], name: "account_key")
   @@index([firstName, lastName], name: "account_name")
@@ -132,8 +130,6 @@ model Student {
   stutus           String?
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
-  account          Account?        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        String?         @unique
   classroom        Classroom?      @relation(fields: [classroomId], references: [id])
   classroomId      String?
   department       Department?     @relation(fields: [departmentId], references: [id])
@@ -166,8 +162,6 @@ model Teacher {
   programId        String? // สาขาวิชา
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
-  account          Account?        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        String?         @unique
   department       Department?     @relation(fields: [departmentId], references: [id])
   departmentId     String?
   levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
@@ -177,6 +171,7 @@ model Teacher {
   updatedAt        DateTime        @updatedAt @map("updated_at")
   updatedBy        String?
   createdBy        String?
+  reportCheckIn    ReportCheckIn[]
 
   @@unique([userId, teacherId], name: "teacher_users")
   @@map("teacher")
@@ -204,6 +199,7 @@ model Classroom {
   createdBy         String?
   levelClassroomIds String[]         @default([]) // รหัสระดับชั้นเรียนรายสาขาวิชา
   levelClassrooms   LevelClassroom[]
+  reportCheckIn     ReportCheckIn[]
 
   @@map("classroom")
 }
@@ -314,6 +310,31 @@ model Level {
   createdBy      String?
 
   @@map("level")
+}
+
+// รายงานการเช็คชื่อหน้่าเสาธง
+model ReportCheckIn {
+  id           String     @id @default(cuid())
+  reportId     Int        @unique @default(autoincrement())
+  teacherId    String // รหัสอาจารย์
+  teacherKey   String? // รหัสอาจารย์/ครู
+  teacher      Teacher?   @relation(fields: [teacherKey], references: [id])
+  classroomId  String // รหัสห้องเรียน
+  classroomKey String? // รหัสห้องเรียน
+  classroom    Classroom? @relation(fields: [classroomKey], references: [id])
+  present      String[]   @default([]) // รหัสนักเรียนที่มาเรียน
+  absent       String[]   @default([]) // รหัสนักเรียนที่ขาดเรียน
+  late         String[]   @default([]) // รหัสนักเรียนที่มาสาย
+  leave        String[]   @default([]) // รหัสนักเรียนที่ลา
+  checkInDate  DateTime? // วันที่เช็คอิน
+  checkInTime  DateTime? // เวลาเช็คอิน
+  status       String? // สถานะ 0 = ยังไม่ได้เช็คชื่อ, 1 = ได้เช็คชื่อแล้ว
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("reportCheckIn")
 }
 
 enum Role {

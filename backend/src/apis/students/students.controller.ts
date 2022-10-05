@@ -16,8 +16,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('students')
 @Controller('students')
+@UseGuards(JwtAuthGuard)
 export class StudentsController {
-  constructor(private readonly studentsService: StudentsService) {}
+  constructor(private readonly studentsService: StudentsService) { }
 
   @Post()
   create(@Body() createStudentDto: CreateStudentDto) {
@@ -34,6 +35,11 @@ export class StudentsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(+id);
+  }
+
+  @Get('classroom/:id')
+  async findByClassroomId(@Param('id') id: string) {
+    return await this.studentsService.findByClassroomId(id);
   }
 
   @Patch(':id')

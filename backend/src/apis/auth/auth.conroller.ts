@@ -17,7 +17,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   public async register(
@@ -42,7 +42,8 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiSecurity('access-key')
   @Get('me')
-  public async me(@Request() req): Promise<any> {
+  public async me(@Request() req: any): Promise<any> {
+    console.log("🚀 ~ file: auth.conroller.ts ~ line 46 ~ AuthController ~ me ~ req", req.user)
     return req.user;
   }
 }

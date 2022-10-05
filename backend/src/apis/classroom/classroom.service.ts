@@ -34,6 +34,39 @@ export class ClassroomService {
     return `This action returns a #${id} classroom`;
   }
 
+  async findByTeacherId(id: string) {
+    const result = await this.prisma.teacher.findUniqueOrThrow({
+      where: {
+        id: id,
+      },
+      select: {
+        classroomIds: true,
+      }
+    });
+
+
+    return await this.prisma.classroom.findMany({
+      where: {
+        OR: result.classroomIds.map((item: any) => {
+          return {
+            id: item,
+          }
+        },)
+      },
+      orderBy: [
+        {
+          program: {
+            name: 'asc',
+          },
+        },
+        {
+          name: 'asc',
+        },
+      ]
+    });
+
+  }
+
   update(id: number, updateClassroomDto: UpdateClassroomDto) {
     return `This action updates a #${id} classroom`;
   }
