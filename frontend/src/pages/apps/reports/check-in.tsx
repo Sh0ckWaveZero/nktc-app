@@ -1,227 +1,42 @@
 // ** React Imports
-import { useState, useEffect, MouseEvent, useCallback, ReactElement } from 'react';
-
-// ** Next Import
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 // ** MUI Imports
-import {
-  IconButton,
-  MenuItem,
-  Typography,
-  CardHeader,
-  Box,
-  Card,
-  Grid,
-  Menu,
-  Divider,
-  Stack,
-  Popover,
-  Badge,
-  Tooltip,
-  Avatar,
-  CardContent,
-  Checkbox,
-  Container,
-} from '@mui/material';
+import { Typography, CardHeader, Card, Grid, Avatar, CardContent, Checkbox, Container } from '@mui/material';
 import { DataGrid, GridCellEditCommitParams, GridCellParams, GridColumns } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
 
 // ** Icons Imports
-import {
-  Laptop,
-  CogOutline,
-  PencilOutline,
-  ChartDonut,
-  DotsVertical,
-  EyeOutline,
-  DeleteOutline,
-  HumanMaleBoard,
-  BriefcasePlusOutline,
-  AccountBoxMultipleOutline,
-} from 'mdi-material-ui';
 
 // ** Store Imports
-import { useClassroomStore, useTeacherStore } from '@/store/index';
-
-// ** Custom Components Imports
-import CustomChip from '@/@core/components/mui/chip';
-import CustomAvatar from '@/@core/components/mui/avatar';
-
-// ** Utils Import
-import { getInitials } from '@/@core/utils/get-initials';
-
-// ** Types Imports
-import { ThemeColor } from '@/@core/layouts/types';
+import { useClassroomStore, useUserStore, useStudentStore, useReportCheckInStore } from '@/store/index';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/reports/check-in/TableHeader';
-import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
-import { userRoleType, userStatusType } from '@/@core/utils/types';
-import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
-import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
+import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import authConfig from '@/configs/auth';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import { HiOutlineFlag } from 'react-icons/hi';
-
-type Teacher = {
-  id: number;
-  name: string;
-  fullName: string;
-  classroomTeacher: string; //ครูประจำชั้น
-  numberOfTeachingHours: number;
-  numberOfLoginHours: number;
-  report: string;
-  classSchedule: string;
-  status: string;
-  role: string;
-  avatar: string;
-  color: ThemeColor;
-};
-
-interface UserRoleType {
-  [key: string]: ReactElement;
-}
-
-interface TeacherStatusType {
-  [key: string]: ThemeColor;
-}
-
-// ** Vars
-const userRoleObj: UserRoleType = {
-  admin: <Laptop fontSize='small' sx={{ mr: 3, color: 'error.main' }} />,
-  author: <CogOutline fontSize='small' sx={{ mr: 3, color: 'warning.main' }} />,
-  editor: <PencilOutline fontSize='small' sx={{ mr: 3, color: 'success.main' }} />,
-  maintainer: <ChartDonut fontSize='small' sx={{ mr: 3, color: 'primary.main' }} />,
-  teacher: <HumanMaleBoard fontSize='small' sx={{ mr: 3, color: 'info.main' }} />,
-};
+import CustomNoRowsOverlay from '@/@core/components/CustomNoRowsOverlay';
+import { isEmpty } from '@/@core/utils/utils';
 
 interface CellType {
   // row: teachersTypes;
   row: any;
 }
 
-const userStatusObj: TeacherStatusType | any = {
-  active: 'success',
-  pending: 'warning',
-  inactive: 'secondary',
-};
-
-// ** Styled component for the link for the avatar with image
-const AvatarWithImageLink = styled(Link)(({ theme }) => ({
-  marginRight: theme.spacing(3),
-}));
-
-// ** Styled component for the link for the avatar without image
-const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  marginRight: theme.spacing(3),
-}));
-
-// ** renders client column
-const renderClient = (row: any) => {
-  if (row.avatar.length) {
-    return (
-      <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 30, height: 30 }} />
-      </AvatarWithImageLink>
-    );
-  } else {
-    return (
-      <AvatarWithoutImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar
-          skin='light'
-          color={row.avatarColor || 'primary'}
-          sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
-        >
-          {getInitials(row.firstName + ' ' + row.lastName)}
-        </CustomAvatar>
-      </AvatarWithoutImageLink>
-    );
-  }
-};
-
-// ** Styled component for the link inside menu
-const MenuItemLink = styled('a')(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  textDecoration: 'none',
-  padding: theme.spacing(1.5, 4),
-  color: theme.palette.text.primary,
-}));
-
-const RowOptions = ({ id }: { id: number | string }) => {
-  // ** Hooks
-
-  // ** State
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const rowOptionsOpen = Boolean(anchorEl);
-  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleDelete = () => {
-    // dispatch(deleteUser(id));
-    handleRowOptionsClose();
-  };
-
-  return (
-    <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <DotsVertical />
-      </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
-      >
-        <MenuItem sx={{ p: 0 }}>
-          <Link href={`/apps/user/view/${id}`} passHref>
-            <MenuItemLink>
-              <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
-              ดู
-            </MenuItemLink>
-          </Link>
-        </MenuItem>
-        <MenuItem onClick={handleRowOptionsClose}>
-          <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
-          แก้ไข
-        </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <DeleteOutline fontSize='small' sx={{ mr: 2, color: 'error.main' }} />
-          ลบ
-        </MenuItem>
-      </Menu>
-    </>
-  );
-};
-
 const StudentCheckIn = () => {
+  // ** Hooks
+  // const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
+  const { classroom, fetchClassroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
+  const { accessToken } = useUserStore();
+  const { students, fetchStudentByClassroom } = useStudentStore();
+  const { reportCheckIn, reportCheckInLoading, hasReportCheckInErrors, getReportCheckIn, addReportCheckIn } =
+    useReportCheckInStore();
+
   // ** Local State
-  const [value, setValue] = useState<string>('');
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
-  const [addClassroomOpen, setAddClassroomOpen] = useState<boolean>(false);
-  const [currentData, setCurrentData] = useState<any>(null);
-  const [isCheckAll, setIsCheckAll] = useState(false);
-  const [isCheck, setIsCheck] = useState<any>([]);
+  const [pageSize, setPageSize] = useState<number>(isEmpty(students) ? 0 : students.length);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
   const [isLateCheckAll, setIsLateCheckAll] = useState(false);
@@ -230,64 +45,27 @@ const StudentCheckIn = () => {
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [isLateCheck, setIsLateCheck] = useState<any>([]);
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const debouncedValue = useDebounce<string>(value, 500);
-
-  const handleClick = (event: any) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
-
-  // ** Hooks
-  const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
-  const { classroom, fetchClassroom } = useClassroomStore();
-  const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
+  const [teacherClassrooms, setTeacherClassrooms] = useState<any>(teacherClassroom[0] ?? '');
 
   useEffectOnce(() => {
-    fetchClassroom(storedToken);
+    getReportCheckIn(accessToken, {
+      teacher: 'cl88ra1eh00243rrc1uq7216c',
+      classroom: teacherClassrooms.id,
+    });
+    console.log('reportCheckIn', reportCheckIn);
   });
 
-  // ** fetch data on page load && when value changes
+  useEffectOnce(() => {
+    fetchClassroom(accessToken);
+  });
+
+  useEffectOnce(() => {
+    fetchTeachClassroom(accessToken, 'cl88ra1eh00243rrc1uq7216c');
+  });
+
   useEffect(() => {
-    fetchTeacher(storedToken, {
-      q: value,
-    });
-  }, [debouncedValue]);
-
-  const defaultValue: any = currentData
-    ? classroom.filter((item: any) => currentData.classroomIds.includes(item.id))
-    : [];
-
-  const handleFilter = useCallback((val: string) => {
-    setValue(val);
-  }, []);
-
-  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen);
-
-  const toggleAddClassroomDrawer = () => setAddClassroomOpen(!addClassroomOpen);
-
-  const onSubmittedClassroom = async (event: any, data: any) => {
-    event.preventDefault();
-    const classrooms = data.map((item: any) => item.id);
-    const info = { id: currentData.id, classrooms };
-    toast.promise(updateClassroom(storedToken, info), {
-      loading: 'กำลังบันทึก...',
-      success: 'บันทึกสำเร็จ',
-      error: 'เกิดข้อผิดพลาด',
-    });
-
-    fetchTeacher(storedToken, {
-      q: '',
-    });
-    toggleAddClassroomDrawer();
-  };
+    fetchStudentByClassroom(accessToken, teacherClassrooms.id);
+  }, [teacherClassrooms]);
 
   const onHandleToggle = (action: string, param: any): void => {
     switch (action) {
@@ -441,7 +219,7 @@ const StudentCheckIn = () => {
 
   const handleTogglePresentAll = (): void => {
     setIsPresentCheckAll(!isPresentCheckAll);
-    setIsPresentCheck(teacher.map((item) => item.id));
+    setIsPresentCheck(students.map((student: any) => student.id));
     if (isPresentCheckAll) {
       setIsPresentCheck([]);
     }
@@ -449,7 +227,7 @@ const StudentCheckIn = () => {
 
   const handleToggleAbsentAll = (): void => {
     setIsAbsentCheckAll(!isAbsentCheckAll);
-    setIsAbsentCheck(teacher.map((item) => item.id));
+    setIsAbsentCheck(students.map((student: any) => student.id));
     if (isAbsentCheckAll) {
       setIsAbsentCheck([]);
     }
@@ -457,7 +235,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLateAll = (): void => {
     setIsLateCheckAll(!isLateCheckAll);
-    setIsLateCheck(teacher.map((item) => item.id));
+    setIsLateCheck(students.map((student: any) => student.id));
     if (isLateCheckAll) {
       setIsLateCheck([]);
     }
@@ -465,7 +243,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLeaveAll = (): void => {
     setIsLeaveCheckAll(!isLeaveCheckAll);
-    setIsLeaveCheck(teacher.map((item) => item.id));
+    setIsLeaveCheck(students.map((student: any) => student.id));
     if (isLeaveCheckAll) {
       setIsLeaveCheck([]);
     }
@@ -492,26 +270,6 @@ const StudentCheckIn = () => {
 
   const columns: GridColumns = [
     {
-      flex: 0.06,
-      minWidth: 30,
-      headerName: 'ลำดับ',
-      field: 'totalLogin',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Typography
-            variant='body2'
-            noWrap
-            sx={{ fontWeight: 600, color: 'text.primary', textTransform: 'capitalize' }}
-          >
-            {1}
-          </Typography>
-        );
-      },
-    },
-    {
       flex: 0.2,
       minWidth: 220,
       field: 'fullName',
@@ -520,28 +278,11 @@ const StudentCheckIn = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { id, title, firstName, lastName, username } = row;
+        const { account } = row;
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Link href={`/apps/user/view/${id}`} passHref>
-                <Typography
-                  noWrap
-                  component='a'
-                  variant='body2'
-                  sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
-                >
-                  {title + '' + firstName + ' ' + lastName}
-                </Typography>
-              </Link>
-              <Link href={`/apps/user/view/${id}`} passHref>
-                <Typography noWrap component='a' variant='caption' sx={{ textDecoration: 'none' }}>
-                  @{username}
-                </Typography>
-              </Link>
-            </Box>
-          </Box>
+          <Typography noWrap variant='body1' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
+            {account.title + '' + account.firstName + ' ' + account.lastName}
+          </Typography>
         );
       },
     },
@@ -554,6 +295,7 @@ const StudentCheckIn = () => {
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
         <Checkbox
+          color='success'
           checked={isPresentCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
@@ -564,6 +306,7 @@ const StudentCheckIn = () => {
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'มาเรียน'}
           <Checkbox
+            color='success'
             sx={{ p: 0 }}
             checked={isPresentCheckAll || false}
             onChange={(e) => onHandleCheckAll(e, 'present')}
@@ -581,6 +324,7 @@ const StudentCheckIn = () => {
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
         <Checkbox
+          color='error'
           checked={isAbsentCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
@@ -591,6 +335,7 @@ const StudentCheckIn = () => {
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'ขาด'}
           <Checkbox
+            color='error'
             sx={{ p: 0 }}
             checked={isAbsentCheckAll || false}
             onChange={(e) => onHandleCheckAll(e, 'absent')}
@@ -608,6 +353,7 @@ const StudentCheckIn = () => {
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
         <Checkbox
+          color='secondary'
           checked={isLeaveCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
@@ -618,6 +364,7 @@ const StudentCheckIn = () => {
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'ลา'}
           <Checkbox
+            color='secondary'
             sx={{ p: 0 }}
             checked={isLeaveCheckAll || false}
             onChange={(e) => onHandleCheckAll(e, 'leave')}
@@ -635,6 +382,7 @@ const StudentCheckIn = () => {
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
         <Checkbox
+          color='warning'
           checked={isLateCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
@@ -645,6 +393,7 @@ const StudentCheckIn = () => {
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'มาสาย'}
           <Checkbox
+            color='warning'
             sx={{ p: 0 }}
             checked={isLateCheckAll || false}
             onChange={(e) => onHandleCheckAll(e, 'late')}
@@ -660,14 +409,29 @@ const StudentCheckIn = () => {
   }
 
   // submit
-  const onSubmit = async () => {
+  const onHandleSubmit = async (event: any) => {
+    event.preventDefault();
     const data = {
+      teacherId: 'cl88ra1eh00243rrc1uq7216c',
+      classroomId: teacherClassrooms.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
       late: isLateCheck,
       leave: isLeaveCheck,
+      checkInDate: new Date(),
+      status: '1',
     };
     console.log('🚀 ~ file: check-in.tsx ~ line 473 ~ onSubmit ~ data', data);
+    addReportCheckIn(accessToken, data);
+  };
+
+  const handleSelectChange = (event: any) => {
+    onClearAll('');
+    const {
+      target: { value },
+    } = event;
+    const temp = teacherClassroom.filter((item: any) => item.name === value)[0];
+    setTeacherClassrooms(temp);
   };
 
   return (
@@ -675,6 +439,7 @@ const StudentCheckIn = () => {
       <ReactHotToast>
         <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
       </ReactHotToast>
+
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
@@ -685,42 +450,45 @@ const StudentCheckIn = () => {
                 </Avatar>
               }
               sx={{ color: 'text.primary' }}
-              title='รายชื่อนักเรียน'
-              subheader='การเช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง'
+              title={`เช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง`}
+              subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}`}
             />
             <CardContent>
-              <Typography variant='body2' color='text.secondary'>
-                This impressive paella is a perfect party dish and a fun meal to cook together with your guests. Add 1
-                cup of frozen peas along with the mussels, if you like.
-              </Typography>
+              {!isEmpty(students) && (
+                <Typography variant='subtitle1'>
+                  {`ชั้น ${teacherClassrooms.name} จำนวน ${students.length} คน`}
+                </Typography>
+              )}
             </CardContent>
-            <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+            <TableHeader
+              value={teacherClassroom}
+              handleChange={handleSelectChange}
+              defaultValue={teacherClassrooms?.name}
+              handleSubmit={onHandleSubmit}
+            />
             <DataGrid
               disableColumnMenu
               autoHeight
               headerHeight={150}
-              rows={teacher}
+              rows={isEmpty(students) ? [] : students}
               columns={columns}
               pageSize={pageSize}
               disableSelectionOnClick
-              rowsPerPageOptions={[10, 25, 50]}
-              onCellEditCommit={(params) => handleUpdate(params)}
+              rowHeight={isEmpty(students) ? 100 : 50}
+              rowsPerPageOptions={[isEmpty(students) ? 0 : pageSize]}
               onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+              onCellEditCommit={(params) => handleUpdate(params)}
+              components={{
+                NoRowsOverlay: CustomNoRowsOverlay,
+              }}
             />
           </Card>
         </Grid>
-
-        <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
-        {addClassroomOpen && (
-          <SidebarAddClassroom
-            open={addClassroomOpen}
-            toggle={toggleAddClassroomDrawer}
-            onSubmitted={onSubmittedClassroom}
-            defaultValues={defaultValue}
-            data={classroom}
-            onLoad={loading}
-          />
-        )}
       </Grid>
     </>
   );

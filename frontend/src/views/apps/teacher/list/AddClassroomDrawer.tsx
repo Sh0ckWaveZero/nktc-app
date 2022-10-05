@@ -35,7 +35,7 @@ const checkedIcon = <MdCheckBox />;
 
 const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
   // ** Props
-  const { open, toggle, onSubmitted, defaultValues: defaultValues, data, onLoad } = props;
+  const { open, toggle, onSubmitted, defaultValues, data, onLoad } = props;
 
   // ** State
   const [values, setValues] = useState([]);

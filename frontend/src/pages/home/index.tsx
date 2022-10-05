@@ -36,7 +36,7 @@ const Home = () => {
       icon: <HiOutlineClipboardList />,
       navLink: {
         title: 'Report สถิติการมาเรียน',
-        path: '/apps/reports/check-in',
+        path: '/home',
       },
     },
     {
@@ -46,7 +46,7 @@ const Home = () => {
       icon: <HiOutlineFlag />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
-        path: '/second-page',
+        path: '/apps/reports/check-in',
       },
     },
     {
@@ -56,7 +56,7 @@ const Home = () => {
       icon: <HiOutlineChartPie />,
       navLink: {
         title: 'Report สรุปเวลาเรียน',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -66,7 +66,7 @@ const Home = () => {
       icon: <MdIso />,
       navLink: {
         title: 'ตั้งค่าเพิ่ม/ลบ คะแนนอัตโนมัติ',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -76,7 +76,7 @@ const Home = () => {
       icon: <HiOutlineLightBulb />,
       navLink: {
         title: 'ตั้งค่าเกณฑ์คะแนน ความดี/พฤติกรรม',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -86,7 +86,7 @@ const Home = () => {
       icon: <MdTagFaces />,
       navLink: {
         title: 'Report ความดี',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -96,7 +96,7 @@ const Home = () => {
       icon: <MdOutlineSentimentDissatisfied />,
       navLink: {
         title: 'Report พฤติกรรม',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -106,7 +106,7 @@ const Home = () => {
       icon: <HiOutlineDatabase />,
       navLink: {
         title: 'ข้อมูลนักเรียนทั้งหมด',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -116,7 +116,7 @@ const Home = () => {
       icon: <HiOutlineSelector />,
       navLink: {
         title: 'เพิ่ม ลบ แก้ไข ข้อมูลนักเรียน',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -126,7 +126,7 @@ const Home = () => {
       icon: <MdManageAccounts />,
       navLink: {
         title: 'จัดการข้อมูลครู/ บุคลากร',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -136,7 +136,7 @@ const Home = () => {
       icon: <MdOutlineClass />,
       navLink: {
         title: 'จัดการข้อมูลจำนวนห้องเรียน',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -146,7 +146,7 @@ const Home = () => {
       icon: <MdOutlineSort />,
       navLink: {
         title: 'เรียงลำดับ คะแนนความดี',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -156,7 +156,7 @@ const Home = () => {
       icon: <MdOutlineTungsten />,
       navLink: {
         title: 'เรียงลำดับ ความพฤติกรรม',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -166,7 +166,7 @@ const Home = () => {
       icon: <MdHistoryToggleOff />,
       navLink: {
         title: 'เปิด-ปิด ระบบ เช็คชื่อย้อนหลัง',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -176,7 +176,7 @@ const Home = () => {
       icon: <MdOutlineTrendingUp />,
       navLink: {
         title: 'สรุปคัดกรอก SDQ EQ',
-        path: '/second-page',
+        path: '/home',
       },
     },
     {
@@ -186,7 +186,7 @@ const Home = () => {
       icon: <MdOutlineHome />,
       navLink: {
         title: 'สรุปบันทึก เยี่ยมบ้านนักเรียน',
-        path: '/second-page',
+        path: '/home',
       },
     },
   ];

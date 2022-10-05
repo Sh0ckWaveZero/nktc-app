@@ -6,13 +6,24 @@ import { devtools, persist } from 'zustand/middleware';
 import authConfig from '@/configs/auth';
 import { LoginParams } from '@/context/types';
 
+interface UserState {
+  userInfo: any;
+  accessToken: string;
+  loading: boolean,
+  hasErrors: boolean,
+  login: (params: LoginParams) => any;
+  logout: () => void;
+  getMe: (token: string, username: string) => any;
+  addUser: (token: string, user: any) => any;
+  deleteUser: (token: string, userId: string) => any;
+}
 
-export const useUserStore = create<any>()(
+export const useUserStore = create<UserState>()(
   devtools(
     persist(
       (set) => ({
-        user: null,
-        token: '',
+        userInfo: null,
+        accessToken: '',
         loading: false,
         hasErrors: false,
         login: async (param: LoginParams) => {
@@ -20,37 +31,39 @@ export const useUserStore = create<any>()(
           try {
             await axios.post(authConfig.loginEndpoint, param).then(async (response: any) => {
               const { data, token } = await response.data;
-              set({ user: data, loading: false, hasErrors: false, token: token });
+              set({ userInfo: data, loading: false, hasErrors: false, accessToken: token });
             });
           } catch (err) {
             set({ loading: false, hasErrors: true });
           }
         },
         logout: () => {
-          set({ user: null, token: '' });
+          set({ userInfo: null, accessToken: '' });
         },
-        getMe: async (token: string) => {
+        getMe: async (token: string, username: string) => {
+          console.log("🚀 ~ file: index.ts ~ line 44 ~ getMe: ~ userName", username)
           set({ loading: true });
           try {
             const { data } = await axios.get(authConfig.meEndpoint, {
+              params: { username: username },
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
-            set({ user: data, loading: false, hasErrors: false });
+            set({ userInfo: data, loading: false, hasErrors: false });
           } catch (err) {
-            set({ user: null, token: '', loading: false, hasErrors: true });
+            set({ userInfo: null, accessToken: '', loading: false, hasErrors: true });
           }
         },
         addUser: async (data: any) => {
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
             data,
           });
-          set({ user: await response.data });
+          set({ userInfo: await response.data });
         },
         deleteUser: async (id: number | string) => {
           const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
-          set({ user: await response.data });
+          set({ userInfo: await response.data });
         },
       }),
       {

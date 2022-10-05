@@ -38,7 +38,7 @@ import {
 } from 'mdi-material-ui';
 
 // ** Store Imports
-import { useClassroomStore, useTeacherStore } from '@/store/index';
+import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -233,15 +233,15 @@ const TeacherList = () => {
   // ** Hooks
   const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
   const { classroom, fetchClassroom } = useClassroomStore();
-  const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
+  const { accessToken } = useUserStore();
 
   useEffectOnce(() => {
-    fetchClassroom(storedToken);
+    fetchClassroom(accessToken);
   });
 
   // ** fetch data on page load && when value changes
   useEffect(() => {
-    fetchTeacher(storedToken, {
+    fetchTeacher(accessToken, {
       q: value,
     });
   }, [debouncedValue]);
@@ -262,13 +262,13 @@ const TeacherList = () => {
     event.preventDefault();
     const classrooms = data.map((item: any) => item.id);
     const info = { id: currentData.id, classrooms };
-    toast.promise(updateClassroom(storedToken, info), {
+    toast.promise(updateClassroom(accessToken, info), {
       loading: 'กำลังบันทึก...',
       success: 'บันทึกสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
     });
 
-    fetchTeacher(storedToken, {
+    fetchTeacher(accessToken, {
       q: '',
     });
     toggleAddClassroomDrawer();

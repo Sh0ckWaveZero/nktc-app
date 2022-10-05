@@ -22,18 +22,6 @@ const navigation = (): VerticalNavItemsType => {
       path: '/home',
     },
     {
-      title: 'Second Page',
-      icon: EmailOutline,
-      path: '/second-page',
-    },
-    {
-      title: 'Access Control',
-      icon: ShieldOutline,
-      path: '/acl',
-      action: 'read',
-      subject: 'acl-page',
-    },
-    {
       sectionTitle: 'จัดการข้อมูล',
     },
     {

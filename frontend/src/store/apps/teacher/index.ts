@@ -24,7 +24,7 @@ export const useTeacherStore = create<TeacherState>()(
       fetchTeacher: async (token: string, params: TeacherQuery) => {
         set({ loading: true });
         try {
-          const { data } = await axios.get(authConfig.teacherListEndpoint, {
+          const { data } = await axios.get(authConfig.teacherEndpoint, {
             params: params,
             headers: {
               Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ export const useTeacherStore = create<TeacherState>()(
       updateClassroom: async (token: string, teacher: any) => {
         set({ loading: true });
         try {
-          const { data } = await axios.put(`${authConfig.teacherListEndpoint}/classroom/${teacher.id}`, teacher, {
+          const { data } = await axios.put(`${authConfig.teacherEndpoint}/classroom/${teacher.id}`, teacher, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
