@@ -19,6 +19,7 @@ import BlankLayout from '@/@core/layouts/BlankLayout';
 
 // ** Hooks
 import { useAuth } from '@/hooks/useAuth';
+import { useUserStore } from '@/store/index';
 
 interface AclGuardProps {
   children: ReactNode;
@@ -33,7 +34,8 @@ const AclGuard = (props: AclGuardProps) => {
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined);
 
   // ** Hooks
-  const auth = useAuth();
+  // const auth = useAuth();
+  const { userInfo } = useUserStore();
   const router = useRouter();
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
@@ -42,8 +44,8 @@ const AclGuard = (props: AclGuardProps) => {
   }
 
   // User is logged in, build ability for the user based on his role
-  if (auth.user && auth.user.role && !ability) {
-    setAbility(buildAbilityFor(auth.user.role, aclAbilities.subject));
+  if (userInfo && userInfo.role && !ability) {
+    setAbility(buildAbilityFor(userInfo.role, aclAbilities.subject));
   }
 
   // Check the access of current user and render pages

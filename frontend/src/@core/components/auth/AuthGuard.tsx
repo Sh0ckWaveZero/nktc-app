@@ -5,7 +5,7 @@ import { ReactNode, ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 // ** Hooks Import
-import { useAuth } from '@/hooks/useAuth';
+import { useUserStore } from '@/store/index';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -14,7 +14,7 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props;
-  const auth = useAuth();
+  const { userInfo, loading } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const AuthGuard = (props: AuthGuardProps) => {
       return;
     }
 
-    if (auth.user === null && !window.localStorage.getItem('userData')) {
+    if (!userInfo) {
       if (router.asPath !== '/') {
         router.replace({
           pathname: '/login',
@@ -34,7 +34,7 @@ const AuthGuard = (props: AuthGuardProps) => {
     }
   }, [router.route]);
 
-  if (auth.loading || auth.user === null) {
+  if (loading || !userInfo) {
     return fallback;
   }
 

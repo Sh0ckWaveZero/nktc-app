@@ -15,19 +15,14 @@ import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 // ** Icons Imports
-import CogOutline from 'mdi-material-ui/CogOutline';
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd';
-import EmailOutline from 'mdi-material-ui/EmailOutline';
-import LogoutVariant from 'mdi-material-ui/LogoutVariant';
-import AccountOutline from 'mdi-material-ui/AccountOutline';
-import MessageOutline from 'mdi-material-ui/MessageOutline';
-import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline';
 
 // ** Context
 import { useAuth } from '@/hooks/useAuth';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
+import { useUserStore } from '@/store/index';
+import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
 
 interface Props {
   settings: Settings;
@@ -51,7 +46,8 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const { logout, user } = useAuth();
+  // const { logout } = useAuth();
+  const { userInfo, logout } = useUserStore();
 
   // ** Vars
   const { direction } = settings;
@@ -83,7 +79,7 @@ const UserDropdown = (props: Props) => {
 
   const handleLogout = () => {
     logout();
-    handleDropdownClose();
+    handleDropdownClose('/login');
   };
 
   return (
@@ -99,7 +95,7 @@ const UserDropdown = (props: Props) => {
         }}
       >
         <Avatar
-          alt={user?.username}
+          alt={userInfo?.username}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
           src='/images/avatars/1.png'
@@ -129,7 +125,7 @@ const UserDropdown = (props: Props) => {
                 horizontal: 'right',
               }}
             >
-              <Avatar alt={user?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt={userInfo?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box
               sx={{
@@ -139,9 +135,9 @@ const UserDropdown = (props: Props) => {
                 flexDirection: 'column',
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>{user?.username ?? '-'}</Typography>
+              <Typography sx={{ fontWeight: 600 }}>{userInfo?.username ?? '-'}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                {user?.role ?? '-'}
+                {userInfo?.role ?? '-'}
               </Typography>
             </Box>
           </Box>
@@ -156,32 +152,13 @@ const UserDropdown = (props: Props) => {
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
             <EmailOutline sx={{ mr: 2 }} />
-            Inbox
+            ประวัติการใช้งาน
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <MessageOutline sx={{ mr: 2 }} />
-            Chat
-          </Box>
-        </MenuItem>
-        <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
             <CogOutline sx={{ mr: 2 }} />
             การตั้งค่า
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CurrencyUsd sx={{ mr: 2 }} />
-            Pricing
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <HelpCircleOutline sx={{ mr: 2 }} />
-            FAQ
           </Box>
         </MenuItem>
         <Divider />

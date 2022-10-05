@@ -12,6 +12,8 @@ import authConfig from '@/configs/auth';
 
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
+import { useUserStore } from '@/store/index';
+import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -40,58 +42,94 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
+  // user: any;
+  // accessToken: string;
+  // loading: boolean,
+  // hasErrors: boolean,
+  // login: (params: LoginParams) => any;
+  // logout: () => void;
+  // getMe: (token: string) => any;
+  // addUser: (token: string, user: any) => any;
+  // deleteUser: (token: string, userId: string) => any;
+  const { userInfo, accessToken, hasErrors, login, logout, getMe } = useUserStore();
 
-  useEffect(() => {
-    const initAuth = async (): Promise<void> => {
-      setIsInitialized(true);
-      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-      if (storedToken) {
-        setLoading(true);
-        await axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          })
-          .then((response) => {
-            const { data } = response;
-            setLoading(false);
-            setUser({ ...data });
-          })
-          .catch(() => {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('accessToken');
-            setUser(null);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    };
-    initAuth();
-  }, []);
+  // useEffectOnce(() => {
+  //   if (accessToken) {
+  //     console.log('🚀 ~ file: AuthContext.tsx ~ line 55 ~ AuthProvider ~ userInfo', userInfo);
+  //     getMe(accessToken, userInfo.username);
+  //     setUser(userInfo);
+  //     setLoading(false);
+  //     setIsInitialized(true);
+  //   } else {
+  //     setUser(userInfo);
+  //     setLoading(false);
+  //     setIsInitialized(true);
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   const initAuth = async (): Promise<void> => {
+  //     setIsInitialized(true);
+  //     const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
+  //     if (storedToken) {
+  //       setLoading(true);
+  //       await axios
+  //         .get(authConfig.meEndpoint, {
+  //           headers: {
+  //             Authorization: `Bearer ${storedToken}`,
+  //           },
+  //         })
+  //         .then((response) => {
+  //           const { data } = response;
+  //           setLoading(false);
+  //           setUser({ ...data });
+  //         })
+  //         .catch(() => {
+  //           localStorage.removeItem('userData');
+  //           localStorage.removeItem('refreshToken');
+  //           localStorage.removeItem('accessToken');
+  //           setUser(null);
+  //           setLoading(false);
+  //         });
+  //     } else {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   initAuth();
+  // }, []);
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    axios
-      .post(authConfig.loginEndpoint, params)
-      .then(async (response: any) => {
-        const { data, token } = await response.data;
+    // axios
+    //   .post(authConfig.loginEndpoint, params)
+    //   .then(async (response: any) => {
+    //     const { data, token } = await response.data;
 
-        window.localStorage.setItem(authConfig.storageTokenKeyName, token);
+    //     window.localStorage.setItem(authConfig.storageTokenKeyName, token);
 
+    //     const returnUrl = router.query.returnUrl;
+
+    //     setUser({ ...data });
+
+    //     window.localStorage.setItem('userData', JSON.stringify(data));
+
+    //     const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+
+    //     router.replace(redirectURL as string);
+    //   })
+
+    //   .catch((err) => {
+    //     if (errorCallback) errorCallback(err);
+    //   });
+
+    login(params)
+      .then((res: any) => {
+        console.log('🚀 ~ file: AuthContext.tsx ~ line 120 ~ .then ~ res', userInfo);
+        setUser(userInfo);
         const returnUrl = router.query.returnUrl;
-
-        setUser({ ...data });
-
-        window.localStorage.setItem('userData', JSON.stringify(data));
-
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
-
         router.replace(redirectURL as string);
       })
-
-      .catch((err) => {
+      .catch((err: any) => {
         if (errorCallback) errorCallback(err);
       });
   };
@@ -99,8 +137,8 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogout = () => {
     setUser(null);
     setIsInitialized(false);
-    window.localStorage.removeItem('userData');
-    window.localStorage.removeItem(authConfig.storageTokenKeyName);
+    // window.localStorage.removeItem('userData');
+    // window.localStorage.removeItem(authConfig.storageTokenKeyName);
     router.push('/login');
   };
 

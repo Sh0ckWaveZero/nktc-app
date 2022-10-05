@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
+import { useUserStore } from '@/store/index';
 
 interface Props {
   settings: Settings;
@@ -51,7 +52,8 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
+  const { logout } = useUserStore();
 
   // ** Vars
   const { direction } = settings;

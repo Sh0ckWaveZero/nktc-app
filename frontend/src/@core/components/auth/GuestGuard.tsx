@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 // ** Hooks Import
 import { useAuth } from '@/hooks/useAuth';
+import { useUserStore } from '@/store/index';
 
 interface GuestGuardProps {
   children: ReactNode;
@@ -14,7 +15,8 @@ interface GuestGuardProps {
 
 const GuestGuard = (props: GuestGuardProps) => {
   const { children, fallback } = props;
-  const auth = useAuth();
+  // const auth = useAuth();
+  const { userInfo, loading } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,12 +24,12 @@ const GuestGuard = (props: GuestGuardProps) => {
       return;
     }
 
-    if (window.localStorage.getItem('userData')) {
+    if (userInfo) {
       router.replace('/');
     }
   }, [router.route]);
 
-  if (auth.loading || (!auth.loading && auth.user !== null)) {
+  if (loading || (!loading && userInfo !== null)) {
     return fallback;
   }
 
