@@ -7,7 +7,7 @@ import { CustomChipProps } from './types';
 // ** Hooks Imports
 import useBgColor, { UseBgColorType } from '@/@core/hooks/useBgColor';
 
-const Chip = (props: CustomChipProps) => {
+const Chip = (props: any | CustomChipProps) => {
   // ** Props
   const { sx, skin, color } = props;
 

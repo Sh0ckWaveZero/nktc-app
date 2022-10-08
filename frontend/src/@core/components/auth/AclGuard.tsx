@@ -18,7 +18,6 @@ import NotAuthorized from '@/pages/401';
 import BlankLayout from '@/@core/layouts/BlankLayout';
 
 // ** Hooks
-import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/store/index';
 
 interface AclGuardProps {

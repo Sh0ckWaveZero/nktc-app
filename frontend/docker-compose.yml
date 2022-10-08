@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  app:
+    stdin_open: true
+    container_name: nktc-stu-app
+    image: nktc-stu-app
+    build:
+      context: .
+      # for deployment on production, use the following:
+      dockerfile: dockerfile.prod
+      # for deployment on local, use the following:
+      # dockerfile: dockerfile.dev
+      # volumes:
+      #   - .:/app
+      #   - /app/node_modules
+      #   - /app/.next
+    ports:
+      - 3000:3000
+networks:
+  yadom:
+    driver: bridge
+volumes:
+  dependencies:
+    driver: local

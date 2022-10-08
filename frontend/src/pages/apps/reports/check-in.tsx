@@ -15,11 +15,12 @@ import TableHeader from '@/views/apps/reports/check-in/TableHeader';
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import { HiOutlineFlag } from 'react-icons/hi';
-import CustomNoRowsOverlay from '@/@core/components/CustomNoRowsOverlay';
+import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
+import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
 
 interface CellType {
   // row: teachersTypes;
@@ -48,17 +49,10 @@ const StudentCheckIn = () => {
   const [teacherClassrooms, setTeacherClassrooms] = useState<any>(teacherClassroom[0] ?? '');
 
   useEffectOnce(() => {
-    getReportCheckIn(accessToken, {
-      teacher: 'cl88ra1eh00243rrc1uq7216c',
-      classroom: teacherClassrooms.id,
-    });
-    console.log('reportCheckIn', reportCheckIn);
-  });
-
-  useEffectOnce(() => {
     fetchClassroom(accessToken);
   });
 
+  // ดึงข้อมูลนักเรียน
   useEffectOnce(() => {
     fetchTeachClassroom(accessToken, 'cl88ra1eh00243rrc1uq7216c');
   });
@@ -84,7 +78,6 @@ const StudentCheckIn = () => {
       default:
         break;
     }
-
     onRemoveToggleOthers(action, param);
   };
 
@@ -127,7 +120,6 @@ const StudentCheckIn = () => {
     } else if (index > 0) {
       newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
     }
-
     return newSelection;
   };
 
@@ -158,17 +150,17 @@ const StudentCheckIn = () => {
     }
   };
 
-  const onHandleAbsentChecked = (param: any): void => {
-    if (isAbsentCheck.includes(param.id)) {
-      setIsAbsentCheck((prevState: any) => {
+  const onHandlePresentChecked = (param: any): void => {
+    if (isPresentCheck.includes(param.id)) {
+      setIsPresentCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
   };
 
-  const onHandlePresentChecked = (param: any): void => {
-    if (isPresentCheck.includes(param.id)) {
-      setIsPresentCheck((prevState: any) => {
+  const onHandleAbsentChecked = (param: any): void => {
+    if (isAbsentCheck.includes(param.id)) {
+      setIsAbsentCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
@@ -213,7 +205,6 @@ const StudentCheckIn = () => {
     } else if (action === 'leave') {
       handleToggleLeaveAll();
     }
-
     onClearAll(action);
   };
 
@@ -404,10 +395,6 @@ const StudentCheckIn = () => {
     },
   ];
 
-  function handleUpdate(params: GridCellEditCommitParams): void {
-    console.log('🚀 ~ file: check-in.tsx ~ line 462 ~ handleUpdate ~ params', params);
-  }
-
   // submit
   const onHandleSubmit = async (event: any) => {
     event.preventDefault();
@@ -421,8 +408,17 @@ const StudentCheckIn = () => {
       checkInDate: new Date(),
       status: '1',
     };
-    console.log('🚀 ~ file: check-in.tsx ~ line 473 ~ onSubmit ~ data', data);
-    addReportCheckIn(accessToken, data);
+    const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck).length;
+    if (totalStudents === students.length && isEmpty(reportCheckIn)) {
+      toast.promise(addReportCheckIn(accessToken, data), {
+        loading: 'กำลังบันทึกเช็คชื่อ...',
+        success: 'บันทึกเช็คชื่อสำเร็จ',
+        error: 'เกิดข้อผิดพลาด',
+      });
+      onClearAll('');
+    } else {
+      toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
+    }
   };
 
   const handleSelectChange = (event: any) => {
@@ -430,8 +426,12 @@ const StudentCheckIn = () => {
     const {
       target: { value },
     } = event;
-    const temp = teacherClassroom.filter((item: any) => item.name === value)[0];
-    setTeacherClassrooms(temp);
+    const classroomName: any = teacherClassroom.filter((item: any) => item.name === value)[0];
+    getReportCheckIn(accessToken, {
+      teacher: 'cl88ra1eh00243rrc1uq7216c',
+      classroom: classroomName.id,
+    });
+    setTeacherClassrooms(classroomName);
   };
 
   return (
@@ -475,16 +475,13 @@ const StudentCheckIn = () => {
               disableColumnMenu
               autoHeight
               headerHeight={150}
-              rows={isEmpty(students) ? [] : students}
+              rows={isEmpty(reportCheckIn) ? (isEmpty(students) ? [] : students) : []}
               columns={columns}
               pageSize={pageSize}
               disableSelectionOnClick
-              rowHeight={isEmpty(students) ? 100 : 50}
-              rowsPerPageOptions={[isEmpty(students) ? 0 : pageSize]}
-              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-              onCellEditCommit={(params) => handleUpdate(params)}
+              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(students) ? 100 : 50) : 100}
               components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+                NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
               }}
             />
           </Card>

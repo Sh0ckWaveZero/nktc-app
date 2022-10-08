@@ -21,7 +21,7 @@ const isToday = (date: Date | string) => {
 
 export const formatDate = (
   value: Date | string,
-  formatting: DateFormatting = {
+  formatting: any | DateFormatting = {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -35,7 +35,7 @@ export const formatDate = (
 // ** Returns short month of passed date
 export const formatDateToMonthShort = (value: Date | string, toTimeForCurrentDay = true) => {
   const date = new Date(value);
-  let formatting: DateFormatting = { month: 'short', day: 'numeric' };
+  let formatting: any | DateFormatting = { month: 'short', day: 'numeric' };
 
   if (toTimeForCurrentDay && isToday(date)) {
     formatting = { hour: 'numeric', minute: 'numeric' };

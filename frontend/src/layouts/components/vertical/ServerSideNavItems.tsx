@@ -27,8 +27,7 @@ const ServerSideNavItems = () => {
       const finalMenuArray = (items: VerticalNavItemsType) => {
         return items.map((item: any) => {
           if (item.icon) {
-            // @ts-ignore
-            item.icon = Icons[item.icon];
+            // item.icon = Icons[item.icon];
 
             if (item.children) {
               finalMenuArray(item.children);

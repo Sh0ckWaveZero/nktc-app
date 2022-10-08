@@ -72,7 +72,7 @@ const Navigation = (props: Props) => {
   const [currentActiveGroup, setCurrentActiveGroup] = useState<string[]>([]);
 
   // ** Ref
-  const shadowRef = useRef(null);
+  const shadowRef: any = useRef(null);
 
   // ** Hooks
   const theme = useTheme();
@@ -82,13 +82,11 @@ const Navigation = (props: Props) => {
   const { afterVerticalNavMenuContentPosition, beforeVerticalNavMenuContentPosition } = themeConfig;
 
   // ** Fixes Navigation InfiniteScroll
-  const handleInfiniteScroll = (ref: HTMLElement) => {
+  const handleInfiniteScroll = (ref: any | HTMLElement) => {
     if (ref) {
-      // @ts-ignore
       ref._getBoundingClientRect = ref.getBoundingClientRect;
 
       ref.getBoundingClientRect = () => {
-        // @ts-ignore
         const original = ref._getBoundingClientRect();
 
         return { ...original, height: Math.floor(original.height) };
@@ -101,13 +99,10 @@ const Navigation = (props: Props) => {
     if (beforeVerticalNavMenuContentPosition === 'static' || !beforeVerticalNavMenuContent) {
       container = hidden ? container.target : container;
       if (shadowRef && container.scrollTop > 0) {
-        // @ts-ignore
         if (!shadowRef.current.classList.contains('d-block')) {
-          // @ts-ignore
           shadowRef.current.classList.add('d-block');
         }
       } else {
-        // @ts-ignore
         shadowRef.current.classList.remove('d-block');
       }
     }
@@ -141,7 +136,7 @@ const Navigation = (props: Props) => {
     }
   };
 
-  const ScrollWrapper = hidden ? Box : PerfectScrollbar;
+  const ScrollWrapper: any = hidden ? Box : PerfectScrollbar;
 
   return (
     <Drawer {...props}>
@@ -153,7 +148,6 @@ const Navigation = (props: Props) => {
         <StyledBoxForShadow ref={shadowRef} sx={{ background: shadowBgColor() }} />
       )}
       <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-        {/* @ts-ignore */}
         <ScrollWrapper
           containerRef={(ref: any) => handleInfiniteScroll(ref)}
           {...(hidden

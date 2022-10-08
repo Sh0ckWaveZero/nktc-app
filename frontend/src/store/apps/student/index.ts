@@ -31,13 +31,13 @@ export const useStudentStore = create<StudentState>()(
                 Authorization: `Bearer ${token}`,
               },
             });
-          set({ students: data, loading: false, hasErrors: false });
+          set({ students: await data, loading: false, hasErrors: false });
         } catch (err) {
           set({ loading: false, hasErrors: true });
         }
       },
       fetchStudentByClassroom: async (token: string, teacherId: any) => {
-        set({ loading: true });
+        set({ loading: true, students: [] });
         try {
           const { data } = await axios.get(`${authConfig.studentEndpoint}/classroom/${teacherId}`,
             {
@@ -45,7 +45,7 @@ export const useStudentStore = create<StudentState>()(
                 Authorization: `Bearer ${token}`,
               },
             });
-          set({ students: data, loading: false, hasErrors: false });
+          set({ students: await data, loading: false, hasErrors: false });
         } catch (err) {
           set({ students: null, loading: false, hasErrors: true });
         }

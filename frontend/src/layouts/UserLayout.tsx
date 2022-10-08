@@ -66,7 +66,7 @@ const UserLayout = ({ children }: Props) => {
             // verticalNavItems: ServerSideVerticalNavItems(),
 
             // ** AppBar Content
-            verticalAppBarContent: (props) => (
+            verticalAppBarContent: (props:any) => (
               <VerticalAppBarContent
                 hidden={hidden}
                 settings={settings}

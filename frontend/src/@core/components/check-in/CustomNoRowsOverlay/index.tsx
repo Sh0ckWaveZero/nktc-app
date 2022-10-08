@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import { useReportCheckInStore } from '../../../store/apps/report-check-in/index';
-import { isEmpty } from '../../utils/utils';
+import { useReportCheckInStore } from '../../../../store/apps/report-check-in/index';
+import { isEmpty } from '../../../utils/utils';
 import {
   Laptop,
   CogOutline,
@@ -13,6 +13,7 @@ import {
   HumanMaleBoard,
 } from 'mdi-material-ui';
 import { RiCalendarCheckLine } from 'react-icons/ri';
+import { useStudentStore } from '@/store/index';
 
 const StyledGridOverlay = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -39,13 +40,9 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
 }));
 
 const CustomNoRowsOverlay = () => {
-  const { reportCheckIn } = useReportCheckInStore();
-
   return (
     <StyledGridOverlay>
-      {isEmpty(reportCheckIn) ? (
-        <RiCalendarCheckLine size={50} color={'#93DD5C'} />
-      ) : (
+
         <svg width='120' height='100' viewBox='0 0 184 152' aria-hidden focusable='false'>
           <g fill='none' fillRule='evenodd'>
             <g transform='translate(24 31.67)'>
@@ -73,9 +70,8 @@ const CustomNoRowsOverlay = () => {
             </g>
           </g>
         </svg>
-      )}
-
-      <Box sx={{ mt: 1, pb: 1 }}>{isEmpty(reportCheckIn) ? 'เช็คชื่อประจำวันเสร็จแล้ว' : 'ไม่พบข้อมูล'}</Box>
+     
+      <Box sx={{ mt: 1, pb: 1}}>ไม่พบข้อมูล</Box>
     </StyledGridOverlay>
   );
 };

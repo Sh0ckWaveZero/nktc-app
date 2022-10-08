@@ -59,8 +59,6 @@ import UserIcon from '@/layouts/components/UserIcon';
 import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 
-// ** Config
-import authConfig from '@/configs/auth';
 import { useAppbarStore, useUserStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
 interface Props {
@@ -549,7 +547,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
                   />
                 );
               }}
-              renderOption={(props, option: AppBarSearchType | unknown) => {
+              renderOption={(props: any, option: AppBarSearchType | unknown) => {
                 const IconTag =
                   autocompleteIconObj[(option as AppBarSearchType).icon as keyof typeof autocompleteIconObj] ||
                   themeConfig.navSubItemIcon;

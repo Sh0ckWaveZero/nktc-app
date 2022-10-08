@@ -35,18 +35,12 @@ class CustomDocument extends Document {
 
 CustomDocument.getInitialProps = async (ctx) => {
   const originalRenderPage = ctx.renderPage;
-  const cache = createEmotionCache();
+  const cache: any = createEmotionCache();
   const { extractCriticalToChunks } = createEmotionServer(cache);
 
   ctx.renderPage = () =>
     originalRenderPage({
-      enhanceApp: (App) => (props) =>
-        (
-          <App
-            {...props} // @ts-ignore
-            emotionCache={cache}
-          />
-        ),
+      enhanceApp: (App: any) => (props) => <App {...props} emotionCache={cache} />,
     });
 
   const initialProps = await Document.getInitialProps(ctx);

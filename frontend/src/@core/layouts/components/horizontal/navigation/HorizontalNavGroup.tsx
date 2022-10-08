@@ -122,8 +122,7 @@ const HorizontalNavGroup = (props: Props) => {
         name: 'flip',
         enabled: true,
         options: {
-          // @ts-ignore
-          boundary: window,
+          boundary: window || null,
           fallbackPlacements: ['auto-start', 'right'],
         },
       },
@@ -157,7 +156,7 @@ const HorizontalNavGroup = (props: Props) => {
   const ToggleIcon = direction === 'rtl' ? ChevronLeft : ChevronRight;
 
   const WrapperCondition = horizontalMenuToggle === 'click';
-  const MainWrapper = WrapperCondition ? ClickAwayListener : 'div';
+  const MainWrapper: any = WrapperCondition ? ClickAwayListener : 'div';
   const ChildWrapper = WrapperCondition ? 'div' : Fragment;
   const AnimationWrapper = horizontalMenuAnimation ? Fade : Fragment;
 
@@ -183,7 +182,6 @@ const HorizontalNavGroup = (props: Props) => {
 
   return (
     <CanViewNavGroup navGroup={item}>
-      {/* @ts-ignore */}
       <MainWrapper {...(WrapperCondition ? { onClickAway: handleGroupClose } : { onMouseLeave: handleGroupClose })}>
         <ChildWrapper>
           <List component='div' sx={{ py: skin === 'bordered' ? 2.625 : 2.75 }}>

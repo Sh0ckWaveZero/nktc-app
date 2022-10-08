@@ -7,6 +7,9 @@ import { useRouter } from 'next/router';
 // ** Hooks Import
 import { useUserStore } from '@/store/index';
 
+// ** JWT import
+import jwt from 'jsonwebtoken';
+
 interface AuthGuardProps {
   children: ReactNode;
   fallback: ReactElement | null;
@@ -14,7 +17,7 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props;
-  const { userInfo, loading } = useUserStore();
+  const { userInfo, loading, accessToken, logout } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +39,13 @@ const AuthGuard = (props: AuthGuardProps) => {
 
   if (loading || !userInfo) {
     return fallback;
+  }
+
+  const decoded: any = jwt.decode(accessToken, { complete: true });
+  if (decoded) {
+    if (decoded.payload.exp < Date.now() / 1000) {
+      logout();
+    }
   }
 
   return <>{children}</>;

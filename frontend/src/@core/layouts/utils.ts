@@ -64,12 +64,11 @@ export const hasActiveChild = (item: NavGroup, currentURL: string): boolean => {
  * @param currentActiveGroup
  */
 export const removeChildren = (children: NavLink[], openGroup: string[], currentActiveGroup: string[]) => {
-  children.forEach((child: NavLink) => {
+  children.forEach((child: any) => {
     if (!currentActiveGroup.includes(child.title)) {
       const index = openGroup.indexOf(child.title);
       if (index > -1) openGroup.splice(index, 1);
 
-      // @ts-ignore
       if (child.children) removeChildren(child.children, openGroup, currentActiveGroup);
     }
   });

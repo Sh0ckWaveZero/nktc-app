@@ -14,6 +14,7 @@ import authConfig from '@/configs/auth';
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 import { useUserStore } from '@/store/index';
 import { useEffectOnce } from '@/hooks/userCommon';
+import jwt from 'jsonwebtoken'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -53,19 +54,7 @@ const AuthProvider = ({ children }: Props) => {
   // deleteUser: (token: string, userId: string) => any;
   const { userInfo, accessToken, hasErrors, login, logout, getMe } = useUserStore();
 
-  // useEffectOnce(() => {
-  //   if (accessToken) {
-  //     console.log('🚀 ~ file: AuthContext.tsx ~ line 55 ~ AuthProvider ~ userInfo', userInfo);
-  //     getMe(accessToken, userInfo.username);
-  //     setUser(userInfo);
-  //     setLoading(false);
-  //     setIsInitialized(true);
-  //   } else {
-  //     setUser(userInfo);
-  //     setLoading(false);
-  //     setIsInitialized(true);
-  //   }
-  // });
+
 
   // useEffect(() => {
   //   const initAuth = async (): Promise<void> => {

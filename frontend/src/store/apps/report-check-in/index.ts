@@ -25,7 +25,7 @@ export const useReportCheckInStore = create<UserState>()(
           set({ reportCheckInLoading: true });
           try {
             const { data } = await axios.get(
-              `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}`,
+              `${authConfig.reportCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export const useReportCheckInStore = create<UserState>()(
         },
       }),
       {
-        name: 'user-storage',
+        name: 'reportCheckIn-storage',
       },
     ),
   ),

@@ -24,11 +24,10 @@ const ServerSideNavItems = () => {
        *  you can create a static object and replace the icons using that object
        */
 
-      const finalMenuArray = (items: HorizontalNavItemsType) => {
+      const finalMenuArray = (items: HorizontalNavItemsType): any[] => {
         return items.map((item: any) => {
           if (item.icon) {
-            // @ts-ignore
-            item.icon = Icons[item.icon];
+            // item.icon = Icons[item.icon] ;
 
             if (item.children) {
               finalMenuArray(item.children);
