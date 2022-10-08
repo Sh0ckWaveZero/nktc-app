@@ -23,7 +23,7 @@ const defineRulesFor = (role: Role, subject: string) => {
   if (role === 'Admin') {
     can('manage', 'all');
   } else if (role === 'Teacher') {
-    can(['read'], 'acl-page');
+    can('manage', 'all');
   } else if (role === 'Student') {
     can(['read'], 'acl-page');
   } else if (role === 'Parent') {

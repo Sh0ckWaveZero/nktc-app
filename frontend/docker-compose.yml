@@ -14,11 +14,18 @@ services:
       #   - .:/app
       #   - /app/node_modules
       #   - /app/.next
+    networks:
+      default:
+      nktc_stu:
+        ipv4_address: 172.19.0.20
     ports:
       - 3000:3000
 networks:
-  yadom:
-    driver: bridge
+  nktc_stu:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/16
 volumes:
   dependencies:
     driver: local

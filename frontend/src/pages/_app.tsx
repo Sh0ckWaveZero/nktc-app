@@ -19,9 +19,6 @@ import type { EmotionCache } from '@emotion/cache';
 import { defaultACLObj } from '@/configs/acl';
 import themeConfig from '@/configs/themeConfig';
 
-// ** Third Party Import
-import { Toaster } from 'react-hot-toast';
-
 // ** Component Imports
 import UserLayout from '@/layouts/UserLayout';
 import AclGuard from '@/@core/components/auth/AclGuard';
@@ -43,17 +40,18 @@ import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 // ** Utils Imports
 import { createEmotionCache } from '@/@core/utils/create-emotion-cache';
 
-// ** Prismjs Styles
-import 'prismjs';
-import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
+// // ** Prismjs Styles
+// import 'prismjs';
+// import 'prismjs/themes/prism-tomorrow.css';
+// import 'prismjs/components/prism-jsx';
+// import 'prismjs/components/prism-tsx';
 
 // ** React Perfect Scrollbar Style
 import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // ** Global css styles
 import '../styles/globals.css';
+import { isEmpty } from '@/@core/utils/utils';
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {

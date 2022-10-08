@@ -14,7 +14,7 @@ import authConfig from '@/configs/auth';
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 import { useUserStore } from '@/store/index';
 import { useEffectOnce } from '@/hooks/userCommon';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -43,49 +43,15 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  // user: any;
-  // accessToken: string;
-  // loading: boolean,
-  // hasErrors: boolean,
-  // login: (params: LoginParams) => any;
-  // logout: () => void;
-  // getMe: (token: string) => any;
-  // addUser: (token: string, user: any) => any;
-  // deleteUser: (token: string, userId: string) => any;
   const { userInfo, accessToken, hasErrors, login, logout, getMe } = useUserStore();
 
-
-
-  // useEffect(() => {
-  //   const initAuth = async (): Promise<void> => {
-  //     setIsInitialized(true);
-  //     const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-  //     if (storedToken) {
-  //       setLoading(true);
-  //       await axios
-  //         .get(authConfig.meEndpoint, {
-  //           headers: {
-  //             Authorization: `Bearer ${storedToken}`,
-  //           },
-  //         })
-  //         .then((response) => {
-  //           const { data } = response;
-  //           setLoading(false);
-  //           setUser({ ...data });
-  //         })
-  //         .catch(() => {
-  //           localStorage.removeItem('userData');
-  //           localStorage.removeItem('refreshToken');
-  //           localStorage.removeItem('accessToken');
-  //           setUser(null);
-  //           setLoading(false);
-  //         });
-  //     } else {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   initAuth();
-  // }, []);
+  useEffect(() => {
+    if (userInfo) {
+      setUser(userInfo);
+    } else {
+      setUser(null);
+    }
+  }, []);
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
     // axios
@@ -111,12 +77,14 @@ const AuthProvider = ({ children }: Props) => {
     //   });
 
     login(params)
-      .then((res: any) => {
-        console.log('🚀 ~ file: AuthContext.tsx ~ line 120 ~ .then ~ res', userInfo);
-        setUser(userInfo);
-        const returnUrl = router.query.returnUrl;
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
-        router.replace(redirectURL as string);
+      .then((request: any) => {
+        if (request) {
+          const returnUrl = router.query.returnUrl;
+          const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+          router.replace(redirectURL as string);
+        } else {
+          if (errorCallback) errorCallback({ message: 'Unauthorized' });
+        }
       })
       .catch((err: any) => {
         if (errorCallback) errorCallback(err);

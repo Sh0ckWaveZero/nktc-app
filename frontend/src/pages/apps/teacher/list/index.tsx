@@ -118,7 +118,7 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
 
 // ** renders client column
 const renderClient = (row: any) => {
-  if (row.avatar.length) {
+  if (row?.avatar.length) {
     return (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
         <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 30, height: 30 }} />
@@ -129,7 +129,7 @@ const renderClient = (row: any) => {
       <AvatarWithoutImageLink href={`/apps/user/view/${row.id}`}>
         <CustomAvatar
           skin='light'
-          color={row.avatarColor || 'primary'}
+          color={row?.avatarColor || 'primary'}
           sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
         >
           {getInitials(row.firstName + ' ' + row.lastName)}

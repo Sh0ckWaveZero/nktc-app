@@ -15,8 +15,8 @@ import { useUserStore } from '@/store/index';
  *  Set Home URL based on User Roles
  */
 export const getHomeRoute = (role: string) => {
-  if (role === 'client') return '/acl';
-  else return '/home';
+
+   return '/home';
 };
 
 const Home = () => {
@@ -41,4 +41,8 @@ const Home = () => {
   return <Spinner />;
 };
 
+Home.acl = {
+  action: 'read',
+  subject: 'home',
+};
 export default Home;

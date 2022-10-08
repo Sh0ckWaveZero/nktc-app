@@ -16,32 +16,25 @@ interface classroomState {
 }
 
 export const useClassroomStore = create<classroomState>()(
-  devtools(
-    persist(
-      (set) => ({
-        classroom: [],
-        teacherClassroom: [],
-        fetchClassroom: async (token: string) => {
-          const { data } = await axios.get(authConfig.classroomEndpoint, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          set({ classroom: await data });
+  (set) => ({
+    classroom: [],
+    teacherClassroom: [],
+    fetchClassroom: async (token: string) => {
+      const { data } = await axios.get(authConfig.classroomEndpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        fetchTeachClassroom: async (token: string, teacherId: string) => {
-          const { data } = await axios.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          set({ teacherClassroom: await data });
+      });
+      set({ classroom: await data });
+    },
+    fetchTeachClassroom: async (token: string, teacherId: string) => {
+      const { data } = await axios.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        clear: () => set({ classroom: [] }),
-      }),
-      {
-        name: 'classroom-storage',
-      },
-    ),
-  ),
+      });
+      set({ teacherClassroom: await data });
+    },
+    clear: () => set({ classroom: [] }),
+  }),
 );

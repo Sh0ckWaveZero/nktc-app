@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 // ** MUI Imports
 import { Typography, CardHeader, Card, Grid, Avatar, CardContent, Checkbox, Container } from '@mui/material';
@@ -21,6 +21,7 @@ import { HiOutlineFlag } from 'react-icons/hi';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
+import { AbilityContext } from '@/layouts/components/acl/Can';
 
 interface CellType {
   // row: teachersTypes;
@@ -29,12 +30,12 @@ interface CellType {
 
 const StudentCheckIn = () => {
   // ** Hooks
-  // const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
-  const { classroom, fetchClassroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
+  const ability = useContext(AbilityContext);
+  const { fetchClassroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
   const { accessToken } = useUserStore();
-  const { students, fetchStudentByClassroom } = useStudentStore();
-  const { reportCheckIn, reportCheckInLoading, hasReportCheckInErrors, getReportCheckIn, addReportCheckIn } =
-    useReportCheckInStore();
+  const { students, fetchStudentByClassroom, clearStudent } = useStudentStore();
+  const { reportCheckIn, getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
+  const { userInfo } = useUserStore();
 
   // ** Local State
   const [pageSize, setPageSize] = useState<number>(isEmpty(students) ? 0 : students.length);
@@ -48,17 +49,19 @@ const StudentCheckIn = () => {
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
   const [teacherClassrooms, setTeacherClassrooms] = useState<any>(teacherClassroom[0] ?? '');
 
-  useEffectOnce(() => {
+  useEffect(() => {
     fetchClassroom(accessToken);
-  });
+  }, []);
 
   // ดึงข้อมูลนักเรียน
-  useEffectOnce(() => {
-    fetchTeachClassroom(accessToken, 'cl88ra1eh00243rrc1uq7216c');
-  });
+  useEffect(() => {
+    fetchTeachClassroom(accessToken, userInfo?.teacher?.id);
+  }, []);
 
+  // ดึงข้อมูลนักเรียนตามห้องเรียน
   useEffect(() => {
     fetchStudentByClassroom(accessToken, teacherClassrooms.id);
+    console.log('teacherClassrooms', teacherClassrooms);
   }, [teacherClassrooms]);
 
   const onHandleToggle = (action: string, param: any): void => {
@@ -489,6 +492,11 @@ const StudentCheckIn = () => {
       </Grid>
     </>
   );
+};
+
+StudentCheckIn.acl = {
+  action: 'read',
+  subject: 'เช็คชื่อหน้าเสาธง',
 };
 
 export default StudentCheckIn;

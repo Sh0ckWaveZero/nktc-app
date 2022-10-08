@@ -33,15 +33,16 @@ export const useUserStore = create<UserState>()(
               const { data, token } = await response.data;
               set({ userInfo: data, loading: false, hasErrors: false, accessToken: token });
             });
+            return true;
           } catch (err) {
             set({ loading: false, hasErrors: true });
+            return false;
           }
         },
         logout: () => {
           set({ userInfo: null, accessToken: '' });
         },
         getMe: async (token: string, username: string) => {
-          console.log("🚀 ~ file: index.ts ~ line 44 ~ getMe: ~ userName", username)
           set({ loading: true });
           try {
             const { data } = await axios.get(authConfig.meEndpoint, {

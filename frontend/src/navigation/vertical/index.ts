@@ -1,13 +1,9 @@
 // ** Icon imports
 import {
   HomeOutline,
-  EmailOutline,
   ShieldOutline,
-  AlertCircleOutline,
-  AccountOutline,
   HumanMaleBoard,
 } from 'mdi-material-ui';
-import { MdAccountCircle, MdOutlineFaceRetouchingNatural } from 'react-icons/md';
 import { RiUser5Line, RiUser6Line } from 'react-icons/ri';
 
 // ** Type import
@@ -20,40 +16,47 @@ const navigation = (): VerticalNavItemsType => {
       title: 'หน้าหลัก',
       icon: HomeOutline,
       path: '/home',
+      action: 'manage',
+      subject: 'home',
     },
     {
       sectionTitle: 'จัดการข้อมูล',
+      action: 'read',
     },
     {
       title: 'ครู / บุคลากร',
       icon: HumanMaleBoard,
       action: 'read',
+      subject: 'teacherAll',
       children: [
         {
           title: 'รายชื่อทั้งหมด',
           icon: ShieldOutline,
           path: '/apps/teacher/list',
+          action: 'manage',
+          subject: 'teacherAll',
         },
-        {
-          title: 'View',
-          path: '/apps/teacher/view',
-        },
+        // {
+        //   title: 'View',
+        //   path: '/apps/teacher/view',
+        // },
       ],
     },
     {
       title: 'นักเรียน',
       icon: RiUser5Line,
       action: 'read',
+      subject: 'student',
       children: [
         {
-          title: 'List',
+          title: 'รายชื่อทั้งหมด',
           icon: ShieldOutline,
-          path: '/apps/user/list',
+          // path: '/apps/user/list',
         },
-        {
-          title: 'View',
-          path: '/apps/user/view',
-        },
+        // {
+        // title: 'View',
+        // path: '/apps/user/view',
+        // },
       ],
     },
     {
@@ -65,7 +68,8 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       sectionTitle: 'รายงาน',
-
+      action: 'read',
+      subject: 'รายงาน',
     },
     {
       title: 'เช็คชื่อหน้าเสาธง',

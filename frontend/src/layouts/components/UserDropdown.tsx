@@ -8,21 +8,20 @@ import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import Badge from '@mui/material/Badge';
-import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
-// ** Icons Imports
-
-// ** Context
-import { useAuth } from '@/hooks/useAuth';
+// ** Components Imports
+import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
 import { useUserStore } from '@/store/index';
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
+import { getInitials } from '@/@core/utils/get-initials';
+import { Avatar } from '@mui/material';
 
 interface Props {
   settings: Settings;
@@ -82,6 +81,26 @@ const UserDropdown = (props: Props) => {
     handleDropdownClose('/login');
   };
 
+  const customAvatar = (row: any) => {
+    if (row?.avatar) {
+      return <CustomAvatar src={row.avatar} sx={{ width: 40, height: 40 }} />;
+    } else {
+      return (
+        <CustomAvatar skin='light' color={row?.avatarColor || 'primary'} sx={{ width: 40, height: 40 }}>
+          {getInitials(row?.firstName + ' ' + row?.lastName)}
+        </CustomAvatar>
+      );
+    }
+  };
+
+  const avatarAccount = () => {
+    return userInfo?.role === 'Admin' ? (
+      <Avatar alt={userInfo?.username} src=' /images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+    ) : (
+      customAvatar(userInfo?.account)
+    );
+  };
+
   return (
     <Fragment>
       <Badge
@@ -94,12 +113,7 @@ const UserDropdown = (props: Props) => {
           horizontal: 'right',
         }}
       >
-        <Avatar
-          alt={userInfo?.username}
-          onClick={handleDropdownOpen}
-          sx={{ width: 40, height: 40 }}
-          src='/images/avatars/1.png'
-        />
+        {avatarAccount()}
       </Badge>
       <Menu
         anchorEl={anchorEl}
@@ -125,7 +139,7 @@ const UserDropdown = (props: Props) => {
                 horizontal: 'right',
               }}
             >
-              <Avatar alt={userInfo?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              {avatarAccount()}
             </Badge>
             <Box
               sx={{
@@ -135,7 +149,9 @@ const UserDropdown = (props: Props) => {
                 flexDirection: 'column',
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>{userInfo?.username ?? '-'}</Typography>
+              <Typography variant={'button'} sx={{ fontWeight: 600 }}>
+                {userInfo?.account ? userInfo?.account?.firstName + ' ' + userInfo?.account?.lastName : '-'}
+              </Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
                 {userInfo?.role ?? '-'}
               </Typography>

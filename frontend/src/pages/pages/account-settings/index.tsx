@@ -26,6 +26,8 @@ import TabNotifications from '@/views/pages/account-settings/TabNotifications';
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css';
+import { useUserStore } from '../../../store/apps/user/index';
+import TabTeacherAccount from '@/views/pages/account-settings/TabTeacherAccount';
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -48,6 +50,9 @@ const TabName = styled('span')(({ theme }) => ({
 const AccountSettings = () => {
   // ** State
   const [value, setValue] = useState<string>('account');
+
+  // Hooks
+  const { userInfo } = useUserStore();
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -79,7 +84,7 @@ const AccountSettings = () => {
               </Box>
             }
           />
-          <Tab
+          {/* <Tab
             value='info'
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -105,16 +110,16 @@ const AccountSettings = () => {
                 <TabName>Notifications</TabName>
               </Box>
             }
-          />
+          /> */}
         </TabList>
 
         <TabPanel sx={{ p: 0 }} value='account'>
-          <TabAccount />
+          {userInfo?.role === 'Teacher' ? <TabTeacherAccount /> : <TabAccount />}
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='security'>
           <TabSecurity />
         </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='info'>
+        {/* <TabPanel sx={{ p: 0 }} value='info'>
           <TabInfo />
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='billing'>
@@ -122,7 +127,7 @@ const AccountSettings = () => {
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='notifications'>
           <TabNotifications />
-        </TabPanel>
+        </TabPanel> */}
       </TabContext>
     </Card>
   );

@@ -1,5 +1,6 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
+import { isEmpty } from '@/@core/utils/utils';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, useTheme } from '@mui/material';
 
 // ** Icons Imports
@@ -34,7 +35,7 @@ const TableHeader = (props: TableHeaderProps) => {
           labelId='demo-multiple-name-label'
           id='demo-multiple-name'
           displayEmpty
-          value={defaultValue}
+          value={defaultValue ?? []}
           onChange={handleChange}
           input={<OutlinedInput id='select-multiple-chip' label='ห้องเรียน' />}
           renderValue={(selected: any) => (
@@ -47,6 +48,7 @@ const TableHeader = (props: TableHeaderProps) => {
           <MenuItem disabled value=''>
             <em>ห้องเรียน</em>
           </MenuItem>
+
           {value.map((item: any) => (
             <MenuItem key={item.id} value={item.name}>
               {item.name}

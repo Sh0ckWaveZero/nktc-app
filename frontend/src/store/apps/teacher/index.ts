@@ -16,42 +16,38 @@ interface TeacherState {
 }
 
 export const useTeacherStore = create<TeacherState>()(
-  devtools(
-    persist((set) => ({
-      teacher: [],
-      loading: false,
-      hasErrors: false,
-      fetchTeacher: async (token: string, params: TeacherQuery) => {
-        set({ loading: true });
-        try {
-          const { data } = await axios.get(authConfig.teacherEndpoint, {
-            params: params,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          set({ teacher: data, loading: false, hasErrors: false });
-        } catch (err) {
-          set({ loading: false, hasErrors: true });
-        }
-      },
-      updateClassroom: async (token: string, teacher: any) => {
-        set({ loading: true });
-        try {
-          const { data } = await axios.put(`${authConfig.teacherEndpoint}/classroom/${teacher.id}`, teacher, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          set({ loading: false, hasErrors: false });
-          return data;
-        } catch (err) {
-          set({ loading: false, hasErrors: true });
-        }
-      },
-    })),
-    {
-      name: 'teacher-store',
+  ((set) => ({
+    teacher: [],
+    loading: false,
+    hasErrors: false,
+    fetchTeacher: async (token: string, params: TeacherQuery) => {
+      set({ loading: true });
+      try {
+        const { data } = await axios.get(authConfig.teacherEndpoint, {
+          params: params,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        set({ teacher: data, loading: false, hasErrors: false });
+      } catch (err) {
+        set({ loading: false, hasErrors: true });
+      }
     },
-  ),
+    updateClassroom: async (token: string, teacher: any) => {
+      set({ loading: true });
+      try {
+        const { data } = await axios.put(`${authConfig.teacherEndpoint}/classroom/${teacher.id}`, teacher, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        set({ loading: false, hasErrors: false });
+        return data;
+      } catch (err) {
+        set({ loading: false, hasErrors: true });
+      }
+    },
+  })),
+
 );
