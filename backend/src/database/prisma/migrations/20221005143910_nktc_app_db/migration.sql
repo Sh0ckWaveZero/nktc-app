@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "reportCheckIn" ALTER COLUMN "checkInDate" SET DATA TYPE TIMESTAMPTZ;

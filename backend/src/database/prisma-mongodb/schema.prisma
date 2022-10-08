@@ -1,7 +1,7 @@
 // prisma-mongodb/schema.prisma
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/@internal/prisma/client"
+  output   = "../../../node_modules/@internal/prisma/client"
 }
 
 datasource db {

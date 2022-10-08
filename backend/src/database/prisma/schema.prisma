@@ -315,7 +315,6 @@ model Level {
 // รายงานการเช็คชื่อหน้่าเสาธง
 model ReportCheckIn {
   id           String     @id @default(cuid())
-  reportId     Int        @unique @default(autoincrement())
   teacherId    String // รหัสอาจารย์
   teacherKey   String? // รหัสอาจารย์/ครู
   teacher      Teacher?   @relation(fields: [teacherKey], references: [id])

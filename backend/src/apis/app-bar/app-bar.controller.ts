@@ -5,10 +5,11 @@ import { AppBarService } from './app-bar.service';
 
 @ApiTags('app-bar')
 @Controller('app-bar')
+@UseGuards(JwtAuthGuard)
 export class AppBarController {
-  constructor(private readonly appBarService: AppBarService) {}
+  constructor(private readonly appBarService: AppBarService) { }
 
-  @UseGuards(JwtAuthGuard)
+
   @ApiSecurity('access-key')
   @Get('search')
   @ApiParam({

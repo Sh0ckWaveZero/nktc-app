@@ -43,7 +43,6 @@ export class AuthController {
   @ApiSecurity('access-key')
   @Get('me')
   public async me(@Request() req: any): Promise<any> {
-    console.log("🚀 ~ file: auth.conroller.ts ~ line 46 ~ AuthController ~ me ~ req", req.user)
     return req.user;
   }
 }

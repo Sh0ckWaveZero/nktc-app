@@ -33,7 +33,6 @@ export class TeachersController {
 
   @Get()
   async findAll(@Query() { role, status, q, currentPlan }) {
-    console.log('teachers => findAll', q);
     return await this.teachersService.findAll(q);
   }
 

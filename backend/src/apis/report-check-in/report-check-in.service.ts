@@ -34,13 +34,18 @@ export class ReportCheckInService {
   }
 
   async findOne(teachId: string, classroomId: string) {
-    let checkInDate = new Date();
-    checkInDate.setHours(0, 0, 0, 0);
+    let startDate = new Date();
+    let endDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
     return await this.prisma.reportCheckIn.findFirstOrThrow({
       where: {
         teacherId: teachId,
         classroomId: classroomId,
-        checkInDate: checkInDate,
+        checkInDate: {
+          gte: startDate,
+          lte: endDate
+        },
       }
     });
   }

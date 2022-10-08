@@ -1,6 +1,6 @@
 
 import { PrismaClient } from '@internal/prisma/client';
-import { SearchData } from '../src/apis/app-bar/db';
+import { SearchData } from '../../apis/app-bar/db';
 
 
 

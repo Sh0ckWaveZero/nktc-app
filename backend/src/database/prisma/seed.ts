@@ -18,12 +18,12 @@ const main = async () => {
   console.log("Seeding...");
   // seedLevels()
   // seedProgram()
-  // seedDepartment()
-  // seedLevelClassroom()
+  // await seedDepartment()
+  // await seedLevelClassroom()
   // await seedClassroom()
-  await seedStudents()
+  // await seedStudents()
     // seedTeacher()
-    // seedAdmin()
+    seedAdmin()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {
@@ -67,12 +67,11 @@ const seedClassroom = async () => {
 }
 
 const seedStudents = async () => {
-  const students = (await userStudentData('student-cv-3')).map(async (item: any) => {
+  const students = (await userStudentData('student-hcv-2')).map(async (item: any) => {
     return await prisma.user.create({
       data: item
     })
   });
-  console.log("🚀 ~ file: seed.ts ~ line 30 ~ students ~ students", students)
 }
 
 const seedTeacher = async () => {
@@ -81,7 +80,6 @@ const seedTeacher = async () => {
       data: item
     })
   });
-  console.log("🚀 ~ file: seed.ts ~ line 80 ~ seedTeacher ~ seedTeacher", seedTeacher)
 }
 
 const seedAdmin = async () => {
@@ -89,7 +87,6 @@ const seedAdmin = async () => {
   const result = await prisma.user.create({
     data: admin
   })
-  console.log("🚀 ~ file: seed.ts ~ line 93 ~ result ~ result", result)
 }
 
 main()

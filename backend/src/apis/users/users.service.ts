@@ -103,7 +103,6 @@ export class UsersService {
         },
       },
     });
-    console.log("🚀 ~ file: users.service.ts ~ line 106 ~ UsersService ~ user", user)
     if (!user) {
       throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
     }

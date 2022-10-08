@@ -6,4 +6,5 @@ export default () => ({
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   userAdmin: process.env.USER_ADMIN,
   userPassword: process.env.USER_PASSWORD,
+  host: process.env.HOST,
 });
