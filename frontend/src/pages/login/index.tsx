@@ -101,8 +101,8 @@ const schema = yup.object().shape({
 });
 
 const defaultValues = {
-  username: 'Admin01',
-  password: 'Admin01',
+  username: '',
+  password: '',
 };
 
 interface FormData {
@@ -116,7 +116,7 @@ const LoginPage = () => {
   // ** Hooks
   const auth = useAuth();
   const theme = useTheme();
-  const bgClasses = useBgColor()
+  const bgClasses = useBgColor();
   const { settings } = useSettings();
   const hidden = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -132,8 +132,6 @@ const LoginPage = () => {
     mode: 'onBlur',
     resolver: yupResolver(schema),
   });
-
-  
 
   const onSubmit = (data: FormData) => {
     const { username, password } = data;
@@ -227,22 +225,23 @@ const LoginPage = () => {
                 <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
                 <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               </Box>
-              <Alert
-              icon={false}
-              sx={{
-                py: 3,
-                mb: 6,
-                ...bgClasses.primaryLight,
-                '& .MuiAlert-message': { p: 0 },
-              }}
-            >
-              <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
-                ผู้ดูแลระบบ: <strong>Admin01</strong> / รหัส: <strong>Admin01</strong>
-              </Typography>
-              <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
-                Client: <strong>client@baantontan.com</strong> / Pass: <strong>client</strong>
-              </Typography>
-            </Alert>
+              {/* <Alert
+                icon={false}
+                sx={{
+                  py: 3,
+                  mb: 6,
+                  ...bgClasses.primaryLight,
+                  '& .MuiAlert-message': { p: 0 },
+                }}
+              >
+                <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
+                  ผู้ดูแลระบบ: <strong>{defaultValues.username}</strong> / รหัส:{' '}
+                  <strong>{defaultValues.password}</strong>
+                </Typography>
+                <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
+                  Client: <strong>client@baantontan.com</strong> / Pass: <strong>client</strong>
+                </Typography>
+              </Alert> */}
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller
