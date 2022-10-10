@@ -10,16 +10,10 @@ services:
       dockerfile: dockerfile.prod
     env_file:
       - .env
-    networks:
-      default:
-      nktc_stu:
-        ipv4_address: 172.19.0.11
     ports:
       - 3001:3001
 
 networks:
-  nktc_stu:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.19.0.0/16
+  default:
+    name: npm_nktc_stu
+    external: true

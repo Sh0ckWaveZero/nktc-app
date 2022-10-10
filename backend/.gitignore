@@ -40,5 +40,6 @@ lerna-debug.log*
 # Git Submodules
 .gitmodules
 .env.prod
+.env.dev
 
 /src/database/prisma/db/*

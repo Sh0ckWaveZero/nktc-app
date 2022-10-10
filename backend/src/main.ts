@@ -13,9 +13,11 @@ const bootstrap = async () => {
 
   // Request Validation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
   app.enableCors({
-    origin: configuration().node_env === 'development' ? '*' : configuration().host,
+    origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
   });
+
   app.use(requestIp.mw());
 
   // Helmet Middleware against known security vulnerabilities
