@@ -52,7 +52,6 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  // const { logout } = useAuth();
   const { logout } = useUserStore();
 
   // ** Vars

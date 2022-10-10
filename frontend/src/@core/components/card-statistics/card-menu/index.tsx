@@ -1,12 +1,5 @@
 // ** MUI Imports
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import CardContent from '@mui/material/CardContent';
-
-// ** Icons Imports
-import DotsVertical from 'mdi-material-ui/DotsVertical';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 
 // ** Custom Components Imports
 import CustomAvatar from '@/@core/components/mui/avatar';

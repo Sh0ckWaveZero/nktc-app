@@ -1,6 +1,5 @@
 import axios from 'axios';
 import create from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
 
 // ** Config
 import authConfig from '@/configs/auth';

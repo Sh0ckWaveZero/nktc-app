@@ -13,7 +13,6 @@ import authConfig from '@/configs/auth';
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 import { useUserStore } from '@/store/index';
-import { useEffectOnce } from '@/hooks/userCommon';
 import jwt from 'jsonwebtoken';
 
 // ** Defaults
@@ -43,14 +42,70 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const { userInfo, accessToken, hasErrors, login, logout, getMe } = useUserStore();
+  const { userInfo, accessToken, login, logout, getMe, userLoading } = useUserStore();
 
   useEffect(() => {
-    if (userInfo) {
-      setUser(userInfo);
-    } else {
-      setUser(null);
-    }
+    const initAuth = async (): Promise<void> => {
+      console.log('initAuth');
+      setIsInitialized(true);
+
+      const decoded: any = jwt.decode(accessToken, { complete: true });
+      if (decoded) {
+        if (decoded.payload.exp < Date.now() / 1000) {
+          console.log('token expired');
+          return handleLogout();
+        }
+
+        if (userInfo) {
+          setUser(userInfo);
+          setLoading(userLoading);
+        } else {
+          await getMe(accessToken, userInfo?.username);
+          setUser(userInfo);
+          setLoading(userLoading);
+        }
+      }
+
+      // if (accessToken) {
+      //   setLoading(userLoading);
+      //   const decoded: any = jwt.decode(accessToken, { complete: true });
+      //   if (decoded) {
+      //     if (decoded.payload.exp < Date.now() / 1000) {
+      //       handleLogout();
+      //     }
+
+      //     if (userInfo) {
+      //       setUser(userInfo);
+      //       setLoading(userLoading);
+      //     } else {
+      //       await getMe(accessToken, userInfo?.username);
+      //       setUser(userInfo);
+      //       setLoading(userLoading);
+      //     }
+      //   }
+
+      //   // await axios
+      //   //   .get(authConfig.meEndpoint, {
+      //   //     headers: {
+      //   //       Authorization: storedToken,
+      //   //     },
+      //   //   })
+      //   //   .then(async (response) => {
+      //   //     setLoading(false);
+      //   //     setUser({ ...response.data.userData });
+      //   //   })
+      //   //   .catch(() => {
+      //   //     localStorage.removeItem('userData');
+      //   //     localStorage.removeItem('refreshToken');
+      //   //     localStorage.removeItem('accessToken');
+      //   //     setUser(null);
+      //   //     setLoading(false);
+      //   //   });
+      // } else {
+      //   setLoading(userLoading);
+      // }
+    };
+    initAuth();
   }, []);
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
@@ -94,8 +149,7 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogout = () => {
     setUser(null);
     setIsInitialized(false);
-    // window.localStorage.removeItem('userData');
-    // window.localStorage.removeItem(authConfig.storageTokenKeyName);
+    logout();
     router.push('/login');
   };
 

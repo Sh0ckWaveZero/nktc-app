@@ -16,12 +16,13 @@ const navigation = (): VerticalNavItemsType => {
       title: 'หน้าหลัก',
       icon: HomeOutline,
       path: '/home',
-      action: 'manage',
-      subject: 'home',
+      action: 'read',
+      subject: 'home-page',
     },
     {
       sectionTitle: 'จัดการข้อมูล',
       action: 'read',
+      subject: 'manage-data',
     },
     {
       title: 'ครู / บุคลากร',
@@ -69,14 +70,14 @@ const navigation = (): VerticalNavItemsType => {
     {
       sectionTitle: 'รายงาน',
       action: 'read',
-      subject: 'รายงาน',
+      subject: 'report-category',
     },
     {
       title: 'เช็คชื่อหน้าเสาธง',
       icon: HiOutlineFlag,
       path: '/apps/reports/check-in',
       action: 'read',
-      subject: 'เช็คชื่อหน้าเสาธง',
+      subject: 'check-in-page',
     },
   ];
 };

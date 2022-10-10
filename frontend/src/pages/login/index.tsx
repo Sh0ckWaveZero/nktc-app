@@ -41,6 +41,8 @@ import BlankLayout from '@/@core/layouts/BlankLayout';
 // ** Demo Imports
 import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
 import { Toaster, toast } from 'react-hot-toast';
+import { Alert } from '@mui/material';
+import useBgColor from '@/@core/hooks/useBgColor';
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -99,8 +101,8 @@ const schema = yup.object().shape({
 });
 
 const defaultValues = {
-  username: '',
-  password: '',
+  username: 'Admin01',
+  password: 'Admin01',
 };
 
 interface FormData {
@@ -114,6 +116,7 @@ const LoginPage = () => {
   // ** Hooks
   const auth = useAuth();
   const theme = useTheme();
+  const bgClasses = useBgColor()
   const { settings } = useSettings();
   const hidden = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -122,7 +125,6 @@ const LoginPage = () => {
 
   const {
     control,
-    setError,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -130,6 +132,8 @@ const LoginPage = () => {
     mode: 'onBlur',
     resolver: yupResolver(schema),
   });
+
+  
 
   const onSubmit = (data: FormData) => {
     const { username, password } = data;
@@ -223,7 +227,7 @@ const LoginPage = () => {
                 <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
                 <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               </Box>
-              {/* <Alert
+              <Alert
               icon={false}
               sx={{
                 py: 3,
@@ -238,7 +242,7 @@ const LoginPage = () => {
               <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
                 Client: <strong>client@baantontan.com</strong> / Pass: <strong>client</strong>
               </Typography>
-            </Alert> */}
+            </Alert>
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller

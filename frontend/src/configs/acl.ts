@@ -23,11 +23,21 @@ const defineRulesFor = (role: Role, subject: string) => {
   if (role === 'Admin') {
     can('manage', 'all');
   } else if (role === 'Teacher') {
-    can('manage', 'all');
+    // can('manage', 'all');
+    can(['read'], 'home-page');
+    can(['read'], 'check-in-page');
+    can(['read'], 'manage-data');
+    can(['read'], 'account-page');
+    can(['read'], 'report-category');
+    can(['read'], 'report-statistics-attendance-page');
+    can(['read'], 'report-good-page');
+    can(['read'], 'student-all-page');
+    can(['read'], 'summary-home-visit-page');
+    can(['read'], 'report-behavior-page');
   } else if (role === 'Student') {
-    can(['read'], 'acl-page');
+    can(['read'], 'home-page');
   } else if (role === 'Parent') {
-    can(['read'], 'acl-page');
+    can(['read'], 'home-page');
   } else {
     // User
     can(['read', 'create', 'update', 'delete'], subject);

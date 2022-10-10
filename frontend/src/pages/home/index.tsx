@@ -26,8 +26,13 @@ import {
   MdTagFaces,
 } from 'react-icons/md';
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
+import { AbilityContext } from '@/layouts/components/acl/Can';
+import { useContext } from 'react';
 
 const Home = () => {
+  // ** Hook
+  const ability = useContext(AbilityContext);
+
   const menuList: CardMenuProps[] = [
     {
       title: 'Report',
@@ -37,6 +42,20 @@ const Home = () => {
       navLink: {
         title: 'Report สถิติการมาเรียน',
         path: '/home',
+        action: 'read',
+        subject: 'report-statistics-attendance-page',
+      },
+    },
+    {
+      title: 'เช็คชื่อ กิจกรรม',
+      subtitle: 'ตอนเช้า/หน้าเสาธง',
+      color: '#af7a4e',
+      icon: <HiOutlineFlag />,
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/apps/reports/check-in',
+        action: 'read',
+        subject: 'check-in-page',
       },
     },
     {
@@ -47,6 +66,8 @@ const Home = () => {
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
         path: '/apps/reports/check-in',
+        action: 'read',
+        subject: 'report-check-in-page',
       },
     },
     {
@@ -57,6 +78,8 @@ const Home = () => {
       navLink: {
         title: 'Report สรุปเวลาเรียน',
         path: '/home',
+        action: 'read',
+        subject: 'report-summary-time-page',
       },
     },
     {
@@ -67,6 +90,8 @@ const Home = () => {
       navLink: {
         title: 'ตั้งค่าเพิ่ม/ลบ คะแนนอัตโนมัติ',
         path: '/home',
+        action: 'read',
+        subject: 'setting-add-delete-auto-score-page',
       },
     },
     {
@@ -77,6 +102,8 @@ const Home = () => {
       navLink: {
         title: 'ตั้งค่าเกณฑ์คะแนน ความดี/พฤติกรรม',
         path: '/home',
+        action: 'read',
+        subject: 'setting-criteria-score-good-behavior-page',
       },
     },
     {
@@ -87,6 +114,8 @@ const Home = () => {
       navLink: {
         title: 'Report ความดี',
         path: '/home',
+        action: 'read',
+        subject: 'report-good-page',
       },
     },
     {
@@ -97,6 +126,8 @@ const Home = () => {
       navLink: {
         title: 'Report พฤติกรรม',
         path: '/home',
+        action: 'read',
+        subject: 'report-behavior-page',
       },
     },
     {
@@ -107,6 +138,8 @@ const Home = () => {
       navLink: {
         title: 'ข้อมูลนักเรียนทั้งหมด',
         path: '/home',
+        action: 'read',
+        subject: 'student-all-page',
       },
     },
     {
@@ -117,6 +150,8 @@ const Home = () => {
       navLink: {
         title: 'เพิ่ม ลบ แก้ไข ข้อมูลนักเรียน',
         path: '/home',
+        action: 'read',
+        subject: 'manage-student-page',
       },
     },
     {
@@ -127,6 +162,8 @@ const Home = () => {
       navLink: {
         title: 'จัดการข้อมูลครู/ บุคลากร',
         path: '/home',
+        action: 'read',
+        subject: 'manage-teacher-page',
       },
     },
     {
@@ -137,6 +174,8 @@ const Home = () => {
       navLink: {
         title: 'จัดการข้อมูลจำนวนห้องเรียน',
         path: '/home',
+        action: 'read',
+        subject: 'manage-class-page',
       },
     },
     {
@@ -147,6 +186,8 @@ const Home = () => {
       navLink: {
         title: 'เรียงลำดับ คะแนนความดี',
         path: '/home',
+        action: 'read',
+        subject: 'sort-score-good-page',
       },
     },
     {
@@ -157,6 +198,8 @@ const Home = () => {
       navLink: {
         title: 'เรียงลำดับ ความพฤติกรรม',
         path: '/home',
+        action: 'read',
+        subject: 'sort-score-behavior-page',
       },
     },
     {
@@ -167,6 +210,8 @@ const Home = () => {
       navLink: {
         title: 'เปิด-ปิด ระบบ เช็คชื่อย้อนหลัง',
         path: '/home',
+        action: 'read',
+        subject: 'toggle-checkIn-history-page',
       },
     },
     {
@@ -177,6 +222,8 @@ const Home = () => {
       navLink: {
         title: 'สรุปคัดกรอก SDQ EQ',
         path: '/home',
+        action: 'read',
+        subject: 'summary-sdq-eq-page',
       },
     },
     {
@@ -187,26 +234,39 @@ const Home = () => {
       navLink: {
         title: 'สรุปบันทึก เยี่ยมบ้านนักเรียน',
         path: '/home',
+        action: 'read',
+        subject: 'summary-home-visit-page',
       },
     },
   ];
 
+  const filterAbility = (menu: CardMenuProps) => {
+    return ability.can(menu?.navLink?.action, menu?.navLink?.subject);
+  };
+
   return (
     <Grid container spacing={6}>
-      {menuList.map((item, index) => (
-        <Grid item key={`grid-item-${index}`} xs={12} sm={6} md={2} sx={{ order: index }}>
-          <CardMenu
-            key={`card-menu-${index}`}
-            title={item.title}
-            subtitle={item.subtitle}
-            color={item.color}
-            icon={item.icon}
-            navLink={item.navLink}
-          />
-        </Grid>
-      ))}
+      {menuList
+        .filter((menu: CardMenuProps) => filterAbility(menu))
+        .map((item, index) => (
+          <Grid item key={`grid-item-${index}`} xs={12} sm={6} md={2} sx={{ order: index }}>
+            <CardMenu
+              key={`card-menu-${index}`}
+              title={item.title}
+              subtitle={item.subtitle}
+              color={item.color}
+              icon={item.icon}
+              navLink={item.navLink}
+            />
+          </Grid>
+        ))}
     </Grid>
   );
+};
+
+Home.acl = {
+  action: 'read',
+  subject: 'home-page',
 };
 
 export default Home;

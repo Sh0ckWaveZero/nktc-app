@@ -1,31 +1,36 @@
 // ** MUI Imports
-import { ThemeOptions } from '@mui/material';
+import { ThemeOptions } from '@mui/material'
 
 // ** To use core palette, uncomment the below import
-// import corePalette from '@/@core/theme/palette'
+import corePalette from '@/@core/theme/palette'
 
 // ** To use mode (light/dark), skin(default/bordered/semi-dark), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-// import { useSettings } from '@/@core/hooks/useSettings'
+import { useSettings } from '@/@core/hooks/useSettings'
 
 const UserThemeOptions = (): ThemeOptions => {
   // ** To use mode (light/dark), skin(default/bordered/semi-dark), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-  // const { settings } = useSettings()
+  const { settings } = useSettings()
 
   // ** To use mode (light/dark), skin(default/bordered/semi-dark), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-  // const { mode, skin, themeColor } = settings
+  const { mode, skin, themeColor } = settings
 
   // ** To use core palette, uncomment the below line
-  // const palette = corePalette(mode, skin, themeColor)
+  const palette = corePalette(mode, skin, themeColor)
 
   return {
-    /*
-    palette:{
+    palette: {
       primary: {
-        light: '#9E69FD',
-        main: '#9155FD',
-        dark: '#804BDF',
-        contrastText: '#FFF'
-      }
+        light: '#32BAFF',
+        main: '#16B1FF',
+        dark: '#139CE0',
+        contrastText: '#FFF',
+      },
+      secondary: {
+        light: '#32BAFF',
+        main: '#16B1FF',
+        dark: '#139CE0',
+        contrastText: '#FFF',
+      },
     },
     breakpoints: {
       values: {
@@ -117,7 +122,7 @@ const UserThemeOptions = (): ThemeOptions => {
     },
     typography: {
       fontFamily:
-        '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+        '"Prompt","Sarabun","Montserrat",-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     },
     shadows: mode === 'light' ? [
       'none',
@@ -175,8 +180,8 @@ const UserThemeOptions = (): ThemeOptions => {
     zIndex: {
       appBar: 1200,
       drawer: 1100
-    } */
-  };
-};
+    }
+  }
+}
 
-export default UserThemeOptions;
+export default UserThemeOptions

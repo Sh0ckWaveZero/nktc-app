@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 
 // ** MUI Imports
 import { Typography, CardHeader, Card, Grid, Avatar, CardContent, Checkbox, Container } from '@mui/material';
-import { DataGrid, GridCellEditCommitParams, GridCellParams, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
 
 // ** Icons Imports
 
@@ -31,7 +31,7 @@ interface CellType {
 const StudentCheckIn = () => {
   // ** Hooks
   const ability = useContext(AbilityContext);
-  const { fetchClassroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
+  const { fetchClassroom, classroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
   const { accessToken } = useUserStore();
   const { students, fetchStudentByClassroom, clearStudent } = useStudentStore();
   const { reportCheckIn, getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
@@ -49,19 +49,28 @@ const StudentCheckIn = () => {
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
   const [teacherClassrooms, setTeacherClassrooms] = useState<any>(teacherClassroom[0] ?? '');
 
-  useEffect(() => {
+  // ดึงข้อมูลห้องเรียนที่สอน
+  useEffectOnce(() => {
     fetchClassroom(accessToken);
-  }, []);
+  });
 
-  // ดึงข้อมูลนักเรียน
+  // ดึงข้อมูลห้องเรียนของครู
+  useEffectOnce(() => {
+    !isEmpty(classroom) && fetchTeachClassroom(accessToken, userInfo?.teacher?.id);
+    console.log('teacherClassroom', teacherClassroom);
+  });
+
+  // ดึงข้อมูลนการเช็คชื่อประจำวันของนักเรียน
   useEffect(() => {
-    fetchTeachClassroom(accessToken, userInfo?.teacher?.id);
-  }, []);
+    getReportCheckIn(accessToken, {
+      teacher: userInfo?.teacher?.id,
+      classroom: teacherClassrooms.id,
+    });
+  },[teacherClassrooms]);
 
   // ดึงข้อมูลนักเรียนตามห้องเรียน
   useEffect(() => {
     fetchStudentByClassroom(accessToken, teacherClassrooms.id);
-    console.log('teacherClassrooms', teacherClassrooms);
   }, [teacherClassrooms]);
 
   const onHandleToggle = (action: string, param: any): void => {
@@ -402,7 +411,7 @@ const StudentCheckIn = () => {
   const onHandleSubmit = async (event: any) => {
     event.preventDefault();
     const data = {
-      teacherId: 'cl88ra1eh00243rrc1uq7216c',
+      teacherId: userInfo?.teacher?.id,
       classroomId: teacherClassrooms.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
@@ -430,10 +439,6 @@ const StudentCheckIn = () => {
       target: { value },
     } = event;
     const classroomName: any = teacherClassroom.filter((item: any) => item.name === value)[0];
-    getReportCheckIn(accessToken, {
-      teacher: 'cl88ra1eh00243rrc1uq7216c',
-      classroom: classroomName.id,
-    });
     setTeacherClassrooms(classroomName);
   };
 
@@ -496,7 +501,7 @@ const StudentCheckIn = () => {
 
 StudentCheckIn.acl = {
   action: 'read',
-  subject: 'เช็คชื่อหน้าเสาธง',
+  subject: 'check-in-page',
 };
 
 export default StudentCheckIn;

@@ -1,19 +1,15 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent } from 'react';
+import { useState, ElementType, ChangeEvent } from 'react';
 
 // ** MUI Imports
 import {
   Box,
   Grid,
-  Link,
-  Alert,
   Select,
   MenuItem,
   TextField,
   Typography,
   InputLabel,
-  AlertTitle,
-  IconButton,
   CardContent,
   FormControl,
 } from '@mui/material';
@@ -22,7 +18,6 @@ import { styled } from '@mui/material/styles';
 import Button, { ButtonProps } from '@mui/material/Button';
 
 // ** Icons Imports
-import Close from 'mdi-material-ui/Close';
 import { useUserStore } from '@/store/index';
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -51,7 +46,6 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 
 const TabTeacherAccount = () => {
   // ** State
-  const [openAlert, setOpenAlert] = useState<boolean>(true);
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
 
   const { userInfo } = useUserStore();

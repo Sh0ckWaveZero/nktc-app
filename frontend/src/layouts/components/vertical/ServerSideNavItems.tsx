@@ -1,9 +1,6 @@
 // ** React Imports
 import { useEffect, useState } from 'react';
 
-// ** Import All Icons
-import * as Icons from 'mdi-material-ui';
-
 // ** Axios Import
 import axios from 'axios';
 

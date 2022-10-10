@@ -17,10 +17,11 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props;
-  const { userInfo, loading, accessToken, logout } = useUserStore();
+  const { userInfo, userLoading: loading, accessToken, logout } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
+    const decoded: any = jwt.decode(accessToken, { complete: true });
     if (!router.isReady) {
       return;
     }
@@ -34,18 +35,21 @@ const AuthGuard = (props: AuthGuardProps) => {
       } else {
         router.replace('/login');
       }
+    } else {
+      if (decoded) {
+        if (decoded?.payload.exp < Date.now() / 1000) {
+          logout();
+          router.replace({
+            pathname: '/login',
+            query: { returnUrl: router.asPath },
+          });
+        }
+      }
     }
   }, [router.route]);
 
   if (loading || !userInfo) {
     return fallback;
-  }
-
-  const decoded: any = jwt.decode(accessToken, { complete: true });
-  if (decoded) {
-    if (decoded.payload.exp < Date.now() / 1000) {
-      logout();
-    }
   }
 
   return <>{children}</>;

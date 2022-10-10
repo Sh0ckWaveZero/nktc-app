@@ -34,24 +34,15 @@ import Spinner from '@/@core/components/spinner';
 import { AuthProvider } from '@/context/AuthContext';
 import { SettingsConsumer, SettingsProvider } from '@/@core/context/settingsContext';
 
-// ** Styled Components
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
-
 // ** Utils Imports
 import { createEmotionCache } from '@/@core/utils/create-emotion-cache';
-
-// // ** Prismjs Styles
-// import 'prismjs';
-// import 'prismjs/themes/prism-tomorrow.css';
-// import 'prismjs/components/prism-jsx';
-// import 'prismjs/components/prism-tsx';
 
 // ** React Perfect Scrollbar Style
 import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // ** Global css styles
 import '../styles/globals.css';
-import { isEmpty } from '@/@core/utils/utils';
+
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {

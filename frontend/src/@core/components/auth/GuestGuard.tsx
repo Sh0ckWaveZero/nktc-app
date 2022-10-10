@@ -5,7 +5,6 @@ import { ReactNode, ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 // ** Hooks Import
-import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/store/index';
 
 interface GuestGuardProps {
@@ -16,7 +15,7 @@ interface GuestGuardProps {
 const GuestGuard = (props: GuestGuardProps) => {
   const { children, fallback } = props;
   // const auth = useAuth();
-  const { userInfo, loading } = useUserStore();
+  const { userInfo, userLoading: loading } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {

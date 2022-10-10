@@ -1,6 +1,5 @@
 import axios from 'axios';
 import create from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
 
 // ** Config
 import authConfig from '@/configs/auth';
@@ -31,7 +30,7 @@ export const useTeacherStore = create<TeacherState>()(
         });
         set({ teacher: data, loading: false, hasErrors: false });
       } catch (err) {
-        set({ loading: false, hasErrors: true });
+        set({ teacher: [], loading: false, hasErrors: true });
       }
     },
     updateClassroom: async (token: string, teacher: any) => {

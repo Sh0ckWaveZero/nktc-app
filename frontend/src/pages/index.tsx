@@ -8,15 +8,14 @@ import { useRouter } from 'next/router';
 import Spinner from '@/@core/components/spinner';
 
 // ** Hook Imports
-import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/store/index';
 
 /**
  *  Set Home URL based on User Roles
  */
 export const getHomeRoute = (role: string) => {
-
-   return '/home';
+  if (role === 'Teacher') return '/home'
+  else return '/home'
 };
 
 const Home = () => {
@@ -41,8 +40,4 @@ const Home = () => {
   return <Spinner />;
 };
 
-Home.acl = {
-  action: 'read',
-  subject: 'home',
-};
 export default Home;

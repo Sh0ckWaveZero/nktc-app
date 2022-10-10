@@ -3,10 +3,12 @@ import { PaletteMode } from '@mui/material';
 import { Skin, ThemeColor } from '@/@core/layouts/types';
 
 const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) => {
+
   // ** Vars
   const lightColor = '58, 53, 65';
   const darkColor = '231, 227, 252';
   const mainColor = mode === 'light' ? lightColor : darkColor;
+
 
   const primaryGradient = () => {
     if (themeColor === 'primary') {

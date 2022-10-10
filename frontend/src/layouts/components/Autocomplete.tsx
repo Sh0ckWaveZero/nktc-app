@@ -43,9 +43,6 @@ import SubdirectoryArrowLeft from 'mdi-material-ui/SubdirectoryArrowLeft';
 import FormatTextVariantOutline from 'mdi-material-ui/FormatTextVariantOutline';
 import CardBulletedSettingsOutline from 'mdi-material-ui/CardBulletedSettingsOutline';
 
-// ** Third Party Imports
-import axios from 'axios';
-
 // ** Types Imports
 import { Settings } from '@/@core/context/settingsContext';
 

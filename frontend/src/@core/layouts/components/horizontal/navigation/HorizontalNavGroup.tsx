@@ -122,7 +122,7 @@ const HorizontalNavGroup = (props: Props) => {
         name: 'flip',
         enabled: true,
         options: {
-          boundary: window || null,
+          // boundary: window || undefined,
           fallbackPlacements: ['auto-start', 'right'],
         },
       },

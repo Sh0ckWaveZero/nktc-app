@@ -1,6 +1,5 @@
 import axios from 'axios';
 import create from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
 
 // ** Config
 import authConfig from '@/configs/auth';
@@ -9,6 +8,8 @@ import { Classroom } from '@/types/apps/teacherTypes';
 
 interface classroomState {
   classroom: Classroom[];
+  classroomLoading: boolean,
+  classroomHasErrors: boolean,
   teacherClassroom: Array<[]>;
   fetchClassroom: (token: string) => any;
   fetchTeachClassroom: (token: string, teacherId: string) => any;
@@ -19,21 +20,33 @@ export const useClassroomStore = create<classroomState>()(
   (set) => ({
     classroom: [],
     teacherClassroom: [],
+    classroomLoading: false,
+    classroomHasErrors: false,
     fetchClassroom: async (token: string) => {
-      const { data } = await axios.get(authConfig.classroomEndpoint, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      set({ classroom: await data });
+      try {
+        set({ classroomLoading: true });
+        const { data } = await axios.get(authConfig.classroomEndpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        set({ classroom: await data, classroomLoading: false, classroomHasErrors: false });
+      } catch (err) {
+        set({ classroomLoading: false, classroomHasErrors: true });
+      }
     },
     fetchTeachClassroom: async (token: string, teacherId: string) => {
-      const { data } = await axios.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      set({ teacherClassroom: await data });
+      try {
+        set({ classroomLoading: true });
+        const { data } = await axios.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        set({ teacherClassroom: await data, classroomLoading: false, classroomHasErrors: false });
+      } catch (err) {
+        set({ teacherClassroom: [], classroomLoading: false, classroomHasErrors: true });
+      }
     },
     clear: () => set({ classroom: [] }),
   }),

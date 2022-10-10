@@ -57,25 +57,9 @@ import { userRoleType, userStatusType } from '@/@core/utils/types';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
-// ** Config
-import authConfig from '@/configs/auth';
 import toast, { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 
-type Teacher = {
-  id: number;
-  name: string;
-  fullName: string;
-  classroomTeacher: string; //ครูประจำชั้น
-  numberOfTeachingHours: number;
-  numberOfLoginHours: number;
-  report: string;
-  classSchedule: string;
-  status: string;
-  role: string;
-  avatar: string;
-  color: ThemeColor;
-};
 
 interface UserRoleType {
   [key: string]: ReactElement;
