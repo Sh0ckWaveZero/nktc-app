@@ -30,9 +30,9 @@
     "@hookform/resolvers": "2.4.0",
     "@mui/icons-material": "5.10.6",
     "@mui/lab": "^5.0.0-alpha.94",
-    "@mui/material": "^5.10.7",
-    "@mui/x-data-grid": "^5.17.5",
-    "@mui/x-date-pickers": "^5.0.3",
+    "@mui/material": "^5.10.9",
+    "@mui/x-data-grid": "^5.17.6",
+    "@mui/x-date-pickers": "^5.0.4",
     "@popperjs/core": "2.11.2",
     "@tarzui/date-fns-be": "^1.0.10",
     "apexcharts-clevision": "3.28.5",
@@ -64,7 +64,7 @@
     "react-dom": "18.1.0",
     "react-draft-wysiwyg": "1.14.7",
     "react-dropzone": "14.2.0",
-    "react-hook-form": "^7.36.1",
+    "react-hook-form": "^7.37.0",
     "react-hot-toast": "2.4.0",
     "react-i18next": "11.14.3",
     "react-icons": "^4.4.0",
@@ -75,7 +75,7 @@
     "stylis": "4.0.10",
     "stylis-plugin-rtl": "2.1.1",
     "yup": "0.32.9",
-    "zustand": "^4.1.1"
+    "zustand": "^4.1.2"
   },
   "devDependencies": {
     "@types/cleave.js": "1.4.6",
