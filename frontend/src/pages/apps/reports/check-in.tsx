@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect, useContext } from 'react';
+import { useState } from 'react';
 
 // ** MUI Imports
 import { Typography, CardHeader, Card, Grid, Avatar, CardContent, Checkbox, Container } from '@mui/material';
@@ -8,7 +8,11 @@ import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
 // ** Icons Imports
 
 // ** Store Imports
-import { useClassroomStore, useUserStore, useStudentStore, useReportCheckInStore } from '@/store/index';
+import {
+  useUserStore,
+  useReportCheckInStore,
+  useTeacherStore,
+} from '@/store/index';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/reports/check-in/TableHeader';
@@ -21,7 +25,6 @@ import { HiOutlineFlag } from 'react-icons/hi';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
-import { AbilityContext } from '@/layouts/components/acl/Can';
 
 interface CellType {
   // row: teachersTypes;
@@ -30,15 +33,13 @@ interface CellType {
 
 const StudentCheckIn = () => {
   // ** Hooks
-  const ability = useContext(AbilityContext);
-  const { fetchClassroom, classroom, teacherClassroom, fetchTeachClassroom } = useClassroomStore();
-  const { accessToken } = useUserStore();
-  const { students, fetchStudentByClassroom, clearStudent } = useStudentStore();
+  const { userInfo, accessToken } = useUserStore();
   const { reportCheckIn, getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
-  const { userInfo } = useUserStore();
+  const { fetchClassroomByTeachId } = useTeacherStore();
 
   // ** Local State
-  const [pageSize, setPageSize] = useState<number>(isEmpty(students) ? 0 : students.length);
+  const [currentStudents, setCurrentStudents] = useState<any>([]);
+  const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
   const [isLateCheckAll, setIsLateCheckAll] = useState(false);
@@ -47,31 +48,24 @@ const StudentCheckIn = () => {
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [isLateCheck, setIsLateCheck] = useState<any>([]);
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
-  const [teacherClassrooms, setTeacherClassrooms] = useState<any>(teacherClassroom[0] ?? '');
-
-  // ดึงข้อมูลห้องเรียนที่สอน
-  useEffectOnce(() => {
-    fetchClassroom(accessToken);
-  });
+  const [classroomName, setClassroomName] = useState<any>(null);
+  const [classrooms, setClassrooms] = useState<any>([]);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    !isEmpty(classroom) && fetchTeachClassroom(accessToken, userInfo?.teacher?.id);
-    console.log('teacherClassroom', teacherClassroom);
+    const fetch = async () => {
+      await fetchClassroomByTeachId(accessToken, userInfo?.teacher?.id).then(async ({ data }: any) => {
+        setClassroomName(await data?.classrooms[0]);
+        setClassrooms(await data?.classrooms);
+        setCurrentStudents(await data?.classrooms[0]?.students);
+        getReportCheckIn(accessToken, {
+          teacher: userInfo?.teacher?.id,
+          classroom: await data?.classrooms[0]?.id,
+        });
+      });
+    };
+    fetch();
   });
-
-  // ดึงข้อมูลนการเช็คชื่อประจำวันของนักเรียน
-  useEffect(() => {
-    getReportCheckIn(accessToken, {
-      teacher: userInfo?.teacher?.id,
-      classroom: teacherClassrooms.id,
-    });
-  },[teacherClassrooms]);
-
-  // ดึงข้อมูลนักเรียนตามห้องเรียน
-  useEffect(() => {
-    fetchStudentByClassroom(accessToken, teacherClassrooms.id);
-  }, [teacherClassrooms]);
 
   const onHandleToggle = (action: string, param: any): void => {
     switch (action) {
@@ -222,7 +216,7 @@ const StudentCheckIn = () => {
 
   const handleTogglePresentAll = (): void => {
     setIsPresentCheckAll(!isPresentCheckAll);
-    setIsPresentCheck(students.map((student: any) => student.id));
+    setIsPresentCheck(currentStudents.map((student: any) => student.id));
     if (isPresentCheckAll) {
       setIsPresentCheck([]);
     }
@@ -230,7 +224,7 @@ const StudentCheckIn = () => {
 
   const handleToggleAbsentAll = (): void => {
     setIsAbsentCheckAll(!isAbsentCheckAll);
-    setIsAbsentCheck(students.map((student: any) => student.id));
+    setIsAbsentCheck(currentStudents.map((student: any) => student.id));
     if (isAbsentCheckAll) {
       setIsAbsentCheck([]);
     }
@@ -238,7 +232,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLateAll = (): void => {
     setIsLateCheckAll(!isLateCheckAll);
-    setIsLateCheck(students.map((student: any) => student.id));
+    setIsLateCheck(currentStudents.map((student: any) => student.id));
     if (isLateCheckAll) {
       setIsLateCheck([]);
     }
@@ -246,7 +240,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLeaveAll = (): void => {
     setIsLeaveCheckAll(!isLeaveCheckAll);
-    setIsLeaveCheck(students.map((student: any) => student.id));
+    setIsLeaveCheck(currentStudents.map((student: any) => student.id));
     if (isLeaveCheckAll) {
       setIsLeaveCheck([]);
     }
@@ -273,7 +267,7 @@ const StudentCheckIn = () => {
 
   const columns: GridColumns = [
     {
-      flex: 0.2,
+      flex: 0.25,
       minWidth: 220,
       field: 'fullName',
       headerName: 'ชื่อ-สกุล',
@@ -281,10 +275,9 @@ const StudentCheckIn = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { account } = row;
         return (
           <Typography noWrap variant='body1' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-            {account.title + '' + account.firstName + ' ' + account.lastName}
+            {row.title + '' + row.firstName + ' ' + row.lastName}
           </Typography>
         );
       },
@@ -412,7 +405,7 @@ const StudentCheckIn = () => {
     event.preventDefault();
     const data = {
       teacherId: userInfo?.teacher?.id,
-      classroomId: teacherClassrooms.id,
+      classroomId: classroomName.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
       late: isLateCheck,
@@ -421,7 +414,7 @@ const StudentCheckIn = () => {
       status: '1',
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck).length;
-    if (totalStudents === students.length && isEmpty(reportCheckIn)) {
+    if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
       toast.promise(addReportCheckIn(accessToken, data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
@@ -434,12 +427,18 @@ const StudentCheckIn = () => {
   };
 
   const handleSelectChange = (event: any) => {
+    event.preventDefault();
     onClearAll('');
     const {
       target: { value },
     } = event;
-    const classroomName: any = teacherClassroom.filter((item: any) => item.name === value)[0];
-    setTeacherClassrooms(classroomName);
+    const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
+    setClassroomName(classroomName);
+    setCurrentStudents(classroomName.students);
+    getReportCheckIn(accessToken, {
+      teacher: userInfo?.teacher?.id,
+      classroom: classroomName?.id,
+    });
   };
 
   return (
@@ -467,27 +466,25 @@ const StudentCheckIn = () => {
               })}`}
             />
             <CardContent>
-              {!isEmpty(students) && (
-                <Typography variant='subtitle1'>
-                  {`ชั้น ${teacherClassrooms.name} จำนวน ${students.length} คน`}
-                </Typography>
+              {!isEmpty(currentStudents) && (
+                <Typography variant='subtitle1'>{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
               )}
             </CardContent>
             <TableHeader
-              value={teacherClassroom}
+              value={classrooms}
               handleChange={handleSelectChange}
-              defaultValue={teacherClassrooms?.name}
+              defaultValue={classroomName?.name}
               handleSubmit={onHandleSubmit}
             />
             <DataGrid
-              disableColumnMenu
               autoHeight
-              headerHeight={150}
-              rows={isEmpty(reportCheckIn) ? (isEmpty(students) ? [] : students) : []}
               columns={columns}
-              pageSize={pageSize}
-              disableSelectionOnClick
-              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(students) ? 100 : 50) : 100}
+              rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+              disableColumnMenu
+              headerHeight={150}
+              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 100 : 50) : 100}
+              rowsPerPageOptions={[pageSize]}
+              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
               components={{
                 NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
               }}

@@ -14,8 +14,10 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
     if (themeColor === 'primary') {
       // return '#C6A7FE'
       return '#6ACDFF';
+      // } else if (themeColor === 'secondary') {
+      //   return '#9C9FA4';
     } else if (themeColor === 'secondary') {
-      return '#9C9FA4';
+      return '#6ACDFF';
     } else if (themeColor === 'success') {
       return '#93DD5C';
     } else if (themeColor === 'error') {

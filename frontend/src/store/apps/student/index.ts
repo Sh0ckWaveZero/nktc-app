@@ -3,6 +3,7 @@ import create from 'zustand';
 
 // ** Config
 import authConfig from '@/configs/auth';
+import shallow from 'zustand/shallow';
 interface StudentQuery {
   q: string;
 }
@@ -12,7 +13,7 @@ interface StudentState {
   hasErrors: boolean,
   fetchStudent: (token: string, params: StudentQuery) => any;
   fetchStudentByClassroom: (token: string, classroomId: any) => any;
-  clearStudent: () => any;
+  removeStudents: () => any;
 }
 
 export const useStudentStore = create<StudentState>()(
@@ -49,6 +50,7 @@ export const useStudentStore = create<StudentState>()(
         set({ students: null, loading: false, hasErrors: true });
       }
     },
-    clearStudent: () => set({ students: [] }),
+    removeStudents: () => set({ students: [] }),
+    shallow,
   }),
 );

@@ -215,7 +215,7 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const { teacher, loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
+  const { teacher, teacherLoading: loading, hasErrors, fetchTeacher, updateClassroom } = useTeacherStore();
   const { classroom, fetchClassroom } = useClassroomStore();
   const { accessToken } = useUserStore();
 
