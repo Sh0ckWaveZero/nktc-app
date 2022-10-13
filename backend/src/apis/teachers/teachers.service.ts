@@ -75,6 +75,108 @@ export class TeachersService {
     return `This action returns a #${id} teacher`;
   }
 
+  async getCheckIn(id: string) {
+    const classrooms = await this.prisma.teacher.findUniqueOrThrow({
+      where: {
+        id: id,
+      },
+      select: {
+        classroomIds: true,
+      }
+    });
+
+    const classroom = await this.prisma.classroom.findMany({
+      where: {
+        OR: classrooms.classroomIds.map((item: any) => {
+          return {
+            id: item,
+          }
+        })
+      },
+      orderBy: [
+        {
+          program: {
+            name: 'asc',
+          },
+        },
+        {
+          name: 'asc',
+        },
+      ],
+      select: {
+        id: true,
+        classroomId: true,
+        name: true,
+      },
+    });
+
+    const students = await this.prisma.user.findMany({
+      where: {
+        student: {
+          OR: classrooms.classroomIds.map((item: any) => {
+            return {
+              classroomId: item,
+            }
+          })
+        }
+      },
+      select: {
+        id: true,
+        username: true,
+        student: {
+          select: {
+            classroomId: true,
+          }
+        },
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: [
+        {
+          account: {
+            firstName: 'asc',
+          },
+        },
+        {
+          account: {
+            lastName: 'asc',
+          },
+        },
+      ]
+    });
+
+    return {
+      data: {
+        classrooms: classroom.map((item: any) => {
+          return {
+            id: item.id,
+            classroomId: item.classroomId,
+            name: item.name,
+            students: students.filter((student: any) => {
+              return student.student.classroomId === item.id;
+            }).map((student: any) => {
+              return {
+                id: student.id,
+                studentId: student.username,
+                title: student.account.title,
+                firstName: student.account.firstName,
+                lastName: student.account.lastName,
+                avatar: student.account.avatar,
+              }
+            }),
+          }
+        }),
+      }
+    };
+  }
+
   async updateClassroom(id: string, updateTeacherDto: any) {
     const updated = await this.prisma.teacher.update({
       where: {

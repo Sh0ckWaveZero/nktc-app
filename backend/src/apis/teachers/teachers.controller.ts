@@ -55,6 +55,11 @@ export class TeachersController {
     }
   }
 
+  @Get(':id/check-in')
+  async getCheckIn(@Param('id') id: string) {
+    return await this.teachersService.getCheckIn(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.teachersService.remove(+id);
