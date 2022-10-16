@@ -61,6 +61,10 @@ USER node
 
 FROM node:18 As production
 
+# SET Timezone (Asia/Bangkok GTM+07:00)
+ENV TZ Asia/Bangkok
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Copy the bundled code from the build stage to the production image
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
