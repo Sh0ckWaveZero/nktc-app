@@ -1,18 +1,24 @@
 // ** React Imports
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 // ** MUI Imports
-import { Typography, CardHeader, Card, Grid, Avatar, CardContent, Checkbox, Container } from '@mui/material';
+import {
+  Typography,
+  CardHeader,
+  Card,
+  Grid,
+  Avatar,
+  CardContent,
+  Checkbox,
+  Container,
+  createTheme,
+  Box,
+  Alert,
+} from '@mui/material';
 import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
 
-// ** Icons Imports
-
 // ** Store Imports
-import {
-  useUserStore,
-  useReportCheckInStore,
-  useTeacherStore,
-} from '@/store/index';
+import { useUserStore, useReportCheckInStore, useTeacherStore } from '@/store/index';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/reports/check-in/TableHeader';
@@ -25,6 +31,8 @@ import { HiOutlineFlag } from 'react-icons/hi';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
+import { AbilityContext } from '@/layouts/components/acl/Can';
+import { useRouter } from 'next/router';
 
 interface CellType {
   // row: teachersTypes;
@@ -34,8 +42,10 @@ interface CellType {
 const StudentCheckIn = () => {
   // ** Hooks
   const { userInfo, accessToken } = useUserStore();
-  const { reportCheckIn, getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
+  const { getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
   const { fetchClassroomByTeachId } = useTeacherStore();
+  const ability = useContext(AbilityContext);
+  const router = useRouter();
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
@@ -50,21 +60,25 @@ const StudentCheckIn = () => {
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
   const [classroomName, setClassroomName] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
+  const [reportCheckIn, setReportCheckIn] = useState<any>(false);
+  const [loading, setLoading] = useState(true);
+  const [alertVisibility, setAlertVisibility] = useState(false);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
       await fetchClassroomByTeachId(accessToken, userInfo?.teacher?.id).then(async ({ data }: any) => {
+        await getCheckInStatus(userInfo?.teacher?.id, await data?.classrooms[0]?.id);
         setClassroomName(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(await data?.classrooms[0]?.students);
-        getReportCheckIn(accessToken, {
-          teacher: userInfo?.teacher?.id,
-          classroom: await data?.classrooms[0]?.id,
-        });
       });
     };
-    fetch();
+    if (ability?.can('read', 'check-in-page') && userInfo.role !== 'Admin') {
+      fetch();
+    } else {
+      router.push('/401');
+    }
   });
 
   const onHandleToggle = (action: string, param: any): void => {
@@ -420,79 +434,99 @@ const StudentCheckIn = () => {
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
       });
+      getCheckInStatus(userInfo?.teacher?.id, classroomName?.id);
       onClearAll('');
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
     }
   };
 
-  const handleSelectChange = (event: any) => {
+  const handleSelectChange = async (event: any) => {
     event.preventDefault();
-    onClearAll('');
     const {
       target: { value },
     } = event;
-    const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
-    setClassroomName(classroomName);
-    setCurrentStudents(classroomName.students);
-    getReportCheckIn(accessToken, {
-      teacher: userInfo?.teacher?.id,
-      classroom: classroomName?.id,
+    const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
+    await getCheckInStatus(userInfo?.teacher?.id, classroomObj?.id);
+    setCurrentStudents(classroomObj.students);
+    setClassroomName(classroomObj);
+    onClearAll('');
+  };
+
+  const getCheckInStatus = async (teacher: string, classroom: string) => {
+    setLoading(true);
+    await getReportCheckIn(accessToken, { teacher, classroom }).then(async (data: any) => {
+      setReportCheckIn(await data);
+      setLoading(false);
     });
   };
 
   return (
-    <>
-      <ReactHotToast>
-        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-      </ReactHotToast>
+    ability?.can('read', 'check-in-page') &&
+    userInfo.role !== 'Admin' && (
+      <>
+        <ReactHotToast>
+          <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
+        </ReactHotToast>
 
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Card>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                  <HiOutlineFlag />
-                </Avatar>
-              }
-              sx={{ color: 'text.primary' }}
-              title={`เช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง`}
-              subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}`}
-            />
-            <CardContent>
-              {!isEmpty(currentStudents) && (
-                <Typography variant='subtitle1'>{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-              )}
-            </CardContent>
-            <TableHeader
-              value={classrooms}
-              handleChange={handleSelectChange}
-              defaultValue={classroomName?.name}
-              handleSubmit={onHandleSubmit}
-            />
-            <DataGrid
-              autoHeight
-              columns={columns}
-              rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-              disableColumnMenu
-              headerHeight={150}
-              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 100 : 50) : 100}
-              rowsPerPageOptions={[pageSize]}
-              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-              components={{
-                NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
-              }}
-            />
-          </Card>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader
+                avatar={
+                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                    <HiOutlineFlag />
+                  </Avatar>
+                }
+                sx={{ color: 'text.primary' }}
+                title={`เช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง`}
+                subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}`}
+              />
+              <CardContent>
+                {!isEmpty(currentStudents) && (
+                  <>
+                    <Typography
+                      variant='subtitle1'
+                      sx={{ pb: 3 }}
+                    >{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                    {isEmpty(reportCheckIn) ? (
+                      <Alert severity='error'>ยังไม่มีการเช็คชื่อหน้าเสาธง</Alert>
+                    ) : (
+                      <Alert severity='success'>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</Alert>
+                    )}
+                  </>
+                )}
+              </CardContent>
+              <TableHeader
+                value={classrooms}
+                handleChange={handleSelectChange}
+                defaultValue={classroomName?.name}
+                handleSubmit={onHandleSubmit}
+              />
+              <DataGrid
+                autoHeight
+                columns={columns}
+                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                disableColumnMenu
+                headerHeight={150}
+                loading={loading}
+                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+                rowsPerPageOptions={[pageSize]}
+                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+                components={{
+                  NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+                }}
+              />
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </>
+      </>
+    )
   );
 };
 

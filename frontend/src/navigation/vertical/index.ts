@@ -9,6 +9,7 @@ import { RiUser5Line, RiUser6Line } from 'react-icons/ri';
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiOutlineFlag } from 'react-icons/hi';
+import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -79,6 +80,43 @@ const navigation = (): VerticalNavItemsType => {
       action: 'read',
       subject: 'check-in-page',
     },
+    {
+      title: 'รายงานเช็คชื่อ',
+      icon: BsClipboardData,
+      action: 'read',
+      subject: 'report-check-in-page',
+      children: [
+        {
+          title: 'รายวัน',
+          icon: BsCalendar2Date,
+          action: 'read',
+          subject: 'report-check-in-page',
+          path: '/apps/reports/check-in/daily',
+        },
+        {
+          title: 'รายสัปดาห์',
+          icon: BsCalendar2Week,
+          action: 'read',
+          subject: 'report-check-in-page',
+          path: '/apps/reports/check-in/weekly',
+        },
+        {
+          title: 'รายเดือน',
+          icon: BsCalendar2Month,
+          action: 'read',
+          subject: 'report-check-in-page',
+          path: '/apps/reports/check-in/monthly',
+        },
+        {
+          title: 'รายงานสรุป',
+          icon: BsBarChartLine,
+          action: 'read',
+          subject: 'report-check-in-page',
+          // path: '/apps/user/view',
+        }
+      ],
+    },
+
   ];
 };
 

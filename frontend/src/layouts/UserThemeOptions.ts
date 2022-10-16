@@ -25,12 +25,12 @@ const UserThemeOptions = (): ThemeOptions => {
         dark: '#139CE0',
         contrastText: '#FFF',
       },
-      secondary: {
-        light: '#32BAFF',
-        main: '#16B1FF',
-        dark: '#139CE0',
-        contrastText: '#FFF',
-      },
+      // secondary: {
+      //   light: '#32BAFF',
+      //   main: '#16B1FF',
+      //   dark: '#139CE0',
+      //   contrastText: '#FFF',
+      // },
     },
     breakpoints: {
       values: {
@@ -177,10 +177,10 @@ const UserThemeOptions = (): ThemeOptions => {
       '0px 11px 14px -7px rgba(19, 17, 32, 0.2), 0px 23px 36px 3px rgba(19, 17, 32, 0.14), 0px 9px 44px 8px rgba(19, 17, 32, 0.12)',
       '0px 11px 15px -7px rgba(19, 17, 32, 0.2), 0px 24px 38px 3px rgba(19, 17, 32, 0.14), 0px 9px 46px 8px rgba(19, 17, 32, 0.12)'
     ],
-    zIndex: {
-      appBar: 1200,
-      drawer: 1100
-    }
+    // zIndex: {
+    //   appBar: 1250,
+    //   drawer: 1100
+    // }
   }
 }
 

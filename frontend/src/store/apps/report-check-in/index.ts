@@ -3,7 +3,6 @@ import create from 'zustand';
 
 // ** Config
 import authConfig from '@/configs/auth';
-import shallow from 'zustand/shallow';
 
 interface UserState {
   reportCheckIn: any;
@@ -12,6 +11,8 @@ interface UserState {
   getReportCheckIn: (token: string, param: any) => any;
   addReportCheckIn: (token: string, data: any) => any;
   updateReportCheckIn: (token: string, data: string) => any;
+  findDailyReport: (token: string, param: any) => any;
+  removeReportCheckIn: (token: string, id: string) => any;
 }
 
 export const useReportCheckInStore = create<UserState>()(
@@ -20,7 +21,6 @@ export const useReportCheckInStore = create<UserState>()(
     reportCheckInLoading: false,
     hasReportCheckInErrors: false,
     getReportCheckIn: async (token: string, param: any) => {
-      set({ reportCheckInLoading: true });
       try {
         const { data } = await axios.get(
           `${authConfig.reportCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
@@ -29,9 +29,9 @@ export const useReportCheckInStore = create<UserState>()(
               Authorization: `Bearer ${token}`,
             },
           });
-        set({ reportCheckIn: data, reportCheckInLoading: false, hasReportCheckInErrors: false });
+        return await data;
       } catch (err) {
-        set({ reportCheckInLoading: false, hasReportCheckInErrors: true });
+        return err;
       }
     },
     addReportCheckIn: async (token: string, data: any) => {
@@ -51,9 +51,48 @@ export const useReportCheckInStore = create<UserState>()(
       }
     },
     updateReportCheckIn: async (token: string, data: any) => {
-      const response = await axios.delete(authConfig.reportCheckInEndpoint);
-      set({ reportCheckIn: await response.data });
+      set({ reportCheckInLoading: true });
+      try {
+        const response = await axios.patch(
+          `${authConfig.reportCheckInEndpoint}/${data.id}/daily-report`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await response.data;
+      } catch (err) {
+        return err;
+      }
     },
-    shallow,
+    findDailyReport: async (token: string, param: any) => {
+      try {
+        const { data } = await axios.get(
+          `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
+    removeReportCheckIn: async (token: string, id: string) => {
+      try {
+        const { data } = await axios.delete(
+          `${authConfig.reportCheckInEndpoint}/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
   }),
 );

@@ -43,7 +43,7 @@ const Home = () => {
         title: 'Report สถิติการมาเรียน',
         path: '/home',
         action: 'read',
-        subject: 'report-statistics-attendance-page',
+        subject: 'report-check-in-page',
       },
     },
     {

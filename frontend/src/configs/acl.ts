@@ -29,11 +29,13 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['read'], 'manage-data');
     can(['read'], 'account-page');
     can(['read'], 'report-category');
-    can(['read'], 'report-statistics-attendance-page');
+    can(['read'], 'report-check-in-page');
+    can(['read'], 'report-check-in-daily-page');
     can(['read'], 'report-good-page');
     can(['read'], 'student-all-page');
     can(['read'], 'summary-home-visit-page');
     can(['read'], 'report-behavior-page');
+    can(['read'], 'student');
   } else if (role === 'Student') {
     can(['read'], 'home-page');
   } else if (role === 'Parent') {

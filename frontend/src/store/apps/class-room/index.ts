@@ -13,7 +13,7 @@ interface classroomState {
   teacherClassroom: Array<[]>;
   fetchClassroom: (token: string) => any;
   fetchTeachClassroom: (token: string, teacherId: string) => any;
-  removeClassrooms: () => void;
+  removeClassrooms: (token: string, id: string) => void;
 }
 
 export const useClassroomStore = create<classroomState>()(
@@ -44,6 +44,7 @@ export const useClassroomStore = create<classroomState>()(
           },
         });
         set({ teacherClassroom: await data, classroomLoading: false, classroomHasErrors: false });
+        return await data;
       } catch (err) {
         set({ teacherClassroom: [], classroomLoading: false, classroomHasErrors: true });
       }
