@@ -37,13 +37,36 @@ export class ReportCheckInController {
     }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReportCheckInDto: UpdateReportCheckInDto) {
-    return this.reportCheckInService.update(+id, updateReportCheckInDto);
+  @Get('teacher/:teacherId/classroom/:classroomId/start-date/:date/daily-report')
+  async findDailyReport(@Param('teacherId') teacherId: string, @Param('classroomId') classroomId: string, @Param('date') date: string) {
+    try {
+      return await this.reportCheckInService.findDailyReport(teacherId, classroomId, date);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  @Patch(':id/daily-report')
+  async updateDailyReport(@Param('id') id: string, @Body() updateDailyReportDto: any) {
+    try {
+      return await this.reportCheckInService.updateDailyReport(id, updateDailyReportDto);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reportCheckInService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.reportCheckInService.remove(id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
   }
 }

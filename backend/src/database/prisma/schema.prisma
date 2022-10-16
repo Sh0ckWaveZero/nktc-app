@@ -336,6 +336,25 @@ model ReportCheckIn {
   @@map("reportCheckIn")
 }
 
+// Audit logs
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String? // ประเภทการทำงาน
+  model     String? // ชื่อตาราง
+  recordId  String? // รหัสข้อมูล
+  fieldName String? // ชื่อฟิลด์
+  oldValue  String? // ค่าเก่า
+  newValue  String? // ค่าใหม่
+  detail    String? // รายละเอียด
+  ipAddr    String? // ไอพีที่ทำการเข้าใช้งาน
+  browser   String? // เบราว์เซอร์
+  device    String? // อุปกรณ์ที่ใช้
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy String?
+
+  @@map("audit_log")
+}
+
 enum Role {
   Admin
   User
