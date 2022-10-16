@@ -41,7 +41,6 @@ import BlankLayout from '@/@core/layouts/BlankLayout';
 // ** Demo Imports
 import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
 import { Toaster, toast } from 'react-hot-toast';
-import { Alert } from '@mui/material';
 import useBgColor from '@/@core/hooks/useBgColor';
 
 // ** Styled Components

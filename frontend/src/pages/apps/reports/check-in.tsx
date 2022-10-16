@@ -11,8 +11,6 @@ import {
   CardContent,
   Checkbox,
   Container,
-  createTheme,
-  Box,
   Alert,
 } from '@mui/material';
 import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
@@ -62,7 +60,6 @@ const StudentCheckIn = () => {
   const [classrooms, setClassrooms] = useState<any>([]);
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
-  const [alertVisibility, setAlertVisibility] = useState(false);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {

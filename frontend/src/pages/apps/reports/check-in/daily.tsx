@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, useContext, useState, useEffect, Fragment } from 'react';
+import { useContext, useState, Fragment } from 'react';
 
 // ** MUI Imports
 import {
@@ -36,7 +36,7 @@ import { isEmpty } from '@/@core/utils/utils';
 import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
-import { BsCalendar2Date, BsCalendarDate } from 'react-icons/bs';
+import { BsCalendar2Date } from 'react-icons/bs';
 import TableHeaderDaily from '@/views/apps/reports/check-in/TableHeaderDaily';
 import {
   AccountCancelOutline,
@@ -88,14 +88,8 @@ const ReportCheckInDaily = () => {
   // ** Hooks
   const { fetchTeachClassroom } = useClassroomStore();
   const { userInfo, accessToken } = useUserStore();
-  const {
-    reportCheckIn,
-    getReportCheckIn,
-    addReportCheckIn,
-    findDailyReport,
-    updateReportCheckIn,
-    removeReportCheckIn,
-  } = useReportCheckInStore();
+  const { reportCheckIn, getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } =
+    useReportCheckInStore();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -277,10 +271,10 @@ const ReportCheckInDaily = () => {
 
   const onSubmittedCheckIn = async (event: any, values: any): Promise<void> => {
     event.preventDefault();
-    isPresentCheck.push(...values?.data?.reportCheckInData?.present);
-    isAbsentCheck.push(...values?.data?.reportCheckInData?.absent);
-    isLateCheck.push(...values?.data?.reportCheckInData?.late);
-    isLeaveCheck.push(...values?.data?.reportCheckInData?.leave);
+    isPresentCheck.push(...(values?.data?.reportCheckInData?.present ?? []));
+    isAbsentCheck.push(...(values?.data?.reportCheckInData?.absent ?? []));
+    isLateCheck.push(...(values?.data?.reportCheckInData?.late ?? []));
+    isLeaveCheck.push(...(values?.data?.reportCheckInData?.leave ?? []));
     onHandleToggle(values?.isCheckInStatus, values?.data);
     const data = {
       ...values?.data?.reportCheckInData,

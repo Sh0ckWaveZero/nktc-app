@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useState, ReactNode } from 'react';
 
 // ** Next Import
 import { useRouter } from 'next/router';
@@ -13,7 +13,6 @@ import authConfig from '@/configs/auth';
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 import { useUserStore } from '@/store/index';
-import jwt from 'jsonwebtoken';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {

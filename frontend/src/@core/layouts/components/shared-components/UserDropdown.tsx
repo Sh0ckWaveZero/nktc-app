@@ -23,9 +23,6 @@ import AccountOutline from 'mdi-material-ui/AccountOutline';
 import MessageOutline from 'mdi-material-ui/MessageOutline';
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline';
 
-// ** Context
-import { useAuth } from '@/hooks/useAuth';
-
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
 import { useUserStore } from '@/store/index';
