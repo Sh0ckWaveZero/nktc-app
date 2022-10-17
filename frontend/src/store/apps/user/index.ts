@@ -18,6 +18,7 @@ interface UserState {
   deleteUser: (token: string, userId: string) => any;
   clearUser: () => void;
   clearAccessToken: () => void;
+  changePassword: (token: string, data: any) => any;
 }
 
 export const useUserStore = create<UserState>()(
@@ -74,6 +75,21 @@ export const useUserStore = create<UserState>()(
         clearAccessToken: () => {
           set({ accessToken: '' });
         },
+        changePassword: async (token: string, data: any) => {
+          set({ userLoading: true });
+          try {
+            await axios.put(`${authConfig.changePasswordEndpoint}`, data, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }).then(async (response: any) => {
+              const { data, token } = await response.data;
+              set({ userInfo: await data, userLoading: false, hasErrors: false, accessToken: await token });
+            });
+          } catch (err) {
+            set({ userInfo: data, userLoading: false, hasErrors: true });
+          }
+        }
       }),
       {
         name: 'user-storage',

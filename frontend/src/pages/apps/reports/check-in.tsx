@@ -12,6 +12,8 @@ import {
   Checkbox,
   Container,
   Alert,
+  IconButton,
+  AlertTitle,
 } from '@mui/material';
 import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
 
@@ -31,6 +33,7 @@ import { isEmpty } from '@/@core/utils/utils';
 import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
+import { Close } from 'mdi-material-ui';
 
 interface CellType {
   // row: teachersTypes;
@@ -60,6 +63,7 @@ const StudentCheckIn = () => {
   const [classrooms, setClassrooms] = useState<any>([]);
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
+  const [openAlert, setOpenAlert] = useState<boolean>(true);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
@@ -447,6 +451,7 @@ const StudentCheckIn = () => {
     await getCheckInStatus(userInfo?.teacher?.id, classroomObj?.id);
     setCurrentStudents(classroomObj.students);
     setClassroomName(classroomObj);
+    setOpenAlert(true);
     onClearAll('');
   };
 
@@ -492,10 +497,46 @@ const StudentCheckIn = () => {
                       sx={{ pb: 3 }}
                     >{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
-                      <Alert severity='error'>ยังไม่มีการเช็คชื่อหน้าเสาธง</Alert>
-                    ) : (
-                      <Alert severity='success'>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</Alert>
-                    )}
+                      openAlert ? (
+                        <Grid item xs={12} sx={{ mb: 3 }}>
+                          <Alert
+                            severity='error'
+                            sx={{ '& a': { fontWeight: 400 } }}
+                            action={
+                              <IconButton
+                                size='small'
+                                color='inherit'
+                                aria-label='close'
+                                onClick={() => setOpenAlert(false)}
+                              >
+                                <Close fontSize='inherit' />
+                              </IconButton>
+                            }
+                          >
+                            <AlertTitle>ยังไม่มีการเช็คชื่อหน้าเสาธง</AlertTitle>
+                          </Alert>
+                        </Grid>
+                      ) : null
+                    ) : openAlert ? (
+                      <Grid item xs={12} sx={{ mb: 3 }}>
+                        <Alert
+                          severity='success'
+                          sx={{ '& a': { fontWeight: 400 } }}
+                          action={
+                            <IconButton
+                              size='small'
+                              color='inherit'
+                              aria-label='close'
+                              onClick={() => setOpenAlert(false)}
+                            >
+                              <Close fontSize='inherit' />
+                            </IconButton>
+                          }
+                        >
+                          <AlertTitle>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</AlertTitle>
+                        </Alert>
+                      </Grid>
+                    ) : null}
                   </>
                 )}
               </CardContent>

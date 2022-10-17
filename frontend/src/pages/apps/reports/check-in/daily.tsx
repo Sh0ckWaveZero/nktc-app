@@ -33,7 +33,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
-import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { BsCalendar2Date } from 'react-icons/bs';
@@ -88,8 +87,7 @@ const ReportCheckInDaily = () => {
   // ** Hooks
   const { fetchTeachClassroom } = useClassroomStore();
   const { userInfo, accessToken } = useUserStore();
-  const { reportCheckIn, getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } =
-    useReportCheckInStore();
+  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } = useReportCheckInStore();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -484,15 +482,15 @@ const ReportCheckInDaily = () => {
               <DataGrid
                 autoHeight
                 columns={columns}
-                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                rows={currentStudents ?? []}
                 disableColumnMenu
                 headerHeight={150}
                 loading={loading}
-                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 100 : 50) : 100}
+                rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 rowsPerPageOptions={[pageSize]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                 components={{
-                  NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+                  NoRowsOverlay: CustomNoRowsOverlay ,
                 }}
               />
             </Card>

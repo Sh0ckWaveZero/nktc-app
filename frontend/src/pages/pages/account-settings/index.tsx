@@ -47,14 +47,14 @@ const AccountSettings = () => {
 
   // Hooks
   const { userInfo } = useUserStore();
-
   const handleChange = (event: SyntheticEvent, newValue: string) => {
+    event.preventDefault();
     setValue(newValue);
   };
 
   return (
     <Card>
-      <TabContext value={value}>
+      <TabContext value={value} >
         <TabList
           onChange={handleChange}
           aria-label='account-settings tabs'
@@ -78,50 +78,13 @@ const AccountSettings = () => {
               </Box>
             }
           />
-          {/* <Tab
-            value='info'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <InformationOutline />
-                <TabName>ข้อมูลอื่น ๆ</TabName>
-              </Box>
-            }
-          />
-          <Tab
-            value='billing'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <BookmarkOutline />
-                <TabName>Billing</TabName>
-              </Box>
-            }
-          />
-          <Tab
-            value='notifications'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <BellOutline />
-                <TabName>Notifications</TabName>
-              </Box>
-            }
-          /> */}
         </TabList>
-
         <TabPanel sx={{ p: 0 }} value='account'>
           {userInfo?.role === 'Teacher' ? <TabTeacherAccount /> : <TabAccount />}
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='security'>
           <TabSecurity />
         </TabPanel>
-        {/* <TabPanel sx={{ p: 0 }} value='info'>
-          <TabInfo />
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='billing'>
-          <TabBilling />
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='notifications'>
-          <TabNotifications />
-        </TabPanel> */}
       </TabContext>
     </Card>
   );

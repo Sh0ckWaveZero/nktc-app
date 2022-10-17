@@ -210,7 +210,7 @@ const Customizer = () => {
                 >
                   {themeColor === 'primary' ? <Check fontSize='small' /> : null}
                 </ColorBox>
-                <ColorBox
+                {/* <ColorBox
                   onClick={() => handleChange('themeColor', 'secondary')}
                   sx={{
                     backgroundColor: 'secondary.main',
@@ -218,7 +218,7 @@ const Customizer = () => {
                   }}
                 >
                   {themeColor === 'secondary' ? <Check fontSize='small' /> : null}
-                </ColorBox>
+                </ColorBox> */}
                 <ColorBox
                   onClick={() => handleChange('themeColor', 'success')}
                   sx={{
