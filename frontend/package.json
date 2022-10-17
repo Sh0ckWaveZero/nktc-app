@@ -68,6 +68,7 @@
     "react-hot-toast": "2.4.0",
     "react-i18next": "11.14.3",
     "react-icons": "^4.4.0",
+    "react-password-strength-bar": "^0.4.1",
     "react-perfect-scrollbar": "1.5.8",
     "react-popper": "2.2.5",
     "react-to-pdf": "0.0.14",
