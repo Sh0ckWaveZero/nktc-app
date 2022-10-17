@@ -16,7 +16,7 @@ interface FormatLogin extends Partial<User> {
 export class UsersService {
   constructor(private prisma: PrismaService) { }
 
-  async updatePassword(payload: UpdatePasswordDto, id: string): Promise<User> {
+  async updatePassword(payload: any, id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: {
         id,
@@ -29,6 +29,7 @@ export class UsersService {
 
     // compare password
     const isValid = await compare(payload.old_password, user.password);
+
     if (!isValid) {
       throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
     }
@@ -41,7 +42,7 @@ export class UsersService {
     });
   }
 
-  async create(userDto: CreateUserDto): Promise<any> {
+  async create(userDto: any): Promise<any> {
     // check if user already exists in database
     const user = await this.prisma.user.findFirst({
       where: { username: userDto.username },

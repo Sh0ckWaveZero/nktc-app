@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
@@ -23,16 +23,19 @@ export class ClassroomController {
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
     return this.classroomService.findOne(+id);
   }
 
   @Get('teacher/:id')
+  @HttpCode(HttpStatus.OK)
   async findByTeacherId(@Param('id') id: string) {
     return await this.classroomService.findByTeacherId(id);
   }
 
   @Patch(':id')
+  @HttpCode(HttpStatus.ACCEPTED)
   update(@Param('id') id: string, @Body() updateClassroomDto: UpdateClassroomDto) {
     return this.classroomService.update(+id, updateClassroomDto);
   }

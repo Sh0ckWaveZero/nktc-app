@@ -53,6 +53,23 @@ export class AuthService {
     };
   }
 
+  async updatePassword(updatePasswordDto: any, id: string) {
+    // update password
+    const user = await this.usersService.updatePassword(updatePasswordDto, id);
+
+    // remove password from user object
+    const { password: p, ...rest } = user;
+
+    // generate and sign token
+    const token = this._createToken(rest);
+    return {
+      success: true,
+      message: 'Password has been updated successfully',
+      data: rest,
+      ...token,
+    };
+  }
+
   private _createToken({ username }): any {
     const user: JwtPayload = { username };
     const token = this.jwtService.sign(user);
