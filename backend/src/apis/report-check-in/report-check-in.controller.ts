@@ -40,7 +40,20 @@ export class ReportCheckInController {
   @Get('teacher/:teacherId/classroom/:classroomId/start-date/:date/daily-report')
   async findDailyReport(@Param('teacherId') teacherId: string, @Param('classroomId') classroomId: string, @Param('date') date: string) {
     try {
+      console.log('date', date);
       return await this.reportCheckInService.findDailyReport(teacherId, classroomId, date);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  @Get('teacher/:teacherId/classroom/:classroomId/summary-report')
+  async findSummaryReport(@Param('teacherId') teacherId: string, @Param('classroomId') classroomId: string) {
+    try {
+      return await this.reportCheckInService.findSummaryReport(teacherId, classroomId);
     } catch (error) {
       if (error.message === 'No ReportCheckIn found') {
         return {}
