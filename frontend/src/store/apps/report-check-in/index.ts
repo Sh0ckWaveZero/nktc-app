@@ -12,6 +12,7 @@ interface UserState {
   addReportCheckIn: (token: string, data: any) => any;
   updateReportCheckIn: (token: string, data: string) => any;
   findDailyReport: (token: string, param: any) => any;
+  findSummaryReport: (token: string, param: any) => any;
   removeReportCheckIn: (token: string, id: string) => any;
 }
 
@@ -70,6 +71,20 @@ export const useReportCheckInStore = create<UserState>()(
       try {
         const { data } = await axios.get(
           `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
+    findSummaryReport: async (token: string, param: any) => {
+      try {
+        const { data } = await axios.get(
+          `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

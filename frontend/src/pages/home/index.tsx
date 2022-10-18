@@ -28,6 +28,7 @@ import {
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useContext } from 'react';
+import { BsCalendar2Date } from 'react-icons/bs';
 
 const Home = () => {
   // ** Hook
@@ -35,21 +36,9 @@ const Home = () => {
 
   const menuList: CardMenuProps[] = [
     {
-      title: 'Report',
-      subtitle: 'สถิติการมาเรียน',
-      color: '#49cbd5',
-      icon: <HiOutlineClipboardList />,
-      navLink: {
-        title: 'Report สถิติการมาเรียน',
-        path: '/home',
-        action: 'read',
-        subject: 'report-check-in-page',
-      },
-    },
-    {
       title: 'เช็คชื่อ กิจกรรม',
       subtitle: 'ตอนเช้า/หน้าเสาธง',
-      color: '#af7a4e',
+      color: '#FF9D7E',
       icon: <HiOutlineFlag />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
@@ -61,13 +50,25 @@ const Home = () => {
     {
       title: 'Report',
       subtitle: 'เช็คชื่อนหน้าเสาธง',
-      color: '#af7a4e',
-      icon: <HiOutlineFlag />,
+      color: '#8EBF07',
+      icon: <BsCalendar2Date />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
-        path: '/apps/reports/check-in',
+        path: '/apps/reports/check-in/daily',
         action: 'read',
-        subject: 'report-check-in-page',
+        subject: 'report-check-in-daily-page',
+      },
+    },
+    {
+      title: 'Report',
+      subtitle: 'สถิติการมาเรียน',
+      color: '#49cbd5',
+      icon: <HiOutlineClipboardList />,
+      navLink: {
+        title: 'Report สถิติการมาเรียน',
+        path: '/home',
+        action: 'read',
+        subject: 'report-attendance-page',
       },
     },
     {
