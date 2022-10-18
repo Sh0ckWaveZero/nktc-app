@@ -5,7 +5,7 @@
     "test",
     "dist",
     "**/*spec.ts",
-    "./src/database/prisma/db",
+    "./src/database/prisma/db/*",
     "./src/database/prisma/seed.ts"
   ]
 }

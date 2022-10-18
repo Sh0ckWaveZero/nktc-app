@@ -49,6 +49,18 @@ export class ReportCheckInController {
     }
   }
 
+  @Get('teacher/:teacherId/classroom/:classroomId/summary-report')
+  async findSummaryReport(@Param('teacherId') teacherId: string, @Param('classroomId') classroomId: string) {
+    try {
+      return await this.reportCheckInService.findSummaryReport(teacherId, classroomId);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
+  }
+
   @Patch(':id/daily-report')
   async updateDailyReport(@Param('id') id: string, @Body() updateDailyReportDto: any) {
     try {

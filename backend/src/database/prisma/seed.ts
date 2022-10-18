@@ -1,13 +1,12 @@
-
-import { PrismaClient } from "@prisma/client";
-import { LevelClassroom } from "./db/level-classroom";
-import { programData } from "./db/program";
-import { levelData } from "./db/level";
-import { userStudentData } from "./db/user-student";
-import { departmentData } from './db/department';
-import { Classroom } from './db/classroom';
-import { userTeacher } from './db/user-teacher';
-import { userAdmin } from './db/user-admin';
+import { PrismaClient } from '@prisma/client';
+import { Classroom } from '../db/classroom';
+import { departmentData } from '../db/department';
+import { levelData } from '../db/level';
+import { LevelClassroom } from '../db/level-classroom';
+import { programData } from '../db/program';
+import { userAdmin } from '../db/user-admin';
+import { userStudentData } from '../db/user-student';
+import { userTeacher } from '../db/user-teacher';
 
 
 
