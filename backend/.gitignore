@@ -43,3 +43,4 @@ lerna-debug.log*
 .env.dev
 
 /src/database/prisma/db/*
+backend/src/database/db/nktc-services/*
