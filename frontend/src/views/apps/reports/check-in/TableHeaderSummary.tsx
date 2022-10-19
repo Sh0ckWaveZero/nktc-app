@@ -3,7 +3,7 @@ import Chip from '@/@core/components/mui/chip';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Container } from '@mui/material';
 import { useRef } from 'react';
 import { BsPrinter } from 'react-icons/bs';
-import ReactToPrint, { useReactToPrint } from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 import PrintSummaryReport from './PrintSummaryReport';
 
 interface TableHeaderProps {
