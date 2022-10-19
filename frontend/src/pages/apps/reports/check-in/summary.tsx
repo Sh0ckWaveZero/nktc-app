@@ -1,5 +1,5 @@
 // ** React Imports
-import { useContext, useState, Fragment } from 'react';
+import { useContext, useState } from 'react';
 
 // ** MUI Imports
 import {
@@ -8,12 +8,6 @@ import {
   Card,
   Grid,
   Avatar,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 // ** Custom Components Imports
@@ -27,23 +21,14 @@ import { useUserStore, useReportCheckInStore, useClassroomStore } from '@/store/
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { BsBarChartLine } from 'react-icons/bs';
-import {
-  AccountCancelOutline,
-  AccountCheckOutline,
-  AccountClockOutline,
-  AccountFilterOutline,
-  AlertOctagramOutline,
-} from 'mdi-material-ui';
-import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
-import StudentCheckIn from '../check-in';
 
 interface CellType {
   // row: teachersTypes;
@@ -53,12 +38,6 @@ interface CellType {
 // ** Vars
 
 const ReportCheckInDaily = () => {
-  // ** Local variable
-  let isPresentCheck: any[] = [];
-  let isAbsentCheck: any[] = [];
-  let isLateCheck: any[] = [];
-  let isLeaveCheck: any[] = [];
-
   // ** Hooks
   const { fetchTeachClassroom } = useClassroomStore();
   const { userInfo, accessToken } = useUserStore();
@@ -73,10 +52,6 @@ const ReportCheckInDaily = () => {
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
-  const [openEditDrawer, setOpenEditDrawer] = useState<boolean>(false);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [reportCheckInData, setReportCheckInData] = useState<any>(null);
-  const [openDeletedConfirm, setOpenDeletedConfirm] = useState<boolean>(false);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {

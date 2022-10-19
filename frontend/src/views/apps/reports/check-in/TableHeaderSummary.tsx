@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
-import { BsPrinter, BsXCircle } from 'react-icons/bs';
+import { BsPrinter } from 'react-icons/bs';
 
 interface TableHeaderProps {
   value: any;
@@ -26,7 +26,7 @@ const MenuProps = {
 
 const TableHeaderSummary = (props: TableHeaderProps) => {
   // ** Props
-  const { value, defaultValue, handleChange, selectedDate, handleDateChange, handleClickPrint, isDisabled } = props;
+  const { value, defaultValue, handleChange, handleClickPrint, isDisabled } = props;
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
