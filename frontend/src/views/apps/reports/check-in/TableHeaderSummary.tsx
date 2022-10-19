@@ -1,15 +1,18 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
+import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Container } from '@mui/material';
+import { useRef } from 'react';
 import { BsPrinter } from 'react-icons/bs';
+import ReactToPrint, { useReactToPrint } from 'react-to-print';
+import PrintSummaryReport from './PrintSummaryReport';
 
 interface TableHeaderProps {
-  value: any;
+  classrooms: any;
+  students: any;
   defaultValue: any[];
   handleChange: (event: any) => void;
   handleDateChange: (event: Date | null) => void;
   selectedDate: Date | null;
-  handleClickPrint: () => void;
   isDisabled: boolean;
 }
 
@@ -26,7 +29,12 @@ const MenuProps = {
 
 const TableHeaderSummary = (props: TableHeaderProps) => {
   // ** Props
-  const { value, defaultValue, handleChange, handleClickPrint, isDisabled } = props;
+  const { students: value, defaultValue, handleChange, isDisabled, classrooms: classroom } = props;
+  const componentRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
@@ -50,7 +58,7 @@ const TableHeaderSummary = (props: TableHeaderProps) => {
             <em>ห้องเรียน</em>
           </MenuItem>
 
-          {value.map((item: any) => (
+          {classroom.map((item: any) => (
             <MenuItem key={item.id} value={item.name}>
               {item.name}
             </MenuItem>
@@ -63,10 +71,13 @@ const TableHeaderSummary = (props: TableHeaderProps) => {
         startIcon={<BsPrinter />}
         sx={{ mr: 4, mb: 2, height: 65 }}
         variant='contained'
-        onClick={handleClickPrint}
+        onClick={handlePrint}
       >
         ปริ้นรายงาน
       </Button>
+      <Container sx={{ display: 'none' }}>
+        <PrintSummaryReport ref={componentRef} value={value} classroom={defaultValue} />
+      </Container>
     </Box>
   );
 };

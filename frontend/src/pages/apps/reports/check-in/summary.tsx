@@ -1,18 +1,9 @@
 // ** React Imports
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
 // ** MUI Imports
-import {
-  Typography,
-  CardHeader,
-  Card,
-  Grid,
-  Avatar,
-} from '@mui/material';
+import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
-// ** Custom Components Imports
-
-// ** Icons Imports
 
 // ** Store Imports
 import { useUserStore, useReportCheckInStore, useClassroomStore } from '@/store/index';
@@ -34,8 +25,6 @@ interface CellType {
   // row: teachersTypes;
   row: any;
 }
-
-// ** Vars
 
 const ReportCheckInDaily = () => {
   // ** Hooks
@@ -330,11 +319,6 @@ const ReportCheckInDaily = () => {
     await fetchDailyReport(classroomName.id);
   };
 
-  const handleClickPrint = () => {
-    // Ctrl + P
-    window.print();
-  };
-
   return (
     ability?.can('read', 'report-check-in-summary-page') &&
     userInfo.role !== 'Admin' && (
@@ -357,12 +341,12 @@ const ReportCheckInDaily = () => {
               />
 
               <TableHeaderSummary
-                value={classrooms}
+                students={currentStudents}
+                classrooms={classrooms}
                 handleChange={handleSelectChange}
                 defaultValue={classroomName?.name}
                 selectedDate={selectedDate}
                 handleDateChange={handleDateChange}
-                handleClickPrint={handleClickPrint}
                 isDisabled={isEmpty(currentStudents)}
               />
               <DataGrid
