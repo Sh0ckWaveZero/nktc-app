@@ -72,6 +72,7 @@
     "react-perfect-scrollbar": "1.5.8",
     "react-popper": "2.2.5",
     "react-to-pdf": "0.0.14",
+    "react-to-print": "^2.14.7",
     "recharts": "2.1.14",
     "stylis": "4.0.10",
     "stylis-plugin-rtl": "2.1.1",
