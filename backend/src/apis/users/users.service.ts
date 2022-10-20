@@ -1,11 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/common/services/prisma.service';
-import {
-  CreateUserDto,
-  UpdatePasswordDto,
-  LoginUserDto,
-} from './dto/users.dto';
 import { compare, hash } from 'bcrypt';
 
 interface FormatLogin extends Partial<User> {
@@ -74,7 +69,7 @@ export class UsersService {
   async findByLogin({
     username,
     password,
-  }: LoginUserDto): Promise<FormatLogin> {
+  }: any): Promise<FormatLogin> {
     const user = await this.prisma.user.findFirst({
       where: { username },
       include: {

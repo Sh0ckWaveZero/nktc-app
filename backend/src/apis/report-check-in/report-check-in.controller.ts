@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpStatus, HttpException } from '@nestjs/common';
 import { ReportCheckInService } from './report-check-in.service';
-import { UpdateReportCheckInDto } from './dto/update-report-check-in.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from "@prisma/client";
@@ -18,11 +17,6 @@ export class ReportCheckInController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.FORBIDDEN);
     }
-  }
-
-  @Get()
-  findAll() {
-    return this.reportCheckInService.findAll();
   }
 
   @Get('teacher/:teacherId/classroom/:classroomId')

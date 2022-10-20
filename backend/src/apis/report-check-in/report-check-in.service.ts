@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/services/prisma.service';
-import { CreateReportCheckInDto } from './dto/create-report-check-in.dto';
-import { UpdateReportCheckInDto } from './dto/update-report-check-in.dto';
 
 @Injectable()
 export class ReportCheckInService {
@@ -28,9 +26,7 @@ export class ReportCheckInService {
     });
   }
 
-  findAll() {
-    return `This action returns all reportCheckIn`;
-  }
+
 
   async findOne(teachId: string, classroomId: string) {
     let startDate = new Date();
@@ -272,10 +268,6 @@ export class ReportCheckInService {
         }
       }
     });
-  }
-
-  update(id: number, updateReportCheckInDto: UpdateReportCheckInDto) {
-    return `This action updates a #${id} reportCheckIn`;
   }
 
   async remove(id: string) {

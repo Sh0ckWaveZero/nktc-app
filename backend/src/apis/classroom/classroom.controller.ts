@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode,
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
-import { CreateClassroomDto } from './dto/create-classroom.dto';
-import { UpdateClassroomDto } from './dto/update-classroom.dto';
 
 @ApiTags('classrooms')
 @Controller('classrooms')
@@ -12,36 +10,14 @@ import { UpdateClassroomDto } from './dto/update-classroom.dto';
 export class ClassroomController {
   constructor(private readonly classroomService: ClassroomService) { }
 
-  @Post()
-  create(@Body() createClassroomDto: CreateClassroomDto) {
-    return this.classroomService.create(createClassroomDto);
-  }
-
   @Get()
   async findAll() {
     return await this.classroomService.findAll();
-  }
-
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string) {
-    return this.classroomService.findOne(+id);
   }
 
   @Get('teacher/:id')
   @HttpCode(HttpStatus.OK)
   async findByTeacherId(@Param('id') id: string) {
     return await this.classroomService.findByTeacherId(id);
-  }
-
-  @Patch(':id')
-  @HttpCode(HttpStatus.ACCEPTED)
-  update(@Param('id') id: string, @Body() updateClassroomDto: UpdateClassroomDto) {
-    return this.classroomService.update(+id, updateClassroomDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.classroomService.remove(+id);
   }
 }

@@ -1,21 +1,15 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
-  Patch,
   Param,
-  Delete,
   Query,
-  Req,
   UseGuards,
   Put,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
-import { CreateTeacherDto } from './dto/create-teacher.dto';
-import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -26,19 +20,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class TeachersController {
   constructor(private readonly teachersService: TeachersService) { }
 
-  @Post()
-  create(@Body() createTeacherDto: CreateTeacherDto) {
-    return this.teachersService.create(createTeacherDto);
-  }
-
   @Get()
-  async findAll(@Query() { role, status, q, currentPlan }) {
+  async findAll(@Query() { q }) {
     return await this.teachersService.findAll(q);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.teachersService.findOne(+id);
   }
 
   @Put('classroom/:id')
@@ -58,10 +42,5 @@ export class TeachersController {
   @Get(':id/check-in')
   async getCheckIn(@Param('id') id: string) {
     return await this.teachersService.getCheckIn(id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teachersService.remove(+id);
   }
 }

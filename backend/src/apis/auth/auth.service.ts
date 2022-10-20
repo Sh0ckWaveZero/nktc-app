@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
 import { UsersService } from 'src/apis/users/users.service';
 import configuration from 'src/config/configuration';
 import { JwtPayload } from './jwt.strategy';
@@ -24,7 +23,7 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) { }
 
-  async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
+  async register(userDto: any): Promise<RegistrationStatus> {
     const status: RegistrationStatus = {
       success: true,
       message: 'ACCOUNT_CREATE_SUCCESS',
@@ -39,7 +38,7 @@ export class AuthService {
     return status;
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<any> {
+  async login(loginUserDto: any): Promise<any> {
     // find user in db
     const user = await this.usersService.findByLogin(loginUserDto);
 

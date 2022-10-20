@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AuthModule } from './apis/auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { UsersModule } from './apis/users/users.module';
-import { ClassModule } from './apis/class/class.module';
 import { TeachersModule } from './apis/teachers/teachers.module';
 import { StudentsModule } from './apis/students/students.module';
 import { AccountsModule } from './apis/accounts/accounts.module';
@@ -27,7 +26,6 @@ import { AuditLogModule } from './apis/audit-log/audit-log.module';
     }),
     AuthModule,
     UsersModule,
-    ClassModule,
     TeachersModule,
     StudentsModule,
     AccountsModule,
@@ -53,6 +51,6 @@ import { AuditLogModule } from './apis/audit-log/audit-log.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('auth');
+    consumer.apply(LoggerMiddleware).forRoutes('auth/login');
   }
 }

@@ -1,15 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
-import { CreateTeacherDto } from './dto/create-teacher.dto';
-import { UpdateTeacherDto } from './dto/update-teacher.dto';
 
 @Injectable()
 export class TeachersService {
   constructor(private prisma: PrismaService) { }
-
-  create(createTeacherDto: CreateTeacherDto) {
-    return 'This action adds a new teacher';
-  }
 
   async findAll(q = '') {
     const [firstName, lastName] = q.split(' ');
@@ -69,10 +63,6 @@ export class TeachersService {
         status: item.teacher.status ?? '',
       };
     })
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} teacher`;
   }
 
   async getCheckIn(id: string) {
@@ -187,9 +177,5 @@ export class TeachersService {
       }
     });
     return updated;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} teacher`;
   }
 }

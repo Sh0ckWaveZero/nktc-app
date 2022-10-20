@@ -15,19 +15,17 @@ import {
 } from '@nestjs/common';
 import { AuthService, RegistrationStatus } from './auth.service';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, LoginUserDto } from 'src/apis/users/dto/users.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
-import { UsersService } from '../users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private usersService: UsersService) { }
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   public async register(
-    @Body() createUserDto: CreateUserDto,
+    @Body() createUserDto: any,
   ): Promise<RegistrationStatus> {
     const result: RegistrationStatus = await this.authService.register(
       createUserDto,
@@ -40,7 +38,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
+  public async login(@Body() loginUserDto: any): Promise<any> {
     return await this.authService.login(loginUserDto);
   }
 

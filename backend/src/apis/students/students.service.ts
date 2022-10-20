@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Injectable()
 export class StudentsService {
@@ -9,18 +7,6 @@ export class StudentsService {
   constructor(
     private prisma: PrismaService
   ) { }
-
-  create(createStudentDto: CreateStudentDto) {
-    return 'This action adds a new student';
-  }
-
-  findAll() {
-    return `This action returns all students`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
-  }
 
   async findByClassroomId(id: string) {
     return await this.prisma.user.findMany({
@@ -66,13 +52,5 @@ export class StudentsService {
         },
       ]
     });
-  }
-
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} student`;
   }
 }
