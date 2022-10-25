@@ -34,6 +34,7 @@ import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn'
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
+import shallow from 'zustand/shallow';
 
 interface CellType {
   // row: teachersTypes;
@@ -42,9 +43,21 @@ interface CellType {
 
 const StudentCheckIn = () => {
   // ** Hooks
-  const { userInfo, accessToken } = useUserStore();
-  const { getReportCheckIn, addReportCheckIn } = useReportCheckInStore();
-  const { fetchClassroomByTeachId } = useTeacherStore();
+  const { userInfo, accessToken } = useUserStore(
+    (state) => ({ userInfo: state.userInfo, accessToken: state.accessToken }),
+    shallow,
+  );
+  const { getReportCheckIn, addReportCheckIn } = useReportCheckInStore(
+    (state) => ({
+      getReportCheckIn: state.getReportCheckIn,
+      addReportCheckIn: state.addReportCheckIn,
+    }),
+    shallow,
+  );
+  const { fetchClassroomByTeachId } = useTeacherStore(
+    (state) => ({ fetchClassroomByTeachId: state.fetchClassroomByTeachId }),
+    shallow,
+  );
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -59,7 +72,7 @@ const StudentCheckIn = () => {
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [isLateCheck, setIsLateCheck] = useState<any>([]);
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
-  const [classroomName, setClassroomName] = useState<any>(null);
+  const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
@@ -70,7 +83,7 @@ const StudentCheckIn = () => {
     const fetch = async () => {
       await fetchClassroomByTeachId(accessToken, userInfo?.teacher?.id).then(async ({ data }: any) => {
         await getCheckInStatus(userInfo?.teacher?.id, await data?.classrooms[0]?.id);
-        setClassroomName(await data?.classrooms[0]);
+        setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(await data?.classrooms[0]?.students);
       });
@@ -420,7 +433,7 @@ const StudentCheckIn = () => {
     event.preventDefault();
     const data = {
       teacherId: userInfo?.teacher?.id,
-      classroomId: classroomName.id,
+      classroomId: defaultClassroom.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
       late: isLateCheck,
@@ -435,7 +448,7 @@ const StudentCheckIn = () => {
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
       });
-      getCheckInStatus(userInfo?.teacher?.id, classroomName?.id);
+      getCheckInStatus(userInfo?.teacher?.id, defaultClassroom?.id);
       onClearAll('');
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
@@ -450,7 +463,7 @@ const StudentCheckIn = () => {
     const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
     await getCheckInStatus(userInfo?.teacher?.id, classroomObj?.id);
     setCurrentStudents(classroomObj.students);
-    setClassroomName(classroomObj);
+    setDefaultClassroom(classroomObj);
     setOpenAlert(true);
     onClearAll('');
   };
@@ -495,7 +508,7 @@ const StudentCheckIn = () => {
                     <Typography
                       variant='subtitle1'
                       sx={{ pb: 3 }}
-                    >{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                    >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
                       openAlert ? (
                         <Grid item xs={12} sx={{ mb: 3 }}>
@@ -543,7 +556,7 @@ const StudentCheckIn = () => {
               <TableHeader
                 value={classrooms}
                 handleChange={handleSelectChange}
-                defaultValue={classroomName?.name}
+                defaultValue={defaultClassroom?.name}
                 handleSubmit={onHandleSubmit}
               />
               <DataGrid

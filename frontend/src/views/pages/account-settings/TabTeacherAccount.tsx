@@ -80,9 +80,12 @@ const TabTeacherAccount = () => {
     }),
     shallow,
   );
-  const { classroom, fetchClassroom } = useClassroomStore();
-  const { fetchDepartment } = useDepartmentStore();
-  const { updateProfile } = useTeacherStore();
+  const { classroom, fetchClassroom } = useClassroomStore(
+    (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
+    shallow,
+  );
+  const { fetchDepartment } = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
+  const { updateProfile } = useTeacherStore((state) => ({ updateProfile: state.updateProfile }), shallow);
 
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
