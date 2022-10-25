@@ -79,18 +79,20 @@ export class TeachersService {
   }
 
   async getCheckIn(id: string) {
-    const classrooms = await this.prisma.teacher.findUniqueOrThrow({
+    // get teacher on classroom
+    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
-        id: id,
+        teacherId: id,
       },
       select: {
-        classroomIds: true,
-      }
+        classroomId: true,
+      },
     });
+    const classroomIds = teacherOnClassroom.map((item: any) => item.classroomId) ?? []
 
-    const classroom = await this.prisma.classroom.findMany({
+    const classrooms = await this.prisma.classroom.findMany({
       where: {
-        OR: classrooms.classroomIds.map((item: any) => {
+        OR: classroomIds.map((item: any) => {
           return {
             id: item,
           }
@@ -116,7 +118,7 @@ export class TeachersService {
     const students = await this.prisma.user.findMany({
       where: {
         student: {
-          OR: classrooms.classroomIds.map((item: any) => {
+          OR: classroomIds.map((item: any) => {
             return {
               classroomId: item,
             }
@@ -157,7 +159,7 @@ export class TeachersService {
 
     return {
       data: {
-        classrooms: classroom.map((item: any) => {
+        classrooms: classrooms.map((item: any) => {
           return {
             id: item.id,
             classroomId: item.classroomId,
