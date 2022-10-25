@@ -116,7 +116,47 @@ const navigation = (): VerticalNavItemsType => {
         }
       ],
     },
-
+    {
+      sectionTitle: 'สำหรับผู้ดูแลระบบ',
+      action: 'read',
+      subject: 'admin-category',
+    },
+    {
+      title: 'รายงานเช็คชื่อเช้า-ผู้ดูแลระบบ',
+      icon: BsClipboardData,
+      action: 'read',
+      subject: 'admin-report-check-in-page',
+      children: [
+        {
+          title: 'รายวัน',
+          icon: BsCalendar2Date,
+          action: 'read',
+          subject: 'admin-report-check-in-page',
+          path: '/apps/admin/reports/check-in/daily',
+        },
+        {
+          title: 'รายสัปดาห์',
+          icon: BsCalendar2Week,
+          action: 'read',
+          subject: 'admin-report-check-in-page',
+          path: '/apps/admin/reports/check-in/weekly',
+        },
+        {
+          title: 'รายเดือน',
+          icon: BsCalendar2Month,
+          action: 'read',
+          subject: 'admin-report-check-in-page',
+          path: '/apps/admin/reports/check-in/monthly',
+        },
+        {
+          title: 'รายงานสรุป',
+          icon: BsBarChartLine,
+          action: 'read',
+          subject: 'admin-report-check-in-page',
+          path: '/apps/admin/reports/check-in/summary',
+        }
+      ],
+    },
   ];
 };
 

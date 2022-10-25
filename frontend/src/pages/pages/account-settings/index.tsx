@@ -1,5 +1,5 @@
 // ** React Imports
-import { SyntheticEvent, useState } from 'react';
+import { Fragment, SyntheticEvent, useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -22,6 +22,8 @@ import TabSecurity from '@/views/pages/account-settings/TabSecurity';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useUserStore } from '../../../store/apps/user/index';
 import TabTeacherAccount from '@/views/pages/account-settings/TabTeacherAccount';
+import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -53,40 +55,45 @@ const AccountSettings = () => {
   };
 
   return (
-    <Card>
-      <TabContext value={value} >
-        <TabList
-          onChange={handleChange}
-          aria-label='account-settings tabs'
-          sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
-        >
-          <Tab
-            value='account'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <AccountOutline />
-                <TabName>บัญชี</TabName>
-              </Box>
-            }
-          />
-          <Tab
-            value='security'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LockOpenOutline />
-                <TabName>ความปลอดภัย</TabName>
-              </Box>
-            }
-          />
-        </TabList>
-        <TabPanel sx={{ p: 0 }} value='account'>
-          {userInfo?.role === 'Teacher' ? <TabTeacherAccount /> : <TabAccount />}
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='security'>
-          <TabSecurity />
-        </TabPanel>
-      </TabContext>
-    </Card>
+    <Fragment>
+      <ReactHotToast>
+        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
+      </ReactHotToast>
+      <Card>
+        <TabContext value={value}>
+          <TabList
+            onChange={handleChange}
+            aria-label='account-settings tabs'
+            sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
+          >
+            <Tab
+              value='account'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>บัญชี</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='security'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>ความปลอดภัย</TabName>
+                </Box>
+              }
+            />
+          </TabList>
+          <TabPanel sx={{ p: 0 }} value='account'>
+            {userInfo?.role === 'Teacher' ? <TabTeacherAccount /> : <TabAccount />}
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='security'>
+            <TabSecurity />
+          </TabPanel>
+        </TabContext>
+      </Card>
+    </Fragment>
   );
 };
 

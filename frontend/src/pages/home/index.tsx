@@ -29,12 +29,25 @@ import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useContext } from 'react';
 import { BsCalendar2Date } from 'react-icons/bs';
+import { TbReport } from "react-icons/tb";
 
 const Home = () => {
   // ** Hook
   const ability = useContext(AbilityContext);
 
   const menuList: CardMenuProps[] = [
+    {
+      title: 'รายงานการเข้าใช้งาน',
+      subtitle: 'ของครู/อาจารย์',
+      color: '#FF8787',
+      icon: <TbReport />,
+      navLink: {
+        title: 'รายงานการเข้าใช้งาน',
+        path: '/apps/reports/access-report',
+        action: 'read',
+        subject: 'access-report',
+      },
+    },
     {
       title: 'เช็คชื่อ กิจกรรม',
       subtitle: 'ตอนเช้า/หน้าเสาธง',

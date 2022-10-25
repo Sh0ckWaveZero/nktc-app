@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent } from 'react';
+import { useState, ElementType, ChangeEvent, useEffect, Fragment, useRef } from 'react';
 
 // ** MUI Imports
 import {
@@ -12,13 +12,26 @@ import {
   InputLabel,
   CardContent,
   FormControl,
+  Autocomplete,
 } from '@mui/material';
 
 import { styled } from '@mui/material/styles';
 import Button, { ButtonProps } from '@mui/material/Button';
 
 // ** Icons Imports
-import { useUserStore } from '@/store/index';
+import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
+import { FcCalendar } from 'react-icons/fc';
+
+// ** Third Party Imports
+import * as yup from 'yup';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import thLocale from 'date-fns/locale/th';
+import { toast } from 'react-hot-toast';
+import { useTeacherStore } from '../../../store/apps/teacher/index';
+import shallow from 'zustand/shallow';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -44,140 +57,397 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
+const schema = yup.object().shape({
+  title: yup.string().required().required('กรุณาเลือกคำนำหน้าชื่อ'),
+  firstName: yup.string().required('กรุณากรอกชื่อ'),
+  lastName: yup.string().required('กรุณากรอกนามสกุล'),
+  jobTitle: yup.string(),
+  academicStanding: yup.string(),
+  department: yup.string(),
+  teacherOnClassroom: yup.array(),
+  avatar: yup.string(),
+  birthDate: yup.string(),
+  idCard: yup.string(),
+});
+
 const TabTeacherAccount = () => {
+  // Hooks
+  const { userInfo, accessToken, getMe } = useUserStore(
+    (state) => ({
+      userInfo: state.userInfo,
+      accessToken: state.accessToken,
+      getMe: state.getMe,
+    }),
+    shallow,
+  );
+  const { classroom, fetchClassroom } = useClassroomStore();
+  const { fetchDepartment } = useDepartmentStore();
+  const { updateProfile } = useTeacherStore();
+
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [classroomValues, setClassroomValues] = useState<any>([]);
+  const [departmentValues, setDepartmentValues] = useState<any>([]);
 
-  const { userInfo } = useUserStore();
+  useEffect(() => {
+    const fetch = async () => {
+      await fetchClassroom(accessToken).then(() => {
+        const defaultClassroom: any =
+          classroom.filter((item: any) => userInfo?.teacherOnClassroom.includes(item.id)) ?? [];
+        setClassroomValues(defaultClassroom);
+      });
+    };
+    fetch();
+  }, []);
 
-  const onChange = (file: ChangeEvent) => {
+  useEffect(() => {
+    const fetch = async () => {
+      await fetchDepartment(accessToken).then((data: any) => {
+        setDepartmentValues(data);
+      });
+    };
+    fetch();
+  }, []);
+
+  const defaultValues = {
+    title: userInfo?.account?.title ?? '',
+    firstName: userInfo?.account?.firstName ?? '',
+    lastName: userInfo?.account?.lastName ?? '',
+    jobTitle: userInfo?.teacher?.jobTitle ?? '',
+    academicStanding: userInfo?.teacher?.academicStanding ?? '',
+    department: userInfo?.teacher?.department?.id ?? '',
+    avatar: userInfo?.account?.avatar ?? '',
+    birthDate: userInfo?.account?.birthDate ? new Date(userInfo?.account?.birthDate) : null,
+    idCard: userInfo?.account?.idCard ?? '',
+  };
+
+  const {
+    reset,
+    control,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+    resolver: yupResolver(schema),
+  });
+
+  const onImageChange = (file: ChangeEvent) => {
     const reader = new FileReader();
     const { files } = file.target as HTMLInputElement;
-    if (files && files.length !== 0) {
-      reader.onload = () => setImgSrc(reader.result as string);
 
-      reader.readAsDataURL(files[0]);
+    if (files && files.length !== 0) {
+      if (files[0].size > 1048576) {
+        toast.error('ไฟล์ขนาดใหญ่เกินไป');
+        setImgSrc('/images/avatars/1.png');
+      } else {
+        reader.readAsDataURL(files[0]);
+        reader.onload = () => {
+          setImgSrc(reader.result as string);
+        };
+      }
     }
   };
 
+  const onHandleChange = (event: any, value: any) => {
+    event.preventDefault();
+    setClassroomValues(value);
+  };
+
+  const onSubmit = async (data: any, e: any) => {
+    e.preventDefault();
+    const profile = {
+      id: userInfo?.id,
+      teacherInfo: userInfo?.teacher?.id,
+      accountId: userInfo?.account?.id,
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      jobTitle: data.jobTitle,
+      academicStanding: data.academicStanding,
+      department: data.department,
+      avatar: data.avatar === '/images/avatars/1.png' ? '' : data.avatar,
+      avatarFile: imgSrc === '/images/avatars/1.png' ? '' : imgSrc,
+      birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
+      idCard: data.idCard,
+      classrooms: classroomValues.map((item: any) => item.id),
+    };
+    toast.promise(updateProfile(accessToken, profile), {
+      loading: 'กำลังบันทึกข้อมูล...',
+      success: 'บันทึกข้อมูลสำเร็จ',
+      error: 'เกิดข้อผิดพลาด',
+    });
+
+    await getMe(accessToken, userInfo?.username);
+  };
+
   return (
-    <CardContent>
-      <form>
-        <Grid container spacing={7}>
-          <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={imgSrc} alt='Profile Pic' />
-              <Box>
-                <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                  อัปโหลดรูปภาพส่วนตัว
+    <Fragment>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardContent>
+          <Grid container spacing={7}>
+            <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ImgStyled src={imgSrc} alt='Profile Pic' />
+                <Box>
                   <input
                     hidden
                     type='file'
-                    onChange={onChange}
-                    accept='image/png, image/jpeg'
+                    onChange={onImageChange}
+                    accept='image/png, image/jpeg, image/webp'
                     id='account-settings-upload-image'
                   />
-                </ButtonStyled>
-                <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('/images/avatars/1.png')}>
-                  รีเซ็ต
-                </ResetButtonStyled>
-                <Typography variant='body2' sx={{ mt: 5 }}>
-                  ไฟล์ที่อนุญาต PNG หรือ JPEG ขนาดสูงสุด 800K.
-                </Typography>
+                  <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
+                    อัปโหลดรูปภาพส่วนตัว
+                  </ButtonStyled>
+                  <ResetButtonStyled
+                    color='error'
+                    variant='outlined'
+                    onClick={() => {
+                      setImgSrc('/images/avatars/1.png');
+                    }}
+                  >
+                    รีเซ็ต
+                  </ResetButtonStyled>
+                  <Typography variant='body2' sx={{ mt: 5 }}>
+                    ไฟล์ที่อนุญาต PNG หรือ JPEG ขนาดสูงสุด 800K.
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <FormControl fullWidth>
+                <Controller
+                  name='title'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <Fragment>
+                      <InputLabel>คำนำหน้า</InputLabel>
+                      <Select label='คำนำหน้า' onChange={onChange} value={value}>
+                        <MenuItem value=''>
+                          <em>เลือกคำนำหน้า</em>
+                        </MenuItem>
+                        <MenuItem value='นาง'>นาง</MenuItem>
+                        <MenuItem value='นาย'>นาย</MenuItem>
+                        <MenuItem value='นางสาว'>นางสาว</MenuItem>
+                        <MenuItem value='ดร'>ดร.</MenuItem>
+                        <MenuItem value='ผ.ศ.'>ผ.ศ.</MenuItem>
+                        <MenuItem value='ร.ศ.'>ร.ศ.</MenuItem>
+                        <MenuItem value='ศ.'>ศ.</MenuItem>
+                      </Select>
+                    </Fragment>
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <FormControl fullWidth>
+                <Controller
+                  name='firstName'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      fullWidth
+                      id='ชื่อ'
+                      label='ชื่อ'
+                      placeholder='ชื่อ'
+                      value={value}
+                      onChange={onChange}
+                      error={errors.firstName ? true : false}
+                      helperText={errors.firstName ? (errors.firstName.message as string) : ''}
+                    />
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <FormControl fullWidth>
+                <Controller
+                  name='lastName'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      fullWidth
+                      id='นามสกุล'
+                      label='นามสกุล'
+                      placeholder='นามสกุล'
+                      value={value}
+                      onChange={onChange}
+                      error={errors.lastName ? true : false}
+                      helperText={errors.lastName ? (errors.lastName.message as string) : ''}
+                    />
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='jobTitle'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Fragment>
+                      <InputLabel>ตำแหน่ง</InputLabel>
+                      <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
+                        <MenuItem value=''>
+                          <em>เลือกตำแหน่ง</em>
+                        </MenuItem>
+                        <MenuItem value='ผู้อำนวยการ'>ผู้อำนวยการ</MenuItem>
+                        <MenuItem value='รองผู้อำนวยการ'>รองผู้อำนวยการ</MenuItem>
+                        <MenuItem value='ข้าราชการ'>ข้าราชการ</MenuItem>
+                        <MenuItem value='พนักงานราชการ'>พนักงานราชการ</MenuItem>
+                        <MenuItem value='ครูอัตราจ้าง'>ครูอัตราจ้าง</MenuItem>
+                        <MenuItem value='เจ้าหน้าที่ธุรการ'>เจ้าหน้าที่ธุรการ</MenuItem>
+                        <MenuItem value='นักการภารโรง'>นักการภารโรง</MenuItem>
+                        <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
+                        <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
+                      </Select>
+                    </Fragment>
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='academicStanding'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Fragment>
+                      <InputLabel>วิทยฐานะ</InputLabel>
+                      <Select label='วิทยฐานะ' value={value} onChange={onChange}>
+                        <MenuItem value=''>
+                          <em>เลือกวิทยฐานะ</em>
+                        </MenuItem>
+                        <MenuItem value='ไม่มีวิทยฐานะ'>ไม่มีวิทยฐานะ</MenuItem>
+                        <MenuItem value='ชำนาญการ'>ชำนาญการ</MenuItem>
+                        <MenuItem value='ชำนาญการพิเศษ'>ชำนาญการพิเศษ</MenuItem>
+                        <MenuItem value='เชี่ยวชาญ'>เชี่ยวชาญ</MenuItem>
+                        <MenuItem value='เชี่ยวชาญพิเศษ'>เชี่ยวชาญพิเศษ</MenuItem>
+                      </Select>
+                    </Fragment>
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='department'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Fragment>
+                      <InputLabel>แผนกวิชา</InputLabel>
+                      <Select label='แผนกวิชา' value={value} onChange={onChange}>
+                        <MenuItem value=''>
+                          <em>เลือกแผนกวิชา</em>
+                        </MenuItem>
+                        {departmentValues.map((department: any) => (
+                          <MenuItem key={department.id} value={department.id}>
+                            {department.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </Fragment>
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='idCard'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      fullWidth
+                      value={value}
+                      onChange={onChange}
+                      type={'number'}
+                      id='idCard'
+                      label='รหัสบัตรประจำตัวประชาชน'
+                      placeholder='รหัสบัตรประจำตัวประชาชน'
+                    />
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Autocomplete
+                id='checkboxes-tags-teacher-classroom'
+                multiple={true}
+                limitTags={15}
+                value={classroomValues}
+                options={classroom}
+                onChange={(_, newValue: any) => onHandleChange(_, newValue)}
+                getOptionLabel={(option: any) => option?.name ?? ''}
+                isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
+                renderOption={(props, option, { selected }) => (
+                  <li key={option.classroomId} {...props}>
+                    {option.name}
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField {...params} label='ครูที่ปรึกษาระดับชั้น' placeholder='เลือกห้องเรียน' />
+                )}
+                disableCloseOnSelect
+                filterSelectedOptions
+                groupBy={(option: any) => option.program?.name}
+                noOptionsText='ไม่พบข้อมูล'
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='birthDate'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+                      <DatePicker
+                        label='วันเกิด'
+                        value={value}
+                        inputFormat='dd-MM-yyyy'
+                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 70))}
+                        maxDate={new Date()}
+                        onChange={onChange}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            error={false}
+                            inputProps={{
+                              ...params.inputProps,
+                              placeholder: 'วัน/เดือน/ปี',
+                            }}
+                          />
+                        )}
+                        components={{
+                          OpenPickerIcon: () => <FcCalendar />,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
+                บันทึกการเปลี่ยนแปลง
+              </Button>
+              <Button type='reset' variant='outlined' color='secondary' onClick={() => reset()}>
+                รีเซ็ต
+              </Button>
+            </Grid>
           </Grid>
-
-          <Grid item xs={12} sm={2}>
-            <FormControl fullWidth>
-              <InputLabel>คำนำหน้า</InputLabel>
-              <Select label='คำนำหน้า' defaultValue={userInfo?.account?.title} value={userInfo?.account?.title ?? ''}>
-                <MenuItem value=''>
-                  <em>เลือกคำนำหน้า</em>
-                </MenuItem>
-                <MenuItem value='นาง'>นาง</MenuItem>
-                <MenuItem value='นาย'>นาย</MenuItem>
-                <MenuItem value='นางสาว'>นางสาว</MenuItem>
-                <MenuItem value='ดร'>ดร</MenuItem>
-                <MenuItem value='ผศ'>ผศ</MenuItem>
-                <MenuItem value='รศ'>รศ</MenuItem>
-                <MenuItem value='ศ'>ศ</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={5}>
-            <TextField fullWidth label='ชื่อ' placeholder='ชื่อ' value={userInfo?.account?.firstName ?? ''} />
-          </Grid>
-          <Grid item xs={12} sm={5}>
-            <TextField fullWidth label='นามสกุล' placeholder='นามสกุล' value={userInfo?.account?.lastName ?? ''} />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>ตำแหน่ง</InputLabel>
-              <Select label='ตำแหน่ง' defaultValue='' value={userInfo?.teacher?.jobTitle ?? ''}>
-                <MenuItem value=''>
-                  <em>เลือกตำแหน่ง</em>
-                </MenuItem>
-                <MenuItem value='ผู้อำนวยการ'>ผู้อำนวยการ</MenuItem>
-                <MenuItem value='รองผู้อำนวยการ'>รองผู้อำนวยการ</MenuItem>
-                <MenuItem value='ข้าราชการ'>ข้าราชการ</MenuItem>
-                <MenuItem value='พนักงานราชการ'>พนักงานราชการ</MenuItem>
-                <MenuItem value='ครูอัตราจ้าง'>ครูอัตราจ้าง</MenuItem>
-                <MenuItem value='เจ้าหน้าที่ธุรการ'>เจ้าหน้าที่ธุรการ</MenuItem>
-                <MenuItem value='นักการภารโรง'>นักการภารโรง</MenuItem>
-                <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
-                <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>วิทยฐานะ</InputLabel>
-              <Select label='วิทยฐานะ' defaultValue='' value={userInfo?.teacher?.academicStanding ?? ''}>
-                <MenuItem value=''>
-                  <em>เลือกวิทยฐานะ</em>
-                </MenuItem>
-                <MenuItem value='ไม่มีวิทยฐานะ'>ไม่มีวิทยฐานะ</MenuItem>
-                <MenuItem value='ชำนาญการ'>ชำนาญการ</MenuItem>
-                <MenuItem value='ชำนาญการพิเศษ'>ชำนาญการพิเศษ</MenuItem>
-                <MenuItem value='เชี่ยวชาญ'>เชี่ยวชาญ</MenuItem>
-                <MenuItem value='เชี่ยวชาญพิเศษ'>เชี่ยวชาญพิเศษ</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>แผนกวิชา</InputLabel>
-              <Select label='แผนกวิชา' defaultValue='' value={userInfo?.teacher?.academicStanding ?? ''}>
-                <MenuItem value=''>
-                  <em>เลือกแผนกวิชา</em>
-                </MenuItem>
-                <MenuItem value='ไม่มีวิทยฐานะ'>ไม่มีวิทยฐานะ</MenuItem>
-                <MenuItem value='ชำนาญการ'>ชำนาญการ</MenuItem>
-                <MenuItem value='ชำนาญการพิเศษ'>ชำนาญการพิเศษ</MenuItem>
-                <MenuItem value='เชี่ยวชาญ'>เชี่ยวชาญ</MenuItem>
-                <MenuItem value='เชี่ยวชาญพิเศษ'>เชี่ยวชาญพิเศษ</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='รหัสบัตรประจำตัว' placeholder='รหัสบัตรประจำตัว' value={''} />
-          </Grid>
-          <Grid item xs={12}>
-            <Button variant='contained' sx={{ mr: 3.5 }}>
-              บันทึกการเปลี่ยนแปลง
-            </Button>
-            <Button type='reset' variant='outlined' color='secondary'>
-              รีเซ็ต
-            </Button>
-          </Grid>
-        </Grid>
+        </CardContent>
       </form>
-    </CardContent>
+    </Fragment>
   );
 };
 

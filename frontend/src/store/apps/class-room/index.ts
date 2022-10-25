@@ -4,6 +4,7 @@ import create from 'zustand';
 // ** Config
 import authConfig from '@/configs/auth';
 import { Classroom } from '@/types/apps/teacherTypes';
+import shallow from 'zustand/shallow';
 
 
 interface classroomState {
@@ -50,6 +51,7 @@ export const useClassroomStore = create<classroomState>()(
       }
     },
     removeClassrooms: () => set({ classroom: [] }),
+    shallow,
   })
 );
 

@@ -70,7 +70,7 @@ const TabSecurity = () => {
     resolver: yupResolver(schema),
   });
 
-  const { changePassword, accessToken } = useUserStore();
+  const { changePassword, accessToken, login, userInfo } = useUserStore();
 
   // ** States
   const [values, setValues] = useState<State>({
@@ -114,14 +114,13 @@ const TabSecurity = () => {
         error: 'เกิดข้อผิดพลาด',
       },
     );
+    
+    await login({ username: userInfo.username, password: data.newPassword });
+    reset();
   };
 
   return (
     <Fragment>
-      <ReactHotToast>
-        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-      </ReactHotToast>
-
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent sx={{ pb: 0 }}>
           <Box sx={{ mb: 5.75, display: 'flex', alignItems: 'center' }}>

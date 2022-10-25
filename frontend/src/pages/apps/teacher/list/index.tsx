@@ -60,7 +60,6 @@ import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 import toast, { Toaster } from 'react-hot-toast';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 
-
 interface UserRoleType {
   [key: string]: ReactElement;
 }
@@ -147,7 +146,6 @@ const RowOptions = ({ id }: { id: number | string }) => {
   };
 
   const handleDelete = () => {
-    // dispatch(deleteUser(id));
     handleRowOptionsClose();
   };
 
@@ -231,9 +229,9 @@ const TeacherList = () => {
   }, [debouncedValue]);
 
   const defaultValue: any = currentData
-    ? classroom.filter((item: any) => currentData.classroomIds.includes(item.id))
+    ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))
     : [];
-
+    console.log("🚀 ~ file: index.tsx ~ line 232 ~ TeacherList ~ defaultValue", defaultValue)
   const handleFilter = useCallback((val: string) => {
     setValue(val);
   }, []);
@@ -245,7 +243,7 @@ const TeacherList = () => {
   const onSubmittedClassroom = async (event: any, data: any) => {
     event.preventDefault();
     const classrooms = data.map((item: any) => item.id);
-    const info = { id: currentData.id, classrooms };
+    const info = { id: currentData.id, classrooms, teacherInfo: currentData.teacherId };
     toast.promise(updateClassroom(accessToken, info), {
       loading: 'กำลังบันทึก...',
       success: 'บันทึกสำเร็จ',
@@ -258,12 +256,15 @@ const TeacherList = () => {
     toggleAddClassroomDrawer();
   };
 
-  const columns = [
+  const columns: any = [
     {
       flex: 0.25,
       minWidth: 200,
       field: 'fullName',
       headerName: 'ชื่อผู้ใช้ระบบ',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
         const { id, title, firstName, lastName, username } = row;
         return (
@@ -293,24 +294,30 @@ const TeacherList = () => {
     {
       flex: 0.2,
       minWidth: 120,
-      field: 'classroomIds',
+      field: 'teacherOnClassroom',
       headerName: 'ครูประจำชั้น',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: 'center',
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Stack direction='row' divider={<Divider orientation='vertical' flexItem />} spacing={2}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <>
-                  <Tooltip title={row.classroomIds.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}>
+                  <Tooltip
+                    title={row.teacherOnClassroom.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}
+                  >
                     <IconButton aria-label={id} aria-describedby={id} onClick={handleClick}>
                       <Badge
-                        badgeContent={row.classroomIds.length > 0 ? row.classroomIds.length : '0'}
-                        color={row.classroomIds.length > 0 ? 'primary' : 'error'}
+                        badgeContent={row.teacherOnClassroom.length > 0 ? row.teacherOnClassroom.length : '0'}
+                        color={row.teacherOnClassroom.length > 0 ? 'primary' : 'error'}
                         sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
                       >
                         <AccountBoxMultipleOutline
                           fontSize='small'
-                          sx={{ color: row.classroomIds.length > 0 ? 'warning.main' : 'error.main' }}
+                          sx={{ color: row.teacherOnClassroom.length > 0 ? 'warning.main' : 'error.main' }}
                         />
                       </Badge>
                     </IconButton>
@@ -352,6 +359,9 @@ const TeacherList = () => {
       field: 'role',
       minWidth: 120,
       headerName: 'บทบาท',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -372,6 +382,10 @@ const TeacherList = () => {
       minWidth: 130,
       headerName: 'ลงชื่อเข้าใช้งานสะสม',
       field: 'totalLogin',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: 'center',
       renderCell: ({ row }: CellType) => {
         return (
           <Typography
@@ -389,6 +403,10 @@ const TeacherList = () => {
       minWidth: 80,
       field: 'status',
       headerName: 'สถานะ',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: 'center',
       renderCell: ({ row }: CellType) => {
         return (
           <CustomChip
@@ -407,6 +425,9 @@ const TeacherList = () => {
       sortable: false,
       field: 'actions',
       headerName: 'การดำเนินการอื่น ๆ',
+      editable: false,
+      hideSortIcons: true,
+      align: 'right',
       renderCell: ({ row }: CellType) => <RowOptions id={row.id} />,
     },
   ];

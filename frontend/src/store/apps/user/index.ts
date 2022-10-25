@@ -5,6 +5,7 @@ import { devtools, persist } from 'zustand/middleware';
 // ** Config
 import authConfig from '@/configs/auth';
 import { LoginParams } from '@/context/types';
+import shallow from 'zustand/shallow';
 
 interface UserState {
   userInfo: any;
@@ -34,7 +35,7 @@ export const useUserStore = create<UserState>()(
           try {
             await axios.post(authConfig.loginEndpoint, param).then(async (response: any) => {
               const { data, token } = await response.data;
-              set({ userInfo: data, userLoading: false, hasErrors: false, accessToken: token });
+              set({ userInfo: await data, userLoading: false, hasErrors: false, accessToken: token });
             });
             return true;
           } catch (err) {
@@ -46,7 +47,7 @@ export const useUserStore = create<UserState>()(
           set({ userInfo: null, accessToken: '' });
         },
         getMe: async (token: string, username: string) => {
-          set({ userLoading: true });
+          set({ userInfo: null, userLoading: true });
           try {
             const { data } = await axios.get(authConfig.meEndpoint, {
               params: { username: username },
@@ -55,8 +56,10 @@ export const useUserStore = create<UserState>()(
               },
             });
             set({ userInfo: data, userLoading: false, hasErrors: false });
+            return await data
           } catch (err) {
             set({ userInfo: null, accessToken: '', userLoading: false, hasErrors: true });
+            return null;
           }
         },
         addUser: async (data: any) => {
@@ -89,7 +92,8 @@ export const useUserStore = create<UserState>()(
           } catch (err) {
             set({ userInfo: data, userLoading: false, hasErrors: true });
           }
-        }
+        },
+        shallow,
       }),
       {
         name: 'user-storage',

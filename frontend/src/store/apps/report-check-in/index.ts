@@ -3,6 +3,7 @@ import create from 'zustand';
 
 // ** Config
 import authConfig from '@/configs/auth';
+import shallow from 'zustand/shallow';
 
 interface UserState {
   reportCheckIn: any;
@@ -109,5 +110,6 @@ export const useReportCheckInStore = create<UserState>()(
         return err;
       }
     },
+    shallow,
   }),
 );
