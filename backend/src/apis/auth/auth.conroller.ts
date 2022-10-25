@@ -47,7 +47,7 @@ export class AuthController {
   @ApiSecurity('access-key')
   @Get('me')
   public async me(@Request() req: any): Promise<any> {
-    return req.user;
+    return await this.authService.getMe(req.user);
   }
 
   @Put('/update/password')

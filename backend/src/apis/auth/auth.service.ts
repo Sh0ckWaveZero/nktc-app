@@ -86,8 +86,7 @@ export class AuthService {
     return user;
   }
 
-  public async getMe() {
-    const user = await this.usersService.findByPayload({ username: 'admin' });
-    return user;
+  public async getMe(user: any) {
+    return await this.usersService.finedById(user.id);
   }
 }

@@ -80,6 +80,7 @@ export class UsersService {
             firstName: true,
             lastName: true,
             avatar: true,
+            birthDate: true,
           },
         },
         teacher: {
@@ -89,6 +90,7 @@ export class UsersService {
             jobTitle: true,
             academicStanding: true,
             classrooms: true,
+            department: true,
             status: true,
           },
         },
@@ -99,6 +101,13 @@ export class UsersService {
         },
       },
     });
+
+     // get teacher on classroom
+     let teacherOnClassroom = []
+     if (user.teacher) {
+       teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
+     }
+
     if (!user) {
       throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
     }
@@ -111,7 +120,7 @@ export class UsersService {
     }
 
     // remove password from user object
-    const { password: p, ...rest } = user;
+    const { password: p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
 
@@ -120,5 +129,63 @@ export class UsersService {
     return await this.prisma.user.findFirst({
       where: { username },
     });
+  }
+
+  async finedById(id: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            birthDate: true,
+          },
+        },
+        teacher: {
+          select: {
+            id: true,
+            teacherId: true,
+            jobTitle: true,
+            academicStanding: true,
+            classrooms: true,
+            department: true,
+            status: true,
+          },
+        },
+        student: {
+          include: {
+            classroom: true,
+          },
+        },
+      },
+    });
+
+    // get teacher on classroom
+    let teacherOnClassroom = []
+    if (user.teacher) {
+      teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
+    }
+
+    // remove password from user object
+    const { password: p, ...rest } = { ...user, teacherOnClassroom };
+    console.log("🚀 ~ file: users.service.ts ~ line 175 ~ UsersService ~ finedById ~ rest", rest)
+    return rest;
+  }
+
+
+  async findTeacherOnClassroom(teacherId: string): Promise<any> {
+    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
+      where: {
+        teacherId,
+      },
+      select: {
+        classroomId: true,
+      },
+    });
+    return teacherOnClassroom.map((item: any) => item.classroomId) ?? []
   }
 }

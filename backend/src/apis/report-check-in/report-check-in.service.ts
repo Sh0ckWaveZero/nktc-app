@@ -76,7 +76,7 @@ export class ReportCheckInService {
               teacherId: true,
               jobTitle: true,
               academicStanding: true,
-              classrooms: true,
+              // classrooms: true,
               status: true,
             },
           },
@@ -242,6 +242,78 @@ export class ReportCheckInService {
         checkInTotal: checkIn.length,
       }
     }));
+  }
+
+  async findDailyReportByAdmin(date: string) {
+    let startDate = new Date(date);
+    let endDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    // get all department
+    const classrooms = await this.prisma.classroom.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+      include: {
+        // teachers: true,
+      }
+    });
+
+    return await Promise.all(classrooms.map(async (classroom: any) => {
+      const reportCheckIn = await this.prisma.reportCheckIn.findFirst({
+        where: {
+          classroomId: classroom.id,
+          checkInDate: {
+            gte: startDate,
+            lte: endDate
+          },
+        },
+      });
+
+      const checKInBy = await this.prisma.user.findFirst({
+        where: {
+          teacher: {
+            id: reportCheckIn?.createdBy
+          }
+        },
+        select: {
+          id: true,
+          username: true,
+          account: {
+            select: {
+              id: true,
+              title: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            }
+          }
+        }
+      });
+
+
+      // find student in checkIn count present, absent, late, leave
+      const present = reportCheckIn ? reportCheckIn.present.length : 0;
+      const absent = reportCheckIn ? reportCheckIn.absent.length : 0;
+      const late = reportCheckIn ? reportCheckIn.late.length : 0;
+      const leave = reportCheckIn ? reportCheckIn.leave.length : 0;
+
+      return {
+        ...classroom,
+        presentTotal: present,
+        presentPercentTotal: reportCheckIn ? (present / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
+        absentTotal: absent,
+        absentPercentTotal: reportCheckIn ? (absent / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
+        lateTotal: late,
+        latePercentTotal: reportCheckIn ? (late / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
+        leaveTotal: leave,
+        leavePercentTotal: reportCheckIn ? (leave / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
+        studentTotal: reportCheckIn ? (present + absent + late + leave) : 0,
+        checkInDate: reportCheckIn ? reportCheckIn.checkInDate : null,
+        ...checKInBy ? { checkInBy: checKInBy } : null,
+      }
+    }))
   }
 
 

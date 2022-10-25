@@ -43,6 +43,18 @@ export class ReportCheckInController {
     }
   }
 
+  @Get('_security/start-date/:date/daily-report')
+  async findDailyReportByAdmin(@Param('date') date: string) {
+    try {
+      return await this.reportCheckInService.findDailyReportByAdmin(date);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
+  }
+
   @Get('teacher/:teacherId/classroom/:classroomId/summary-report')
   async findSummaryReport(@Param('teacherId') teacherId: string, @Param('classroomId') classroomId: string) {
     try {

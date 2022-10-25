@@ -38,6 +38,18 @@ export class TeachersService {
       },
     });
 
+    // get teacher on classroom
+    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
+      where: {
+        teacherId: {
+          in: teachers.map((item: any) => {
+            return item.teacher.id;
+          }
+          ),
+        },
+      },
+    });
+
     return teachers.map((item: any) => {
       return {
         id: item.id,
@@ -61,6 +73,7 @@ export class TeachersService {
         levelClassroomId: item.teacher.levelClassroomId ?? [],
         classroomIds: item.teacher.classroomIds ?? [],
         status: item.teacher.status ?? '',
+        teacherOnClassroom: teacherOnClassroom.filter((el: any) => item.teacher.id === el.teacherId).map((cl: any) => cl.classroomId),
       };
     })
   }
@@ -167,15 +180,77 @@ export class TeachersService {
     };
   }
 
-  async updateClassroom(id: string, updateTeacherDto: any) {
-    const updated = await this.prisma.teacher.update({
+  async updateClassroom(userId: string, updateTeacherDto: any) {
+    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
-        userId: id,
+        teacherId: updateTeacherDto.teacherInfo,
       },
-      data: {
-        classroomIds: updateTeacherDto.classrooms,
-      }
     });
-    return updated;
+
+    if (teacherOnClassroom.length > 0) {
+      await this.prisma.teacherOnClassroom.deleteMany({
+        where: {
+          teacherId: updateTeacherDto.teacherInfo,
+        }
+      });
+    }
+
+    const dataCreate = await Promise.all(updateTeacherDto.classrooms.map((item: any) => {
+      return {
+        teacherId: updateTeacherDto.teacherInfo,
+        classroomId: item,
+        createdBy: userId,
+        updatedBy: userId,
+      }
+    }));
+
+    return await this.prisma.teacherOnClassroom.createMany({
+      data: dataCreate,
+    });
+  }
+
+
+  async updateProfile(userId: string, updateTeacherDto: any) {
+    try {
+      // update teacher
+      const updateTeacher = await this.prisma.teacher.update({
+        where: {
+          id: updateTeacherDto.teacherInfo,
+        },
+        data: {
+          jobTitle: updateTeacherDto.jobTitle,
+          academicStanding: updateTeacherDto.academicStanding,
+          departmentId: updateTeacherDto.department,
+          updatedBy: userId,
+        }
+      });
+      // update account
+      const updateAccount = await this.prisma.account.update({
+        where: {
+          id: updateTeacherDto.accountId,
+        },
+        data: {
+          title: updateTeacherDto.title,
+          firstName: updateTeacherDto.firstName,
+          lastName: updateTeacherDto.lastName,
+          avatar: updateTeacherDto.avatar,
+          birthDate: updateTeacherDto.birthDate === '' ? null : updateTeacherDto.birthDate,
+          idCard: updateTeacherDto.idCard,
+          updatedBy: userId,
+        }
+      });
+
+      // update classroom
+      const updateClassroom = await this.updateClassroom(userId, updateTeacherDto);
+      return {
+        data: {
+          updateClassroom,
+          updateTeacher,
+          updateAccount,
+        }
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -2,7 +2,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:bullseye-slim As development
+FROM node:bullseye As development
 
 RUN apt-get update && apt-get install -y openssl
 
@@ -32,7 +32,7 @@ USER node
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:bullseye-slim As build
+FROM node:bullseye As build
 
 WORKDIR /usr/src/app
 
@@ -59,7 +59,7 @@ USER node
 # # PRODUCTION
 # ###################
 
-FROM node:bullseye-slim As production
+FROM node:bullseye As production
 
 # SET Timezone (Asia/Bangkok GTM+07:00)
 ENV TZ Asia/Bangkok

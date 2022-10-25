@@ -162,7 +162,7 @@ model Teacher {
   programId        String? // สาขาวิชา
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
-  department       Department?     @relation(fields: [departmentId], references: [id])
+  department       Department?     @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
   departmentId     String?
   levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
   levelClassroomId String?
@@ -226,6 +226,20 @@ model LevelClassroom {
   classrooms       Classroom[]
 
   @@map("levelClassroom")
+}
+
+// อาจารย์ประจำห้องที่ปรึกษา
+model TeacherOnClassroom {
+  id          String   @id @default(cuid())
+  teacherId   String // relation scalar field (used in the `@relation` attribute above)
+  classroomId String // relation scalar field (used in the `@relation` attribute above)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedBy   String?
+  createdBy   String?
+
+  @@unique([teacherId, classroomId], name: "teacherOnClassroomKey")
+  @@map("teacherOnClassroom")
 }
 
 // แผนกวิชา

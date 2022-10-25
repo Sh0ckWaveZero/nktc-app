@@ -15,12 +15,12 @@ const prisma = new PrismaClient();
 const main = async () => {
 
   console.log("Seeding...");
-  // seedLevels()
-  // seedProgram()
+  // await seedLevels()
+  // await seedProgram()
   // await seedDepartment()
   // await seedLevelClassroom()
   // await seedClassroom()
-  // await seedStudents()
+    // await seedStudents()
     // seedTeacher()
     seedAdmin()
     .then(() => {

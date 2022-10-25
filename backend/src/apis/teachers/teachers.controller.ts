@@ -8,6 +8,7 @@ import {
   Put,
   HttpException,
   HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -25,7 +26,7 @@ export class TeachersController {
     return await this.teachersService.findAll(q);
   }
 
-  @Put('classroom/:id')
+  @Put(':id/classrooms')
   async updateClassroom(@Param('id') id: string, @Body() updateTeacherDto: any) {
     try {
       const response = await this.teachersService.updateClassroom(id, updateTeacherDto)
@@ -36,6 +37,20 @@ export class TeachersController {
         status: HttpStatus.FORBIDDEN,
         error: 'Cannot update teacher',
       }, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  @Put(':id/profile')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async updateProfile(@Param('id') id: string, @Body() updateTeacherDto: any) {
+    try {
+      const response = await this.teachersService.updateProfile(id, updateTeacherDto)
+      return response;
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.NO_CONTENT,
+        error: 'Cannot update teacher',
+      }, HttpStatus.NO_CONTENT);
     }
   }
 

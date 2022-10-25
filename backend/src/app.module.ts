@@ -17,6 +17,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ClassroomModule } from './apis/classroom/classroom.module';
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
+import { DepartmentsModule } from './apis/departments/departments.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuditLogModule } from './apis/audit-log/audit-log.module';
     ClassroomModule,
     ReportCheckInModule,
     AuditLogModule,
+    DepartmentsModule,
   ],
   controllers: [AppController],
   providers: [
