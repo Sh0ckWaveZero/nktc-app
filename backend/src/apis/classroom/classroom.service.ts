@@ -25,19 +25,19 @@ export class ClassroomService {
   }
 
   async findByTeacherId(id: string) {
-    const result = await this.prisma.teacher.findUniqueOrThrow({
+    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
-        id: id,
+        teacherId: id,
       },
       select: {
-        classroomIds: true,
-      }
+        classroomId: true,
+      },
     });
-
+    const classroomIds = teacherOnClassroom.map((item: any) => item.classroomId) ?? []
 
     return await this.prisma.classroom.findMany({
       where: {
-        OR: result.classroomIds.map((item: any) => {
+        OR: classroomIds.map((item: any) => {
           return {
             id: item,
           }
@@ -55,4 +55,4 @@ export class ClassroomService {
       ]
     });
   }
-}
+};

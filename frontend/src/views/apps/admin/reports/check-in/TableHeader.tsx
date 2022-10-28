@@ -26,7 +26,7 @@ const TableHeader = (props: TableHeaderProps) => {
   const theme = useTheme();
 
   function handleDateChange(newDate: Date | null): void {
-    throw new Error('Function not implemented.');
+    console.log(newDate);
   }
 
   return (
@@ -52,7 +52,7 @@ const TableHeader = (props: TableHeaderProps) => {
             <DatePicker
               label='เลือกวันที่'
               value={selectedDate}
-              inputFormat='dd-MM-yyyy'
+              inputFormat='dd/MM/yyyy'
               minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
               maxDate={new Date()}
               onChange={(newDate) => handleDateChange(newDate)}

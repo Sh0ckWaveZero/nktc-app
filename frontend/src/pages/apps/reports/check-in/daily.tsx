@@ -46,6 +46,7 @@ import {
   AlertOctagramOutline,
 } from 'mdi-material-ui';
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
+import shallow from 'zustand/shallow';
 
 interface CellType {
   // row: teachersTypes;
@@ -85,16 +86,35 @@ const ReportCheckInDaily = () => {
   let isLeaveCheck: any[] = [];
 
   // ** Hooks
-  const { fetchTeachClassroom } = useClassroomStore();
-  const { userInfo, accessToken } = useUserStore();
-  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } = useReportCheckInStore();
+  const { fetchTeachClassroom } = useClassroomStore(
+    (state) => ({
+      fetchTeachClassroom: state.fetchTeachClassroom,
+    }),
+    shallow,
+  );
+  const { userInfo, accessToken } = useUserStore(
+    (state) => ({
+      userInfo: state.userInfo,
+      accessToken: state.accessToken,
+    }),
+    shallow,
+  );
+  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } = useReportCheckInStore(
+    (state) => ({
+      getReportCheckIn: state.getReportCheckIn,
+      findDailyReport: state.findDailyReport,
+      updateReportCheckIn: state.updateReportCheckIn,
+      removeReportCheckIn: state.removeReportCheckIn,
+    }),
+    shallow,
+  );
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
-  const [classroomName, setClassroomName] = useState<any>(null);
+  const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
@@ -106,10 +126,11 @@ const ReportCheckInDaily = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(accessToken, userInfo?.teacher?.id).then(async (result: any) => {
-        setClassroomName((await result) ? result[0] : []);
-        setClassrooms((await result) ? result : []);
-        await fetchDailyReport(null, (await result) ? result[0].id : {});
+      fetchTeachClassroom(accessToken, userInfo?.teacher?.id).then(async (classroomsInfo: any) => {
+        const classrooms = (await classroomsInfo) ? classroomsInfo : [];
+        setDefaultClassroom(classrooms[0]);
+        setClassrooms(classrooms);
+        await fetchDailyReport(null, (await classroomsInfo) ? classroomsInfo[0].id : {});
       });
     };
     // check permission
@@ -124,14 +145,16 @@ const ReportCheckInDaily = () => {
     setLoading(true);
     await findDailyReport(accessToken, {
       teacherId: userInfo?.teacher?.id,
-      classroomId: classroom ? classroom : classroomName.id,
+      classroomId: classroom ? classroom : defaultClassroom.id,
       startDate: date ? date : selectedDate,
     }).then(async (data: any) => {
-      setCurrentStudents(await data[0]?.students);
-      setReportCheckInData((await data) ? data[0]?.reportCheckIn : null);
+      const reportCheckInData = await data.filter((item: any) => item.id === classroom)[0];
+      console.log('🚀 ~ file: daily.tsx ~ line 152 ~ fetchDailyReport ~ reportCheckInData', reportCheckInData);
+      setCurrentStudents(reportCheckInData?.students ?? []);
+      setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
       getReportCheckIn(accessToken, {
         teacher: userInfo?.teacher?.id,
-        classroom: classroom ? classroom : classroomName.id,
+        classroom: classroom ? classroom : defaultClassroom.id,
       });
       setLoading(false);
     });
@@ -269,6 +292,7 @@ const ReportCheckInDaily = () => {
 
   const onSubmittedCheckIn = async (event: any, values: any): Promise<void> => {
     event.preventDefault();
+    const classroomId = values?.data?.classroomName?.id;
     isPresentCheck.push(...(values?.data?.reportCheckInData?.present ?? []));
     isAbsentCheck.push(...(values?.data?.reportCheckInData?.absent ?? []));
     isLateCheck.push(...(values?.data?.reportCheckInData?.late ?? []));
@@ -289,7 +313,7 @@ const ReportCheckInDaily = () => {
       error: 'เกิดข้อผิดพลาด',
     });
 
-    await fetchDailyReport(selectedDate, '');
+    await fetchDailyReport(selectedDate, classroomId);
     toggleCloseEditCheckIn();
     onClearAll();
   };
@@ -397,7 +421,7 @@ const ReportCheckInDaily = () => {
             disabled={checkInStatus === 'notCheckIn'}
             variant='contained'
             startIcon={<AccountEditOutline fontSize='small' />}
-            onClick={() => handleOpenEditCheckIn({ ...row, classroomName, reportCheckInData })}
+            onClick={() => handleOpenEditCheckIn({ ...row, classroomName: defaultClassroom, reportCheckInData })}
           >
             แก้ไข
           </Button>
@@ -418,7 +442,7 @@ const ReportCheckInDaily = () => {
     } = event;
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
-    setClassroomName(classroomName);
+    setDefaultClassroom(classroomName);
     await fetchDailyReport(null, classroomName.id);
   };
 
@@ -467,13 +491,13 @@ const ReportCheckInDaily = () => {
               />
               <CardContent>
                 {!isEmpty(currentStudents) && (
-                  <Typography variant='subtitle1'>{`ชั้น ${classroomName?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                  <Typography variant='subtitle1'>{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                 )}
               </CardContent>
               <TableHeaderDaily
                 value={classrooms}
                 handleChange={handleSelectChange}
-                defaultValue={classroomName?.name}
+                defaultValue={defaultClassroom?.name}
                 selectedDate={selectedDate}
                 handleDateChange={handleDateChange}
                 handleClickOpen={handleClickOpenDeletedConfirm}
@@ -490,7 +514,7 @@ const ReportCheckInDaily = () => {
                 rowsPerPageOptions={[pageSize]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                 components={{
-                  NoRowsOverlay: CustomNoRowsOverlay ,
+                  NoRowsOverlay: CustomNoRowsOverlay,
                 }}
               />
             </Card>

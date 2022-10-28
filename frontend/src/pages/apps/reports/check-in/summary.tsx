@@ -2,7 +2,7 @@
 import { useContext, useRef, useState } from 'react';
 
 // ** MUI Imports
-import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
+import { Typography, CardHeader, Card, Grid, Avatar, styled, TypographyProps } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 
 // ** Store Imports
@@ -25,6 +25,12 @@ interface CellType {
   // row: teachersTypes;
   row: any;
 }
+
+const TableCellText = styled(Typography)<TypographyProps>(({ theme }) => ({
+  fontWeight: 400,
+  textDecoration: 'none',
+  ...theme.typography.subtitle2,
+}));
 
 const ReportCheckInDaily = () => {
   // ** Hooks
@@ -68,6 +74,10 @@ const ReportCheckInDaily = () => {
       setCurrentStudents(await data);
       setLoading(false);
     });
+  };
+
+  const ccyFormat = (num: number) => {
+    return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
   };
 
   const columns: GridColumns = [
@@ -154,7 +164,7 @@ const ReportCheckInDaily = () => {
             variant='subtitle2'
             sx={{ fontWeight: 400, color: 'success.dark', textDecoration: 'none' }}
           >
-            {isNaN(presentPercent) ? '0.00' : presentPercent}
+            {ccyFormat(presentPercent)}
           </Typography>
         );
       },
@@ -190,7 +200,7 @@ const ReportCheckInDaily = () => {
         const { absentPercent } = row;
         return (
           <Typography noWrap variant='subtitle2' sx={{ fontWeight: 400, color: 'error.dark', textDecoration: 'none' }}>
-            {isNaN(absentPercent) ? '0.00' : absentPercent}
+            {ccyFormat(absentPercent)}
           </Typography>
         );
       },
@@ -234,7 +244,7 @@ const ReportCheckInDaily = () => {
             variant='subtitle2'
             sx={{ fontWeight: 400, color: 'secondary.dark', textDecoration: 'none' }}
           >
-            {isNaN(leavePercent) ? '0.00' : leavePercent}
+            {ccyFormat(leavePercent)}
           </Typography>
         );
       },
@@ -278,7 +288,7 @@ const ReportCheckInDaily = () => {
             variant='subtitle2'
             sx={{ fontWeight: 400, color: 'warning.dark', textDecoration: 'none' }}
           >
-            {isNaN(latePercent) ? '0.00' : latePercent}
+            {ccyFormat(latePercent)}
           </Typography>
         );
       },

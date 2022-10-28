@@ -3,7 +3,16 @@ import { useState, useEffect, MouseEvent, useCallback, ReactElement } from 'reac
 
 // ** Next Import
 import Link from 'next/link';
-import { AccountOutline, ChartDonut, CogOutline, DeleteOutline, DotsVertical, EyeOutline, Laptop, PencilOutline } from 'mdi-material-ui';
+import {
+  AccountOutline,
+  ChartDonut,
+  CogOutline,
+  DeleteOutline,
+  DotsVertical,
+  EyeOutline,
+  Laptop,
+  PencilOutline,
+} from 'mdi-material-ui';
 
 // // ** MUI Imports
 // import Box from '@mui/material/Box';
@@ -42,9 +51,21 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { ThemeColor } from '@/@core/layouts/types';
 import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { Avatar, Box, Card, CardHeader, Grid, IconButton, Menu, MenuItem, SelectChangeEvent, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Card,
+  CardHeader,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  SelectChangeEvent,
+  Typography,
+} from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import { DataGrid } from '@mui/x-data-grid';
+import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
 // import { BsCalendar2Date } from 'react-icons/bs';
 
 // ** Custom Components Imports
@@ -338,8 +359,13 @@ const UserList = () => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} selectedDate={new Date()} />
-          <DataGrid
+          <TableHeader
+            value={value}
+            handleFilter={handleFilter}
+            toggle={toggleAddUserDrawer}
+            selectedDate={new Date()}
+          />
+          {/* <DataGrid
             autoHeight
             rows={[]}
             columns={columns}
@@ -351,7 +377,8 @@ const UserList = () => {
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
             }}
-          />
+          /> */}
+          <TableDaily />
         </Card>
       </Grid>
 
