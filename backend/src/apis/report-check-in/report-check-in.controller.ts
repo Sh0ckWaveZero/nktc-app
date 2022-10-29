@@ -43,10 +43,10 @@ export class ReportCheckInController {
     }
   }
 
-  @Get('_security/start-date/:date/daily-report')
-  async findDailyReportByAdmin(@Param('date') date: string) {
+  @Get('/start-date/:startDate/end-date/:endDate/admin-daily-report')
+  async findDailyReportByAdmin(@Param('startDate') startDate: string, @Param('endDate') endDate: string) {
     try {
-      return await this.reportCheckInService.findDailyReportByAdmin(date);
+      return await this.reportCheckInService.findDailyReportByAdmin(startDate, endDate);
     } catch (error) {
       if (error.message === 'No ReportCheckIn found') {
         return {}

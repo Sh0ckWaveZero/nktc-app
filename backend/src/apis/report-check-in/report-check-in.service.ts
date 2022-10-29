@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/services/prisma.service';
+import { ccyFormat } from 'src/common/shared/util';
 
 @Injectable()
 export class ReportCheckInService {
@@ -244,9 +245,9 @@ export class ReportCheckInService {
     }));
   }
 
-  async findDailyReportByAdmin(date: string) {
-    let startDate = new Date(date);
-    let endDate = new Date(date);
+  async findDailyReportByAdmin(stat: string, end: string) {
+    let startDate = new Date(stat);
+    let endDate = new Date(end);
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
@@ -255,8 +256,16 @@ export class ReportCheckInService {
       orderBy: {
         name: 'asc',
       },
-      include: {
-        // teachers: true,
+      select: {
+        id: true,
+        name: true,
+        level: {
+          select: {
+            id: true,
+            levelName: true,
+            levelFullName: true,
+          }
+        }
       }
     });
 
@@ -292,24 +301,28 @@ export class ReportCheckInService {
         }
       });
 
-
       // find student in checkIn count present, absent, late, leave
       const present = reportCheckIn ? reportCheckIn.present.length : 0;
       const absent = reportCheckIn ? reportCheckIn.absent.length : 0;
       const late = reportCheckIn ? reportCheckIn.late.length : 0;
       const leave = reportCheckIn ? reportCheckIn.leave.length : 0;
+      const total = present + absent + late + leave;
+      const presentPercentTotal = ccyFormat(present / (total) * 100);
+      const absentPercentTotal = ccyFormat(absent / (total) * 100);
+      const latePercentTotal = ccyFormat(late / (total) * 100);
+      const leavePercentTotal = ccyFormat(leave / (total) * 100);
 
       return {
         ...classroom,
-        presentTotal: present,
-        presentPercentTotal: reportCheckIn ? (present / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
-        absentTotal: absent,
-        absentPercentTotal: reportCheckIn ? (absent / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
-        lateTotal: late,
-        latePercentTotal: reportCheckIn ? (late / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
-        leaveTotal: leave,
-        leavePercentTotal: reportCheckIn ? (leave / (present + absent + late + leave) * 100).toFixed(2) : 0.00,
-        studentTotal: reportCheckIn ? (present + absent + late + leave) : 0,
+        present: present,
+        presentPercent: presentPercentTotal,
+        absent: absent,
+        absentPercent: absentPercentTotal,
+        late: late,
+        latePercent: latePercentTotal,
+        leave: leave,
+        leavePercent: leavePercentTotal,
+        total: total,
         checkInDate: reportCheckIn ? reportCheckIn.checkInDate : null,
         ...checKInBy ? { checkInBy: checKInBy } : null,
       }
