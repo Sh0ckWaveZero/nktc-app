@@ -11,6 +11,9 @@ import {
   TypographyProps,
   useTheme,
   TableContainer,
+  TableCellProps,
+  tableCellClasses,
+  TableRowProps,
 } from '@mui/material';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
@@ -72,9 +75,30 @@ const TableCellText = styled(Typography)<TypographyProps>(({ theme }) => ({
   ...theme.typography.subtitle2,
 }));
 
+const StyledTableCell = styled(TableCell)<TableCellProps>(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    color: theme.palette.common.white,
+    backgroundColor: theme.palette.common.black,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)<TableRowProps>(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+
+  // hide last border
+  '&:last-of-type td, &:last-of-type th': {
+    border: 0,
+  },
+}));
+
 const header: Header[] = [
   { name: 'ระดับชั้น', key: 'ระดับชั้น', align: 'left' },
-  { name: 'แผนก', key: 'แผนก', align: 'left' },
+  { name: 'ห้องเรียน', key: 'ห้องเรียน', align: 'left' },
   { name: 'มาเรียน', key: 'มาเรียน', align: 'right' },
   { name: 'มาเรียน(%)', key: 'มาเรียน(%)', align: 'right' },
   { name: 'ขาดเรียน', key: 'ขาดเรียน', align: 'right' },
@@ -122,25 +146,26 @@ const subLatePercent = (items: readonly Row[]) => {
   return items.map(({ latePercent }) => latePercent).reduce((sum, i) => sum + i, 0);
 };
 
-const rows = [
-  createRow('ปวช.1', 'แผนก เทคโนโลยีคอมพิวเตอร์ ', 10, 10, 10, 10, 10, 10, 10, 10, 40),
-  createRow('ปวช.1', 'แผนก ช่างไฟฟ้ากำลัง ', 10, 10, 10, 10, 10, 10, 10, 10, 40),
-];
+interface TableHeaderProps {
+  values: any[];
+}
 
-const tableSubTotal = subtotal(rows);
-const tableSubPercent = (value: number) => (value / tableSubTotal) * 100;
-const presentPercentSubTotal = ccyFormat(tableSubPercent(subPresentPercent(rows)));
-const absentPercentSubTotal = ccyFormat(tableSubPercent(subAbsentPercent(rows)));
-const leavePercentSubTotal = ccyFormat(tableSubPercent(subLeavePercent(rows)));
-const latePercentSubTotal = ccyFormat(tableSubPercent(subLatePercent(rows)));
+const TableDaily = (prop: TableHeaderProps) => {
+  const { values } = prop;
 
-const TableDaily = () => {
   // ** Hook
   const theme = useTheme();
 
+  const tableSubTotal = subtotal(values);
+  const tableSubPercent = (value: number) => (value / (tableSubTotal * values.length)) * 100;
+  const presentPercentSubTotal = ccyFormat(tableSubPercent(subPresentPercent(values)));
+  const absentPercentSubTotal = ccyFormat(tableSubPercent(subAbsentPercent(values)));
+  const leavePercentSubTotal = ccyFormat(tableSubPercent(subLeavePercent(values)));
+  const latePercentSubTotal = ccyFormat(tableSubPercent(subLatePercent(values)));
+
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} size='small' aria-label='admin check-in daily report'>
+      <Table sx={{ minWidth: 700 }} size='medium' aria-label='admin check-in daily report'>
         <TableHead>
           <TableRow>
             {header.map((item) => (
@@ -151,52 +176,52 @@ const TableDaily = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.level + row.department}>
-              <TableCell>{row.level}</TableCell>
-              <TableCell>{row.department}</TableCell>
-              <TableCell align='right'>
+          {values.map((row: any) => (
+            <StyledTableRow key={row.id}>
+              <StyledTableCell>{row?.level?.levelName}</StyledTableCell>
+              <StyledTableCell>{row.name}</StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.success.dark }}>{row.present}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.success.dark }}>
                   {ccyFormat(row.presentPercent)}
                 </TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.error.dark }}>{row.absent}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.error.dark }}>{ccyFormat(row.absentPercent)}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.secondary.dark }}>{row.leave}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.secondary.dark }}>
                   {ccyFormat(row.leavePercent)}
                 </TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.warning.dark }}>{row.late}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.warning.dark }}>{ccyFormat(row.latePercent)}</TableCellText>
-              </TableCell>
-              <TableCell align='right'>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
                 <TableCellText sx={{ color: theme.palette.info.dark }}>{row.total}</TableCellText>
-              </TableCell>
-            </TableRow>
+              </StyledTableCell>
+            </StyledTableRow>
           ))}
           <TableRow sx={{ backgroundColor: hexToRGBA(theme.palette.info.main, 0.25) }}>
             <TableCell colSpan={2}>รวม</TableCell>
-            <TableCell align='right'>{subPresent(rows)}</TableCell>
+            <TableCell align='right'>{subPresent(values)}</TableCell>
             <TableCell align='right'>{presentPercentSubTotal}</TableCell>
-            <TableCell align='right'>{subAbsent(rows)}</TableCell>
+            <TableCell align='right'>{subAbsent(values)}</TableCell>
             <TableCell align='right'>{absentPercentSubTotal}</TableCell>
-            <TableCell align='right'>{subLeave(rows)}</TableCell>
+            <TableCell align='right'>{subLeave(values)}</TableCell>
             <TableCell align='right'>{leavePercentSubTotal}</TableCell>
-            <TableCell align='right'>{subLate(rows)}</TableCell>
+            <TableCell align='right'>{subLate(values)}</TableCell>
             <TableCell align='right'>{latePercentSubTotal}</TableCell>
             <TableCell align='right'>{tableSubTotal}</TableCell>
           </TableRow>

@@ -7,7 +7,7 @@ import { Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
-import { thTH as coreThTH } from '@mui/material/locale';
+import { thTH } from '@mui/material/locale';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
@@ -44,7 +44,6 @@ const ThemeComponent = (props: Props) => {
   // ** Pass ThemeOptions to CreateTheme Function to create partial theme without component overrides
   let theme = createTheme(coreThemeConfig);
 
-
   // ** Deep Merge Component overrides of core and user
   const mergeComponentOverrides = (theme: Theme, settings: Settings) =>
     deepmerge({ ...overrides(theme, settings) }, UserThemeOptions()?.components);
@@ -59,7 +58,7 @@ const ThemeComponent = (props: Props) => {
       components: { ...mergeComponentOverrides(theme, settings) },
       typography: { ...mergeTypography(theme) },
     },
-    coreThTH,
+    thTH,
   );
 
   // ** Set responsive font sizes to true

@@ -1,14 +1,17 @@
 // ** React Imports
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 // ** Types Imports
-import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
-import { Avatar, Card, CardHeader, Grid, SelectChangeEvent } from '@mui/material';
+import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
 import { useReportCheckInStore, useUserStore } from '@/store/index';
 import shallow from 'zustand/shallow';
+import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/th';
+dayjs.locale('th');
 
-const UserList = () => {
+const CheckInWeeklyReport = () => {
   // ** Store Vars
   const { findDailyReportAdmin } = useReportCheckInStore(
     (state) => ({
@@ -26,21 +29,25 @@ const UserList = () => {
 
   // ** State
   const [value, setValue] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date() || null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
+  const [startOfWeek, setStartOfWeek] = useState<Dayjs>(dayjs(new Date()).startOf('week').add(1, 'day'));
+  const [endOfWeek, setEndOfWeek] = useState<Dayjs>(dayjs(new Date()).endOf('week').subtract(1, 'day'));
 
   useEffect(() => {
     const fetch = async () => {
-      await findDailyReportAdmin(accessToken, { startDate: selectedDate, endDate: selectedDate }).then(
-        async (res: any) => {
-          setValue(await res);
-        },
-      );
+      const start = selectedDate.startOf('week').add(1, 'day');
+      setStartOfWeek(start);
+      const end = selectedDate.endOf('week').subtract(1, 'day');
+      setEndOfWeek(end);
+      await findDailyReportAdmin(accessToken, { startDate: start, endDate: end }).then(async (res: any) => {
+        setValue(await res);
+      });
     };
     fetch();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Date | null) => {
-    setSelectedDate(date as Date);
+  const handleSelectedDate = (date: Dayjs | null) => {
+    setSelectedDate(date as Dayjs);
   };
 
   return (
@@ -55,18 +62,13 @@ const UserList = () => {
             }
             sx={{ color: 'text.primary' }}
             title={`รายงานสถิติการมาเรียนของนักเรียน`}
-            subheader={`ประจำ${new Date().toLocaleDateString('th-TH', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}`}
+            subheader={`ประจำสัปดาห์ที่ ${startOfWeek.format('DD MMMM BBBB')} - ${endOfWeek.format('DD MMMM BBBB')}`}
           />
         </Card>
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
+          <TableHeaderWeekly value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
           <TableDaily values={value} />
         </Card>
       </Grid>
@@ -74,4 +76,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default CheckInWeeklyReport;

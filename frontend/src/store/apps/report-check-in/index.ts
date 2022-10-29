@@ -3,8 +3,6 @@ import create from 'zustand';
 
 // ** Config
 import authConfig from '@/configs/auth';
-import shallow from 'zustand/shallow';
-
 interface UserState {
   reportCheckIn: any;
   reportCheckInLoading: boolean,
@@ -15,6 +13,7 @@ interface UserState {
   findDailyReport: (token: string, param: any) => any;
   findSummaryReport: (token: string, param: any) => any;
   removeReportCheckIn: (token: string, id: string) => any;
+  findDailyReportAdmin: (token: string, param: any) => any;
 }
 
 export const useReportCheckInStore = create<UserState>()(
@@ -110,6 +109,19 @@ export const useReportCheckInStore = create<UserState>()(
         return err;
       }
     },
-    shallow,
+    findDailyReportAdmin: async (token: string, param: any) => {
+      try {
+        const { data } = await axios.get(
+          `${authConfig.reportCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
   }),
 );

@@ -43,6 +43,7 @@
     "clipboard-copy": "^4.0.1",
     "clsx": "^1.1.1",
     "date-fns": "^2.29.3",
+    "dayjs": "^1.11.6",
     "draft-js": "^0.11.7",
     "firebase": "^9.13.0",
     "i18next": "^21.7.1",
