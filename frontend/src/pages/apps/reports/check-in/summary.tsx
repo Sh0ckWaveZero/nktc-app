@@ -80,6 +80,7 @@ const ReportCheckInDaily = () => {
     return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
   };
 
+
   const columns: GridColumns = [
     {
       flex: 0.13,
