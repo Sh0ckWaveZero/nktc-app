@@ -31,7 +31,7 @@ const AxiosInterceptor = ({ children }: any) => {
           confirmButtonColor: '#3085d6',
           cancelButtonColor: '#d33',
           confirmButtonText: 'ตกลง'
-        }).then((result) => {
+        }).then(() => {
           logout();
           router.push('/login');
         })

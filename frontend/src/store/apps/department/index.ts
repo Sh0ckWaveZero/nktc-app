@@ -10,7 +10,7 @@ interface UserState {
 }
 
 export const useDepartmentStore = create<UserState>()(
-  (set) => ({
+  () => ({
     department: null,
     fetchDepartment: async (token: string) => {
       try {

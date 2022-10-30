@@ -27,8 +27,7 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormHelperText } from '@mui/material';
 import { useUserStore } from '@/store/index';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 interface State {
   showNewPassword: boolean;

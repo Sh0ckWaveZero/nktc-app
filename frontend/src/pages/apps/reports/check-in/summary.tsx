@@ -1,8 +1,8 @@
 // ** React Imports
-import { useContext, useRef, useState } from 'react';
+import { useContext, useState } from 'react';
 
 // ** MUI Imports
-import { Typography, CardHeader, Card, Grid, Avatar, styled, TypographyProps } from '@mui/material';
+import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 
 // ** Store Imports
@@ -25,12 +25,6 @@ interface CellType {
   // row: teachersTypes;
   row: any;
 }
-
-const TableCellText = styled(Typography)<TypographyProps>(({ theme }) => ({
-  fontWeight: 400,
-  textDecoration: 'none',
-  ...theme.typography.subtitle2,
-}));
 
 const ReportCheckInDaily = () => {
   // ** Hooks

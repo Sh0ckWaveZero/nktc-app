@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactElement, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // ** Next Import
 import Link from 'next/link';
@@ -8,13 +8,6 @@ import Link from 'next/link';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import { SelectChangeEvent } from '@mui/material/Select';
-
-// ** Icons Imports
-import Laptop from 'mdi-material-ui/Laptop';
-import ChartDonut from 'mdi-material-ui/ChartDonut';
-import CogOutline from 'mdi-material-ui/CogOutline';
-import PencilOutline from 'mdi-material-ui/PencilOutline';
-import AccountOutline from 'mdi-material-ui/AccountOutline';
 
 // ** Custom Components Imports
 import CustomAvatar from '@/@core/components/mui/avatar';
@@ -31,32 +24,9 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import { useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
 
-interface UserRoleType {
-  [key: string]: ReactElement;
-}
-
-interface UserStatusType {
-  [key: string]: any;
-}
-
-// ** Vars
-const userRoleObj: UserRoleType = {
-  admin: <Laptop fontSize='small' sx={{ mr: 3, color: 'error.main' }} />,
-  author: <CogOutline fontSize='small' sx={{ mr: 3, color: 'warning.main' }} />,
-  editor: <PencilOutline fontSize='small' sx={{ mr: 3, color: 'info.main' }} />,
-  maintainer: <ChartDonut fontSize='small' sx={{ mr: 3, color: 'success.main' }} />,
-  subscriber: <AccountOutline fontSize='small' sx={{ mr: 3, color: 'primary.main' }} />,
-};
-
 interface CellType {
   row: any;
 }
-
-const userStatusObj: UserStatusType = {
-  active: 'success',
-  pending: 'warning',
-  inactive: 'secondary',
-};
 
 // ** Styled component for the link for the avatar with image
 const AvatarWithImageLink = styled(Link)(({ theme }) => ({
@@ -158,13 +128,7 @@ const defaultColumns: GridColumns = [
     align: 'center',
     renderCell: ({ row }: CellType) => {
       return (
-        <Button
-          disabled
-          color='warning'
-          variant='contained'
-          startIcon={<AccountEditOutline fontSize='small' />}
-          onClick={() => {}}
-        >
+        <Button disabled color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
           แก้ไข
         </Button>
       );
@@ -182,13 +146,7 @@ const defaultColumns: GridColumns = [
     align: 'center',
     renderCell: ({ row }: CellType) => {
       return (
-        <Button
-          disabled
-          color='error'
-          variant='contained'
-          startIcon={<RiUserUnfollowLine fontSize='small' />}
-          onClick={() => {}}
-        >
+        <Button disabled color='error' variant='contained' startIcon={<RiUserUnfollowLine fontSize='small' />}>
           ลบ
         </Button>
       );
@@ -203,13 +161,7 @@ const defaultColumns: GridColumns = [
     align: 'center',
     renderCell: ({ row }: CellType) => {
       return (
-        <Button
-          disabled
-          color='primary'
-          variant='contained'
-          startIcon={<RiUserSearchLine fontSize='small' />}
-          onClick={() => {}}
-        >
+        <Button disabled color='primary' variant='contained' startIcon={<RiUserSearchLine fontSize='small' />}>
           ดู
         </Button>
       );
@@ -274,7 +226,7 @@ const StudentList = () => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-        <CardHeader
+          <CardHeader
             avatar={
               <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
                 <RiContactsBookLine />

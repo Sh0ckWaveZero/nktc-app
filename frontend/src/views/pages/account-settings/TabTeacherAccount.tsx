@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, useEffect, Fragment, useRef } from 'react';
+import { useState, ElementType, ChangeEvent, useEffect, Fragment } from 'react';
 
 // ** MUI Imports
 import {
@@ -127,9 +127,7 @@ const TabTeacherAccount = () => {
   const {
     reset,
     control,
-    setValue,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({
     defaultValues,
