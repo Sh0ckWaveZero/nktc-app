@@ -233,13 +233,13 @@ export class ReportCheckInService {
       return {
         ...student,
         present: present,
-        presentPercent: (present / checkIn.length * 100).toFixed(2),
+        presentPercent: (present / checkIn.length * 100),
         absent: absent,
-        absentPercent: (absent / checkIn.length * 100).toFixed(2),
+        absentPercent: (absent / checkIn.length * 100),
         late: late,
-        latePercent: (late / checkIn.length * 100).toFixed(2),
+        latePercent: (late / checkIn.length * 100),
         leave: leave,
-        leavePercent: (leave / checkIn.length * 100).toFixed(2),
+        leavePercent: (leave / checkIn.length * 100),
         checkInTotal: checkIn.length,
       }
     }));

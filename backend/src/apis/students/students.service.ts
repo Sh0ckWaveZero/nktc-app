@@ -9,6 +9,7 @@ export class StudentsService {
   ) { }
 
   async findByClassroomId(id: string) {
+    console.log("🚀 ~ file: students.service.ts ~ line 12 ~ StudentsService ~ findByClassroomId ~ id", id)
     return await this.prisma.user.findMany({
       where: {
         student: {
@@ -27,6 +28,12 @@ export class StudentsService {
             programId: true,
             levelId: true,
             levelClassroomId: true,
+            stutus: true,
+            classroom: {
+              select: {
+                name: true,
+              }
+            }
           }
         },
         account: {
