@@ -32,8 +32,10 @@ export const useClassroomStore = create<classroomState>()(
           },
         });
         set({ classroom: await data, classroomLoading: false, classroomHasErrors: false });
+        return await data;
       } catch (err) {
         set({ classroomLoading: false, classroomHasErrors: true });
+        return null;
       }
     },
     fetchTeachClassroom: async (token: string, teacherId: string) => {

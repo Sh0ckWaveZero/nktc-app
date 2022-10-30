@@ -12,7 +12,7 @@ import 'dayjs/locale/th';
 import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
 dayjs.locale('th');
 
-const CheckInMonthlyReport = () => {
+const AdminCheckInMonthlyReport = () => {
   // ** Store Vars
   const { findDailyReportAdmin } = useReportCheckInStore(
     (state) => ({
@@ -73,4 +73,9 @@ const CheckInMonthlyReport = () => {
   );
 };
 
-export default CheckInMonthlyReport;
+AdminCheckInMonthlyReport.acl = {
+  action: 'read',
+  subject: 'admin-report-check-in-monthly-page',
+};
+
+export default AdminCheckInMonthlyReport;

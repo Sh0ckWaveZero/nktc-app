@@ -231,7 +231,7 @@ const TeacherList = () => {
   const defaultValue: any = currentData
     ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))
     : [];
-    console.log("🚀 ~ file: index.tsx ~ line 232 ~ TeacherList ~ defaultValue", defaultValue)
+  console.log('🚀 ~ file: index.tsx ~ line 232 ~ TeacherList ~ defaultValue', defaultValue);
   const handleFilter = useCallback((val: string) => {
     setValue(val);
   }, []);
@@ -472,4 +472,8 @@ const TeacherList = () => {
   );
 };
 
+TeacherList.acl = {
+  action: 'read',
+  subject: 'teacher-list-pages',
+};
 export default TeacherList;

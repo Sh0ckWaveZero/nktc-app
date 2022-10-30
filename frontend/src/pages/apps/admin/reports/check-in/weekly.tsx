@@ -11,7 +11,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
 dayjs.locale('th');
 
-const CheckInWeeklyReport = () => {
+const AdminCheckInWeeklyReport = () => {
   // ** Store Vars
   const { findDailyReportAdmin } = useReportCheckInStore(
     (state) => ({
@@ -76,4 +76,9 @@ const CheckInWeeklyReport = () => {
   );
 };
 
-export default CheckInWeeklyReport;
+AdminCheckInWeeklyReport.acl = {
+  action: 'read',
+  subject: 'admin-report-check-in-weekly-page',
+};
+
+export default AdminCheckInWeeklyReport;

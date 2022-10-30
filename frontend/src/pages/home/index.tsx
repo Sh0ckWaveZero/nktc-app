@@ -28,7 +28,7 @@ import {
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useContext } from 'react';
-import { BsCalendar2Date } from 'react-icons/bs';
+import { BsCalendar2Date, BsCalendar2Month, BsCalendar2Week } from 'react-icons/bs';
 import { TbReport } from "react-icons/tb";
 
 const Home = () => {
@@ -63,13 +63,49 @@ const Home = () => {
     {
       title: 'Report',
       subtitle: 'เช็คชื่อนหน้าเสาธง',
-      color: '#8EBF07',
+      color: '#82ad09',
       icon: <BsCalendar2Date />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
         path: '/apps/reports/check-in/daily',
         action: 'read',
         subject: 'report-check-in-daily-page',
+      },
+    },
+    {
+      title: 'รายงานเช็คชื่อ',
+      subtitle: 'เสาธงรายวัน',
+      color: '#19adb5',
+      icon: <BsCalendar2Date />,
+      navLink: {
+        title: 'รายงานเช็คชื่อเสาธงรายวัน',
+        path: '/apps/admin/reports/check-in/daily',
+        action: 'read',
+        subject: 'admin-report-check-in-daily-page',
+      },
+    },
+    {
+      title: 'รายงานเช็คชื่อ',
+      subtitle: 'เสาธงรายสัปดาห์',
+      color: '#ead415',
+      icon: <BsCalendar2Week />,
+      navLink: {
+        title: 'รายงานเช็คชื่อเสาธงรายสัปดาห์',
+        path: '/apps/admin/reports/check-in/weekly',
+        action: 'read',
+        subject: 'admin-report-check-in-weekly-page',
+      },
+    },
+    {
+      title: 'รายงานเช็คชื่อ',
+      subtitle: 'เสาธงรายเดือน',
+      color: '#9a0a74',
+      icon: <BsCalendar2Month />,
+      navLink: {
+        title: 'รายงานเช็คชื่อเสาธงรายเดือน',
+        path: '/apps/admin/reports/check-in/monthly',
+        action: 'read',
+        subject: 'admin-report-check-in-monthly-page',
       },
     },
     {
@@ -151,9 +187,9 @@ const Home = () => {
       icon: <HiOutlineDatabase />,
       navLink: {
         title: 'ข้อมูลนักเรียนทั้งหมด',
-        path: '/home',
+        path: '/apps/student/list',
         action: 'read',
-        subject: 'student-all-page',
+        subject: 'student-list-pages',
       },
     },
     {
@@ -163,9 +199,9 @@ const Home = () => {
       icon: <HiOutlineSelector />,
       navLink: {
         title: 'เพิ่ม ลบ แก้ไข ข้อมูลนักเรียน',
-        path: '/home',
+        path: '/apps/student/list',
         action: 'read',
-        subject: 'manage-student-page',
+        subject: 'student-manage-pages',
       },
     },
     {
@@ -175,9 +211,9 @@ const Home = () => {
       icon: <MdManageAccounts />,
       navLink: {
         title: 'จัดการข้อมูลครู/ บุคลากร',
-        path: '/home',
+        path: '/apps/teacher/list',
         action: 'read',
-        subject: 'manage-teacher-page',
+        subject: 'teacher-list-pages',
       },
     },
     {

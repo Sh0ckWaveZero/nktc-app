@@ -7,8 +7,9 @@ import { BsCalendar2Date } from 'react-icons/bs';
 import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
 import { useReportCheckInStore, useUserStore } from '@/store/index';
 import shallow from 'zustand/shallow';
+import { Subjects } from '../../../../../configs/acl';
 
-const UserList = () => {
+const AdminCheckInDailyReport = () => {
   // ** Store Vars
   const { findDailyReportAdmin } = useReportCheckInStore(
     (state) => ({
@@ -18,7 +19,7 @@ const UserList = () => {
   );
 
   const { accessToken } = useUserStore(
-    (state) => ({
+    (state: any) => ({
       accessToken: state.accessToken,
     }),
     shallow,
@@ -74,4 +75,9 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+AdminCheckInDailyReport.acl = {
+  action: 'read',
+  subject: 'admin-report-check-in-daily-page',
+};
+
+export default AdminCheckInDailyReport;

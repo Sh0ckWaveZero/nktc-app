@@ -1,10 +1,9 @@
 // ** Icon imports
 import {
   HomeOutline,
-  ShieldOutline,
   HumanMaleBoard,
 } from 'mdi-material-ui';
-import { RiUser5Line, RiUser6Line } from 'react-icons/ri';
+import { RiContactsBookLine, RiTeamLine, RiUser6Line } from 'react-icons/ri';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
@@ -29,14 +28,14 @@ const navigation = (): VerticalNavItemsType => {
       title: 'ครู / บุคลากร',
       icon: HumanMaleBoard,
       action: 'read',
-      subject: 'teacherAll',
+      subject: 'teacher-page',
       children: [
         {
           title: 'รายชื่อทั้งหมด',
-          icon: ShieldOutline,
+          icon: RiContactsBookLine,
           path: '/apps/teacher/list',
-          action: 'manage',
-          subject: 'teacherAll',
+          action: 'read',
+          subject: 'teacher-page',
         },
         // {
         //   title: 'View',
@@ -46,14 +45,16 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'นักเรียน',
-      icon: RiUser5Line,
+      icon: RiTeamLine,
       action: 'read',
-      subject: 'student',
+      subject: 'student-page',
       children: [
         {
           title: 'รายชื่อทั้งหมด',
-          icon: ShieldOutline,
-          // path: '/apps/user/list',
+          icon: RiContactsBookLine,
+          path: '/apps/student/list',
+          action: 'read',
+          subject: 'student-page',
         },
         // {
         // title: 'View',
@@ -93,20 +94,6 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'report-check-in-page',
           path: '/apps/reports/check-in/daily',
         },
-        // {
-        //   title: 'รายสัปดาห์',
-        //   icon: BsCalendar2Week,
-        //   action: 'read',
-        //   subject: 'report-check-in-page',
-        //   path: '/apps/reports/check-in/weekly',
-        // },
-        // {
-        //   title: 'รายเดือน',
-        //   icon: BsCalendar2Month,
-        //   action: 'read',
-        //   subject: 'report-check-in-page',
-        //   path: '/apps/reports/check-in/monthly',
-        // },
         {
           title: 'รายงานสรุป',
           icon: BsBarChartLine,
@@ -148,13 +135,13 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/monthly',
         },
-        {
-          title: 'รายงานสรุป',
-          icon: BsBarChartLine,
-          action: 'read',
-          subject: 'admin-report-check-in-page',
-          path: '/apps/admin/reports/check-in/summary',
-        }
+        // {
+        //   title: 'รายงานสรุป',
+        //   icon: BsBarChartLine,
+        //   action: 'read',
+        //   subject: 'admin-report-check-in-page',
+        //   path: '/apps/admin/reports/check-in/summary',
+        // }
       ],
     },
   ];

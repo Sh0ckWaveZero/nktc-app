@@ -3,7 +3,6 @@ import create from 'zustand';
 
 // ** Config
 import authConfig from '@/configs/auth';
-import shallow from 'zustand/shallow';
 interface StudentQuery {
   q: string;
 }
@@ -36,21 +35,22 @@ export const useStudentStore = create<StudentState>()(
         set({ loading: false, hasErrors: true });
       }
     },
-    fetchStudentByClassroom: async (token: string, teacherId: any) => {
+    fetchStudentByClassroom: async (token: string, classroomId: any) => {
       set({ loading: true, students: [] });
       try {
-        const { data } = await axios.get(`${authConfig.studentEndpoint}/classroom/${teacherId}`,
+        const { data } = await axios.get(`${authConfig.studentEndpoint}/classroom/${classroomId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
         set({ students: await data, loading: false, hasErrors: false });
+        return await data;
       } catch (err) {
         set({ students: null, loading: false, hasErrors: true });
+        return null;
       }
     },
     removeStudents: () => set({ students: [] }),
-    shallow,
   }),
 );
