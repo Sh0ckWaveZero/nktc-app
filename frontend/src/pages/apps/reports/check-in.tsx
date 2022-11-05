@@ -1,5 +1,5 @@
 // ** React Imports
-import { useContext, useState } from 'react';
+import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
 import {
@@ -18,15 +18,14 @@ import {
 import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
 
 // ** Store Imports
-import { useUserStore, useReportCheckInStore, useTeacherStore } from '@/store/index';
+import { useReportCheckInStore, useTeacherStore } from '@/store/index';
 
 // ** Custom Components Imports
 import TableHeader from '@/views/apps/reports/check-in/TableHeader';
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import toast, { Toaster } from 'react-hot-toast';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
+import toast from 'react-hot-toast';
 import { HiOutlineFlag } from 'react-icons/hi';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
@@ -35,6 +34,8 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
 import shallow from 'zustand/shallow';
+import { authConfig } from '@/configs/auth';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface CellType {
   // row: teachersTypes;
@@ -43,10 +44,9 @@ interface CellType {
 
 const StudentCheckIn = () => {
   // ** Hooks
-  const { userInfo, accessToken } = useUserStore(
-    (state) => ({ userInfo: state.userInfo, accessToken: state.accessToken }),
-    shallow,
-  );
+  const auth = useAuth();
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
   const { getReportCheckIn, addReportCheckIn } = useReportCheckInStore(
     (state) => ({
       getReportCheckIn: state.getReportCheckIn,
@@ -81,14 +81,14 @@ const StudentCheckIn = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      await fetchClassroomByTeachId(accessToken, userInfo?.teacher?.id).then(async ({ data }: any) => {
-        await getCheckInStatus(userInfo?.teacher?.id, await data?.classrooms[0]?.id);
+      await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
+        await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
         setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(await data?.classrooms[0]?.students);
       });
     };
-    if (ability?.can('read', 'check-in-page') && userInfo.role !== 'Admin') {
+    if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
       fetch();
     } else {
       router.push('/401');
@@ -432,7 +432,7 @@ const StudentCheckIn = () => {
   const onHandleSubmit = async (event: any) => {
     event.preventDefault();
     const data = {
-      teacherId: userInfo?.teacher?.id,
+      teacherId: auth?.user?.teacher?.id,
       classroomId: defaultClassroom.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
@@ -443,12 +443,12 @@ const StudentCheckIn = () => {
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck).length;
     if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addReportCheckIn(accessToken, data), {
+      toast.promise(addReportCheckIn(storedToken, data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
       });
-      getCheckInStatus(userInfo?.teacher?.id, defaultClassroom?.id);
+      getCheckInStatus(auth?.user?.teacher?.id as string, defaultClassroom?.id);
       onClearAll('');
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
@@ -461,7 +461,7 @@ const StudentCheckIn = () => {
       target: { value },
     } = event;
     const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
-    await getCheckInStatus(userInfo?.teacher?.id, classroomObj?.id);
+    await getCheckInStatus(auth?.user?.teacher?.id as string, classroomObj?.id);
     setCurrentStudents(classroomObj.students);
     setDefaultClassroom(classroomObj);
     setOpenAlert(true);
@@ -470,7 +470,7 @@ const StudentCheckIn = () => {
 
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
-    await getReportCheckIn(accessToken, { teacher, classroom }).then(async (data: any) => {
+    await getReportCheckIn(storedToken, { teacher, classroom }).then(async (data: any) => {
       setReportCheckIn(await data);
       setLoading(false);
     });
@@ -478,12 +478,8 @@ const StudentCheckIn = () => {
 
   return (
     ability?.can('read', 'check-in-page') &&
-    userInfo.role !== 'Admin' && (
-      <>
-        <ReactHotToast>
-          <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-        </ReactHotToast>
-
+    (auth?.user?.role as string) !== 'Admin' && (
+      <Fragment>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -576,7 +572,7 @@ const StudentCheckIn = () => {
             </Card>
           </Grid>
         </Grid>
-      </>
+      </Fragment>
     )
   );
 };

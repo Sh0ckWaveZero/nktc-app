@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect, MouseEvent, useCallback, ReactElement } from 'react';
+import { useState, useEffect, MouseEvent, useCallback, ReactElement, Fragment } from 'react';
 
 // ** Next Import
 import Link from 'next/link';
@@ -38,7 +38,7 @@ import {
 } from 'mdi-material-ui';
 
 // ** Store Imports
-import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
+import { useClassroomStore, useTeacherStore } from '@/store/index';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -57,9 +57,9 @@ import { userRoleType, userStatusType } from '@/@core/utils/types';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
-import toast, { Toaster } from 'react-hot-toast';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
-
+import toast from 'react-hot-toast';
+import { authConfig } from '@/configs/auth';
+import shallow from 'zustand/shallow';
 interface UserRoleType {
   [key: string]: ReactElement;
 }
@@ -213,9 +213,24 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const { teacher, teacherLoading: loading, fetchTeacher, updateClassroom } = useTeacherStore();
-  const { classroom, fetchClassroom } = useClassroomStore();
-  const { accessToken } = useUserStore();
+  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
+  const { teacher, fetchTeacher, updateClassroom, teacherLoading }: any = useTeacherStore(
+    (state) => ({
+      teacher: state.teacher,
+      teacherLoading: state.teacherLoading,
+      fetchTeacher: state.fetchTeacher,
+      updateClassroom: state.updateClassroom,
+    }),
+    shallow,
+  );
+  const { classroom, fetchClassroom }: any = useClassroomStore(
+    (state) => ({
+      classroom: state.classroom,
+      fetchClassroom: state.fetchClassroom,
+    }),
+    shallow,
+  );
 
   useEffectOnce(() => {
     fetchClassroom(accessToken);
@@ -432,10 +447,7 @@ const TeacherList = () => {
   ];
 
   return (
-    <>
-      <ReactHotToast>
-        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-      </ReactHotToast>
+    <Fragment>
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
@@ -463,11 +475,11 @@ const TeacherList = () => {
             onSubmitted={onSubmittedClassroom}
             defaultValues={defaultValue}
             data={classroom}
-            onLoad={loading}
+            onLoad={teacherLoading}
           />
         )}
       </Grid>
-    </>
+    </Fragment>
   );
 };
 

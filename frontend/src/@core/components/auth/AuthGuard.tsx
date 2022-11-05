@@ -5,10 +5,7 @@ import { ReactNode, ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 // ** Hooks Import
-import { useUserStore } from '@/store/index';
-
-// ** JWT import
-import jwt from 'jsonwebtoken';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -17,38 +14,30 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props;
-  const { userInfo, userLoading: loading, accessToken, logout } = useUserStore();
+  const auth = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    const decoded: any = jwt.decode(accessToken, { complete: true });
-    if (!router.isReady) {
-      return;
-    }
-
-    if (!userInfo) {
-      if (router.asPath !== '/') {
-        router.replace({
-          pathname: '/login',
-          query: { returnUrl: router.asPath },
-        });
-      } else {
-        router.replace('/login');
+  useEffect(
+    () => {
+      if (!router.isReady) {
+        return;
       }
-    } else {
-      if (decoded) {
-        if (decoded?.payload.exp < Date.now() / 1000) {
-          logout();
+
+      if (auth.user === null && !window.localStorage.getItem('userData')) {
+        if (router.asPath !== '/') {
           router.replace({
             pathname: '/login',
             query: { returnUrl: router.asPath },
           });
+        } else {
+          router.replace('/login');
         }
       }
-    }
-  }, [router.route]);
+    },
+    [router.route],
+  );
 
-  if (loading || !userInfo) {
+  if (auth.loading || auth.user === null) {
     return fallback;
   }
 

@@ -43,6 +43,8 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 // ** Global css styles
 import '../styles/globals.css';
 import { AxiosInterceptor } from '@/@core/utils/http';
+import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -119,6 +121,9 @@ const App = (props: ExtendedAppProps) => {
                         </AclGuard>
                       </Guard>
                     </WindowWrapper>
+                    <ReactHotToast>
+                      <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
+                    </ReactHotToast>
                   </ThemeComponent>
                 );
               }}

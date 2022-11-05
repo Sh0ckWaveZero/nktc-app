@@ -1,4 +1,18 @@
-export default {
+type AuthConfig = {
+  meEndpoint?: string;
+  loginEndpoint?: string;
+  changePasswordEndpoint?: string;
+  teacherEndpoint?: string;
+  studentEndpoint?: string;
+  appbarEndpoint?: string;
+  classroomEndpoint?: string;
+  reportCheckInEndpoint?: string;
+  departmentEndpoint?: string;
+  registerEndpoint?: string;
+  accessToken?: string;
+}
+
+export const authConfig: AuthConfig = {
   meEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
   loginEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
   changePasswordEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/auth/update/password`,
@@ -9,5 +23,5 @@ export default {
   reportCheckInEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/reportCheckIn`,
   departmentEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/departments`,
   registerEndpoint: '/jwt/register',
-  storageTokenKeyName: 'accessToken',
+  accessToken: 'accessToken',
 };

@@ -2,7 +2,7 @@ import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
-import authConfig from '@/configs/auth';
+import { authConfig } from '@/configs/auth';
 interface UserState {
   reportCheckIn: any;
   reportCheckInLoading: boolean,
@@ -39,7 +39,7 @@ export const useReportCheckInStore = create<UserState>()(
       set({ reportCheckInLoading: true });
       try {
         const response = await axios.post(
-          authConfig.reportCheckInEndpoint,
+          authConfig.reportCheckInEndpoint as string,
           data,
           {
             headers: {

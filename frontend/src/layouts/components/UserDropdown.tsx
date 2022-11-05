@@ -18,10 +18,12 @@ import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
-import { useUserStore } from '@/store/index';
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
 import { getInitials } from '@/@core/utils/get-initials';
 import { Avatar } from '@mui/material';
+
+// ** Context
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   settings: Settings;
@@ -45,8 +47,7 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  // const { logout } = useAuth();
-  const { userInfo, logout } = useUserStore();
+  const { user, logout } = useAuth();
 
   // ** Vars
   const { direction } = settings;
@@ -94,10 +95,10 @@ const UserDropdown = (props: Props) => {
   };
 
   const avatarAccount = () => {
-    return userInfo?.role === 'Admin' ? (
-      <Avatar alt={userInfo?.username} src=' /images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+    return user?.role === 'Admin' ? (
+      <Avatar alt={user?.username} src=' /images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
     ) : (
-      customAvatar(userInfo?.account)
+      customAvatar(user?.account)
     );
   };
 
@@ -150,10 +151,10 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography variant={'button'} sx={{ fontWeight: 600 }}>
-                {userInfo?.account ? userInfo?.account?.firstName + ' ' + userInfo?.account?.lastName : '-'}
+                {user?.account ? user?.account?.firstName + ' ' + user?.account?.lastName : '-'}
               </Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                {userInfo?.role ?? '-'}
+                {user?.role ?? '-'}
               </Typography>
             </Box>
           </Box>

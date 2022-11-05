@@ -1,8 +1,7 @@
-import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
-import authConfig from '@/configs/auth';
+import {authConfig} from '@/configs/auth';
 import shallow from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 interface TeacherQuery {
@@ -28,7 +27,7 @@ export const useTeacherStore = create<TeacherState>()(
     fetchTeacher: async (token: string, params: TeacherQuery) => {
       set({ teacherLoading: true });
       try {
-        const { data } = await httpClient.get(authConfig.teacherEndpoint, {
+        const { data } = await httpClient.get(authConfig.teacherEndpoint as string, {
           params: params,
           headers: {
             Authorization: `Bearer ${token}`,

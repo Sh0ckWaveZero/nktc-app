@@ -32,6 +32,11 @@ import thLocale from 'date-fns/locale/th';
 import { toast } from 'react-hot-toast';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import shallow from 'zustand/shallow';
+import { isEmpty } from '@/@core/utils/utils';
+import { useAuth } from '../../../hooks/useAuth';
+
+// ** Config
+import { authConfig } from '@/configs/auth';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -72,14 +77,15 @@ const schema = yup.object().shape({
 
 const TabTeacherAccount = () => {
   // Hooks
-  const { userInfo, accessToken, getMe } = useUserStore(
+  const { getMe } = useUserStore(
     (state) => ({
-      userInfo: state.userInfo,
-      accessToken: state.accessToken,
       getMe: state.getMe,
     }),
     shallow,
   );
+  const auth = useAuth();
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
   const { classroom, fetchClassroom } = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
@@ -91,37 +97,38 @@ const TabTeacherAccount = () => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [classroomValues, setClassroomValues] = useState<any>([]);
   const [departmentValues, setDepartmentValues] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetch = async () => {
-      await fetchClassroom(accessToken).then(() => {
+    (async () => {
+      await fetchDepartment(storedToken).then(async (data: any) => {
+        setDepartmentValues(await data);
+      });
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      await fetchClassroom(storedToken).then(() => {
         const defaultClassroom: any =
-          classroom.filter((item: any) => userInfo?.teacherOnClassroom.includes(item.id)) ?? [];
+          classroom.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id)) ?? [];
         setClassroomValues(defaultClassroom);
+        setLoading(false);
       });
-    };
-    fetch();
-  }, []);
-
-  useEffect(() => {
-    const fetch = async () => {
-      await fetchDepartment(accessToken).then((data: any) => {
-        setDepartmentValues(data);
-      });
-    };
-    fetch();
-  }, []);
+    })();
+  }, [departmentValues]);
 
   const defaultValues = {
-    title: userInfo?.account?.title ?? '',
-    firstName: userInfo?.account?.firstName ?? '',
-    lastName: userInfo?.account?.lastName ?? '',
-    jobTitle: userInfo?.teacher?.jobTitle ?? '',
-    academicStanding: userInfo?.teacher?.academicStanding ?? '',
-    department: userInfo?.teacher?.department?.id ?? '',
-    avatar: userInfo?.account?.avatar ?? '',
-    birthDate: userInfo?.account?.birthDate ? new Date(userInfo?.account?.birthDate) : null,
-    idCard: userInfo?.account?.idCard ?? '',
+    title: auth?.user?.account?.title ?? '',
+    firstName: auth?.user?.account?.firstName ?? '',
+    lastName: auth?.user?.account?.lastName ?? '',
+    jobTitle: auth?.user?.teacher?.jobTitle ?? '',
+    academicStanding: auth?.user?.teacher?.academicStanding ?? '',
+    department: auth?.user?.teacher?.department?.id ?? '',
+    avatar: auth?.user?.account?.avatar ?? '',
+    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
+    idCard: auth?.user?.account?.idCard ?? '',
   };
 
   const {
@@ -160,9 +167,9 @@ const TabTeacherAccount = () => {
   const onSubmit = async (data: any, e: any) => {
     e.preventDefault();
     const profile = {
-      id: userInfo?.id,
-      teacherInfo: userInfo?.teacher?.id,
-      accountId: userInfo?.account?.id,
+      id: auth?.user?.id,
+      teacherInfo: auth?.user?.teacher?.id,
+      accountId: auth?.user?.account?.id,
       title: data.title,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -175,13 +182,19 @@ const TabTeacherAccount = () => {
       idCard: data.idCard,
       classrooms: classroomValues.map((item: any) => item.id),
     };
-    toast.promise(updateProfile(accessToken, profile), {
+
+    toast.promise(updateProfile(storedToken, profile), {
       loading: 'กำลังบันทึกข้อมูล...',
       success: 'บันทึกข้อมูลสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
     });
+    auth?.setUser(JSON.stringify(await getMe(storedToken)) as any);
 
-    await getMe(accessToken, userInfo?.username);
+    await getMe(storedToken).then(async (data: any) => {
+      auth?.setUser({ ...(await data) });
+      localStorage.setItem('userData', JSON.stringify(data));
+      location.reload();
+    });
   };
 
   return (
@@ -348,11 +361,13 @@ const TabTeacherAccount = () => {
                         <MenuItem value=''>
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
-                        {departmentValues.map((department: any) => (
-                          <MenuItem key={department.id} value={department.id}>
-                            {department.name}
-                          </MenuItem>
-                        ))}
+                        {!isEmpty(departmentValues)
+                          ? departmentValues.map((department: any) => (
+                              <MenuItem key={department.id} value={department.id}>
+                                {department.name}
+                              </MenuItem>
+                            ))
+                          : null}
                       </Select>
                     </Fragment>
                   )}
@@ -385,10 +400,11 @@ const TabTeacherAccount = () => {
                 limitTags={15}
                 value={classroomValues}
                 options={classroom}
+                loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
                 isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props, option, { selected }) => (
+                renderOption={(props, option) => (
                   <li key={option.classroomId} {...props}>
                     {option.name}
                   </li>

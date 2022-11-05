@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
-import { useReportCheckInStore, useUserStore } from '@/store/index';
+import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
+import { authConfig } from '@/configs/auth';
 dayjs.locale('th');
 
 const AdminCheckInWeeklyReport = () => {
@@ -20,12 +21,7 @@ const AdminCheckInWeeklyReport = () => {
     shallow,
   );
 
-  const { accessToken } = useUserStore(
-    (state) => ({
-      accessToken: state.accessToken,
-    }),
-    shallow,
-  );
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
   // ** State
   const [value, setValue] = useState([]);
@@ -39,7 +35,7 @@ const AdminCheckInWeeklyReport = () => {
       setStartOfWeek(start);
       const end = selectedDate.endOf('week').subtract(1, 'day');
       setEndOfWeek(end);
-      await findDailyReportAdmin(accessToken, { startDate: start, endDate: end }).then(async (res: any) => {
+      await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
     };

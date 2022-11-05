@@ -16,13 +16,14 @@ import CustomAvatar from '@/@core/components/mui/avatar';
 import { getInitials } from '@/@core/utils/get-initials';
 
 import { Avatar, Box, Button, Card, CardHeader, Grid, Typography } from '@mui/material';
-import { useClassroomStore, useStudentStore, useUserStore } from '@/store/index';
+import { useClassroomStore, useStudentStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import TableHeader from '@/views/apps/student/list/TableHeader';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
+import { authConfig } from '@/configs/auth';
 
 interface CellType {
   row: any;
@@ -126,7 +127,7 @@ const defaultColumns: GridColumns = [
     hideSortIcons: true,
     filterable: false,
     align: 'center',
-    renderCell: ({ row }: CellType) => {
+    renderCell: () => {
       return (
         <Button disabled color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
           แก้ไข
@@ -144,7 +145,7 @@ const defaultColumns: GridColumns = [
     hideSortIcons: true,
     filterable: false,
     align: 'center',
-    renderCell: ({ row }: CellType) => {
+    renderCell: () => {
       return (
         <Button disabled color='error' variant='contained' startIcon={<RiUserUnfollowLine fontSize='small' />}>
           ลบ
@@ -159,7 +160,7 @@ const defaultColumns: GridColumns = [
     field: 'details',
     headerName: 'ดูรายละเอียด',
     align: 'center',
-    renderCell: ({ row }: CellType) => {
+    renderCell: () => {
       return (
         <Button disabled color='primary' variant='contained' startIcon={<RiUserSearchLine fontSize='small' />}>
           ดู
@@ -180,6 +181,8 @@ const StudentList = () => {
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
 
   // ** Hooks
+  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
   const { fetchStudentByClassroom } = useStudentStore(
     (state: any) => ({
       fetchStudentByClassroom: state.fetchStudentByClassroom,
@@ -187,13 +190,6 @@ const StudentList = () => {
     shallow,
   );
   const { fetchClassroom } = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
-
-  const { accessToken } = useUserStore(
-    (state: any) => ({
-      accessToken: state.accessToken,
-    }),
-    shallow,
-  );
 
   useEffectOnce(() => {
     const fetch = async () => {

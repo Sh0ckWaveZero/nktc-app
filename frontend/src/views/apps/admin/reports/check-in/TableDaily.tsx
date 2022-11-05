@@ -41,34 +41,6 @@ const ccyFormat = (num: number) => {
   return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
 };
 
-const createRow = (
-  level: string,
-  department: string,
-  present: number,
-  presentPercent: number,
-  absent: number,
-  absentPercent: number,
-  leave: number,
-  leavePercent: number,
-  late: number,
-  latePercent: number,
-  total: number,
-): Row => {
-  return {
-    level,
-    department,
-    present,
-    presentPercent,
-    absent,
-    absentPercent,
-    leave,
-    leavePercent,
-    late,
-    latePercent,
-    total,
-  };
-};
-
 const TableCellText = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontWeight: 400,
   textDecoration: 'none',

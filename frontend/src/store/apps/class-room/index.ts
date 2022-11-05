@@ -2,7 +2,7 @@ import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
-import authConfig from '@/configs/auth';
+import { authConfig } from '@/configs/auth';
 import { Classroom } from '@/types/apps/teacherTypes';
 import shallow from 'zustand/shallow';
 
@@ -26,7 +26,7 @@ export const useClassroomStore = create<classroomState>()(
     fetchClassroom: async (token: string) => {
       try {
         set({ classroomLoading: true });
-        const { data } = await axios.get(authConfig.classroomEndpoint, {
+        const { data } = await axios.get(authConfig.classroomEndpoint as string, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

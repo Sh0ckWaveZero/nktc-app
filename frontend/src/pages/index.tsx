@@ -8,20 +8,20 @@ import { useRouter } from 'next/router';
 import Spinner from '@/@core/components/spinner';
 
 // ** Hook Imports
-import { useUserStore } from '@/store/index';
+// import { useUserStore } from '@/store/index';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  *  Set Home URL based on User Roles
  */
 export const getHomeRoute = (role: string) => {
-  if (role === 'Teacher') return '/home'
-  else return '/home'
+  if (role === 'Teacher') return '/home';
+  else return '/home';
 };
 
 const Home = () => {
   // ** Hooks
-  // const auth = useAuth();
-  const { userInfo } = useUserStore();
+  const auth = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -29,8 +29,8 @@ const Home = () => {
       return;
     }
 
-    if (userInfo && userInfo.role) {
-      const homeRoute = getHomeRoute(userInfo.role);
+    if (auth.user && auth.user.role) {
+      const homeRoute = getHomeRoute(auth.user.role);
 
       // Redirect user to Home URL
       router.replace(homeRoute);

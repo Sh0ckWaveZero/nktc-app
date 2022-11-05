@@ -56,8 +56,12 @@ import UserIcon from '@/layouts/components/UserIcon';
 import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 
-import { useAppbarStore, useUserStore } from '@/store/index';
+import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
+
+// ** Config
+import { authConfig } from '@/configs/auth';
+
 interface Props {
   hidden: boolean;
   settings: Settings;
@@ -404,15 +408,12 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   const fetch = useAppbarStore((state) => state.fetchAppbar);
   const options = useAppbarStore((state) => state.appbar);
-
   const debouncedValue = useDebounce<string>(searchValue, 500);
-
-  const { accessToken } = useUserStore();
 
   // Get all data using API
   useEffect(() => {
-    // const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!;
-    fetch(debouncedValue, accessToken);
+    const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+    fetch(debouncedValue, storedToken);
   }, [debouncedValue]);
 
   useEffect(() => {

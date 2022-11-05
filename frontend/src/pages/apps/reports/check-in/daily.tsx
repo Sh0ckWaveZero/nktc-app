@@ -17,20 +17,18 @@ import {
   DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
+
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
 
-// ** Icons Imports
-
 // ** Store Imports
-import { useUserStore, useReportCheckInStore, useClassroomStore } from '@/store/index';
+import { useReportCheckInStore, useClassroomStore } from '@/store/index';
 
 // ** Custom Components Imports
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import toast, { Toaster } from 'react-hot-toast';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
+import toast from 'react-hot-toast';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -47,6 +45,8 @@ import {
 } from 'mdi-material-ui';
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import shallow from 'zustand/shallow';
+import { authConfig } from '@/configs/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CellType {
   // row: teachersTypes;
@@ -86,20 +86,17 @@ const ReportCheckInDaily = () => {
   let isLeaveCheck: any[] = [];
 
   // ** Hooks
-  const { fetchTeachClassroom } = useClassroomStore(
+  const auth = useAuth();
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
+  const { fetchTeachClassroom }: any = useClassroomStore(
     (state) => ({
       fetchTeachClassroom: state.fetchTeachClassroom,
     }),
     shallow,
   );
-  const { userInfo, accessToken } = useUserStore(
-    (state) => ({
-      userInfo: state.userInfo,
-      accessToken: state.accessToken,
-    }),
-    shallow,
-  );
-  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn } = useReportCheckInStore(
+
+  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn }: any = useReportCheckInStore(
     (state) => ({
       getReportCheckIn: state.getReportCheckIn,
       findDailyReport: state.findDailyReport,
@@ -126,7 +123,7 @@ const ReportCheckInDaily = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(accessToken, userInfo?.teacher?.id).then(async (classroomsInfo: any) => {
+      fetchTeachClassroom(storedToken, auth?.user?.teacher?.id).then(async (classroomsInfo: any) => {
         const classrooms = (await classroomsInfo) ? classroomsInfo : [];
         setDefaultClassroom(classrooms[0]);
         setClassrooms(classrooms);
@@ -134,7 +131,7 @@ const ReportCheckInDaily = () => {
       });
     };
     // check permission
-    if (ability?.can('read', 'report-check-in-daily-page') && userInfo.role !== 'Admin') {
+    if (ability?.can('read', 'report-check-in-daily-page') && (auth?.user?.role as string) !== 'Admin') {
       fetch();
     } else {
       router.push('/401');
@@ -143,8 +140,8 @@ const ReportCheckInDaily = () => {
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
     setLoading(true);
-    await findDailyReport(accessToken, {
-      teacherId: userInfo?.teacher?.id,
+    await findDailyReport(storedToken, {
+      teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : defaultClassroom.id,
       startDate: date ? date : selectedDate,
     }).then(async (data: any) => {
@@ -152,8 +149,8 @@ const ReportCheckInDaily = () => {
       console.log('🚀 ~ file: daily.tsx ~ line 152 ~ fetchDailyReport ~ reportCheckInData', reportCheckInData);
       setCurrentStudents(reportCheckInData?.students ?? []);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
-      getReportCheckIn(accessToken, {
-        teacher: userInfo?.teacher?.id,
+      getReportCheckIn(storedToken, {
+        teacher: auth?.user?.teacher?.id,
         classroom: classroom ? classroom : defaultClassroom.id,
       });
       setLoading(false);
@@ -304,10 +301,10 @@ const ReportCheckInDaily = () => {
       absent: isAbsentCheck,
       late: isLateCheck,
       leave: isLeaveCheck,
-      updateBy: userInfo?.id,
+      updateBy: auth?.user?.id,
     };
 
-    toast.promise(updateReportCheckIn(accessToken, data), {
+    toast.promise(updateReportCheckIn(storedToken, data), {
       loading: 'กำลังบันทึกการแก้ไขเช็คชื่อ...',
       success: 'บันทึกการแก้ไขเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
@@ -453,7 +450,7 @@ const ReportCheckInDaily = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeReportCheckIn(accessToken, reportCheckInData?.id), {
+    toast.promise(removeReportCheckIn(storedToken, reportCheckInData?.id), {
       loading: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
@@ -465,12 +462,8 @@ const ReportCheckInDaily = () => {
 
   return (
     ability?.can('read', 'check-in-page') &&
-    userInfo.role !== 'Admin' && (
-      <>
-        <ReactHotToast>
-          <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-        </ReactHotToast>
-
+    auth?.user?.role !== 'Admin' && (
+      <Fragment>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -567,7 +560,7 @@ const ReportCheckInDaily = () => {
             </Dialog>
           </Fragment>
         )}
-      </>
+      </Fragment>
     )
   );
 };

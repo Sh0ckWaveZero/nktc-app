@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, SyntheticEvent, useState } from 'react';
+import { Fragment, lazy, SyntheticEvent, useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -20,10 +20,12 @@ import TabSecurity from '@/views/pages/account-settings/TabSecurity';
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css';
-import { useUserStore } from '../../../store/apps/user/index';
-import TabTeacherAccount from '@/views/pages/account-settings/TabTeacherAccount';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
-import { Toaster } from 'react-hot-toast';
+// import TabTeacherAccount from '@/views/pages/account-settings/TabTeacherAccount';
+import { useAuth } from '../../../hooks/useAuth';
+import FallbackSpinner from '@/@core/components/spinner';
+import { isEmpty } from '../../../@core/utils/utils';
+
+const TabTeacherAccount = lazy(() => import('@/views/pages/account-settings/TabTeacherAccount')); // Lazy-loaded
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -48,7 +50,7 @@ const AccountSettings = () => {
   const [value, setValue] = useState<string>('account');
 
   // Hooks
-  const { userInfo } = useUserStore();
+  const auth = useAuth();
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     event.preventDefault();
     setValue(newValue);
@@ -56,9 +58,6 @@ const AccountSettings = () => {
 
   return (
     <Fragment>
-      <ReactHotToast>
-        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-      </ReactHotToast>
       <Card>
         <TabContext value={value}>
           <TabList
@@ -86,7 +85,13 @@ const AccountSettings = () => {
             />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='account'>
-            {userInfo?.role === 'Teacher' ? <TabTeacherAccount /> : <TabAccount />}
+            {isEmpty(auth?.user) ? (
+              <FallbackSpinner />
+            ) : auth?.user?.role === 'Teacher' ? (
+              <TabTeacherAccount />
+            ) : (
+              <TabAccount />
+            )}
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='security'>
             <TabSecurity />

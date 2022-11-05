@@ -11,15 +11,58 @@ export type RegisterParams = {
   password: string;
 };
 
-export type UserDataType = {
-  id: number;
-  role: string;
-  email: string;
-  fullName: string;
-  username: string;
-  password: string;
-  avatar?: string | null;
-};
+export interface UserDataType {
+  id?: string;
+  username?: string;
+  email?: string | null;
+  role?: string;
+  status?: null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  updatedBy?: string;
+  createdBy?: string;
+  verificationToken?: null;
+  refreshToken?: null;
+  accessToken?: null;
+  expiresAt?: null;
+  account?: Account;
+  teacher?: Teacher;
+  student?: null;
+  teacherOnClassroom?: string[];
+}
+
+export interface Account {
+  id?: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  birthDate?: Date;
+  idCard?: string;
+}
+
+export interface Teacher {
+  id?: string;
+  teacherId?: string;
+  jobTitle?: string;
+  academicStanding?: string;
+  classrooms?: any[];
+  department?: Department;
+  status?: string;
+}
+
+export interface Department {
+  id?: string;
+  departmentId?: string;
+  name?: string;
+  description?: string;
+  status?: null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  updatedBy?: string;
+  createdBy?: string;
+}
+
 
 export type AuthValuesType = {
   loading: boolean;

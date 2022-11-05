@@ -2,7 +2,7 @@ import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
-import authConfig from '@/configs/auth';
+import {authConfig} from '@/configs/auth';
 interface StudentQuery {
   q: string;
 }
@@ -23,7 +23,7 @@ export const useStudentStore = create<StudentState>()(
     fetchStudent: async (token: string, params: StudentQuery) => {
       set({ loading: true });
       try {
-        const { data } = await axios.get(authConfig.teacherEndpoint,
+        const { data } = await axios.get(authConfig.teacherEndpoint as string,
           {
             params: params,
             headers: {

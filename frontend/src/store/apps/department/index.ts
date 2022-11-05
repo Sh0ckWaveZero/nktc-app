@@ -2,7 +2,7 @@ import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
-import authConfig from '@/configs/auth';
+import { authConfig } from '@/configs/auth';
 
 interface UserState {
   department: any;

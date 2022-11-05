@@ -28,6 +28,9 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormHelperText } from '@mui/material';
 import { useUserStore } from '@/store/index';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { authConfig } from '@/configs/auth';
+import shallow from 'zustand/shallow';
 
 interface State {
   showNewPassword: boolean;
@@ -43,11 +46,11 @@ interface IFormInputs {
 
 const schema = yup.object().shape({
   currentPassword: yup.string().required('กรุณากรอกรหัสผ่านปัจจุบัน'),
-  newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').length(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
+  newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
   confirmNewPassword: yup
     .string()
     .required('กรุณายืนยันรหัสผ่านใหม่')
-    .length(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
+    .min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
 });
 
 const TabSecurity = () => {
@@ -69,7 +72,12 @@ const TabSecurity = () => {
     resolver: yupResolver(schema),
   });
 
-  const { changePassword, accessToken, login, userInfo } = useUserStore();
+  const auth = useAuth();
+  const { changePassword, login } = useUserStore(
+    (state) => ({ changePassword: state.changePassword, login: state.login }),
+    shallow,
+  );
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
   // ** States
   const [values, setValues] = useState<State>({
@@ -106,16 +114,20 @@ const TabSecurity = () => {
     }
 
     await toast.promise(
-      changePassword(accessToken, { old_password: data.currentPassword, new_password: data.newPassword }),
+      changePassword(storedToken, { old_password: data.currentPassword, new_password: data.newPassword }),
       {
         loading: 'กำลังเปลี่ยนรหัสผ่าน...',
         success: 'เปลี่ยนรหัสผ่านสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
       },
     );
-    
-    await login({ username: userInfo.username, password: data.newPassword });
     reset();
+    await login({ username: auth?.user?.username as string, password: data.newPassword }).then(async (data: any) => {
+      auth?.setUser({ ...(await data) });
+      localStorage.setItem('userData', JSON.stringify(data));
+      location.reload();
+    });
+    // await login({ username: userInfo.username, password: data.newPassword });
   };
 
   return (

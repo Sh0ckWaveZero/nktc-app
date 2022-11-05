@@ -15,17 +15,19 @@ import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 // ** Icons Imports
-import CogOutline from 'mdi-material-ui/CogOutline';
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd';
-import EmailOutline from 'mdi-material-ui/EmailOutline';
-import LogoutVariant from 'mdi-material-ui/LogoutVariant';
-import AccountOutline from 'mdi-material-ui/AccountOutline';
-import MessageOutline from 'mdi-material-ui/MessageOutline';
-import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline';
+import {
+  AccountOutline,
+  CogOutline,
+  CurrencyUsd,
+  EmailOutline,
+  HelpCircleOutline,
+  LogoutVariant,
+  MessageOutline,
+} from 'mdi-material-ui';
 
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
-import { useUserStore } from '@/store/index';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   settings: Settings;
@@ -49,7 +51,7 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const { logout } = useUserStore();
+  const { logout } = useAuth();
 
   // ** Vars
   const { direction } = settings;

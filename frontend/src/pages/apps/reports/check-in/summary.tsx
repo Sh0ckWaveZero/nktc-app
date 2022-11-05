@@ -1,25 +1,26 @@
 // ** React Imports
-import { useContext, useState } from 'react';
+import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
 import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 
 // ** Store Imports
-import { useUserStore, useReportCheckInStore, useClassroomStore } from '@/store/index';
+import { useReportCheckInStore, useClassroomStore } from '@/store/index';
 
 // ** Custom Components Imports
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
-import { Toaster } from 'react-hot-toast';
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
+import { useAuth } from '@/hooks/useAuth';
+import { authConfig } from '@/configs/auth';
+import shallow from 'zustand/shallow';
 
 interface CellType {
   // row: teachersTypes;
@@ -28,11 +29,24 @@ interface CellType {
 
 const ReportCheckInDaily = () => {
   // ** Hooks
-  const { fetchTeachClassroom } = useClassroomStore();
-  const { userInfo, accessToken } = useUserStore();
-  const { findSummaryReport, updateReportCheckIn, removeReportCheckIn } = useReportCheckInStore();
+  const auth = useAuth();
+  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
+
+  // ** Store Vars
+  const { fetchTeachClassroom }: any = useClassroomStore(
+    (state) => ({
+      fetchTeachClassroom: state.fetchTeachClassroom,
+    }),
+    shallow,
+  );
+  const { findSummaryReport }: any = useReportCheckInStore(
+    (state) => ({
+      findSummaryReport: state.findSummaryReport,
+    }),
+    shallow,
+  );
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
@@ -45,14 +59,14 @@ const ReportCheckInDaily = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(accessToken, userInfo?.teacher?.id).then(async (result: any) => {
+      fetchTeachClassroom(accessToken, auth?.user?.teacher?.id as string).then(async (result: any) => {
         setClassroomName((await result) ? result[0] : []);
         setClassrooms((await result) ? result : []);
         await fetchDailyReport((await result) ? result[0].id : {});
       });
     };
     // check permission
-    if (ability?.can('read', 'report-check-in-daily-page') && userInfo.role !== 'Admin') {
+    if (ability?.can('read', 'report-check-in-daily-page') && auth?.user?.role !== 'Admin') {
       fetch();
     } else {
       router.push('/401');
@@ -62,7 +76,7 @@ const ReportCheckInDaily = () => {
   const fetchDailyReport = async (classroom: any = '') => {
     setLoading(true);
     await findSummaryReport(accessToken, {
-      teacherId: userInfo?.teacher?.id,
+      teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
       setCurrentStudents(await data);
@@ -73,7 +87,6 @@ const ReportCheckInDaily = () => {
   const ccyFormat = (num: number) => {
     return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
   };
-
 
   const columns: GridColumns = [
     {
@@ -326,12 +339,8 @@ const ReportCheckInDaily = () => {
 
   return (
     ability?.can('read', 'report-check-in-summary-page') &&
-    userInfo.role !== 'Admin' && (
-      <>
-        <ReactHotToast>
-          <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
-        </ReactHotToast>
-
+    auth?.user?.role !== 'Admin' && (
+      <Fragment>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -371,7 +380,7 @@ const ReportCheckInDaily = () => {
             </Card>
           </Grid>
         </Grid>
-      </>
+      </Fragment>
     )
   );
 };

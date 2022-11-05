@@ -5,8 +5,9 @@ import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
 import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
-import { useReportCheckInStore, useUserStore } from '@/store/index';
+import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
+import { authConfig } from '@/configs/auth';
 
 const AdminCheckInDailyReport = () => {
   // ** Store Vars
@@ -16,13 +17,7 @@ const AdminCheckInDailyReport = () => {
     }),
     shallow,
   );
-
-  const { accessToken } = useUserStore(
-    (state: any) => ({
-      accessToken: state.accessToken,
-    }),
-    shallow,
-  );
+  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
   // ** State
   const [value, setValue] = useState([]);
@@ -30,7 +25,7 @@ const AdminCheckInDailyReport = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      await findDailyReportAdmin(accessToken, { startDate: selectedDate, endDate: selectedDate }).then(
+      await findDailyReportAdmin(storedToken, { startDate: selectedDate, endDate: selectedDate }).then(
         async (res: any) => {
           setValue(await res);
         },
