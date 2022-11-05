@@ -27,7 +27,7 @@ export class StudentsService {
             programId: true,
             levelId: true,
             levelClassroomId: true,
-            stutus: true,
+            status: true,
             classroom: {
               select: {
                 name: true,

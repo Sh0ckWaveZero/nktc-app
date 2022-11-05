@@ -172,7 +172,6 @@ export class UsersService {
 
     // remove password from user object
     const { password: p, ...rest } = { ...user, teacherOnClassroom };
-    console.log("🚀 ~ file: users.service.ts ~ line 175 ~ UsersService ~ finedById ~ rest", rest)
     return rest;
   }
 

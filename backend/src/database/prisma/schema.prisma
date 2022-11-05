@@ -127,7 +127,7 @@ model Student {
   graduationDate   DateTime?
   studentStatus    String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
   group            String?
-  stutus           String?
+  status           String?
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
   classroom        Classroom?      @relation(fields: [classroomId], references: [id])
