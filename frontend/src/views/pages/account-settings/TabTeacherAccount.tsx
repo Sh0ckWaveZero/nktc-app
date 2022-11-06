@@ -13,6 +13,7 @@ import {
   CardContent,
   FormControl,
   Autocomplete,
+  FormHelperText,
 } from '@mui/material';
 
 import { styled } from '@mui/material/styles';
@@ -68,10 +69,10 @@ const schema = yup.object().shape({
   lastName: yup.string().required('กรุณากรอกนามสกุล'),
   jobTitle: yup.string(),
   academicStanding: yup.string(),
-  department: yup.string(),
+  department: yup.string().required('กรุณาเลือกแผนกวิชา'),
   teacherOnClassroom: yup.array(),
   avatar: yup.string(),
-  birthDate: yup.string(),
+  birthDate: yup.date().nullable().default(null),
   idCard: yup.string(),
 });
 
@@ -354,8 +355,9 @@ const TabTeacherAccount = () => {
                 <Controller
                   name='department'
                   control={control}
+                  rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <FormControl error={!!errors.department}>
                       <InputLabel>แผนกวิชา</InputLabel>
                       <Select label='แผนกวิชา' value={value} onChange={onChange}>
                         <MenuItem value=''>
@@ -369,7 +371,10 @@ const TabTeacherAccount = () => {
                             ))
                           : null}
                       </Select>
-                    </Fragment>
+                      {errors.department ? (
+                        <FormHelperText>{errors.department.message as string}</FormHelperText>
+                      ) : null}
+                    </FormControl>
                   )}
                 />
               </FormControl>
@@ -423,21 +428,19 @@ const TabTeacherAccount = () => {
                 <Controller
                   name='birthDate'
                   control={control}
-                  rules={{ required: false }}
                   render={({ field: { value, onChange } }) => (
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
                       <DatePicker
                         label='วันเกิด'
                         value={value}
                         inputFormat='dd-MM-yyyy'
-                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 70))}
+                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 90))}
                         maxDate={new Date()}
                         onChange={onChange}
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             fullWidth
-                            error={false}
                             inputProps={{
                               ...params.inputProps,
                               placeholder: 'วัน/เดือน/ปี',
@@ -447,6 +450,7 @@ const TabTeacherAccount = () => {
                         components={{
                           OpenPickerIcon: () => <FcCalendar />,
                         }}
+                        onError={console.log}
                       />
                     </LocalizationProvider>
                   )}
