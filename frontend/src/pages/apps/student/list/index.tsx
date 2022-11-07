@@ -24,6 +24,7 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import { useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
 import { authConfig } from '@/configs/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CellType {
   row: any;
@@ -181,6 +182,7 @@ const StudentList = () => {
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
 
   // ** Hooks
+  const { user } = useAuth();
   const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
   const { fetchStudentByClassroom } = useStudentStore(
@@ -192,14 +194,17 @@ const StudentList = () => {
   const { fetchClassroom } = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
 
   useEffectOnce(() => {
-    const fetch = async () => {
+    (async () => {
       setLoadingClassroom(true);
       fetchClassroom(accessToken).then(async (res: any) => {
-        setClassrooms(await res);
+        if (user?.role?.toLowerCase() === 'admin') {
+          setClassrooms(await res);
+        } else {
+          setClassrooms(await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id)));
+        }
         setLoadingClassroom(false);
       });
-    };
-    fetch();
+    })();
   });
 
   useEffect(() => {
