@@ -87,7 +87,7 @@ const TabTeacherAccount = () => {
   const auth = useAuth();
   const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
-  const { classroom, fetchClassroom } = useClassroomStore(
+  const { fetchClassroom } = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
   );
@@ -96,7 +96,8 @@ const TabTeacherAccount = () => {
 
   // ** State
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
-  const [classroomValues, setClassroomValues] = useState<any>([]);
+  const [classrooms, setClassrooms] = useState<any>([]);
+  const [classroomSelected, setClassroomSelected] = useState<any>([]);
   const [departmentValues, setDepartmentValues] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -111,10 +112,11 @@ const TabTeacherAccount = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await fetchClassroom(storedToken).then(() => {
+      await fetchClassroom(storedToken).then(async (data: any) => {
+        setClassrooms(await data);
         const defaultClassroom: any =
-          classroom.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id)) ?? [];
-        setClassroomValues(defaultClassroom);
+          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
+        setClassroomSelected(defaultClassroom);
         setLoading(false);
       });
     })();
@@ -162,7 +164,7 @@ const TabTeacherAccount = () => {
 
   const onHandleChange = (event: any, value: any) => {
     event.preventDefault();
-    setClassroomValues(value);
+    setClassrooms(value);
   };
 
   const onSubmit = async (data: any, e: any) => {
@@ -181,7 +183,7 @@ const TabTeacherAccount = () => {
       avatarFile: imgSrc === '/images/avatars/1.png' ? '' : imgSrc,
       birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
       idCard: data.idCard,
-      classrooms: classroomValues.map((item: any) => item.id),
+      classrooms: classrooms.map((item: any) => item.id),
     };
 
     toast.promise(updateProfile(storedToken, profile), {
@@ -403,8 +405,8 @@ const TabTeacherAccount = () => {
                 id='checkboxes-tags-teacher-classroom'
                 multiple={true}
                 limitTags={15}
-                value={classroomValues}
-                options={classroom}
+                value={classroomSelected}
+                options={classrooms}
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
