@@ -1,8 +1,8 @@
-import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
+import httpClient from '@/@core/utils/http';
 
 interface UserState {
   department: any;
@@ -14,7 +14,7 @@ export const useDepartmentStore = create<UserState>()(
     department: null,
     fetchDepartment: async (token: string) => {
       try {
-        const { data } = await axios.get(
+        const { data } = await httpClient.get(
           `${authConfig.departmentEndpoint}/`,
           {
             headers: {

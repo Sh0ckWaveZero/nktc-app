@@ -1,8 +1,8 @@
-import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
+import httpClient from '@/@core/utils/http';
 interface UserState {
   reportCheckIn: any;
   reportCheckInLoading: boolean,
@@ -23,7 +23,7 @@ export const useReportCheckInStore = create<UserState>()(
     hasReportCheckInErrors: false,
     getReportCheckIn: async (token: string, param: any) => {
       try {
-        const { data } = await axios.get(
+        const { data } = await httpClient.get(
           `${authConfig.reportCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
           {
             headers: {
@@ -38,7 +38,7 @@ export const useReportCheckInStore = create<UserState>()(
     addReportCheckIn: async (token: string, data: any) => {
       set({ reportCheckInLoading: true });
       try {
-        const response = await axios.post(
+        const response = await httpClient.post(
           authConfig.reportCheckInEndpoint as string,
           data,
           {
@@ -54,7 +54,7 @@ export const useReportCheckInStore = create<UserState>()(
     updateReportCheckIn: async (token: string, data: any) => {
       set({ reportCheckInLoading: true });
       try {
-        const response = await axios.patch(
+        const response = await httpClient.patch(
           `${authConfig.reportCheckInEndpoint}/${data.id}/daily-report`,
           data,
           {
@@ -69,7 +69,7 @@ export const useReportCheckInStore = create<UserState>()(
     },
     findDailyReport: async (token: string, param: any) => {
       try {
-        const { data } = await axios.get(
+        const { data } = await httpClient.get(
           `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report`,
           {
             headers: {
@@ -83,7 +83,7 @@ export const useReportCheckInStore = create<UserState>()(
     },
     findSummaryReport: async (token: string, param: any) => {
       try {
-        const { data } = await axios.get(
+        const { data } = await httpClient.get(
           `${authConfig.reportCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report`,
           {
             headers: {
@@ -97,7 +97,7 @@ export const useReportCheckInStore = create<UserState>()(
     },
     removeReportCheckIn: async (token: string, id: string) => {
       try {
-        const { data } = await axios.delete(
+        const { data } = await httpClient.delete(
           `${authConfig.reportCheckInEndpoint}/${id}`,
           {
             headers: {
@@ -111,7 +111,7 @@ export const useReportCheckInStore = create<UserState>()(
     },
     findDailyReportAdmin: async (token: string, param: any) => {
       try {
-        const { data } = await axios.get(
+        const { data } = await httpClient.get(
           `${authConfig.reportCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,
           {
             headers: {

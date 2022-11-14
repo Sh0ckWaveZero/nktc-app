@@ -1,10 +1,10 @@
-import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
 import { Classroom } from '@/types/apps/teacherTypes';
 import shallow from 'zustand/shallow';
+import httpClient from '@/@core/utils/http';
 
 
 interface classroomState {
@@ -26,7 +26,7 @@ export const useClassroomStore = create<classroomState>()(
     fetchClassroom: async (token: string) => {
       try {
         set({ classroomLoading: true });
-        const { data } = await axios.get(authConfig.classroomEndpoint as string, {
+        const { data } = await httpClient.get(authConfig.classroomEndpoint as string, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -41,7 +41,7 @@ export const useClassroomStore = create<classroomState>()(
     fetchTeachClassroom: async (token: string, teacherId: string) => {
       try {
         set({ classroomLoading: true });
-        const { data } = await axios.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
+        const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
