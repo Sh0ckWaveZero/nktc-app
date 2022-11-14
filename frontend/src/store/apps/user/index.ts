@@ -1,10 +1,10 @@
-import axios from 'axios';
 import create from 'zustand';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
 import { LoginParams } from '@/context/types';
 import { userInfo } from 'os';
+import httpClient from '@/@core/utils/http';
 interface UserState {
   userInfo: any;
   userLoading: boolean,
@@ -16,6 +16,7 @@ interface UserState {
   deleteUser: (token: string, userId: string) => any;
   clearUser: () => void;
   changePassword: (token: string, data: any) => any;
+  fetchUserById: (token: string, userId: string) => any;
 }
 
 export const useUserStore = create<UserState>()(
@@ -27,7 +28,7 @@ export const useUserStore = create<UserState>()(
     login: async (param: LoginParams) => {
       set({ userLoading: true });
       try {
-        const response: any = await axios.post(authConfig.loginEndpoint as string, param);
+        const response: any = await httpClient.post(authConfig.loginEndpoint as string, param);
         set({ userInfo: await response.data, userLoading: false, hasErrors: false });
         return await response.data;
       } catch (err) {
@@ -41,7 +42,7 @@ export const useUserStore = create<UserState>()(
     getMe: async (token: string) => {
       set({ userInfo: null, userLoading: true });
       try {
-        const { data } = await axios.get(authConfig.meEndpoint as string, {
+        const { data } = await httpClient.get(authConfig.meEndpoint as string, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -53,14 +54,26 @@ export const useUserStore = create<UserState>()(
         return null;
       }
     },
+    async fetchUserById(token, userId) {
+      try {
+        const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data
+      } catch (err) {
+        return null;
+      }
+    },
     addUser: async (data: any) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      const response = await httpClient.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         data,
       });
       set({ userInfo: await response.data }, true);
     },
     deleteUser: async (id: number | string) => {
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      const response = await httpClient.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
       set({ userInfo: await response.data }, true);
     },
     clearUser: () => {
@@ -69,7 +82,7 @@ export const useUserStore = create<UserState>()(
     changePassword: async (token: string, data: any) => {
       set({ userLoading: true });
       try {
-        await axios.put(`${authConfig.changePasswordEndpoint}`, data, {
+        await httpClient.put(`${authConfig.changePasswordEndpoint}`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
