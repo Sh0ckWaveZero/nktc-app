@@ -3,6 +3,9 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
+  Param,
   Put,
   Request,
   UseGuards,
@@ -10,26 +13,36 @@ import {
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 
-@ApiTags('user')
-@Controller('user')
+@ApiTags('users')
+@Controller('users')
+@ApiSecurity('access-key')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiSecurity('access-key')
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('me')
   public async me(@Request() req: any) {
     return this.usersService.findByPayload(req);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiSecurity('access-key')
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string
+  ) {
+    try {
+      return await this.usersService.findById(id);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.NOT_FOUND,
+        error: 'Cannot get user',
+      }, HttpStatus.FORBIDDEN);
+    }
+  }
+
   @Put('update/password')
   public async updatePassword(
     @Request() req: any,

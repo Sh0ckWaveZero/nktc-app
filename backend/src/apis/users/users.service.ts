@@ -11,6 +11,51 @@ interface FormatLogin extends Partial<User> {
 export class UsersService {
   constructor(private prisma: PrismaService) { }
 
+  async findById(id: string) {
+    const { password: p, ...rest } = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            birthDate: true,
+            idCard: true,
+            addressLine1: true,
+            subdistrict: true,
+            district: true,
+            province: true,
+            postcode: true,
+          },
+        },
+        teacher: {
+          select: {
+            id: true,
+            teacherId: true,
+            jobTitle: true,
+            academicStanding: true,
+            classrooms: true,
+            department: true,
+            status: true,
+          },
+        },
+        student: {
+          include: {
+            classroom: true,
+            department: true,
+            program: true,
+          },
+        },
+      },
+    });
+    return rest;
+  }
+
   async updatePassword(payload: any, id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -102,11 +147,11 @@ export class UsersService {
       },
     });
 
-     // get teacher on classroom
-     let teacherOnClassroom = []
-     if (user.teacher) {
-       teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
-     }
+    // get teacher on classroom
+    let teacherOnClassroom = []
+    if (user.teacher) {
+      teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
+    }
 
     if (!user) {
       throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
