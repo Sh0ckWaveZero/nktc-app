@@ -130,11 +130,11 @@ model Student {
   status           String?
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
-  classroom        Classroom?      @relation(fields: [classroomId], references: [id])
+  classroom        Classroom?      @relation(fields: [classroomId], references: [id], onUpdate: Cascade)
   classroomId      String?
-  department       Department?     @relation(fields: [departmentId], references: [id])
+  department       Department?     @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
   departmentId     String?
-  program          Program?        @relation(fields: [programId], references: [id])
+  program          Program?        @relation(fields: [programId], references: [id], onUpdate: Cascade)
   programId        String?
   level            Level?          @relation(fields: [levelId], references: [id])
   levelId          String?
