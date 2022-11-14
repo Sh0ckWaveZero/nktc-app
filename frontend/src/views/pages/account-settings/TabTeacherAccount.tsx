@@ -64,7 +64,7 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 }));
 
 const schema = yup.object().shape({
-  title: yup.string().required().required('กรุณาเลือกคำนำหน้าชื่อ'),
+  title: yup.string().required('กรุณาเลือกคำนำหน้าชื่อ'),
   firstName: yup.string().required('กรุณากรอกชื่อ'),
   lastName: yup.string().required('กรุณากรอกนามสกุล'),
   jobTitle: yup.string(),
@@ -78,7 +78,7 @@ const schema = yup.object().shape({
 
 const TabTeacherAccount = () => {
   // Hooks
-  const { getMe } = useUserStore(
+  const { getMe }: any = useUserStore(
     (state) => ({
       getMe: state.getMe,
     }),
@@ -87,7 +87,7 @@ const TabTeacherAccount = () => {
   const auth = useAuth();
   const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
 
-  const { fetchClassroom } = useClassroomStore(
+  const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
   );
@@ -115,7 +115,7 @@ const TabTeacherAccount = () => {
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassrooms(await data);
         const defaultClassroom: any =
-          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
+        (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
         setClassroomSelected(defaultClassroom);
         setLoading(false);
       });
@@ -164,7 +164,7 @@ const TabTeacherAccount = () => {
 
   const onHandleChange = (event: any, value: any) => {
     event.preventDefault();
-    setClassrooms(value);
+    setClassroomSelected(value);
   };
 
   const onSubmit = async (data: any, e: any) => {
@@ -183,7 +183,7 @@ const TabTeacherAccount = () => {
       avatarFile: imgSrc === '/images/avatars/1.png' ? '' : imgSrc,
       birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
       idCard: data.idCard,
-      classrooms: classrooms.map((item: any) => item.id),
+      classrooms: classroomSelected.map((item: any) => item.id),
     };
 
     toast.promise(updateProfile(storedToken, profile), {
@@ -274,7 +274,7 @@ const TabTeacherAccount = () => {
                       placeholder='ชื่อ'
                       value={value}
                       onChange={onChange}
-                      error={errors.firstName ? true : false}
+                      error={!!errors.firstName}
                       helperText={errors.firstName ? (errors.firstName.message as string) : ''}
                     />
                   )}
@@ -295,7 +295,7 @@ const TabTeacherAccount = () => {
                       placeholder='นามสกุล'
                       value={value}
                       onChange={onChange}
-                      error={errors.lastName ? true : false}
+                      error={!!errors.lastName}
                       helperText={errors.lastName ? (errors.lastName.message as string) : ''}
                     />
                   )}
@@ -452,7 +452,6 @@ const TabTeacherAccount = () => {
                         components={{
                           OpenPickerIcon: () => <FcCalendar />,
                         }}
-                        onError={console.log}
                       />
                     </LocalizationProvider>
                   )}
