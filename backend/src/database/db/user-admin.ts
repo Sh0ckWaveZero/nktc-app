@@ -2,7 +2,7 @@
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt'
 import configuration from '../../config/configuration';
-import { createByAdmin } from './utils';
+import { createByAdmin } from '../../utils/utils';
 
 export const userAdmin = async () => {
   const admin = createByAdmin();

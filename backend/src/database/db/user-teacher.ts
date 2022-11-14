@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt'
-import { createByAdmin, readWorkSheetFromFile } from './utils';
+import { createByAdmin, readWorkSheetFromFile } from '../../utils/utils';
 
 export const userTeacher = async (fileName: string) => {
   const [workSheetsFromFile] = readWorkSheetFromFile(fileName);

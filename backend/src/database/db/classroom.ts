@@ -1,5 +1,5 @@
 import { Prisma } from '@Prisma/client';
-import { getLevelByName, getLevelClassroomId, getProgramId, readWorkSheetFromFile } from './utils';
+import { getLevelByName, getLevelClassroomId, getProgramId, readWorkSheetFromFile } from '../../utils/utils';
 
 export const Classroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('classroom');

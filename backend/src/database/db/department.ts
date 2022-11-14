@@ -1,5 +1,5 @@
 import { Prisma } from '@Prisma/client'
-import { createByAdmin, readWorkSheetFromFile } from './utils';
+import { createByAdmin, readWorkSheetFromFile } from '../../utils/utils';
 
 export const departmentData = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('department');

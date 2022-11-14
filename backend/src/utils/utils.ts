@@ -34,7 +34,7 @@ export const getBirthday = async (date: string) => {
 const getBuddhistYear = async (date: string) => {
   const year = new Date().getFullYear();
   const buddhistYear = 543;
-  const twoDigitBuddhistYear = (year + buddhistYear).toString().substring(2, 4);
+  const twoDigitBuddhistYear = (year + buddhistYear).toString().substring(0, 2);
   const twoDigitYear = date.substring(date.length - 2, date.length).trim();
   const fourDigitYear = twoDigitYear.padStart(4, twoDigitBuddhistYear);
   return parseInt(fourDigitYear) - buddhistYear;

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { createByAdmin } from './utils';
+import { createByAdmin } from '../../utils/utils';
 
 export const courseData = () => {
   const admin = createByAdmin();
