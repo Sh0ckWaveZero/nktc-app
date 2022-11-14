@@ -146,7 +146,6 @@ const ReportCheckInDaily = () => {
       startDate: date ? date : selectedDate,
     }).then(async (data: any) => {
       const reportCheckInData = await data.filter((item: any) => item.id === classroom)[0];
-      console.log('🚀 ~ file: daily.tsx ~ line 152 ~ fetchDailyReport ~ reportCheckInData', reportCheckInData);
       setCurrentStudents(reportCheckInData?.students ?? []);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
       getReportCheckIn(storedToken, {
