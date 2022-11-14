@@ -21,7 +21,6 @@ const defineRulesFor = (role: Role, subject: string) => {
   const { can, rules } = new AbilityBuilder(AppAbility);
 
   if (role === 'Admin') {
-    // can('manage', 'all');
     can(['read'], 'home-page');
     can(['read'], 'manage-data');
     can(['read'], 'report-category');
@@ -34,9 +33,9 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['read'], 'admin-report-check-in-daily-page');
     can(['read'], 'admin-report-check-in-weekly-page');
     can(['read'], 'admin-report-check-in-monthly-page');
-    
+    can(['update'], 'student-edit-page');
+    can(['create'], 'add-student-page');
   } else if (role === 'Teacher') {
-    // can('manage', 'all');
     can(['read'], 'home-page');
     can(['read'], 'check-in-page');
     can(['read'], 'manage-data');
@@ -45,13 +44,11 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['read'], 'report-check-in-page');
     can(['read'], 'report-check-in-daily-page');
     can(['read'], 'report-check-in-summary-page');
-    // can(['read'], 'report-good-page');
-    // can(['read'], 'student-all-page');
-    // can(['read'], 'summary-home-visit-page');
-    // can(['read'], 'report-behavior-page');
+    can(['update'], 'student-edit-page');
     can(['read'], 'student-page');
     can(['read'], 'student-list-pages');
     can(['read', 'update'], 'account-settings');
+    can(['create'], 'add-student-page');
   } else if (role === 'Student') {
     can(['read'], 'home-page');
   } else if (role === 'Parent') {
