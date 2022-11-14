@@ -21,27 +21,29 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MuiAutocomplete, { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
 // ** Icons Imports
-import Tab from 'mdi-material-ui/Tab';
-import Close from 'mdi-material-ui/Close';
-import Magnify from 'mdi-material-ui/Magnify';
-import Lastpass from 'mdi-material-ui/Lastpass';
-import ChartDonut from 'mdi-material-ui/ChartDonut';
-import CartOutline from 'mdi-material-ui/CartOutline';
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd';
-import AccountGroup from 'mdi-material-ui/AccountGroup';
-import CalendarBlank from 'mdi-material-ui/CalendarBlank';
-import CalendarRange from 'mdi-material-ui/CalendarRange';
-import AccountOutline from 'mdi-material-ui/AccountOutline';
-import ViewGridOutline from 'mdi-material-ui/ViewGridOutline';
-import GestureTapButton from 'mdi-material-ui/GestureTapButton';
-import AccountCogOutline from 'mdi-material-ui/AccountCogOutline';
-import FileRemoveOutline from 'mdi-material-ui/FileRemoveOutline';
-import FormatListCheckbox from 'mdi-material-ui/FormatListCheckbox';
-import FormatListNumbered from 'mdi-material-ui/FormatListNumbered';
-import ChartTimelineVariant from 'mdi-material-ui/ChartTimelineVariant';
-import SubdirectoryArrowLeft from 'mdi-material-ui/SubdirectoryArrowLeft';
-import FormatTextVariantOutline from 'mdi-material-ui/FormatTextVariantOutline';
-import CardBulletedSettingsOutline from 'mdi-material-ui/CardBulletedSettingsOutline';
+import {
+  AccountCogOutline,
+  AccountGroup,
+  AccountOutline,
+  CalendarBlank,
+  CalendarRange,
+  CardBulletedSettingsOutline,
+  CartOutline,
+  ChartDonut,
+  ChartTimelineVariant,
+  Close,
+  CurrencyUsd,
+  FileRemoveOutline,
+  FormatListCheckbox,
+  FormatListNumbered,
+  FormatTextVariantOutline,
+  GestureTapButton,
+  Lastpass,
+  Magnify,
+  SubdirectoryArrowLeft,
+  Tab,
+  ViewGridOutline,
+} from 'mdi-material-ui';
 
 // ** Types Imports
 import { Settings } from '@/@core/context/settingsContext';
