@@ -21,6 +21,7 @@ import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary
 import { useAuth } from '@/hooks/useAuth';
 import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
+import { isNull } from 'util';
 
 interface CellType {
   // row: teachersTypes;
@@ -85,7 +86,7 @@ const ReportCheckInDaily = () => {
   };
 
   const ccyFormat = (num: number) => {
-    return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
+    return `${isNaN(num) || isEmpty(num) ? '0.00' : num.toFixed(2)}`;
   };
 
   const columns: GridColumns = [

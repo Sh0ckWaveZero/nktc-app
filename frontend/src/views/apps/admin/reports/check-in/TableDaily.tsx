@@ -16,6 +16,7 @@ import {
   TableRowProps,
 } from '@mui/material';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
+import { isEmpty } from '@/@core/utils/utils';
 
 interface Row {
   level: string;
@@ -38,7 +39,7 @@ interface Header {
 }
 
 const ccyFormat = (num: number) => {
-  return `${isNaN(num) ? '0.00' : num.toFixed(2)}`;
+  return `${isNaN(num) || isEmpty(num) ? '0.00' : num.toFixed(2)}`;
 };
 
 const TableCellText = styled(Typography)<TypographyProps>(({ theme }) => ({
