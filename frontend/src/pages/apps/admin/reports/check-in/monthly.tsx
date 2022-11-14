@@ -14,7 +14,7 @@ dayjs.locale('th');
 
 const AdminCheckInMonthlyReport = () => {
   // ** Store Vars
-  const { findDailyReportAdmin } = useReportCheckInStore(
+  const { findDailyReportAdmin }: any = useReportCheckInStore(
     (state) => ({
       findDailyReportAdmin: state.findDailyReportAdmin,
     }),

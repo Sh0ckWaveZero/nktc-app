@@ -47,10 +47,7 @@ interface IFormInputs {
 const schema = yup.object().shape({
   currentPassword: yup.string().required('กรุณากรอกรหัสผ่านปัจจุบัน'),
   newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
-  confirmNewPassword: yup
-    .string()
-    .required('กรุณายืนยันรหัสผ่านใหม่')
-    .min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
+  confirmNewPassword: yup.string().required('กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
 });
 
 const TabSecurity = () => {
@@ -73,7 +70,7 @@ const TabSecurity = () => {
   });
 
   const auth = useAuth();
-  const { changePassword, login } = useUserStore(
+  const { changePassword, login }: any = useUserStore(
     (state) => ({ changePassword: state.changePassword, login: state.login }),
     shallow,
   );
