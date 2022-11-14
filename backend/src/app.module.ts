@@ -18,6 +18,7 @@ import { ClassroomModule } from './apis/classroom/classroom.module';
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { DepartmentsModule } from './apis/departments/departments.module';
+import { ProgramsModule } from './apis/programs/programs.module';
 
 @Module({
   imports: [
@@ -31,16 +32,17 @@ import { DepartmentsModule } from './apis/departments/departments.module';
     StudentsModule,
     AccountsModule,
     AppBarModule,
+    ProgramsModule,
+    ClassroomModule,
+    ReportCheckInModule,
+    AuditLogModule,
+    DepartmentsModule,
     ConfigModule.forRoot(
       {
         load: [configuration],
         validate,
       },
     ),
-    ClassroomModule,
-    ReportCheckInModule,
-    AuditLogModule,
-    DepartmentsModule,
   ],
   controllers: [AppController],
   providers: [
