@@ -60,6 +60,7 @@ import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 import toast from 'react-hot-toast';
 import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
+import { LocalStorageService } from '@/services/localStorageService';
 interface UserRoleType {
   [key: string]: ReactElement;
 }
@@ -98,6 +99,9 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   marginRight: theme.spacing(3),
 }));
+
+
+const localStorageService = new LocalStorageService();
 
 // ** renders client column
 const renderClient = (row: any) => {
@@ -213,7 +217,7 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const accessToken = localStorageService.getToken()!;
 
   const { teacher, fetchTeacher, updateClassroom, teacherLoading }: any = useTeacherStore(
     (state) => ({

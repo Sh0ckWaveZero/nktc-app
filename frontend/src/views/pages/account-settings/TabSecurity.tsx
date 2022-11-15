@@ -31,6 +31,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface State {
   showNewPassword: boolean;
@@ -49,6 +50,8 @@ const schema = yup.object().shape({
   newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
   confirmNewPassword: yup.string().required('กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
 });
+
+const localStorageService = new LocalStorageService();
 
 const TabSecurity = () => {
   // hooks
@@ -74,7 +77,7 @@ const TabSecurity = () => {
     (state) => ({ changePassword: state.changePassword, login: state.login }),
     shallow,
   );
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   // ** States
   const [values, setValues] = useState<State>({

@@ -45,8 +45,8 @@ import {
 } from 'mdi-material-ui';
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import shallow from 'zustand/shallow';
-import { authConfig } from '@/configs/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface CellType {
   // row: teachersTypes;
@@ -78,6 +78,8 @@ const checkInStatueName: any = {
   notCheckIn: 'ยังไม่เช็คชื่อ',
 };
 
+const localStorageService = new LocalStorageService();
+
 const ReportCheckInDaily = () => {
   // ** Local variable
   let isPresentCheck: any[] = [];
@@ -87,7 +89,7 @@ const ReportCheckInDaily = () => {
 
   // ** Hooks
   const auth = useAuth();
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   const { fetchTeachClassroom }: any = useClassroomStore(
     (state) => ({

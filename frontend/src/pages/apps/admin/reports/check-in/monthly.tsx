@@ -9,8 +9,10 @@ import shallow from 'zustand/shallow';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
 import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
-import { authConfig } from '@/configs/auth';
+import { LocalStorageService } from '@/services/localStorageService';
 dayjs.locale('th');
+
+const localStorageService = new LocalStorageService();
 
 const AdminCheckInMonthlyReport = () => {
   // ** Store Vars
@@ -21,7 +23,7 @@ const AdminCheckInMonthlyReport = () => {
     shallow,
   );
 
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   // ** State
   const [value, setValue] = useState([]);

@@ -10,7 +10,6 @@ type AuthConfig = {
   departmentEndpoint?: string;
   programEndpoint?: string;
   registerEndpoint?: string;
-  accessToken?: string;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -27,5 +26,4 @@ export const authConfig: AuthConfig = {
   departmentEndpoint: `${apiUrl}/departments`,
   programEndpoint: `${apiUrl}/programs`,
   registerEndpoint: '/jwt/register',
-  accessToken: 'accessToken',
 };

@@ -13,6 +13,8 @@ import { authConfig } from '@/configs/auth';
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType } from './types';
 
+import { LocalStorageService } from '@/services/localStorageService';
+
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
@@ -27,6 +29,7 @@ const defaultProvider: AuthValuesType = {
 };
 
 const AuthContext = createContext(defaultProvider);
+const localStorageService = new LocalStorageService();
 
 type Props = {
   children: ReactNode;
@@ -41,10 +44,10 @@ const AuthProvider = ({ children }: Props) => {
   // ** Hooks
   const router = useRouter();
 
+  const storedToken = localStorageService.getToken()!;
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
       setIsInitialized(true);
-      const storedToken = localStorage.getItem(authConfig.accessToken as string)!;
       if (storedToken) {
         setLoading(true);
         await httpClient
@@ -61,7 +64,7 @@ const AuthProvider = ({ children }: Props) => {
           .catch(() => {
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
-            localStorage.removeItem('accessToken');
+             localStorageService.removeToken();
             setUser(null);
             setLoading(false);
           });
@@ -76,13 +79,13 @@ const AuthProvider = ({ children }: Props) => {
     httpClient
       .post(authConfig.loginEndpoint as string, params)
       .then(async (res) => {
-        window.localStorage.setItem(authConfig.accessToken as string, res.data.token);
+        localStorageService.setToken(res.data.token);
       })
       .then(() => {
         httpClient
           .get(authConfig.meEndpoint as string, {
             headers: {
-              Authorization: `Bearer ${window.localStorage.getItem(authConfig.accessToken as string)!}`,
+              Authorization: `Bearer ${localStorageService.getToken()!}`,
             },
           })
           .then(async (response) => {
@@ -103,7 +106,7 @@ const AuthProvider = ({ children }: Props) => {
     setUser(null);
     setIsInitialized(false);
     window.localStorage.removeItem('userData');
-    window.localStorage.removeItem(authConfig.accessToken as string);
+    localStorageService.removeToken();
     router.push('/login');
   };
 

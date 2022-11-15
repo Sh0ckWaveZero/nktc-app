@@ -9,19 +9,20 @@ import shallow from 'zustand/shallow';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
-import { authConfig } from '@/configs/auth';
+import { LocalStorageService } from '@/services/localStorageService';
 dayjs.locale('th');
+
+const localStorageService = new LocalStorageService();
 
 const AdminCheckInWeeklyReport = () => {
   // ** Store Vars
-  const { findDailyReportAdmin } = useReportCheckInStore(
+  const { findDailyReportAdmin }:any = useReportCheckInStore(
     (state) => ({
       findDailyReportAdmin: state.findDailyReportAdmin,
     }),
     shallow,
   );
-
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   // ** State
   const [value, setValue] = useState([]);

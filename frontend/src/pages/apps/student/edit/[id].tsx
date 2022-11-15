@@ -46,6 +46,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { GetServerSideProps } from 'next';
 import httpClient from '@/@core/utils/http';
+import { LocalStorageService } from '@/services/localStorageService';
 
 dayjs.extend(buddhistEra);
 
@@ -103,6 +104,8 @@ const schema = yup.object().shape({
   postalCode: yup.string(),
 });
 
+const localStorageService = new LocalStorageService();
+
 const StudentEditPage = ({ users }: any) => {
   const initialData: Data = {
     studentId: users.student.studentId || '',
@@ -142,7 +145,7 @@ const StudentEditPage = ({ users }: any) => {
     }),
   );
 
-  const storedToken = localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),

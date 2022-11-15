@@ -7,17 +7,20 @@ import { BsCalendar2Date } from 'react-icons/bs';
 import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
 import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
-import { authConfig } from '@/configs/auth';
+import { LocalStorageService } from '@/services/localStorageService';
+
+const localStorageService = new LocalStorageService();
 
 const AdminCheckInDailyReport = () => {
   // ** Store Vars
-  const { findDailyReportAdmin } = useReportCheckInStore(
+  const { findDailyReportAdmin }:any = useReportCheckInStore(
     (state) => ({
       findDailyReportAdmin: state.findDailyReportAdmin,
     }),
     shallow,
   );
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+
+  const storedToken = localStorageService.getToken()!;
 
   // ** State
   const [value, setValue] = useState([]);

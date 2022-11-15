@@ -21,17 +21,18 @@ import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary
 import { useAuth } from '@/hooks/useAuth';
 import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
-import { isNull } from 'util';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface CellType {
   // row: teachersTypes;
   row: any;
 }
+const localStorageService = new LocalStorageService();
 
 const ReportCheckInDaily = () => {
   // ** Hooks
   const auth = useAuth();
-  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const accessToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
 

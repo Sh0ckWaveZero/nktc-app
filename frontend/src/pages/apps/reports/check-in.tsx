@@ -34,27 +34,28 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
 import shallow from 'zustand/shallow';
-import { authConfig } from '@/configs/auth';
 import { useAuth } from '../../../hooks/useAuth';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface CellType {
   // row: teachersTypes;
   row: any;
 }
+const localStorageService = new LocalStorageService();
 
 const StudentCheckIn = () => {
   // ** Hooks
   const auth = useAuth();
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
-  const { getReportCheckIn, addReportCheckIn } = useReportCheckInStore(
+  const { getReportCheckIn, addReportCheckIn }: any = useReportCheckInStore(
     (state) => ({
       getReportCheckIn: state.getReportCheckIn,
       addReportCheckIn: state.addReportCheckIn,
     }),
     shallow,
   );
-  const { fetchClassroomByTeachId } = useTeacherStore(
+  const { fetchClassroomByTeachId }: any = useTeacherStore(
     (state) => ({ fetchClassroomByTeachId: state.fetchClassroomByTeachId }),
     shallow,
   );

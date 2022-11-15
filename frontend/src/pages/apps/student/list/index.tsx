@@ -36,10 +36,10 @@ import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
-import { authConfig } from '@/configs/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface CellType {
   row: any;
@@ -79,12 +79,14 @@ const renderClient = (row: any) => {
   }
 };
 
+const localStorageService = new LocalStorageService();
+
 const StudentList = () => {
   // ** Hooks
   const { user } = useAuth();
   const router = useRouter();
   const { classroom } = router.query;
-  const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const accessToken = localStorageService.getToken()!;
 
   // ** State
   const [value, setValue] = useState<string>('');
@@ -205,7 +207,7 @@ const StudentList = () => {
       filterable: false,
       align: 'center',
       renderCell: ({ row }: CellType) => {
-        const accessToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+        const accessToken = localStorageService.getToken()!;
         return (
           <Link href={`/apps/student/edit/${row?.id}?token=${accessToken}`} passHref>
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>

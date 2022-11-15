@@ -45,6 +45,7 @@ import toast from 'react-hot-toast';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../../../hooks/useAuth';
+import { LocalStorageService } from '@/services/localStorageService';
 
 dayjs.extend(buddhistEra);
 
@@ -133,8 +134,8 @@ const AddStudentPage = () => {
   const [program, setProgram] = useState([initialData.program]);
   const [loadingProgram, setLoadingProgram] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
-
-  const storedToken = localStorage.getItem(authConfig.accessToken as string)!;
+  const localStorageService = new LocalStorageService();
+  const storedToken = localStorageService.getToken();
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),

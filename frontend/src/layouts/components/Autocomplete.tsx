@@ -57,12 +57,9 @@ import UserIcon from '@/layouts/components/UserIcon';
 // ** API Icon Import with object
 import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
-
 import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
-
-// ** Config
-import { authConfig } from '@/configs/auth';
+import { LocalStorageService } from '@/services/localStorageService';
 
 interface Props {
   hidden: boolean;
@@ -86,6 +83,8 @@ interface DefaultSuggestionsType {
     suggestion: string;
   }[];
 }
+
+const localStorageService = new LocalStorageService();
 
 const defaultSuggestionsData: DefaultSuggestionsType[] = [
   {
@@ -414,7 +413,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   // Get all data using API
   useEffect(() => {
-    const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+    const storedToken = localStorageService.getToken()!;
     fetch(debouncedValue, storedToken);
   }, [debouncedValue]);
 
