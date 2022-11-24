@@ -20,9 +20,9 @@ const main = async () => {
   // await seedDepartment()
   // await seedLevelClassroom()
   // await seedClassroom()
-    // await seedStudents()
-    // seedTeacher()
-    seedAdmin()
+  // await seedStudents()
+  // await seedTeacher()
+  await seedAdmin()
     .then(() => {
       console.log("Seeding complete 🎉")
     }).catch(err => {

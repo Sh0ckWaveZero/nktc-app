@@ -99,7 +99,7 @@ export const getProgramId = async (name: string, level: string, programName: str
 
 export const readWorkSheetFromFile = (path: string) => {
   const workSheetsFromFile = xlsx.parse(
-    fs.readFileSync(`${__dirname}/nktc-services/db/import/${path}.xlsx`)
+    fs.readFileSync(`${process.cwd()}/src/database/db/nktc-services/db/import/${path}.xlsx`)
   );
   return workSheetsFromFile;
 }
@@ -124,6 +124,18 @@ export const getLevelByName = (level: 'ปวช.' | 'ปวส.') => {
   }
 
   return level === "ปวช." ? level001 : level002;
+}
+
+export const getDepartIdByName = async (name: string, id: string) => {
+  // console.log('🚀 ~ file: utils.ts ~ line 130 ~ getDepartIdByName ~ id', id, name.trim());
+  const names = name.trim();
+  const res = await prisma.department.findFirst({
+    where: {
+      departmentId: names,
+    },
+  });
+  // console.log('🚀 ~ file: utils.ts ~ line 130 ~ getDepartIdByName ~ res', id,res);
+  return res.id;
 }
 
 export const createByAdmin = () => {

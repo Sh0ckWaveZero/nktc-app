@@ -192,6 +192,8 @@ model Classroom {
   levelId           String?
   program           Program?         @relation(fields: [programId], references: [id])
   programId         String?
+  department        Department?      @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
+  departmentId      String?
   status            String?
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")
@@ -244,18 +246,19 @@ model TeacherOnClassroom {
 
 // แผนกวิชา
 model Department {
-  id           String    @id @default(cuid())
-  departmentId String?   @unique
+  id           String      @id @default(cuid())
+  departmentId String?     @unique
   name         String?
   description  String?
   teacher      Teacher[]
   student      Student[]
   program      Program[]
   status       String?
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
   updatedBy    String?
   createdBy    String?
+  classroom    Classroom[]
 
   @@map("department")
 }

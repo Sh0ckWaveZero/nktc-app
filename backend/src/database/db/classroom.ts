@@ -1,5 +1,5 @@
 import { Prisma } from '@Prisma/client';
-import { getLevelByName, getLevelClassroomId, getProgramId, readWorkSheetFromFile } from '../../utils/utils';
+import { getDepartIdByName, getLevelByName, getProgramId, readWorkSheetFromFile } from '../../utils/utils';
 
 export const Classroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('classroom');
@@ -7,29 +7,27 @@ export const Classroom = async () => {
   const classroom = await Promise.all(workSheetsFromFile[0].data
     .filter((data: any, id: number) => id > 1 && data)
     .map(async (item: any) => {
-      const [classroomId, name, levelName, classroom, program] = item;
-      // const levelClassroomId = await getLevelClassroomId(levelName, classroom);
+      const [classroomId, name, levelName, classroom, program, department, departmentIds] = item;
       const programId = await getProgramId(program, levelName);
       const level = getLevelByName(levelName);
-
+      const departmentId = await getDepartIdByName(departmentIds, classroomId);
       return Prisma.validator<Prisma.ClassroomCreateInput>()(
         {
           classroomId,
           name,
-          // levelClassroom: {
-          //   connect: {
-          //     id: levelClassroomId
-          //   }
-          // },
           program: {
             connect: {
               programId: programId
+            }
+          },
+          department: {
+            connect: {
+              id: departmentId
             }
           },
           ...level
         }
       );
     }));
-
   return classroom;
 }
