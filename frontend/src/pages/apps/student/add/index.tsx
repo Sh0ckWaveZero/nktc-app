@@ -55,8 +55,6 @@ interface Data {
   firstName: string;
   lastName: string;
   classroom: object | null;
-  department: object | null;
-  program: object | null;
   idCard: number | string;
   birthDate: Dayjs | null;
   addressLine1: string;
@@ -72,8 +70,6 @@ const initialData: Data = {
   firstName: '',
   lastName: '',
   classroom: null,
-  department: null,
-  program: null,
   idCard: '',
   birthDate: null,
   addressLine1: '',
@@ -108,8 +104,6 @@ const schema = yup.object().shape({
     .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
     .required(),
   classroom: yup.object().required('กรุณาเลือกชั้นเรียน').nullable(),
-  department: yup.object().required('กรุณาเลือกแผนก').nullable(),
-  program: yup.object().required('กรุณาเลือกสาขาวิชา').nullable(),
   idCard: yup.string(),
   birthDate: yup.date().nullable().default(null).max(new Date(), 'วันเกิดไม่ถูกต้อง'),
   state: yup.string(),
@@ -129,10 +123,6 @@ const AddStudentPage = () => {
   // ** State
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [departments, setDepartments] = useState([initialData.department]);
-  const [loadingDepartment, setLoadingDepartment] = useState<boolean>(false);
-  const [program, setProgram] = useState([initialData.program]);
-  const [loadingProgram, setLoadingProgram] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
   const localStorageService = new LocalStorageService();
   const storedToken = localStorageService.getToken();
@@ -141,8 +131,6 @@ const AddStudentPage = () => {
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
   );
-  const { fetchDepartment }: any = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
-  const { fetchProgram }: any = useProgramStore((state) => ({ fetchProgram: state.fetchProgram }), shallow);
   const { createStudentProfile }: any = useStudentStore(
     (state) => ({ createStudentProfile: state.createStudentProfile }),
     shallow,
@@ -154,28 +142,6 @@ const AddStudentPage = () => {
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassroom(await data);
         setLoading(false);
-      });
-    })();
-  });
-
-  // get department
-  useEffectOnce(() => {
-    setLoadingDepartment(true);
-    (async () => {
-      await fetchDepartment(storedToken).then(async (data: any) => {
-        setDepartments(await data);
-        setLoadingDepartment(false);
-      });
-    })();
-  });
-
-  // get program
-  useEffectOnce(() => {
-    setLoadingProgram(true);
-    (async () => {
-      await fetchProgram(storedToken).then(async (data: any) => {
-        setProgram(await data);
-        setLoadingProgram(false);
       });
     })();
   });
@@ -387,83 +353,6 @@ const AddStudentPage = () => {
                             )}
                             filterSelectedOptions
                             groupBy={(option: any) => option.program?.description}
-                            noOptionsText='ไม่พบข้อมูล'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='program'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <Autocomplete
-                            disablePortal
-                            id='checkboxes-tags-teacher-program'
-                            limitTags={15}
-                            value={value}
-                            options={program}
-                            loading={loadingProgram}
-                            onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
-                            getOptionLabel={(option: any) => option?.description || ''}
-                            isOptionEqualToValue={(option: any, value: any) => option.id === value}
-                            renderOption={(props, option) => (
-                              <li key={option.programId} {...props}>
-                                {option.description}
-                              </li>
-                            )}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label='สาขาวิชา'
-                                placeholder='เลือกสาขาวิชา'
-                                error={!!errors.program}
-                                helperText={errors.program ? (errors.program.message as string) : ''}
-                              />
-                            )}
-                            filterSelectedOptions
-                            noOptionsText='ไม่พบข้อมูล'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='department'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <Autocomplete
-                            disablePortal
-                            id='checkboxes-tags-teacher-department'
-                            limitTags={15}
-                            value={value}
-                            options={departments}
-                            loading={loadingDepartment}
-                            onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
-                            getOptionLabel={(option: any) => option?.name || ''}
-                            isOptionEqualToValue={(option: any, value: any) => option.name === value}
-                            renderOption={(props, option) => (
-                              <li key={option.id} {...props}>
-                                {option.name}
-                              </li>
-                            )}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label='แผนก'
-                                placeholder='เลือกแผนก'
-                                error={!!errors.department}
-                                helperText={errors.department ? (errors.department.message as string) : ''}
-                              />
-                            )}
-                            filterSelectedOptions
-                            groupBy={(option: any) => option.program?.name}
                             noOptionsText='ไม่พบข้อมูล'
                           />
                         )}
