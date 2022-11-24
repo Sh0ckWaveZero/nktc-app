@@ -66,7 +66,7 @@ const TableHeader = (props: TableHeaderProps) => {
                 />
               )}
               filterSelectedOptions
-              groupBy={(option: any) => option.program?.name}
+              groupBy={(option: any) => option.department?.name}
               noOptionsText='ไม่พบข้อมูล'
             />
           </FormControl>

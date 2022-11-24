@@ -95,7 +95,7 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
               )}
               disableCloseOnSelect
               filterSelectedOptions
-              groupBy={(option: any) => option.program?.name}
+              groupBy={(option: any) => option.department?.name}
               noOptionsText='ไม่พบข้อมูล'
             />
           </FormControl>

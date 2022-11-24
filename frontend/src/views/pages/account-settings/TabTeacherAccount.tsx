@@ -35,9 +35,7 @@ import { useTeacherStore } from '../../../store/apps/teacher/index';
 import shallow from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
 import { useAuth } from '../../../hooks/useAuth';
-
-// ** Config
-import { authConfig } from '@/configs/auth';
+import { LocalStorageService } from '@/services/localStorageService';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -76,6 +74,8 @@ const schema = yup.object().shape({
   idCard: yup.string(),
 });
 
+const localStorageService = new LocalStorageService();
+
 const TabTeacherAccount = () => {
   // Hooks
   const { getMe }: any = useUserStore(
@@ -85,7 +85,7 @@ const TabTeacherAccount = () => {
     shallow,
   );
   const auth = useAuth();
-  const storedToken = window.localStorage.getItem(authConfig.accessToken as string)!;
+  const storedToken = localStorageService.getToken()!;
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -421,7 +421,7 @@ const TabTeacherAccount = () => {
                 )}
                 disableCloseOnSelect
                 filterSelectedOptions
-                groupBy={(option: any) => option.program?.name}
+                groupBy={(option: any) => option.department?.name}
                 noOptionsText='ไม่พบข้อมูล'
               />
             </Grid>
