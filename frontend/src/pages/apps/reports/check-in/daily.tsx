@@ -142,17 +142,19 @@ const ReportCheckInDaily = () => {
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
     setLoading(true);
+    const classroomInfo = classroom ? classroom : defaultClassroom.id;
+    const dateInfo = date ? date : selectedDate;
     await findDailyReport(storedToken, {
       teacherId: auth?.user?.teacher?.id,
-      classroomId: classroom ? classroom : defaultClassroom.id,
-      startDate: date ? date : selectedDate,
+      classroomId: classroomInfo,
+      startDate: dateInfo,
     }).then(async (data: any) => {
-      const reportCheckInData = await data.filter((item: any) => item.id === classroom)[0];
+      const reportCheckInData = await data.filter((item: any) => item.id === classroomInfo)[0];
       setCurrentStudents(reportCheckInData?.students ?? []);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
       getReportCheckIn(storedToken, {
         teacher: auth?.user?.teacher?.id,
-        classroom: classroom ? classroom : defaultClassroom.id,
+        classroom: classroomInfo,
       });
       setLoading(false);
     });
