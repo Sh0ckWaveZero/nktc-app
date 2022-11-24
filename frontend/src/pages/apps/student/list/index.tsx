@@ -209,7 +209,7 @@ const StudentList = () => {
       renderCell: ({ row }: CellType) => {
         const accessToken = localStorageService.getToken()!;
         return (
-          <Link href={`/apps/student/edit/${row?.id}?token=${accessToken}`} passHref>
+          <Link href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`} passHref>
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
               แก้ไข
             </Button>
