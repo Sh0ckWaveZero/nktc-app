@@ -31,7 +31,6 @@ import Icon from '@/@core/components/icon';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useClassroomStore, useDepartmentStore, useProgramStore, useStudentStore, useUserStore } from '@/store/index';
 import shallow from 'zustand/shallow';
-import { authConfig } from '@/configs/auth';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { FcCalendar } from 'react-icons/fc';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -56,8 +55,6 @@ interface Data {
   firstName: string;
   lastName: string;
   classroom: object | null;
-  department: object | null;
-  program: object | null;
   idCard: number | string;
   birthDate: Dayjs | null;
   addressLine1: string;
@@ -92,8 +89,6 @@ const schema = yup.object().shape({
     .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
     .required(),
   classroom: yup.object().required('กรุณาเลือกชั้นเรียน').nullable(),
-  department: yup.object().required('กรุณาเลือกแผนก').nullable(),
-  program: yup.object().required('กรุณาเลือกสาขาวิชา').nullable(),
   idCard: yup.string(),
   birthDate: yup.date().nullable().default(null).max(new Date(), 'วันเกิดไม่ถูกต้อง'),
   state: yup.string(),
@@ -106,15 +101,13 @@ const schema = yup.object().shape({
 
 const localStorageService = new LocalStorageService();
 
-const StudentEditPage = ({ users }: any) => {
+const StudentEditPage = ({ users, classroomId }: any) => {
   const initialData: Data = {
     studentId: users.student.studentId || '',
     title: users.account.title || '',
     firstName: users.account.firstName || '',
     lastName: users.account.lastName || '',
     classroom: users.student.classroom || null,
-    department: users.student.department || null,
-    program: users.student.program || null,
     idCard: users.account.idCard || '',
     birthDate: users.account.birthDate ? dayjs(users.account.birthDate) : null,
     addressLine1: users.account.addressLine1 || '',
@@ -132,10 +125,6 @@ const StudentEditPage = ({ users }: any) => {
   const [secondDialogOpen, setSecondDialogOpen] = useState<boolean>(false);
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [departments, setDepartments] = useState([initialData.department]);
-  const [loadingDepartment, setLoadingDepartment] = useState<boolean>(false);
-  const [program, setProgram] = useState([initialData.program]);
-  const [loadingProgram, setLoadingProgram] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(
     ThailandAddressValue.fromDataSourceItem({
       d: users.account.district || '',
@@ -151,9 +140,6 @@ const StudentEditPage = ({ users }: any) => {
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
   );
-  const { fetchDepartment }: any = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
-  const { fetchProgram }: any = useProgramStore((state) => ({ fetchProgram: state.fetchProgram }), shallow);
-  const { fetchUserById }: any = useUserStore((state) => ({ fetchUserById: state.fetchUserById }), shallow);
   const { updateStudentProfile }: any = useStudentStore(
     (state) => ({ updateStudentProfile: state.updateStudentProfile }),
     shallow,
@@ -169,28 +155,6 @@ const StudentEditPage = ({ users }: any) => {
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassroom(await data);
         setLoading(false);
-      });
-    })();
-  });
-
-  // get department
-  useEffectOnce(() => {
-    setLoadingDepartment(true);
-    (async () => {
-      await fetchDepartment(storedToken).then(async (data: any) => {
-        setDepartments(await data);
-        setLoadingDepartment(false);
-      });
-    })();
-  });
-
-  // get program
-  useEffectOnce(() => {
-    setLoadingProgram(true);
-    (async () => {
-      await fetchProgram(storedToken).then(async (data: any) => {
-        setProgram(await data);
-        setLoadingProgram(false);
       });
     })();
   });
@@ -226,7 +190,7 @@ const StudentEditPage = ({ users }: any) => {
 
     route.push(`/apps/student/list?classroom=${c.id}`);
   };
- 
+
   const addressInputStyle = {
     padding: '15px 14px',
     width: '100%',
@@ -249,7 +213,7 @@ const StudentEditPage = ({ users }: any) => {
     <Grid container spacing={6}>
       {/* Student Details */}
       <Grid item xs={12}>
-        <Link href={`/apps/student/list`} passHref>
+        <Link href={`/apps/student/list?classroom=${classroomId}`} passHref>
           <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
             ย้อนกลับ
           </Button>
@@ -400,83 +364,6 @@ const StudentEditPage = ({ users }: any) => {
                           )}
                           filterSelectedOptions
                           groupBy={(option: any) => option.program?.description}
-                          noOptionsText='ไม่พบข้อมูล'
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='program'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <Autocomplete
-                          disablePortal
-                          id='checkboxes-tags-teacher-program'
-                          limitTags={15}
-                          value={value}
-                          options={program}
-                          loading={loadingProgram}
-                          onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
-                          getOptionLabel={(option: any) => option?.description || ''}
-                          isOptionEqualToValue={(option: any, value: any) => option.id === value}
-                          renderOption={(props, option) => (
-                            <li key={option.programId} {...props}>
-                              {option.description}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label='สาขาวิชา'
-                              placeholder='เลือกสาขาวิชา'
-                              error={!!errors.program}
-                              helperText={errors.program ? (errors.program.message as string) : ''}
-                            />
-                          )}
-                          filterSelectedOptions
-                          noOptionsText='ไม่พบข้อมูล'
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='department'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <Autocomplete
-                          disablePortal
-                          id='checkboxes-tags-teacher-department'
-                          limitTags={15}
-                          value={value}
-                          options={departments}
-                          loading={loadingDepartment}
-                          onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
-                          getOptionLabel={(option: any) => option?.name || ''}
-                          isOptionEqualToValue={(option: any, value: any) => option.name === value}
-                          renderOption={(props, option) => (
-                            <li key={option.id} {...props}>
-                              {option.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label='แผนก'
-                              placeholder='เลือกแผนก'
-                              error={!!errors.department}
-                              helperText={errors.department ? (errors.department.message as string) : ''}
-                            />
-                          )}
-                          filterSelectedOptions
-                          groupBy={(option: any) => option.program?.name}
                           noOptionsText='ไม่พบข้อมูล'
                         />
                       )}
@@ -677,6 +564,7 @@ export default StudentEditPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = context?.params?.id as string;
+  const classroom = context?.query?.classroom;
   const token = context?.query?.token;
   const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
     headers: {
@@ -684,6 +572,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   });
   return {
-    props: { users: data },
+    props: {
+      users: data,
+      classroomId: classroom,
+    },
   };
 };
