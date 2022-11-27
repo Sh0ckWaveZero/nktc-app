@@ -1,8 +1,6 @@
 // class localStorageService.ts
 export class LocalStorageService {
 
-  constructor() { }
-
   // set token in local storage
   setToken(token: string) {
     localStorage.setItem('access_token', token);
