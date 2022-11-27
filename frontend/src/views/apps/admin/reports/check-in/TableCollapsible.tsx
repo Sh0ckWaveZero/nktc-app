@@ -290,7 +290,7 @@ const TableCollapsible = (prop: TableHeaderProps) => {
         </TableHead>
         <TableBody>
           {levelRows.map((levelRow) => (
-            <RowDaily values={values} levelRow={levelRow} />
+            <RowDaily key={levelRow} values={values} levelRow={levelRow} />
           ))}
         </TableBody>
       </Table>
