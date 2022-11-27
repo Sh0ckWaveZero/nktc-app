@@ -253,9 +253,18 @@ export class ReportCheckInService {
 
     // get all department
     const classrooms = await this.prisma.classroom.findMany({
-      orderBy: {
-        name: 'asc',
-      },
+      orderBy: [
+        {
+          level: {
+            levelName: 'asc',
+          },
+        },
+        {
+          department: {
+            name: 'asc',
+          }
+        },
+      ],
       select: {
         id: true,
         name: true,
@@ -265,11 +274,20 @@ export class ReportCheckInService {
             levelName: true,
             levelFullName: true,
           }
+        },
+        department: {
+          select: {
+            id: true,
+            departmentId: true,
+            name: true,
+          }
         }
-      }
+      },
     });
 
-    return await Promise.all(classrooms.map(async (classroom: any) => {
+    const students = await this.prisma.student.count();
+
+    const checkIn = await Promise.all(classrooms.map(async (classroom: any) => {
       const reportCheckIn = await this.prisma.reportCheckIn.findFirst({
         where: {
           classroomId: classroom.id,
@@ -326,9 +344,13 @@ export class ReportCheckInService {
         checkInDate: reportCheckIn ? reportCheckIn.checkInDate : null,
         ...checKInBy ? { checkInBy: checKInBy } : null,
       }
-    }))
-  }
+    }));
 
+    return {
+      students: students,
+      checkIn: checkIn,
+    }
+  }
 
   async updateDailyReport(checkInId: string, updateDailyReportDto: any) {
     return await this.prisma.reportCheckIn.update({

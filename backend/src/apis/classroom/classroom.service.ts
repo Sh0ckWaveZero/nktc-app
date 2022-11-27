@@ -10,10 +10,11 @@ export class ClassroomService {
       include: {
         level: true,
         program: true,
+        department: true,
       },
       orderBy: [
         {
-          program: {
+          department: {
             name: 'asc',
           },
         },
