@@ -24,7 +24,7 @@ import Icon from '@/@core/components/icon';
 // import Profile from 'src/views/pages/user-profile/profile'
 // import Projects from 'src/views/pages/user-profile/projects'
 // import Connections from 'src/views/pages/user-profile/connections'
-import UserProfileHeader from '@/views/apps/student/view/StudentProfileHeader';
+// import UserProfileHeader from '@/views/apps/student/view/StudentProfileHeader';
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -88,7 +88,7 @@ const StudentProfile = ({ tab, data }: { tab: string; data: any }) => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <UserProfileHeader />
+        {/* <UserProfileHeader /> */}
       </Grid>
       {activeTab === undefined ? null : (
         <Grid item xs={12}>
