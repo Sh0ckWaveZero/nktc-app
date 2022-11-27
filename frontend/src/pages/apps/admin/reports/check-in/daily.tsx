@@ -4,16 +4,20 @@ import { useState, useEffect } from 'react';
 import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
 import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
-import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
+import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
+import { ReportCheckIn } from '@/types/apps/reportCheckIn';
+import { isEmpty } from '../../../../../@core/utils/utils';
+import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
+import Spinner from '@/@core/components/spinner';
 
 const localStorageService = new LocalStorageService();
 
 const AdminCheckInDailyReport = () => {
   // ** Store Vars
-  const { findDailyReportAdmin }:any = useReportCheckInStore(
+  const { findDailyReportAdmin }: any = useReportCheckInStore(
     (state) => ({
       findDailyReportAdmin: state.findDailyReportAdmin,
     }),
@@ -23,18 +27,17 @@ const AdminCheckInDailyReport = () => {
   const storedToken = localStorageService.getToken()!;
 
   // ** State
-  const [value, setValue] = useState([]);
+  const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
   const [selectedDate, setSelectedDate] = useState(new Date() || null);
 
   useEffect(() => {
-    const fetch = async () => {
+    (async () => {
       await findDailyReportAdmin(storedToken, { startDate: selectedDate, endDate: selectedDate }).then(
         async (res: any) => {
           setValue(await res);
         },
       );
-    };
-    fetch();
+    })();
   }, [selectedDate]);
 
   const handleSelectedDate = (date: Date | null) => {
@@ -52,7 +55,7 @@ const AdminCheckInDailyReport = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการมาเรียนของนักเรียน`}
+            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
             subheader={`ประจำ${new Date().toLocaleDateString('th-TH', {
               weekday: 'long',
               year: 'numeric',
@@ -65,7 +68,7 @@ const AdminCheckInDailyReport = () => {
       <Grid item xs={12}>
         <Card>
           <TableHeader value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
-          <TableDaily values={value} />
+          {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
         </Card>
       </Grid>
     </Grid>

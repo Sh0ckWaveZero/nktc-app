@@ -3,20 +3,23 @@ import { useState, useEffect } from 'react';
 // ** Types Imports
 import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
-import TableDaily from '@/views/apps/admin/reports/check-in/TableDaily';
+import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
 import { LocalStorageService } from '@/services/localStorageService';
+import { ReportCheckIn } from '@/types/apps/reportCheckIn';
+import Spinner from '@/@core/components/spinner';
+import { isEmpty } from '@/@core/utils/utils';
 dayjs.locale('th');
 
 const localStorageService = new LocalStorageService();
 
 const AdminCheckInWeeklyReport = () => {
   // ** Store Vars
-  const { findDailyReportAdmin }:any = useReportCheckInStore(
+  const { findDailyReportAdmin }: any = useReportCheckInStore(
     (state) => ({
       findDailyReportAdmin: state.findDailyReportAdmin,
     }),
@@ -25,7 +28,7 @@ const AdminCheckInWeeklyReport = () => {
   const storedToken = localStorageService.getToken()!;
 
   // ** State
-  const [value, setValue] = useState([]);
+  const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
   const [startOfWeek, setStartOfWeek] = useState<Dayjs>(dayjs(new Date()).startOf('week').add(1, 'day'));
   const [endOfWeek, setEndOfWeek] = useState<Dayjs>(dayjs(new Date()).endOf('week').subtract(1, 'day'));
@@ -58,7 +61,7 @@ const AdminCheckInWeeklyReport = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการมาเรียนของนักเรียน`}
+            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
             subheader={`ประจำสัปดาห์ที่ ${startOfWeek.format('DD MMMM BBBB')} - ${endOfWeek.format('DD MMMM BBBB')}`}
           />
         </Card>
@@ -66,7 +69,7 @@ const AdminCheckInWeeklyReport = () => {
       <Grid item xs={12}>
         <Card>
           <TableHeaderWeekly value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
-          <TableDaily values={value} />
+          {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
         </Card>
       </Grid>
     </Grid>
