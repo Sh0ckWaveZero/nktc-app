@@ -76,7 +76,6 @@ const StudentProfile = ({ tab, data }: { tab: string; data: any }) => {
       setActiveTab(tab);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   // const tabContentList: { [key: string]: ReactElement } = {
