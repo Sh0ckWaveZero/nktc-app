@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/common/services/prisma.service';
+import { MinioClientService } from '../minio/minio-client.service';
 
 @Injectable()
 export class StudentsService {
   constructor(
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private readonly minio: MinioClientService
   ) { }
 
   async findByClassroomId(id: string) {
@@ -61,6 +63,8 @@ export class StudentsService {
   }
 
   async createProfile(id: string, body: any) {
+
+
     const checkExisting = await this.prisma.student.findFirst({
       where: {
         studentId: body.studentId,

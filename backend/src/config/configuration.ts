@@ -7,4 +7,10 @@ export default () => ({
   userAdmin: process.env.USER_ADMIN,
   userPassword: process.env.USER_PASSWORD,
   host: process.env.HOST,
+  minioEndpoint: process.env.MINIO_ENDPOINT,
+  minioPort: parseInt(process.env.MINIO_PORT, 10) || 9000,
+  minioAccessKey: process.env.MINIO_ACCESS_KEY,
+  minioSecretKey: process.env.MINIO_SECRET_KEY,
+  minioUseSSL: process.env.MINIO_USE_SSL === 'true' ? true : false,
+  minioBucket: process.env.MINIO_BUCKET_NAME,
 });

@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -25,6 +25,24 @@ class EnvironmentVariables {
 
   @IsString()
   USER_PASSWORD: string;
+
+  @IsString()
+  MINIO_ENDPOINT: string;
+
+  @IsNumber()
+  MINIO_PORT: number;
+
+  @IsString()
+  MINIO_ACCESS_KEY: string;
+
+  @IsString()
+  MINIO_SECRET_KEY: string;
+
+  @IsBoolean()
+  MINIO_USE_SSL: string;
+
+  @IsString()
+  MINIO_BUCKET_NAME: string;
 }
 
 const validate = (config: Record<string, unknown>) => {

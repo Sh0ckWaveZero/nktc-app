@@ -19,6 +19,7 @@ import { ReportCheckInModule } from './apis/report-check-in/report-check-in.modu
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { DepartmentsModule } from './apis/departments/departments.module';
 import { ProgramsModule } from './apis/programs/programs.module';
+import { MinioModule } from 'nestjs-minio-client';
 
 @Module({
   imports: [
@@ -43,6 +44,13 @@ import { ProgramsModule } from './apis/programs/programs.module';
         validate,
       },
     ),
+    MinioModule.register({
+      endPoint: configuration().minioEndpoint,
+      port: configuration().minioPort,
+      useSSL: configuration().minioUseSSL,
+      accessKey: configuration().minioAccessKey,
+      secretKey: configuration().minioSecretKey,
+    }),
   ],
   controllers: [AppController],
   providers: [

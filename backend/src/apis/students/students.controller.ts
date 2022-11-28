@@ -9,11 +9,14 @@ import {
   Param,
   Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('students')
 @Controller('students')
@@ -38,7 +41,6 @@ export class StudentsController {
       }, HttpStatus.FORBIDDEN);
     }
   }
-
 
   @Put('profile/:id')
   @HttpCode(HttpStatus.CREATED)
@@ -65,4 +67,11 @@ export class StudentsController {
       }, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+  }
+
 }
