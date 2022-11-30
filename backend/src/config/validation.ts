@@ -39,7 +39,7 @@ class EnvironmentVariables {
   MINIO_SECRET_KEY: string;
 
   @IsBoolean()
-  MINIO_USE_SSL: string;
+  MINIO_USE_SSL: boolean;
 
   @IsString()
   MINIO_BUCKET_NAME: string;
