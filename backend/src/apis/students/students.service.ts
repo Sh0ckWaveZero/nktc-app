@@ -104,8 +104,6 @@ export class StudentsService {
           create: {
             studentId: body.studentId,
             classroomId: body.classroom,
-            departmentId: body.department,
-            programId: body.program,
             updatedBy: id,
             createdBy: id,
             levelId: body.level,
