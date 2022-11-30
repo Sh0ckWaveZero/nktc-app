@@ -5,10 +5,34 @@ import { MinioClientService } from '../minio/minio-client.service';
 
 @Injectable()
 export class StudentsService {
+
   constructor(
     private prisma: PrismaService,
-    private readonly minio: MinioClientService
+    private readonly minioService: MinioClientService
   ) { }
+
+  async findBucket() {
+    try {
+      this.minioService.client.listBuckets(async (err, buckets) => {
+        if (err)
+          return console.log(err);
+        console.log('buckets :', buckets);
+        return buckets;
+      });
+
+      var data = []
+      var stream = this.minioService.client.listObjects('nktc-app', '', true)
+      stream.on('data', function (obj) { data.push(obj) })
+      stream.on("end", function (obj) {
+        console.log('data :', data);
+        return data;
+      })
+      stream.on('error', function (err) { console.log(err) })
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async findByClassroomId(id: string) {
     return await this.prisma.user.findMany({
@@ -63,8 +87,6 @@ export class StudentsService {
   }
 
   async createProfile(id: string, body: any) {
-
-
     const checkExisting = await this.prisma.student.findFirst({
       where: {
         studentId: body.studentId,

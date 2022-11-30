@@ -24,6 +24,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) { }
 
+  @Get('download')
+  @HttpCode(200)
+ async findBucket()  {
+    return this.studentsService.findBucket();
+ }
+
   @Get('classroom/:id')
   async findByClassroomId(@Param('id') id: string) {
     return await this.studentsService.findByClassroomId(id);

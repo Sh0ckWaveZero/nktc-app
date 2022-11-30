@@ -20,6 +20,8 @@ import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { DepartmentsModule } from './apis/departments/departments.module';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { MinioModule } from 'nestjs-minio-client';
+import { MinioClientService } from './apis/minio/minio-client.service';
+import { MinioClientModule } from './apis/minio/minio-client.module';
 
 @Module({
   imports: [
@@ -44,13 +46,7 @@ import { MinioModule } from 'nestjs-minio-client';
         validate,
       },
     ),
-    MinioModule.register({
-      endPoint: configuration().minioEndpoint,
-      port: configuration().minioPort,
-      useSSL: configuration().minioUseSSL,
-      accessKey: configuration().minioAccessKey,
-      secretKey: configuration().minioSecretKey,
-    }),
+    MinioClientModule,
   ],
   controllers: [AppController],
   providers: [
@@ -58,7 +54,7 @@ import { MinioModule } from 'nestjs-minio-client';
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,
-    }
+    },
   ],
 })
 export class AppModule implements NestModule {
