@@ -363,7 +363,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                             </li>
                           )}
                           filterSelectedOptions
-                          groupBy={(option: any) => option.program?.description}
+                          groupBy={(option: any) => option.department?.name}
                           noOptionsText='ไม่พบข้อมูล'
                         />
                       )}
