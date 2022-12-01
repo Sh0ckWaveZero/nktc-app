@@ -39,7 +39,7 @@ const TableHeader = (props: TableHeaderProps) => {
         ดาวน์โหลด
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
+        <FormControl sx={{ mr: 4, mb: 2, width: 340 }} size='medium'>
           <CustomDay selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
         </FormControl>
       </Box>
