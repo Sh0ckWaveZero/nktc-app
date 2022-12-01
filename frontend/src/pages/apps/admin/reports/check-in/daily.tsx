@@ -12,6 +12,7 @@ import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import { isEmpty } from '../../../../../@core/utils/utils';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Spinner from '@/@core/components/spinner';
+import dayjs, { Dayjs } from 'dayjs';
 
 const localStorageService = new LocalStorageService();
 
@@ -28,7 +29,7 @@ const AdminCheckInDailyReport = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState(new Date() || null);
+  const [selectedDate, setSelectedDate] = useState(dayjs(new Date()) || null);
 
   useEffect(() => {
     (async () => {
@@ -40,8 +41,8 @@ const AdminCheckInDailyReport = () => {
     })();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Date | null) => {
-    setSelectedDate(date as Date);
+  const handleSelectedDate = (date: Dayjs | null) => {
+    setSelectedDate(date as Dayjs);
   };
 
   return (
