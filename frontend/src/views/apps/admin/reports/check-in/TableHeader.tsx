@@ -4,16 +4,19 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import thLocale from 'date-fns/locale/th';
-
+import dayjs, { Dayjs } from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import th from 'dayjs/locale/th';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
 
+dayjs.extend(buddhistEra);
+
 interface TableHeaderProps {
   value: any;
-  selectedDate: Date | null;
-  handleSelectedDate: (newDate: Date | null) => any;
+  selectedDate: Dayjs | null;
+  handleSelectedDate: (newDate: Dayjs | null) => any;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
@@ -42,13 +45,13 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
             <DatePicker
               label='เลือกวันที่'
               value={selectedDate}
-              inputFormat='dd/MM/yyyy'
-              minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
-              maxDate={new Date()}
+              inputFormat='DD MMMM BBBB'
+              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
+              maxDate={dayjs(new Date())}
               onChange={(newDate) => handleSelectedDate(newDate)}
               renderInput={(params) => (
                 <TextField
@@ -56,7 +59,7 @@ const TableHeader = (props: TableHeaderProps) => {
                   fullWidth
                   inputProps={{
                     ...params.inputProps,
-                    placeholder: 'วัน/เดือน/ปี',
+                    placeholder: 'วัน เดือน ปี',
                   }}
                 />
               )}
