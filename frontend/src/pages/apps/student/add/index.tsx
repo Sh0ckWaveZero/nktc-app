@@ -1,11 +1,13 @@
 // ** React Imports
-import { useState, Fragment } from 'react';
+import { useState, Fragment, ElementType, ChangeEvent } from 'react';
 
 // ** MUI Imports
 import {
   Autocomplete,
   Avatar,
+  Box,
   Button,
+  ButtonProps,
   Card,
   CardContent,
   CardHeader,
@@ -19,6 +21,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 // ** Next Import
 import { useRouter } from 'next/router';
@@ -29,9 +32,8 @@ import Icon from '@/@core/components/icon';
 
 // ** Third Party Imports
 import { useEffectOnce } from '@/hooks/userCommon';
-import { useClassroomStore, useDepartmentStore, useProgramStore, useStudentStore } from '@/store/index';
+import { useClassroomStore, useStudentStore } from '@/store/index';
 import shallow from 'zustand/shallow';
-import { authConfig } from '@/configs/auth';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { FcCalendar } from 'react-icons/fc';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -46,6 +48,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
+import { styled } from '@mui/material/styles';
 
 dayjs.extend(buddhistEra);
 
@@ -114,6 +117,32 @@ const schema = yup.object().shape({
   postalCode: yup.string(),
 });
 
+const ImgStyled = styled('img')(({ theme }) => ({
+  width: 120,
+  height: 120,
+  marginRight: theme.spacing(6.25),
+  borderRadius: theme.shape.borderRadius,
+}));
+
+const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    textAlign: 'center',
+  },
+}));
+
+const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
+  marginLeft: theme.spacing(4.5),
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    marginLeft: 0,
+    textAlign: 'center',
+    marginTop: theme.spacing(4),
+  },
+}));
+
+const localStorageService = new LocalStorageService();
+
 const AddStudentPage = () => {
   // hooks
   const theme = useTheme();
@@ -122,10 +151,12 @@ const AddStudentPage = () => {
 
   // ** State
   const [classroom, setClassroom] = useState([initialData.classroom]);
+  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [inputValue, setInputValue] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
-  const localStorageService = new LocalStorageService();
-  const storedToken = localStorageService.getToken();
+  const accessToken = localStorageService.getToken();
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -139,8 +170,13 @@ const AddStudentPage = () => {
   useEffectOnce(() => {
     (async () => {
       setLoading(true);
-      await fetchClassroom(storedToken).then(async (data: any) => {
-        setClassroom(await data);
+      fetchClassroom(accessToken).then(async (res: any) => {
+        if (user?.role?.toLowerCase() === 'admin') {
+          setClassroom(await res);
+        } else {
+          const teacherClassroom = await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
+          setClassroom(teacherClassroom);
+        }
         setLoading(false);
       });
     })();
@@ -161,18 +197,17 @@ const AddStudentPage = () => {
   const onSubmit = async (data: any, e: any) => {
     e.preventDefault();
 
-    const { classroom: c, department: d, program: p, ...rest } = data;
+    const { classroom: c, ...rest } = data;
     const student = {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      department: d.id,
-      program: p.id,
       level: c.level.id,
+      avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
-
+    
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    createStudentProfile(storedToken, user?.id, student).then((res: any) => {
+    createStudentProfile(accessToken, user?.id, student).then((res: any) => {
       if (res?.status === 201) {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
       } else {
@@ -200,9 +235,36 @@ const AddStudentPage = () => {
     }`,
   };
 
+  const handleInputImageChange = (file: ChangeEvent) => {
+    setLoadingImg(true);
+    const reader = new FileReader();
+    const { files } = file.target as HTMLInputElement;
+
+    if (files && files.length !== 0) {
+      if (files[0].size > 1000000) {
+        toast.error('ขนาดไฟล์ใหญ่เกินไป');
+        setLoadingImg(false);
+        return;
+      }
+      reader.onload = () => setImgSrc(reader.result as string);
+      reader.readAsDataURL(files[0]);
+
+      if (reader.result !== null) {
+        setInputValue(reader.result as string);
+      }
+
+      setLoadingImg(false);
+    }
+  };
+
+  const handleInputImageReset = () => {
+    setInputValue('');
+    setImgSrc('/images/avatars/1.png');
+  };
+
   return (
     <Fragment>
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         {/* Student Details */}
         <Grid item xs={12}>
           <Link href={`/apps/student/list`} passHref>
@@ -222,9 +284,40 @@ const AddStudentPage = () => {
               sx={{ color: 'text.primary' }}
               title={`เพิ่มข้อมูลนักเรียน`}
             />
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <CardContent>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={5}>
+                  <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <ImgStyled src={imgSrc} alt='Profile Pic' />
+                      <Box>
+                        <LoadingButton
+                          loading={loadingImg}
+                          loadingPosition='start'
+                          startIcon={<Icon icon={'uil:image-upload'} />}
+                          variant='contained'
+                          component='label'
+                          htmlFor='account-settings-upload-image'
+                        >
+                          อัปโหลดรูปภาพส่วนตัว
+                          <input
+                            hidden
+                            type='file'
+                            value={inputValue}
+                            onChange={handleInputImageChange}
+                            accept='image/png, image/jpeg, image/webp'
+                            id='account-settings-upload-image'
+                          />
+                        </LoadingButton>
+                        <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
+                          รีเซ็ต
+                        </ResetButtonStyled>
+                        <Typography variant='body2' sx={{ mt: 5 }}>
+                          อนุญาต PNG, JPEG หรือ WEBP ขนาดสูงสุด 1MB.
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
                   <Grid item xs={12} sm={12}>
                     <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
                       <Grid item>
@@ -352,7 +445,7 @@ const AddStudentPage = () => {
                               </li>
                             )}
                             filterSelectedOptions
-                            groupBy={(option: any) => option.program?.description}
+                            groupBy={(option: any) => option.department?.name}
                             noOptionsText='ไม่พบข้อมูล'
                           />
                         )}
@@ -528,8 +621,8 @@ const AddStudentPage = () => {
                     </Button>
                   </Grid>
                 </Grid>
-              </CardContent>
-            </form>
+              </form>
+            </CardContent>
           </Card>
         </Grid>
       </Grid>
