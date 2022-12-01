@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import Swal from "sweetalert2";
 import { useUserStore } from "../../store/apps/user/index";
+import { useAuth } from "../../hooks/useAuth";
 
 const httpClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -18,7 +19,7 @@ const httpClient = axios.create({
  */
 const AxiosInterceptor = ({ children }: any) => {
   // ** Hooks
-  const { logout } = useUserStore()
+  const { logout } = useAuth();
   const router = useRouter();
   useEffect(() => {
     httpClient.interceptors.response.use((response) => response, async (error) => {
@@ -33,7 +34,7 @@ const AxiosInterceptor = ({ children }: any) => {
           confirmButtonText: 'ตกลง'
         }).then(() => {
           logout();
-          router.push('/login');
+          // router.push('/login');
         })
       } else {
         return Promise.reject(error);
