@@ -988,6 +988,11 @@
   resolved "https://registry.yarnpkg.com/@types/cookiejar/-/cookiejar-2.1.2.tgz#66ad9331f63fe8a3d3d9d8c6e3906dd10f6446e8"
   integrity sha512-t73xJJrvdTjXrn4jLS9VSGRbz0nUY3cl2DMGDU48lKl+HR9dbbjW2A9r3g40VA++mQpy6uuHg33gy7du2BKpog==
 
+"@types/decode-uri-component@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@types/decode-uri-component/-/decode-uri-component-0.2.0.tgz#0660a5c96fdfefdd570840cc7aeb07293907106e"
+  integrity sha512-Sa61t51csZD7DzzzoYLXVmR/lJE6IXjTlflRQFOOCDw5nmmBQb2FZ5DCxl8sEYtAPPBHj//1jCbxFTu9wc8EZQ==
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.4.tgz#37fc1223f0786c39627068a12e94d6e6fc61de16"
@@ -1093,13 +1098,6 @@
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-3.0.1.tgz#5f8f2bca0a5863cb69bc0b0acd88c96cb1d4ae10"
   integrity sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
-
-"@types/minio@^7.0.15":
-  version "7.0.15"
-  resolved "https://registry.yarnpkg.com/@types/minio/-/minio-7.0.15.tgz#6fbf2e17aeae172cbf181ea52b1faa05a601ce42"
-  integrity sha512-1VR05lWJDuxkn/C7d87MPAJs0p+onKnkUN3nyQ0xrrtaziZQmONy/nxXRaAVWheEyIb6sl0TTi77I/GAQDN5Lw==
-  dependencies:
-    "@types/node" "*"
 
 "@types/multer@^1.4.7":
   version "1.4.7"
@@ -2358,6 +2356,11 @@ debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2, debug@^4.3.4:
   integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
   dependencies:
     ms "2.1.2"
+
+decode-uri-component@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 decode-uri-component@^0.2.0:
   version "0.2.2"
