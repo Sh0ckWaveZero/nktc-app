@@ -127,7 +127,7 @@ model Student {
   graduationDate   DateTime?
   studentStatus    String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
   group            String?
-  status           String?
+  status           String?         @default("normal") // normal = ปกติ, intern = ฝึกงาน
   user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String?         @unique
   classroom        Classroom?      @relation(fields: [classroomId], references: [id], onUpdate: Cascade)
@@ -151,27 +151,28 @@ model Student {
 
 // ครูผู้สอน ครูอาจารย์ ครูอาจารย์พิเศษ และบุคลากรอื่นๆ
 model Teacher {
-  id               String          @id @default(cuid())
-  teacherId        String?         @unique
-  jobTitle         String? // ตำแหน่ง
-  academicStanding String? // วิทยฐานะ
-  classroomIds     String[]        @default([]) // รหัสห้องเรียนที่สอน
-  classrooms       Classroom[] // ครูประจำชั้น
-  rfId             String?
-  program          Program?        @relation(fields: [programId], references: [id])
-  programId        String? // สาขาวิชา
-  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String?         @unique
-  department       Department?     @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
-  departmentId     String?
-  levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
-  levelClassroomId String?
-  status           String?
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
-  updatedBy        String?
-  createdBy        String?
-  reportCheckIn    ReportCheckIn[]
+  id                    String                  @id @default(cuid())
+  teacherId             String?                 @unique
+  jobTitle              String? // ตำแหน่ง
+  academicStanding      String? // วิทยฐานะ
+  classroomIds          String[]                @default([]) // รหัสห้องเรียนที่สอน
+  classrooms            Classroom[] // ครูประจำชั้น
+  rfId                  String?
+  program               Program?                @relation(fields: [programId], references: [id])
+  programId             String? // สาขาวิชา
+  user                  User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String?                 @unique
+  department            Department?             @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
+  departmentId          String?
+  levelClassroom        LevelClassroom?         @relation(fields: [levelClassroomId], references: [id])
+  levelClassroomId      String?
+  status                String?
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+  updatedBy             String?
+  createdBy             String?
+  reportCheckIn         ReportCheckIn[]
+  activityCheckInReport ActivityCheckInReport[]
 
   @@unique([userId, teacherId], name: "teacher_users")
   @@map("teacher")
@@ -180,28 +181,29 @@ model Teacher {
 // ระดับชั้นเรียนรายสาขาวิชา
 // ปวช.1/1-ช่างก่อสร้าง
 model Classroom {
-  id                String           @id @default(cuid())
-  classroomId       String?          @unique
-  name              String?          @unique
-  description       String?
-  teacherIds        String[]         @default([]) // รหัสครูประจำชั้น
-  teachers          Teacher[]
-  student           Student[]
-  course            Course[]
-  level             Level?           @relation(fields: [levelId], references: [id])
-  levelId           String?
-  program           Program?         @relation(fields: [programId], references: [id])
-  programId         String?
-  department        Department?      @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
-  departmentId      String?
-  status            String?
-  createdAt         DateTime         @default(now()) @map("created_at")
-  updatedAt         DateTime         @updatedAt @map("updated_at")
-  updatedBy         String?
-  createdBy         String?
-  levelClassroomIds String[]         @default([]) // รหัสระดับชั้นเรียนรายสาขาวิชา
-  levelClassrooms   LevelClassroom[]
-  reportCheckIn     ReportCheckIn[]
+  id                    String                  @id @default(cuid())
+  classroomId           String?                 @unique
+  name                  String?                 @unique
+  description           String?
+  teacherIds            String[]                @default([]) // รหัสครูประจำชั้น
+  teachers              Teacher[]
+  student               Student[]
+  course                Course[]
+  level                 Level?                  @relation(fields: [levelId], references: [id])
+  levelId               String?
+  program               Program?                @relation(fields: [programId], references: [id])
+  programId             String?
+  department            Department?             @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
+  departmentId          String?
+  status                String?
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+  updatedBy             String?
+  createdBy             String?
+  levelClassroomIds     String[]                @default([]) // รหัสระดับชั้นเรียนรายสาขาวิชา
+  levelClassrooms       LevelClassroom[]
+  reportCheckIn         ReportCheckIn[]
+  activityCheckInReport ActivityCheckInReport[]
 
   @@map("classroom")
 }
@@ -247,7 +249,7 @@ model TeacherOnClassroom {
 // แผนกวิชา
 model Department {
   id           String      @id @default(cuid())
-  departmentId String?     @unique
+  departmentId String?
   name         String?
   description  String?
   teacher      Teacher[]
@@ -266,7 +268,7 @@ model Department {
 // สาขาวิชา
 model Program {
   id             String           @id @default(cuid())
-  programId      String?          @unique
+  programId      String           @unique
   name           String?
   description    String?
   student        Student[]
@@ -284,7 +286,6 @@ model Program {
   updatedBy      String?
   createdBy      String?
 
-  @@unique([programId, description], name: "program_key")
   @@map("program")
 }
 
@@ -351,6 +352,28 @@ model ReportCheckIn {
   createdBy    String?
 
   @@map("reportCheckIn")
+}
+
+// รายงานการเช็คชื่อกิจกรรม
+model ActivityCheckInReport {
+  id           String     @id @default(cuid())
+  teacherId    String // รหัสอาจารย์
+  teacherKey   String? // รหัสอาจารย์/ครู
+  teacher      Teacher?   @relation(fields: [teacherKey], references: [id])
+  classroomId  String // รหัสห้องเรียน
+  classroomKey String? // รหัสห้องเรียน
+  classroom    Classroom? @relation(fields: [classroomKey], references: [id])
+  present      String[]   @default([]) // รหัสนักเรียนที่เข้าร่วมกิจกรรม
+  absent       String[]   @default([]) // รหัสนักเรียนที่ไม่เข้าร่วมกิจกรรม
+  checkInDate  DateTime? // วันที่เช็คอิน
+  checkInTime  DateTime? // เวลาเช็คอิน
+  status       String? // สถานะ 0 = ยังไม่ได้เช็คชื่อ, 1 = ได้เช็คชื่อแล้ว
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("activityCheckInReport")
 }
 
 // Audit logs
