@@ -183,6 +183,7 @@ export class TeachersService {
   }
 
   async updateClassroom(userId: string, updateTeacherDto: any) {
+    console.log('🚀 ~ file: teachers.service.ts ~ line 186 ~ TeachersService ~ updateClassroom ~ updateTeacherDto', updateTeacherDto);
     const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
         teacherId: updateTeacherDto.teacherInfo,
@@ -213,6 +214,7 @@ export class TeachersService {
 
 
   async updateProfile(userId: string, updateTeacherDto: any) {
+    console.log('🚀 ~ file: teachers.service.ts ~ line 216 ~ TeachersService ~ updateProfile ~ updateTeacherDto', updateTeacherDto);
     try {
       // update teacher
       const updateTeacher = await this.prisma.teacher.update({
