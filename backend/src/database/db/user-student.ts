@@ -25,7 +25,7 @@ export const userStudentData = async (fileName: string) => {
       const password = await hash(studentId.toString(), 12);
       const levelName = levelClassroom.toString().search(/ปวช/) !== -1 ? "ปวช." : "ปวส.";
       const levelClassroomId = await getLevelClassroomByName(levelClassroom);
-      const level = getLevelByName(levelName);
+      const level = await getLevelByName(levelName);
       const birthDate = await getBirthday(birthDateTh.toString());
       const programId = await getProgramId(departmentName, levelName, programName);
       const classroomId = await getClassroomId(levelClassroom, departmentName, group, programName);
@@ -50,17 +50,17 @@ export const userStudentData = async (fileName: string) => {
               studentId,
               levelClassroom: {
                 connect: {
-                  levelClassroomId,
+                  id: levelClassroomId,
                 }
               },
               classroom: {
                 connect: {
-                  classroomId
+                  id: classroomId
                 }
               },
               program: {
                 connect: {
-                  programId,
+                  id: programId,
                 }
               },
               ...level,

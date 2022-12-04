@@ -10,7 +10,7 @@ export const LevelClassroom = async () => {
     .map(async (item: any) => {
       const levelClassroomId = item[0].toString();
       const name = item[1].toString();
-      const level = getLevelByName(item[2].toString());
+      const level = await getLevelByName(item[2].toString());
 
       return Prisma.validator<Prisma.LevelClassroomCreateInput>()(
         {

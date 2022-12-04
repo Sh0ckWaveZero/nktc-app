@@ -48,10 +48,10 @@ export const getClassroomId = async (levelClassroomId: string, departmentName: s
       name,
     },
     select: {
-      classroomId: true,
+      id: true,
     }
   });
-  return res?.classroomId;
+  return res?.id;
 }
 
 export const getLevelClassroomId = async (level: string, classroom: string) => {
@@ -61,10 +61,10 @@ export const getLevelClassroomId = async (level: string, classroom: string) => {
       name: name,
     },
     select: {
-      levelClassroomId: true,
+      id: true,
     }
   });
-  return res?.levelClassroomId;
+  return res?.id;
 }
 
 export const getLevelClassroomByName = async (name: string) => {
@@ -73,10 +73,10 @@ export const getLevelClassroomByName = async (name: string) => {
       name: name,
     },
     select: {
-      levelClassroomId: true,
+      id: true,
     }
   });
-  return res?.levelClassroomId;
+  return res?.id;
 }
 
 export const getProgramId = async (name: string, level: string, programName: string = '') => {
@@ -91,10 +91,10 @@ export const getProgramId = async (name: string, level: string, programName: str
       description: query,
     },
     select: {
-      programId: true,
+      id: true,
     }
   });
-  return res?.programId;
+  return res?.id;
 }
 
 export const readWorkSheetFromFile = (path: string) => {
@@ -104,37 +104,34 @@ export const readWorkSheetFromFile = (path: string) => {
   return workSheetsFromFile;
 }
 
-export const getLevelByName = (level: 'ปวช.' | 'ปวส.') => {
+export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   const admin = createByAdmin();
-  const level001 = {
+  const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
+
+  const res = await prisma.level.findFirst({
+    where: {
+      levelId: isLevel,
+    },
+  });
+
+  return {
     ...admin,
     level: {
       connect: {
-        levelId: "L001"
-      }
-    }
-  }
-  const level002 = {
-    ...admin,
-    level: {
-      connect: {
-        levelId: "L002"
+        id: res?.id,
       }
     }
   }
 
-  return level === "ปวช." ? level001 : level002;
 }
 
 export const getDepartIdByName = async (name: string, id: string) => {
-  // console.log('🚀 ~ file: utils.ts ~ line 130 ~ getDepartIdByName ~ id', id, name.trim());
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {
       departmentId: names,
     },
   });
-  // console.log('🚀 ~ file: utils.ts ~ line 130 ~ getDepartIdByName ~ res', id,res);
   return res.id;
 }
 

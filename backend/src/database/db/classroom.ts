@@ -9,7 +9,7 @@ export const Classroom = async () => {
     .map(async (item: any) => {
       const [classroomId, name, levelName, classroom, program, department, departmentIds] = item;
       const programId = await getProgramId(program, levelName);
-      const level = getLevelByName(levelName);
+      const level = await getLevelByName(levelName);
       const departmentId = await getDepartIdByName(departmentIds, classroomId);
       return Prisma.validator<Prisma.ClassroomCreateInput>()(
         {
@@ -17,7 +17,7 @@ export const Classroom = async () => {
           name,
           program: {
             connect: {
-              programId: programId
+              id: programId
             }
           },
           department: {
