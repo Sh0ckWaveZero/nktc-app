@@ -118,6 +118,7 @@ export class StudentsService {
             district: body.district,
             province: body.province,
             postcode: body.postalCode,
+            phone: body.phone,
             updatedBy: id,
             createdBy: id,
           }
@@ -126,6 +127,7 @@ export class StudentsService {
           create: {
             studentId: body.studentId,
             classroomId: body.classroom,
+            status: body.status,
             updatedBy: id,
             createdBy: id,
             levelId: body.level,
@@ -159,6 +161,7 @@ export class StudentsService {
             province: body.province,
             postcode: body.postalCode,
             updatedBy: id,
+            phone: body.phone,
           }
         },
         student: {
@@ -166,6 +169,7 @@ export class StudentsService {
             classroomId: body.classroom,
             departmentId: body.department,
             programId: body.program,
+            status: body.status,
             updatedBy: id,
           },
         }
