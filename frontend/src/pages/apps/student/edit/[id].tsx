@@ -1,11 +1,13 @@
 // ** React Imports
-import { useState, Fragment } from 'react';
+import { useState, Fragment, ChangeEvent } from 'react';
 
 // ** MUI Imports
 import {
   Autocomplete,
   Avatar,
+  Box,
   Button,
+  ButtonProps,
   Card,
   CardContent,
   CardHeader,
@@ -15,6 +17,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  styled,
   TextField,
   Typography,
   useTheme,
@@ -46,6 +49,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { GetServerSideProps } from 'next';
 import httpClient from '@/@core/utils/http';
 import { LocalStorageService } from '@/services/localStorageService';
+import { handleKeyDown } from 'utils/event';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 dayjs.extend(buddhistEra);
 
@@ -62,6 +67,8 @@ interface Data {
   district: string;
   province: string;
   postalCode: number | string;
+  phone: number | string;
+  status: string;
 }
 
 const showErrors = (field: string, valueLen: number, min: number) => {
@@ -97,9 +104,27 @@ const schema = yup.object().shape({
   district: yup.string(),
   province: yup.string(),
   postalCode: yup.string(),
+  status: yup.string().required('กรุณาเลือกสถานะ'),
 });
 
 const localStorageService = new LocalStorageService();
+
+const ImgStyled = styled('img')(({ theme }) => ({
+  width: 120,
+  height: 120,
+  marginRight: theme.spacing(6.25),
+  borderRadius: theme.shape.borderRadius,
+}));
+
+const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
+  marginLeft: theme.spacing(4.5),
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    marginLeft: 0,
+    textAlign: 'center',
+    marginTop: theme.spacing(4),
+  },
+}));
 
 const StudentEditPage = ({ users, classroomId }: any) => {
   const initialData: Data = {
@@ -115,6 +140,8 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     district: users.account.district || '',
     province: users.account.province || '',
     postalCode: users.account.postcode || '',
+    phone: users.account.phone || '',
+    status: users.student.status || '',
   };
 
   // ** State
@@ -125,6 +152,8 @@ const StudentEditPage = ({ users, classroomId }: any) => {
   const [secondDialogOpen, setSecondDialogOpen] = useState<boolean>(false);
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingImg, setLoadingImg] = useState<boolean>(false);
+  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(
     ThailandAddressValue.fromDataSourceItem({
       d: users.account.district || '',
@@ -179,8 +208,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      department: d.id,
-      program: p.id,
+      avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
     toast.promise(updateStudentProfile(storedToken, users.id, student), {
       loading: 'กำลังบันทึกข้อมูล...',
@@ -208,6 +236,33 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     }`,
   };
 
+  const handleInputImageChange = (file: ChangeEvent) => {
+    setLoadingImg(true);
+    const reader = new FileReader();
+    const { files } = file.target as HTMLInputElement;
+
+    if (files && files.length !== 0) {
+      if (files[0].size > 1000000) {
+        toast.error('ขนาดไฟล์ใหญ่เกินไป');
+        setLoadingImg(false);
+        return;
+      }
+      reader.onload = () => setImgSrc(reader.result as string);
+      reader.readAsDataURL(files[0]);
+
+      if (reader.result !== null) {
+        setInputValue(reader.result as string);
+      }
+
+      setLoadingImg(false);
+    }
+  };
+
+  const handleInputImageReset = () => {
+    setInputValue('');
+    setImgSrc('/images/avatars/1.png');
+  };
+
   return (
     // back button to previous page
     <Grid container spacing={6}>
@@ -230,9 +285,40 @@ const StudentEditPage = ({ users, classroomId }: any) => {
             sx={{ color: 'text.primary' }}
             title={`แก้ไขข้อมูลนักเรียน`}
           />
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <CardContent>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={5}>
+                <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <ImgStyled src={imgSrc} alt='Profile Pic' />
+                    <Box>
+                      <LoadingButton
+                        loading={loadingImg}
+                        loadingPosition='start'
+                        startIcon={<Icon icon={'uil:image-upload'} />}
+                        variant='contained'
+                        component='label'
+                        htmlFor='account-settings-upload-image'
+                      >
+                        อัปโหลดรูปภาพส่วนตัว
+                        <input
+                          hidden
+                          type='file'
+                          value={inputValue}
+                          onChange={handleInputImageChange}
+                          accept='image/png, image/jpeg, image/webp'
+                          id='account-settings-upload-image'
+                        />
+                      </LoadingButton>
+                      <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
+                        รีเซ็ต
+                      </ResetButtonStyled>
+                      <Typography variant='body2' sx={{ mt: 5 }}>
+                        อนุญาต PNG, JPEG หรือ WEBP ขนาดสูงสุด 1MB.
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
                 <Grid item xs={12} sm={12}>
                   <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
                     <Grid item>
@@ -255,7 +341,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                         <TextField
                           fullWidth
                           id='รหัสนักเรียน'
-                          label='รหัสนักเรียน'
+                          label='รหัสนักเรียน *'
                           placeholder='รหัสนักเรียน'
                           InputProps={{
                             readOnly: true,
@@ -277,8 +363,8 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <Fragment>
-                          <InputLabel>คำนำหน้า</InputLabel>
-                          <Select label='คำนำหน้า' value={value} onChange={onChange}>
+                          <InputLabel>คำนำหน้า *</InputLabel>
+                          <Select label='คำนำหน้า *' value={value} onChange={onChange}>
                             <MenuItem value=''>
                               <em>เลือกคำนำหน้า</em>
                             </MenuItem>
@@ -300,7 +386,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                       render={({ field: { value, onChange } }) => (
                         <TextField
                           fullWidth
-                          label='ชื่อ'
+                          label='ชื่อ *'
                           placeholder='ชื่อ'
                           value={value}
                           onChange={onChange}
@@ -320,7 +406,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                       render={({ field: { value, onChange } }) => (
                         <TextField
                           fullWidth
-                          label='นามสกุล'
+                          label='นามสกุล *'
                           placeholder='นามสกุล'
                           value={value}
                           onChange={onChange}
@@ -351,7 +437,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='ชั้นเรียน'
+                              label='ชั้นเรียน *'
                               placeholder='เลือกชั้นเรียน'
                               error={!!errors.classroom}
                               helperText={errors.classroom ? (errors.classroom.message as string) : ''}
@@ -375,16 +461,20 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                     <Controller
                       name='idCard'
                       control={control}
-                      rules={{ required: false }}
                       render={({ field: { value, onChange } }) => (
                         <TextField
                           fullWidth
+                          type={'tel'}
                           label='เลขประจำตัวประชาชน'
                           placeholder='เลขประจำตัวประชาชน'
                           value={value}
                           onChange={onChange}
-                          error={!!errors.idCard}
-                          helperText={errors.idCard ? (errors.idCard.message as string) : ''}
+                          inputProps={{
+                            maxLength: 13,
+                            onKeyDown(e: any) {
+                              handleKeyDown(e);
+                            },
+                          }}
                         />
                       )}
                     />
@@ -422,6 +512,52 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                             }}
                           />
                         </LocalizationProvider>
+                      )}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <Controller
+                      name='phone'
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          fullWidth
+                          type={'tel'}
+                          label='เบอร์โทรศัพท์'
+                          placeholder='เบอร์โทรศัพท์'
+                          value={value}
+                          onChange={onChange}
+                          inputProps={{
+                            maxLength: 10,
+                            onKeyDown(e: any) {
+                              handleKeyDown(e);
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth error={!!errors.status}>
+                    <Controller
+                      name='status'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <Fragment>
+                          <InputLabel>สถานะ *</InputLabel>
+                          <Select label='สถานะ *' value={value} onChange={onChange}>
+                            <MenuItem value=''>
+                              <em>เลือกสถานะ</em>
+                            </MenuItem>
+                            <MenuItem value='normal'>ปกติ</MenuItem>
+                            <MenuItem value='intern'>ฝึกงาน</MenuItem>
+                          </Select>
+                          {!!errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
+                        </Fragment>
                       )}
                     />
                   </FormControl>
@@ -547,8 +683,8 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                   </Button>
                 </Grid>
               </Grid>
-            </CardContent>
-          </form>
+            </form>
+          </CardContent>
         </Card>
       </Grid>
     </Grid>

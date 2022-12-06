@@ -49,6 +49,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
 import { styled } from '@mui/material/styles';
+import { handleKeyDown } from 'utils/event';
 
 dayjs.extend(buddhistEra);
 
@@ -65,6 +66,8 @@ interface Data {
   district: string;
   province: string;
   postalCode: number | string;
+  phone: number | string;
+  status: string;
 }
 
 const initialData: Data = {
@@ -80,6 +83,8 @@ const initialData: Data = {
   district: '',
   province: '',
   postalCode: '',
+  phone: '',
+  status: '',
 };
 
 const showErrors = (field: string, valueLen: number, min: number) => {
@@ -96,7 +101,7 @@ const schema = yup.object().shape({
   studentId: yup
     .string()
     .required('กรุณากรอกรหัสนักศึกษา')
-    .min(10, (obj) => showErrors('รหัสนักเรียน', obj.value.length, obj.min)),
+    .min(11, (obj) => showErrors('รหัสนักเรียน', obj.value.length, obj.min)),
   title: yup.string().required('กรุณาเลือกคำนำหน้าชื่อ'),
   firstName: yup
     .string()
@@ -115,6 +120,7 @@ const schema = yup.object().shape({
   district: yup.string(),
   province: yup.string(),
   postalCode: yup.string(),
+  status: yup.string().required('กรุณาเลือกสถานะ'),
 });
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -205,7 +211,7 @@ const AddStudentPage = () => {
       level: c.level.id,
       avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
-    
+
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     createStudentProfile(accessToken, user?.id, student).then((res: any) => {
       if (res?.status === 201) {
@@ -339,11 +345,18 @@ const AddStudentPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            type='tel'
                             id='รหัสนักเรียน'
-                            label='รหัสนักเรียน'
+                            label='รหัสนักเรียน *'
                             placeholder='รหัสนักเรียน'
                             value={value}
                             onChange={onChange}
+                            inputProps={{
+                              maxLength: 11,
+                              onKeyDown(e: any) {
+                                handleKeyDown(e);
+                              },
+                            }}
                             error={!!errors.studentId}
                             helperText={errors.studentId ? (errors.studentId.message as string) : ''}
                           />
@@ -359,7 +372,7 @@ const AddStudentPage = () => {
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
                           <Fragment>
-                            <InputLabel>คำนำหน้า</InputLabel>
+                            <InputLabel required>คำนำหน้า</InputLabel>
                             <Select label='คำนำหน้า' value={value} onChange={onChange}>
                               <MenuItem value=''>
                                 <em>เลือกคำนำหน้า</em>
@@ -382,7 +395,7 @@ const AddStudentPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
-                            label='ชื่อ'
+                            label='ชื่อ *'
                             placeholder='ชื่อ'
                             value={value}
                             onChange={onChange}
@@ -402,7 +415,7 @@ const AddStudentPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
-                            label='นามสกุล'
+                            label='นามสกุล *'
                             placeholder='นามสกุล'
                             value={value}
                             onChange={onChange}
@@ -433,7 +446,7 @@ const AddStudentPage = () => {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label='ชั้นเรียน'
+                                label='ชั้นเรียน *'
                                 placeholder='เลือกชั้นเรียน'
                                 error={!!errors.classroom}
                                 helperText={errors.classroom ? (errors.classroom.message as string) : ''}
@@ -457,16 +470,20 @@ const AddStudentPage = () => {
                       <Controller
                         name='idCard'
                         control={control}
-                        rules={{ required: false }}
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            type={'tel'}
                             label='เลขประจำตัวประชาชน'
                             placeholder='เลขประจำตัวประชาชน'
                             value={value}
                             onChange={onChange}
-                            error={!!errors.idCard}
-                            helperText={errors.idCard ? (errors.idCard.message as string) : ''}
+                            inputProps={{
+                              maxLength: 13,
+                              onKeyDown(e: any) {
+                                handleKeyDown(e);
+                              },
+                            }}
                           />
                         )}
                       />
@@ -504,6 +521,52 @@ const AddStudentPage = () => {
                               }}
                             />
                           </LocalizationProvider>
+                        )}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='phone'
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            fullWidth
+                            type={'tel'}
+                            label='เบอร์โทรศัพท์'
+                            placeholder='เบอร์โทรศัพท์'
+                            value={value}
+                            onChange={onChange}
+                            inputProps={{
+                              maxLength: 10,
+                              onKeyDown(e: any) {
+                                handleKeyDown(e);
+                              },
+                            }}
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth error={!!errors.status}>
+                      <Controller
+                        name='status'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <Fragment>
+                            <InputLabel>สถานะ *</InputLabel>
+                            <Select label='สถานะ *' value={value} onChange={onChange}>
+                              <MenuItem value=''>
+                                <em>เลือกสถานะ</em>
+                              </MenuItem>
+                              <MenuItem value='normal'>ปกติ</MenuItem>
+                              <MenuItem value='intern'>ฝึกงาน</MenuItem>
+                            </Select>
+                            {!!errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
+                          </Fragment>
                         )}
                       />
                     </FormControl>
