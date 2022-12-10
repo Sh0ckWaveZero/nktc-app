@@ -15,13 +15,13 @@ import {
   IconButton,
   AlertTitle,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColumns, GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useReportCheckInStore, useTeacherStore } from '@/store/index';
 
 // ** Custom Components Imports
-import TableHeader from '@/views/apps/reports/check-in/TableHeader';
+import TableHeader from '@/views/apps/reports/TableHeader';
 import { useEffectOnce } from '@/hooks/userCommon';
 
 // ** Config
@@ -230,7 +230,7 @@ const StudentCheckIn = () => {
     return newSelection;
   };
 
-  const onHandleCheckAll = (e: any, action: string): void => {
+  const onHandleCheckAll = (action: string): void => {
     if (action === 'present') {
       handleTogglePresentAll();
     } else if (action === 'absent') {
@@ -294,6 +294,14 @@ const StudentCheckIn = () => {
     }
   };
 
+  const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
+    onHandleToggle(params.field, params.row);
+  };
+
+  const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
+    onHandleCheckAll(params.field);
+  };
+
   const columns: GridColumns = [
     {
       flex: 0.25,
@@ -324,19 +332,12 @@ const StudentCheckIn = () => {
           checked={isPresentCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
-          onClick={() => onHandleToggle('present', params)}
         />
       ),
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'มาเรียน'}
-          <Checkbox
-            color='success'
-            sx={{ p: 0 }}
-            checked={isPresentCheckAll || false}
-            onChange={(e) => onHandleCheckAll(e, 'present')}
-            style={{ paddingLeft: '4px' }}
-          />
+          <Checkbox color='success' sx={{ p: 0 }} checked={isPresentCheckAll || false} style={{ paddingLeft: '4px' }} />
         </Container>
       ),
     },
@@ -348,24 +349,12 @@ const StudentCheckIn = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
-        <Checkbox
-          color='error'
-          checked={isAbsentCheck.includes(params.id) || false}
-          disableRipple
-          disableFocusRipple
-          onClick={() => onHandleToggle('absent', params)}
-        />
+        <Checkbox color='error' checked={isAbsentCheck.includes(params.id) || false} disableRipple disableFocusRipple />
       ),
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'ขาด'}
-          <Checkbox
-            color='error'
-            sx={{ p: 0 }}
-            checked={isAbsentCheckAll || false}
-            onChange={(e) => onHandleCheckAll(e, 'absent')}
-            style={{ paddingLeft: '4px' }}
-          />
+          <Checkbox color='error' sx={{ p: 0 }} checked={isAbsentCheckAll || false} style={{ paddingLeft: '4px' }} />
         </Container>
       ),
     },
@@ -382,19 +371,12 @@ const StudentCheckIn = () => {
           checked={isLeaveCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
-          onClick={() => onHandleToggle('leave', params)}
         />
       ),
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'ลา'}
-          <Checkbox
-            color='secondary'
-            sx={{ p: 0 }}
-            checked={isLeaveCheckAll || false}
-            onChange={(e) => onHandleCheckAll(e, 'leave')}
-            style={{ paddingLeft: '4px' }}
-          />
+          <Checkbox color='secondary' sx={{ p: 0 }} checked={isLeaveCheckAll || false} style={{ paddingLeft: '4px' }} />
         </Container>
       ),
     },
@@ -406,24 +388,12 @@ const StudentCheckIn = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: (params: GridCellParams) => (
-        <Checkbox
-          color='warning'
-          checked={isLateCheck.includes(params.id) || false}
-          disableRipple
-          disableFocusRipple
-          onClick={() => onHandleToggle('late', params)}
-        />
+        <Checkbox color='warning' checked={isLateCheck.includes(params.id) || false} disableRipple disableFocusRipple />
       ),
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'มาสาย'}
-          <Checkbox
-            color='warning'
-            sx={{ p: 0 }}
-            checked={isLateCheckAll || false}
-            onChange={(e) => onHandleCheckAll(e, 'late')}
-            style={{ paddingLeft: '4px' }}
-          />
+          <Checkbox color='warning' sx={{ p: 0 }} checked={isLateCheckAll || false} style={{ paddingLeft: '4px' }} />
         </Container>
       ),
     },
@@ -563,6 +533,8 @@ const StudentCheckIn = () => {
                 disableColumnMenu
                 headerHeight={150}
                 loading={loading}
+                onCellClick={handleCellClick}
+                onColumnHeaderClick={handleColumnHeaderClick}
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
                 rowsPerPageOptions={[pageSize]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
