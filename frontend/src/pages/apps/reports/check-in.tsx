@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useContext, useState } from 'react';
+import { Fragment, useContext, useRef, useState } from 'react';
 
 // ** MUI Imports
 import {
@@ -15,6 +15,8 @@ import {
   Container,
   Grid,
   IconButton,
+  Paper,
+  Popper,
   styled,
   Typography,
   useMediaQuery,
@@ -51,7 +53,7 @@ const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.intern`]: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
       '@media (hover: none)': {
@@ -117,15 +119,21 @@ const StudentCheckIn = () => {
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
 
+  // ** Popper
+  const popperRef: any = useRef();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openPopper = Boolean(anchorEl);
+
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
       await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
         await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
+        const students = await data?.classrooms[0]?.students;
         setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
-        setCurrentStudents(await data?.classrooms[0]?.students);
-        setNormalStudents(await data?.classrooms[0]?.students.filter((student: any) => student?.status === 'normal'));
+        setCurrentStudents(students);
+        setNormalStudents(students.filter((student: any) => student?.status !== 'intern'));
       });
     };
     if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
@@ -334,8 +342,7 @@ const StudentCheckIn = () => {
   };
 
   const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
-    console.log(params);
-    params.row.status === 'normal' ? onHandleToggle(params.field, params.row) : null;
+    params.row.status !== 'intern' ? onHandleToggle(params.field, params.row) : null;
   };
 
   const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
@@ -562,6 +569,23 @@ const StudentCheckIn = () => {
     });
   };
 
+  const handlePopperOpen = (event: any) => {
+    const id = event.currentTarget.dataset.id;
+    const row = normalStudents.find((item: any) => item.id === id);
+    if (!isEmpty(row)) {
+      setAnchorEl(null);
+    } else {
+      setAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handlePopperClose = (event: any) => {
+    if (anchorEl == null || popperRef.current.contains(event.nativeEvent.relatedTarget)) {
+      return;
+    }
+    setAnchorEl(null);
+  };
+
   return (
     ability?.can('read', 'check-in-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
@@ -654,12 +678,41 @@ const StudentCheckIn = () => {
                 rowsPerPageOptions={[pageSize]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                 getRowClassName={(params) => {
-                  return params.row.status === 'normal' ? 'normal' : 'intern';
+                  return params.row.status === 'intern' ? 'intern' : 'normal';
                 }}
                 components={{
                   NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
                 }}
+                componentsProps={{
+                  row: {
+                    onMouseEnter: handlePopperOpen,
+                    onMouseLeave: handlePopperClose,
+                  },
+                }}
               />
+              <Popper
+                ref={popperRef}
+                open={openPopper}
+                anchorEl={anchorEl}
+                placement={'auto'}
+                onMouseLeave={() => setAnchorEl(null)}
+                nonce={undefined}
+                onResize={undefined}
+                onResizeCapture={undefined}
+              >
+                {() => (
+                  <Paper
+                    sx={{
+                      transform: 'translateX(-140px)',
+                      zIndex: 100,
+                    }}
+                  >
+                    <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
+                      ฝึกงาน
+                    </Typography>
+                  </Paper>
+                )}
+              </Popper>
             </Card>
           </Grid>
         </Grid>
