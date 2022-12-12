@@ -7,6 +7,7 @@ type AuthConfig = {
   appbarEndpoint?: string;
   classroomEndpoint?: string;
   reportCheckInEndpoint?: string;
+  activityCheckInEndpoint?: string;
   departmentEndpoint?: string;
   programEndpoint?: string;
   registerEndpoint?: string;
@@ -23,6 +24,7 @@ export const authConfig: AuthConfig = {
   appbarEndpoint: `${apiUrl}/app-bar/search`,
   classroomEndpoint: `${apiUrl}/classrooms`,
   reportCheckInEndpoint: `${apiUrl}/reportCheckIn`,
+  activityCheckInEndpoint: `${apiUrl}/activity-check-in`,
   departmentEndpoint: `${apiUrl}/departments`,
   programEndpoint: `${apiUrl}/programs`,
   registerEndpoint: '/jwt/register',

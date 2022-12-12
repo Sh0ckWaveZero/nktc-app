@@ -4,6 +4,7 @@ import {
   HumanMaleBoard,
 } from 'mdi-material-ui';
 import { RiContactsBookLine, RiTeamLine, RiUser6Line } from 'react-icons/ri';
+import { FaFlagCheckered } from 'react-icons/fa';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
@@ -143,6 +144,13 @@ const navigation = (): VerticalNavItemsType => {
         //   path: '/apps/admin/reports/check-in/summary',
         // }
       ],
+    },
+    {
+      title: 'เช็คชื่อกิจกรรม',
+      icon: FaFlagCheckered,
+      path: '/apps/reports/activity-check-in',
+      action: 'read',
+      subject: 'activity-check-in-page',
     },
   ];
 };
