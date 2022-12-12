@@ -110,6 +110,7 @@ export class UsersService {
     }
     return newUser;
   }
+  
   //use by auth module to login user
   async findByLogin({
     username,
@@ -147,21 +148,22 @@ export class UsersService {
       },
     });
 
+    // check if user exist
+    if (!user) {
+      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
+    }
+
     // get teacher on classroom
     let teacherOnClassroom = []
     if (user.teacher) {
       teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
     }
 
-    if (!user) {
-      throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
-    }
-
     // compare passwords
     const isValid = await compare(password, user.password);
 
     if (!isValid) {
-      throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
     }
 
     // remove password from user object

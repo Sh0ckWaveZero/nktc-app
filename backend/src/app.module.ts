@@ -19,9 +19,8 @@ import { ReportCheckInModule } from './apis/report-check-in/report-check-in.modu
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { DepartmentsModule } from './apis/departments/departments.module';
 import { ProgramsModule } from './apis/programs/programs.module';
-import { MinioModule } from 'nestjs-minio-client';
-import { MinioClientService } from './apis/minio/minio-client.service';
 import { MinioClientModule } from './apis/minio/minio-client.module';
+import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-in.module';
 
 @Module({
   imports: [
@@ -40,6 +39,7 @@ import { MinioClientModule } from './apis/minio/minio-client.module';
     ReportCheckInModule,
     AuditLogModule,
     DepartmentsModule,
+    ActivityCheckInModule,
     ConfigModule.forRoot(
       {
         load: [configuration],
