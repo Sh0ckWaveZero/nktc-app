@@ -3,19 +3,24 @@ import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
 import {
-  Typography,
-  CardHeader,
-  Card,
-  Grid,
-  Avatar,
-  CardContent,
-  Checkbox,
-  Container,
   Alert,
-  IconButton,
   AlertTitle,
+  alpha,
+  Avatar,
+  Card,
+  CardContent,
+  CardHeader,
+  Checkbox,
+  CheckboxProps,
+  Container,
+  Grid,
+  IconButton,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColumns, GridEventListener } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, gridClasses, GridColumns, GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useReportCheckInStore, useTeacherStore } from '@/store/index';
@@ -29,23 +34,55 @@ import toast from 'react-hot-toast';
 import { HiOutlineFlag } from 'react-icons/hi';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { isEmpty } from '@/@core/utils/utils';
-import CustomNoRowsOverlayCheckedIn from '@/@core/components/check-in/checkedIn';
+import { CustomNoRowsOverlayCheckedIn } from '@/@core/components/check-in/checkedIn';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
 import shallow from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
+import Icon from '@/@core/components/icon';
 
 interface CellType {
-  // row: teachersTypes;
   row: any;
 }
 const localStorageService = new LocalStorageService();
 
+const NORMAL_OPACITY = 0.2;
+const DataGridCustom = styled(DataGrid)(({ theme }) => ({
+  [`& .${gridClasses.row}.intern`]: {
+    backgroundColor: theme.palette.grey[200],
+    '&:hover, &.Mui-hovered': {
+      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
+      },
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
+      '&:hover, &.Mui-hovered': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          NORMAL_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
+        },
+      },
+    },
+  },
+}));
+
+const CheckboxStyled = styled(Checkbox)<CheckboxProps>(({}) => ({
+  padding: '0 0 0 4px',
+}));
+
 const StudentCheckIn = () => {
   // ** Hooks
   const auth = useAuth();
+  const theme = useTheme();
+  const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
   const storedToken = localStorageService.getToken()!;
 
   const { getReportCheckIn, addReportCheckIn }: any = useReportCheckInStore(
@@ -64,6 +101,7 @@ const StudentCheckIn = () => {
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
+  const [normalStudents, setNormalStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
@@ -87,6 +125,7 @@ const StudentCheckIn = () => {
         setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(await data?.classrooms[0]?.students);
+        setNormalStudents(await data?.classrooms[0]?.students.filter((student: any) => student?.status === 'normal'));
       });
     };
     if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
@@ -245,7 +284,7 @@ const StudentCheckIn = () => {
 
   const handleTogglePresentAll = (): void => {
     setIsPresentCheckAll(!isPresentCheckAll);
-    setIsPresentCheck(currentStudents.map((student: any) => student.id));
+    setIsPresentCheck(normalStudents.map((student: any) => student.id));
     if (isPresentCheckAll) {
       setIsPresentCheck([]);
     }
@@ -253,7 +292,7 @@ const StudentCheckIn = () => {
 
   const handleToggleAbsentAll = (): void => {
     setIsAbsentCheckAll(!isAbsentCheckAll);
-    setIsAbsentCheck(currentStudents.map((student: any) => student.id));
+    setIsAbsentCheck(normalStudents.map((student: any) => student.id));
     if (isAbsentCheckAll) {
       setIsAbsentCheck([]);
     }
@@ -261,7 +300,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLateAll = (): void => {
     setIsLateCheckAll(!isLateCheckAll);
-    setIsLateCheck(currentStudents.map((student: any) => student.id));
+    setIsLateCheck(normalStudents.map((student: any) => student.id));
     if (isLateCheckAll) {
       setIsLateCheck([]);
     }
@@ -269,7 +308,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLeaveAll = (): void => {
     setIsLeaveCheckAll(!isLeaveCheckAll);
-    setIsLeaveCheck(currentStudents.map((student: any) => student.id));
+    setIsLeaveCheck(normalStudents.map((student: any) => student.id));
     if (isLeaveCheckAll) {
       setIsLeaveCheck([]);
     }
@@ -295,7 +334,8 @@ const StudentCheckIn = () => {
   };
 
   const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
-    onHandleToggle(params.field, params.row);
+    console.log(params);
+    params.row.status === 'normal' ? onHandleToggle(params.field, params.row) : null;
   };
 
   const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
@@ -326,19 +366,35 @@ const StudentCheckIn = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
+      align: alignCenter,
+      renderHeader: () => (
+        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'center' }}>
+          {'มาเรียน'}
+          <CheckboxStyled
+            color='success'
+            checked={isPresentCheckAll || false}
+            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
+            checkedIcon={
+              <Icon
+                fontSize='1.5rem'
+                icon={
+                  isPresentCheck.length === normalStudents.length
+                    ? 'material-symbols:check-box-rounded'
+                    : 'material-symbols:indeterminate-check-box-rounded'
+                }
+              />
+            }
+          />
+        </Container>
+      ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
           color='success'
           checked={isPresentCheck.includes(params.id) || false}
+          disabled={params.row.status === 'intern'}
           disableRipple
           disableFocusRipple
         />
-      ),
-      renderHeader: () => (
-        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
-          {'มาเรียน'}
-          <Checkbox color='success' sx={{ p: 0 }} checked={isPresentCheckAll || false} style={{ paddingLeft: '4px' }} />
-        </Container>
       ),
     },
     {
@@ -348,14 +404,35 @@ const StudentCheckIn = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
-      renderCell: (params: GridCellParams) => (
-        <Checkbox color='error' checked={isAbsentCheck.includes(params.id) || false} disableRipple disableFocusRipple />
-      ),
+      align: alignCenter,
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'ขาด'}
-          <Checkbox color='error' sx={{ p: 0 }} checked={isAbsentCheckAll || false} style={{ paddingLeft: '4px' }} />
+          <CheckboxStyled
+            color='error'
+            checked={isAbsentCheckAll || false}
+            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
+            checkedIcon={
+              <Icon
+                fontSize='1.5rem'
+                icon={
+                  isAbsentCheck.length === normalStudents.length
+                    ? 'material-symbols:check-box-rounded'
+                    : 'material-symbols:indeterminate-check-box-rounded'
+                }
+              />
+            }
+          />
         </Container>
+      ),
+      renderCell: (params: GridCellParams) => (
+        <Checkbox
+          color='error'
+          checked={isAbsentCheck.includes(params.id) || false}
+          disabled={params.row.status === 'intern'}
+          disableRipple
+          disableFocusRipple
+        />
       ),
     },
     {
@@ -365,19 +442,35 @@ const StudentCheckIn = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
+      align: alignCenter,
+      renderHeader: () => (
+        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
+          {'ลา'}
+          <CheckboxStyled
+            color='secondary'
+            checked={isLeaveCheckAll || false}
+            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
+            checkedIcon={
+              <Icon
+                fontSize='1.5rem'
+                icon={
+                  isLeaveCheck.length === normalStudents.length
+                    ? 'material-symbols:check-box-rounded'
+                    : 'material-symbols:indeterminate-check-box-rounded'
+                }
+              />
+            }
+          />
+        </Container>
+      ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
           color='secondary'
           checked={isLeaveCheck.includes(params.id) || false}
+          disabled={params.row.status === 'intern'}
           disableRipple
           disableFocusRipple
         />
-      ),
-      renderHeader: () => (
-        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
-          {'ลา'}
-          <Checkbox color='secondary' sx={{ p: 0 }} checked={isLeaveCheckAll || false} style={{ paddingLeft: '4px' }} />
-        </Container>
       ),
     },
     {
@@ -387,14 +480,35 @@ const StudentCheckIn = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
-      renderCell: (params: GridCellParams) => (
-        <Checkbox color='warning' checked={isLateCheck.includes(params.id) || false} disableRipple disableFocusRipple />
-      ),
+      align: alignCenter,
       renderHeader: () => (
         <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
           {'มาสาย'}
-          <Checkbox color='warning' sx={{ p: 0 }} checked={isLateCheckAll || false} style={{ paddingLeft: '4px' }} />
+          <CheckboxStyled
+            color='warning'
+            checked={isLateCheckAll || false}
+            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
+            checkedIcon={
+              <Icon
+                fontSize='1.5rem'
+                icon={
+                  isLateCheck.length === normalStudents.length
+                    ? 'material-symbols:check-box-rounded'
+                    : 'material-symbols:indeterminate-check-box-rounded'
+                }
+              />
+            }
+          />
         </Container>
+      ),
+      renderCell: (params: GridCellParams) => (
+        <Checkbox
+          color='warning'
+          checked={isLateCheck.includes(params.id) || false}
+          disabled={params.row.status === 'intern'}
+          disableRipple
+          disableFocusRipple
+        />
       ),
     },
   ];
@@ -413,7 +527,8 @@ const StudentCheckIn = () => {
       status: '1',
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck).length;
-    if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
+    const isValidateCheckIn = totalStudents === normalStudents.length && isEmpty(reportCheckIn);
+    if (isValidateCheckIn) {
       toast.promise(addReportCheckIn(storedToken, data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
@@ -526,7 +641,7 @@ const StudentCheckIn = () => {
                 defaultValue={defaultClassroom?.name}
                 handleSubmit={onHandleSubmit}
               />
-              <DataGrid
+              <DataGridCustom
                 autoHeight
                 columns={columns}
                 rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
@@ -538,6 +653,9 @@ const StudentCheckIn = () => {
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
                 rowsPerPageOptions={[pageSize]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+                getRowClassName={(params) => {
+                  return params.row.status === 'normal' ? 'normal' : 'intern';
+                }}
                 components={{
                   NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
                 }}

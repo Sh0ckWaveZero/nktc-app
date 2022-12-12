@@ -131,6 +131,7 @@ export class TeachersService {
         student: {
           select: {
             classroomId: true,
+            status: true,
           }
         },
         account: {
@@ -174,6 +175,7 @@ export class TeachersService {
                 firstName: student.account.firstName,
                 lastName: student.account.lastName,
                 avatar: student.account.avatar,
+                status: student.student.status,
               }
             }),
           }
