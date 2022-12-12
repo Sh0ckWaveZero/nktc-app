@@ -75,7 +75,7 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   },
 }));
 
-const CheckboxStyled = styled(Checkbox)<CheckboxProps>(({}) => ({
+const CheckboxStyled = styled(Checkbox)<CheckboxProps>(({ theme }) => ({
   padding: '0 0 0 4px',
 }));
 
