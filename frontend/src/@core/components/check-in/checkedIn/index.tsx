@@ -30,11 +30,18 @@ const CustomNoRowsOverlayCheckedIn = () => {
   return (
     <StyledGridOverlay>
       <VerifiedTwoToneIcon sx={{ fontSize: 60, color: 'success.main' }} />
-      <Box sx={{ mt: 1, pb: 1 }}>
-        เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว
-      </Box>
+      <Box sx={{ mt: 1, pb: 1 }}>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</Box>
     </StyledGridOverlay>
   );
 };
 
-export default CustomNoRowsOverlayCheckedIn;
+const CustomNoRowsOverlayActivityCheckedIn = () => {
+  return (
+    <StyledGridOverlay>
+      <VerifiedTwoToneIcon sx={{ fontSize: 60, color: 'success.main' }} />
+      <Box sx={{ mt: 1, pb: 1 }}>เช็คชื่อเข้าร่วมกิจกรรมเรียบร้อยแล้ว</Box>
+    </StyledGridOverlay>
+  );
+};
+
+export { CustomNoRowsOverlayCheckedIn, CustomNoRowsOverlayActivityCheckedIn };
