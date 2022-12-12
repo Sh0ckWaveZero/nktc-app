@@ -5,7 +5,7 @@ import { createContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
 // ** Axios
-import httpClient from '@/@core/utils/http';
+import axios from 'axios';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -50,7 +50,7 @@ const AuthProvider = ({ children }: Props) => {
       setIsInitialized(true);
       if (storedToken) {
         setLoading(true);
-        await httpClient
+        await axios
           .get(authConfig.meEndpoint as string, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
@@ -61,10 +61,10 @@ const AuthProvider = ({ children }: Props) => {
             setLoading(false);
             setUser({ ...(await data) });
           })
-          .catch(() => {
+          .catch((error) => {
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
-             localStorageService.removeToken();
+            localStorageService.removeToken();
             setUser(null);
             setLoading(false);
           });
@@ -76,25 +76,30 @@ const AuthProvider = ({ children }: Props) => {
   }, []);
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    httpClient
+    axios
       .post(authConfig.loginEndpoint as string, params)
       .then(async (res) => {
         localStorageService.setToken(res.data.token);
       })
       .then(() => {
-        httpClient
+        axios
           .get(authConfig.meEndpoint as string, {
             headers: {
               Authorization: `Bearer ${localStorageService.getToken()!}`,
             },
           })
           .then(async (response) => {
-            const { data } = response;
-            const returnUrl = router.query.returnUrl;
-            setUser({ ...(await data) });
-            await window.localStorage.setItem('userData', JSON.stringify(data));
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
-            router.replace(redirectURL as string);
+            if (response) {
+              const { data } = response;
+              const returnUrl = router.query.returnUrl;
+              setUser({ ...(await data) });
+              window.localStorage.setItem('userData', JSON.stringify(data));
+              const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+              router.replace(redirectURL as string);
+            }
+          })
+          .catch((err) => {
+            if (errorCallback) errorCallback(err);
           });
       })
       .catch((err) => {
@@ -111,7 +116,7 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {
-    httpClient
+    axios
       .post(authConfig.registerEndpoint as string, params)
       .then((res) => {
         if (res.data.error) {

@@ -5,20 +5,22 @@ import { useState, ReactNode } from 'react';
 import Link from 'next/link';
 
 // ** MUI Components
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
 import Box, { BoxProps } from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import { styled, useTheme } from '@mui/material/styles';
-import FormHelperText from '@mui/material/FormHelperText';
-import InputAdornment from '@mui/material/InputAdornment';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+  useMediaQuery,
+} from '@mui/material';
 
 // ** Icons Imports
 import { EyeOutline, EyeOffOutline } from 'mdi-material-ui';
@@ -40,8 +42,7 @@ import BlankLayout from '@/@core/layouts/BlankLayout';
 
 // ** Demo Imports
 import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
-import { Toaster, toast } from 'react-hot-toast';
-import useBgColor from '@/@core/hooks/useBgColor';
+import { toast } from 'react-hot-toast';
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -115,7 +116,6 @@ const LoginPage = () => {
   // ** Hooks
   const auth = useAuth();
   const theme = useTheme();
-  const bgClasses = useBgColor();
   const { settings } = useSettings();
   const hidden = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -136,10 +136,10 @@ const LoginPage = () => {
     const { username, password } = data;
 
     auth.login({ username, password }, (res: any) => {
-      if (res.message === 'Unauthorized') {
-        setTimeout(() => {
-          toast.error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-        }, 400);
+      if (res?.response?.status === 401) {
+        toast.error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+      } else if (res?.response?.status === 500) {
+        toast.error('เซิร์ฟเวอร์มีปัญหา กรุณาติดต่อผู้ดูแลระบบ');
       }
     });
   };
@@ -149,7 +149,6 @@ const LoginPage = () => {
   return (
     <>
       <Box className='content-right'>
-        <Toaster position='top-right' reverseOrder={false} toastOptions={{ className: 'react-hot-toast' }} />
         {!hidden ? (
           <Box
             sx={{
@@ -254,6 +253,14 @@ const LoginPage = () => {
                         value={value}
                         onBlur={onBlur}
                         onChange={onChange}
+                        inputProps={{
+                          onKeyDown: (e) => {
+                            const regexEnglishOnly = /^[a-zA-Z0-9]*$/;
+                            if (!regexEnglishOnly.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          },
+                        }}
                         error={Boolean(errors.username)}
                       />
                     )}
