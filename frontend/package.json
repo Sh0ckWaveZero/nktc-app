@@ -49,7 +49,7 @@
     "i18next": "^21.7.1",
     "i18next-browser-languagedetector": "^6.1.2",
     "i18next-http-backend": "^2.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "keen-slider": "^6.6.14",
     "mdi-material-ui": "^7.6.0",
     "next": "^12.3.1",
