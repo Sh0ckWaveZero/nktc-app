@@ -19,9 +19,9 @@ import { useRouter } from 'next/router';
 import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
-import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
+import toast from 'react-hot-toast';
 
 interface CellType {
   // row: teachersTypes;
@@ -69,6 +69,12 @@ const ReportCheckInDaily = () => {
     };
     // check permission
     if (ability?.can('read', 'report-check-in-daily-page') && auth?.user?.role !== 'Admin') {
+      // check teacher on classroom
+      if (isEmpty(auth?.user?.teacherOnClassroom)) {
+        toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
+        router.push('/pages/account-settings');
+        return;
+      }
       fetch();
     } else {
       router.push('/401');
@@ -304,6 +310,42 @@ const ReportCheckInDaily = () => {
       },
     },
     {
+      flex: 0.1,
+      minWidth: 60,
+      field: 'internship',
+      headerName: 'ฝึกงาน',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: 'center',
+      renderCell: ({ row }: CellType) => {
+        const { internship } = row;
+        return (
+          <Typography noWrap variant='subtitle2' sx={{ fontWeight: 400, textDecoration: 'none' }}>
+            {internship}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.13,
+      minWidth: 70,
+      field: 'internshipPercent',
+      headerName: 'ฝึกงาน(%)',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: 'center',
+      renderCell: ({ row }: CellType) => {
+        const { internshipPercent } = row;
+        return (
+          <Typography noWrap variant='subtitle2' sx={{ fontWeight: 400, textDecoration: 'none' }}>
+            {ccyFormat(internshipPercent)}
+          </Typography>
+        );
+      },
+    },
+    {
       flex: 0.12,
       minWidth: 80,
       field: 'checkInTotal',
@@ -378,6 +420,7 @@ const ReportCheckInDaily = () => {
                 components={{
                   NoRowsOverlay: CustomNoRowsOverlay,
                 }}
+                sx={{ overflowX: 'auto' }}
               />
             </Card>
           </Grid>

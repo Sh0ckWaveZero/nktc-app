@@ -67,7 +67,6 @@ interface Data {
   province: string;
   postalCode: number | string;
   phone: number | string;
-  status: string;
 }
 
 const initialData: Data = {
@@ -84,7 +83,6 @@ const initialData: Data = {
   province: '',
   postalCode: '',
   phone: '',
-  status: '',
 };
 
 const showErrors = (field: string, valueLen: number, min: number) => {
@@ -545,28 +543,6 @@ const AddStudentPage = () => {
                               },
                             }}
                           />
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth error={!!errors.status}>
-                      <Controller
-                        name='status'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <Fragment>
-                            <InputLabel>สถานะ *</InputLabel>
-                            <Select label='สถานะ *' value={value} onChange={onChange}>
-                              <MenuItem value=''>
-                                <em>เลือกสถานะ</em>
-                              </MenuItem>
-                              <MenuItem value='normal'>ปกติ</MenuItem>
-                              <MenuItem value='intern'>ฝึกงาน</MenuItem>
-                            </Select>
-                            {!!errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
-                          </Fragment>
                         )}
                       />
                     </FormControl>

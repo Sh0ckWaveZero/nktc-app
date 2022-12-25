@@ -9,10 +9,10 @@ import { useReportCheckInStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
-import { isEmpty } from '../../../../../@core/utils/utils';
-import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
+import { isEmpty } from '@/@core/utils/utils';
 import Spinner from '@/@core/components/spinner';
 import dayjs, { Dayjs } from 'dayjs';
+dayjs.locale('th');
 
 const localStorageService = new LocalStorageService();
 
@@ -57,12 +57,7 @@ const AdminCheckInDailyReport = () => {
             }
             sx={{ color: 'text.primary' }}
             title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำ${new Date().toLocaleDateString('th-TH', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}`}
+            subheader={`ประจำ${selectedDate.format('dddที่ DD MMMM BBBB')}`}
           />
         </Card>
       </Grid>

@@ -15,8 +15,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  styled,
+  alpha,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -41,6 +43,7 @@ import {
   AccountClockOutline,
   AccountEditOutline,
   AccountFilterOutline,
+  AccountLockOutline,
   AlertOctagramOutline,
 } from 'mdi-material-ui';
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
@@ -53,6 +56,8 @@ interface CellType {
   row: any;
 }
 
+type StudentStatus = 'present' | 'absent' | 'late' | 'leave' | 'internship';
+
 // ** Vars
 const checkInStatueIcon: any = {
   present: <AccountCheckOutline />,
@@ -60,6 +65,8 @@ const checkInStatueIcon: any = {
   late: <AccountClockOutline />,
   leave: <AccountFilterOutline />,
   notCheckIn: <AlertOctagramOutline />,
+  none: <AlertOctagramOutline />,
+  internship: <AccountLockOutline />,
 };
 
 const checkInStatueColor: any = {
@@ -68,6 +75,8 @@ const checkInStatueColor: any = {
   late: 'warning',
   leave: 'info',
   notCheckIn: 'error',
+  none: 'error',
+  internship: 'secondary',
 };
 
 const checkInStatueName: any = {
@@ -76,9 +85,37 @@ const checkInStatueName: any = {
   late: 'มาสาย',
   leave: 'ลา',
   notCheckIn: 'ยังไม่เช็คชื่อ',
+  none: 'ยังไม่เช็คชื่อ',
+  internship: 'นักศึกษาฝึกงาน',
 };
 
 const localStorageService = new LocalStorageService();
+
+const NORMAL_OPACITY = 0.2;
+const DataGridCustom = styled(DataGrid)(({ theme }) => ({
+  [`& .${gridClasses.row}.internship`]: {
+    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+    '&:hover, &.Mui-hovered': {
+      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
+      },
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
+      '&:hover, &.Mui-hovered': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          NORMAL_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
+        },
+      },
+    },
+  },
+}));
 
 const ReportCheckInDaily = () => {
   // ** Local variable
@@ -86,6 +123,7 @@ const ReportCheckInDaily = () => {
   let isAbsentCheck: any[] = [];
   let isLateCheck: any[] = [];
   let isLeaveCheck: any[] = [];
+  let isInternshipCheck: any[] = [];
 
   // ** Hooks
   const auth = useAuth();
@@ -98,15 +136,17 @@ const ReportCheckInDaily = () => {
     shallow,
   );
 
-  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn }: any = useReportCheckInStore(
-    (state) => ({
-      getReportCheckIn: state.getReportCheckIn,
-      findDailyReport: state.findDailyReport,
-      updateReportCheckIn: state.updateReportCheckIn,
-      removeReportCheckIn: state.removeReportCheckIn,
-    }),
-    shallow,
-  );
+  const { getReportCheckIn, findDailyReport, updateReportCheckIn, removeReportCheckIn, addReportCheckIn }: any =
+    useReportCheckInStore(
+      (state) => ({
+        getReportCheckIn: state.getReportCheckIn,
+        findDailyReport: state.findDailyReport,
+        updateReportCheckIn: state.updateReportCheckIn,
+        removeReportCheckIn: state.removeReportCheckIn,
+        addReportCheckIn: state.addReportCheckIn,
+      }),
+      shallow,
+    );
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -125,15 +165,23 @@ const ReportCheckInDaily = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(storedToken, auth?.user?.teacher?.id).then(async (classroomsInfo: any) => {
-        const classrooms = (await classroomsInfo) ? classroomsInfo : [];
+      try {
+        const classroomsInfo = await fetchTeachClassroom(storedToken, auth?.user?.teacher?.id);
+        const classrooms = classroomsInfo || [];
         setDefaultClassroom(classrooms[0]);
         setClassrooms(classrooms);
-        await fetchDailyReport(null, (await classroomsInfo) ? classroomsInfo[0].id : {});
-      });
+        await fetchDailyReport(null, classroomsInfo ? classroomsInfo[0].id : {});
+      } catch (error) {
+        toast.error('เกิดข้อผิดพลาด');
+      }
     };
-    // check permission
+
     if (ability?.can('read', 'report-check-in-daily-page') && (auth?.user?.role as string) !== 'Admin') {
+      if (isEmpty(auth?.user?.teacherOnClassroom)) {
+        toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
+        router.push('/pages/account-settings');
+        return;
+      }
       fetch();
     } else {
       router.push('/401');
@@ -142,25 +190,33 @@ const ReportCheckInDaily = () => {
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
     setLoading(true);
-    const classroomInfo = classroom ? classroom : defaultClassroom.id;
-    const dateInfo = date ? date : selectedDate;
-    await findDailyReport(storedToken, {
-      teacherId: auth?.user?.teacher?.id,
-      classroomId: classroomInfo,
-      startDate: dateInfo,
-    }).then(async (data: any) => {
-      const reportCheckInData = await data.filter((item: any) => item.id === classroomInfo)[0];
-      setCurrentStudents(reportCheckInData?.students ?? []);
+    const classroomInfo = classroom || defaultClassroom.id;
+    const dateInfo = date || selectedDate;
+
+    try {
+      const data = await findDailyReport(storedToken, {
+        teacherId: auth?.user?.teacher?.id,
+        classroomId: classroomInfo,
+        startDate: dateInfo,
+      });
+
+      const reportCheckInData = data.find((item: any) => item.id === classroomInfo);
+      const students = reportCheckInData?.students ?? [];
+      setCurrentStudents(students);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
       getReportCheckIn(storedToken, {
         teacher: auth?.user?.teacher?.id,
         classroom: classroomInfo,
       });
+    } catch (error) {
+      console.error(error);
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
-  const onHandleToggle = (action: string, param: any): void => {
+  const onHandleToggle = (action: StudentStatus, param: any): void => {
     switch (action) {
       case 'present':
         handleTogglePresent(param);
@@ -173,6 +229,9 @@ const ReportCheckInDaily = () => {
         break;
       case 'leave':
         handleToggleLeave(param);
+        break;
+      case 'internship':
+        handleToggleInternship(param);
         break;
     }
 
@@ -195,46 +254,56 @@ const ReportCheckInDaily = () => {
     isLeaveCheck.push(...onSetToggle(isLeaveCheck, param));
   };
 
-  const onSetToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
+  const handleToggleInternship = (param: any): void => {
+    isInternshipCheck.push(...onSetToggle(isInternshipCheck, param));
+  };
 
-    let newSelection: any[] = [];
+  const onSetToggle = (prevState: any, param: any): any => {
+    const { id } = param;
+    const index = prevState.indexOf(id);
+
+    let newSelection = [...prevState];
 
     if (index === -1) {
-      newSelection = newSelection.concat(prevSelection, param.id);
-    } else if (index === 0) {
-      newSelection = newSelection.concat(prevSelection.slice(1));
-    } else if (index === prevSelection.length - 1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, -1));
-    } else if (index > 0) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
+      newSelection.push(id);
+    } else {
+      newSelection = newSelection.filter((item) => item !== id);
     }
 
     return newSelection;
   };
 
-  const onRemoveToggleOthers = (action: string, param: any): void => {
+  const onRemoveToggleOthers = (action: StudentStatus, param: any): void => {
     switch (action) {
       case 'present':
         onHandleAbsentChecked(param);
         onHandleLateChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'absent':
         onHandlePresentChecked(param);
         onHandleLateChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'late':
         onHandlePresentChecked(param);
         onHandleAbsentChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'leave':
         onHandlePresentChecked(param);
         onHandleAbsentChecked(param);
         onHandleLateChecked(param);
+        onHandleInternshipChecked(param);
+        break;
+      case 'internship':
+        onHandlePresentChecked(param);
+        onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
         break;
       default:
         break;
@@ -265,17 +334,20 @@ const ReportCheckInDaily = () => {
     }
   };
 
+  const onHandleInternshipChecked = (param: any): void => {
+    if (isInternshipCheck.includes(param.id)) {
+      isInternshipCheck = onRemoveToggle(isInternshipCheck, param);
+    }
+  };
+
   const onRemoveToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
+    const index = prevState.indexOf(param.id);
 
-    let newSelection: any[] = [];
-
-    if (index !== -1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
+    if (index === -1) {
+      return prevState;
     }
 
-    return newSelection;
+    return [...prevState.slice(0, index), ...prevState.slice(index + 1)];
   };
 
   const onClearAll = (): void => {
@@ -293,27 +365,51 @@ const ReportCheckInDaily = () => {
   const onSubmittedCheckIn = async (event: any, values: any): Promise<void> => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
-    isPresentCheck.push(...(values?.data?.reportCheckInData?.present ?? []));
-    isAbsentCheck.push(...(values?.data?.reportCheckInData?.absent ?? []));
-    isLateCheck.push(...(values?.data?.reportCheckInData?.late ?? []));
-    isLeaveCheck.push(...(values?.data?.reportCheckInData?.leave ?? []));
+    const { reportCheckInData } = values?.data;
+    const { present = [], absent = [], late = [], leave = [], internship = [] } = reportCheckInData || {};
+    isPresentCheck.push(...present);
+    isAbsentCheck.push(...absent);
+    isLateCheck.push(...late);
+    isLeaveCheck.push(...leave);
+    isInternshipCheck.push(...internship);
     onHandleToggle(values?.isCheckInStatus, values?.data);
-    const data = {
-      ...values?.data?.reportCheckInData,
+
+    const updated = {
+      ...reportCheckInData,
       present: isPresentCheck,
       absent: isAbsentCheck,
       late: isLateCheck,
       leave: isLeaveCheck,
+      internship: isInternshipCheck,
       updateBy: auth?.user?.id,
     };
 
-    toast.promise(updateReportCheckIn(storedToken, data), {
-      loading: 'กำลังบันทึกการแก้ไขเช็คชื่อ...',
-      success: 'บันทึกการแก้ไขเช็คชื่อสำเร็จ',
-      error: 'เกิดข้อผิดพลาด',
-    });
+    const created = {
+      teacherId: auth?.user?.teacher?.id,
+      classroomId,
+      present: isPresentCheck,
+      absent: isAbsentCheck,
+      late: isLateCheck,
+      leave: isLeaveCheck,
+      internship: isInternshipCheck,
+      checkInDate: new Date(),
+      status: '1',
+    };
 
-    await fetchDailyReport(selectedDate, classroomId);
+    const options = {
+      loading: 'กำลังบันทึก...',
+      success: 'บันทึกสำเร็จ',
+      error: 'เกิดข้อผิดพลาด',
+    };
+
+    if (reportCheckInData) {
+      toast.promise(updateReportCheckIn(storedToken, updated), options);
+    } else {
+      toast.promise(addReportCheckIn(storedToken, created), options);
+    }
+    setTimeout(() => {
+      fetchDailyReport(selectedDate, classroomId);
+    }, 200);
     toggleCloseEditCheckIn();
     onClearAll();
   };
@@ -415,10 +511,10 @@ const ReportCheckInDaily = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { checkInStatus } = row;
+        const { status } = row.student;
         return (
           <Button
-            disabled={checkInStatus === 'notCheckIn'}
+            disabled={status === 'internship'}
             variant='contained'
             startIcon={<AccountEditOutline fontSize='small' />}
             onClick={() => handleOpenEditCheckIn({ ...row, classroomName: defaultClassroom, reportCheckInData })}
@@ -460,7 +556,9 @@ const ReportCheckInDaily = () => {
     });
 
     setOpenDeletedConfirm(false);
-    await fetchDailyReport(selectedDate, '');
+    setTimeout(() => {
+      fetchDailyReport(selectedDate, '');
+    }, 200);
   };
 
   return (
@@ -499,7 +597,7 @@ const ReportCheckInDaily = () => {
                 handleClickOpen={handleClickOpenDeletedConfirm}
                 isDisabled={isEmpty(reportCheckInData)}
               />
-              <DataGrid
+              <DataGridCustom
                 autoHeight
                 columns={columns}
                 rows={currentStudents ?? []}
@@ -512,6 +610,10 @@ const ReportCheckInDaily = () => {
                 components={{
                   NoRowsOverlay: CustomNoRowsOverlay,
                 }}
+                getRowClassName={(params) => {
+                  const { status } = params.row.student;
+                  return status === 'internship' ? 'internship' : 'normal';
+                }}
               />
             </Card>
           </Grid>
@@ -523,6 +625,7 @@ const ReportCheckInDaily = () => {
             onSubmitted={onSubmittedCheckIn}
             toggle={toggleCloseEditCheckIn}
             data={selectedStudent}
+            selectedDate={selectedDate as Date}
           />
         )}
 

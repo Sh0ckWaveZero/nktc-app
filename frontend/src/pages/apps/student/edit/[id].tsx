@@ -554,7 +554,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                               <em>เลือกสถานะ</em>
                             </MenuItem>
                             <MenuItem value='normal'>ปกติ</MenuItem>
-                            <MenuItem value='intern'>ฝึกงาน</MenuItem>
+                            <MenuItem value='internship'>ฝึกงาน</MenuItem>
                           </Select>
                           {!!errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
                         </Fragment>

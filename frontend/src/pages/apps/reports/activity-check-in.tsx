@@ -51,7 +51,7 @@ interface CellType {
 const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.intern`]: {
+  [`& .${gridClasses.row}.internship`]: {
     backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
@@ -128,7 +128,7 @@ const StudentCheckIn = () => {
         setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(students);
-        setNormalStudents(students.filter((student: any) => student?.status !== 'intern'));
+        setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
       });
     };
     if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
@@ -262,7 +262,7 @@ const StudentCheckIn = () => {
   };
 
   const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
-    params.row.status !== 'intern' ? onHandleToggle(params.field, params.row) : null;
+    params.row.status !== 'internship' ? onHandleToggle(params.field, params.row) : null;
   };
 
   const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
@@ -318,7 +318,7 @@ const StudentCheckIn = () => {
         <Checkbox
           color='success'
           checked={isPresentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
+          disabled={params.row.status === 'internship'}
           disableRipple
           disableFocusRipple
         />
@@ -356,7 +356,7 @@ const StudentCheckIn = () => {
         <Checkbox
           color='error'
           checked={isAbsentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
+          disabled={params.row.status === 'internship'}
           disableRipple
           disableFocusRipple
         />
@@ -520,7 +520,7 @@ const StudentCheckIn = () => {
                 onColumnHeaderClick={handleColumnHeaderClick}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                 getRowClassName={(params) => {
-                  return params.row.status === 'intern' ? 'intern' : 'normal';
+                  return params.row.status === 'internship' ? 'internship' : 'normal';
                 }}
                 components={{
                   NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,

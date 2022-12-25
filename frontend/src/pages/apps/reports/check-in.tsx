@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useContext, useRef, useState } from 'react';
+import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
 import {
@@ -7,6 +7,7 @@ import {
   AlertTitle,
   alpha,
   Avatar,
+  Box,
   Card,
   CardContent,
   CardHeader,
@@ -15,8 +16,6 @@ import {
   Container,
   Grid,
   IconButton,
-  Paper,
-  Popper,
   styled,
   Typography,
   useMediaQuery,
@@ -50,32 +49,6 @@ interface CellType {
 }
 const localStorageService = new LocalStorageService();
 
-const NORMAL_OPACITY = 0.2;
-const DataGridCustom = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.intern`]: {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
-    '&:hover, &.Mui-hovered': {
-      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
-      '@media (hover: none)': {
-        backgroundColor: 'transparent',
-      },
-    },
-    '&.Mui-selected': {
-      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
-      '&:hover, &.Mui-hovered': {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          NORMAL_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
-        ),
-        // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
-          backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
-        },
-      },
-    },
-  },
-}));
-
 const CheckboxStyled = styled(Checkbox)<CheckboxProps>(() => ({
   padding: '0 0 0 4px',
 }));
@@ -103,26 +76,28 @@ const StudentCheckIn = () => {
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
-  const [normalStudents, setNormalStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
-  const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
-  const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
-  const [isLateCheckAll, setIsLateCheckAll] = useState(false);
-  const [isLeaveCheckAll, setIsLeaveCheckAll] = useState(false);
+  // present
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
+  const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
+  // absent
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
+  const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
+  // late
   const [isLateCheck, setIsLateCheck] = useState<any>([]);
+  const [isLateCheckAll, setIsLateCheckAll] = useState(false);
+  // leave
   const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
+  const [isLeaveCheckAll, setIsLeaveCheckAll] = useState(false);
+  // internship
+  const [isInternshipCheck, setIsInternshipCheck] = useState<any>([]);
+  const [isInternshipCheckAll, setIsInternshipCheckAll] = useState(false);
+
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
-
-  // ** Popper
-  const popperRef: any = useRef();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openPopper = Boolean(anchorEl);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
@@ -133,10 +108,14 @@ const StudentCheckIn = () => {
         setDefaultClassroom(await data?.classrooms[0]);
         setClassrooms(await data?.classrooms);
         setCurrentStudents(students);
-        setNormalStudents(students.filter((student: any) => student?.status !== 'intern'));
       });
     };
     if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
+      if (isEmpty(auth?.user?.teacherOnClassroom)) {
+        toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
+        router.push('/pages/account-settings');
+        return;
+      }
       fetch();
     } else {
       router.push('/401');
@@ -157,6 +136,8 @@ const StudentCheckIn = () => {
       case 'leave':
         handleToggleLeave(param);
         break;
+      case 'internship':
+        handleToggleInternship(param);
       default:
         break;
     }
@@ -187,6 +168,12 @@ const StudentCheckIn = () => {
     });
   };
 
+  const handleToggleInternship = (param: any): void => {
+    setIsInternshipCheck((prevState: any) => {
+      return onSetToggle(prevState, param);
+    });
+  };
+
   const onSetToggle = (prevState: any, param: any): any => {
     const prevSelection = prevState;
     const index = prevSelection.indexOf(param.id);
@@ -211,21 +198,31 @@ const StudentCheckIn = () => {
         onHandleAbsentChecked(param);
         onHandleLateChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'absent':
         onHandlePresentChecked(param);
         onHandleLateChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'late':
         onHandlePresentChecked(param);
         onHandleAbsentChecked(param);
         onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
       case 'leave':
         onHandlePresentChecked(param);
         onHandleAbsentChecked(param);
         onHandleLateChecked(param);
+        onHandleInternshipChecked(param);
+        break;
+      case 'internship':
+        onHandlePresentChecked(param);
+        onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
         break;
       default:
         break;
@@ -264,6 +261,14 @@ const StudentCheckIn = () => {
     }
   };
 
+  const onHandleInternshipChecked = (param: any): void => {
+    if (isInternshipCheck.includes(param.id)) {
+      setIsInternshipCheck((prevState: any) => {
+        return onRemoveToggle(prevState, param);
+      });
+    }
+  };
+
   const onRemoveToggle = (prevState: any, param: any): any => {
     const prevSelection = prevState;
     const index = prevSelection.indexOf(param.id);
@@ -286,13 +291,15 @@ const StudentCheckIn = () => {
       handleToggleLateAll();
     } else if (action === 'leave') {
       handleToggleLeaveAll();
+    } else if (action === 'internship') {
+      handleToggleInternshipAll();
     }
     onClearAll(action);
   };
 
   const handleTogglePresentAll = (): void => {
     setIsPresentCheckAll(!isPresentCheckAll);
-    setIsPresentCheck(normalStudents.map((student: any) => student.id));
+    setIsPresentCheck(currentStudents.map((student: any) => student.id));
     if (isPresentCheckAll) {
       setIsPresentCheck([]);
     }
@@ -300,7 +307,7 @@ const StudentCheckIn = () => {
 
   const handleToggleAbsentAll = (): void => {
     setIsAbsentCheckAll(!isAbsentCheckAll);
-    setIsAbsentCheck(normalStudents.map((student: any) => student.id));
+    setIsAbsentCheck(currentStudents.map((student: any) => student.id));
     if (isAbsentCheckAll) {
       setIsAbsentCheck([]);
     }
@@ -308,7 +315,7 @@ const StudentCheckIn = () => {
 
   const handleToggleLateAll = (): void => {
     setIsLateCheckAll(!isLateCheckAll);
-    setIsLateCheck(normalStudents.map((student: any) => student.id));
+    setIsLateCheck(currentStudents.map((student: any) => student.id));
     if (isLateCheckAll) {
       setIsLateCheck([]);
     }
@@ -316,9 +323,17 @@ const StudentCheckIn = () => {
 
   const handleToggleLeaveAll = (): void => {
     setIsLeaveCheckAll(!isLeaveCheckAll);
-    setIsLeaveCheck(normalStudents.map((student: any) => student.id));
+    setIsLeaveCheck(currentStudents.map((student: any) => student.id));
     if (isLeaveCheckAll) {
       setIsLeaveCheck([]);
+    }
+  };
+
+  const handleToggleInternshipAll = (): void => {
+    setIsInternshipCheckAll(!isInternshipCheckAll);
+    setIsInternshipCheck(currentStudents.map((student: any) => student.id));
+    if (isInternshipCheckAll) {
+      setIsInternshipCheck([]);
     }
   };
 
@@ -339,10 +354,14 @@ const StudentCheckIn = () => {
       setIsLeaveCheckAll(false);
       setIsLeaveCheck([]);
     }
+    if (action !== 'internship') {
+      setIsInternshipCheckAll(false);
+      setIsInternshipCheck([]);
+    }
   };
 
   const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
-    params.row.status !== 'intern' ? onHandleToggle(params.field, params.row) : null;
+    onHandleToggle(params.field, params.row);
   };
 
   const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
@@ -385,7 +404,7 @@ const StudentCheckIn = () => {
               <Icon
                 fontSize='1.5rem'
                 icon={
-                  isPresentCheck.length === normalStudents.length
+                  isPresentCheck.length === currentStudents.length
                     ? 'material-symbols:check-box-rounded'
                     : 'material-symbols:indeterminate-check-box-rounded'
                 }
@@ -398,7 +417,6 @@ const StudentCheckIn = () => {
         <Checkbox
           color='success'
           checked={isPresentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
           disableRipple
           disableFocusRipple
         />
@@ -423,7 +441,7 @@ const StudentCheckIn = () => {
               <Icon
                 fontSize='1.5rem'
                 icon={
-                  isAbsentCheck.length === normalStudents.length
+                  isAbsentCheck.length === currentStudents.length
                     ? 'material-symbols:check-box-rounded'
                     : 'material-symbols:indeterminate-check-box-rounded'
                 }
@@ -433,13 +451,7 @@ const StudentCheckIn = () => {
         </Container>
       ),
       renderCell: (params: GridCellParams) => (
-        <Checkbox
-          color='error'
-          checked={isAbsentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
-          disableRipple
-          disableFocusRipple
-        />
+        <Checkbox color='error' checked={isAbsentCheck.includes(params.id) || false} disableRipple disableFocusRipple />
       ),
     },
     {
@@ -461,7 +473,7 @@ const StudentCheckIn = () => {
               <Icon
                 fontSize='1.5rem'
                 icon={
-                  isLeaveCheck.length === normalStudents.length
+                  isLeaveCheck.length === currentStudents.length
                     ? 'material-symbols:check-box-rounded'
                     : 'material-symbols:indeterminate-check-box-rounded'
                 }
@@ -474,7 +486,6 @@ const StudentCheckIn = () => {
         <Checkbox
           color='secondary'
           checked={isLeaveCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
           disableRipple
           disableFocusRipple
         />
@@ -499,7 +510,41 @@ const StudentCheckIn = () => {
               <Icon
                 fontSize='1.5rem'
                 icon={
-                  isLateCheck.length === normalStudents.length
+                  isLateCheck.length > 0 && isLateCheck.length === currentStudents.length
+                    ? 'material-symbols:check-box-rounded'
+                    : 'material-symbols:indeterminate-check-box-rounded'
+                }
+              />
+            }
+          />
+        </Container>
+      ),
+      renderCell: (params: GridCellParams) => (
+        <Checkbox color='warning' checked={isLateCheck.includes(params.id) || false} disableRipple disableFocusRipple />
+      ),
+    },
+    {
+      flex: 0.2,
+      minWidth: 110,
+      field: 'internship',
+      editable: false,
+      sortable: false,
+      hideSortIcons: true,
+      align: alignCenter,
+      headerClassName: 'internship--header',
+      cellClassName: 'internship--cell',
+      renderHeader: () => (
+        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
+          {'ฝึกงาน'}
+          <CheckboxStyled
+            color='primary'
+            checked={isInternshipCheckAll ?? false}
+            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
+            checkedIcon={
+              <Icon
+                fontSize='1.5rem'
+                icon={
+                  isInternshipCheck.length === currentStudents.length
                     ? 'material-symbols:check-box-rounded'
                     : 'material-symbols:indeterminate-check-box-rounded'
                 }
@@ -510,9 +555,8 @@ const StudentCheckIn = () => {
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
-          color='warning'
-          checked={isLateCheck.includes(params.id) || false}
-          disabled={params.row.status === 'intern'}
+          color='primary'
+          checked={isInternshipCheck.includes(params.id) || false}
           disableRipple
           disableFocusRipple
         />
@@ -530,19 +574,22 @@ const StudentCheckIn = () => {
       absent: isAbsentCheck,
       late: isLateCheck,
       leave: isLeaveCheck,
+      internship: isInternshipCheck,
       checkInDate: new Date(),
       status: '1',
     };
-    const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck).length;
-    const isValidateCheckIn = totalStudents === normalStudents.length && isEmpty(reportCheckIn);
+    const totalStudents = isPresentCheck.concat(isAbsentCheck, isLateCheck, isLeaveCheck, isInternshipCheck).length;
+    const isValidateCheckIn = totalStudents === currentStudents.length && isEmpty(reportCheckIn);
     if (isValidateCheckIn) {
       toast.promise(addReportCheckIn(storedToken, data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
       });
-      getCheckInStatus(auth?.user?.teacher?.id as string, defaultClassroom?.id);
-      onClearAll('');
+      setTimeout(() => {
+        getCheckInStatus(auth?.user?.teacher?.id as string, defaultClassroom?.id);
+        onClearAll('');
+      }, 200);
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
     }
@@ -567,23 +614,6 @@ const StudentCheckIn = () => {
       setReportCheckIn(await data);
       setLoading(false);
     });
-  };
-
-  const handlePopperOpen = (event: any) => {
-    const id = event.currentTarget.dataset.id;
-    const row = normalStudents.find((item: any) => item.id === id);
-    if (!isEmpty(row)) {
-      setAnchorEl(null);
-    } else {
-      setAnchorEl(event.currentTarget);
-    }
-  };
-
-  const handlePopperClose = (event: any) => {
-    if (anchorEl == null || popperRef.current.contains(event.nativeEvent.relatedTarget)) {
-      return;
-    }
-    setAnchorEl(null);
   };
 
   return (
@@ -665,54 +695,38 @@ const StudentCheckIn = () => {
                 defaultValue={defaultClassroom?.name}
                 handleSubmit={onHandleSubmit}
               />
-              <DataGridCustom
-                autoHeight
-                columns={columns}
-                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-                disableColumnMenu
-                headerHeight={150}
-                loading={loading}
-                onCellClick={handleCellClick}
-                onColumnHeaderClick={handleColumnHeaderClick}
-                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                rowsPerPageOptions={[pageSize]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                getRowClassName={(params) => {
-                  return params.row.status === 'intern' ? 'intern' : 'normal';
-                }}
-                components={{
-                  NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
-                }}
-                componentsProps={{
-                  row: {
-                    onMouseEnter: handlePopperOpen,
-                    onMouseLeave: handlePopperClose,
+              <Box
+                sx={{
+                  height: '100%',
+                  width: '100%',
+                  '& .internship--cell': {
+                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+                  },
+                  '& .internship--header': {
+                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
                   },
                 }}
-              />
-              <Popper
-                ref={popperRef}
-                open={openPopper}
-                anchorEl={anchorEl}
-                placement={'auto'}
-                onMouseLeave={() => setAnchorEl(null)}
-                nonce={undefined}
-                onResize={undefined}
-                onResizeCapture={undefined}
               >
-                {() => (
-                  <Paper
-                    sx={{
-                      transform: 'translateX(-140px)',
-                      zIndex: 100,
-                    }}
-                  >
-                    <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
-                      ฝึกงาน
-                    </Typography>
-                  </Paper>
-                )}
-              </Popper>
+                <DataGrid
+                  autoHeight
+                  columns={columns}
+                  rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                  disableColumnMenu
+                  headerHeight={150}
+                  loading={loading}
+                  onCellClick={handleCellClick}
+                  onColumnHeaderClick={handleColumnHeaderClick}
+                  rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+                  rowsPerPageOptions={[pageSize]}
+                  onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+                  getRowClassName={(params) => {
+                    return params.row.status === 'internship' ? 'internship' : 'normal';
+                  }}
+                  components={{
+                    NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+                  }}
+                />
+              </Box>
             </Card>
           </Grid>
         </Grid>
