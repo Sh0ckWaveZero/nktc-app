@@ -59,7 +59,7 @@ USER node
 # # PRODUCTION
 # ###################
 
-FROM node:18-alpine As production
+FROM node:18.12.1-bullseye-slim As production
 
 # SET Timezone (Asia/Bangkok GTM+07:00)
 ENV TZ Asia/Bangkok
