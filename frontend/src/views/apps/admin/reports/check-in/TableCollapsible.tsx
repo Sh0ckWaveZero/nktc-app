@@ -18,7 +18,6 @@ import {
   Box,
   IconButton,
 } from '@mui/material';
-import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import { isEmpty } from '@/@core/utils/utils';
 import { Fragment, useId, useState } from 'react';
 import Icon from '@/@core/components/icon';
@@ -34,6 +33,8 @@ interface Row {
   leavePercent: number;
   late: number;
   latePercent: number;
+  internship: number;
+  internshipPercent: number;
   total: number;
 }
 
@@ -42,6 +43,8 @@ interface Header {
   name: string;
   align?: 'left' | 'right' | 'inherit' | 'center' | 'justify' | undefined;
 }
+
+type StudentAttendance = 'present' | 'absent' | 'leave' | 'late' | 'internship';
 
 const ccyFormat = (num: number) => {
   return `${isNaN(num) || isEmpty(num) ? '0.00' : num.toFixed(2)}`;
@@ -84,6 +87,8 @@ const header: Header[] = [
   { name: 'ลา(%)', key: 'ลา(%)', align: 'right' },
   { name: 'มาสาย', key: 'มาสาย', align: 'right' },
   { name: 'มาสาย(%)', key: 'มาสาย(%)', align: 'right' },
+  { name: 'ฝึกงาน', key: 'ฝึกงาน', align: 'right' },
+  { name: 'ฝึกงาน(%)', key: 'ฝึกงาน(%)', align: 'right' },
   { name: 'รวมทั้งหมด', key: 'รวมทั้งหมด', align: 'right' },
 ];
 
@@ -94,61 +99,17 @@ const subtotal = (items: readonly Row[], level: string) => {
     .reduce((sum, i) => sum + i, 0);
 };
 
-const subPresent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ present }) => present)
-    .reduce((sum, i) => sum + i, 0);
+const sumByProperty = (items: readonly Row[], level: string, property: StudentAttendance) => {
+  const filteredItems = items.filter((item: any) => item?.level?.levelName === level);
+  const values = filteredItems.map((item: any) => item[property]);
+  return values.reduce((sum, value) => sum + value, 0);
 };
 
-const subPresentPercent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ presentPercent }) => presentPercent)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subAbsent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ absent }) => absent)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subAbsentPercent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ absentPercent }) => absentPercent)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subLeave = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ leave }) => leave)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subLeavePercent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ leavePercent }) => leavePercent)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subLate = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ late }) => late)
-    .reduce((sum, i) => sum + i, 0);
-};
-
-const subLatePercent = (items: readonly Row[], level: string) => {
-  return items
-    .filter((item: any) => item?.level?.levelName === level)
-    .map(({ latePercent }) => latePercent)
-    .reduce((sum, i) => sum + i, 0);
-};
+const subPresent = (items: readonly Row[], level: string) => sumByProperty(items, level, 'present');
+const subAbsent = (items: readonly Row[], level: string) => sumByProperty(items, level, 'absent');
+const subLeave = (items: readonly Row[], level: string) => sumByProperty(items, level, 'leave');
+const subLate = (items: readonly Row[], level: string) => sumByProperty(items, level, 'late');
+const subInternship = (items: readonly Row[], level: string) => sumByProperty(items, level, 'internship');
 
 interface TableHeaderProps {
   values: any[];
@@ -166,10 +127,16 @@ const RowDaily = (prop: any) => {
 
   const tableSubTotal = (level: string) => subtotal(values, level);
   const tableSubPercent = (value: number, level: string) => (value / (tableSubTotal(level) * values.length)) * 100;
-  const presentPercentSubTotal = (level: string) => ccyFormat(tableSubPercent(subPresentPercent(values, level), level));
-  const absentPercentSubTotal = (level: string) => ccyFormat(tableSubPercent(subAbsentPercent(values, level), level));
-  const leavePercentSubTotal = (level: string) => ccyFormat(tableSubPercent(subLeavePercent(values, level), level));
-  const latePercentSubTotal = (level: string) => ccyFormat(tableSubPercent(subLatePercent(values, level), level));
+  const presentPercentSubTotal = (level: string) =>
+    ccyFormat(tableSubPercent(sumByProperty(values, level, 'present'), level));
+  const absentPercentSubTotal = (level: string) =>
+    ccyFormat(tableSubPercent(sumByProperty(values, level, 'absent'), level));
+  const leavePercentSubTotal = (level: string) =>
+    ccyFormat(tableSubPercent(sumByProperty(values, level, 'leave'), level));
+  const latePercentSubTotal = (level: string) =>
+    ccyFormat(tableSubPercent(sumByProperty(values, level, 'late'), level));
+  const internshipPercentSubTotal = (level: string) =>
+    ccyFormat(tableSubPercent(sumByProperty(values, level, 'internship'), level));
 
   return (
     <Fragment key={levelRow}>
@@ -182,14 +149,20 @@ const RowDaily = (prop: any) => {
         <TableCell component='th' scope='row'>
           {levelRow}
         </TableCell>
+        <TableCell align='right'>{subPresent(values, levelRow)}</TableCell>
         <TableCell align='right'>{presentPercentSubTotal(levelRow)}</TableCell>
+        <TableCell align='right'>{subAbsent(values, levelRow)}</TableCell>
         <TableCell align='right'>{absentPercentSubTotal(levelRow)}</TableCell>
+        <TableCell align='right'>{subLeave(values, levelRow)}</TableCell>
         <TableCell align='right'>{leavePercentSubTotal(levelRow)}</TableCell>
+        <TableCell align='right'>{subLate(values, levelRow)}</TableCell>
         <TableCell align='right'>{latePercentSubTotal(levelRow)}</TableCell>
+        <TableCell align='right'>{subInternship(values, levelRow)}</TableCell>
+        <TableCell align='right'>{internshipPercentSubTotal(levelRow)}</TableCell>
         <TableCell align='right'>{tableSubTotal(levelRow)}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell colSpan={12} sx={{ py: '0 !important' }}>
+        <TableCell colSpan={13} sx={{ py: '0 !important' }}>
           <Collapse id={levelRow} in={open} timeout='auto' unmountOnExit>
             <Box sx={{ m: 2 }}>
               <Typography variant='h6' gutterBottom component='div'>
@@ -244,22 +217,16 @@ const RowDaily = (prop: any) => {
                           </TableCellText>
                         </StyledTableCell>
                         <StyledTableCell align='right'>
+                          <TableCellText>{row.internship}</TableCellText>
+                        </StyledTableCell>
+                        <StyledTableCell align='right'>
+                          <TableCellText>{ccyFormat(row.internshipPercent)}</TableCellText>
+                        </StyledTableCell>
+                        <StyledTableCell align='right'>
                           <TableCellText sx={{ color: theme.palette.info.dark }}>{row.total}</TableCellText>
                         </StyledTableCell>
                       </StyledTableRow>
                     ))}
-                  <TableRow sx={{ backgroundColor: hexToRGBA(theme.palette.info.main, 0.25) }}>
-                    <TableCell colSpan={1}>รวม</TableCell>
-                    <TableCell align='right'>{subPresent(values, levelRow)}</TableCell>
-                    <TableCell align='right'>{presentPercentSubTotal(levelRow)}</TableCell>
-                    <TableCell align='right'>{subAbsent(values, levelRow)}</TableCell>
-                    <TableCell align='right'>{absentPercentSubTotal(levelRow)}</TableCell>
-                    <TableCell align='right'>{subLeave(values, levelRow)}</TableCell>
-                    <TableCell align='right'>{leavePercentSubTotal(levelRow)}</TableCell>
-                    <TableCell align='right'>{subLate(values, levelRow)}</TableCell>
-                    <TableCell align='right'>{latePercentSubTotal(levelRow)}</TableCell>
-                    <TableCell align='right'>{tableSubTotal(levelRow)}</TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </Box>
@@ -280,12 +247,11 @@ const TableCollapsible = (prop: TableHeaderProps) => {
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>ระดับชั้น</TableCell>
-            <TableCell align='right'>มาเรียน(%)</TableCell>
-            <TableCell align='right'>ขาดเรียน(%) </TableCell>
-            <TableCell align='right'>ลา(%)</TableCell>
-            <TableCell align='right'>มาสาย(%)</TableCell>
-            <TableCell align='right'>รวมทั้งหมด</TableCell>
+            {header.map((item) => (
+              <TableCell key={item.key} align={item.align}>
+                {item.name}
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
