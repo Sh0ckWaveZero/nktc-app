@@ -61,6 +61,7 @@ import toast from 'react-hot-toast';
 import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
+import { isEmpty } from '@/@core/utils/utils';
 interface UserRoleType {
   [key: string]: ReactElement;
 }
@@ -99,7 +100,6 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   marginRight: theme.spacing(3),
 }));
-
 
 const localStorageService = new LocalStorageService();
 
@@ -319,15 +319,30 @@ const TeacherList = () => {
       hideSortIcons: true,
       align: 'center',
       renderCell: ({ row }: CellType) => {
+        const { teacherOnClassroom, classrooms } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Stack direction='row' divider={<Divider orientation='vertical' flexItem />} spacing={2}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <>
+                <Fragment>
                   <Tooltip
-                    title={row.teacherOnClassroom.length > 0 ? 'จำนวนห้องที่ปรึกษา' : 'ยังไม่ลงทะเบียนห้องที่ปรึกษา'}
+                    title={
+                      !isEmpty(teacherOnClassroom.length && !isEmpty(classrooms)) ? (
+                        row.classrooms.map((item: any) => {
+                          return (
+                            <Typography key={item} variant='body2' sx={{ color: 'common.white' }}>
+                              {item}
+                            </Typography>
+                          );
+                        })
+                      ) : (
+                        <Typography variant='body2' sx={{ color: 'common.white' }}>
+                          ยังไม่ลงทะเบียนห้องที่ปรึกษา
+                        </Typography>
+                      )
+                    }
                   >
-                    <IconButton aria-label={id} aria-describedby={id} onClick={handleClick}>
+                    <IconButton aria-label={id} aria-describedby={id}>
                       <Badge
                         badgeContent={row.teacherOnClassroom.length > 0 ? row.teacherOnClassroom.length : '0'}
                         color={row.teacherOnClassroom.length > 0 ? 'primary' : 'error'}
@@ -340,19 +355,7 @@ const TeacherList = () => {
                       </Badge>
                     </IconButton>
                   </Tooltip>
-                  <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                  >
-                    <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
-                  </Popover>
-                </>
+                </Fragment>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <IconButton
@@ -362,7 +365,13 @@ const TeacherList = () => {
                     setCurrentData(row);
                   }}
                 >
-                  <Tooltip title='เพิ่มห้องที่ปรึกษา'>
+                  <Tooltip
+                    title={
+                      <Typography variant='body2' sx={{ color: 'common.white' }}>
+                        เพิ่มห้องที่ปรึกษา
+                      </Typography>
+                    }
+                  >
                     <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
                   </Tooltip>
                 </IconButton>
