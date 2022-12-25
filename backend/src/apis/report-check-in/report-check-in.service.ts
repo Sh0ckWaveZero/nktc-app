@@ -52,6 +52,7 @@ export class ReportCheckInService {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
+    // get teacher info
     const user = await this.prisma.user.findFirstOrThrow(
       {
         where: {
@@ -126,6 +127,7 @@ export class ReportCheckInService {
             select: {
               id: true,
               studentId: true,
+              status: true,
             }
           },
           account: {
@@ -161,7 +163,9 @@ export class ReportCheckInService {
               ? 'absent'
               : reportCheckIn.late.some(late => late === student.id)
                 ? 'late'
-                : reportCheckIn.leave.some(leave => leave === student.id) ? 'leave' : 'none' : 'notCheckIn',
+                : reportCheckIn.leave.some(leave => leave === student.id) ? 'leave'
+                  : reportCheckIn.internship.some(internship => internship === student.id) ? 'internship' :
+                    'none' : 'notCheckIn',
           teacher: user,
         }
       });
@@ -223,25 +227,33 @@ export class ReportCheckInService {
       }
     });
 
-    return await Promise.all(studentsInfo.map(student => {
-      // find student in checkIn count present, absent, late, leave
-      const present = checkIn.filter(checkIn => checkIn.present.some(present => present === student.id)).length ?? 0;
-      const absent = checkIn.filter(checkIn => checkIn.absent.some(absent => absent === student.id)).length ?? 0;
-      const late = checkIn.filter(checkIn => checkIn.late.some(late => late === student.id)).length ?? 0;
-      const leave = checkIn.filter(checkIn => checkIn.leave.some(leave => leave === student.id)).length ?? 0;
+    return await Promise.all(studentsInfo.map(async student => {
+      const presentCount = checkIn.filter(checkIn => checkIn.present.some(present => present === student.id)).length;
+      const absentCount = checkIn.filter(checkIn => checkIn.absent.some(absent => absent === student.id)).length;
+      const lateCount = checkIn.filter(checkIn => checkIn.late.some(late => late === student.id)).length;
+      const leaveCount = checkIn.filter(checkIn => checkIn.leave.some(leave => leave === student.id)).length;
+      const internshipCount = checkIn.filter(checkIn => checkIn.internship.some(internship => internship === student.id)).length;
+
+      const presentPercent = (presentCount / checkIn.length) * 100;
+      const absentPercent = (absentCount / checkIn.length) * 100;
+      const latePercent = (lateCount / checkIn.length) * 100;
+      const leavePercent = (leaveCount / checkIn.length) * 100;
+      const internshipPercent = (internshipCount / checkIn.length) * 100;
 
       return {
         ...student,
-        present: present,
-        presentPercent: (present / checkIn.length * 100),
-        absent: absent,
-        absentPercent: (absent / checkIn.length * 100),
-        late: late,
-        latePercent: (late / checkIn.length * 100),
-        leave: leave,
-        leavePercent: (leave / checkIn.length * 100),
+        present: presentCount || 0,
+        presentPercent: presentPercent || 0,
+        absent: absentCount || 0,
+        absentPercent: absentPercent || 0,
+        late: lateCount || 0,
+        latePercent: latePercent || 0,
+        leave: leaveCount || 0,
+        leavePercent: leavePercent || 0,
+        internship: internshipCount || 0,
+        internshipPercent: internshipPercent || 0,
         checkInTotal: checkIn.length,
-      }
+      };
     }));
   }
 
@@ -319,27 +331,33 @@ export class ReportCheckInService {
         }
       });
 
-      // find student in checkIn count present, absent, late, leave
-      const present = reportCheckIn ? reportCheckIn.present.length : 0;
-      const absent = reportCheckIn ? reportCheckIn.absent.length : 0;
-      const late = reportCheckIn ? reportCheckIn.late.length : 0;
-      const leave = reportCheckIn ? reportCheckIn.leave.length : 0;
-      const total = present + absent + late + leave;
-      const presentPercentTotal = ccyFormat(present / (total) * 100);
-      const absentPercentTotal = ccyFormat(absent / (total) * 100);
-      const latePercentTotal = ccyFormat(late / (total) * 100);
-      const leavePercentTotal = ccyFormat(leave / (total) * 100);
+      // Find student attendance counts
+      const presentCount = reportCheckIn ? reportCheckIn.present.length : 0;
+      const absentCount = reportCheckIn ? reportCheckIn.absent.length : 0;
+      const lateCount = reportCheckIn ? reportCheckIn.late.length : 0;
+      const leaveCount = reportCheckIn ? reportCheckIn.leave.length : 0;
+      const internshipCount = reportCheckIn ? reportCheckIn.internship.length : 0;
+
+      // Calculate attendance percentages
+      const total = presentCount + absentCount + lateCount + leaveCount + internshipCount;
+      const presentPercentTotal = ccyFormat((presentCount / total) * 100) || 0;
+      const absentPercentTotal = ccyFormat((absentCount / total) * 100) || 0;
+      const latePercentTotal = ccyFormat((lateCount / total) * 100) || 0;
+      const leavePercentTotal = ccyFormat((leaveCount / total) * 100) || 0;
+      const internshipPercentTotal = ccyFormat((internshipCount / total) * 100) || 0;
 
       return {
         ...classroom,
-        present: present,
+        present: presentCount,
         presentPercent: presentPercentTotal,
-        absent: absent,
+        absent: absentCount,
         absentPercent: absentPercentTotal,
-        late: late,
+        late: lateCount,
         latePercent: latePercentTotal,
-        leave: leave,
+        leave: leaveCount,
         leavePercent: leavePercentTotal,
+        internship: internshipCount,
+        internshipPercent: internshipPercentTotal,
         total: total,
         checkInDate: reportCheckIn ? reportCheckIn.checkInDate : null,
         ...checKInBy ? { checkInBy: checKInBy } : null,
@@ -369,6 +387,9 @@ export class ReportCheckInService {
         },
         leave: {
           set: updateDailyReportDto.leave
+        },
+        internship: {
+          set: updateDailyReportDto.internship
         },
         updatedBy: {
           set: updateDailyReportDto.updatedBy

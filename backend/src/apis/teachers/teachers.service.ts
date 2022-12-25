@@ -50,7 +50,23 @@ export class TeachersService {
       },
     });
 
+    const classrooms = await this.prisma.classroom.findMany({
+      where: {
+        OR: teacherOnClassroom.map((item: any) => {
+          return {
+            id: item.classroomId,
+          }
+        })
+      }
+    });
+
     return teachers.map((item: any) => {
+      const teacherOnClassrooms = teacherOnClassroom
+        .filter((el: any) => item.teacher.id === el.teacherId)
+        .map((cl: any) => cl.classroomId);
+      const classroomList = classrooms
+        .filter((el: any) => teacherOnClassrooms.includes(el.id))
+        .map((cl: any) => cl.name);
       return {
         id: item.id,
         username: item.username,
@@ -73,7 +89,8 @@ export class TeachersService {
         levelClassroomId: item.teacher.levelClassroomId ?? [],
         classroomIds: item.teacher.classroomIds ?? [],
         status: item.teacher.status ?? '',
-        teacherOnClassroom: teacherOnClassroom.filter((el: any) => item.teacher.id === el.teacherId).map((cl: any) => cl.classroomId),
+        teacherOnClassroom: teacherOnClassrooms,
+        classrooms: classroomList,
       };
     })
   }
@@ -165,10 +182,9 @@ export class TeachersService {
             id: item.id,
             classroomId: item.classroomId,
             name: item.name,
-            students: students.filter((student: any) => {
-              return student.student.classroomId === item.id;
-            }).map((student: any) => {
-              return {
+            students: students
+              .filter((student: any) => student.student.classroomId === item.id)
+              .map((student: any) => ({
                 id: student.id,
                 studentId: student.username,
                 title: student.account.title,
@@ -176,16 +192,14 @@ export class TeachersService {
                 lastName: student.account.lastName,
                 avatar: student.account.avatar,
                 status: student.student.status,
-              }
-            }),
-          }
+              })),
+          };
         }),
-      }
+      },
     };
   }
 
   async updateClassroom(userId: string, updateTeacherDto: any) {
-    console.log('🚀 ~ file: teachers.service.ts ~ line 186 ~ TeachersService ~ updateClassroom ~ updateTeacherDto', updateTeacherDto);
     const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
         teacherId: updateTeacherDto.teacherInfo,
@@ -200,13 +214,11 @@ export class TeachersService {
       });
     }
 
-    const dataCreate = await Promise.all(updateTeacherDto.classrooms.map((item: any) => {
-      return {
-        teacherId: updateTeacherDto.teacherInfo,
-        classroomId: item,
-        createdBy: userId,
-        updatedBy: userId,
-      }
+    const dataCreate = updateTeacherDto.classrooms.map((item: any) => ({
+      teacherId: updateTeacherDto.teacherInfo,
+      classroomId: item,
+      createdBy: userId,
+      updatedBy: userId,
     }));
 
     return await this.prisma.teacherOnClassroom.createMany({
@@ -216,7 +228,6 @@ export class TeachersService {
 
 
   async updateProfile(userId: string, updateTeacherDto: any) {
-    console.log('🚀 ~ file: teachers.service.ts ~ line 216 ~ TeachersService ~ updateProfile ~ updateTeacherDto', updateTeacherDto);
     try {
       // update teacher
       const updateTeacher = await this.prisma.teacher.update({
@@ -256,7 +267,7 @@ export class TeachersService {
         }
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }
