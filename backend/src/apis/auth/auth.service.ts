@@ -19,35 +19,42 @@ export interface RegistrationSeederStatus {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) { }
 
   async register(userDto: any): Promise<RegistrationStatus> {
-    const status: RegistrationStatus = {
-      success: true,
-      message: 'ACCOUNT_CREATE_SUCCESS',
-    };
-
     try {
-      status.data = await this.usersService.create(userDto);
+      const data = await this.usersService.create(userDto);
+      return {
+        success: true,
+        message: 'ACCOUNT_CREATE_SUCCESS',
+        data,
+      };
     } catch (err) {
-      status.success = false;
-      status.message = err;
+      return {
+        success: false,
+        message: err,
+      };
     }
-    return status;
   }
 
-  async login(loginUserDto: any): Promise<any> {
+
+  async login(loginUserDto: any, ipAddress: string): Promise<any> {
     // find user in db
-    const user = await this.usersService.findByLogin(loginUserDto);
+    const loginResults = await this.usersService.login(loginUserDto);
+
+    if (!loginResults) {
+      return null;
+    }
 
     // generate and sign token
-    const token = this._createToken(user);
+    const token = this.createAccessToken(loginResults);
+    
     return {
       success: true,
       message: 'login successfully',
-      data: user,
+      data: loginResults,
       ...token,
     };
   }
@@ -60,7 +67,7 @@ export class AuthService {
     const { password: p, ...rest } = user;
 
     // generate and sign token
-    const token = this._createToken(rest);
+    const token = this.createAccessToken(rest);
     return {
       success: true,
       message: 'Password has been updated successfully',
@@ -69,24 +76,24 @@ export class AuthService {
     };
   }
 
-  private _createToken({ username }): any {
+  async validateUser(payload: JwtPayload): Promise<any> {
+    const user = await this.usersService.findByPayload(payload);
+    if (!user) throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
+    return user;
+  }
+
+
+  public async getMe(user: any) {
+    console.log('🚀 ~ file: auth.service.ts:87 ~ AuthService ~ getMe ~ user', user);
+    return await this.usersService.finedById(user.id);
+  }
+
+  private createAccessToken({ username }): any {
     const user: JwtPayload = { username };
     const token = this.jwtService.sign(user);
     return {
       expiresIn: configuration().jwtExpiresIn,
       token,
     };
-  }
-
-  async validateUser(payload: JwtPayload): Promise<any> {
-    const user = await this.usersService.findByPayload(payload);
-    if (!user) {
-      throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
-    }
-    return user;
-  }
-
-  public async getMe(user: any) {
-    return await this.usersService.finedById(user.id);
   }
 }

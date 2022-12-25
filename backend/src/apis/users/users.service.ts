@@ -110,12 +110,9 @@ export class UsersService {
     }
     return newUser;
   }
-  
+
   //use by auth module to login user
-  async findByLogin({
-    username,
-    password,
-  }: any): Promise<FormatLogin> {
+  async login({ username, password, }: any): Promise<FormatLogin> {
     const user = await this.prisma.user.findFirst({
       where: { username },
       include: {
@@ -150,7 +147,9 @@ export class UsersService {
 
     // check if user exist
     if (!user) {
-      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
+      // throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
+      // throw new Error('User not found');
+      return Promise.resolve(null);
     }
 
     // get teacher on classroom
@@ -160,9 +159,9 @@ export class UsersService {
     }
 
     // compare passwords
-    const isValid = await compare(password, user.password);
+    const passwordMatch = await compare(password, user.password);
 
-    if (!isValid) {
+    if (!passwordMatch) {
       throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
     }
 
@@ -170,6 +169,7 @@ export class UsersService {
     const { password: p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
+
 
   //use by auth module to get user in database
   async findByPayload({ username }: any): Promise<any> {

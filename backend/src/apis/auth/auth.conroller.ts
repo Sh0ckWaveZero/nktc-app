@@ -12,9 +12,12 @@ import {
   HttpCode,
   Param,
   Put,
+  Ip,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService, RegistrationStatus } from './auth.service';
-import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 
@@ -38,14 +41,29 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  public async login(@Body() loginUserDto: any): Promise<any> {
-      return await this.authService.login(loginUserDto);
+  @HttpCode(200)
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
+  public async login(@Ip() userIp: any, @Body() loginUserDto: any): Promise<any> {
+    const loginResults = await this.authService.login(loginUserDto, userIp);
+
+    if (!loginResults) {
+      throw new UnauthorizedException(
+        'This user name, password combination was not found',
+      );
+    }
+
+    return loginResults;
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiSecurity('access-key')
   @Get('me')
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
   public async me(@Request() req: any): Promise<any> {
     return await this.authService.getMe(req.user);
   }
