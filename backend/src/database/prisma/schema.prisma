@@ -343,6 +343,7 @@ model ReportCheckIn {
   absent       String[]   @default([]) // รหัสนักเรียนที่ขาดเรียน
   late         String[]   @default([]) // รหัสนักเรียนที่มาสาย
   leave        String[]   @default([]) // รหัสนักเรียนที่ลา
+  internship   String[]   @default([]) // รหัสนักเรียนที่ฝึกงาน
   checkInDate  DateTime? // วันที่เช็คอิน
   checkInTime  DateTime? // เวลาเช็คอิน
   status       String? // สถานะ 0 = ยังไม่ได้เช็คชื่อ, 1 = ได้เช็คชื่อแล้ว
