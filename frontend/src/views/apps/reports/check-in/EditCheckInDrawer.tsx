@@ -28,6 +28,7 @@ interface SidebarAddClassroomType {
   toggle: () => void;
   onSubmitted: (event: any, value: any) => void;
   data: any;
+  selectedDate: Date;
 }
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
@@ -40,7 +41,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
 
 const SidebarEditCheckInDrawer = (props: SidebarAddClassroomType) => {
   // ** Props
-  const { open, toggle, onSubmitted, data } = props;
+  const { open, toggle, onSubmitted, data, selectedDate } = props;
 
   // ** State
   const [values, setValues] = useState(data?.checkInStatus);
@@ -66,7 +67,7 @@ const SidebarEditCheckInDrawer = (props: SidebarAddClassroomType) => {
       <form onSubmit={(event) => onSubmitted(event, { isCheckInStatus: values, data })}>
         <Stack sx={{ p: 5 }} spacing={5}>
           <Typography variant='subtitle1' component='h2'>
-            {new Date(data?.reportCheckInData?.checkInDate as Date).toLocaleDateString('th-TH', {
+            {new Date(selectedDate as Date).toLocaleDateString('th-TH', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -110,6 +111,7 @@ const SidebarEditCheckInDrawer = (props: SidebarAddClassroomType) => {
               <FormControlLabel key={'absent'} value='absent' control={<Radio color='error' />} label='ขาด' />
               <FormControlLabel key={'late'} value='late' control={<Radio color='warning' />} label='มาสาย' />
               <FormControlLabel key={'leave'} value='leave' control={<Radio color='secondary' />} label='ลา' />
+              <FormControlLabel key={'internship'} value='internship' control={<Radio color='info' />} label='ฝึกงาน' />
             </RadioGroup>
           </FormControl>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
