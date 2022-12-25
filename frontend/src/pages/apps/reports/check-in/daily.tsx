@@ -365,7 +365,7 @@ const ReportCheckInDaily = () => {
   const onSubmittedCheckIn = async (event: any, values: any): Promise<void> => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
-    const { reportCheckInData } = values?.data;
+    const { reportCheckInData } = values?.data || {};
     const { present = [], absent = [], late = [], leave = [], internship = [] } = reportCheckInData || {};
     isPresentCheck.push(...present);
     isAbsentCheck.push(...absent);

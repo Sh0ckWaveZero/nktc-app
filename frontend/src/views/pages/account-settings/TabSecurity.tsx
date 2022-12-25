@@ -29,7 +29,6 @@ import { FormHelperText } from '@mui/material';
 import { useUserStore } from '@/store/index';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 

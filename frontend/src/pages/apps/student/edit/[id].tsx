@@ -32,7 +32,7 @@ import Icon from '@/@core/components/icon';
 
 // ** Third Party Imports
 import { useEffectOnce } from '@/hooks/userCommon';
-import { useClassroomStore, useDepartmentStore, useProgramStore, useStudentStore, useUserStore } from '@/store/index';
+import { useClassroomStore, useStudentStore } from '@/store/index';
 import shallow from 'zustand/shallow';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { FcCalendar } from 'react-icons/fc';
@@ -145,11 +145,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
   };
 
   // ** State
-  const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
-  const [userInput, setUserInput] = useState<string>('yes');
-  const [formData, setFormData] = useState<Data>(initialData);
-  const [secondDialogOpen, setSecondDialogOpen] = useState<boolean>(false);
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
@@ -668,7 +664,6 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                     color='secondary'
                     onClick={() => {
                       reset();
-                      setFormData(initialData);
                       setCurrentAddress(
                         ThailandAddressValue.fromDataSourceItem({
                           d: users.account.district || '',

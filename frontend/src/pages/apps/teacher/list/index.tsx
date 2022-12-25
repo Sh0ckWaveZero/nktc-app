@@ -16,7 +16,6 @@ import {
   Menu,
   Divider,
   Stack,
-  Popover,
   Badge,
   Tooltip,
 } from '@mui/material';
@@ -58,7 +57,6 @@ import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
 import toast from 'react-hot-toast';
-import { authConfig } from '@/configs/auth';
 import shallow from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import { isEmpty } from '@/@core/utils/utils';
@@ -201,18 +199,8 @@ const TeacherList = () => {
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
   const [addClassroomOpen, setAddClassroomOpen] = useState<boolean>(false);
   const [currentData, setCurrentData] = useState<any>(null);
-
   const [anchorEl, setAnchorEl] = useState(null);
   const debouncedValue = useDebounce<string>(value, 500);
-
-  const handleClick = (event: any) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
 

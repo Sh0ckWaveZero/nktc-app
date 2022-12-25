@@ -5,7 +5,6 @@ import { Fragment, useContext, useState } from 'react';
 import {
   Alert,
   AlertTitle,
-  alpha,
   Avatar,
   Box,
   Card,
@@ -21,7 +20,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, gridClasses, GridColumns, GridEventListener } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColumns, GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useReportCheckInStore, useTeacherStore } from '@/store/index';
@@ -138,6 +137,7 @@ const StudentCheckIn = () => {
         break;
       case 'internship':
         handleToggleInternship(param);
+        break;
       default:
         break;
     }

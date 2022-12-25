@@ -61,7 +61,7 @@ const AuthProvider = ({ children }: Props) => {
             setLoading(false);
             setUser({ ...(await data) });
           })
-          .catch((error) => {
+          .catch((_) => {
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
             localStorageService.removeToken();
