@@ -63,6 +63,7 @@ const TableHeader = (props: TableHeaderProps) => {
                   }}
                 />
               )}
+              disableMaskedInput
             />
           </LocalizationProvider>
         </FormControl>
