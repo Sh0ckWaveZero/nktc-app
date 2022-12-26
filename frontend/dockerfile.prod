@@ -23,6 +23,7 @@ COPY . .
 # This will do the trick, use the corresponding env file for each environment.
 COPY .env.prod .env
 RUN yarn build
+RUN yarn cache clean --force
 
 # 3. Production image, copy all the files and run next
 FROM node:alpine AS runner
