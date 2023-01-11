@@ -1,8 +1,8 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
 // ** Config
 import {authConfig} from '@/configs/auth';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 interface TeacherQuery {
   q: string;

@@ -32,7 +32,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import thLocale from 'date-fns/locale/th';
 import { toast } from 'react-hot-toast';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';

@@ -1,9 +1,9 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
 import { Classroom } from '@/types/apps/teacherTypes';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 
 

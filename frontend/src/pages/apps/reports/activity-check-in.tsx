@@ -39,7 +39,7 @@ import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-i
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
 import { FaFlagCheckered } from 'react-icons/fa';

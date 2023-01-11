@@ -47,7 +47,7 @@ import {
   AlertOctagramOutline,
 } from 'mdi-material-ui';
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
 

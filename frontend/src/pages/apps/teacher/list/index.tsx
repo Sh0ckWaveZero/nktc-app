@@ -57,7 +57,7 @@ import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 
 import toast from 'react-hot-toast';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import { isEmpty } from '@/@core/utils/utils';
 interface UserRoleType {

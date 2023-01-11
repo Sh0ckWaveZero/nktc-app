@@ -1,9 +1,8 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
-import shallow from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 
 export const useAppbarStore = create<any>()(
@@ -18,11 +17,9 @@ export const useAppbarStore = create<any>()(
           },
         });
         set({ appbar: await response.data });
-      },
-      shallow,
-    })),
-    {
+      }
+    }), {
       name: 'appbar-store',
-    },
-  ),
+    })
+  )
 );

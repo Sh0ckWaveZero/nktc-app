@@ -30,7 +30,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useClassroomStore, useStudentStore } from '@/store/index';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import TableHeader from '@/views/apps/student/list/TableHeader';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';

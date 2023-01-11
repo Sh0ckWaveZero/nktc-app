@@ -6,7 +6,7 @@ import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 import { useReportCheckInStore } from '@/store/index';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import { isEmpty } from '@/@core/utils/utils';

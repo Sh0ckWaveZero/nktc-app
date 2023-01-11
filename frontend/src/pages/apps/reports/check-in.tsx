@@ -38,7 +38,7 @@ import { CustomNoRowsOverlayCheckedIn } from '@/@core/components/check-in/checke
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
 import Icon from '@/@core/components/icon';

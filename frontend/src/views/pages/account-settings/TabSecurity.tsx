@@ -29,7 +29,7 @@ import { FormHelperText } from '@mui/material';
 import { useUserStore } from '@/store/index';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 
 interface State {

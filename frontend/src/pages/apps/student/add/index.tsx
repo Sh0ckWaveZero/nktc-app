@@ -33,7 +33,7 @@ import Icon from '@/@core/components/icon';
 // ** Third Party Imports
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useClassroomStore, useStudentStore } from '@/store/index';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { FcCalendar } from 'react-icons/fc';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';

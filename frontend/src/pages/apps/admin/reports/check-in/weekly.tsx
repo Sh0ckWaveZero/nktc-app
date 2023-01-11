@@ -5,7 +5,7 @@ import { Avatar, Card, CardHeader, Grid } from '@mui/material';
 import { BsCalendar2Date } from 'react-icons/bs';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 import { useReportCheckInStore } from '@/store/index';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';

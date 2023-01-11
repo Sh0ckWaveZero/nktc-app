@@ -19,7 +19,7 @@ import { useRouter } from 'next/router';
 import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
-import shallow from 'zustand/shallow';
+import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
 
