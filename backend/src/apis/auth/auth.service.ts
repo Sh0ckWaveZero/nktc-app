@@ -84,7 +84,6 @@ export class AuthService {
 
 
   public async getMe(user: any) {
-    console.log('🚀 ~ file: auth.service.ts:87 ~ AuthService ~ getMe ~ user', user);
     return await this.usersService.finedById(user.id);
   }
 
