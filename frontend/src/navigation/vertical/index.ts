@@ -10,6 +10,7 @@ import { FaFlagCheckered } from 'react-icons/fa';
 import { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiOutlineFlag } from 'react-icons/hi';
 import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
+import { TbChartBar } from 'react-icons/tb';
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -151,6 +152,28 @@ const navigation = (): VerticalNavItemsType => {
       path: '/apps/reports/activity-check-in',
       action: 'read',
       subject: 'activity-check-in-page',
+    },
+    {
+      title: 'รายงานเช็คชื่อกิจกรรม',
+      icon: TbChartBar,
+      action: 'read',
+      subject: 'activity-check-in-page',
+      children: [
+        {
+          title: 'รายวัน',
+          icon: BsCalendar2Date,
+          action: 'read',
+          subject: 'activity-check-in-page',
+          path: '/apps/reports/activity-check-in/daily',
+        },
+        {
+          title: 'รายงานสรุป',
+          icon: BsBarChartLine,
+          action: 'read',
+          subject: 'activity-check-in-page',
+          path: '/apps/reports/activity-check-in/summary',
+        }
+      ],
     },
   ];
 };
