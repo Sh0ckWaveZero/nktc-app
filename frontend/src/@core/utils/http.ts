@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Swal from "sweetalert2";
-import { useUserStore } from "../../store/apps/user/index";
 import { useAuth } from "../../hooks/useAuth";
 
 const httpClient = axios.create({
