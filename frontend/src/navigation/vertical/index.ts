@@ -111,7 +111,7 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'admin-category',
     },
     {
-      title: 'รายงานเช็คชื่อเช้า-ผู้ดูแลระบบ',
+      title: 'เช็คชื่อเช้า-ผู้ดูแลระบบ',
       icon: BsClipboardData,
       action: 'read',
       subject: 'admin-report-check-in-page',
@@ -173,6 +173,35 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'activity-check-in-page',
           path: '/apps/reports/activity-check-in/summary',
         }
+      ],
+    },
+    {
+      title: 'เช็คชื่อกิจกรรม-ผู้ดูแลระบบ',
+      icon: TbChartBar,
+      action: 'read',
+      subject: 'admin-activity-check-in-page',
+      children: [
+        {
+          title: 'รายวัน',
+          icon: BsCalendar2Date,
+          action: 'read',
+          subject: 'admin-activity-check-in-page',
+          path: '/apps/admin/reports/activity-check-in/daily',
+        },
+        {
+          title: 'รายสัปดาห์',
+          icon: BsCalendar2Week,
+          action: 'read',
+          subject: 'admin-activity-check-in-page',
+          path: '/apps/admin/reports/activity-check-in/weekly',
+        },
+        {
+          title: 'รายเดือน',
+          icon: BsCalendar2Month,
+          action: 'read',
+          subject: 'admin-activity-check-in-page',
+          path: '/apps/admin/reports/activity-check-in/monthly',
+        },
       ],
     },
   ];
