@@ -1,7 +1,8 @@
 // prisma-mongodb/schema.prisma
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../../node_modules/@internal/prisma/client"
+  provider      = "prisma-client-js"
+  output        = "../../../node_modules/@internal/prisma/client"
+  binaryTargets = ["linux-musl-openssl-3.0.x˝"]
 }
 
 datasource db {
