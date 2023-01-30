@@ -13,4 +13,5 @@ export default () => ({
   minioSecretKey: process.env.MINIO_SECRET_KEY,
   minioUseSSL: process.env.MINIO_USE_SSL === 'true' ? true : false,
   minioBucket: process.env.MINIO_BUCKET_NAME,
+  hostUrl: process.env.HOST_URL,
 });
