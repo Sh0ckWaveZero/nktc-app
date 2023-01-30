@@ -21,6 +21,7 @@ import { DepartmentsModule } from './apis/departments/departments.module';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { MinioClientModule } from './apis/minio/minio-client.module';
 import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-in.module';
+import { StaticsModule } from './apis/statics/statics.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-i
     AuditLogModule,
     DepartmentsModule,
     ActivityCheckInModule,
+    StaticsModule,
     ConfigModule.forRoot(
       {
         load: [configuration],

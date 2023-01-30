@@ -142,39 +142,49 @@ export class StudentsService {
   }
 
   async updateProfile(id: string, body: any) {
-    return await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        updatedBy: id,
-        account: {
-          update: {
-            title: body.title,
-            firstName: body.firstName,
-            lastName: body.lastName,
-            birthDate: body.birthDate,
-            idCard: body.idCard,
-            addressLine1: body.addressLine1,
-            subdistrict: body.subdistrict,
-            district: body.district,
-            province: body.province,
-            postcode: body.postalCode,
-            updatedBy: id,
-            phone: body.phone,
-          }
-        },
-        student: {
-          update: {
-            classroomId: body.classroom,
-            departmentId: body.department,
-            programId: body.program,
-            status: body.status,
-            updatedBy: id,
+    let avatar: any = '';
+    try {
+      if (body.avatar) {
+        const response = await this.minioService.upload({ data: body.avatar, path: 'avatars/students/' });
+        avatar = response?.url;
+        return await this.prisma.user.update({
+          where: {
+            id,
           },
-        }
-      },
-    });
+          data: {
+            updatedBy: id,
+            account: {
+              update: {
+                title: body.title,
+                firstName: body.firstName,
+                lastName: body.lastName,
+                birthDate: body.birthDate,
+                idCard: body.idCard,
+                addressLine1: body.addressLine1,
+                subdistrict: body.subdistrict,
+                district: body.district,
+                province: body.province,
+                postcode: body.postalCode,
+                updatedBy: id,
+                phone: body.phone,
+                avatar: avatar,
+              }
+            },
+            student: {
+              update: {
+                classroomId: body.classroom,
+                departmentId: body.department,
+                programId: body.program,
+                status: body.status,
+                updatedBy: id,
+              },
+            }
+          },
+        });
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
   deleteStudent(id: string) {
