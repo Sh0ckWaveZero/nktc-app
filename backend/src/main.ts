@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import * as requestIp from 'request-ip';
+import * as bodyParser from 'body-parser';
 import configuration from './config/configuration';
 
 const bootstrap = async () => {
@@ -19,9 +20,12 @@ const bootstrap = async () => {
   });
 
   app.use(requestIp.mw());
+  app.use(bodyParser.json({ limit: '5mb' }));
+  app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
   // Helmet Middleware against known security vulnerabilities
   app.use(helmet());
+  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
   // Enable OpenAPI documentation for the application
   if (configuration().node_env === 'development') {
