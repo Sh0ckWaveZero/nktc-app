@@ -16,6 +16,7 @@ interface StudentState {
   updateStudentProfile: (token: string, studentId: string, data: any) => any;
   createStudentProfile: (token: string, userId: string, data: any) => any;
   removeStudents: (token: string, studentId: string) => any;
+  getAvatar: (token: string, url: string) => any;
 }
 
 export const useStudentStore = create<StudentState>()(
@@ -80,7 +81,7 @@ export const useStudentStore = create<StudentState>()(
         return await data;
       } catch (err) {
         set({ loading: false, hasErrors: true });
-        return null;
+        return err;
       }
     },
     createStudentProfile: async (token: string, userId: string, params: any) => {
@@ -96,5 +97,18 @@ export const useStudentStore = create<StudentState>()(
         return err;
       }
     },
+    getAvatar: async (token: string, url: string) => {
+      try {
+        const { data } = await httpClient.get(url,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    }
   }),
 );
