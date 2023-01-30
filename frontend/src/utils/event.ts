@@ -18,3 +18,12 @@ export const handleKeyDown = (e: any) => {
     e.preventDefault();
   }
 };
+
+interface Errors {
+  [key: string]: string;
+}
+
+export const generateErrorMessages: Errors = {
+  'request entity too large': 'ขนาดไฟล์ใหญ่เกินไป',
+}
+

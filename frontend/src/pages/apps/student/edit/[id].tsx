@@ -1,5 +1,4 @@
-// ** React Imports
-import { useState, Fragment, ChangeEvent } from 'react';
+import * as yup from 'yup';
 
 // ** MUI Imports
 import {
@@ -17,40 +16,40 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  styled,
   TextField,
   Typography,
+  styled,
   useTheme,
 } from '@mui/material';
+// ** React Imports
+import { ChangeEvent, Fragment, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
+import dayjs, { Dayjs } from 'dayjs';
+import { generateErrorMessages, handleKeyDown } from 'utils/event';
+import { useClassroomStore, useStudentStore } from '@/store/index';
 
-// ** Next Import
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { FcCalendar } from 'react-icons/fc';
+import { GetServerSideProps } from 'next';
 // ** Icon Imports
 import Icon from '@/@core/components/icon';
-
+import Link from 'next/link';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { LocalStorageService } from '@/services/localStorageService';
+import axios from 'axios';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
+import httpClient from '@/@core/utils/http';
+import { shallow } from 'zustand/shallow';
+import th from 'dayjs/locale/th';
+import toast from 'react-hot-toast';
 // ** Third Party Imports
 import { useEffectOnce } from '@/hooks/userCommon';
-import { useClassroomStore, useStudentStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { FcCalendar } from 'react-icons/fc';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import th from 'dayjs/locale/th';
-import dayjs, { Dayjs } from 'dayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
-import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
-import * as yup from 'yup';
-import toast from 'react-hot-toast';
-import { useForm, Controller } from 'react-hook-form';
+// ** Next Import
+import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { GetServerSideProps } from 'next';
-import httpClient from '@/@core/utils/http';
-import { LocalStorageService } from '@/services/localStorageService';
-import { handleKeyDown } from 'utils/event';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 dayjs.extend(buddhistEra);
 
@@ -69,6 +68,7 @@ interface Data {
   postalCode: number | string;
   phone: number | string;
   status: string;
+  avatar: string;
 }
 
 const showErrors = (field: string, valueLen: number, min: number) => {
@@ -142,6 +142,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     postalCode: users.account.postcode || '',
     phone: users.account.phone || '',
     status: users.student.status || '',
+    avatar: users.account.avatar || '/images/avatars/1.png',
   };
 
   // ** State
@@ -149,7 +150,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
-  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [imgSrc, setImgSrc] = useState<string>(initialData.avatar);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(
     ThailandAddressValue.fromDataSourceItem({
       d: users.account.district || '',
@@ -166,7 +167,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     shallow,
   );
   const { updateStudentProfile }: any = useStudentStore(
-    (state) => ({ updateStudentProfile: state.updateStudentProfile }),
+    (state) => ({ updateStudentProfile: state.updateStudentProfile, getAvatar: state.getAvatar }),
     shallow,
   );
 
@@ -183,6 +184,10 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       });
     })();
   });
+
+  useEffect(() => {
+    handleImage(imgSrc);
+  }, [imgSrc]);
 
   // ** Hook
   const {
@@ -204,15 +209,22 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
+      avatar: imgSrc === users?.account?.avatar ? null : imgSrc,
     };
-    toast.promise(updateStudentProfile(storedToken, users.id, student), {
-      loading: 'กำลังบันทึกข้อมูล...',
-      success: 'บันทึกข้อมูลสำเร็จ',
-      error: 'เกิดข้อผิดพลาด',
-    });
 
-    route.push(`/apps/student/list?classroom=${c.id}`);
+    console.log('inputValue', inputValue);
+
+    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    await updateStudentProfile(storedToken, users.id, student).then((res: any) => {
+      if (res?.name !== 'AxiosError') {
+        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        route.push(`/apps/student/list?classroom=${c.id}`);
+      } else {
+        const { data } = res?.response;
+        const message = generateErrorMessages[data?.message];
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
   };
 
   const addressInputStyle = {
@@ -246,10 +258,6 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       reader.onload = () => setImgSrc(reader.result as string);
       reader.readAsDataURL(files[0]);
 
-      if (reader.result !== null) {
-        setInputValue(reader.result as string);
-      }
-
       setLoadingImg(false);
     }
   };
@@ -257,6 +265,22 @@ const StudentEditPage = ({ users, classroomId }: any) => {
   const handleInputImageReset = () => {
     setInputValue('');
     setImgSrc('/images/avatars/1.png');
+  };
+
+  const handleImage = (path: string) => {
+    const url = path.match('data:image/(.*);base64,(.*)');
+    if (!url && path !== '/images/avatars/1.png') {
+      axios
+        .get(path)
+        .then((res) => {
+          return res.data;
+        })
+        .catch((err) => {
+          toast.error('เกิดข้อผิดพลาด');
+          return path;
+        });
+    }
+    return path;
   };
 
   return (
@@ -286,7 +310,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
               <Grid container spacing={5}>
                 <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <ImgStyled src={imgSrc} alt='Profile Pic' />
+                    <ImgStyled src={imgSrc} alt='Profile Pic' loading='lazy' />
                     <Box>
                       <LoadingButton
                         loading={loadingImg}
