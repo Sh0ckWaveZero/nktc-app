@@ -204,7 +204,7 @@ const StudentList = () => {
       flex: 0.15,
       minWidth: 120,
       field: 'edited',
-      headerName: 'แก้ไขล',
+      headerName: 'แก้ไข',
       editable: false,
       sortable: false,
       hideSortIcons: true,

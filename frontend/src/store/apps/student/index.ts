@@ -5,13 +5,15 @@ import { create } from 'zustand';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 interface StudentQuery {
-  q: string;
+  q?: string;
+  fullName?: string;
+  studentId?: string;
 }
 interface StudentState {
   students: any;
   loading: boolean,
   hasErrors: boolean,
-  fetchStudent: (token: string, params: StudentQuery) => any;
+  fetchStudents: (token: string, params: StudentQuery) => any;
   fetchStudentByClassroom: (token: string, classroomId: any) => any;
   updateStudentProfile: (token: string, studentId: string, data: any) => any;
   createStudentProfile: (token: string, userId: string, data: any) => any;
@@ -24,19 +26,19 @@ export const useStudentStore = create<StudentState>()(
     students: [],
     loading: false,
     hasErrors: false,
-    fetchStudent: async (token: string, params: StudentQuery) => {
+    fetchStudents: async (token: string, params: StudentQuery) => {
       set({ loading: true });
       try {
-        const { data } = await httpClient.get(authConfig.teacherEndpoint as string,
+        const { data } = await httpClient.get(authConfig.studentEndpoint  + '/search',
           {
             params: params,
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-        set({ students: await data, loading: false, hasErrors: false });
+        return await data;
       } catch (err) {
-        set({ loading: false, hasErrors: true });
+        return err;
       }
     },
     fetchStudentByClassroom: async (token: string, classroomId: any) => {
@@ -109,6 +111,6 @@ export const useStudentStore = create<StudentState>()(
       } catch (err) {
         return err;
       }
-    }
+    },
   }),
 );

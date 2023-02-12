@@ -42,7 +42,7 @@ import { Close } from 'mdi-material-ui';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
-import { FaFlagCheckered } from 'react-icons/fa';
+import { HiFlag } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 
 interface CellType {
@@ -103,7 +103,7 @@ const StudentCheckIn = () => {
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [normalStudents, setNormalStudents] = useState<any>([]);
-  const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [pageSize, setPageSize] = useState<number>(currentStudents.length || 0);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
@@ -121,21 +121,58 @@ const StudentCheckIn = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    const fetch = async () => {
-      await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
-        await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
-        const students = await data?.classrooms[0]?.students;
-        setDefaultClassroom(await data?.classrooms[0]);
-        setClassrooms(await data?.classrooms);
-        setCurrentStudents(students);
-        setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
-      });
+    // const fetch = async () => {
+    //   await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
+    //     await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
+    //     const students = await data?.classrooms[0]?.students;
+    //     setDefaultClassroom(await data?.classrooms[0]);
+    //     setClassrooms(await data?.classrooms);
+    //     setCurrentStudents(students);
+    //     setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
+    //   });
+    // };
+    // if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
+    //   fetch();
+    // } else {
+    //   router.push('/401');
+    // }
+    const fetchData = async () => {
+      const teacherId = auth?.user?.teacher?.id as string;
+      setLoading(true);
+      const { data: classroomData } = await fetchClassroomByTeachId(storedToken, teacherId);
+
+      if (!classroomData) {
+        return;
+      }
+
+      const [classroom] = classroomData.classrooms;
+
+      if (!classroom) {
+        return;
+      }
+
+      await getCheckInStatus(teacherId, classroom.id);
+      const { students } = classroom;
+
+      if (!students || !students.length) {
+        return;
+      }
+
+      setDefaultClassroom(classroom);
+      setClassrooms(classroomData.classrooms);
+      setCurrentStudents(students);
+      setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
+      setPageSize(students.length);
+      setLoading(false);
     };
-    if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
-      fetch();
-    } else {
+
+    const isInRole = (auth?.user?.role as string) === 'Admin';
+    if (!ability?.can('read', 'check-in-page') || isInRole) {
       router.push('/401');
+      return;
     }
+
+    fetchData();
   });
 
   const onHandleToggle = (action: string, param: any): void => {
@@ -438,7 +475,7 @@ const StudentCheckIn = () => {
               <CardHeader
                 avatar={
                   <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <FaFlagCheckered />
+                    <HiFlag />
                   </Avatar>
                 }
                 sx={{ color: 'text.primary' }}

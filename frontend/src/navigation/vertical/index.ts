@@ -8,7 +8,7 @@ import { FaFlagCheckered } from 'react-icons/fa';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
-import { HiOutlineFlag } from 'react-icons/hi';
+import { HiFlag, HiOutlineFlag, HiOutlineStar } from 'react-icons/hi';
 import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
 import { TbChartBar } from 'react-icons/tb';
 
@@ -72,9 +72,9 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'account-page',
     },
     {
-      sectionTitle: 'รายงาน',
+      sectionTitle: 'เกี่ยวกับระบบ',
       action: 'read',
-      subject: 'report-category',
+      subject: 'about-the-system',
     },
     {
       title: 'เช็คชื่อหน้าเสาธง',
@@ -82,6 +82,25 @@ const navigation = (): VerticalNavItemsType => {
       path: '/apps/reports/check-in',
       action: 'read',
       subject: 'check-in-page',
+    },
+    {
+      title: 'เช็คชื่อกิจกรรม',
+      icon: HiFlag,
+      path: '/apps/reports/activity-check-in',
+      action: 'read',
+      subject: 'activity-check-in-page',
+    },
+    {
+      title: 'บันทึกความดี',
+      icon: HiOutlineStar,
+      path: '/apps/reports/record-goodness',
+      action: 'read',
+      subject: 'record-goodness-page',
+    },
+    {
+      sectionTitle: 'รายงาน',
+      action: 'read',
+      subject: 'report-category',
     },
     {
       title: 'รายงานเช็คชื่อ-เช้า',
@@ -137,22 +156,9 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/monthly',
         },
-        // {
-        //   title: 'รายงานสรุป',
-        //   icon: BsBarChartLine,
-        //   action: 'read',
-        //   subject: 'admin-report-check-in-page',
-        //   path: '/apps/admin/reports/check-in/summary',
-        // }
       ],
     },
-    {
-      title: 'เช็คชื่อกิจกรรม',
-      icon: FaFlagCheckered,
-      path: '/apps/reports/activity-check-in',
-      action: 'read',
-      subject: 'activity-check-in-page',
-    },
+
     {
       title: 'รายงานเช็คชื่อกิจกรรม',
       icon: TbChartBar,

@@ -138,6 +138,11 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
 const localStorageService = new LocalStorageService();
 
 const AddStudentPage = () => {
@@ -264,11 +269,11 @@ const AddStudentPage = () => {
       <Grid container spacing={4}>
         {/* Student Details */}
         <Grid item xs={12}>
-          <Link href={`/apps/student/list`} passHref>
+          <LinkStyled href={`/apps/student/list`} passHref>
             <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
               ย้อนกลับ
             </Button>
-          </Link>
+          </LinkStyled>
         </Grid>
         <Grid item xs={12}>
           <Card>
