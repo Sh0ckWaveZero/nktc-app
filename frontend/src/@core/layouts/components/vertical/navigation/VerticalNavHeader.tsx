@@ -58,6 +58,11 @@ const StyledLink = styled('div')({
   textDecoration: 'none',
 });
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
 const VerticalNavHeader = (props: Props) => {
   // ** Props
   const {
@@ -120,7 +125,7 @@ const VerticalNavHeader = (props: Props) => {
       {userVerticalNavMenuBranding ? (
         userVerticalNavMenuBranding(props)
       ) : (
-        <Link href='/' passHref>
+        <LinkStyled href='/' passHref>
           <StyledLink>
             <svg
               xmlns='http://www.w3.org/2000/svg'
@@ -148,7 +153,7 @@ const VerticalNavHeader = (props: Props) => {
               {themeConfig.templateName}
             </HeaderTitle>
           </StyledLink>
-        </Link>
+        </LinkStyled>
       )}
 
       {hidden ? (

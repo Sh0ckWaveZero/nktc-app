@@ -96,7 +96,7 @@ const HorizontalNavLink = (props: Props) => {
       >
         <Link href={`${item.path}`} passHref>
           <ListItem
-            component={'a'}
+            component={'p'}
             disabled={item.disabled}
             className={clsx({ active: isNavLinkActive() })}
             target={item.openInNewTab ? '_blank' : undefined}

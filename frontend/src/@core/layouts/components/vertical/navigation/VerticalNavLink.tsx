@@ -73,6 +73,11 @@ const MenuItemTextMetaWrapper = styled(Box)<BoxProps>({
   ...(themeConfig.menuTextTruncate && { overflow: 'hidden' }),
 });
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main
+}))
+
 const VerticalNavLink = ({
   item,
   parent,
@@ -127,9 +132,8 @@ const VerticalNavLink = ({
         disabled={item.disabled || false}
         sx={{ mt: 1.5, px: '0 !important' }}
       >
-        <Link passHref href={item.path === undefined ? '/' : `${item.path}`}>
+        <LinkStyled passHref href={item.path === undefined ? '/' : `${item.path}`}>
           <MenuNavLink
-            component={'a'}
             className={isNavLinkActive() ? 'active' : ''}
             {...(item.openInNewTab ? { target: '_blank' } : null)}
             onClick={(e) => {
@@ -202,7 +206,7 @@ const VerticalNavLink = ({
               ) : null}
             </MenuItemTextMetaWrapper>
           </MenuNavLink>
-        </Link>
+        </LinkStyled>
       </ListItem>
     </CanViewNavLink>
   );

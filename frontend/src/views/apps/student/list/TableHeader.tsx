@@ -4,6 +4,7 @@ import { Autocomplete, FormControl, Grid } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { styled } from '@mui/material/styles'
 
 // ** Icons Imports
 import ExportVariant from 'mdi-material-ui/ExportVariant';
@@ -17,6 +18,11 @@ interface TableHeaderProps {
   loading: boolean;
   defaultClassroom: any;
 }
+
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main
+}))
 
 const TableHeader = (props: TableHeaderProps) => {
   // ** Props
@@ -71,7 +77,7 @@ const TableHeader = (props: TableHeaderProps) => {
             />
           </FormControl>
           <FormControl>
-            <Link href='/apps/student/add' passHref>
+            <LinkStyled href='/apps/student/add' passHref>
               <Button
                 color='primary'
                 variant='contained'
@@ -80,7 +86,7 @@ const TableHeader = (props: TableHeaderProps) => {
               >
                 เพิ่มนักเรียน
               </Button>
-            </Link>
+            </LinkStyled>
           </FormControl>
         </Box>
       </Grid>

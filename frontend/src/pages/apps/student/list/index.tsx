@@ -45,6 +45,11 @@ interface CellType {
   row: any;
 }
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
 // ** Styled component for the link for the avatar with image
 const AvatarWithImageLink = styled(Link)(({ theme }) => ({
   marginRight: theme.spacing(3),
@@ -158,21 +163,20 @@ const StudentList = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {renderClient(row)}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Link href={`/apps/student/view/${id}`} passHref>
+              <LinkStyled href={`/apps/student/view/${id}`} passHref>
                 <Typography
                   noWrap
-                  component='a'
                   variant='body2'
                   sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
                 >
                   {account?.title + '' + account?.firstName + ' ' + account?.lastName}
                 </Typography>
-              </Link>
-              <Link href={`/apps/student/view/${id}`} passHref>
-                <Typography noWrap component='a' variant='caption' sx={{ textDecoration: 'none' }}>
+              </LinkStyled>
+              <LinkStyled href={`/apps/student/view/${id}`} passHref>
+                <Typography noWrap variant='caption' sx={{ textDecoration: 'none' }}>
                   @{username}
                 </Typography>
-              </Link>
+              </LinkStyled>
             </Box>
           </Box>
         );
@@ -209,11 +213,11 @@ const StudentList = () => {
       renderCell: ({ row }: CellType) => {
         const accessToken = localStorageService.getToken()!;
         return (
-          <Link href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`} passHref>
+          <LinkStyled href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`} passHref>
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
               แก้ไข
             </Button>
-          </Link>
+          </LinkStyled>
         );
       },
     },

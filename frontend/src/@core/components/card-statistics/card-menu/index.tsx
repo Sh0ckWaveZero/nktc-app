@@ -8,13 +8,19 @@ import CustomAvatar from '@/@core/components/mui/avatar';
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 import Link from 'next/link';
+import { styled } from '@mui/material/styles'
+
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main
+}))
 
 const CardMenu = (props: CardMenuProps) => {
   // ** Props
   const { title, subtitle, color, icon, navLink } = props;
   return (
     <CanViewNavLink navLink={navLink}>
-      <Link href={`${navLink?.path}`} passHref>
+      <LinkStyled href={`${navLink?.path}`} passHref>
         <Card
           sx={{
             ':hover': {
@@ -57,7 +63,7 @@ const CardMenu = (props: CardMenuProps) => {
             </Box>
           </CardContent>
         </Card>
-      </Link>
+      </LinkStyled>
     </CanViewNavLink>
   );
 };

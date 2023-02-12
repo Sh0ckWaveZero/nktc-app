@@ -61,6 +61,12 @@ import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
 import { LocalStorageService } from '@/services/localStorageService';
 
+
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main
+}))
+
 interface Props {
   hidden: boolean;
   settings: Settings;
@@ -301,7 +307,6 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
           <Link passHref href='/dashboards/ecommerce/'>
             <Box
-              component='a'
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -319,7 +324,6 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
           <Link passHref href='/apps/user/view/2/'>
             <Box
-              component='a'
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -337,7 +341,6 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
           <Link passHref href='/pages/account-settings/'>
             <Box
-              component='a'
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -368,9 +371,8 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
           <List sx={{ py: 2.5 }}>
             {item.suggestions.map((suggestionItem, index2) => (
               <ListItem key={index2} sx={{ py: 2 }} disablePadding>
-                <Link passHref href={suggestionItem.link}>
+                <LinkStyled passHref href={suggestionItem.link}>
                   <Box
-                    component='a'
                     onClick={() => setOpenDialog(false)}
                     sx={{
                       display: 'flex',
@@ -384,7 +386,7 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
                       {suggestionItem.suggestion}
                     </Typography>
                   </Box>
-                </Link>
+                </LinkStyled>
               </ListItem>
             ))}
           </List>

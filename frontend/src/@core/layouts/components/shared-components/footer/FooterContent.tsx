@@ -1,9 +1,14 @@
 // ** MUI Imports
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import { Theme } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { Box, Theme, Typography, useMediaQuery } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+// ** Next Import
+import Link from 'next/link';
+
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
 
 const FooterContent = () => {
   // ** Var
@@ -24,9 +29,9 @@ const FooterContent = () => {
           ❤️
         </Box>
         {` by `}
-        <Link target='_blank' href='#'>
+        <LinkStyled target='_blank' href='#'>
           MIDSEELEE
-        </Link>
+        </LinkStyled>
       </Typography>
       {hidden ? null : (
         <Box
@@ -37,12 +42,12 @@ const FooterContent = () => {
             '& :not(:last-child)': { mr: 4 },
           }}
         >
-          <Link
+          <LinkStyled
             target='_blank'
             href='https://demos.themeselection.com/materio-mui-react-nextjs-admin-template/documentation'
           >
             Documentation
-          </Link>
+          </LinkStyled>
         </Box>
       )}
     </Box>

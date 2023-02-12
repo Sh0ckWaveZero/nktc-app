@@ -82,7 +82,7 @@ const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: { mt: theme.spacing(8) },
 }));
 
-const LinkStyled = styled('a')(({ theme }) => ({
+const LinkStyled = styled(Link)(({ theme }) => ({
   fontSize: '0.875rem',
   textDecoration: 'none',
   color: theme.palette.primary.main,
@@ -316,9 +316,9 @@ const LoginPage = () => {
                   }}
                 >
                   <FormControlLabel control={<Checkbox />} label='จดจำ' />
-                  <Link passHref href='/forgot-password'>
-                    <LinkStyled>ลืมรหัสผ่าน?</LinkStyled>
-                  </Link>
+                  <LinkStyled passHref href='/forgot-password'>
+                    ลืมรหัสผ่าน?
+                  </LinkStyled>
                 </Box>
                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                   ลงชื่อเข้าใช้
