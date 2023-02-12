@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
+import { isEmpty } from 'src/utils/utils';
 
 @Injectable()
 export class StudentsService {
@@ -203,6 +204,86 @@ export class StudentsService {
       where: {
         id,
       }
+    });
+  }
+
+  async search(query: any) {
+    const filer = {};
+    if (query.fullName) {
+      const [firstName, lastName] = query.fullName.split(' ');
+
+      if (firstName) {
+        filer['account'] = {
+          ['firstName']: {
+            contains: firstName,
+          }
+        };
+      }
+
+      if (lastName) {
+        filer['account'] = {
+          ['lastName']: {
+            contains: lastName,
+          }
+        };
+      }
+    }
+
+    if (query.studentId) {
+      filer['username'] = { contains: query.studentId }
+    }
+
+    if (isEmpty(filer)) {
+      return [];
+    }
+
+    return await this.prisma.user.findMany({
+      where: {
+        ...filer,
+        role: 'Student',
+      },
+      select: {
+        id: true,
+        username: true,
+        student: {
+          select: {
+            id: true,
+            studentId: true,
+            classroomId: true,
+            departmentId: true,
+            programId: true,
+            levelId: true,
+            levelClassroomId: true,
+            status: true,
+            classroom: {
+              select: {
+                name: true,
+              }
+            }
+          }
+        },
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: [
+        {
+          account: {
+            firstName: 'asc',
+          },
+        },
+        {
+          account: {
+            lastName: 'asc',
+          },
+        },
+      ],
     });
   }
 }

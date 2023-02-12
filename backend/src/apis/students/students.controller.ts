@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -18,6 +19,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+
 @ApiTags('students')
 @Controller('students')
 @UseGuards(JwtAuthGuard)
@@ -26,9 +28,22 @@ export class StudentsController {
 
   @Get('download')
   @HttpCode(200)
- async findBucket()  {
+  async findBucket() {
     return this.studentsService.findBucket();
- }
+  }
+
+  @Get('search')
+  async search(@Query() query: any) {
+    try {
+      return await this.studentsService.search(query);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: error?.message || 'Cannot search student',
+      }, HttpStatus.FORBIDDEN);
+    }
+  }
+
 
   @Get('classroom/:id')
   async findByClassroomId(@Param('id') id: string) {
