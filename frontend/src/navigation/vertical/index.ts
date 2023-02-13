@@ -9,8 +9,8 @@ import { FaFlagCheckered } from 'react-icons/fa';
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiFlag, HiOutlineFlag, HiOutlineStar } from 'react-icons/hi';
-import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
-import { TbChartBar } from 'react-icons/tb';
+import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData, BsFile, BsFiles, BsInbox, BsInboxes } from "react-icons/bs";
+import { TbChartBar, TbDice1, TbDice2 } from 'react-icons/tb';
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -93,9 +93,24 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'บันทึกความดี',
       icon: HiOutlineStar,
-      path: '/apps/reports/record-goodness',
       action: 'read',
       subject: 'record-goodness-page',
+      children: [
+        {
+          title: 'รายบุคคล',
+          icon: BsInbox,
+          action: 'read',
+          subject: 'record-goodness-page',
+          path: '/apps/record-goodness/individual',
+        },
+        {
+          title: 'รายกลุ่ม',
+          icon: BsInboxes,
+          action: 'read',
+          subject: 'record-goodness-page',
+          path: '/apps/reports/check-in/group',
+        }
+      ],
     },
     {
       sectionTitle: 'รายงาน',
