@@ -161,7 +161,7 @@ const StudentList = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
+            {renderClient(account)}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <LinkStyled href={`/apps/student/view/${id}`} passHref>
                 <Typography
