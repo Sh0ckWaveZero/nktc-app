@@ -1,5 +1,5 @@
 // ** React Imports
-import { Ref, useState, forwardRef, ReactElement, ChangeEvent } from 'react';
+import { Ref, useState, forwardRef, ReactElement, ChangeEvent, useCallback, FocusEvent } from 'react';
 
 // ** MUI Imports
 import {
@@ -62,6 +62,16 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const detail = '';
   const recordGoodnessIndividual = '';
 
+  const handleFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
+    console.log(e.target.name);
+    setFocus(e.target.name as Focused);
+  }, []);
+
+  const handleChange = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
+    console.log(target.value);
+    setName(target.value);
+  }, []);
+
   return (
     <Dialog
       fullWidth
@@ -104,10 +114,10 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   autoComplete='off'
                   label='ชื่อ-นามสกุล'
                   onBlur={handleBlur}
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   placeholder='ชื่อ-นามสกุล'
                   InputProps={{ readOnly: true }}
-                  onFocus={(e) => setFocus(e.target.name as Focused)}
+                  onFocus={handleFocus}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -120,8 +130,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   label='ระดับชั้น'
                   placeholder='ระดับชั้น'
                   InputProps={{ readOnly: true }}
-                  onChange={(e) => setName(e.target.value)}
-                  onFocus={(e) => setFocus(e.target.name as Focused)}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -132,9 +142,9 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   value={recordGoodnessIndividual}
                   onBlur={handleBlur}
                   placeholder='รายการทำความดี'
-                  onChange={handleInputChange}
+                  onChange={handleChange}
                   inputProps={{ maxLength: '5' }}
-                  onFocus={(e) => setFocus(e.target.name as Focused)}
+                  onFocus={handleFocus}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -145,8 +155,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   value={detail}
                   autoComplete='off'
                   onBlur={handleBlur}
-                  onChange={handleInputChange}
-                  onFocus={(e) => setFocus(e.target.name as Focused)}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
                   placeholder='รายละเอียดของการทำความดี'
                 />
               </Grid>
