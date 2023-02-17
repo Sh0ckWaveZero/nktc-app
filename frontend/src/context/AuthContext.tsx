@@ -67,6 +67,7 @@ const AuthProvider = ({ children }: Props) => {
             localStorageService.removeToken();
             setUser(null);
             setLoading(false);
+            router.replace('/login');
           });
       } else {
         setLoading(false);
