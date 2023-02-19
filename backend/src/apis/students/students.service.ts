@@ -259,7 +259,16 @@ export class StudentsService {
               select: {
                 name: true,
               }
-            }
+            },
+            goodnessIndividual: {
+              select: {
+                id: true,
+                createdAt: true,
+              },
+              orderBy: {
+                createdAt: 'desc',
+              }
+            },
           }
         },
         account: {
