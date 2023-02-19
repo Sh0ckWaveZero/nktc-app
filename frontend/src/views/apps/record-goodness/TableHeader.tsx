@@ -1,13 +1,12 @@
 import { Button, FormControl, Grid, TextField } from '@mui/material';
 
 import Icon from '@/@core/components/icon';
-import { useCallback, useState } from 'react';
-
+import { ChangeEvent, useCallback, useState } from 'react';
 interface TableHeaderProps {
   fullName: string;
   id: string;
-  onChangeFullName: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onChangeId: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeFullName: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChangeId: (event: ChangeEvent<HTMLInputElement>) => void;
   onSearch: () => void;
   onClear: () => void;
 }
@@ -34,12 +33,32 @@ const TableHeader = (props: TableHeaderProps) => {
             label='ชื่อ-สกุล นักเรียน'
             value={fullName}
             onChange={onChangeFullName}
+            inputProps={{
+              onKeyPress: (e) => {
+                if (e.key === 'Enter' && fullName !== '') {
+                  onSearch();
+                }
+              },
+            }}
           />
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={4}>
         <FormControl fullWidth>
-          <TextField className='studentId' label='รหัสนักเรียน' id='studentId' value={id} onChange={onChangeId} />
+          <TextField
+            className='studentId'
+            label='รหัสนักเรียน'
+            id='studentId'
+            value={id}
+            onChange={onChangeId}
+            inputProps={{
+              onKeyPress: (e) => {
+                if (e.key === 'Enter' && id !== '') {
+                  onSearch();
+                }
+              },
+            }}
+          />
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={2}>
