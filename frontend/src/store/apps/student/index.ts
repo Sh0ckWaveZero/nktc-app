@@ -1,9 +1,7 @@
-import axios from 'axios';
-import { create } from 'zustand';
-
-// ** Config
 import { authConfig } from '@/configs/auth';
+import { create } from 'zustand';
 import httpClient from '@/@core/utils/http';
+
 interface StudentQuery {
   q?: string;
   fullName?: string;
