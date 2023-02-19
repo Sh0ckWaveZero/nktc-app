@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
-  binaryTargets   = ["linux-musl-openssl-3.0.x"]
+  binaryTargets   = ["linux-musl-openssl-3.0.x", "darwin-arm64"]
 }
 
 datasource db {
@@ -121,30 +121,31 @@ model Account {
 
 // นักเรียน นักศึกษา
 model Student {
-  id               String          @id @default(cuid())
-  studentId        String?         @unique
-  isGraduation     Boolean?
-  graduationYear   Int?
-  graduationDate   DateTime?
-  studentStatus    String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
-  group            String?
-  status           String?         @default("normal") // normal = ปกติ, intern = ฝึกงาน
-  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String?         @unique
-  classroom        Classroom?      @relation(fields: [classroomId], references: [id], onUpdate: Cascade)
-  classroomId      String?
-  department       Department?     @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
-  departmentId     String?
-  program          Program?        @relation(fields: [programId], references: [id], onUpdate: Cascade)
-  programId        String?
-  level            Level?          @relation(fields: [levelId], references: [id])
-  levelId          String?
-  levelClassroom   LevelClassroom? @relation(fields: [levelClassroomId], references: [id])
-  levelClassroomId String?
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
-  updatedBy        String?
-  createdBy        String?
+  id                 String               @id @default(cuid())
+  studentId          String?              @unique
+  isGraduation       Boolean?
+  graduationYear     Int?
+  graduationDate     DateTime?
+  studentStatus      String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
+  group              String?
+  status             String?              @default("normal") // normal = ปกติ, intern = ฝึกงาน
+  user               User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String?              @unique
+  classroom          Classroom?           @relation(fields: [classroomId], references: [id], onUpdate: Cascade)
+  classroomId        String?
+  department         Department?          @relation(fields: [departmentId], references: [id], onUpdate: Cascade)
+  departmentId       String?
+  program            Program?             @relation(fields: [programId], references: [id], onUpdate: Cascade)
+  programId          String?
+  level              Level?               @relation(fields: [levelId], references: [id])
+  levelId            String?
+  levelClassroom     LevelClassroom?      @relation(fields: [levelClassroomId], references: [id])
+  levelClassroomId   String?
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  updatedBy          String?
+  createdBy          String?
+  goodnessIndividual GoodnessIndividual[]
 
   @@unique([userId, studentId], name: "student_users")
   @@map("student")
@@ -205,6 +206,7 @@ model Classroom {
   levelClassrooms       LevelClassroom[]
   reportCheckIn         ReportCheckIn[]
   activityCheckInReport ActivityCheckInReport[]
+  goodnessIndividual    GoodnessIndividual[]
 
   @@map("classroom")
 }
@@ -395,6 +397,24 @@ model AuditLog {
   createdBy String?
 
   @@map("audit_log")
+}
+
+model GoodnessIndividual {
+  id             String     @id @default(cuid())
+  studentId      String // รหัสนักเรียน
+  studentKey     String // รหัสนักเรียน
+  student        Student?   @relation(fields: [studentKey], references: [id])
+  classroomId    String?
+  classroom      Classroom? @relation(fields: [classroomId], references: [id])
+  goodnessScore  Int? // คะแนนทความดี
+  goodnessDetail String? // รายละเอียดคะแนนทความดี
+  image          String? // รูปภาพ
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  updatedBy      String?
+  createdBy      String?
+
+  @@map("goodnessIndividual")
 }
 
 enum Role {
