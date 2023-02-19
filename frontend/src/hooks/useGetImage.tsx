@@ -4,22 +4,24 @@ import { useState, useEffect } from 'react';
 const useGetImage = (url: string, token: string | null) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [image, setImage] = useState<any>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const image = url.match('data:image/(.*);base64,(.*)');
-        if (!image && url !== '/images/avatars/1.png') {
+        if (!url.startsWith('data:') && url !== '/images/avatars/1.png') {
           const response = await httpClient.get(url, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
             responseType: 'blob',
           });
-          setImage(URL.createObjectURL(response.data) as any);
+          const newObjectUrl = URL.createObjectURL(response.data);
+          setObjectUrl(newObjectUrl);
+          setImage(newObjectUrl);
         } else {
-          setImage(url as any);
+          setImage(url);
         }
       } catch (err: any) {
         setError(err);
@@ -30,14 +32,20 @@ const useGetImage = (url: string, token: string | null) => {
 
     if (url) {
       fetchImage();
+    } else {
+      setImage('');
+      setIsLoading(false);
     }
 
     return () => {
-      URL.revokeObjectURL(image);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
     };
   }, [url, token]);
 
   return { isLoading, error, image };
 };
+
 
 export default useGetImage;
