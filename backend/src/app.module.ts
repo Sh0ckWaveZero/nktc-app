@@ -1,27 +1,29 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AuthModule } from './apis/auth/auth.module';
-import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { UsersModule } from './apis/users/users.module';
-import { TeachersModule } from './apis/teachers/teachers.module';
-import { StudentsModule } from './apis/students/students.module';
+
+import { APP_GUARD } from '@nestjs/core';
 import { AccountsModule } from './apis/accounts/accounts.module';
+import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-in.module';
 import { AppBarModule } from './apis/app-bar/app-bar.module';
-import { PrismaService as PrismaMongoDbService } from './common/services/prisma-mongodb.service';
+import { AppController } from './app.controller';
+import { AuditLogModule } from './apis/audit-log/audit-log.module';
+import { AuthModule } from './apis/auth/auth.module';
+import { ClassroomModule } from './apis/classroom/classroom.module';
 import { ConfigModule } from '@nestjs/config';
+import { DepartmentsModule } from './apis/departments/departments.module';
+import { GoodnessIndividualModule } from './apis/goodness-individual/goodness-individual.module';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { MinioClientModule } from './apis/minio/minio-client.module';
+import { PrismaService as PrismaMongoDbService } from './common/services/prisma-mongodb.service';
+import { ProgramsModule } from './apis/programs/programs.module';
+import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
+import { StaticsModule } from './apis/statics/statics.module';
+import { StudentsModule } from './apis/students/students.module';
+import { TeachersModule } from './apis/teachers/teachers.module';
+import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { UsersModule } from './apis/users/users.module';
 import configuration from './config/configuration';
 import validate from './config/validation';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
-import { APP_GUARD } from '@nestjs/core';
-import { ClassroomModule } from './apis/classroom/classroom.module';
-import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
-import { AuditLogModule } from './apis/audit-log/audit-log.module';
-import { DepartmentsModule } from './apis/departments/departments.module';
-import { ProgramsModule } from './apis/programs/programs.module';
-import { MinioClientModule } from './apis/minio/minio-client.module';
-import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-in.module';
-import { StaticsModule } from './apis/statics/statics.module';
 
 @Module({
   imports: [
@@ -29,19 +31,20 @@ import { StaticsModule } from './apis/statics/statics.module';
       ttl: 60,
       limit: 50,
     }),
-    AuthModule,
-    UsersModule,
-    TeachersModule,
-    StudentsModule,
     AccountsModule,
-    AppBarModule,
-    ProgramsModule,
-    ClassroomModule,
-    ReportCheckInModule,
-    AuditLogModule,
-    DepartmentsModule,
     ActivityCheckInModule,
+    AppBarModule,
+    AuditLogModule,
+    AuthModule,
+    ClassroomModule,
+    DepartmentsModule,
+    GoodnessIndividualModule,
+    ProgramsModule,
+    ReportCheckInModule,
     StaticsModule,
+    StudentsModule,
+    TeachersModule,
+    UsersModule,
     ConfigModule.forRoot(
       {
         load: [configuration],
