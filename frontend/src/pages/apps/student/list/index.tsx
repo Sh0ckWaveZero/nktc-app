@@ -28,6 +28,7 @@ import {
   DialogTitle,
   Grid,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
@@ -40,7 +41,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { LocalStorageService } from '@/services/localStorageService';
+import useGetImage from '@/hooks/useGetImage';
 
+// const localStorageService = new LocalStorageService();
+const accessToken = new LocalStorageService().getToken()!;
 interface CellType {
   row: any;
 }
@@ -64,9 +68,13 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
 // ** renders client column
 const renderClient = (row: any) => {
   if (row?.avatar) {
-    return (
+    const { isLoading, error, image } = useGetImage(row.avatar, accessToken);
+
+    return isLoading ? (
+      <CircularProgress />
+    ) : (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 30, height: 30 }} />
+        <CustomAvatar src={image} sx={{ mr: 3, width: 30, height: 30 }} />
       </AvatarWithImageLink>
     );
   } else {
@@ -84,14 +92,11 @@ const renderClient = (row: any) => {
   }
 };
 
-const localStorageService = new LocalStorageService();
-
 const StudentList = () => {
   // ** Hooks
   const { user } = useAuth();
   const router = useRouter();
   const { classroom } = router.query;
-  const accessToken = localStorageService.getToken()!;
 
   // ** State
   const [value, setValue] = useState<string>('');
@@ -211,9 +216,11 @@ const StudentList = () => {
       filterable: false,
       align: 'center',
       renderCell: ({ row }: CellType) => {
-        const accessToken = localStorageService.getToken()!;
         return (
-          <LinkStyled href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`} passHref>
+          <LinkStyled
+            href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`}
+            passHref
+          >
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
               แก้ไข
             </Button>
