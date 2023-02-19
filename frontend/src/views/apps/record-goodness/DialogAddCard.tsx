@@ -24,6 +24,7 @@ import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
+import { getInitials } from '@/@core/utils/get-initials';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -180,8 +181,12 @@ const DialogAddCard = (props: DialogAddCardProps) => {
           >
             {isLoading ? (
               <CircularProgress size={100} />
-            ) : (
+            ) : image ? (
               <CustomAvatar src={image} sx={{ m: 3, width: 160, height: 160 }} />
+            ) : (
+              <CustomAvatar skin='light' color={'primary'} sx={{ m: 3, width: 160, height: 160, fontSize: '5rem' }}>
+                {getInitials(data[0]?.account?.firstName + ' ' + data[0].account?.lastName)}
+              </CustomAvatar>
             )}
           </Grid>
           <Grid item xs={12}>
