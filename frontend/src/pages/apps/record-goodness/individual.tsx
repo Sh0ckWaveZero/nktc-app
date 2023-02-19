@@ -1,7 +1,6 @@
-import { Avatar, Box, Button, Card, CardHeader, Grid, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, CardHeader, CircularProgress, Grid, Typography } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useState } from 'react';
-import { RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import { useStudentStore } from '@/store/index';
 
 import { AccountEditOutline } from 'mdi-material-ui';
@@ -15,11 +14,11 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/router';
 import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
 import { isEmpty } from '@/@core/utils/utils';
-import { create } from 'zustand';
+import useGetImage from '@/hooks/useGetImage';
 
+const accessToken = new LocalStorageService().getToken()!;
 interface CellType {
   row: any;
 }
@@ -43,9 +42,12 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
 // ** renders client column
 const renderClient = (row: any) => {
   if (row?.account?.avatar) {
-    return (
+    const { isLoading, error, image } = useGetImage(row?.account?.avatar, accessToken);
+    return isLoading ? (
+      <CircularProgress />
+    ) : (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={row?.account?.avatar} sx={{ mr: 3, width: 30, height: 30 }} />
+        <CustomAvatar src={image} sx={{ mr: 3, width: 40, height: 40 }} />
       </AvatarWithImageLink>
     );
   } else {
@@ -68,13 +70,10 @@ const localStorageService = new LocalStorageService();
 const RecordGoodnessIndividual = () => {
   // ** Hooks
   const { user } = useAuth();
-  const router = useRouter();
   const accessToken = localStorageService.getToken()!;
 
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);
-  const [currentClassroomId, setCurrentClassroomId] = useState<any>(null);
-  const [classrooms, setClassrooms] = useState<any>([]);
   const [students, setStudents] = useState<any>([]);
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
   const [fullName, setFullName] = useState<string>('');
@@ -147,7 +146,7 @@ const RecordGoodnessIndividual = () => {
       sortable: false,
       field: 'recordGoodnessIndividualLatest',
       headerName: 'บันทึกความดีล่าสุด',
-      align: 'center',
+      align: 'left',
       renderCell: ({ row }: CellType) => {
         const { student } = row;
         const goodnessIndividualLatest = isEmpty(student?.goodnessIndividual)
@@ -176,8 +175,7 @@ const RecordGoodnessIndividual = () => {
       hideSortIcons: true,
       filterable: false,
       align: 'center',
-      renderCell: ({ row }: CellType) => {
-        const accessToken = localStorageService.getToken()!;
+      renderCell: () => {
         return (
           <Button
             color='success'
@@ -185,7 +183,7 @@ const RecordGoodnessIndividual = () => {
             onClick={() => setOpenDialog(true)}
             startIcon={<AccountEditOutline fontSize='small' />}
           >
-            เปิด
+            บันทึกความดี
           </Button>
         );
       },
