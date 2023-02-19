@@ -298,7 +298,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                         }}
                       />
                     ) : (
-                      <ImgStyled src={image} alt='Profile Pic' loading='lazy' />
+                      <ImgStyled src={image as string} alt='Profile Pic' loading='lazy' />
                     )}
                     <Box>
                       <LoadingButton

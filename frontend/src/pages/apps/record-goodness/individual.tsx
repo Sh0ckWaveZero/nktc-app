@@ -47,7 +47,7 @@ const renderClient = (row: any) => {
       <CircularProgress />
     ) : (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={image} sx={{ mr: 3, width: 40, height: 40 }} />
+        <CustomAvatar src={image as string} sx={{ mr: 3, width: 40, height: 40 }} />
       </AvatarWithImageLink>
     );
   } else {

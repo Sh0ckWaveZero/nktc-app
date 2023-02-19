@@ -182,7 +182,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
             {isLoading ? (
               <CircularProgress size={100} />
             ) : image ? (
-              <CustomAvatar src={image} sx={{ m: 3, width: 160, height: 160 }} />
+              <CustomAvatar src={image as string} sx={{ m: 3, width: 160, height: 160 }} />
             ) : (
               <CustomAvatar skin='light' color={'primary'} sx={{ m: 3, width: 160, height: 160, fontSize: '5rem' }}>
                 {getInitials(data[0]?.account?.firstName + ' ' + data[0].account?.lastName)}
