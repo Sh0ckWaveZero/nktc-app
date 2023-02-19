@@ -203,6 +203,7 @@ const RecordGoodnessIndividual = () => {
   const onClearSearch = () => {
     setFullName('');
     setStudentId('');
+    setStudents([]);
   };
 
   return (
