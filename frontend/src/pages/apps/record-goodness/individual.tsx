@@ -17,6 +17,8 @@ import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/router';
 import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
+import { isEmpty } from '@/@core/utils/utils';
+import { create } from 'zustand';
 
 interface CellType {
   row: any;
@@ -146,14 +148,20 @@ const RecordGoodnessIndividual = () => {
       field: 'recordGoodnessIndividualLatest',
       headerName: 'บันทึกความดีล่าสุด',
       align: 'center',
-      renderCell: () => {
+      renderCell: ({ row }: CellType) => {
+        const { student } = row;
+        const goodnessIndividualLatest = isEmpty(student?.goodnessIndividual)
+          ? '-'
+          : new Date(student?.goodnessIndividual[0]?.createdAt).toLocaleTimeString('th-TH', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
         return (
           <Typography noWrap variant='body2'>
-            {new Date().toLocaleDateString('th-TH', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            {goodnessIndividualLatest}
           </Typography>
         );
       },
@@ -186,7 +194,6 @@ const RecordGoodnessIndividual = () => {
   const handleOnSearch = () => {
     setLoadingStudent(true);
     const query = { fullName: fullName, studentId: studentId };
-    console.log(JSON.stringify(query));
     (async () => {
       await fetchStudents(accessToken, query).then(async (res: any) => {
         setStudents((await res) || []);
@@ -241,7 +248,15 @@ const RecordGoodnessIndividual = () => {
           </Card>
         </Grid>
       </Grid>
-      {openDialog && <DialogAddCard show={openDialog} data={students} handleClose={handleCloseDialog} />}
+      {openDialog && (
+        <DialogAddCard
+          show={openDialog}
+          data={students}
+          handleClose={handleCloseDialog}
+          user={user}
+          handleOnSearch={handleOnSearch}
+        />
+      )}
     </Fragment>
   );
 };
