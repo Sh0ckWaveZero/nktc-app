@@ -575,9 +575,6 @@ const StudentCheckIn = () => {
                 anchorEl={anchorEl}
                 placement={'auto'}
                 onMouseLeave={() => setAnchorEl(null)}
-                nonce={undefined}
-                onResize={undefined}
-                onResizeCapture={undefined}
               >
                 {() => (
                   <Paper
