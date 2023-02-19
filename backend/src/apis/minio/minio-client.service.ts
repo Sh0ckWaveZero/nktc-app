@@ -62,41 +62,72 @@ export class MinioClientService {
     return this.minio.client;
   }
 
+  // public async upload(file: any, bucketName: string = this.bucketName) {
+  //   const buffer = Buffer.from(file?.data.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+  //   const timestamp = Date.now().toString();
+  //   const hashedFileName = crypto
+  //     .createHash('md5')
+  //     .update(timestamp)
+  //     .digest('hex');
+  //   const extension = '.webp';
+
+  //   const metaData: any = {
+  //     'Content-Encoding': 'base64',
+  //     'Content-Type': 'image/webp',
+  //   };
+
+  //   // We need to append the extension at the end otherwise Minio will save it as a generic file
+  //   const fileName = file.path + hashedFileName + extension;
+
+  //   this.client.putObject(
+  //     bucketName,
+  //     fileName,
+  //     buffer,
+  //     metaData,
+  //     (err: any, res: any) => {
+  //       if (err) {
+  //         throw new HttpException(
+  //           'Error uploading file',
+  //           HttpStatus.BAD_REQUEST,
+  //         );
+  //       }
+  //     },
+  //   );
+
+  //   return {
+  //     url: `${configuration().hostUrl}/statics/${fileName}`,
+  //   };
+  // }
+
   public async upload(file: any, bucketName: string = this.bucketName) {
-    const buffer = Buffer.from(file?.data.replace(/^data:image\/\w+;base64,/, ""), 'base64')
-    const timestamp = Date.now().toString();
-    const hashedFileName = crypto
-      .createHash('md5')
-      .update(timestamp)
-      .digest('hex');
-    const extension = '.webp';
+    try {
+      const buffer = Buffer.from(file?.data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+      const timestamp = Date.now().toString();
+      const hashedFileName = crypto.createHash('md5').update(timestamp).digest('hex');
+      const extension = '.webp';
+      const metaData = {
+        'Content-Encoding': 'base64',
+        'Content-Type': 'image/webp',
+      };
+      const fileName = `${file.path}${hashedFileName}${extension}`;
 
-    const metaData: any = {
-      'Content-Encoding': 'base64',
-      'Content-Type': 'image/webp',
-    };
+      await new Promise<void>((resolve, reject) => {
+        this.client.putObject(bucketName, fileName, buffer, metaData, (err: any) => {
+          if (err) {
+            reject(err);
+            return;
+          }
 
-    // We need to append the extension at the end otherwise Minio will save it as a generic file
-    const fileName = file.path + hashedFileName + extension;
+          resolve();
+        });
+      });
 
-    this.client.putObject(
-      bucketName,
-      fileName,
-      buffer,
-      metaData,
-      (err: any, res: any) => {
-        if (err) {
-          throw new HttpException(
-            'Error uploading file',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-      },
-    );
-
-    return {
-      url: `${configuration().hostUrl}/statics/${fileName}`,
-    };
+      return {
+        url: `${configuration().hostUrl}/statics/${fileName}`,
+      };
+    } catch (err) {
+      throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async delete(objetName: string, bucketName: string = this.bucketName) {
