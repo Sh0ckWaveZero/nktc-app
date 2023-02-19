@@ -39,28 +39,4 @@ export class GoodnessIndividualService {
       return error;
     }
   }
-
-  findAll() {
-    return `This action returns all goodnessIndividual`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} goodnessIndividual`;
-  }
-
-  async findByStudentId(id: string) {
-    return await this.prisma.goodnessIndividual.findMany({
-      where: {
-        studentId: id,
-      },
-    });
-  };
-
-  update(id: number, updateGoodnessIndividualDto: any) {
-    return `This action updates a #${id} goodnessIndividual`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} goodnessIndividual`;
-  }
 }
