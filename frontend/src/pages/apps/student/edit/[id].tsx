@@ -21,7 +21,7 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { ChangeEvent, Fragment, useEffect, useState } from 'react';
+import { ChangeEvent, Fragment, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
@@ -36,7 +36,6 @@ import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
-import axios from 'axios';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import httpClient from '@/@core/utils/http';
@@ -129,23 +128,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-const getImageUrl = async (path: string, token: string) => {
-  if (!path) {
-    return null;
-  }
-  try {
-    const response = await httpClient.get(path, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (err: any) {
-    toast.error(err?.response?.data?.message || 'เกิดข้อผิดพลาด');
-    return null;
-  }
-};
-
 const StudentEditPage = ({ users, classroomId }: any) => {
   const initialData: Data = {
     studentId: users.student.studentId || '',
@@ -225,15 +207,15 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       classroom: c.id,
       avatar: imgSrc === users?.account?.avatar ? null : imgSrc,
     };
-    
+
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     await updateStudentProfile(storedToken, users.id, student).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         route.push(`/apps/student/list?classroom=${c.id}`);
       } else {
-        const { data } = res?.response;
-        const message = generateErrorMessages[data?.message];
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
         toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
       }
     });
