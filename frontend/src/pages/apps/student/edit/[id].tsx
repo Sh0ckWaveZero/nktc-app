@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 
-// ** MUI Imports
 import {
   Autocomplete,
   Avatar,
@@ -10,6 +9,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  CircularProgress,
   FormControl,
   FormHelperText,
   Grid,
@@ -21,7 +21,6 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-// ** React Imports
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -33,7 +32,6 @@ import { useClassroomStore, useStudentStore } from '@/store/index';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import { GetServerSideProps } from 'next';
-// ** Icon Imports
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -45,9 +43,8 @@ import httpClient from '@/@core/utils/http';
 import { shallow } from 'zustand/shallow';
 import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
-// ** Third Party Imports
 import { useEffectOnce } from '@/hooks/userCommon';
-// ** Next Import
+import useGetImage from '@/hooks/useGetImage';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -108,6 +105,7 @@ const schema = yup.object().shape({
 });
 
 const localStorageService = new LocalStorageService();
+const storedToken = localStorageService.getToken()!;
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -125,6 +123,28 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
     marginTop: theme.spacing(4),
   },
 }));
+
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
+const getImageUrl = async (path: string, token: string) => {
+  if (!path) {
+    return null;
+  }
+  try {
+    const response = await httpClient.get(path, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message || 'เกิดข้อผิดพลาด');
+    return null;
+  }
+};
 
 const StudentEditPage = ({ users, classroomId }: any) => {
   const initialData: Data = {
@@ -160,8 +180,6 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     }),
   );
 
-  const storedToken = localStorageService.getToken()!;
-
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
     shallow,
@@ -185,10 +203,6 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     })();
   });
 
-  useEffect(() => {
-    handleImage(imgSrc);
-  }, [imgSrc]);
-
   // ** Hook
   const {
     reset,
@@ -211,9 +225,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
       classroom: c.id,
       avatar: imgSrc === users?.account?.avatar ? null : imgSrc,
     };
-
-    console.log('inputValue', inputValue);
-
+    
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     await updateStudentProfile(storedToken, users.id, student).then((res: any) => {
       if (res?.name !== 'AxiosError') {
@@ -267,32 +279,18 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     setImgSrc('/images/avatars/1.png');
   };
 
-  const handleImage = (path: string) => {
-    const url = path.match('data:image/(.*);base64,(.*)');
-    if (!url && path !== '/images/avatars/1.png') {
-      axios
-        .get(path)
-        .then((res) => {
-          return res.data;
-        })
-        .catch((err) => {
-          toast.error('เกิดข้อผิดพลาด');
-          return path;
-        });
-    }
-    return path;
-  };
+  const { isLoading, error, image } = useGetImage(imgSrc, storedToken);
 
   return (
     // back button to previous page
     <Grid container spacing={6}>
       {/* Student Details */}
       <Grid item xs={12}>
-        <Link href={`/apps/student/list?classroom=${classroomId}`} passHref>
+        <LinkStyled href={`/apps/student/list?classroom=${classroomId}`} passHref>
           <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
             ย้อนกลับ
           </Button>
-        </Link>
+        </LinkStyled>
       </Grid>
       <Grid item xs={12}>
         <Card>
@@ -310,7 +308,16 @@ const StudentEditPage = ({ users, classroomId }: any) => {
               <Grid container spacing={5}>
                 <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <ImgStyled src={imgSrc} alt='Profile Pic' loading='lazy' />
+                    {isLoading ? (
+                      <CircularProgress
+                        size={80}
+                        sx={{
+                          mr: (theme) => theme.spacing(6.25),
+                        }}
+                      />
+                    ) : (
+                      <ImgStyled src={image} alt='Profile Pic' loading='lazy' />
+                    )}
                     <Box>
                       <LoadingButton
                         loading={loadingImg}
