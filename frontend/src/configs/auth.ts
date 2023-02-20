@@ -12,6 +12,7 @@ type AuthConfig = {
   programEndpoint?: string;
   registerEndpoint?: string;
   goodnessIndividualEndpoint?: string;
+  badnessIndividualEndpoint?: string;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -30,4 +31,5 @@ export const authConfig: AuthConfig = {
   programEndpoint: `${apiUrl}/programs`,
   registerEndpoint: '/jwt/register',
   goodnessIndividualEndpoint: `${apiUrl}/goodness-individual`,
+  badnessIndividualEndpoint: `${apiUrl}/badness-individual`,
 };
