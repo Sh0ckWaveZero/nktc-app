@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
 import dayjs, { Dayjs } from 'dayjs';
 import { useClassroomStore, useStudentStore } from '@/store/index';
@@ -42,6 +42,7 @@ import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
+import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -178,6 +179,16 @@ const AddStudentPage = () => {
     })();
   });
 
+  const { imageCompressed, handleInputImageChange } = useImageCompression();
+
+  useEffect(() => {
+    if (imageCompressed) {
+      setLoadingImg(true);
+      setImgSrc(imageCompressed);
+      setLoadingImg(false);
+    }
+  }, [imageCompressed]);
+
   // ** Hook
   const {
     reset,
@@ -229,24 +240,6 @@ const AddStudentPage = () => {
     border: `1px solid ${
       theme.palette.mode === 'dark' ? hexToRGBA(theme.palette.secondary.main, 0.55) : 'rgba(58, 53, 65, 0.24)'
     }`,
-  };
-
-  const handleInputImageChange = async (event: any) => {
-    setLoadingImg(true);
-    const imageFile = event.target.files[0];
-    const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(imageFile, options);
-      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
-      setImgSrc(image64Base);
-      setLoadingImg(false);
-    } catch (error) {
-      toast.error('เกิดข้อผิดพลาด');
-    }
   };
 
   const handleInputImageReset = () => {
