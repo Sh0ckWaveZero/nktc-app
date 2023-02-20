@@ -8,7 +8,7 @@ import { FaFlagCheckered } from 'react-icons/fa';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
-import { HiFlag, HiOutlineFlag, HiOutlineStar } from 'react-icons/hi';
+import { HiFlag, HiOutlineFlag, HiOutlineStar, HiOutlineThumbDown, HiStar } from 'react-icons/hi';
 import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData, BsFile, BsFiles, BsInbox, BsInboxes } from "react-icons/bs";
 import { TbChartBar, TbDice1, TbDice2 } from 'react-icons/tb';
 
@@ -108,7 +108,29 @@ const navigation = (): VerticalNavItemsType => {
           icon: BsInboxes,
           action: 'read',
           subject: 'record-goodness-page',
-          path: '/apps/reports/check-in/group',
+          path: '/apps/record-goodness/group',
+        }
+      ],
+    },
+    {
+      title: 'บันทึกพฤติกรรมที่ไม่เหมาะสม',
+      icon: HiOutlineThumbDown,
+      action: 'read',
+      subject: 'record-badness-page', //badness-individual
+      children: [
+        {
+          title: 'รายบุคคล',
+          icon: BsInbox,
+          action: 'read',
+          subject: 'record-badness-page',
+          path: '/apps/record-badness/individual',
+        },
+        {
+          title: 'รายกลุ่ม',
+          icon: BsInboxes,
+          action: 'read',
+          subject: 'record-badness-page',
+          path: '/apps/record-badness/group',
         }
       ],
     },
