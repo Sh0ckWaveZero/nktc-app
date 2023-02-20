@@ -25,6 +25,7 @@ import { UsersModule } from './apis/users/users.module';
 import configuration from './config/configuration';
 import validate from './config/validation';
 import { PrismaService } from './common/services/prisma.service';
+import { BadnessIndividualModule } from './apis/badness-individual/badness-individual.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { PrismaService } from './common/services/prisma.service';
     StudentsModule,
     TeachersModule,
     UsersModule,
+    BadnessIndividualModule,
     ConfigModule.forRoot(
       {
         load: [configuration],
