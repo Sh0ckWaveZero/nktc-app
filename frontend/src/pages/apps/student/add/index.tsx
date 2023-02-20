@@ -1,7 +1,5 @@
-// ** React Imports
-import { useState, Fragment, ElementType, ChangeEvent } from 'react';
+import * as yup from 'yup';
 
-// ** MUI Imports
 import {
   Autocomplete,
   Avatar,
@@ -21,35 +19,31 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
-
-// ** Next Import
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-
-// ** Icon Imports
-import Icon from '@/@core/components/icon';
-
-// ** Third Party Imports
-import { useEffectOnce } from '@/hooks/userCommon';
-import { useClassroomStore, useStudentStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
+import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { FcCalendar } from 'react-icons/fc';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import th from 'dayjs/locale/th';
-import dayjs, { Dayjs } from 'dayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
+import { Fragment, useState } from 'react';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
-import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
-import * as yup from 'yup';
-import toast from 'react-hot-toast';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useAuth } from '../../../../hooks/useAuth';
+import dayjs, { Dayjs } from 'dayjs';
+import { useClassroomStore, useStudentStore } from '@/store/index';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { FcCalendar } from 'react-icons/fc';
+import Icon from '@/@core/components/icon';
+import Link from 'next/link';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
-import { styled } from '@mui/material/styles';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { handleKeyDown } from 'utils/event';
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
+import imageCompression from 'browser-image-compression';
+import { shallow } from 'zustand/shallow';
+import { styled } from '@mui/material/styles';
+import th from 'dayjs/locale/th';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../../../hooks/useAuth';
+import { useEffectOnce } from '@/hooks/userCommon';
+import { useRouter } from 'next/router';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 dayjs.extend(buddhistEra);
 
@@ -237,25 +231,21 @@ const AddStudentPage = () => {
     }`,
   };
 
-  const handleInputImageChange = (file: ChangeEvent) => {
+  const handleInputImageChange = async (event: any) => {
     setLoadingImg(true);
-    const reader = new FileReader();
-    const { files } = file.target as HTMLInputElement;
-
-    if (files && files.length !== 0) {
-      if (files[0].size > 1000000) {
-        toast.error('ขนาดไฟล์ใหญ่เกินไป');
-        setLoadingImg(false);
-        return;
-      }
-      reader.onload = () => setImgSrc(reader.result as string);
-      reader.readAsDataURL(files[0]);
-
-      if (reader.result !== null) {
-        setInputValue(reader.result as string);
-      }
-
+    const imageFile = event.target.files[0];
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
+      setImgSrc(image64Base);
       setLoadingImg(false);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาด');
     }
   };
 
