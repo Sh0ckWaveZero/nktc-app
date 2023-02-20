@@ -79,6 +79,7 @@ const RecordGoodnessIndividual = () => {
   const [fullName, setFullName] = useState<string>('');
   const [studentId, setStudentId] = useState<any>('');
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
   // ** Store
   const { fetchStudents }: any = useStudentStore((state) => ({ fetchStudents: state.fetchStudents }), shallow);
@@ -175,12 +176,15 @@ const RecordGoodnessIndividual = () => {
       hideSortIcons: true,
       filterable: false,
       align: 'center',
-      renderCell: () => {
+      renderCell: ({ row }: CellType) => {
         return (
           <Button
             color='success'
             variant='contained'
-            onClick={() => setOpenDialog(true)}
+            onClick={() => {
+              setSelectedStudent(row);
+              setOpenDialog(true);
+            }}
             startIcon={<AccountEditOutline fontSize='small' />}
           >
             บันทึกความดี
@@ -204,6 +208,7 @@ const RecordGoodnessIndividual = () => {
     setFullName('');
     setStudentId('');
     setStudents([]);
+    selectedStudent && setSelectedStudent(null);
   };
 
   return (
@@ -250,7 +255,7 @@ const RecordGoodnessIndividual = () => {
       {openDialog && (
         <DialogAddCard
           show={openDialog}
-          data={students}
+          data={selectedStudent}
           handleClose={handleCloseDialog}
           user={user}
           handleOnSearch={handleOnSearch}
