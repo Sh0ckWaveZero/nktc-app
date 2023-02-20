@@ -24,6 +24,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './apis/users/users.module';
 import configuration from './config/configuration';
 import validate from './config/validation';
+import { PrismaService } from './common/services/prisma.service';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import validate from './config/validation';
   ],
   controllers: [AppController],
   providers: [
+    PrismaService,
     PrismaMongoDbService,
     {
       provide: APP_GUARD,
