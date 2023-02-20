@@ -11,8 +11,8 @@ export class GoodnessIndividualController {
   constructor(private readonly goodnessIndividualService: GoodnessIndividualService) { }
 
   @Post()
-  create(@Body() createGoodnessIndividualDto: any) {
-    return this.goodnessIndividualService.create(createGoodnessIndividualDto);
+  async create(@Body() createGoodnessIndividualDto: any) {
+    return await this.goodnessIndividualService.create(createGoodnessIndividualDto);
   }
 
 }
