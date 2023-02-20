@@ -21,9 +21,9 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { Fragment, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { Fragment, useEffect, useState } from 'react';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
 import dayjs, { Dayjs } from 'dayjs';
 import { generateErrorMessages, handleKeyDown } from 'utils/event';
@@ -39,12 +39,12 @@ import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import httpClient from '@/@core/utils/http';
-import imageCompression from 'browser-image-compression';
 import { shallow } from 'zustand/shallow';
 import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useEffectOnce } from '@/hooks/userCommon';
 import useGetImage from '@/hooks/useGetImage';
+import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -186,6 +186,16 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     })();
   });
 
+  const { imageCompressed, handleInputImageChange } = useImageCompression();
+
+  useEffect(() => {
+    if (imageCompressed) {
+      setLoadingImg(true);
+      setImgSrc(imageCompressed);
+      setLoadingImg(false);
+    }
+  }, [imageCompressed]);
+
   // ** Hook
   const {
     reset,
@@ -237,24 +247,6 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     border: `1px solid ${
       theme.palette.mode === 'dark' ? hexToRGBA(theme.palette.secondary.main, 0.55) : 'rgba(58, 53, 65, 0.24)'
     }`,
-  };
-
-  const handleInputImageChange = async (event: any) => {
-    setLoadingImg(true);
-    const imageFile = event.target.files[0];
-    const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(imageFile, options);
-      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
-      setImgSrc(image64Base);
-      setLoadingImg(false);
-    } catch (error) {
-      toast.error('เกิดข้อผิดพลาด');
-    }
   };
 
   const handleInputImageReset = () => {
