@@ -12,7 +12,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { ChangeEvent, MouseEvent, ReactElement, Ref, forwardRef, useState } from 'react';
+import { ChangeEvent, MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import CustomAvatar from '@/@core/components/mui/avatar';
@@ -22,10 +22,10 @@ import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from 'utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
-import imageCompression from 'browser-image-compression';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
+import useImageCompression from '@/hooks/useImageCompression';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -78,9 +78,19 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const [details, setDetails] = useState<string>('');
   const [onSubmit, setOnSubmit] = useState<boolean>(false);
 
-  const avatar = data[0]?.account?.avatar;
-  const fullName = data[0].account.title + data[0].account.firstName + ' ' + data[0].account.lastName;
-  const classroom = data[0].student?.classroom?.name;
+  const avatar = data?.account?.avatar;
+  const fullName = data.account.title + data.account.firstName + ' ' + data.account.lastName;
+  const classroom = data.student?.classroom?.name;
+
+  const { imageCompressed, handleInputImageChange } = useImageCompression();
+
+  useEffect(() => {
+    if (imageCompressed) {
+      setLoadingImg(true);
+      setImgSrc(imageCompressed);
+      setLoadingImg(false);
+    }
+  }, [imageCompressed]);
 
   const { isLoading, error, image } = useGetImage(avatar, storedToken);
 
@@ -89,24 +99,6 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       setDetails(target.value);
     } else if (target.name === 'goodTypeScore') {
       setGoodTypeScore(target.value);
-    }
-  };
-
-  const handleInputImageChange = async (event: any) => {
-    setLoadingImg(true);
-    const imageFile = event.target.files[0];
-    const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(imageFile, options);
-      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
-      setImgSrc(image64Base);
-      setLoadingImg(false);
-    } catch (error) {
-      toast.error('เกิดข้อผิดพลาด');
     }
   };
 
@@ -122,7 +114,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       return;
     }
     handleClose();
-    const { ...rest } = data[0];
+    const { ...rest } = data;
     const body = {
       studentId: rest?.username,
       studentKey: rest?.student?.id,
@@ -182,7 +174,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               <CustomAvatar src={image as string} sx={{ m: 3, width: 160, height: 160 }} />
             ) : (
               <CustomAvatar skin='light' color={'primary'} sx={{ m: 3, width: 160, height: 160, fontSize: '5rem' }}>
-                {getInitials(data[0]?.account?.firstName + ' ' + data[0].account?.lastName)}
+                {getInitials(data?.account?.firstName + ' ' + data.account?.lastName)}
               </CustomAvatar>
             )}
           </Grid>
