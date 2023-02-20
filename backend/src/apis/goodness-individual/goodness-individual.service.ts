@@ -24,6 +24,7 @@ export class GoodnessIndividualService {
           goodnessDetail: body.goodnessDetail,
           goodnessScore: Number(body.goodnessScore),
           image: image,
+          goodDate: body.goodDate || null,
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
           student: {
