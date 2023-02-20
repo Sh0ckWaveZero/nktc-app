@@ -316,7 +316,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                         รีเซ็ต
                       </ResetButtonStyled>
                       <Typography variant='body2' sx={{ mt: 5 }}>
-                        อนุญาต PNG, JPEG หรือ WEBP ขนาดสูงสุด 1MB.
+                        อนุญาต PNG, JPEG หรือ WEBP
                       </Typography>
                     </Box>
                   </Box>
