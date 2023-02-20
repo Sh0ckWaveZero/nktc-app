@@ -11,6 +11,11 @@ import {
   TextField,
   Typography,
   styled,
+  Select,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  FormHelperText,
 } from '@mui/material';
 import { ChangeEvent, MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
@@ -94,7 +99,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
 
   const { isLoading, error, image } = useGetImage(avatar, storedToken);
 
-  const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = ({ target }: any) => {
     if (target.name === 'details') {
       setDetails(target.value);
     } else if (target.name === 'goodTypeScore') {
@@ -205,19 +210,27 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  name='goodTypeScore'
-                  label='คะแนนความดี'
-                  value={goodTypeScore}
-                  type='number'
-                  autoComplete='off'
-                  onChange={handleInputChange}
-                  placeholder='คะแนนความดี'
-                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                  error={onSubmit && !goodTypeScore}
-                  helperText={onSubmit && !goodTypeScore && 'กรุณากรอกคะแนนความดี'}
-                />
+                <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
+                  <InputLabel id='goodTypeScore-label'>คะแนนความดี</InputLabel>
+                  <Select
+                    labelId='goodTypeScore-label'
+                    id='goodTypeScore'
+                    name='goodTypeScore'
+                    value={goodTypeScore}
+                    label='คะแนนความดี'
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value=''>
+                      <em>คะแนนความดี</em>
+                    </MenuItem>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                    <MenuItem value={40}>40</MenuItem>
+                    <MenuItem value={50}>50</MenuItem>
+                  </Select>
+                  {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
+                </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -260,7 +273,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                       รีเซ็ต
                     </ResetButtonStyled>
                     <Typography variant='body2' sx={{ mt: 5 }}>
-                      อนุญาต PNG, JPEG หรือ WEBP ขนาดสูงสุด 1MB.
+                      อนุญาต PNG, JPEG หรือ WEBP
                     </Typography>
                   </Box>
                 </Box>
