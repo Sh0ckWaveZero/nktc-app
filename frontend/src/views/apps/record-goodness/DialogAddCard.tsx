@@ -20,11 +20,12 @@ import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from 'utils/event';
+import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
+import imageCompression from 'browser-image-compression';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
-import { getInitials } from '@/@core/utils/get-initials';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -91,25 +92,21 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     }
   };
 
-  const handleInputImageChange = (file: ChangeEvent) => {
+  const handleInputImageChange = async (event: any) => {
     setLoadingImg(true);
-    const reader = new FileReader();
-    const { files } = file.target as HTMLInputElement;
-
-    if (files && files.length !== 0) {
-      if (files[0].size > 1000000) {
-        toast.error('ขนาดไฟล์ใหญ่เกินไป');
-        setLoadingImg(false);
-        return;
-      }
-      reader.onload = () => setImgSrc(reader.result as string);
-      reader.readAsDataURL(files[0]);
-
-      if (reader.result !== null) {
-        setInputValue(reader.result as string);
-      }
-
+    const imageFile = event.target.files[0];
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
+      setImgSrc(image64Base);
       setLoadingImg(false);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาด');
     }
   };
 
