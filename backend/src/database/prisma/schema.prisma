@@ -146,6 +146,7 @@ model Student {
   updatedBy          String?
   createdBy          String?
   goodnessIndividual GoodnessIndividual[]
+  BadnessIndividual  BadnessIndividual[]
 
   @@unique([userId, studentId], name: "student_users")
   @@map("student")
@@ -207,6 +208,7 @@ model Classroom {
   reportCheckIn         ReportCheckIn[]
   activityCheckInReport ActivityCheckInReport[]
   goodnessIndividual    GoodnessIndividual[]
+  BadnessIndividual     BadnessIndividual[]
 
   @@map("classroom")
 }
@@ -409,12 +411,33 @@ model GoodnessIndividual {
   goodnessScore  Int? // คะแนนทความดี
   goodnessDetail String? // รายละเอียดคะแนนทความดี
   image          String? // รูปภาพ
+  goodDate       DateTime? // วันที่ทำความดี
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
   updatedBy      String?
   createdBy      String?
 
   @@map("goodnessIndividual")
+}
+
+// บันทึกพฤติกรรมที่ไม่เหมาะสม
+model BadnessIndividual {
+  id            String     @id @default(cuid())
+  studentId     String // รหัสนักเรียน
+  studentKey    String // รหัสนักเรียน
+  student       Student?   @relation(fields: [studentKey], references: [id])
+  classroomId   String?
+  classroom     Classroom? @relation(fields: [classroomId], references: [id])
+  badnessScore  Int? // คะแนนทความไม่เหมาะสม
+  badnessDetail String? // รายละเอียดคะแนนทความไม่เหมาะสม
+  image         String? // รูปภาพ
+  badDate       DateTime? // วันที่ทำความไม่เหมาะสม
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  updatedBy     String?
+  createdBy     String?
+
+  @@map("badnessIndividual")
 }
 
 enum Role {
