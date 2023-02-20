@@ -1,65 +1,49 @@
-// ** React Imports
-import { useState, useEffect, MouseEvent, useCallback, ReactElement, Fragment } from 'react';
-
-// ** Next Import
-import Link from 'next/link';
-
-// ** MUI Imports
 import {
-  IconButton,
-  MenuItem,
-  Typography,
-  CardHeader,
-  Box,
-  Card,
-  Grid,
-  Menu,
-  Divider,
-  Stack,
-  Badge,
-  Tooltip,
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
-
-// ** Icons Imports
-import {
-  Laptop,
-  CogOutline,
-  PencilOutline,
+  AccountBoxMultipleOutline,
+  BriefcasePlusOutline,
   ChartDonut,
+  CogOutline,
+  DeleteOutline,
   DotsVertical,
   EyeOutline,
-  DeleteOutline,
   HumanMaleBoard,
-  BriefcasePlusOutline,
-  AccountBoxMultipleOutline,
+  Laptop,
+  PencilOutline,
 } from 'mdi-material-ui';
-
-// ** Store Imports
+import {
+  Badge,
+  Box,
+  Card,
+  CardHeader,
+  Divider,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore } from '@/store/index';
-
-// ** Custom Components Imports
-import CustomChip from '@/@core/components/mui/chip';
-import CustomAvatar from '@/@core/components/mui/avatar';
-
-// ** Utils Import
-import { getInitials } from '@/@core/utils/get-initials';
-
-// ** Types Imports
-import { ThemeColor } from '@/@core/layouts/types';
-
-// ** Custom Components Imports
-import TableHeader from '@/views/apps/teacher/list/TableHeader';
-import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
-import { userRoleType, userStatusType } from '@/@core/utils/types';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
-import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
+import { userRoleType, userStatusType } from '@/@core/utils/types';
 
-import toast from 'react-hot-toast';
-import { shallow } from 'zustand/shallow';
+import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
+import CustomAvatar from '@/@core/components/mui/avatar';
+import CustomChip from '@/@core/components/mui/chip';
+import { DataGrid } from '@mui/x-data-grid';
+import Link from 'next/link';
 import { LocalStorageService } from '@/services/localStorageService';
+import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
+import TableHeader from '@/views/apps/teacher/list/TableHeader';
+import { ThemeColor } from '@/@core/layouts/types';
+import { getInitials } from '@/@core/utils/get-initials';
 import { isEmpty } from '@/@core/utils/utils';
+import { shallow } from 'zustand/shallow';
+import { styled } from '@mui/material/styles';
+import toast from 'react-hot-toast';
+
 interface UserRoleType {
   [key: string]: ReactElement;
 }
@@ -99,6 +83,13 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
   marginRight: theme.spacing(3),
 }));
 
+const StyledLink = styled(Link)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  textDecoration: 'none',
+  marginRight: theme.spacing(8),
+}));
+
 const localStorageService = new LocalStorageService();
 
 // ** renders client column
@@ -123,16 +114,6 @@ const renderClient = (row: any) => {
     );
   }
 };
-
-// ** Styled component for the link inside menu
-const MenuItemLink = styled('a')(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  textDecoration: 'none',
-  padding: theme.spacing(1.5, 4),
-  color: theme.palette.text.primary,
-}));
 
 const RowOptions = ({ id }: { id: number | string }) => {
   // ** Hooks
@@ -171,13 +152,9 @@ const RowOptions = ({ id }: { id: number | string }) => {
         }}
         PaperProps={{ style: { minWidth: '8rem' } }}
       >
-        <MenuItem sx={{ p: 0 }}>
-          <Link href={`/apps/user/view/${id}`} passHref>
-            <MenuItemLink>
-              <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
-              ดู
-            </MenuItemLink>
-          </Link>
+        <MenuItem>
+          <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
+          ดู
         </MenuItem>
         <MenuItem onClick={handleRowOptionsClose}>
           <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
@@ -277,21 +254,21 @@ const TeacherList = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {renderClient(row)}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Link href={`/apps/user/view/${id}`} passHref>
+              <StyledLink href={`/apps/user/view/${id}`} passHref>
                 <Typography
                   noWrap
-                  component='a'
+                  component='p'
                   variant='body2'
                   sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
                 >
                   {title + '' + firstName + ' ' + lastName}
                 </Typography>
-              </Link>
-              <Link href={`/apps/user/view/${id}`} passHref>
-                <Typography noWrap component='a' variant='caption' sx={{ textDecoration: 'none' }}>
+              </StyledLink>
+              <StyledLink href={`/apps/user/view/${id}`} passHref>
+                <Typography noWrap component='p' variant='caption' sx={{ textDecoration: 'none' }}>
                   @{username}
                 </Typography>
-              </Link>
+              </StyledLink>
             </Box>
           </Box>
         );
