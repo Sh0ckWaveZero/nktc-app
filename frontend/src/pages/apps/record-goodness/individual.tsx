@@ -1,22 +1,22 @@
 import { Avatar, Box, Button, Card, CardHeader, CircularProgress, Grid, Typography } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useState } from 'react';
-import { useStudentStore } from '@/store/index';
 
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
+import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
 import { HiOutlineStar } from 'react-icons/hi';
 import Link from 'next/link';
 import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/record-goodness/TableHeader';
 import { getInitials } from '@/@core/utils/get-initials';
+import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
-import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
-import { isEmpty } from '@/@core/utils/utils';
 import useGetImage from '@/hooks/useGetImage';
+import { useStudentStore } from '@/store/index';
 
 const accessToken = new LocalStorageService().getToken()!;
 interface CellType {
@@ -142,7 +142,7 @@ const RecordGoodnessIndividual = () => {
       },
     },
     {
-      flex: 0.15,
+      flex: 0.2,
       minWidth: 120,
       sortable: false,
       field: 'recordGoodnessIndividualLatest',
@@ -167,7 +167,7 @@ const RecordGoodnessIndividual = () => {
       },
     },
     {
-      flex: 0.15,
+      flex: 0.2,
       minWidth: 120,
       field: 'recordGoodnessIndividual',
       headerName: 'บันทึกความดี',
@@ -187,7 +187,7 @@ const RecordGoodnessIndividual = () => {
             }}
             startIcon={<AccountEditOutline fontSize='small' />}
           >
-            บันทึกความดี
+            เพิ่ม
           </Button>
         );
       },
@@ -203,7 +203,7 @@ const RecordGoodnessIndividual = () => {
       });
     })();
   };
-
+  
   const onClearSearch = () => {
     setFullName('');
     setStudentId('');
