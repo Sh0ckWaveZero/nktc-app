@@ -21,7 +21,7 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { ChangeEvent, Fragment, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
@@ -39,6 +39,7 @@ import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import httpClient from '@/@core/utils/http';
+import imageCompression from 'browser-image-compression';
 import { shallow } from 'zustand/shallow';
 import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
@@ -238,21 +239,21 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     }`,
   };
 
-  const handleInputImageChange = (file: ChangeEvent) => {
+  const handleInputImageChange = async (event: any) => {
     setLoadingImg(true);
-    const reader = new FileReader();
-    const { files } = file.target as HTMLInputElement;
-
-    if (files && files.length !== 0) {
-      if (files[0].size > 1000000) {
-        toast.error('ขนาดไฟล์ใหญ่เกินไป');
-        setLoadingImg(false);
-        return;
-      }
-      reader.onload = () => setImgSrc(reader.result as string);
-      reader.readAsDataURL(files[0]);
-
+    const imageFile = event.target.files[0];
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
+      setImgSrc(image64Base);
       setLoadingImg(false);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาด');
     }
   };
 
