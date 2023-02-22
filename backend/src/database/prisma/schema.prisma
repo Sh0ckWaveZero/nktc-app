@@ -146,7 +146,7 @@ model Student {
   updatedBy          String?
   createdBy          String?
   goodnessIndividual GoodnessIndividual[]
-  BadnessIndividual  BadnessIndividual[]
+  badnessIndividual  BadnessIndividual[]
 
   @@unique([userId, studentId], name: "student_users")
   @@map("student")
@@ -208,7 +208,7 @@ model Classroom {
   reportCheckIn         ReportCheckIn[]
   activityCheckInReport ActivityCheckInReport[]
   goodnessIndividual    GoodnessIndividual[]
-  BadnessIndividual     BadnessIndividual[]
+  badnessIndividual     BadnessIndividual[]
 
   @@map("classroom")
 }
