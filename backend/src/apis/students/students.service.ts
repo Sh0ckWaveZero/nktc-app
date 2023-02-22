@@ -269,6 +269,15 @@ export class StudentsService {
                 createdAt: 'desc',
               }
             },
+            badnessIndividual: {
+              select: {
+                id: true,
+                createdAt: true,
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
           }
         },
         account: {
