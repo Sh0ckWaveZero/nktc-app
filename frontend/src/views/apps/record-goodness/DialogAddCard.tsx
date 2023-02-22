@@ -17,7 +17,7 @@ import {
   MenuItem,
   FormHelperText,
 } from '@mui/material';
-import { ChangeEvent, MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState } from 'react';
+import { ChangeEvent, MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCallback } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import CustomAvatar from '@/@core/components/mui/avatar';
@@ -31,6 +31,11 @@ import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import th from 'dayjs/locale/th';
+import dayjs, { Dayjs } from 'dayjs';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -82,6 +87,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [details, setDetails] = useState<string>('');
   const [onSubmit, setOnSubmit] = useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(new Date()));
 
   const avatar = data?.account?.avatar;
   const fullName = data.account.title + data.account.firstName + ' ' + data.account.lastName;
@@ -127,6 +133,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       image: imgSrc,
       goodnessScore: goodTypeScore,
       goodnessDetail: details,
+      goodDate: selectedDate,
       createdBy: user?.id,
       updatedBy: user?.id,
     };
@@ -143,6 +150,13 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       }
     });
   };
+
+  const handleSelectedDate = useCallback(
+    (newDate: Dayjs | null) => {
+      setSelectedDate(newDate);
+    },
+    [setSelectedDate],
+  );
 
   return (
     <Dialog
@@ -208,6 +222,29 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   InputProps={{ readOnly: true }}
                   onChange={handleInputChange}
                 />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                  <DatePicker
+                    label='เลือกวันที่'
+                    value={selectedDate}
+                    inputFormat='DD MMMM BBBB'
+                    minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
+                    maxDate={dayjs(new Date())}
+                    onChange={(newDate) => handleSelectedDate(newDate)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        inputProps={{
+                          ...params.inputProps,
+                          placeholder: 'วัน เดือน ปี',
+                        }}
+                      />
+                    )}
+                    disableMaskedInput
+                  />
+                </LocalizationProvider>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
