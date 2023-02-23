@@ -8,12 +8,11 @@ import { useReportCheckInStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/th';
 import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import { isEmpty } from '@/@core/utils/utils';
-dayjs.locale('th');
+
 
 const localStorageService = new LocalStorageService();
 

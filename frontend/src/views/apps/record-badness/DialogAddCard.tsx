@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
-import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCallback } from 'react';
+import { MouseEvent, ReactElement, Ref, forwardRef, useCallback, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -28,6 +28,7 @@ import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import { badnessIndividualStore } from '@/store/apps/badness-individual';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { generateErrorMessages } from 'utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
@@ -36,6 +37,8 @@ import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
+
+dayjs.extend(buddhistEra);
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
