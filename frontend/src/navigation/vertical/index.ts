@@ -8,7 +8,7 @@ import { FaFlagCheckered } from 'react-icons/fa';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
-import { HiFlag, HiOutlineFlag, HiOutlineStar, HiOutlineThumbDown, HiStar } from 'react-icons/hi';
+import { HiFlag, HiOutlineFlag, HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
 import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData, BsFile, BsFiles, BsInbox, BsInboxes } from "react-icons/bs";
 import { TbChartBar, TbDice1, TbDice2 } from 'react-icons/tb';
 
@@ -135,7 +135,7 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
-      sectionTitle: 'รายงาน',
+      sectionTitle: '📝 รายงาน',
       action: 'read',
       subject: 'report-category',
     },
@@ -247,6 +247,28 @@ const navigation = (): VerticalNavItemsType => {
         },
       ],
     },
+    {
+      title: 'ความดี',
+      icon: HiStar,
+      action: 'read',
+      subject: 'report-goodness-page',
+      children: [
+        {
+          title: 'ทั้งหมด',
+          icon: BsInboxes,
+          action: 'read',
+          subject: 'report-goodness-page',
+          path: '/apps/reports/goodness/all',
+        }
+      ],
+    },
+    {
+      title: 'พฤติกรรมที่ไม่เหมาะสม',
+      icon: HiThumbDown,
+      action: 'read',
+      subject: 'report-check-in-page',
+      path: '/apps/reports/check-in/summary',
+    }
   ];
 };
 
