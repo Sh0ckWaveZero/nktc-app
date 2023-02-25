@@ -40,4 +40,84 @@ export class GoodnessIndividualService {
       return error;
     }
   }
+
+  async search(query: any) {
+    const filter = {};
+
+    if (query.fullName) {
+      const [firstName, lastName] = query.fullName.split(' ');
+
+      if (firstName) {
+        filter['student'] = {
+          'user': {
+            'account': {
+              'firstName': {
+                contains: firstName,
+              },
+            }
+          },
+        }
+      }
+
+      if (lastName) {
+        filter['student'] = {
+          'user': {
+            'account': {
+              'lastName': {
+                contains: lastName,
+              },
+            }
+          },
+        }
+      }
+    }
+
+    if (query.classroomId) {
+      filter['classroomId'] = query.classroomId;
+    }
+
+    if (query.goodDate) {
+      let startDate = new Date(query.goodDate);
+      let endDate = new Date(query.goodDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      filter['createdAt'] = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+
+    const response = await this.prisma.goodnessIndividual.findMany({
+      where: filter,
+      include: {
+        student: {
+          include: {
+            user: {
+              select: {
+                account: {
+                  select: {
+                    title: true,
+                    firstName: true,
+                    lastName: true,
+                  }
+                }
+              }
+            }
+          },
+        },
+        classroom: true,
+      },
+      orderBy: [
+        {
+          goodnessScore: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        }
+      ],
+    });
+
+    return response;
+  };
 }
