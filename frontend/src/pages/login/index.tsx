@@ -10,6 +10,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 import {
+  Avatar,
   Button,
   Checkbox,
   FormControl,
@@ -43,6 +44,8 @@ import BlankLayout from '@/@core/layouts/BlankLayout';
 // ** Demo Imports
 import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
 import { toast } from 'react-hot-toast';
+// ** Custom Components Imports
+import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -219,7 +222,25 @@ const LoginPage = () => {
                   {themeConfig.templateName}
                 </Typography>
               </Box>
-              <Box sx={{ mb: 6 }}>
+              <Box
+                sx={{
+                  mb: 6,
+                }}
+              >
+                <Box
+                  sx={{
+                    mb: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Avatar
+                    alt='Remy Sharp'
+                    src={`/images/pages/${themeConfig.templateName.toLowerCase()}-${theme.palette.mode}.png`}
+                    sx={{ width: 450, height: 450, my: -5, p: 5 }}
+                  />
+                </Box>
                 <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
                 <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               </Box>
