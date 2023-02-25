@@ -44,6 +44,17 @@ export class StudentsController {
     }
   }
 
+  @Get('list')
+  async list(@Query() query: any) {
+    try {
+      return await this.studentsService.list(query);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: error?.message || 'Cannot search student',
+      }, HttpStatus.FORBIDDEN);
+    }
+  }
 
   @Get('classroom/:id')
   async findByClassroomId(@Param('id') id: string) {
