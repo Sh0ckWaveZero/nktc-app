@@ -207,6 +207,77 @@ export class StudentsService {
     });
   }
 
+  async list(query: any) {
+    const filer = {};
+    if (query.fullName) {
+      const [firstName, lastName] = query.fullName.split(' ');
+
+      if (firstName) {
+        filer['account'] = {
+          ['firstName']: {
+            contains: firstName,
+          }
+        };
+      }
+
+      if (lastName) {
+        filer['account'] = {
+          ['lastName']: {
+            contains: lastName,
+          }
+        };
+      }
+    }
+
+    const students = await this.prisma.user.findMany({
+      where: {
+        ...filer,
+        role: 'Student',
+      },
+      select: {
+        id: true,
+        username: true,
+        student: {
+          select: {
+            id: true,
+            studentId: true,
+          }
+        },
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: [
+        {
+          account: {
+            firstName: 'asc',
+          },
+        },
+        {
+          account: {
+            lastName: 'asc',
+          },
+        },
+      ],
+      skip: 0,
+      take: 20,
+    });
+
+    return students.map((student) => {
+      return {
+        fullName: `${student.account.firstName} ${student.account.lastName}`,
+        title: student.account.title,
+        id:student.id,
+      }
+    })
+  }
+
   async search(query: any) {
     const filer = {};
     if (query.fullName) {
