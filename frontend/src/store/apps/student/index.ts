@@ -12,6 +12,7 @@ interface StudentState {
   loading: boolean,
   hasErrors: boolean,
   fetchStudents: (token: string, params: StudentQuery) => any;
+  studentsList: (token: string, params: StudentQuery) => any;
   fetchStudentByClassroom: (token: string, classroomId: any) => any;
   updateStudentProfile: (token: string, studentId: string, data: any) => any;
   createStudentProfile: (token: string, userId: string, data: any) => any;
@@ -28,6 +29,20 @@ export const useStudentStore = create<StudentState>()(
       set({ loading: true });
       try {
         const { data } = await httpClient.get(authConfig.studentEndpoint  + '/search',
+          {
+            params: params,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
+    studentsList: async (token: string, params: StudentQuery) => {
+      try {
+        const { data } = await httpClient.get(authConfig.studentEndpoint  + '/list',
           {
             params: params,
             headers: {
