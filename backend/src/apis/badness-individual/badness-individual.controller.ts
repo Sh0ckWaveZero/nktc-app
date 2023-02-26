@@ -16,4 +16,9 @@ export class BadnessIndividualController {
     return await this.badnessIndividualService.create(createBadnessIndividualDto);
   }
 
+  @Post('search')
+  async search(@Body() body: any) {
+    return await this.badnessIndividualService.search(body);
+  }
+
 }
