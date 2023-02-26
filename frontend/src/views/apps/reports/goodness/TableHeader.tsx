@@ -9,6 +9,7 @@ import { isEmpty } from '@/@core/utils/utils';
 interface TableHeaderProps {
   classroomLoading: boolean;
   classrooms: any;
+  datePickLabel: string;
   defaultClassroom: any;
   fullName: string;
   loadingStudents: boolean;
@@ -27,6 +28,7 @@ const TableHeader = (props: TableHeaderProps) => {
   const {
     classroomLoading,
     classrooms,
+    datePickLabel,
     defaultClassroom,
     fullName,
     loadingStudents,
@@ -106,7 +108,7 @@ const TableHeader = (props: TableHeaderProps) => {
       </Grid>
       <Grid item xs={12} sm={3}>
         <FormControl fullWidth>
-          <CustomDatePicker label='วันที่บันทึกความดี' value={selectDate} onChange={onChangeDate} />
+          <CustomDatePicker label={datePickLabel} value={selectDate} onChange={onChangeDate} />
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={2}>
