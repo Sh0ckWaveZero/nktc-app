@@ -112,9 +112,6 @@ export class GoodnessIndividualService {
       },
       orderBy: [
         {
-          goodnessScore: 'desc',
-        },
-        {
           createdAt: 'desc',
         }
       ],

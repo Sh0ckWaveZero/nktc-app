@@ -112,9 +112,6 @@ export class BadnessIndividualService {
       },
       orderBy: [
         {
-          badnessScore: 'desc',
-        },
-        {
           createdAt: 'desc',
         }
       ],
