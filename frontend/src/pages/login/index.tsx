@@ -237,7 +237,7 @@ const LoginPage = () => {
                 />
               </Box>
               <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
-              <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
+              <Typography variant='body2' my={3}>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller
