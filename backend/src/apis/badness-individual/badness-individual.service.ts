@@ -40,4 +40,86 @@ export class BadnessIndividualService {
       return error;
     }
   }
+
+  async search(query: any) {
+    const filter = {};
+
+    if (query.fullName) {
+      const [firstName, lastName] = query.fullName.split(' ');
+
+      if (firstName) {
+        filter['student'] = {
+          'user': {
+            'account': {
+              'firstName': {
+                contains: firstName,
+              },
+            }
+          },
+        }
+      }
+
+      if (lastName) {
+        filter['student'] = {
+          'user': {
+            'account': {
+              'lastName': {
+                contains: lastName,
+              },
+            }
+          },
+        }
+      }
+    }
+
+    if (query.classroomId) {
+      filter['classroom'] = {
+        id: query.classroomId,
+      }
+    }
+
+    if (query.badDate) {
+      let startDate = new Date(query.badDate);
+      let endDate = new Date(query.badDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      filter['createdAt'] = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+    
+    const response = await this.prisma.badnessIndividual.findMany({
+      where: filter,
+      include: {
+        student: {
+          include: {
+            user: {
+              select: {
+                account: {
+                  select: {
+                    title: true,
+                    firstName: true,
+                    lastName: true,
+                  }
+                }
+              }
+            }
+          },
+        },
+        classroom: true,
+      },
+      orderBy: [
+        {
+          badnessScore: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        }
+      ],
+    });
+
+    return response;
+  };
 }
