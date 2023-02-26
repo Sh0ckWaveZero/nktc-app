@@ -267,7 +267,15 @@ const navigation = (): VerticalNavItemsType => {
       icon: HiThumbDown,
       action: 'read',
       subject: 'report-check-in-page',
-      path: '/apps/reports/check-in/summary',
+      children: [
+        {
+          title: 'ทั้งหมด',
+          icon: BsInboxes,
+          action: 'read',
+          subject: 'report-badness-page',
+          path: '/apps/reports/badness/all',
+        }
+      ],
     }
   ];
 };
