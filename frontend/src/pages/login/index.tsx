@@ -1,14 +1,5 @@
-// ** React Imports
-import { useState, ReactNode } from 'react';
+import * as yup from 'yup';
 
-// ** Next Imports
-import Link from 'next/link';
-
-// ** MUI Components
-import Box, { BoxProps } from '@mui/material/Box';
-import { styled, useTheme } from '@mui/material/styles';
-import Typography, { TypographyProps } from '@mui/material/Typography';
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 import {
   Avatar,
   Button,
@@ -22,30 +13,22 @@ import {
   TextField,
   useMediaQuery,
 } from '@mui/material';
+import Box, { BoxProps } from '@mui/material/Box';
+import { Controller, useForm } from 'react-hook-form';
+import { EyeOffOutline, EyeOutline } from 'mdi-material-ui';
+import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
+import { ReactNode, useState } from 'react';
+import Typography, { TypographyProps } from '@mui/material/Typography';
+import { styled, useTheme } from '@mui/material/styles';
 
-// ** Icons Imports
-import { EyeOutline, EyeOffOutline } from 'mdi-material-ui';
-
-// ** Third Party Imports
-import * as yup from 'yup';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-// ** Hooks
+import BlankLayout from '@/@core/layouts/BlankLayout';
+import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
+import Link from 'next/link';
+import themeConfig from '@/configs/themeConfig';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSettings } from '@/@core/hooks/useSettings';
-
-// ** Configs
-import themeConfig from '@/configs/themeConfig';
-
-// ** Layout Import
-import BlankLayout from '@/@core/layouts/BlankLayout';
-
-// ** Demo Imports
-import FooterIllustrationsV2 from '../../views/pages/auth/FooterIllustrationsV2';
-import { toast } from 'react-hot-toast';
-// ** Custom Components Imports
-import CustomAvatar from '@/@core/components/mui/avatar';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -222,14 +205,9 @@ const LoginPage = () => {
                   {themeConfig.templateName}
                 </Typography>
               </Box>
-              <Box
-                sx={{
-                  mb: 6,
-                }}
-              >
+              <Box>
                 <Box
                   sx={{
-                    mb: 3,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -238,29 +216,12 @@ const LoginPage = () => {
                   <Avatar
                     alt='Remy Sharp'
                     src={`/images/pages/${themeConfig.templateName.toLowerCase()}-${theme.palette.mode}.png`}
-                    sx={{ width: 450, height: 450, my: -5, p: 5 }}
+                    sx={{ width: 450, height: 450}}
                   />
                 </Box>
                 <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
                 <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               </Box>
-              {/* <Alert
-                icon={false}
-                sx={{
-                  py: 3,
-                  mb: 6,
-                  ...bgClasses.primaryLight,
-                  '& .MuiAlert-message': { p: 0 },
-                }}
-              >
-                <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
-                  ผู้ดูแลระบบ: <strong>{defaultValues.username}</strong> / รหัส:{' '}
-                  <strong>{defaultValues.password}</strong>
-                </Typography>
-                <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
-                  Client: <strong>client@baantontan.com</strong> / Pass: <strong>client</strong>
-                </Typography>
-              </Alert> */}
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller
