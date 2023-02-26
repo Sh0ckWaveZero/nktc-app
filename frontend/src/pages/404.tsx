@@ -46,6 +46,11 @@ const TreeIllustration = styled('img')(({ theme }) => ({
   },
 }));
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
 const Error404 = () => {
   return (
     <Box className='content-center'>
@@ -66,11 +71,11 @@ const Error404 = () => {
           <Typography variant='body2'>เราไม่พบหน้าที่คุณกำลังค้นหา</Typography>
         </BoxWrapper>
         <Img height='487' alt='error-illustration' src='/images/pages/404.png' />
-        <Link passHref href='/'>
+        <LinkStyled passHref href='/'>
           <Button component='a' variant='contained' sx={{ px: 5.5 }}>
             กลับสู่หน้าหลัก
           </Button>
-        </Link>
+        </LinkStyled>
       </Box>
       <FooterIllustrations image={<TreeIllustration alt='tree' src='/images/pages/tree.png' />} />
     </Box>
