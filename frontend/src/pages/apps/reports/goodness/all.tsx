@@ -1,43 +1,56 @@
-import { Avatar, Card, CardHeader, Grid, Typography, styled, CircularProgress } from '@mui/material';
+import {
+  Avatar,
+  Card,
+  CardHeader,
+  CircularProgress,
+  Dialog,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+  styled,
+} from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
+import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { Dayjs } from 'dayjs';
 import { HiStar } from 'react-icons/hi';
 import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
+import { goodnessIndividualStore } from '@/store/index';
 import { isEmpty } from '@/@core/utils/utils';
+import { shallow } from 'zustand/shallow';
+import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import { useRouter } from 'next/router';
-import useStudentList from '@/hooks/useStudentList';
-import { shallow } from 'zustand/shallow';
-import { goodnessIndividualStore } from '@/store/index';
-import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
+import useStudentList from '@/hooks/useStudentList';
 
 interface CellType {
   row: any;
 }
 
 const localStorageService = new LocalStorageService();
-const DataGridCustom = styled(DataGrid)(({ theme }) => ({
-  // dynamic row height based on text content
-  '& .MuiDataGrid-renderingZone': {
-    maxHeight: 'none !important',
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
   },
-  '& .MuiDataGrid-cell': {
-    lineHeight: 'unset !important',
-    maxHeight: 'none !important',
-    whiteSpace: 'normal',
-  },
-  '& .MuiDataGrid-row': {
-    maxHeight: 'none !important',
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
   },
 }));
+
+export interface DialogTitleProps {
+  id: string;
+  children?: React.ReactNode;
+  onClose: () => void;
+}
+
 
 const ReportAllGoodness = () => {
   // ** Hooks
@@ -57,10 +70,12 @@ const ReportAllGoodness = () => {
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [selectedDate, setDateSelected] = useState<Dayjs | null>(null);
+  const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
   const [currentStudent, setCurrentStudent] = useState<any>(null);
   const [searchValue, setSearchValue] = useState<string>('');
   const debouncedValue = useDebounce<string>(searchValue, 500);
+  const [open, setOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState<any>(null);
 
   const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
   const { loading: loadingStudents, students: studentsListData } = useStudentList(storedToken, debouncedValue);
@@ -74,7 +89,7 @@ const ReportAllGoodness = () => {
       setLoadingStudent(true);
       const response = await search(storedToken, {
         fullName: currentStudent?.fullName || '',
-        classroomId: defaultClassroom,
+        classroomId: defaultClassroom?.id || '',
         goodDate: selectedDate,
       });
       setCurrentStudents(response);
@@ -106,11 +121,19 @@ const ReportAllGoodness = () => {
 
   const onHandleClassroomChange = useCallback(
     (e: any, newValue: any) => {
+      console.log('🚀 ~ file: all.tsx:109 ~ ReportAllGoodness ~ newValue:', newValue);
       e.preventDefault();
       setDefaultClassroom(newValue || null);
     },
     [setDefaultClassroom],
   );
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const columns: GridColumns = [
     {
@@ -145,14 +168,19 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { student } = row;
         const account = student?.user?.account || {};
+        const studentName = account.title + '' + account.firstName + ' ' + account.lastName;
         return (
-          <Typography
-            noWrap
-            variant='subtitle2'
-            sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-          >
-            {account.title + '' + account.firstName + ' ' + account.lastName}
-          </Typography>
+          <Tooltip title={studentName} arrow>
+            <span>
+              <Typography
+                noWrap
+                variant='subtitle2'
+                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {studentName}
+              </Typography>
+            </span>
+          </Tooltip>
         );
       },
     },
@@ -167,13 +195,17 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { classroom } = row;
         return (
-          <Typography
-            noWrap
-            variant='subtitle2'
-            sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-          >
-            {classroom?.name}
-          </Typography>
+          <Tooltip title={classroom?.name} arrow>
+            <span>
+              <Typography
+                noWrap
+                variant='subtitle2'
+                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {classroom?.name}
+              </Typography>
+            </span>
+          </Tooltip>
         );
       },
     },
@@ -189,13 +221,17 @@ const ReportAllGoodness = () => {
         const { goodnessDetail } = row;
 
         return (
-          <Typography
-            noWrap
-            variant='subtitle2'
-            sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-          >
-            {goodnessDetail}
-          </Typography>
+          <Tooltip title={goodnessDetail} arrow>
+            <span>
+              <Typography
+                noWrap
+                variant='subtitle2'
+                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {goodnessDetail}
+              </Typography>
+            </span>
+          </Tooltip>
         );
       },
     },
@@ -231,14 +267,23 @@ const ReportAllGoodness = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { image } = row;
+        const { image, goodnessDetail } = row;
 
         const { isLoading, error, image: goodnessImage } = useGetImage(image, storedToken);
+
         return isLoading ? (
           <CircularProgress />
         ) : (
-          <div>
-            <img src={goodnessImage as any} alt='image' width='150' height='200' />
+          <div
+            style={{
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              setCurrentImage(goodnessImage);
+              handleClickOpen();
+            }}
+          >
+            <img src={goodnessImage as any} alt={goodnessDetail || 'บันทึกความดี'} width='150' height='200' />
           </div>
         );
       },
@@ -254,19 +299,32 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { goodDate, createdAt } = row;
         return (
-          <Typography
-            noWrap
-            variant='subtitle2'
-            sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
+          <Tooltip
+            title={new Date(goodDate || createdAt).toLocaleTimeString('th-TH', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+            arrow
           >
-            {
-              new Date(goodDate || createdAt).toLocaleDateString('th-TH', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              }) /* แสดงวันที่เป็นภาษาไทย */
-            }
-          </Typography>
+            <span>
+              <Typography
+                noWrap
+                variant='subtitle2'
+                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {
+                  new Date(goodDate || createdAt).toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  }) /* แสดงวันที่เป็นภาษาไทย */
+                }
+              </Typography>
+            </span>
+          </Tooltip>
         );
       },
     },
@@ -307,7 +365,7 @@ const ReportAllGoodness = () => {
                 onHandleChangeStudent={onHandleChangeStudent}
                 onSearchChange={onSearchChange}
               />
-              <DataGridCustom
+              <DataGrid
                 autoHeight
                 columns={columns}
                 rows={currentStudents ?? []}
@@ -326,6 +384,23 @@ const ReportAllGoodness = () => {
             </Card>
           </Grid>
         </Grid>
+        <BootstrapDialog onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+          {handleClose ? (
+            <IconButton
+              aria-label='close'
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : null}
+          <img src={currentImage as any} alt='บันทึกความดี' width='100%' height='100%' />
+        </BootstrapDialog>
       </Fragment>
     )
   );
