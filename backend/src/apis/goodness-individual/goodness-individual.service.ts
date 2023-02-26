@@ -73,7 +73,9 @@ export class GoodnessIndividualService {
     }
 
     if (query.classroomId) {
-      filter['classroomId'] = query.classroomId;
+      filter['classroom'] = {
+        id: query.classroomId,
+      }
     }
 
     if (query.goodDate) {
@@ -87,7 +89,7 @@ export class GoodnessIndividualService {
         lte: endDate,
       };
     }
-
+    
     const response = await this.prisma.goodnessIndividual.findMany({
       where: filter,
       include: {
