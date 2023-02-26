@@ -345,19 +345,20 @@ const ReportAllGoodness = () => {
                 title={`รายงานการบันทึกความดี`}
               />
               <TableHeader
-                fullName={currentStudent}
-                selectDate={selectedDate}
-                onChangeDate={onChangeDate}
-                onSearch={onSearch}
-                onClear={onClear}
-                defaultClassroom={defaultClassroom}
-                classrooms={classrooms}
-                onHandleClassroomChange={onHandleClassroomChange}
                 classroomLoading={classroomLoading as boolean}
-                students={studentsListData}
+                classrooms={classrooms}
+                datePickLabel='วันที่บันทึกความดี'
+                defaultClassroom={defaultClassroom}
+                fullName={currentStudent}
                 loadingStudents={loadingStudents}
+                onChangeDate={onChangeDate}
+                onClear={onClear}
                 onHandleChangeStudent={onHandleChangeStudent}
+                onHandleClassroomChange={onHandleClassroomChange}
+                onSearch={onSearch}
                 onSearchChange={onSearchChange}
+                selectDate={selectedDate}
+                students={studentsListData}
               />
               <DataGrid
                 autoHeight
