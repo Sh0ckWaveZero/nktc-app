@@ -1,9 +1,16 @@
+import { Dayjs } from 'dayjs';
 import { authConfig } from '@/configs/auth';
-import httpClient from '@/@core/utils/http';
 import { create } from 'zustand';
+import httpClient from '@/@core/utils/http';
 
+type Body = {
+  fullName?: string;
+  classroomId?: string;
+  badDate?: Dayjs | null;
+};
 interface BadnessIndividualState {
   createBadnessIndividual: (token: string, body: any) => any;
+  search: (token: string, body: Body) => any;
 }
 
 export const badnessIndividualStore = create<BadnessIndividualState>()(
@@ -19,6 +26,22 @@ export const badnessIndividualStore = create<BadnessIndividualState>()(
             },
           });
         return response;
+      } catch (err) {
+        console.error('Error creating badness individual:', err);
+        return err;
+      }
+    },
+    search: async (token: string, body: any) => {
+      try {
+        const response = await httpClient.post(
+          `${authConfig.badnessIndividualEndpoint}/search`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response?.data;
       } catch (err) {
         console.error('Error creating badness individual:', err);
         return err;
