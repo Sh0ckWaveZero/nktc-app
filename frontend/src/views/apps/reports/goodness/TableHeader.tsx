@@ -120,7 +120,7 @@ const TableHeader = (props: TableHeaderProps) => {
                 variant='contained'
                 startIcon={<Icon icon='icon-park-outline:people-search-one' />}
                 sx={{ fontSize: 16, fontWeight: 500, height: 56 }}
-                disabled={isEmpty(fullName) && isEmpty(selectDate) && isEmpty(selectDate)}
+                disabled={isEmpty(fullName) && isEmpty(selectDate) && isEmpty(defaultClassroom)}
                 onClick={onSearch}
               >
                 ค้นหา
@@ -140,7 +140,7 @@ const TableHeader = (props: TableHeaderProps) => {
                 variant='contained'
                 startIcon={<Icon icon='carbon:clean' />}
                 sx={{ fontSize: 16, fontWeight: 500, height: 56 }}
-                disabled={isEmpty(fullName) && isEmpty(selectDate) && isEmpty(selectDate)}
+                disabled={isEmpty(fullName) && isEmpty(selectDate) && isEmpty(defaultClassroom)}
                 onClick={onClear}
               ></Button>
             </span>
