@@ -205,23 +205,39 @@ const LoginPage = () => {
                   {themeConfig.templateName}
                 </Typography>
               </Box>
-              <Box>
-                <Box
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Avatar
+                  alt='nktc-logo'
+                  src={`/images/pages/${themeConfig.templateName.toLowerCase()}-${theme.palette.mode}.png`}
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    [theme.breakpoints.down('xl')]: {
+                      width: 450,
+                      height: 450,
+                    },
+                    [theme.breakpoints.up('lg')]: {
+                      width: 400,
+                      height: 400,
+                    },
+                    [theme.breakpoints.only('md')]: {
+                      width: 350,
+                      height: 350,
+                    },
+                    [theme.breakpoints.down('md')]: {
+                      width: 220,
+                      height: 220,
+                    },
                   }}
-                >
-                  <Avatar
-                    alt='Remy Sharp'
-                    src={`/images/pages/${themeConfig.templateName.toLowerCase()}-${theme.palette.mode}.png`}
-                    sx={{ width: 450, height: 450}}
-                  />
-                </Box>
-                <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
-                <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
+                />
               </Box>
+              <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻</TypographyStyled>
+              <Typography variant='body2'>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller
