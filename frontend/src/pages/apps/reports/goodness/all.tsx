@@ -121,7 +121,6 @@ const ReportAllGoodness = () => {
 
   const onHandleClassroomChange = useCallback(
     (e: any, newValue: any) => {
-      console.log('🚀 ~ file: all.tsx:109 ~ ReportAllGoodness ~ newValue:', newValue);
       e.preventDefault();
       setDefaultClassroom(newValue || null);
     },
@@ -198,7 +197,6 @@ const ReportAllGoodness = () => {
           <Tooltip title={classroom?.name} arrow>
             <span>
               <Typography
-                noWrap
                 variant='subtitle2'
                 sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
               >
@@ -224,7 +222,6 @@ const ReportAllGoodness = () => {
           <Tooltip title={goodnessDetail} arrow>
             <span>
               <Typography
-                noWrap
                 variant='subtitle2'
                 sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
               >
@@ -247,9 +244,7 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { goodnessScore } = row;
         return (
-          // Show score in row table
           <Typography
-            noWrap
             variant='subtitle2'
             sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
           >
@@ -311,7 +306,6 @@ const ReportAllGoodness = () => {
           >
             <span>
               <Typography
-                noWrap
                 variant='subtitle2'
                 sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
               >
