@@ -51,7 +51,6 @@ export interface DialogTitleProps {
   onClose: () => void;
 }
 
-
 const ReportAllGoodness = () => {
   // ** Hooks
   const auth = useAuth();
@@ -72,7 +71,7 @@ const ReportAllGoodness = () => {
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
   const [currentStudent, setCurrentStudent] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [open, setOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<any>(null);
@@ -116,7 +115,7 @@ const ReportAllGoodness = () => {
   );
 
   const onSearchChange = useCallback((event: any, value: any, reason: any) => {
-    setSearchValue(value);
+    setSearchValue({ fullName: value });
   }, []);
 
   const onHandleClassroomChange = useCallback(
@@ -196,10 +195,7 @@ const ReportAllGoodness = () => {
         return (
           <Tooltip title={classroom?.name} arrow>
             <span>
-              <Typography
-                variant='subtitle2'
-                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-              >
+              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
                 {classroom?.name}
               </Typography>
             </span>
@@ -221,10 +217,7 @@ const ReportAllGoodness = () => {
         return (
           <Tooltip title={goodnessDetail} arrow>
             <span>
-              <Typography
-                variant='subtitle2'
-                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-              >
+              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
                 {goodnessDetail}
               </Typography>
             </span>
@@ -244,10 +237,7 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { goodnessScore } = row;
         return (
-          <Typography
-            variant='subtitle2'
-            sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-          >
+          <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
             {goodnessScore}
           </Typography>
         );
@@ -305,10 +295,7 @@ const ReportAllGoodness = () => {
             arrow
           >
             <span>
-              <Typography
-                variant='subtitle2'
-                sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
-              >
+              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
                 {
                   new Date(goodDate || createdAt).toLocaleDateString('th-TH', {
                     year: 'numeric',
