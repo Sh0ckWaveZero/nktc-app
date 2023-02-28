@@ -19,7 +19,7 @@ const useStudentList = (storedToken: string, debouncedValue: string) => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const result = await studentsList(storedToken, { fullName: debouncedValue });
+        const result = await studentsList(storedToken, debouncedValue);
         setStudents(result || []);
         setLoading(false);
       } catch (error: any) {
