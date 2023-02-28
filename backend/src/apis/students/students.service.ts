@@ -229,6 +229,14 @@ export class StudentsService {
       }
     }
 
+    if (query.classroomId) {
+      filer['student'] = {
+        ['classroomId']: {
+          contains: query.classroomId,
+        }
+      };
+    } 
+
     const students = await this.prisma.user.findMany({
       where: {
         ...filer,
@@ -241,7 +249,13 @@ export class StudentsService {
           select: {
             id: true,
             studentId: true,
-          }
+            classroom: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          },
         },
         account: {
           select: {
@@ -251,7 +265,7 @@ export class StudentsService {
             lastName: true,
             avatar: true,
           }
-        }
+        },
       },
       orderBy: [
         {
@@ -273,7 +287,9 @@ export class StudentsService {
       return {
         fullName: `${student.account.firstName} ${student.account.lastName}`,
         title: student.account.title,
-        id:student.id,
+        id: student.id,
+        studentId: student.username,
+        classroom: student.student.classroom,
       }
     })
   }
