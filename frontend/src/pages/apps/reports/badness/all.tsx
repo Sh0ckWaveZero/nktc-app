@@ -72,7 +72,7 @@ const ReportAllBadness = () => {
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
   const [currentStudent, setCurrentStudent] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [open, setOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<any>(null);
@@ -116,7 +116,7 @@ const ReportAllBadness = () => {
   );
 
   const onSearchChange = useCallback((event: any, value: any, reason: any) => {
-    setSearchValue(value);
+    setSearchValue({ fullName: value });
   }, []);
 
   const onHandleClassroomChange = useCallback(
