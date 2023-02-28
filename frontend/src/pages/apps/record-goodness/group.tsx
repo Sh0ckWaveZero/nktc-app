@@ -2,20 +2,9 @@ import {
   Avatar,
   Card,
   CardHeader,
-  CircularProgress,
-  Dialog,
   Grid,
-  IconButton,
   Tooltip,
   Typography,
-  styled,
-  DialogTitle,
-  FormControl,
-  Autocomplete,
-  TextField,
-  Checkbox,
-  DialogContent,
-  DialogActions,
   Button,
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
@@ -23,23 +12,17 @@ import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
-import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiStar } from 'react-icons/hi';
 import { LocalStorageService } from '@/services/localStorageService';
-import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import { goodnessIndividualStore } from '@/store/index';
-import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import useGetImage from '@/hooks/useGetImage';
 import useStudentList from '@/hooks/useStudentList';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import Icon from '@/@core/components/icon';
-import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 
 interface CellType {
   row: any;
@@ -58,19 +41,13 @@ const GoodnessGroup = () => {
   const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
-  const { search }: any = goodnessIndividualStore(
-    (state: any) => ({
-      search: state.search,
-    }),
-    shallow,
-  );
+
 
   // ** Local State
   const [students, setStudents] = useState<any>([]);
   // const [studentLoading, setStudentLoading] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
   const [selectStudents, setSelectStudents] = useState<any>([] || null);
   const [searchValue, setSearchValue] = useState<any>({});
   const debouncedValue = useDebounce<string>(searchValue, 500);
@@ -87,6 +64,7 @@ const GoodnessGroup = () => {
     (e: any, newValue: any) => {
       e.preventDefault();
       setSelectStudents(newValue);
+      setSearchValue({ fullName: null });
     },
     [setSelectStudents],
   );
@@ -152,7 +130,8 @@ const GoodnessGroup = () => {
     const uniqueStudents = students.filter((student: any) => !selectedIds.includes(student.id));
 
     setStudents([...uniqueStudents, ...selectClassrooms]);
-  }, [students, handleCloseClassroom, selectClassrooms]);
+    setSearchValue({ classroomId: null });
+  }, [students, selectClassrooms]);
 
   const columns: GridColumns = [
     {
@@ -284,7 +263,6 @@ const GoodnessGroup = () => {
                 onSearchStudents={onSearchStudents}
                 onSelectionModelChange={onSelectionModelChange}
                 onSelectStudents={onSelectStudents}
-                openClassroom={openSelectClassroom}
                 openSelectClassroom={openSelectClassroom}
                 openSelectStudents={openSelectStudents}
                 selectClassrooms={selectClassrooms}
