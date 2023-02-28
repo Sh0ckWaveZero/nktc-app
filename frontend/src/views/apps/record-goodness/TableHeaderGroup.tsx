@@ -43,7 +43,6 @@ interface TableHeaderProps {
   onSearchStudents: (event: ChangeEvent<{}>, value: any, reason: any) => void;
   onSelectionModelChange: (newSelection: any) => void;
   onSelectStudents: (event: ChangeEvent<{}>, value: any) => void;
-  openClassroom: boolean;
   openSelectClassroom: boolean;
   openSelectStudents: boolean;
   selectClassrooms: any;
@@ -81,7 +80,6 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
     onSearchStudents,
     onSelectionModelChange,
     onSelectStudents,
-    openClassroom,
     openSelectClassroom,
     openSelectStudents,
     selectClassrooms,
