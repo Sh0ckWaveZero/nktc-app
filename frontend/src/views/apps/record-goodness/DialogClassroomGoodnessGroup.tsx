@@ -40,7 +40,7 @@ type Props = {
   handleCloseSelectStudents: () => void;
   onAddClassroom: () => void;
   onCloseClassroom: () => void;
-  onHandleClassroomChange: (event: ChangeEvent<{}>, value: any) => void;
+  onHandleClassroomChange: (event: ChangeEvent<any>, value: any) => void;
   onSelectionModelChange: (newSelection: any) => void;
   openSelectClassroom: boolean;
   selectClassrooms: any;

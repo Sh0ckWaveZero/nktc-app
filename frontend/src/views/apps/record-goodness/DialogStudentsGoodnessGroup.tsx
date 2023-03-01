@@ -33,8 +33,8 @@ const checkedIcon = <MdCheckBox />;
 type Props = {
   handleCloseSelectStudents: () => void;
   onAddStudents: () => void;
-  onSearchStudents: (event: ChangeEvent<{}>, value: any, reason: any) => void;
-  onSelectStudents: (event: ChangeEvent<{}>, value: any) => void;
+  onSearchStudents: (event: ChangeEvent<any>, value: any, reason: any) => void;
+  onSelectStudents: (event: ChangeEvent<any>, value: any) => void;
   openSelectStudents: boolean;
   studentLoading: boolean;
   studentsList: any;
