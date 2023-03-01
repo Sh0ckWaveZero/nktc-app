@@ -24,7 +24,7 @@ const AxiosInterceptor = ({ children }: any) => {
     httpClient.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response.status === 401) {
+        if (error?.response?.status === 401) {
           await Swal.fire({
             title: 'เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน',
             text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
