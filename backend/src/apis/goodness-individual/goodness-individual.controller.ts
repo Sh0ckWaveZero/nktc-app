@@ -15,6 +15,11 @@ export class GoodnessIndividualController {
     return await this.goodnessIndividualService.create(createGoodnessIndividualDto);
   }
 
+  @Post('group')
+  async group(@Body() createGoodnessIndividualDto: any) {
+    return await this.goodnessIndividualService.group(createGoodnessIndividualDto);
+  }
+
   @Post('search')
   async search(@Body() body: any) {
     return await this.goodnessIndividualService.search(body);
