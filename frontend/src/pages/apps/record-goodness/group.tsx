@@ -1,22 +1,20 @@
-import { Avatar, Card, CardHeader, Grid, Tooltip, Typography, Button } from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
+import DialogAddGroup from '@/views/apps/record-goodness/DialogAddGroup';
+import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGoodnessGroup';
+import DialogStudentsGoodnessGroup from '@/views/apps/record-goodness/DialogStudentsGoodnessGroup';
 import { HiStar } from 'react-icons/hi';
+import Icon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
-import { goodnessIndividualStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
+import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
-import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
-import Icon from '@/@core/components/icon';
-import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGoodnessGroup';
-import DialogStudentsGoodnessGroup from '@/views/apps/record-goodness/DialogStudentsGoodnessGroup';
 
 interface CellType {
   row: any;
@@ -32,6 +30,7 @@ export interface DialogTitleProps {
 const GoodnessGroup = () => {
   // ** Hooks
   const auth = useAuth();
+
   const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
@@ -104,7 +103,13 @@ const GoodnessGroup = () => {
     setOpenSelectClassroom(false);
   };
 
-  const onOpenGoodnessDetail = () => {};
+  const onOpenGoodnessDetail = () => {
+    setOpenGoodnessDetail(true);
+  };
+
+  const handleCloseGoodnessDetail = () => {
+    setOpenGoodnessDetail(false);
+  };
 
   const onSelectionModelChange = useCallback(
     (newSelection: any) => {
@@ -124,6 +129,12 @@ const GoodnessGroup = () => {
     setStudents([...uniqueStudents, ...selectClassrooms]);
     setSearchValue({ classroomId: null });
   }, [students, selectClassrooms]);
+
+  const handleSusses = useCallback(() => {
+    setStudents([]);
+    setDefaultClassroom(null);
+    setSearchValue({ fullName: null });
+  }, []);
 
   const columns: GridColumns = [
     {
@@ -286,6 +297,14 @@ const GoodnessGroup = () => {
           studentLoading={studentLoading}
           students={students}
           studentsList={studentsList}
+        />
+
+        <DialogAddGroup
+          onOpen={openGoodnessDetail}
+          data={students}
+          handleClose={handleCloseGoodnessDetail}
+          auth={auth}
+          handleSusses={handleSusses}
         />
       </Fragment>
     )
