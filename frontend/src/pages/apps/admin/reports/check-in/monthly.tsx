@@ -1,19 +1,23 @@
-// ** React Imports
-import { useState, useEffect } from 'react';
+import 'dayjs/locale/th';
+
 // ** Types Imports
 import { Avatar, Card, CardHeader, Grid } from '@mui/material';
-import { BsCalendar2Date } from 'react-icons/bs';
-import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
-import { useReportCheckInStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/th';
-import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
+// ** React Imports
+import { useEffect, useState } from 'react';
+
+import { BsCalendar2Date } from 'react-icons/bs';
 import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
+import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
+import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
+import { shallow } from 'zustand/shallow';
+import { useReportCheckInStore } from '@/store/index';
 dayjs.locale('th');
+dayjs.extend(buddhistEra);
 
 const localStorageService = new LocalStorageService();
 
