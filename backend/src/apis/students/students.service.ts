@@ -287,7 +287,7 @@ export class StudentsService {
       return {
         fullName: `${student.account.firstName} ${student.account.lastName}`,
         title: student.account.title,
-        id: student.id,
+        id: student.student.id,
         studentId: student.username,
         classroom: student.student.classroom,
       }
