@@ -1,12 +1,4 @@
-import {
-  Avatar,
-  Card,
-  CardHeader,
-  Grid,
-  Tooltip,
-  Typography,
-  Button,
-} from '@mui/material';
+import { Avatar, Card, CardHeader, Grid, Tooltip, Typography, Button } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -23,6 +15,8 @@ import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import Icon from '@/@core/components/icon';
+import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGoodnessGroup';
+import DialogStudentsGoodnessGroup from '@/views/apps/record-goodness/DialogStudentsGoodnessGroup';
 
 interface CellType {
   row: any;
@@ -40,8 +34,6 @@ const GoodnessGroup = () => {
   const auth = useAuth();
   const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
-
-
 
   // ** Local State
   const [students, setStudents] = useState<any>([]);
@@ -249,26 +241,10 @@ const GoodnessGroup = () => {
                 title={`บันทึกการทำความดีแบบกลุ่ม ${students ? students.length : 0} คน`}
               />
               <TableHeaderGroup
-                classroomLoading={classroomLoading}
-                classrooms={classrooms}
-                defaultClassroom={defaultClassroom}
-                handleCloseSelectStudents={handleCloseSelectStudents}
-                onAddClassroom={onAddClassroom}
-                onAddStudents={handleAddStudents}
-                onCloseClassroom={handleCloseClassroom}
-                onHandleClassroomChange={onHandleClassroomChange}
                 onOpenClassroom={onOpenSelectClassroom}
                 onOpenGoodnessDetail={onOpenGoodnessDetail}
                 onOpenSelectStudents={onOpenSelectStudents}
-                onSearchStudents={onSearchStudents}
-                onSelectionModelChange={onSelectionModelChange}
-                onSelectStudents={onSelectStudents}
-                openSelectClassroom={openSelectClassroom}
-                openSelectStudents={openSelectStudents}
-                selectClassrooms={selectClassrooms}
-                studentLoading={studentLoading}
                 students={students}
-                studentsList={studentsList}
               />
               <DataGrid
                 autoHeight
@@ -285,6 +261,32 @@ const GoodnessGroup = () => {
             </Card>
           </Grid>
         </Grid>
+
+        <DialogStudentsGoodnessGroup
+          handleCloseSelectStudents={handleCloseSelectStudents}
+          onAddStudents={handleAddStudents}
+          onSearchStudents={onSearchStudents}
+          onSelectStudents={onSelectStudents}
+          openSelectStudents={openSelectStudents}
+          studentLoading={studentLoading}
+          studentsList={studentsList}
+        />
+
+        <DialogClassroomGoodnessGroup
+          classroomLoading={classroomLoading}
+          classrooms={classrooms}
+          defaultClassroom={defaultClassroom}
+          handleCloseSelectStudents={handleCloseSelectStudents}
+          onAddClassroom={onAddClassroom}
+          onCloseClassroom={handleCloseClassroom}
+          onHandleClassroomChange={onHandleClassroomChange}
+          onSelectionModelChange={onSelectionModelChange}
+          openSelectClassroom={openSelectClassroom}
+          selectClassrooms={selectClassrooms}
+          studentLoading={studentLoading}
+          students={students}
+          studentsList={studentsList}
+        />
       </Fragment>
     )
   );
