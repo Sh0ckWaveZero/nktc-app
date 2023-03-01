@@ -11,6 +11,7 @@ type Body = {
 
 interface GoodnessIndividualState {
   createGoodnessIndividual: (token: string, body: any) => any;
+  createGoodnessGroup: (token: string, body: any) => any;
   search: (token: string, body: Body) => any;
 }
 
@@ -20,6 +21,22 @@ export const goodnessIndividualStore = create<GoodnessIndividualState>()(
       try {
         const response = await httpClient.post(
           `${authConfig.goodnessIndividualEndpoint}`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response;
+      } catch (err) {
+        console.error('Error creating goodness individual:', err);
+        return err;
+      }
+    },
+    createGoodnessGroup: async (token: string, body: Body) => {
+      try {
+        const response = await httpClient.post(
+          `${authConfig.goodnessIndividualEndpoint}/group`,
           body,
           {
             headers: {
