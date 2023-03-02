@@ -110,6 +110,14 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
     setImgSrc('');
   }, [setInputValue, setImgSrc]);
 
+  const onHandleClose = () => {
+    setImgSrc('');
+    setGoodTypeScore('');
+    setDetails('');
+    setOnSubmit(false);
+    handleClose();
+  };
+
   const handleSubmit = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setOnSubmit(true);
@@ -136,6 +144,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
         setImgSrc('');
         setGoodTypeScore('');
         setDetails('');
+        setOnSubmit(false);
         handleSusses();
       } else {
         const { data } = res?.response || {};
@@ -153,9 +162,9 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   );
 
   return (
-    <Dialog fullWidth open={onOpen} maxWidth='sm' scroll='body' onClose={handleClose} TransitionComponent={Transition}>
+    <Dialog fullWidth open={onOpen} maxWidth='sm' scroll='body' onClose={onHandleClose} TransitionComponent={Transition}>
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
-        <IconButton size='small' onClick={handleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
+        <IconButton size='small' onClick={onHandleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
           <Icon icon='mdi:close' />
         </IconButton>
         <Box sx={{ mb: 20, textAlign: 'center' }}>
@@ -266,7 +275,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
         <Button variant='contained' sx={{ mr: 1 }} onClick={handleSubmit}>
           บันทึก
         </Button>
-        <Button variant='outlined' color='secondary' onClick={handleClose}>
+        <Button variant='outlined' color='secondary' onClick={onHandleClose}>
           ยกเลิก
         </Button>
       </DialogActions>
