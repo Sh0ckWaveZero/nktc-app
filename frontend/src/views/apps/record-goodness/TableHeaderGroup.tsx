@@ -1,11 +1,4 @@
-import {
-  Button,
-  Dialog,
-  FormControl,
-  Grid,
-  styled,
-  Tooltip,
-} from '@mui/material';
+import { Button, Dialog, FormControl, Grid, styled, Tooltip } from '@mui/material';
 
 import { Fragment } from 'react';
 import Icon from '@/@core/components/icon';
@@ -19,6 +12,7 @@ interface TableHeaderProps {
   onOpenClassroom: () => void;
   onOpenGoodnessDetail: () => void;
   onOpenSelectStudents: () => void;
+  tooltipName: string;
   students: any;
 }
 
@@ -31,10 +25,9 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-
 const TableHeaderGroup = (props: TableHeaderProps) => {
   // ** Props
-  const { onOpenClassroom, onOpenGoodnessDetail, onOpenSelectStudents, students } = props;
+  const { onOpenClassroom, onOpenGoodnessDetail, onOpenSelectStudents, students, tooltipName } = props;
 
   return (
     <Fragment>
@@ -106,7 +99,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
           >
             <Grid item xs={12} sm={5}>
               <FormControl fullWidth>
-                <Tooltip title='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกความดี' arrow>
+                <Tooltip title={tooltipName} arrow>
                   <span>
                     <Button
                       fullWidth
