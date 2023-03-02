@@ -129,7 +129,7 @@ const navigation = (): VerticalNavItemsType => {
           title: 'รายกลุ่ม',
           icon: BsInboxes,
           action: 'read',
-          subject: 'record-badness-page',
+          subject: 'report-badness-group-page',
           path: '/apps/record-badness/group',
         }
       ],
