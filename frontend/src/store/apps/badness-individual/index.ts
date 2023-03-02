@@ -10,6 +10,7 @@ type Body = {
 };
 interface BadnessIndividualState {
   createBadnessIndividual: (token: string, body: any) => any;
+  createBadnessGroup: (token: string, body: any) => any;
   search: (token: string, body: Body) => any;
 }
 
@@ -28,6 +29,22 @@ export const badnessIndividualStore = create<BadnessIndividualState>()(
         return response;
       } catch (err) {
         console.error('Error creating badness individual:', err);
+        return err;
+      }
+    },
+    createBadnessGroup: async (token: string, body: Body) => {
+      try {
+        const response = await httpClient.post(
+          `${authConfig.badnessIndividualEndpoint}/group`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response;
+      } catch (err) {
+        console.error('Error creating goodness individual:', err);
         return err;
       }
     },
