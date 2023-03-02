@@ -5,8 +5,8 @@ import { Fragment, useCallback, useContext, useState } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import DialogAddGroup from '@/views/apps/record-goodness/DialogAddGroup';
-import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGoodnessGroup';
-import DialogStudentsGoodnessGroup from '@/views/apps/record-goodness/DialogStudentsGoodnessGroup';
+import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGroup';
+import DialogStudentGroup from '@/views/apps/record-goodness/DialogStudentsGroup';
 import { HiStar } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
@@ -36,14 +36,12 @@ const GoodnessGroup = () => {
 
   // ** Local State
   const [students, setStudents] = useState<any>([]);
-  // const [studentLoading, setStudentLoading] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [selectStudents, setSelectStudents] = useState<any>([] || null);
   const [searchValue, setSearchValue] = useState<any>({});
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [openSelectStudents, setOpenSelectStudents] = useState(false);
-  const [currentImage, setCurrentImage] = useState<any>(null);
   const [openGoodnessDetail, setOpenGoodnessDetail] = useState(false);
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
   const [selectClassrooms, setSelectClassrooms] = useState<any>([] || null);
@@ -256,6 +254,7 @@ const GoodnessGroup = () => {
                 onOpenGoodnessDetail={onOpenGoodnessDetail}
                 onOpenSelectStudents={onOpenSelectStudents}
                 students={students}
+                tooltipName='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกความดี'
               />
               <DataGrid
                 autoHeight
@@ -273,7 +272,7 @@ const GoodnessGroup = () => {
           </Grid>
         </Grid>
 
-        <DialogStudentsGoodnessGroup
+        <DialogStudentGroup
           handleCloseSelectStudents={handleCloseSelectStudents}
           onAddStudents={handleAddStudents}
           onSearchStudents={onSearchStudents}
