@@ -41,6 +41,32 @@ export class BadnessIndividualService {
     }
   }
 
+  async group(body: any) {
+    let image: any = '';
+    try {
+      if (body.image) {
+        const response = await this.minioService.upload({ data: body.image, path: 'goodness-individual/images/' });
+        image = response?.url;
+      }
+      const response = await this.prisma.badnessIndividual.createMany({
+        data: body.students.map((student: any) => ({
+          studentId: student.studentId,
+          badnessDetail: body.badnessDetail,
+          badnessScore: Number(body.badnessScore),
+          image: image,
+          badDate: body.badDate || null,
+          createdBy: body.createdBy,
+          updatedBy: body.updatedBy,
+          studentKey: student.id,
+          classroomId: student.classroom?.id,
+        })),
+      });
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+
   async search(query: any) {
     const filter = {};
 
@@ -89,7 +115,7 @@ export class BadnessIndividualService {
         lte: endDate,
       };
     }
-    
+
     const response = await this.prisma.badnessIndividual.findMany({
       where: filter,
       include: {
