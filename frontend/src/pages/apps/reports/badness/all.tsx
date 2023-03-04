@@ -259,7 +259,7 @@ const ReportAllBadness = () => {
 
         return isLoading ? (
           <CircularProgress />
-        ) : (
+        ) : badnessImage ? (
           <div
             style={{
               cursor: 'pointer',
@@ -276,6 +276,10 @@ const ReportAllBadness = () => {
               height='200'
             />
           </div>
+        ) : (
+          <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
+            ไม่มีรูปภาพ
+          </Typography>
         );
       },
     },

@@ -258,7 +258,7 @@ const ReportAllGoodness = () => {
 
         return isLoading ? (
           <CircularProgress />
-        ) : (
+        ) : goodnessImage ? (
           <div
             style={{
               cursor: 'pointer',
@@ -270,6 +270,10 @@ const ReportAllGoodness = () => {
           >
             <img src={goodnessImage as any} alt={goodnessDetail || 'บันทึกความดี'} width='150' height='200' />
           </div>
+        ) : (
+          <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
+            ไม่มีรูปภาพ
+          </Typography>
         );
       },
     },
