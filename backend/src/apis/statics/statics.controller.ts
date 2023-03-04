@@ -25,6 +25,16 @@ export class StaticsController {
     await this.serveImage(id, 'avatars/students', response);
   }
 
+  // teachers
+  @Get('avatars/teachers/:id')
+  @HttpCode(HttpStatus.OK)
+  async getTeacherAvatar(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    await this.serveImage(id, 'avatars/teachers', response);
+  }
+
   @Get('goodness-individual/images/:id')
   @HttpCode(HttpStatus.OK)
   async getStudentGoodness(
