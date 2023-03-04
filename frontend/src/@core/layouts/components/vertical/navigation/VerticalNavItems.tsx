@@ -6,6 +6,7 @@ import { NavLink, NavGroup, NavSectionTitle, VerticalNavItemsType } from '@/@cor
 import VerticalNavLink from './VerticalNavLink';
 import VerticalNavGroup from './VerticalNavGroup';
 import VerticalNavSectionTitle from './VerticalNavSectionTitle';
+import { Tooltip } from '@mui/material';
 
 interface Props {
   parent?: NavGroup;
@@ -36,7 +37,13 @@ const VerticalNavItems = (props: Props) => {
   const RenderMenuItems = verticalNavItems?.map((item: NavGroup | NavLink | NavSectionTitle, index: number) => {
     const TagName: any = resolveNavItemComponent(item);
 
-    return <TagName {...props} key={index} item={item} />;
+    return (
+      <Tooltip title={'title' in item ? item.title : ''} key={index}>
+        <div>
+          <TagName {...props} item={item} />
+        </div>
+      </Tooltip>
+    );
   });
 
   return <>{RenderMenuItems}</>;
