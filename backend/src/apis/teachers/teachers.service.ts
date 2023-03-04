@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
+import { MinioClientService } from '../minio/minio-client.service';
 
 @Injectable()
 export class TeachersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private readonly minioService: MinioClientService) { }
 
   async findAll(q = '') {
     const [firstName, lastName] = q.split(' ');
@@ -229,6 +230,12 @@ export class TeachersService {
 
   async updateProfile(userId: string, updateTeacherDto: any) {
     try {
+      let avatar = '';
+      if (updateTeacherDto?.avatar) {
+        const { url } = await this.minioService.upload({ data: updateTeacherDto.avatar, path: 'avatars/teachers/' });
+        avatar = url;
+      }
+
       // update teacher
       const updateTeacher = await this.prisma.teacher.update({
         where: {
@@ -250,7 +257,7 @@ export class TeachersService {
           title: updateTeacherDto.title,
           firstName: updateTeacherDto.firstName,
           lastName: updateTeacherDto.lastName,
-          avatar: updateTeacherDto.avatar,
+          avatar: avatar,
           birthDate: updateTeacherDto.birthDate === '' ? null : updateTeacherDto.birthDate,
           idCard: updateTeacherDto.idCard,
           updatedBy: userId,
@@ -268,6 +275,7 @@ export class TeachersService {
       };
     } catch (error) {
       console.error(error);
+      return error;
     }
   }
 }
