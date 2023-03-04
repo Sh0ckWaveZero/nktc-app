@@ -1,29 +1,21 @@
-// ** React Imports
-import { useState, SyntheticEvent, Fragment } from 'react';
-
-// ** Next Import
-import { useRouter } from 'next/router';
-
-// ** MUI Imports
-import Box from '@mui/material/Box';
-import Menu from '@mui/material/Menu';
-import Badge from '@mui/material/Badge';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import { styled } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
-
-// ** Components Imports
-import CustomAvatar from '@/@core/components/mui/avatar';
-
-// ** Type Imports
-import { Settings } from '@/@core/context/settingsContext';
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
-import { getInitials } from '@/@core/utils/get-initials';
-import { Avatar } from '@mui/material';
+import { Fragment, SyntheticEvent, useState } from 'react';
 
-// ** Context
+import { Avatar, CircularProgress } from '@mui/material';
+import Badge from '@mui/material/Badge';
+import Box from '@mui/material/Box';
+import CustomAvatar from '@/@core/components/mui/avatar';
+import Divider from '@mui/material/Divider';
+import { LocalStorageService } from '@/services/localStorageService';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { Settings } from '@/@core/context/settingsContext';
+import Typography from '@mui/material/Typography';
+import { getInitials } from '@/@core/utils/get-initials';
+import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
+import useGetImage from '@/hooks/useGetImage';
+import { useRouter } from 'next/router';
 
 interface Props {
   settings: Settings;
@@ -38,6 +30,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }));
 
+const storedToken = new LocalStorageService().getToken()!;
+
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props;
@@ -51,6 +45,8 @@ const UserDropdown = (props: Props) => {
 
   // ** Vars
   const { direction } = settings;
+
+  const { isLoading, error, image } = useGetImage(user?.account?.avatar as string, storedToken);
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget);
@@ -84,7 +80,18 @@ const UserDropdown = (props: Props) => {
 
   const customAvatar = (row: any) => {
     if (row?.avatar) {
-      return <CustomAvatar src={row.avatar} sx={{ width: 40, height: 40 }} />;
+      {
+        return isLoading ? (
+          <CircularProgress
+            size={40}
+            sx={{
+              mr: (theme) => theme.spacing(6.25),
+            }}
+          />
+        ) : (
+          <CustomAvatar src={image as string} sx={{ width: 40, height: 40 }} />
+        );
+      }
     } else {
       return (
         <CustomAvatar skin='light' color={row?.avatarColor || 'primary'} sx={{ width: 40, height: 40 }}>
