@@ -2,8 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuditLogService } from './audit-log.service';
-import { CreateAuditLogDto } from './dto/create-audit-log.dto';
-import { UpdateAuditLogDto } from './dto/update-audit-log.dto';
+
 
 
 @Controller('audit-log')
@@ -13,24 +12,8 @@ import { UpdateAuditLogDto } from './dto/update-audit-log.dto';
 export class AuditLogController {
   constructor(private readonly auditLogService: AuditLogService) {}
 
-  @Post()
-  create(@Body() createAuditLogDto: CreateAuditLogDto) {
-    return this.auditLogService.create(createAuditLogDto);
+  @Get(':username')
+  findOne(@Param('username') username: string) {
+    return this.auditLogService.findOne(username);
   }
-
-  @Get()
-  findAll() {
-    return this.auditLogService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.auditLogService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuditLogDto: UpdateAuditLogDto) {
-    return this.auditLogService.update(+id, updateAuditLogDto);
-  }
-
 }
