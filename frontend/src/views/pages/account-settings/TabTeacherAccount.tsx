@@ -14,11 +14,12 @@ import {
   FormControl,
   Autocomplete,
   FormHelperText,
+  CircularProgress,
 } from '@mui/material';
 
 import { styled } from '@mui/material/styles';
 import Button, { ButtonProps } from '@mui/material/Button';
-
+import Icon from '@/@core/components/icon';
 // ** Icons Imports
 import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
 import { FcCalendar } from 'react-icons/fc';
@@ -36,6 +37,10 @@ import { shallow } from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
+import useImageCompression from '@/hooks/useImageCompression';
+import useGetImage from '@/hooks/useGetImage';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { generateErrorMessages } from 'utils/event';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -95,11 +100,14 @@ const TabTeacherAccount = () => {
   const { updateProfile } = useTeacherStore((state) => ({ updateProfile: state.updateProfile }), shallow);
 
   // ** State
-  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [imgSrc, setImgSrc] = useState<string>((auth?.user?.account?.avatar as any) || '/images/avatars/1.png');
   const [classrooms, setClassrooms] = useState<any>([]);
   const [classroomSelected, setClassroomSelected] = useState<any>([]);
   const [departmentValues, setDepartmentValues] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
+  const { isLoading, error, image } = useGetImage(imgSrc, storedToken);
 
   useEffect(() => {
     (async () => {
@@ -110,12 +118,18 @@ const TabTeacherAccount = () => {
   }, []);
 
   useEffect(() => {
+    if (imageCompressed) {
+      setImgSrc(imageCompressed);
+    }
+  }, [imageCompressed]);
+
+  useEffect(() => {
     (async () => {
       setLoading(true);
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassrooms(await data);
         const defaultClassroom: any =
-        (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
+          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
         setClassroomSelected(defaultClassroom);
         setLoading(false);
       });
@@ -145,23 +159,6 @@ const TabTeacherAccount = () => {
     resolver: yupResolver(schema),
   });
 
-  const onImageChange = (file: ChangeEvent) => {
-    const reader = new FileReader();
-    const { files } = file.target as HTMLInputElement;
-
-    if (files && files.length !== 0) {
-      if (files[0].size > 1048576) {
-        toast.error('ไฟล์ขนาดใหญ่เกินไป');
-        setImgSrc('/images/avatars/1.png');
-      } else {
-        reader.readAsDataURL(files[0]);
-        reader.onload = () => {
-          setImgSrc(reader.result as string);
-        };
-      }
-    }
-  };
-
   const onHandleChange = (event: any, value: any) => {
     event.preventDefault();
     setClassroomSelected(value);
@@ -169,6 +166,11 @@ const TabTeacherAccount = () => {
 
   const onSubmit = async (data: any, e: any) => {
     e.preventDefault();
+
+    if (!auth?.user?.id) {
+      return toast.error('กรุณาเข้าสู่ระบบก่อนทำการบันทึกโปรไฟล์');
+    }
+
     const profile = {
       id: auth?.user?.id,
       teacherInfo: auth?.user?.teacher?.id,
@@ -179,24 +181,29 @@ const TabTeacherAccount = () => {
       jobTitle: data.jobTitle,
       academicStanding: data.academicStanding,
       department: data.department,
-      avatar: data.avatar === '/images/avatars/1.png' ? '' : data.avatar,
-      avatarFile: imgSrc === '/images/avatars/1.png' ? '' : imgSrc,
+      avatar: imgSrc === data?.account?.avatar ? null : imgSrc,
       birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
       idCard: data.idCard,
       classrooms: classroomSelected.map((item: any) => item.id),
     };
 
-    toast.promise(updateProfile(storedToken, profile), {
-      loading: 'กำลังบันทึกข้อมูล...',
-      success: 'บันทึกข้อมูลสำเร็จ',
-      error: 'เกิดข้อผิดพลาด',
-    });
-    auth?.setUser(JSON.stringify(await getMe(storedToken)) as any);
+    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    await updateProfile(storedToken, profile).then(async (res: any) => {
+      if (res?.name !== 'AxiosError') {
+        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
 
-    await getMe(storedToken).then(async (data: any) => {
-      auth?.setUser({ ...(await data) });
-      localStorage.setItem('userData', JSON.stringify(data));
-      location.reload();
+        await getMe(storedToken).then(async (data: any) => {
+          auth?.setUser({ ...(await data) });
+          localStorage.setItem('userData', JSON.stringify(data));
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        });
+      } else {
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
     });
   };
 
@@ -207,18 +214,34 @@ const TabTeacherAccount = () => {
           <Grid container spacing={7}>
             <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ImgStyled src={imgSrc} alt='Profile Pic' />
-                <Box>
-                  <input
-                    hidden
-                    type='file'
-                    onChange={onImageChange}
-                    accept='image/png, image/jpeg, image/webp'
-                    id='account-settings-upload-image'
+                {isLoading || isCompressing ? (
+                  <CircularProgress
+                    size={80}
+                    sx={{
+                      mr: (theme) => theme.spacing(6.25),
+                    }}
                   />
-                  <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
+                ) : (
+                  <ImgStyled src={image as string} alt='Profile Pic' loading='lazy' />
+                )}
+                <Box>
+                  <LoadingButton
+                    loading={isCompressing}
+                    loadingPosition='start'
+                    startIcon={<Icon icon={'uil:image-upload'} />}
+                    variant='contained'
+                    component='label'
+                    htmlFor='account-settings-upload-image'
+                  >
                     อัปโหลดรูปภาพส่วนตัว
-                  </ButtonStyled>
+                    <input
+                      hidden
+                      type='file'
+                      onChange={handleInputImageChange}
+                      accept='image/png, image/jpeg, image/webp'
+                      id='account-settings-upload-image'
+                    />
+                  </LoadingButton>
                   <ResetButtonStyled
                     color='error'
                     variant='outlined'
