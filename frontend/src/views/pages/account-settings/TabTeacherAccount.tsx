@@ -1,59 +1,47 @@
-// ** React Imports
-import { useState, ElementType, ChangeEvent, useEffect, Fragment } from 'react';
+import * as yup from 'yup';
 
-// ** MUI Imports
 import {
+  Autocomplete,
   Box,
+  CardContent,
+  CircularProgress,
+  FormControl,
+  FormHelperText,
   Grid,
-  Select,
+  InputLabel,
   MenuItem,
+  Select,
   TextField,
   Typography,
-  InputLabel,
-  CardContent,
-  FormControl,
-  Autocomplete,
-  FormHelperText,
-  CircularProgress,
 } from '@mui/material';
-
-import { styled } from '@mui/material/styles';
 import Button, { ButtonProps } from '@mui/material/Button';
-import Icon from '@/@core/components/icon';
-// ** Icons Imports
-import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
-import { FcCalendar } from 'react-icons/fc';
-
-// ** Third Party Imports
-import * as yup from 'yup';
+import { Fragment, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { FcCalendar } from 'react-icons/fc';
+import Icon from '@/@core/components/icon';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { LocalStorageService } from '@/services/localStorageService';
+import { generateErrorMessages } from 'utils/event';
+import { isEmpty } from '@/@core/utils/utils';
+import { shallow } from 'zustand/shallow';
+import { styled } from '@mui/material/styles';
 import thLocale from 'date-fns/locale/th';
 import { toast } from 'react-hot-toast';
-import { useTeacherStore } from '../../../store/apps/teacher/index';
-import { shallow } from 'zustand/shallow';
-import { isEmpty } from '@/@core/utils/utils';
 import { useAuth } from '../../../hooks/useAuth';
-import { LocalStorageService } from '@/services/localStorageService';
-import useImageCompression from '@/hooks/useImageCompression';
 import useGetImage from '@/hooks/useGetImage';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { generateErrorMessages } from 'utils/event';
+import useImageCompression from '@/hooks/useImageCompression';
+import { useTeacherStore } from '../../../store/apps/teacher/index';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
   marginRight: theme.spacing(6.25),
   borderRadius: theme.shape.borderRadius,
-}));
-
-const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    textAlign: 'center',
-  },
 }));
 
 const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
@@ -79,7 +67,7 @@ const schema = yup.object().shape({
   idCard: yup.string(),
 });
 
-const localStorageService = new LocalStorageService();
+const storedToken = new LocalStorageService().getToken()!;
 
 const TabTeacherAccount = () => {
   // Hooks
@@ -90,7 +78,6 @@ const TabTeacherAccount = () => {
     shallow,
   );
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -211,7 +198,7 @@ const TabTeacherAccount = () => {
     <Fragment>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
-          <Grid container spacing={7}>
+          <Grid container spacing={5}>
             <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {isLoading || isCompressing ? (
@@ -283,7 +270,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={5}>
+            <Grid item xs={12} sm={4}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -304,7 +291,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={5}>
+            <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
