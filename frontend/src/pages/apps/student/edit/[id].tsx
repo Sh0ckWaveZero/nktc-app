@@ -254,7 +254,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     setImgSrc('/images/avatars/1.png');
   };
 
-  const { isLoading, error, image } = useGetImage(imgSrc, storedToken);
+  const { isLoading, image } = useGetImage(imgSrc, storedToken);
 
   return (
     // back button to previous page

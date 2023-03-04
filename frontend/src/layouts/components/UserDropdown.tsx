@@ -46,7 +46,7 @@ const UserDropdown = (props: Props) => {
   // ** Vars
   const { direction } = settings;
 
-  const { isLoading, error, image } = useGetImage(user?.account?.avatar as string, storedToken);
+  const { isLoading,  image } = useGetImage(user?.account?.avatar as string, storedToken);
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget);

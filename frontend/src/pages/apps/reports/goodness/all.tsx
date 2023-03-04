@@ -254,7 +254,7 @@ const ReportAllGoodness = () => {
       renderCell: ({ row }: CellType) => {
         const { image, goodnessDetail } = row;
 
-        const { isLoading, error, image: goodnessImage } = useGetImage(image, storedToken);
+        const { isLoading, image: goodnessImage } = useGetImage(image, storedToken);
 
         return isLoading ? (
           <CircularProgress />

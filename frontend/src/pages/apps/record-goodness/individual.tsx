@@ -42,7 +42,7 @@ const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
 // ** renders client column
 const renderClient = (row: any) => {
   if (row?.account?.avatar) {
-    const { isLoading, error, image } = useGetImage(row?.account?.avatar, accessToken);
+    const { isLoading, image } = useGetImage(row?.account?.avatar, accessToken);
     return isLoading ? (
       <CircularProgress />
     ) : (

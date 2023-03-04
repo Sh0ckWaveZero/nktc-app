@@ -44,8 +44,7 @@ const useGetImage = (url: string, token: string | null) => {
     };
   }, [url, token]);
 
-  return { isLoading, error, image };
+  return { isLoading, image, error };
 };
-
 
 export default useGetImage;
