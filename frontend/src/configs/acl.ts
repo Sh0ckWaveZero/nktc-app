@@ -37,6 +37,7 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['create'], 'add-student-page');
     can(['read'], 'view-student-page');
     can(['read'], 'admin-activity-check-in-page');
+    can(['read'], 'history-page');
   } else if (role === 'Teacher') {
     can(['read'], 'home-page');
     can(['read'], 'check-in-page');
@@ -61,8 +62,14 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['read'], 'report-goodness-page');
     can(['read'], 'report-badness-page');
     can(['read'], 'report-badness-group-page');
+    can(['read'], 'history-page');
   } else if (role === 'Student') {
-    can(['read'], 'home-page');
+    can(['read'], 'student-overview-page');
+    can(['read'], 'student-check-in-report');
+    can(['read'], 'student-badness-report');
+    can(['read'], 'student-goodness-report');
+    can(['read'], 'student-academic-performance-report');
+
   } else if (role === 'Parent') {
     can(['read'], 'home-page');
   } else {
