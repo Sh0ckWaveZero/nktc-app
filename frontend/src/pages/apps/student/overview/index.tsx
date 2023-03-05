@@ -60,7 +60,7 @@ const StudentOverview = (props: IStudentOverviewProps) => {
     {
       title: 'ประกาศ',
       subtitle: 'ผลการเรียน',
-      color: '#FFD700',
+      color: '#23954f',
       icon: <Icon icon='ic:round-add-chart' />,
       navLink: {
         title: 'ประกาศ ผลการเรียน',
