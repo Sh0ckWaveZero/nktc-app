@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // ** MUI Imports
 import { Box, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
@@ -20,16 +20,33 @@ import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import { LocalStorageService } from '@/services/localStorageService';
 import { CircularProgress } from '@mui/material';
+import { useStudentStore } from '@/store/index';
+import { shallow } from 'zustand/shallow';
 
-const accessToken = new LocalStorageService().getToken();
+const localStorage = new LocalStorageService();
+const accessToken = localStorage.getToken()!;
 
 const UserViewLeft = () => {
   const { user }: any = useAuth();
+  const { getTrophyOverview }: any = useStudentStore(
+    (state) => ({ getTrophyOverview: state.getTrophyOverview }),
+    shallow,
+  );
 
+  const [trophyOverview, setTrophyOverview] = useState<any>(null);
   const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
   const classroomName = user?.student?.classroom?.name;
-  
+
   const { isLoading, image } = useGetImage(user?.account?.avatar as string, accessToken as string);
+
+  const getTrophyOverviewData = async () => {
+    const data = await getTrophyOverview(accessToken, user?.student?.id);
+    setTrophyOverview(data);
+  };
+
+  useEffect(() => {
+    getTrophyOverviewData();
+  }, []);
 
   if (user) {
     return (
@@ -71,21 +88,13 @@ const UserViewLeft = () => {
             </CardContent>
 
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CustomAvatar skin='light' variant='rounded' sx={{ mr: 4, width: 50, height: 50 }}>
-                    <Icon
-                      icon='fluent-emoji:trophy'
-                      style={{
-                        width: '35px',
-                        height: '35px',
-                      }}
-                    />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 4 }}>
+                  <CustomAvatar skin='light' variant='rounded' sx={{ width: 80, height: 80, mb: 2 }}>
+                    <Icon icon='fluent-emoji:trophy' style={{ width: '60px', height: '60px' }} />
                   </CustomAvatar>
-                  <div>
-                    <Typography variant='h6'>1</Typography>
-                    <Typography variant='body2'>โล่</Typography>
-                  </div>
+                  <Typography variant='h3'>{trophyOverview?.totalTrophy || 0}</Typography>
+                  <Typography variant='body2'>โล่</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -94,7 +103,9 @@ const UserViewLeft = () => {
                     <Icon icon='mdi:star-outline' />
                   </CustomAvatar>
                   <div>
-                    <Typography variant='h6'>200</Typography>
+                    <Typography variant='h5'>
+                      {trophyOverview?.goodness > 0 ? `+${trophyOverview?.goodness}` : 0}
+                    </Typography>
                     <Typography variant='body2'>ความดี</Typography>
                   </div>
                 </Box>
@@ -103,7 +114,9 @@ const UserViewLeft = () => {
                     <Icon icon='mingcute:thumb-down-line' />
                   </CustomAvatar>
                   <div>
-                    <Typography variant='h6'>50</Typography>
+                    <Typography variant='h5'>
+                      {trophyOverview?.badness > 0 ? `-${trophyOverview?.badness}` : 0}
+                    </Typography>
                     <Typography variant='body2'>พฤติกรรม</Typography>
                   </div>
                 </Box>
