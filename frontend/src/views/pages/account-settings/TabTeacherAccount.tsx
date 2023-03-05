@@ -67,7 +67,8 @@ const schema = yup.object().shape({
   idCard: yup.string(),
 });
 
-const storedToken = new LocalStorageService().getToken()!;
+const localStorage = new LocalStorageService();
+const storedToken = localStorage.getToken()!;
 
 const TabTeacherAccount = () => {
   // Hooks
@@ -181,7 +182,7 @@ const TabTeacherAccount = () => {
 
         await getMe(storedToken).then(async (data: any) => {
           auth?.setUser({ ...(await data) });
-          localStorage.setItem('userData', JSON.stringify(data));
+          window.localStorage.setItem('userData', JSON.stringify(data));
           setTimeout(() => {
             location.reload();
           }, 1000);

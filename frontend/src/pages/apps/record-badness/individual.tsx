@@ -18,7 +18,8 @@ import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import { useStudentStore } from '@/store/index';
 
-const accessToken = new LocalStorageService().getToken()!;
+const localStorage = new LocalStorageService();
+const accessToken = localStorage.getToken()!;
 interface CellType {
   row: any;
 }

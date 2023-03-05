@@ -43,8 +43,8 @@ import toast from 'react-hot-toast';
 import { LocalStorageService } from '@/services/localStorageService';
 import useGetImage from '@/hooks/useGetImage';
 
-// const localStorageService = new LocalStorageService();
-const accessToken = new LocalStorageService().getToken()!;
+const localStorage = new LocalStorageService();
+const accessToken = localStorage.getToken()!;
 interface CellType {
   row: any;
 }
