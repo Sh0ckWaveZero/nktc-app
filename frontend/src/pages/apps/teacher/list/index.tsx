@@ -15,6 +15,7 @@ import {
   Box,
   Card,
   CardHeader,
+  CircularProgress,
   Divider,
   Grid,
   IconButton,
@@ -43,6 +44,7 @@ import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
+import useGetImage from '@/hooks/useGetImage';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -92,12 +94,17 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 const localStorageService = new LocalStorageService();
 
+const accessToken = localStorageService.getToken()!;
+
 // ** renders client column
 const renderClient = (row: any) => {
   if (row?.avatar.length) {
-    return (
+    const { isLoading, image } = useGetImage(row?.avatar, accessToken);
+    return isLoading ? (
+      <CircularProgress />
+    ) : (
       <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 30, height: 30 }} />
+        <CustomAvatar src={image as string} sx={{ mr: 3, width: 40, height: 40 }} />
       </AvatarWithImageLink>
     );
   } else {
@@ -106,7 +113,7 @@ const renderClient = (row: any) => {
         <CustomAvatar
           skin='light'
           color={row?.avatarColor || 'primary'}
-          sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
+          sx={{ mr: 3, width: 40, height: 40, fontSize: '.875rem' }}
         >
           {getInitials(row.firstName + ' ' + row.lastName)}
         </CustomAvatar>
@@ -182,7 +189,7 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
 
   // ** Hooks
-  const accessToken = localStorageService.getToken()!;
+
 
   const { teacher, fetchTeacher, updateClassroom, teacherLoading }: any = useTeacherStore(
     (state) => ({
