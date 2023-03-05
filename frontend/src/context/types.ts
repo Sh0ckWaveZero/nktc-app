@@ -1,3 +1,4 @@
+import { Classroom } from "../types/apps/teacherTypes";
 export type ErrCallbackType = (err: { [key: string]: string }) => void;
 
 export type LoginParams = {
@@ -27,7 +28,7 @@ export interface UserDataType {
   expiresAt?: null;
   account?: Account;
   teacher?: Teacher;
-  student?: null;
+  student?: Classroom;
   teacherOnClassroom?: string[];
 }
 
@@ -62,7 +63,6 @@ export interface Department {
   updatedBy?: string;
   createdBy?: string;
 }
-
 
 export type AuthValuesType = {
   loading: boolean;
