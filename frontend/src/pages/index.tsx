@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
  */
 export const getHomeRoute = (role: string) => {
   if (role === 'Teacher') return '/home';
+  if (role === 'Student') return '/apps/student/overview';
   else return '/home';
 };
 
