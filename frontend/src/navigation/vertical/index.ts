@@ -9,14 +9,14 @@ import { FaFlagCheckered } from 'react-icons/fa';
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiFlag, HiOutlineFlag, HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
-import { BsBarChartLine, BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData, BsFile, BsFiles, BsInbox, BsInboxes } from "react-icons/bs";
+import {  BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
 import { TbChartBar, TbDice1, TbDice2 } from 'react-icons/tb';
 
 const navigation = (): VerticalNavItemsType => {
   return [
     {
       title: 'หน้าหลัก',
-      icon: HomeOutline,
+      icon: 'icon-park-outline:school',
       path: '/home',
       action: 'read',
       subject: 'home-page',
@@ -34,7 +34,7 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายชื่อทั้งหมด',
-          icon: RiContactsBookLine,
+          icon: 'heroicons:inbox-stack',
           path: '/apps/teacher/list',
           action: 'read',
           subject: 'teacher-page',
@@ -53,7 +53,7 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายชื่อทั้งหมด',
-          icon: RiContactsBookLine,
+          icon: 'heroicons:inbox-stack',
           path: '/apps/student/list',
           action: 'read',
           subject: 'student-page',
@@ -66,7 +66,7 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'ข้อมูลส่วนตัว',
-      icon: RiUser6Line,
+      icon: 'line-md:account',
       path: '/pages/account-settings',
       action: 'read',
       subject: 'account-page',
@@ -78,14 +78,14 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'เช็คชื่อหน้าเสาธง',
-      icon: HiOutlineFlag,
+      icon: 'icon-park-twotone:flag',
       path: '/apps/reports/check-in',
       action: 'read',
       subject: 'check-in-page',
     },
     {
       title: 'เช็คชื่อกิจกรรม',
-      icon: HiFlag,
+      icon: 'pepicons-pop:flag',
       path: '/apps/reports/activity-check-in',
       action: 'read',
       subject: 'activity-check-in-page',
@@ -98,14 +98,14 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายบุคคล',
-          icon: BsInbox,
+          icon: 'heroicons:inbox',
           action: 'read',
           subject: 'record-goodness-page',
           path: '/apps/record-goodness/individual',
         },
         {
           title: 'รายกลุ่ม',
-          icon: BsInboxes,
+          icon: 'heroicons:inbox-stack',
           action: 'read',
           subject: 'record-goodness-page',
           path: '/apps/record-goodness/group',
@@ -120,14 +120,14 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายบุคคล',
-          icon: BsInbox,
+          icon: 'heroicons:inbox',
           action: 'read',
           subject: 'record-badness-page',
           path: '/apps/record-badness/individual',
         },
         {
           title: 'รายกลุ่ม',
-          icon: BsInboxes,
+          icon: 'heroicons:inbox-stack',
           action: 'read',
           subject: 'report-badness-group-page',
           path: '/apps/record-badness/group',
@@ -147,14 +147,14 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายวัน',
-          icon: BsCalendar2Date,
+          icon: 'bi:calendar2-date',
           action: 'read',
           subject: 'report-check-in-page',
           path: '/apps/reports/check-in/daily',
         },
         {
           title: 'รายงานสรุป',
-          icon: BsBarChartLine,
+          icon: 'tabler:sum',
           action: 'read',
           subject: 'report-check-in-page',
           path: '/apps/reports/check-in/summary',
@@ -174,21 +174,21 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายวัน',
-          icon: BsCalendar2Date,
+          icon: 'bi:calendar2-date',
           action: 'read',
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/daily',
         },
         {
           title: 'รายสัปดาห์',
-          icon: BsCalendar2Week,
+          icon: 'bi:calendar2-week',
           action: 'read',
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/weekly',
         },
         {
           title: 'รายเดือน',
-          icon: BsCalendar2Month,
+          icon: 'bi:calendar2-month',
           action: 'read',
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/monthly',
@@ -204,14 +204,14 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายวัน',
-          icon: BsCalendar2Date,
+          icon: 'bi:calendar2-date',
           action: 'read',
           subject: 'activity-check-in-page',
           path: '/apps/reports/activity-check-in/daily',
         },
         {
           title: 'รายงานสรุป',
-          icon: BsBarChartLine,
+          icon: 'tabler:sum',
           action: 'read',
           subject: 'activity-check-in-page',
           path: '/apps/reports/activity-check-in/summary',
@@ -226,21 +226,21 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'รายวัน',
-          icon: BsCalendar2Date,
+          icon: 'bi:calendar2-date',
           action: 'read',
           subject: 'admin-activity-check-in-page',
           path: '/apps/admin/reports/activity-check-in/daily',
         },
         {
           title: 'รายสัปดาห์',
-          icon: BsCalendar2Week,
+          icon: 'bi:calendar2-week',
           action: 'read',
           subject: 'admin-activity-check-in-page',
           path: '/apps/admin/reports/activity-check-in/weekly',
         },
         {
           title: 'รายเดือน',
-          icon: BsCalendar2Month,
+          icon: 'bi:calendar2-month',
           action: 'read',
           subject: 'admin-activity-check-in-page',
           path: '/apps/admin/reports/activity-check-in/monthly',
@@ -255,7 +255,7 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'ทั้งหมด',
-          icon: BsInboxes,
+          icon: 'heroicons:inbox-stack',
           action: 'read',
           subject: 'report-goodness-page',
           path: '/apps/reports/goodness/all',
@@ -270,13 +270,41 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'ทั้งหมด',
-          icon: BsInboxes,
+          icon: 'heroicons:inbox-stack',
           action: 'read',
           subject: 'report-badness-page',
           path: '/apps/reports/badness/all',
         }
       ],
-    }
+    },
+    {
+      title: 'รายงานการเช็คชื่อ',
+      icon: 'healthicons:i-schedule-school-date-time',
+      path: '/apps/reports/student/check-in-report',
+      action: 'read',
+      subject: 'student-check-in-report',
+    },
+    {
+      title: 'Report ความประพฤติ',
+      icon: 'fluent:people-error-24-regular',
+      path: '/apps/reports/student/badness-report',
+      action: 'read',
+      subject: 'student-badness-report',
+    },
+    {
+      title: 'เรียงลำดับ คะแนนความดี',
+      icon: 'game-icons:trophy',
+      path: '/apps/reports/student/goodness-report',
+      action: 'read',
+      subject: 'student-goodness-report',
+    },
+    {
+      icon: 'ic:round-add-chart',
+      title: 'ประกาศ ผลการเรียน',
+      path: 'https://student.vec.go.th/web/Login.htm?mode=indexStudent',
+      action: 'read',
+      subject: 'student-academic-performance-report',
+    },
   ];
 };
 
