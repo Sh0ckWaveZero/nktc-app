@@ -18,6 +18,7 @@ interface StudentState {
   createStudentProfile: (token: string, userId: string, data: any) => any;
   removeStudents: (token: string, studentId: string) => any;
   getAvatar: (token: string, url: string) => any;
+  getTrophyOverview: (token: string, studentId: string) => any;
 }
 
 export const useStudentStore = create<StudentState>()(
@@ -125,5 +126,18 @@ export const useStudentStore = create<StudentState>()(
         return err;
       }
     },
+    getTrophyOverview: async (token: string, studentId: string) => {
+      try {
+        const { data } = await httpClient.get(`${authConfig.studentEndpoint}/trophy-overview/${studentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    }
   }),
 );
