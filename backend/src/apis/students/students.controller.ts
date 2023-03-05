@@ -106,4 +106,16 @@ export class StudentsController {
     console.log(file);
   }
 
+
+  @Get('trophy-overview/:id')
+  async getTrophyOverview(@Param('id') id: string) {
+    try {
+      return await this.studentsService.getTrophyOverview(id);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Cannot get trophy overview',
+      }, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

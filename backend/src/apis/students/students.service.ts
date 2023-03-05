@@ -235,7 +235,7 @@ export class StudentsService {
           contains: query.classroomId,
         }
       };
-    } 
+    }
 
     const students = await this.prisma.user.findMany({
       where: {
@@ -390,5 +390,32 @@ export class StudentsService {
         },
       ],
     });
+  }
+
+  async getTrophyOverview(id: string) {
+    // get student goodness and badness
+    const student = await this.prisma.student.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        goodnessIndividual: {
+          select: {
+            goodnessScore: true,
+          },
+        },
+        badnessIndividual: {
+          select: {
+            badnessScore: true,
+          }
+        },
+      },
+    });
+
+    return {
+      totalTrophy: Math.floor((student.goodnessIndividual.length - student.badnessIndividual.length) / 100),
+      goodness: student.goodnessIndividual.reduce((a, b) => a + b.goodnessScore, 0),
+      badness: student.badnessIndividual.reduce((a, b) => a + b.badnessScore, 0),
+    };
   }
 }
