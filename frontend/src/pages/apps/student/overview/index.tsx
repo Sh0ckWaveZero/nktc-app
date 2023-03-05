@@ -2,18 +2,13 @@ import CardMenu from '@/@core/components/card-statistics/card-menu';
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import Icon from '@/@core/components/icon';
 import { AbilityContext } from '@/layouts/components/acl/Can';
-import CardAward from '@/views/apps/student/view/CardAward';
-import UsersProjectListTable from '@/views/apps/student/view/UsersProjectListTable';
 import UserViewLeft from '@/views/apps/student/view/UserViewLeft';
 import { Grid } from '@mui/material';
 import * as React from 'react';
-import { BsCalendar2Date } from 'react-icons/bs';
-import { HiOutlineFlag } from 'react-icons/hi';
-import { TbReport } from 'react-icons/tb';
 
-export interface IStudentOverviewProps {}
 
-const StudentOverview = (props: IStudentOverviewProps) => {
+
+const StudentOverview = (props: any) => {
   // ** Hook
   const ability = React.useContext(AbilityContext);
   const filterAbility = (menu: CardMenuProps) => {
