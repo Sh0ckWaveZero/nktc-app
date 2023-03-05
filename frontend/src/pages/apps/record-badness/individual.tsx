@@ -56,7 +56,7 @@ const renderClient = (row: any) => {
         <CustomAvatar
           skin='light'
           color={row?.avatarColor || 'primary'}
-          sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
+          sx={{ mr: 3, width: 40, height: 40, fontSize: '.875rem' }}
         >
           {getInitials(row.account?.firstName + ' ' + row.account?.lastName)}
         </CustomAvatar>
