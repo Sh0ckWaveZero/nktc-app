@@ -109,7 +109,7 @@ const StudentCheckIn = () => {
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [classrooms, setClassrooms] = useState<any>([]);
+  const [classrooms, setClassrooms] = useState<any>(null);
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
@@ -121,33 +121,23 @@ const StudentCheckIn = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    // const fetch = async () => {
-    //   await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
-    //     await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
-    //     const students = await data?.classrooms[0]?.students;
-    //     setDefaultClassroom(await data?.classrooms[0]);
-    //     setClassrooms(await data?.classrooms);
-    //     setCurrentStudents(students);
-    //     setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
-    //   });
-    // };
-    // if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
-    //   fetch();
-    // } else {
-    //   router.push('/401');
-    // }
     const fetchData = async () => {
       const teacherId = auth?.user?.teacher?.id as string;
       setLoading(true);
       const { data: classroomData } = await fetchClassroomByTeachId(storedToken, teacherId);
+      console.log('🚀 ~ file: activity-check-in.tsx:143 ~ fetchData ~ classroomData:', classroomData);
 
-      if (!classroomData) {
+      if (!classroomData.classrooms || !classroomData.classrooms.length) {
+        // setClassrooms([]);
+        setLoading(false);
         return;
       }
 
       const [classroom] = classroomData.classrooms;
 
       if (!classroom) {
+        // setClassrooms([]);
+        setLoading(false);
         return;
       }
 
@@ -541,7 +531,7 @@ const StudentCheckIn = () => {
               <TableHeader
                 value={classrooms}
                 handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name}
+                defaultValue={defaultClassroom?.name ?? ''}
                 handleSubmit={onHandleSubmit}
               />
               <DataGridCustom
@@ -552,7 +542,7 @@ const StudentCheckIn = () => {
                 headerHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                rowsPerPageOptions={[pageSize]}
+                rowsPerPageOptions={[10, 25, 50, 100, pageSize]}
                 onCellClick={handleCellClick}
                 onColumnHeaderClick={handleColumnHeaderClick}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
