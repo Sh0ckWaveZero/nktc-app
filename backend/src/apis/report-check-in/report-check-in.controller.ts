@@ -87,4 +87,16 @@ export class ReportCheckInController {
       throw new HttpException(error.message, HttpStatus.FORBIDDEN);
     }
   }
+
+  @Get('student/:studentId/classroom/:classroomId/start-date/:start/end-date/:end/weekly-report')
+  async findWeeklyReport(@Param('studentId') studentId: string, @Param('classroomId') classroomId: string, @Param('start') start: string, @Param('end') end: string) {
+    try {
+      return await this.reportCheckInService.findStudentDailyReport(studentId,classroomId, start, end);
+    } catch (error) {
+      if (error.message === 'No ReportCheckIn found') {
+        return {}
+      }
+      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+    }
+  }
 }

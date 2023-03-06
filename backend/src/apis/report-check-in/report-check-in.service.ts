@@ -405,4 +405,81 @@ export class ReportCheckInService {
       }
     });
   }
+
+
+  async findStudentDailyReport(studentId: string, classroomId: string, stat: string, end: string) {
+    let startDate = new Date(stat);
+    let endDate = new Date(end);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    //  find studentIs in present or absent or late or leave or internship
+    const checkIn = await this.prisma.reportCheckIn.findMany({
+      where: {
+        classroomId: classroomId,
+        checkInDate: {
+          gte: startDate,
+          lte: endDate
+        },
+        OR: [
+          {
+            present: {
+              has: studentId
+            },
+          },
+          {
+            absent: {
+              has: studentId
+            },
+          },
+          {
+            late: {
+              has: studentId
+            },
+          },
+          {
+            leave: {
+              has: studentId
+            },
+          },
+          {
+            internship: {
+              has: studentId
+            },
+          },
+        ]
+      },
+    }
+    );
+    // Map data for return  Date monday to friday
+    const checkIns = await Promise.all(checkIn.map(async (checkIn: any) => {
+      const present = checkIn.present.includes(studentId);
+      const absent = checkIn.absent.includes(studentId);
+      const late = checkIn.late.includes(studentId);
+      const leave = checkIn.leave.includes(studentId);
+      const internship = checkIn.internship.includes(studentId);
+
+      return {
+        checkInDate: checkIn.checkInDate,
+        has: present ? 'Present' : absent ? 'Absent' : late ? 'Late' : leave ? 'Leave' : internship ? 'Internship' : '-'
+      };
+    }));
+
+    // สร้าง Object weeklyReport ที่เก็บข้อมูลของรายงานสัปดาห์ โดยมี key เป็นชื่อวัน (e.g., 'จันทร์', 'อังคาร') และมี property เก็บวันที่เช็คชื่อและสถานะการเช็คชื่อ
+    const weeklyReport: Record<string, { checkInDay: string; has: string }> = {};
+
+    // วนลูปตามช่วงวันที่ที่เลือกและเพิ่มข้อมูลเข้าไปใน Object weeklyReport ให้ครบทุกวัน
+    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+      // กำหนดค่า key เป็นชื่อวัน
+      const dayOfWeek = date.toLocaleString('en-US', { weekday: 'long' });
+
+      // หาข้อมูลจาก checkIns ที่มีวันที่ตรงกับวันนี้
+      const dayInRow = checkIns.find((checkIn) => new Date(checkIn.checkInDate).toDateString() === date.toDateString());
+
+      // เพิ่มข้อมูลเข้าไปใน Object weeklyReport โดยตรวจสอบว่ามีข้อมูลวันนี้ใน checkIns หรือไม่ ถ้ามีก็เก็บข้อมูลวันที่เช็คชื่อและสถานะการเช็คชื่อ ถ้าไม่มีก็เก็บข้อมูลวันที่และสถานะเป็น '-' 
+      weeklyReport[dayOfWeek] = dayInRow ? { checkInDay: dayInRow.checkInDate, has: dayInRow.has } : { checkInDay: new Date(date.toLocaleDateString()), has: '-' };
+    }
+
+    return weeklyReport;
+  }
 }
