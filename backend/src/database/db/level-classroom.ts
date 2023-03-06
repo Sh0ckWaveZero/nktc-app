@@ -1,26 +1,30 @@
-import { Prisma } from '@Prisma/client';
-import { getLevelByName, readWorkSheetFromFile, createByAdmin } from '../../utils/utils';
+import { PrismaClient } from '@Prisma/client';
+import { readWorkSheetFromFile, createByAdmin, getLevelId } from '../../utils/utils';
 
-export const LevelClassroom = async () => {
+const prisma = new PrismaClient();
+
+export const createLevelClassroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('level-classroom');
   const admin = createByAdmin();
 
-  const levelClassroom = await Promise.all(workSheetsFromFile[0].data
-    .filter((data: any, id: number) => id > 1 && data)
-    .map(async (item: any) => {
-      const levelClassroomId = item[0].toString();
-      const name = item[1].toString();
-      const level = await getLevelByName(item[2].toString());
+  const levelClassroom = await Promise.all(
+    workSheetsFromFile[0].data
+      .filter((data: any, id: number) => id > 1 && data)
+      .map(async (item: any) => {
+        const levelClassroomId = item[0].toString().trim();
+        const name = item[1].toString();
+        const level = await getLevelId(item[2].toString());
 
-      return Prisma.validator<Prisma.LevelClassroomCreateInput>()(
-        {
+        return {
           levelClassroomId,
           name,
-          ...level,
+          levelId: level?.id || '',
           ...admin,
-        }
-      );
-    }));
+        };
+      })
+  );
 
-  return levelClassroom;
-}
+  return await prisma.levelClassroom.createMany({
+    data: levelClassroom,
+  });
+};
