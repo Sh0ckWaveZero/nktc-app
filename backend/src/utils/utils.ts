@@ -125,6 +125,19 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
 
 }
 
+export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
+  const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
+
+  const res = await prisma.level.findFirst({
+    where: {
+      levelId: isLevel,
+    },
+  });
+
+  return res;
+
+}
+
 export const getDepartIdByName = async (name: string, id: string) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
