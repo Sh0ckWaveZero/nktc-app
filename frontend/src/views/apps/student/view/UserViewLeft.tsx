@@ -22,18 +22,23 @@ import { LocalStorageService } from '@/services/localStorageService';
 import { CircularProgress } from '@mui/material';
 import { useStudentStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
+import { isEmpty } from '@/@core/utils/utils';
 
 const localStorage = new LocalStorageService();
 const accessToken = localStorage.getToken()!;
 
 const UserViewLeft = () => {
   const { user }: any = useAuth();
-  const { getTrophyOverview }: any = useStudentStore(
-    (state) => ({ getTrophyOverview: state.getTrophyOverview }),
+  const { getTrophyOverview, getTeacherClassroom }: any = useStudentStore(
+    (state) => ({
+      getTrophyOverview: state.getTrophyOverview,
+      getTeacherClassroom: state.getTeacherClassroom,
+    }),
     shallow,
   );
 
   const [trophyOverview, setTrophyOverview] = useState<any>(null);
+  const [teacherClassroom, setTeacherClassroom] = useState<any>([]);
   const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
   const classroomName = user?.student?.classroom?.name;
 
@@ -44,8 +49,19 @@ const UserViewLeft = () => {
     setTrophyOverview(data);
   };
 
+  const getTeacherClassroomData = async () => {
+    const data = await getTeacherClassroom(accessToken, user?.student?.classroom?.id);
+    setTeacherClassroom(data);
+  };
+
   useEffect(() => {
     getTrophyOverviewData();
+    getTeacherClassroomData();
+
+    return () => {
+      setTrophyOverview(null);
+      setTeacherClassroom([]);
+    };
   }, []);
 
   if (user) {
@@ -137,11 +153,15 @@ const UserViewLeft = () => {
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>อาจารย์ที่ปรึกษา:</Typography>
-                  <Typography variant='body2'>-</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2 }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>ที่อยู่ปัจจุบัน:</Typography>
-                  <Typography variant='body2'>-</Typography>
+                  <Typography variant='body2'>
+                    {isEmpty(teacherClassroom)
+                      ? '-'
+                      : teacherClassroom.map((item: any, index: number) =>
+                          index === teacherClassroom.length - 1
+                            ? item.account.firstName + ' ' + item.account.lastName
+                            : item.account.firstName + ' ' + item.account.lastName + ', ',
+                        )}
+                  </Typography>
                 </Box>
               </Box>
             </CardContent>
