@@ -34,13 +34,11 @@ const TableHeader = (props: TableHeaderProps) => {
           labelId='demo-multiple-name-label'
           id='demo-multiple-name'
           displayEmpty
-          value={defaultValue ?? []}
+          value={defaultValue}
           onChange={handleChange}
           input={<OutlinedInput id='select-multiple-chip' label='ห้องเรียน' />}
           renderValue={(selected: any) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              <Chip label={selected} />
-            </Box>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{selected && <Chip label={selected} />}</Box>
           )}
           MenuProps={MenuProps}
         >
@@ -48,11 +46,13 @@ const TableHeader = (props: TableHeaderProps) => {
             <em>ห้องเรียน</em>
           </MenuItem>
 
-          {value.map((item: any) => (
-            <MenuItem key={item.id} value={item.name}>
-              {item.name}
-            </MenuItem>
-          ))}
+          {value
+            ? value.map((item: any) => (
+                <MenuItem key={item.id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))
+            : null}
         </Select>
       </FormControl>
       <Button startIcon={<RiFileEditLine />} sx={{ mb: 2, height: 56 }} variant='contained' onClick={handleSubmit}>
