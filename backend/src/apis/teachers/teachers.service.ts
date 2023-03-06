@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
+import { isValidHttpUrl } from 'src/utils/utils';
 
 @Injectable()
 export class TeachersService {
@@ -232,8 +233,13 @@ export class TeachersService {
     try {
       let avatar = '';
       if (updateTeacherDto?.avatar) {
-        const { url } = await this.minioService.upload({ data: updateTeacherDto.avatar, path: 'avatars/teachers/' });
-        avatar = url;
+        const isUrl = isValidHttpUrl(updateTeacherDto.avatar);
+        if (isUrl) {
+          avatar = updateTeacherDto.avatar;
+        } else {
+          const { url } = await this.minioService.upload({ data: updateTeacherDto.avatar, path: 'avatars/teachers/' });
+          avatar = url;
+        }
       }
 
       // update teacher

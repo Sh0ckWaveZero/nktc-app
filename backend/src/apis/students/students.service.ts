@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
-import { isEmpty } from 'src/utils/utils';
+import { isEmpty, isValidHttpUrl } from 'src/utils/utils';
 
 @Injectable()
 export class StudentsService {
@@ -146,8 +146,13 @@ export class StudentsService {
     let avatar: any = '';
     try {
       if (body.avatar) {
-        const response = await this.minioService.upload({ data: body.avatar, path: 'avatars/students/' });
-        avatar = response?.url;
+        const isUrl = isValidHttpUrl(body.avatar);
+        if (isUrl) {
+          avatar = body.avatar;
+        } else {
+          const { url } = await this.minioService.upload({ data: body.avatar, path: 'avatars/students/' });
+          avatar = url;
+        }
         return await this.prisma.user.update({
           where: {
             id,
@@ -420,5 +425,42 @@ export class StudentsService {
       goodScore,
       badScore,
     };
+  }
+
+  async getTeacherClassroom(id: string) {
+    const teacherIds = await this.prisma.teacherOnClassroom.findMany({
+      where: {
+        classroomId: id,
+      },
+      select: {
+        teacherId: true,
+      },
+    });
+
+    const teachers = await Promise.all(teacherIds.map((teacherId) => {
+      return this.prisma.user.findFirst({
+        where: {
+          teacher: {
+            id: teacherId.teacherId,
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          account: {
+            select: {
+              id: true,
+              title: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            }
+          },
+        }
+      })
+    }));
+    console.log('🚀 ~ file: students.service.ts:456 ~ StudentsService ~ teachers ~ teachers:', teachers);
+
+    return teachers;
   }
 }
