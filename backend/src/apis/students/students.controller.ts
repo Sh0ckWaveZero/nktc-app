@@ -118,4 +118,16 @@ export class StudentsController {
       }, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('classroom/:id/teacher')
+  async getTeacherClassroom(@Param('id') id: string) {
+    try {
+      return await this.studentsService.getTeacherClassroom(id);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Cannot get teacher classroom',
+      }, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
