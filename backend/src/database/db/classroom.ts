@@ -1,6 +1,7 @@
-import { Prisma } from '@Prisma/client';
-import { getDepartIdByName, getLevelByName, getProgramId, readWorkSheetFromFile } from '../../utils/utils';
+import { Prisma, PrismaClient } from '@Prisma/client';
+import { getDepartId, getDepartIdByName, getLevelByName, getLevelId, getProgramId, readWorkSheetFromFile } from '../../utils/utils';
 
+const prisma = new PrismaClient();
 export const Classroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('classroom');
 
@@ -9,25 +10,20 @@ export const Classroom = async () => {
     .map(async (item: any) => {
       const [classroomId, name, levelName, classroom, program, department, departmentIds] = item;
       const programId = await getProgramId(program, levelName);
-      const level = await getLevelByName(levelName);
-      const departmentId = await getDepartIdByName(departmentIds, classroomId);
-      return Prisma.validator<Prisma.ClassroomCreateInput>()(
+      const level = await getLevelId(levelName);
+      const departmentId = await getDepartId(departmentIds, classroomId);
+      return Prisma.validator<Prisma.ClassroomCreateManyInput>()(
         {
           classroomId,
           name,
-          program: {
-            connect: {
-              id: programId
-            }
-          },
-          department: {
-            connect: {
-              id: departmentId
-            }
-          },
-          ...level
+          programId,
+          departmentId: departmentId?.id || '',
+          levelId: level?.id || '',
         }
       );
     }));
-  return classroom;
+
+  return await prisma.classroom.createMany({
+    data: classroom,
+  });
 }
