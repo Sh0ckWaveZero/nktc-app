@@ -1,12 +1,20 @@
+import {
+  AccountCancelOutline,
+  AccountCheckOutline,
+  AccountClockOutline,
+  AccountFilterOutline,
+  AccountLockOutline,
+} from 'mdi-material-ui';
+
+import CustomChip from '@/@core/components/mui/chip';
 // ** MUI Imports
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 interface PropsType {
   value: any;
 }
@@ -17,6 +25,22 @@ const checkInLabel: any = {
   Late: 'สาย',
   Leave: 'ลา',
   Internship: 'ฝึกงาน',
+};
+
+const checkInStatueIcon: any = {
+  Present: <AccountCheckOutline />,
+  Absent: <AccountCancelOutline />,
+  Late: <AccountClockOutline />,
+  Leave: <AccountFilterOutline />,
+  Internship: <AccountLockOutline />,
+};
+
+const checkInStatueColor: any = {
+  Present: 'success',
+  Absent: 'error',
+  Late: 'warning',
+  Leave: 'info',
+  Internship: 'secondary',
 };
 
 const TableSpanning = ({ value }: PropsType) => {
@@ -60,15 +84,25 @@ const TableSpanning = ({ value }: PropsType) => {
             }
           </TableRow>
           <TableRow>
-            {
-              Object.keys(value).map((key, index) => {
-                return (
-                  <TableCell key={index} align='center' colSpan={3}>
-                    {checkInLabel[value[key].has] || value[key].has}
-                  </TableCell>
-                );
-              })
-            }
+            {Object.keys(value).map((key, index) => {
+              const checkIn = checkInLabel[value[key].has] ? checkInLabel[value[key].has] : value[key].has;
+              return (
+                <TableCell key={index} align='center' colSpan={3}>
+                  {checkIn !== '-' ? (
+                    <CustomChip
+                      icon={checkInStatueIcon[value[key].has]}
+                      skin='light'
+                      size='small'
+                      label={checkIn}
+                      color={checkInStatueColor[value[key].has]}
+                      sx={{ textTransform: 'capitalize' }}
+                    />
+                  ) : (
+                    checkIn
+                  )}
+                </TableCell>
+              );
+            })}
           </TableRow>
         </TableBody>
       </Table>
