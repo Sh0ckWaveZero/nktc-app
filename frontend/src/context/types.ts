@@ -1,4 +1,4 @@
-import { Classroom } from "../types/apps/teacherTypes";
+import { Classroom, Level, Program } from "../types/apps/teacherTypes";
 export type ErrCallbackType = (err: { [key: string]: string }) => void;
 
 export type LoginParams = {
@@ -28,7 +28,7 @@ export interface UserDataType {
   expiresAt?: null;
   account?: Account;
   teacher?: Teacher;
-  student?: Classroom;
+  student?: Student;
   teacherOnClassroom?: string[];
 }
 
@@ -50,6 +50,35 @@ export interface Teacher {
   classrooms?: any[];
   department?: Department;
   status?: string;
+}
+
+export interface Student {
+
+  id?: string;
+  studentId?: string;
+  isGraduation?: boolean;
+  graduationYear?: number;
+  graduationDate?: Date;
+  studentStatus?: string;
+  group?: string;
+  status?: string;
+  user?: UserDataType;
+  userId?: string;
+  classroom?: Classroom;
+  classroomId?: string;
+  department?: Department;
+  departmentId?: string;
+  program?: Program;
+  programId?: string;
+  level?: Level;
+  levelId?: string;
+  levelClassroom?: any;
+  levelClassroomId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  updatedBy?: string;
+  createdBy?: string;
+
 }
 
 export interface Department {

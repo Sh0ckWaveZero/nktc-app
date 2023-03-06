@@ -11,7 +11,7 @@ import axios from 'axios';
 import { authConfig } from '@/configs/auth';
 
 // ** Types
-import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType } from './types';
+import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 
 import { LocalStorageService } from '@/services/localStorageService';
 
@@ -37,7 +37,7 @@ type Props = {
 
 const AuthProvider = ({ children }: Props) => {
   // ** States
-  const [user, setUser] = useState(defaultProvider.user);
+  const [user, setUser] = useState<UserDataType | null>(defaultProvider.user as UserDataType);
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading);
   const [isInitialized, setIsInitialized] = useState<boolean>(defaultProvider.isInitialized);
 
