@@ -278,6 +278,13 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
+      title: 'หน้าหลัก',
+      icon: 'icon-park-outline:school',
+      path: '/apps/student/overview',
+      action: 'read',
+      subject: 'student-overview-page',
+    },
+    {
       title: 'รายงานการเช็คชื่อ',
       icon: 'healthicons:i-schedule-school-date-time',
       path: '/apps/reports/student/check-in-report',
