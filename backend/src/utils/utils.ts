@@ -148,6 +148,16 @@ export const getDepartIdByName = async (name: string, id: string) => {
   return res.id;
 }
 
+export const getDepartId = async (name: string, id: string) => {
+  const names = name.trim();
+  const res = await prisma.department.findFirst({
+    where: {
+      departmentId: names,
+    },
+  });
+  return res;
+}
+
 export const createByAdmin = () => {
   const startDate = new Date();
   return {
