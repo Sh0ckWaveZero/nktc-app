@@ -10,15 +10,13 @@ import { BsCalendar2Date } from 'react-icons/bs';
 import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
-
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import { isEmpty } from '@/@core/utils/utils';
-import { shallow } from 'zustand/shallow';
-import { useActivityCheckInStore, useReportCheckInStore } from '@/store/index';
-import { useAuth } from '@/hooks/useAuth';
-import useGetFullNameWithTitle from '@/hooks/useFullNameWithTitle';
 import TableHeaderWeekly from '@/views/apps/reports/student/TableHeaderWeekly';
 import TableSpanning from '@/views/apps/reports/student/TableSpanning';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import { shallow } from 'zustand/shallow';
+import { useAuth } from '@/hooks/useAuth';
+import useGetFullNameWithTitle from '@/hooks/useFullNameWithTitle';
+import { useReportCheckInStore } from '@/store/index';
 
 dayjs.locale('th');
 dayjs.extend(buddhistEra);
