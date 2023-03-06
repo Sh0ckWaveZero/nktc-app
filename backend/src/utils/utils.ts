@@ -148,3 +148,13 @@ export const createByAdmin = () => {
 
 export const isEmpty = (obj: any) =>
   [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
+
+
+export const isValidHttpUrl = (string: any) => {
+  try {
+    const newUrl = new URL(string);
+    return newUrl.protocol === 'http:' || newUrl.protocol === 'https:';
+  } catch (err) {
+    return false;
+  }
+}
