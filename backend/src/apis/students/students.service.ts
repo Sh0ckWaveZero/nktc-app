@@ -412,10 +412,13 @@ export class StudentsService {
       },
     });
 
+    const goodScore = student.goodnessIndividual.reduce((a, b) => a + b.goodnessScore, 0);
+    const badScore = student.badnessIndividual.reduce((a, b) => a + b.badnessScore, 0);
+
     return {
-      totalTrophy: Math.floor((student.goodnessIndividual.length - student.badnessIndividual.length) / 100),
-      goodness: student.goodnessIndividual.reduce((a, b) => a + b.goodnessScore, 0),
-      badness: student.badnessIndividual.reduce((a, b) => a + b.badnessScore, 0),
+      totalTrophy: Math.floor((goodScore - badScore) / 100),
+      goodScore,
+      badScore,
     };
   }
 }

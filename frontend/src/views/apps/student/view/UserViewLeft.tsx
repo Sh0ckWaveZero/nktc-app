@@ -104,7 +104,7 @@ const UserViewLeft = () => {
                   </CustomAvatar>
                   <div>
                     <Typography variant='h5'>
-                      {trophyOverview?.goodness > 0 ? `+${trophyOverview?.goodness}` : 0}
+                      {trophyOverview?.goodScore > 0 ? `+${trophyOverview?.goodScore}` : 0}
                     </Typography>
                     <Typography variant='body2'>ความดี</Typography>
                   </div>
@@ -115,7 +115,7 @@ const UserViewLeft = () => {
                   </CustomAvatar>
                   <div>
                     <Typography variant='h5'>
-                      {trophyOverview?.badness > 0 ? `-${trophyOverview?.badness}` : 0}
+                      {trophyOverview?.badScore > 0 ? `-${trophyOverview?.badScore}` : 0}
                     </Typography>
                     <Typography variant='body2'>พฤติกรรม</Typography>
                   </div>
