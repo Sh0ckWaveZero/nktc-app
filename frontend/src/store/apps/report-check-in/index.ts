@@ -14,6 +14,7 @@ interface UserState {
   findSummaryReport: (token: string, param: any) => any;
   removeReportCheckIn: (token: string, id: string) => any;
   findDailyReportAdmin: (token: string, param: any) => any;
+  findStudentWeeklyReport: (token: string, param: any) => any;
 }
 
 export const useReportCheckInStore = create<UserState>()(
@@ -113,6 +114,20 @@ export const useReportCheckInStore = create<UserState>()(
       try {
         const { data } = await httpClient.get(
           `${authConfig.reportCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
+    findStudentWeeklyReport: async (token: string, param: any) => {
+      try {
+        const { data } = await httpClient.get(
+          `${authConfig.reportCheckInEndpoint}/student/${param.studentId}/classroom/${param.classroomId}/start-date/${param.start}/end-date/${param.end}/weekly-report`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
