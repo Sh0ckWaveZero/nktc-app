@@ -64,6 +64,18 @@ const StudentOverview = (props: any) => {
         subject: 'student-academic-performance-report',
       },
     },
+    {
+      title: 'เปลี่ยน',
+      subtitle: 'รหัสผ่าน 🔑',
+      color: '#9a17dc',
+      icon: <Icon icon='mdi:password-check-outline' />,
+      navLink: {
+        title: 'เปลี่ยนรหัสผ่าน',
+        path: 'https://student.vec.go.th/web/Login.htm?mode=indexStudent',
+        action: 'read',
+        subject: 'student-change-password',
+      },
+    },
   ];
 
   return (
