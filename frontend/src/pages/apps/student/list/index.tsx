@@ -133,8 +133,8 @@ const StudentList = () => {
           setClassrooms(teacherClassroom);
           if (classroom) {
             const currentQueryClassroom = await teacherClassroom.filter((item: any) => item.id === classroom);
-            setInitClassroom(currentQueryClassroom[0]);
-            setCurrentClassroomId(currentQueryClassroom[0].id);
+            setInitClassroom(currentQueryClassroom[0] || null);
+            setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
           }
         }
         setLoadingClassroom(false);
