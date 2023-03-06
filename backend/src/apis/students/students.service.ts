@@ -459,7 +459,6 @@ export class StudentsService {
         }
       })
     }));
-    console.log('🚀 ~ file: students.service.ts:456 ~ StudentsService ~ teachers ~ teachers:', teachers);
 
     return teachers;
   }
