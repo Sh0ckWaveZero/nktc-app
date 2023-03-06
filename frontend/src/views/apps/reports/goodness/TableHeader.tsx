@@ -1,6 +1,5 @@
 import { Autocomplete, Button, FormControl, Grid, TextField, Tooltip } from '@mui/material';
 
-import { ChangeEvent } from 'react';
 import CustomDatePicker from '@/@core/components/mui/date-picker';
 import { Dayjs } from 'dayjs';
 import Icon from '@/@core/components/icon';

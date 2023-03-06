@@ -1,12 +1,8 @@
-import { Button, Dialog, FormControl, Grid, styled, Tooltip } from '@mui/material';
+import { Button, FormControl, Grid, Tooltip } from '@mui/material';
 
 import { Fragment } from 'react';
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
-
-interface CellType {
-  row: any;
-}
 
 interface TableHeaderProps {
   onOpenClassroom: () => void;
@@ -15,15 +11,6 @@ interface TableHeaderProps {
   tooltipName: string;
   students: any;
 }
-
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(5),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(3),
-  },
-}));
 
 const TableHeaderGroup = (props: TableHeaderProps) => {
   // ** Props
