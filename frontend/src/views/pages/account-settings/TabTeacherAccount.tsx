@@ -158,7 +158,7 @@ const TabTeacherAccount = () => {
     if (!auth?.user?.id) {
       return toast.error('กรุณาเข้าสู่ระบบก่อนทำการบันทึกโปรไฟล์');
     }
-
+    const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
     const profile = {
       id: auth?.user?.id,
       teacherInfo: auth?.user?.teacher?.id,
@@ -169,7 +169,7 @@ const TabTeacherAccount = () => {
       jobTitle: data.jobTitle,
       academicStanding: data.academicStanding,
       department: data.department,
-      avatar: imgSrc === data?.account?.avatar ? null : imgSrc,
+      avatar: image ? image : null,
       birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
       idCard: data.idCard,
       classrooms: classroomSelected.map((item: any) => item.id),

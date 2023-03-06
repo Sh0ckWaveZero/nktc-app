@@ -212,11 +212,14 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     e.preventDefault();
 
     const { classroom: c, department: d, program: p, ...rest } = data;
+
+    const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
+    
     const student = {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      avatar: imgSrc === users?.account?.avatar ? null : imgSrc,
+      avatar:  image ? image : null,
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');

@@ -19,6 +19,7 @@ interface StudentState {
   removeStudents: (token: string, studentId: string) => any;
   getAvatar: (token: string, url: string) => any;
   getTrophyOverview: (token: string, studentId: string) => any;
+  getTeacherClassroom: (token: string, classroomId: string) => any;
 }
 
 export const useStudentStore = create<StudentState>()(
@@ -29,7 +30,7 @@ export const useStudentStore = create<StudentState>()(
     fetchStudents: async (token: string, params: StudentQuery) => {
       set({ loading: true });
       try {
-        const { data } = await httpClient.get(authConfig.studentEndpoint  + '/search',
+        const { data } = await httpClient.get(authConfig.studentEndpoint + '/search',
           {
             params: params,
             headers: {
@@ -43,7 +44,7 @@ export const useStudentStore = create<StudentState>()(
     },
     studentsList: async (token: string, params: StudentQuery) => {
       try {
-        const { data } = await httpClient.get(authConfig.studentEndpoint  + '/list',
+        const { data } = await httpClient.get(authConfig.studentEndpoint + '/list',
           {
             params: params,
             headers: {
@@ -138,6 +139,19 @@ export const useStudentStore = create<StudentState>()(
       } catch (err) {
         return err;
       }
-    }
+    },
+    getTeacherClassroom: async (token: string, classroomId: string) => {
+      try {
+        const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}/teacher`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
   }),
 );
