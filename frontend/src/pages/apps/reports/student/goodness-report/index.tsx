@@ -1,6 +1,8 @@
 import React from 'react';
 
-type Props = {};
+type Props = {
+  children: React.ReactNode;
+};
 
 const StudentGoodnessReport = (props: Props) => {
   return <div>StudentGoodnessReport </div>;
