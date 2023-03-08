@@ -59,6 +59,7 @@
     "nextjs-cors": "^2.1.2",
     "nprogress": "^0.2.0",
     "payment": "^2.4.6",
+    "pdf-lib": "^1.17.1",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
