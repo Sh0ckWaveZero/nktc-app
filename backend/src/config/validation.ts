@@ -43,6 +43,9 @@ class EnvironmentVariables {
 
   @IsString()
   MINIO_BUCKET_NAME: string;
+
+  @IsString()
+  EDUCATION_YEARS: string;
 }
 
 const validate = (config: Record<string, unknown>) => {
