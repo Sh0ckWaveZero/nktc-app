@@ -73,6 +73,15 @@ export class StaticsController {
     await this.serveImage(id, 'badness-individual/images', response);
   }
 
+  @Get('goodness-individual/certs/:id/certificate_goodness.pdf')
+  @HttpCode(HttpStatus.OK)
+  async getGoodnessIndividualCert(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    await this.serveImage(id, 'goodness-individual/certs', response);
+  }
+
   private async serveImage(
     id: string,
     prefix: string,
