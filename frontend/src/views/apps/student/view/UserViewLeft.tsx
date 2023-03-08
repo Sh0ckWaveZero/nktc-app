@@ -214,12 +214,14 @@ const UserViewLeft = () => {
             </Card>
           </Grid>
         </Grid>
-        <CardAward
-          open={open}
-          handleClose={handleClose}
-          trophyOverview={trophyOverview?.totalTrophy}
-          goodScore={trophyOverview?.goodScore}
-        />
+        {open && (
+          <CardAward
+            open={open}
+            handleClose={handleClose}
+            trophyOverview={trophyOverview?.totalTrophy}
+            goodScore={trophyOverview?.goodScore}
+          />
+        )}
       </Fragment>
     );
   } else {
