@@ -125,8 +125,6 @@ const StudentCheckIn = () => {
       const teacherId = auth?.user?.teacher?.id as string;
       setLoading(true);
       const { data: classroomData } = await fetchClassroomByTeachId(storedToken, teacherId);
-      console.log('🚀 ~ file: activity-check-in.tsx:143 ~ fetchData ~ classroomData:', classroomData);
-
       if (!classroomData.classrooms || !classroomData.classrooms.length) {
         // setClassrooms([]);
         setLoading(false);
