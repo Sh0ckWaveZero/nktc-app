@@ -1,8 +1,8 @@
 // ** React Imports
-import { useState, useEffect, Fragment } from 'react';
+import { Fragment } from 'react';
 
 // ** MUI Imports
-import { Box, Button, Card, CardContent, Divider, Grid, styled, Tooltip, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
 
 // ** Icon Imports
 import Icon from '@/@core/components/icon';
@@ -12,68 +12,31 @@ import CustomChip from '@/@core/components/mui/chip';
 import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Types
-import { ThemeColor } from '@/@core/layouts/types';
 
 // ** Utils Import
 import { getInitials } from '@/@core/utils/get-initials';
-import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
-import { LocalStorageService } from '@/services/localStorageService';
 import { CircularProgress } from '@mui/material';
-import { useStudentStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
-import CardAward from './CardAward';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken()!;
+type PropsTypes = {
+  user: any;
+  trophyOverview: any;
+  teacherClassroom: any;
+  isLoading: boolean;
+  image: any;
+  fullName: string;
+  classroomName: string;
+};
 
-const UserViewLeft = () => {
-  const { user }: any = useAuth();
-  const { getTrophyOverview, getTeacherClassroom }: any = useStudentStore(
-    (state) => ({
-      getTrophyOverview: state.getTrophyOverview,
-      getTeacherClassroom: state.getTeacherClassroom,
-    }),
-    shallow,
-  );
-
-  const [trophyOverview, setTrophyOverview] = useState<any>(null);
-  const [teacherClassroom, setTeacherClassroom] = useState<any>([]);
-  const [open, setOpen] = useState(false);
-  const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
-  const classroomName = user?.student?.classroom?.name;
-
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string, accessToken as string);
-
-  const getTrophyOverviewData = async () => {
-    const data = await getTrophyOverview(accessToken, user?.student?.id);
-    setTrophyOverview(data);
-  };
-
-  const getTeacherClassroomData = async () => {
-    const data = await getTeacherClassroom(accessToken, user?.student?.classroom?.id);
-    setTeacherClassroom(data);
-  };
-
-  useEffect(() => {
-    getTrophyOverviewData();
-    getTeacherClassroomData();
-
-    return () => {
-      setTrophyOverview(null);
-      setTeacherClassroom([]);
-    };
-  }, []);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+const UserViewLeft = ({
+  classroomName,
+  fullName,
+  image,
+  isLoading,
+  teacherClassroom,
+  trophyOverview,
+  user,
+}: PropsTypes) => {
   if (user) {
     return (
       <Fragment>
@@ -113,48 +76,20 @@ const UserViewLeft = () => {
                   sx={{ textTransform: 'capitalize' }}
                 />
               </CardContent>
-
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mb: 4 }}>
-                    <Tooltip
-                      title={
-                        trophyOverview?.totalTrophy === 0 ? '' : 'คลิกเพื่อดูรายละเอียดของเกียรติบัตรความประพฤติดี'
-                      }
-                      placement='bottom'
-                      arrow
+                    <CustomAvatar
+                      skin='light'
+                      variant='rounded'
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        mb: 2,
+                      }}
                     >
-                      <div>
-                        <Button
-                          onClick={handleClickOpen}
-                          disabled={trophyOverview?.totalTrophy === 0}
-                          sx={{
-                            // disable hover effect
-                            '&:hover': { backgroundColor: 'transparent' },
-                            // disable focus effect
-                            '&:focus': { backgroundColor: 'transparent' },
-                            // disable active effect
-                            '&:active': { backgroundColor: 'transparent' },
-                            // disable selected effect
-                            '&.Mui-selected': { backgroundColor: 'transparent' },
-                            // disable focus visible effect
-                            '&.Mui-focusVisible': { backgroundColor: 'transparent' },
-                          }}
-                        >
-                          <CustomAvatar
-                            skin='light'
-                            variant='rounded'
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              mb: 2,
-                            }}
-                          >
-                            <Icon icon='fluent-emoji:trophy' style={{ width: '60px', height: '60px' }} />
-                          </CustomAvatar>
-                        </Button>
-                      </div>
-                    </Tooltip>
+                      <Icon icon='fluent-emoji:trophy' style={{ width: '60px', height: '60px' }} />
+                    </CustomAvatar>
                     <Typography variant='h3'>{trophyOverview?.totalTrophy || 0}</Typography>
                     <Typography variant='body2'>โล่</Typography>
                   </Box>
@@ -214,14 +149,6 @@ const UserViewLeft = () => {
             </Card>
           </Grid>
         </Grid>
-        {open && (
-          <CardAward
-            open={open}
-            handleClose={handleClose}
-            trophyOverview={trophyOverview?.totalTrophy}
-            goodScore={trophyOverview?.goodScore}
-          />
-        )}
       </Fragment>
     );
   } else {
