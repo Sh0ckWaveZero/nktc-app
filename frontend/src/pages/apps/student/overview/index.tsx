@@ -164,7 +164,7 @@ const StudentOverview = (props: any) => {
 
   return (
     <Fragment>
-      <ConfettiAnimation width={confettiWidth} height={confettiHeight} />
+      {trophyOverview?.totalTrophy >= 1 && <ConfettiAnimation width={confettiWidth} height={confettiHeight} />}
       <Grid container spacing={6}>
         <Grid item xs={12} md={5} lg={4}>
           <UserViewLeft
