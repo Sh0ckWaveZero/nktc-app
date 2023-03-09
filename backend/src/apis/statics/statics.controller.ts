@@ -73,25 +73,29 @@ export class StaticsController {
     await this.serveImage(id, 'badness-individual/images', response);
   }
 
-  @Get('goodness-individual/certs/:id/certificate_goodness.pdf')
+  @Get('goodness-individual/certs/:id')
   @HttpCode(HttpStatus.OK)
   async getGoodnessIndividualCert(
     @Param('id') id: string,
     @Res() response: Response,
   ) {
-    await this.serveImage(id, 'goodness-individual/certs', response);
+    const fileName = `${id}/certificate_goodness.pdf`;
+    await this.serveImage(fileName, 'goodness-individual/certs', response, 'application/pdf', '.pdf');
   }
+
 
   private async serveImage(
     id: string,
     prefix: string,
     response: Response,
+    contentType = 'image/webp',
+    fileTypes = '.webp'
   ) {
     try {
       const bucketName = configuration().minioBucket;
       const dataStream = await this.staticsService.getAvatar(bucketName, `${prefix}/${id}`);
-      response.contentType('image/webp');
-      response.attachment(`${id}.webp`);
+      response.contentType(contentType);
+      response.attachment(`${id}${fileTypes}`);
       dataStream.pipe(response);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
