@@ -292,6 +292,13 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'student-check-in-report',
     },
     {
+      title: 'Report ความดี',
+      icon: 'humbleicons:bulb',
+      path: '/apps/reports/student/goodness-report',
+      action: 'read',
+      subject: 'student-goodness-report',
+    },
+    {
       title: 'Report ความประพฤติ',
       icon: 'fluent:people-error-24-regular',
       path: '/apps/reports/student/badness-report',
@@ -299,7 +306,7 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'student-badness-report',
     },
     {
-      title: 'เรียงลำดับ คะแนนความดี',
+      title: 'เรียงลำดับ คะแนนตามความประพฤติ',
       icon: 'game-icons:trophy',
       path: '/apps/reports/student/goodness-report',
       action: 'read',
