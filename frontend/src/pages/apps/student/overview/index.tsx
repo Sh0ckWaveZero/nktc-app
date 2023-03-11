@@ -112,6 +112,18 @@ const StudentOverview = (props: any) => {
         subject: 'student-check-in-report',
       },
     },
+     {
+      title: 'Report',
+      subtitle: 'ความดี',
+      color: '#079233',
+      icon: <Icon icon='humbleicons:bulb' />,
+      navLink: {
+        title: 'Report ความประพฤติ',
+        path: '/apps/reports/student/goodness-report',
+        action: 'read',
+        subject: 'student-goodness-report',
+      },
+    },
     {
       title: 'Report',
       subtitle: 'ความประพฤติ',
@@ -126,14 +138,14 @@ const StudentOverview = (props: any) => {
     },
     {
       title: 'เรียงลำดับ',
-      subtitle: 'คะแนนความดี',
+      subtitle: 'คะแนนตามความความประพฤติ',
       color: '#FFD700',
       icon: <Icon icon='game-icons:trophy' />,
       navLink: {
         title: 'เรียงลำดับ คะแนนความดี',
         path: '/apps/reports/student/goodness-report',
         action: 'read',
-        subject: 'student-goodness-report',
+        subject: 'student-sorting-goodness-report',
       },
     },
     {
@@ -146,18 +158,6 @@ const StudentOverview = (props: any) => {
         path: 'https://student.vec.go.th/web/Login.htm?mode=indexStudent',
         action: 'read',
         subject: 'student-academic-performance-report',
-      },
-    },
-    {
-      title: 'เปลี่ยน',
-      subtitle: 'รหัสผ่าน 🔑',
-      color: '#9a17dc',
-      icon: <Icon icon='mdi:password-check-outline' />,
-      navLink: {
-        title: 'เปลี่ยนรหัสผ่าน',
-        path: 'https://student.vec.go.th/web/Login.htm?mode=indexStudent',
-        action: 'read',
-        subject: 'student-change-password',
       },
     },
   ];
