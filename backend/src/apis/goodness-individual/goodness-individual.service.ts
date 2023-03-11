@@ -69,6 +69,7 @@ export class GoodnessIndividualService {
   }
 
   async search(query: any) {
+    console.log('🚀 ~ file: goodness-individual.service.ts:72 ~ GoodnessIndividualService ~ search ~ query:', query);
     const filter = {};
 
     if (query.fullName) {
@@ -117,8 +118,16 @@ export class GoodnessIndividualService {
       };
     }
 
+    if (query.studentId) {
+      filter['studentKey'] = query.studentId;
+    }
+
+    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
+
     const response = await this.prisma.goodnessIndividual.findMany({
       where: filter,
+      skip: query.skip || 0,
+      take: query.take || 1000,
       include: {
         student: {
           include: {
@@ -137,13 +146,14 @@ export class GoodnessIndividualService {
         },
         classroom: true,
       },
-      orderBy: [
-        {
-          createdAt: 'desc',
-        }
-      ],
+      orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
     });
 
-    return response;
+    const total = await this.prisma.goodnessIndividual.count({ where: filter });
+
+    return {
+      data: response,
+      total,
+    };
   };
 }
