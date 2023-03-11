@@ -119,7 +119,7 @@ const StudentOverview = (props: any) => {
       icon: <Icon icon='humbleicons:bulb' />,
       navLink: {
         title: 'Report ความประพฤติ',
-        path: '/apps/reports/student/goodness-report',
+        path: '/apps/reports/goodness/individual',
         action: 'read',
         subject: 'student-goodness-report',
       },
@@ -131,7 +131,7 @@ const StudentOverview = (props: any) => {
       icon: <Icon icon='fluent:people-error-24-regular' />,
       navLink: {
         title: 'Report ความประพฤติ',
-        path: '/apps/reports/student/badness-report',
+        path: '/apps/reports/badness/individual',
         action: 'read',
         subject: 'student-badness-report',
       },
