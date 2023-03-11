@@ -7,6 +7,9 @@ type Body = {
   fullName?: string;
   classroomId?: string;
   badDate?: Dayjs | null;
+  studentId?: string;
+  skip?: number;
+  take?: number;
 };
 interface BadnessIndividualState {
   createBadnessIndividual: (token: string, body: any) => any;
