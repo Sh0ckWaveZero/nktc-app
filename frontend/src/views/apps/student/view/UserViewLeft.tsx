@@ -139,8 +139,8 @@ const UserViewLeft = ({
                         ? '-'
                         : teacherClassroom.map((item: any, index: number) =>
                             index === teacherClassroom.length - 1
-                              ? item.account.firstName + ' ' + item.account.lastName
-                              : item.account.firstName + ' ' + item.account.lastName + ', ',
+                              ? item.account.title + item.account.firstName + ' ' + item.account.lastName
+                              : item.account.title + item.account.firstName + ' ' + item.account.lastName + ', ',
                           )}
                     </Typography>
                   </Box>
