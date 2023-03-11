@@ -136,6 +136,10 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
+  // hide underline
+  '&:hover': {
+    textDecoration: 'none',
+  },
 }));
 
 const localStorageService = new LocalStorageService();

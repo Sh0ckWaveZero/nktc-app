@@ -23,6 +23,11 @@ const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   },
 }));
 
+const LinkStyled = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+}));
+
 const Img = styled('img')(({ theme }) => ({
   marginBottom: theme.spacing(10),
   [theme.breakpoints.down('lg')]: {
@@ -57,11 +62,11 @@ const Error401 = () => {
           <Typography variant='body2'>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ โปรดกลับสู่หน้าหลัก!</Typography>
         </BoxWrapper>
         <Img height='487' alt='error-illustration' src='/images/pages/401.png' />
-        <Link passHref href='/'>
-          <Button component='a' variant='contained' sx={{ px: 5.5 }}>
+        <LinkStyled passHref href='/'>
+          <Button component='p' variant='contained' sx={{ px: 5.5 }}>
             กลับสู่หน้าหลัก
           </Button>
-        </Link>
+        </LinkStyled>
       </Box>
       <FooterIllustrations />
     </Box>
