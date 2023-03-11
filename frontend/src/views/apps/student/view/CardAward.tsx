@@ -1,4 +1,4 @@
-import { Box, Dialog, DialogContent, DialogTitle, Grid } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { Fragment, useState } from 'react';
 
 import Button from '@mui/material/Button';
@@ -10,7 +10,7 @@ import Icon from '@/@core/components/icon';
 import IconButton from '@mui/material/IconButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import Typography from '@mui/material/Typography';
-import modifyPdf from 'utils/modifyPdf';
+import generateCertificatePdf from 'utils/generateCertificatePdf';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '../../../../hooks/useAuth';
 import useGetPDF from '@/hooks/useGetPDF';
@@ -94,32 +94,32 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   };
   // ** Var
   const imageSrc = settings.mode === 'light' ? 'triangle-light.png' : 'triangle-dark.png';
-  
+
   const handleDownload = async () => {
-    const base64WithoutPrefix = await modifyPdf(PDF, user);
-    const blob = new Blob([base64WithoutPrefix], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
+    const modifiedPdf = await generateCertificatePdf(PDF, user);
+    const pdfBlob = new Blob([modifiedPdf], { type: 'application/pdf' });
+    const pdfUrl = URL.createObjectURL(pdfBlob);
 
     if (window.innerWidth < 768) {
-      downloadFile(url, user);
+      downloadPdf(pdfUrl, user);
     } else {
       // Display PDF on desktop devices
       setOpen(true);
-      setPdfData(url);
+      setPdfData(pdfUrl);
     }
   };
 
-  const downloadFile = (url: any, user: any) => {
+  const downloadPdf = (pdfUrl: any, user: any) => {
     const fullName = `${user?.account?.firstName}_${user?.account?.lastName}`;
     const fileName = `เกียรติบัตรความประพฤติดี_${fullName}.pdf`;
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
+    const linkElement = document.createElement('a');
+    linkElement.href = pdfUrl;
+    linkElement.download = fileName;
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    document.body.appendChild(linkElement);
+    linkElement.click();
+    document.body.removeChild(linkElement);
   };
 
   return (
