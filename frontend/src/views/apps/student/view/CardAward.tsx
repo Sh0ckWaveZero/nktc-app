@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, Grid } from '@mui/material';
 import { Fragment, useState } from 'react';
 
 import Button from '@mui/material/Button';
@@ -83,7 +83,7 @@ export interface DialogTitleProps {
 const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   // ** Hook
   const { settings } = useSettings();
-  const { user } = useAuth();
+  const { user }: any = useAuth();
   const [open, setOpen] = useState(false);
   const [pdfData, setPdfData] = useState<any | null>(null);
   const certsUrl = `${process.env.NEXT_PUBLIC_API_URL}/statics/goodness-individual/certs/${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`;
@@ -94,11 +94,32 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   };
   // ** Var
   const imageSrc = settings.mode === 'light' ? 'triangle-light.png' : 'triangle-dark.png';
-
+  
   const handleDownload = async () => {
-    setOpen(true);
     const base64WithoutPrefix = await modifyPdf(PDF, user);
-    setPdfData(base64WithoutPrefix);
+    const blob = new Blob([base64WithoutPrefix], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    if (window.innerWidth < 768) {
+      downloadFile(url, user);
+    } else {
+      // Display PDF on desktop devices
+      setOpen(true);
+      setPdfData(url);
+    }
+  };
+
+  const downloadFile = (url: any, user: any) => {
+    const fullName = `${user?.account?.firstName}_${user?.account?.lastName}`;
+    const fileName = `เกียรติบัตรความประพฤติดี_${fullName}.pdf`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -146,7 +167,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
         <DialogContent>
           {pdfData && (
             <embed
-              src={URL.createObjectURL(new Blob([pdfData], { type: 'application/pdf' }))}
+              src={pdfData}
               type='application/pdf'
               width='100%'
               height='100%'
