@@ -7,6 +7,9 @@ type Body = {
   fullName?: string;
   classroomId?: string;
   goodDate?: Dayjs | null;
+  studentId?: string;
+  skip?: number;
+  take?: number;
 };
 
 interface GoodnessIndividualState {
