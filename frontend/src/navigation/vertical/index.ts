@@ -294,14 +294,14 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Report ความดี',
       icon: 'humbleicons:bulb',
-      path: '/apps/reports/student/goodness-report',
+      path: '/apps/reports/goodness/individual',
       action: 'read',
       subject: 'student-goodness-report',
     },
     {
       title: 'Report ความประพฤติ',
       icon: 'fluent:people-error-24-regular',
-      path: '/apps/reports/student/badness-report',
+      path: '/apps/reports/badness/individual',
       action: 'read',
       subject: 'student-badness-report',
     },
