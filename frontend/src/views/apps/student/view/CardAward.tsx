@@ -133,7 +133,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
           <Typography variant='h6'>{`ขอแสดงความยินดีกับ ${fullName} ได้รับเกียรติบัตรความประพฤติดี! 🥳`}</Typography>
           <Typography variant='body2'>{`นี่เป็นความสำเร็จที่มีค่าและเป็นเครื่องหมายของความพยายามและความมุ่งมั่นของนักเรียน ในปีการศึกษา ${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`}</Typography>
           <Typography variant='h5' sx={{ mt: 3.5, color: 'primary.main' }}>
-            {trophyOverview?.goodScore} คะแนน
+            {trophyOverview?.goodScore - trophyOverview.badScore} คะแนน
           </Typography>
           <Typography variant='body2' sx={{ mb: 4.25 }}>
             {`คะแนนความประพฤติดี`}
