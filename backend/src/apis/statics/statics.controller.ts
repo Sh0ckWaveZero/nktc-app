@@ -82,8 +82,7 @@ export class StaticsController {
     const fileName = `${id}/certificate_goodness.pdf`;
     await this.serveImage(fileName, 'goodness-individual/certs', response, 'application/pdf', '.pdf');
   }
-
-
+  
   private async serveImage(
     id: string,
     prefix: string,

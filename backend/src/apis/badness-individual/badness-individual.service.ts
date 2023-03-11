@@ -116,8 +116,16 @@ export class BadnessIndividualService {
       };
     }
 
+    if (query.studentId) {
+      filter['studentKey'] = query.studentId;
+    }
+
+    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
+
     const response = await this.prisma.badnessIndividual.findMany({
       where: filter,
+      skip: query.skip || 0,
+      take: query.take || 1000,
       include: {
         student: {
           include: {
@@ -136,13 +144,14 @@ export class BadnessIndividualService {
         },
         classroom: true,
       },
-      orderBy: [
-        {
-          createdAt: 'desc',
-        }
-      ],
+      orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
     });
 
-    return response;
+    const total = await this.prisma.badnessIndividual.count({ where: filter }) || 0;
+
+    return {
+      data: response,
+      total,
+    };
   };
 }

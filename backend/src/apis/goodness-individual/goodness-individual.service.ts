@@ -69,7 +69,6 @@ export class GoodnessIndividualService {
   }
 
   async search(query: any) {
-    console.log('🚀 ~ file: goodness-individual.service.ts:72 ~ GoodnessIndividualService ~ search ~ query:', query);
     const filter = {};
 
     if (query.fullName) {
@@ -149,7 +148,7 @@ export class GoodnessIndividualService {
       orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
     });
 
-    const total = await this.prisma.goodnessIndividual.count({ where: filter });
+    const total = await this.prisma.goodnessIndividual.count({ where: filter }) || 0;
 
     return {
       data: response,
