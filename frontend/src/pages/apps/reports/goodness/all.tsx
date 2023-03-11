@@ -91,7 +91,7 @@ const ReportAllGoodness = () => {
         classroomId: defaultClassroom?.id || '',
         goodDate: selectedDate,
       });
-      setCurrentStudents(response);
+      setCurrentStudents(response?.data || []);
       setLoadingStudent(false);
     } catch (error: any) {
       toast.error(error?.message);
