@@ -16,6 +16,7 @@ interface GoodnessIndividualState {
   createGoodnessIndividual: (token: string, body: any) => any;
   createGoodnessGroup: (token: string, body: any) => any;
   search: (token: string, body: Body) => any;
+  summary : (token: string, body: any) => any;
 }
 
 export const goodnessIndividualStore = create<GoodnessIndividualState>()(
@@ -65,6 +66,22 @@ export const goodnessIndividualStore = create<GoodnessIndividualState>()(
         return response?.data;
       } catch (err) {
         console.error('Error creating goodness individual:', err);
+        return err;
+      }
+    },
+    summary: async (token: string, body: any) => {
+      try {
+        const response = await httpClient.post(
+          `${authConfig.goodnessIndividualEndpoint}/summary`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response?.data;
+      } catch (err) {
+        console.error('Error get summary:', err);
         return err;
       }
     },
