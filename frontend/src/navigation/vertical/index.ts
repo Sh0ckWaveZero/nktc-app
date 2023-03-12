@@ -308,7 +308,7 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'เรียงลำดับ คะแนนตามความประพฤติ',
       icon: 'game-icons:trophy',
-      path: '/apps/reports/student/goodness-report',
+      path: '/apps/reports/goodness/summary',
       action: 'read',
       subject: 'student-goodness-report',
     },
