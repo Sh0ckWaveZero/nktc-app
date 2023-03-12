@@ -143,9 +143,9 @@ const StudentOverview = (props: any) => {
       icon: <Icon icon='game-icons:trophy' />,
       navLink: {
         title: 'เรียงลำดับ คะแนนความดี',
-        path: '/apps/reports/student/goodness-report',
+        path: '/apps/reports/goodness/summary',
         action: 'read',
-        subject: 'student-sorting-goodness-report',
+        subject: 'student-goodness-summary-report',
       },
     },
     {
