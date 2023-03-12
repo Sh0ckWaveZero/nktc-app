@@ -22,7 +22,7 @@ import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+
 
 interface CellType {
   row: any;
@@ -64,7 +64,7 @@ const StudentGoodnessSummaryReport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [sortModel, setSortModel] = useState([{ field: 'createdAt', sort: 'desc' }]);
   const [total, setTotal] = useState(0);
 
@@ -237,76 +237,6 @@ const StudentGoodnessSummaryReport = () => {
         );
       },
     },
-    // {
-    //   flex: 0.15,
-    //   minWidth: 160,
-    //   field: 'image',
-    //   headerName: 'รูปภาพ',
-    //   editable: false,
-    //   sortable: false,
-    //   hideSortIcons: true,
-    //   align: 'center',
-    //   renderCell: ({ row }: CellType) => {
-    //     const { image, goodnessDetail } = row;
-    //     const { isLoading, image: goodnessImage } = useGetImage(image, storedToken);
-
-    //     return isLoading ? (
-    //       <CircularProgress />
-    //     ) : goodnessImage ? (
-    //       <div
-    //         style={{
-    //           cursor: 'pointer',
-    //         }}
-    //         onClick={() => {
-    //           setCurrentImage(goodnessImage);
-    //           handleClickOpen();
-    //         }}
-    //       >
-    //         <img src={goodnessImage as any} alt={goodnessDetail || 'บันทึกความดี'} width='150' height='200' />
-    //       </div>
-    //     ) : (
-    //       <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-    //         ไม่มีรูปภาพ
-    //       </Typography>
-    //     );
-    //   },
-    // },
-    // {
-    //   flex: 0.12,
-    //   minWidth: 100,
-    //   field: 'createDate',
-    //   headerName: 'วันที่บันทึก',
-    //   editable: false,
-    //   sortable: false,
-    //   hideSortIcons: true,
-    //   renderCell: ({ row }: CellType) => {
-    //     const { goodDate, createdAt } = row;
-    //     return (
-    //       <Tooltip
-    //         title={new Date(goodDate || createdAt).toLocaleTimeString('th-TH', {
-    //           year: 'numeric',
-    //           month: 'short',
-    //           day: 'numeric',
-    //           hour: '2-digit',
-    //           minute: '2-digit',
-    //         })}
-    //         arrow
-    //       >
-    //         <span>
-    //           <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-    //             {
-    //               new Date(goodDate || createdAt).toLocaleDateString('th-TH', {
-    //                 year: 'numeric',
-    //                 month: 'short',
-    //                 day: 'numeric',
-    //               }) /* แสดงวันที่เป็นภาษาไทย */
-    //             }
-    //           </Typography>
-    //         </span>
-    //       </Tooltip>
-    //     );
-    //   },
-    // },
   ];
 
   return (
