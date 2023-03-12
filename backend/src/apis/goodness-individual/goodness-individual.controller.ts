@@ -25,4 +25,10 @@ export class GoodnessIndividualController {
     return await this.goodnessIndividualService.search(body);
   }
 
+  // summary
+  @Post('summary')
+  async summary(@Body() body: any) {
+    return await this.goodnessIndividualService.getGoodnessSummary(body);
+  }
+
 }
