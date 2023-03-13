@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
   styled,
+  Button,
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
@@ -22,7 +23,7 @@ import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-
+import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 
 interface CellType {
   row: any;
@@ -67,6 +68,7 @@ const StudentGoodnessSummaryReport = () => {
   const [pageSize, setPageSize] = useState(10);
   const [sortModel, setSortModel] = useState([{ field: 'createdAt', sort: 'desc' }]);
   const [total, setTotal] = useState(0);
+  const [info, setInfo] = useState<any>(null);
 
   const searchWithParams = async (params: any) => {
     try {
@@ -94,8 +96,9 @@ const StudentGoodnessSummaryReport = () => {
     searchWithParams(params);
   }, [page, pageSize, sortModel]);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (info: any) => {
     setOpen(true);
+    setInfo(info);
   };
 
   const handleClose = () => {
@@ -205,15 +208,27 @@ const StudentGoodnessSummaryReport = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
+      align: 'center',
       renderCell: ({ row }: CellType) => {
-        const { goodnessDetail } = row;
-
+        const { info } = row;
         return (
-          <Tooltip title={goodnessDetail} arrow>
+          <Tooltip title={'รายละเอียด'} arrow>
             <span>
-              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-                {goodnessDetail}
-              </Typography>
+              <Button
+                aria-label='more'
+                aria-controls='long-menu'
+                aria-haspopup='true'
+                onClick={() => handleClickOpen(info)}
+                variant='contained'
+                startIcon={<IconifyIcon icon={'mdi:timeline-check-outline'} width={20} height={20} />}
+                size='medium'
+                color='success'
+                sx={{ color: 'text.secondary' }}
+              >
+                <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
+                  รายละเอียด
+                </Typography>
+              </Button>
             </span>
           </Tooltip>
         );
@@ -253,9 +268,8 @@ const StudentGoodnessSummaryReport = () => {
                   </Avatar>
                 }
                 sx={{ color: 'text.primary' }}
-                title={`เรียงลำดับ คะแนนรวมความประพฤติดี`}
+                title={`เรียงลำดับ คะแนนตามความดี`}
               />
-
               <DataGrid
                 autoHeight
                 columns={columns}
@@ -276,7 +290,13 @@ const StudentGoodnessSummaryReport = () => {
             </Card>
           </Grid>
         </Grid>
-        <BootstrapDialog onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+        <BootstrapDialog 
+        fullWidth
+        maxWidth='xs'
+        onClose={handleClose} 
+        aria-labelledby='บรรทึกความดี' 
+        open={open}
+        >
           {handleClose ? (
             <IconButton
               aria-label='close'
@@ -291,7 +311,7 @@ const StudentGoodnessSummaryReport = () => {
               <CloseIcon />
             </IconButton>
           ) : null}
-          <img src={currentImage as any} alt='บันทึกความดี' width='100%' height='100%' />
+          <TimelineGoodness info={info} />
         </BootstrapDialog>
       </Fragment>
     )
