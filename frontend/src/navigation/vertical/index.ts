@@ -306,11 +306,18 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'student-badness-report',
     },
     {
-      title: 'เรียงลำดับ คะแนนตามความประพฤติ',
+      title: 'ลำดับคะแนนความดี',
       icon: 'game-icons:trophy',
       path: '/apps/reports/goodness/summary',
       action: 'read',
       subject: 'student-goodness-report',
+    },
+    {
+      title: 'ลำดับคะแนนความประพฤติ',
+      icon: 'icon-park-outline:bad-two',
+      path: '/apps/reports/badness/summary',
+      action: 'read',
+      subject: 'student-badness-summary-report',
     },
     {
       icon: 'ic:round-add-chart',
