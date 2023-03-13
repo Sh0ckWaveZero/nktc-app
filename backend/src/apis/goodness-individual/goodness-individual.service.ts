@@ -252,6 +252,7 @@ export class GoodnessIndividualService {
           ...item,
           info: filteredGoodnessIndividual.filter((gi: any) => gi.studentId === item.studentId).map((gi: any) => {
             return {
+              id: gi.id,
               goodnessDetail: gi.goodnessDetail,
               goodnessScore: gi.goodnessScore,
               goodDate: gi.goodDate,
