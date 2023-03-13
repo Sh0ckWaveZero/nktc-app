@@ -138,7 +138,7 @@ const StudentOverview = (props: any) => {
     },
     {
       title: 'เรียงลำดับ',
-      subtitle: 'คะแนนตามความความประพฤติ',
+      subtitle: 'คะแนนตามความความดี',
       color: '#FFD700',
       icon: <Icon icon='game-icons:trophy' />,
       navLink: {
@@ -146,6 +146,18 @@ const StudentOverview = (props: any) => {
         path: '/apps/reports/goodness/summary',
         action: 'read',
         subject: 'student-goodness-summary-report',
+      },
+    },
+    {
+      title: 'เรียงลำดับ',
+      subtitle: 'คะแนนตามความความประพฤติ',
+      color: '#ef2f04',
+      icon: <Icon icon='icon-park-outline:bad-two' />,
+      navLink: {
+        title: 'เรียงลำดับ คะแนนตามความความประพฤติ',
+        path: '/apps/reports/badness/summary',
+        action: 'read',
+        subject: 'student-badness-summary-report',
       },
     },
     {
