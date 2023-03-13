@@ -25,5 +25,10 @@ export class BadnessIndividualController {
   async search(@Body() body: any) {
     return await this.badnessIndividualService.search(body);
   }
-
+  
+   // summary
+   @Post('summary')
+   async summary(@Body() body: any) {
+     return await this.badnessIndividualService.getBadnessSummary(body);
+   }
 }
