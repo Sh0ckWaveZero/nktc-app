@@ -1,8 +1,8 @@
 import {
   Avatar,
+  Button,
   Card,
   CardHeader,
-  CircularProgress,
   Dialog,
   Grid,
   IconButton,
@@ -27,8 +27,9 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import useGetImage from '@/hooks/useGetImage';
 import useStudentList from '@/hooks/useStudentList';
+import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
+import IconifyIcon from '@/@core/components/icon';
 
 interface CellType {
   row: any;
@@ -74,7 +75,7 @@ const ReportAllGoodness = () => {
   const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [open, setOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState<any>(null);
+  const [info, setInfo] = useState<any>(null);
 
   const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
   const { loading: loadingStudents, students: studentsListData } = useStudentList(storedToken, debouncedValue);
@@ -86,11 +87,13 @@ const ReportAllGoodness = () => {
   const onSearch = async () => {
     try {
       setLoadingStudent(true);
+
       const response = await search(storedToken, {
         fullName: currentStudent?.fullName || '',
         classroomId: defaultClassroom?.id || '',
         goodDate: selectedDate,
       });
+
       setCurrentStudents(response?.data || []);
       setLoadingStudent(false);
     } catch (error: any) {
@@ -104,6 +107,7 @@ const ReportAllGoodness = () => {
     setCurrentStudent(null);
     setDateSelected(null);
     setDefaultClassroom(null);
+    setInfo(null);
   }, [setCurrentStudent, selectedDate, setDefaultClassroom]);
 
   const onHandleChangeStudent = useCallback(
@@ -126,9 +130,11 @@ const ReportAllGoodness = () => {
     [setDefaultClassroom],
   );
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (info: any) => {
     setOpen(true);
+    setInfo(info);
   };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -164,18 +170,16 @@ const ReportAllGoodness = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { student } = row;
-        const account = student?.user?.account || {};
-        const studentName = account.title + '' + account.firstName + ' ' + account.lastName;
+        const { firstName } = row;
         return (
-          <Tooltip title={studentName} arrow>
+          <Tooltip title={firstName} arrow>
             <span>
               <Typography
                 noWrap
                 variant='subtitle2'
                 sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
               >
-                {studentName}
+                {firstName}
               </Typography>
             </span>
           </Tooltip>
@@ -191,12 +195,12 @@ const ReportAllGoodness = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { classroom } = row;
+        const { name } = row;
         return (
-          <Tooltip title={classroom?.name} arrow>
+          <Tooltip title={name} arrow>
             <span>
               <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-                {classroom?.name}
+                {name}
               </Typography>
             </span>
           </Tooltip>
@@ -212,14 +216,25 @@ const ReportAllGoodness = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { goodnessDetail } = row;
-
+        const { info } = row;
         return (
-          <Tooltip title={goodnessDetail} arrow>
+          <Tooltip title={'รายละเอียด'} arrow>
             <span>
-              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-                {goodnessDetail}
-              </Typography>
+              <Button
+                aria-label='more'
+                aria-controls='long-menu'
+                aria-haspopup='true'
+                onClick={() => handleClickOpen(info)}
+                variant='contained'
+                startIcon={<IconifyIcon icon={'mdi:timeline-check-outline'} width={20} height={20} />}
+                size='medium'
+                color='success'
+                sx={{ color: 'text.secondary' }}
+              >
+                <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
+                  รายละเอียด
+                </Typography>
+              </Button>
             </span>
           </Tooltip>
         );
@@ -240,76 +255,6 @@ const ReportAllGoodness = () => {
           <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
             {goodnessScore}
           </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.15,
-      minWidth: 160,
-      field: 'image',
-      headerName: 'รูปภาพ',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        const { image, goodnessDetail } = row;
-
-        const { isLoading, image: goodnessImage } = useGetImage(image, storedToken);
-
-        return isLoading ? (
-          <CircularProgress />
-        ) : goodnessImage ? (
-          <div
-            style={{
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              setCurrentImage(goodnessImage);
-              handleClickOpen();
-            }}
-          >
-            <img src={goodnessImage as any} alt={goodnessDetail || 'บันทึกความดี'} width='150' height='200' />
-          </div>
-        ) : (
-          <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-            ไม่มีรูปภาพ
-          </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.12,
-      minWidth: 100,
-      field: 'createDate',
-      headerName: 'วันที่บันทึก',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        const { goodDate, createdAt } = row;
-        return (
-          <Tooltip
-            title={new Date(goodDate || createdAt).toLocaleTimeString('th-TH', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-            arrow
-          >
-            <span>
-              <Typography variant='subtitle2' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-                {
-                  new Date(goodDate || createdAt).toLocaleDateString('th-TH', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  }) /* แสดงวันที่เป็นภาษาไทย */
-                }
-              </Typography>
-            </span>
-          </Tooltip>
         );
       },
     },
@@ -357,20 +302,16 @@ const ReportAllGoodness = () => {
                 rows={currentStudents ?? []}
                 disableColumnMenu
                 loading={loadingStudent}
-                rowsPerPageOptions={[pageSize, 10, 20, 50, 100]}
+                rowsPerPageOptions={[pageSize, 10, 20, 50]}
                 onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                 components={{
                   NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                getRowClassName={(params) => {
-                  const { status } = params.row.student;
-                  return status === 'internship' ? 'internship' : 'normal';
                 }}
               />
             </Card>
           </Grid>
         </Grid>
-        <BootstrapDialog onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+        <BootstrapDialog fullWidth maxWidth='sm' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
           {handleClose ? (
             <IconButton
               aria-label='close'
@@ -385,7 +326,7 @@ const ReportAllGoodness = () => {
               <CloseIcon />
             </IconButton>
           ) : null}
-          <img src={currentImage as any} alt='บันทึกความดี' width='100%' height='100%' />
+          <TimelineGoodness info={info} />
         </BootstrapDialog>
       </Fragment>
     )
