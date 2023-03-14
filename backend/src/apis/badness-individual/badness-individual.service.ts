@@ -120,12 +120,29 @@ export class BadnessIndividualService {
       filter['studentKey'] = query.studentId;
     }
 
-    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
-
-    const response = await this.prisma.badnessIndividual.findMany({
+    const selectedStudents = await this.prisma.badnessIndividual.findMany({
       where: filter,
       skip: query.skip || 0,
       take: query.take || 1000,
+      select: {
+        studentKey: true,
+      },
+      distinct: ['studentKey'],
+    });
+
+    // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
+    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
+    // ดึงข้อมูลคะแนนความประพฤติของนักเรียนที่เลือกและข้อมูลเกี่ยวกับนักเรียนและชั้นเรียน
+    const filteredBadnessIndividual = await this.prisma.badnessIndividual.findMany({
+      where: {
+        OR: [
+          {
+            studentKey: {
+              in: selectedStudents.map((item: any) => item.studentKey),
+            },
+          }
+        ]
+      },
       include: {
         student: {
           include: {
@@ -147,14 +164,66 @@ export class BadnessIndividualService {
       orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
     });
 
-    const total = await this.prisma.badnessIndividual.count({ where: filter }) || 0;
+    // สรุปคะแนนความประพฤติของนักเรียน
+    const summarizedStudents = Object.values(filteredBadnessIndividual.reduce((acc: any, cur: any) => {
+      const { studentId, badnessScore, studentKey } = cur;
+      const { title, firstName, lastName } = cur.student.user.account;
+      const { name } = cur.classroom;
+      const key = studentId;
+      if (acc[key]) {
+        acc[key].badnessScore += badnessScore;
+      } else {
+        acc[key] = {
+          id: studentKey,
+          studentId,
+          badnessScore,
+          fullName: title + firstName + ' ' + lastName,
+          name
+        };
+      }
+      return acc;
+    }, {}));
+    // เรียงลำดับคะแนนความประพฤติของนักเรียน
+    summarizedStudents.sort((a: any, b: any) => b.badnessScore - a.badnessScore);
 
+    // กำหนดลำดับเลขนักเรียนในการแสดงผล
+    let runningNumber = query.skip === 0 ? 1 : query.skip + 1;
+
+    // เพิ่มลำดับเลขนักเรียนในข้อมูลสรุปคะแนนความประพฤติ
+    const summaryWithRunningNumber = summarizedStudents.map((student: any) => {
+      return {
+        ...student,
+        runningNumber: runningNumber++
+      };
+    });
+
+    // ดึงข้อมูลนักเรียนที่มีคะแนนความประพฤติจากฐานข้อมูลเพื่อนับจำนวนทั้งหมด
+    const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
+      select: {
+        studentKey: true,
+      },
+      distinct: ['studentKey'],
+    });
+
+    // ส่งข้อมูลสรุปคะแนนความประพฤติของนักเรียนและจำนวนทั้งหมดกลับไปยังผู้ใช้งาน
     return {
-      data: response,
-      total,
+      data: summaryWithRunningNumber.map((item: any) => {
+        return {
+          ...item,
+          info: filteredBadnessIndividual.filter((gi: any) => gi.studentId === item.studentId).map((gi: any) => {
+            return {
+              id: gi.id,
+              badnessDetail: gi.badnessDetail,
+              badnessScore: gi.badnessScore,
+              badDate: gi.badDate,
+              image: gi.image,
+            };
+          }),
+        };
+      }),
+      total: totalSelectedStudents.length || 0,
     };
-  };
-
+  }
 
   /**
   / ฟังก์ชัน async สำหรับการดึงข้อมูลสรุปคะแนนความประพฤติจากฐานข้อมูล
