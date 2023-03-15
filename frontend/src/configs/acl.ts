@@ -38,6 +38,8 @@ const defineRulesFor = (role: Role, subject: string) => {
     can(['read'], 'teacher-page');
     can(['read'], 'view-student-page');
     can(['update'], 'student-edit-page');
+    can(['manage'], 'student-goodness-summary-report');
+    can(['manage'], 'student-badness-summary-report');
   } else if (role === 'Teacher') {
     can(['create'], 'add-student-page');
     can(['read', 'update'], 'account-settings');

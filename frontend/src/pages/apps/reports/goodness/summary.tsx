@@ -255,8 +255,7 @@ const StudentGoodnessSummaryReport = () => {
   ];
 
   return (
-    ability?.can('read', 'student-goodness-summary-report') &&
-    user?.role !== 'Admin' && (
+    ability?.can('read', 'student-goodness-summary-report') && (
       <Fragment>
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -290,13 +289,7 @@ const StudentGoodnessSummaryReport = () => {
             </Card>
           </Grid>
         </Grid>
-        <BootstrapDialog 
-        fullWidth
-        maxWidth='xs'
-        onClose={handleClose} 
-        aria-labelledby='บรรทึกความดี' 
-        open={open}
-        >
+        <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
           {handleClose ? (
             <IconButton
               aria-label='close'
