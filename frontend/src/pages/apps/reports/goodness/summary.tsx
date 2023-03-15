@@ -255,7 +255,7 @@ const StudentGoodnessSummaryReport = () => {
   ];
 
   return (
-    ability?.can('read', 'student-goodness-report') &&
+    ability?.can('read', 'student-goodness-summary-report') &&
     user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>

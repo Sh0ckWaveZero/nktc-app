@@ -310,7 +310,7 @@ const navigation = (): VerticalNavItemsType => {
       icon: 'game-icons:trophy',
       path: '/apps/reports/goodness/summary',
       action: 'read',
-      subject: 'student-goodness-report',
+      subject: 'student-goodness-summary-report',
     },
     {
       title: 'ลำดับคะแนนความประพฤติ',
