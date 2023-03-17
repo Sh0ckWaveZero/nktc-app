@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { MinioClientService } from '../minio/minio-client.service';
 import { PrismaService } from 'src/common/services/prisma.service';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class GoodnessIndividualService {
@@ -276,7 +277,7 @@ export class GoodnessIndividualService {
     });
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
-      const { studentId, goodnessScore, studentKey } = cur;
+      const { id, studentId, goodnessScore, studentKey } = cur;
       const { title, firstName, lastName } = cur.student.user.account;
       const { name } = cur.classroom;
       const key = studentId;
@@ -284,7 +285,7 @@ export class GoodnessIndividualService {
         acc[key].goodnessScore += goodnessScore;
       } else {
         acc[key] = {
-          id: studentKey,
+          id: id,
           studentId,
           goodnessScore,
           firstName: title + firstName + ' ' + lastName,
@@ -333,5 +334,33 @@ export class GoodnessIndividualService {
       }),
       total: totalSelectedStudents.length || 0,
     };
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    // find the goodnessIndividual
+    const goodnessIndividual = await this.prisma.goodnessIndividual.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    // check if the goodnessIndividual exists
+    if (!goodnessIndividual) {
+      throw new NotFoundException('GoodnessIndividual not found');
+    }
+
+    // delete the image
+    if (goodnessIndividual.image) {
+      const fileName = `${configuration().hostUrl}/statics/`;
+      const objectName = goodnessIndividual.image.replace(fileName, '');
+      await this.minioService.delete(objectName)
+    }
+
+    const deletedGoodnessIndividual = await this.prisma.goodnessIndividual.delete({
+      where: {
+        id: id,
+      },
+    });
+    return !!deletedGoodnessIndividual;
   }
 }
