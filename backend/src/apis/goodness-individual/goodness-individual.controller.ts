@@ -35,7 +35,6 @@ export class GoodnessIndividualController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteById(@Param('id') id: string) {
-    console.log('🚀 ~ file: goodness-individual.controller.ts:38 ~ GoodnessIndividualController ~ deleteById ~ id:', id);
     return await this.goodnessIndividualService.deleteById(id);
   }
 }
