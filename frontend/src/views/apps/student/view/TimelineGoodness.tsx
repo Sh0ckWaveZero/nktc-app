@@ -1,5 +1,4 @@
-
-import { Avatar, Box, Card, CardContent, CardHeader, Grid, Typography, styled } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Grid, Typography, styled, Button, Tooltip } from '@mui/material';
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
@@ -7,9 +6,12 @@ import { CircularProgress } from '@mui/material';
 import { LocalStorageService } from '@/services/localStorageService';
 import { calculateTimeAgo } from 'utils/datetime';
 import useGetImage from '@/hooks/useGetImage';
+import IconifyIcon from '@/@core/components/icon';
 
 interface Props {
   info: any[];
+  user: any;
+  onDeleted?: (id: string) => void;
 }
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -52,7 +54,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
   },
 }));
 
-const TimelineGoodness = ({ info }: Props) => {
+const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -92,8 +94,32 @@ const TimelineGoodness = ({ info }: Props) => {
                           })}น.`
                         : ''}
                     </Typography>
-                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+                    <Box
+                      sx={{
+                        mt: 2,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        alignContent: 'space-between',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Box sx={{ width: 200, height: 'auto' }}>{getImage(item?.image)}</Box>
+                      {user?.role === 'Admin' && (
+                        <Box sx={{ ml: 2 }}>
+                          <Tooltip title='ลบการบันทึกความดี'>
+                            <Button
+                              size='small'
+                              variant='outlined'
+                              color='error'
+                              startIcon={<IconifyIcon icon={'fluent:delete-off-24-regular'} />}
+                              onClick={() => onDeleted?.(item?.id)}
+                            >
+                              ลบบันทึก
+                            </Button>
+                          </Tooltip>
+                        </Box>
+                      )}
                     </Box>
                   </TimelineContent>
                 </TimelineItem>
