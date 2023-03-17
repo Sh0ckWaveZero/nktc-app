@@ -15,9 +15,6 @@ import { Settings } from '@/@core/context/settingsContext';
 // ** Theme Config
 import themeConfig from '@/configs/themeConfig';
 
-// ** Direction component for LTR or RTL
-import Direction from '@/layouts/components/Direction';
-
 // ** Theme Override Imports
 import overrides from './overrides';
 import typography from './typography';
@@ -68,11 +65,9 @@ const ThemeComponent = (props: Props) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Direction direction={settings.direction}>
         <CssBaseline />
         <GlobalStyles styles={() => GlobalStyling(theme, settings) as any} />
         {children}
-      </Direction>
     </ThemeProvider>
   );
 };
