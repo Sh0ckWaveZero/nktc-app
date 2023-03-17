@@ -10,6 +10,10 @@ import {
   Typography,
   styled,
   Button,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
@@ -30,7 +34,7 @@ interface CellType {
 }
 
 const localStorageService = new LocalStorageService();
-
+const storedToken = localStorageService.getToken()!;
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
@@ -49,18 +53,18 @@ export interface DialogTitleProps {
 const StudentGoodnessSummaryReport = () => {
   // ** Hooks
   const { user }: any = useAuth();
-  const storedToken = localStorageService.getToken()!;
+
   const ability = useContext(AbilityContext);
 
-  const { summary }: any = goodnessIndividualStore(
+  const { deleteGoodnessIndividualById, summary }: any = goodnessIndividualStore(
     (state: any) => ({
       summary: state.summary,
+      deleteGoodnessIndividualById: state.deleteGoodnessIndividualById,
     }),
     shallow,
   );
 
   // ** Local State
-  const [currentImage, setCurrentImage] = useState<any>(null);
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
@@ -69,6 +73,9 @@ const StudentGoodnessSummaryReport = () => {
   const [sortModel, setSortModel] = useState([{ field: 'createdAt', sort: 'desc' }]);
   const [total, setTotal] = useState(0);
   const [info, setInfo] = useState<any>(null);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [goodnessId, setGoodnessId] = useState('');
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const searchWithParams = async (params: any) => {
     try {
@@ -94,7 +101,7 @@ const StudentGoodnessSummaryReport = () => {
       sort: sortModel,
     };
     searchWithParams(params);
-  }, [page, pageSize, sortModel]);
+  }, [page, pageSize, sortModel, isDeleted]);
 
   const handleClickOpen = (info: any) => {
     setOpen(true);
@@ -109,6 +116,30 @@ const StudentGoodnessSummaryReport = () => {
     setPage(0);
     setPageSize(newPage);
   }, []);
+
+  const onDeletedGoodness = (id: string): void => {
+    handleClose();
+    setOpenConfirm(true);
+    setGoodnessId(id);
+  };
+
+  const handleCloseConfirm = () => {
+    setOpenConfirm(false);
+  };
+
+  const handleConfirm = () => {
+    const toastId = toast.loading('กำลังบันทึกลบข้อมูลความดี...');
+    deleteGoodnessIndividualById(storedToken, goodnessId).then((res: any) => {
+      if (res?.status === 204) {
+        setIsDeleted(true);
+        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+      } else {
+        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
+    setIsDeleted(false);
+    setOpenConfirm(false);
+  };
 
   const columns: GridColumns = [
     {
@@ -304,7 +335,43 @@ const StudentGoodnessSummaryReport = () => {
               <CloseIcon />
             </IconButton>
           ) : null}
-          <TimelineGoodness info={info} />
+          <TimelineGoodness info={info} user={user} onDeleted={onDeletedGoodness} />
+        </BootstrapDialog>
+        <BootstrapDialog
+          fullWidth
+          maxWidth='xs'
+          onClose={handleCloseConfirm}
+          aria-labelledby='บรรทึกความดี'
+          open={openConfirm}
+        >
+          {handleCloseConfirm ? (
+            <IconButton
+              aria-label='close'
+              onClick={handleCloseConfirm}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : null}
+          <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความดี</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-delete-goodness' p={5}>
+              {`คุณต้องการลบข้อมูลการการบันทึกความดีนี้ ใช่หรือไม่?`}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className='dialog-goodness-dense'>
+            <Button color='secondary' onClick={handleCloseConfirm}>
+              ยกเลิก
+            </Button>
+            <Button variant='contained' color='error' onClick={handleConfirm}>
+              ยืนยัน
+            </Button>
+          </DialogActions>
         </BootstrapDialog>
       </Fragment>
     )
