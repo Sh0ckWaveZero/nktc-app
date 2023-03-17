@@ -3,10 +3,8 @@
 ###################
 FROM node:18-alpine as build
 
-RUN apk add curl bash openssl1.1-compat
-
-# install node-prune (https://github.com/tj/node-prune)
-RUN curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
+RUN apk add --no-cache curl bash openssl1.1-compat \
+  && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
 
 WORKDIR /usr/src/app
 
@@ -17,42 +15,35 @@ RUN yarn --production
 COPY . .
 
 # Generate Prisma Client
-RUN yarn run prisma:generate
-RUN yarn run prisma:generate-mongo
+RUN yarn run prisma:generate \
+  && yarn run prisma:generate-mongo \
+  && yarn run build
 
-# Run the build command which creates the production bundle
-RUN yarn run build
-
-# Set NODE_ENV environment variable
 ENV NODE_ENV production
 
-RUN yarn cache clean --force
-
-# run node prune
-RUN /usr/local/bin/node-prune
-
-RUN apk add --update --no-cache \
-  && rm -rf node_modules/rxjs/src/ \
-  && rm -rf node_modules/rxjs/bundles/ \
-  && rm -rf node_modules/rxjs/_esm5/ \
-  && rm -rf node_modules/rxjs/_esm2015/ \
-  && rm -rf node_modules/swagger-ui-dist/*.map \
-  && rm -rf node_modules/@prisma/engines/ \
-  && rm -rf node_modules/@prisma/engines-version \
-  && rm -rf node_modules/prisma \
-  # Remove cache
-  && rm -rf /root/.cache/ \
-  && rm -rf /root/.npm/ 
-RUN apk del openssl1.1-compat npm curl bash
+RUN yarn cache clean --force \
+  && /usr/local/bin/node-prune \
+  && apk del openssl1.1-compat curl bash \
+  && rm -rf \
+  node_modules/rxjs/src/ \
+  node_modules/rxjs/bundles/ \
+  node_modules/rxjs/_esm5/ \
+  node_modules/rxjs/_esm2015/ \
+  node_modules/swagger-ui-dist/*.map \
+  node_modules/@prisma/engines/ \
+  node_modules/@prisma/engines-version \
+  node_modules/prisma \
+  /root/.cache/ \
+  /root/.npm/ \
+  && find /usr/src/app/node_modules/ -type f -iname "*.md" -exec rm {} \;
 
 USER node
 
-# ###################
-# # PRODUCTION
-# ###################
+###################
+# PRODUCTION
+###################
 FROM node:18-alpine AS deploy
 
-# SET Timezone (Asia/Bangkok GTM+07:00)
 ENV TZ Asia/Bangkok
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -62,6 +53,5 @@ COPY --chown=node:node --from=build /usr/src/app/package*.json /usr/src/app/
 COPY --chown=node:node --from=build /usr/src/app/yarn.lock /usr/src/app/
 COPY --chown=node:node --from=build /usr/src/app/dist/ /usr/src/app/dist/
 COPY --chown=node:node --from=build /usr/src/app/node_modules/ /usr/src/app/node_modules/
-
 
 CMD [ "node", "dist/main.js" ]
