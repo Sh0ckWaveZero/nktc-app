@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Query, Delete, HttpCode, Param, HttpStatus } from "@nestjs/common";
 import { GoodnessIndividualService } from './goodness-individual.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -31,4 +31,11 @@ export class GoodnessIndividualController {
     return await this.goodnessIndividualService.getGoodnessSummary(body);
   }
 
+  // DELETE
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteById(@Param('id') id: string) {
+    console.log('🚀 ~ file: goodness-individual.controller.ts:38 ~ GoodnessIndividualController ~ deleteById ~ id:', id);
+    return await this.goodnessIndividualService.deleteById(id);
+  }
 }
