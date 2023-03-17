@@ -53,10 +53,14 @@
     "rxjs": "^7.5.7",
     "swagger-ui-express": "^4.6.0",
     "ua-parser-js": "^1.0.33",
+<<<<<<< HEAD
     "webpack": "^5.76.0"
+=======
+    "webpack": "^5.76.2"
+>>>>>>> 806692e (Update NestJS CLI to version 9.3.0 and Webpack to version 5.76.2 in backend/package.json)
   },
   "devDependencies": {
-    "@nestjs/cli": "^9.1.4",
+    "@nestjs/cli": "^9.3.0",
     "@nestjs/schematics": "^9.0.3",
     "@nestjs/testing": "^9.1.2",
     "@prisma/client": "^4.11.0",
