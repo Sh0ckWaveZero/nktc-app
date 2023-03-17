@@ -1,15 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Card,
-  CardHeader,
-  Dialog,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-  styled,
-} from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -260,6 +249,10 @@ const ReportAllGoodness = () => {
     },
   ];
 
+  const onDeletedGoodness = (id: string): void => {
+    console.log('🚀 ~ file: summary.tsx:258 ~ onDeletedGoodness ~ id:', id);
+  };
+
   return (
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
@@ -326,7 +319,7 @@ const ReportAllGoodness = () => {
               <CloseIcon />
             </IconButton>
           ) : null}
-          <TimelineGoodness info={info} />
+          <TimelineGoodness info={info} user={auth.user} />
         </BootstrapDialog>
       </Fragment>
     )
