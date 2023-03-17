@@ -16,7 +16,8 @@ interface GoodnessIndividualState {
   createGoodnessIndividual: (token: string, body: any) => any;
   createGoodnessGroup: (token: string, body: any) => any;
   search: (token: string, body: Body) => any;
-  summary : (token: string, body: any) => any;
+  summary: (token: string, body: any) => any;
+  deleteGoodnessIndividualById: (token: string, id: string) => any;
 }
 
 export const goodnessIndividualStore = create<GoodnessIndividualState>()(
@@ -85,5 +86,20 @@ export const goodnessIndividualStore = create<GoodnessIndividualState>()(
         return err;
       }
     },
+    deleteGoodnessIndividualById: async (token: string, id: string) => {
+      try {
+        const response = await httpClient.delete(
+          `${authConfig.goodnessIndividualEndpoint}/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response;
+      } catch (err) {
+        console.error('Error delete goodness individual:', err);
+        return err;
+      }
+    }
   }),
 );
