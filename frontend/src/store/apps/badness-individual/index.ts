@@ -16,6 +16,7 @@ interface BadnessIndividualState {
   createBadnessGroup: (token: string, body: any) => any;
   search: (token: string, body: Body) => any;
   summary : (token: string, body: any) => any;
+  deleteBadnessIndividualById: (token: string, id: string) => any;
 }
 
 export const badnessIndividualStore = create<BadnessIndividualState>()(
@@ -84,5 +85,20 @@ export const badnessIndividualStore = create<BadnessIndividualState>()(
         return err;
       }
     },
+    deleteBadnessIndividualById: async (token: string, id: string) => {
+      try {
+        const response = await httpClient.delete(
+          `${authConfig.badnessIndividualEndpoint}/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response;
+      } catch (err) {
+        console.error('Error deleting badness individual:', err);
+        return err;
+      }
+    }
   }),
 );
