@@ -62,6 +62,35 @@ export class TeachersService {
       }
     });
 
+    // audit log
+    const login = await this.prisma.auditLog.findMany({
+      where: {
+        createdBy: {
+          in: teachers.map((item: any) => {
+            return item.username;
+          }
+          ),
+        },
+        action: 'Login',
+      },
+    });
+
+    // This function takes in a list of logins and returns the number of logins per user per day.
+    const loginCount = login.reduce((acc: any, item: any) => {
+      const date = new Date(item.createdAt).toLocaleDateString();
+      if (acc[item.createdBy]) {
+        if (acc[item.createdBy][date]) {
+          acc[item.createdBy][date] = acc[item.createdBy][date] + 1;
+        } else {
+          acc[item.createdBy][date] = 1;
+        }
+      } else {
+        acc[item.createdBy] = {};
+        acc[item.createdBy][date] = 1;
+      }
+      return acc;
+    }, {});
+
     return teachers.map((item: any) => {
       const teacherOnClassrooms = teacherOnClassroom
         .filter((el: any) => item.teacher.id === el.teacherId)
@@ -69,6 +98,16 @@ export class TeachersService {
       const classroomList = classrooms
         .filter((el: any) => teacherOnClassrooms.includes(el.id))
         .map((cl: any) => cl.name);
+
+      const loginCountByUserSummary = loginCount[item.username]
+        ? Object.keys(loginCount[item.username]).map((key: any) => {
+          return {
+            date: key,
+            count: loginCount[item.username][key],
+          };
+        })
+        : [];
+
       return {
         id: item.id,
         username: item.username,
@@ -93,6 +132,7 @@ export class TeachersService {
         status: item.teacher.status ?? '',
         teacherOnClassroom: teacherOnClassrooms,
         classrooms: classroomList,
+        loginCountByUser: loginCountByUserSummary,
       };
     })
   }

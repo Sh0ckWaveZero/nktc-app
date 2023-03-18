@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class BadnessIndividualService {
@@ -275,7 +276,7 @@ export class BadnessIndividualService {
     });
     // สรุปคะแนนความประพฤติของนักเรียน
     const summarizedStudents = Object.values(filteredBadnessIndividual.reduce((acc: any, cur: any) => {
-      const { studentId, badnessScore, studentKey } = cur;
+      const { id, studentId, badnessScore } = cur;
       const { title, firstName, lastName } = cur.student.user.account;
       const { name } = cur.classroom;
       const key = studentId;
@@ -283,7 +284,7 @@ export class BadnessIndividualService {
         acc[key].badnessScore += badnessScore;
       } else {
         acc[key] = {
-          id: studentKey,
+          id: id,
           studentId,
           badnessScore,
           firstName: title + firstName + ' ' + lastName,
@@ -332,5 +333,33 @@ export class BadnessIndividualService {
       }),
       total: totalSelectedStudents.length || 0,
     };
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    // find the BadnessIndividual
+    const badnessIndividual = await this.prisma.badnessIndividual.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    // check if the BadnessIndividual exists
+    if (!badnessIndividual) {
+      throw new NotFoundException('BadnessIndividual not found');
+    }
+
+    // delete the image
+    if (badnessIndividual.image) {
+      const fileName = `${configuration().hostUrl}/statics/`;
+      const objectName = badnessIndividual.image.replace(fileName, '');
+      await this.minioService.delete(objectName)
+    }
+
+    const deletedGoodnessIndividual = await this.prisma.badnessIndividual.delete({
+      where: {
+        id: id,
+      },
+    });
+    return !!deletedGoodnessIndividual;
   }
 }

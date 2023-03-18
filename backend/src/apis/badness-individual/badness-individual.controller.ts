@@ -1,5 +1,5 @@
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 
 import { BadnessIndividualService } from './badness-individual.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -31,4 +31,11 @@ export class BadnessIndividualController {
    async summary(@Body() body: any) {
      return await this.badnessIndividualService.getBadnessSummary(body);
    }
+
+    // DELETE
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteById(@Param('id') id: string) {
+    return await this.badnessIndividualService.deleteById(id);
+  }
 }
