@@ -45,6 +45,7 @@ import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
+import IconifyIcon from '@/@core/components/icon';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -190,7 +191,6 @@ const TeacherList = () => {
 
   // ** Hooks
 
-
   const { teacher, fetchTeacher, updateClassroom, teacherLoading }: any = useTeacherStore(
     (state) => ({
       teacher: state.teacher,
@@ -293,63 +293,83 @@ const TeacherList = () => {
       renderCell: ({ row }: CellType) => {
         const { teacherOnClassroom, classrooms } = row;
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Stack direction='row' divider={<Divider orientation='vertical' flexItem />} spacing={2}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Fragment>
-                  <Tooltip
-                    title={
-                      !isEmpty(teacherOnClassroom.length && !isEmpty(classrooms)) ? (
-                        row.classrooms.map((item: any) => {
-                          return (
-                            <Typography key={item} variant='body2' sx={{ color: 'common.white' }}>
-                              {item}
-                            </Typography>
-                          );
-                        })
-                      ) : (
-                        <Typography variant='body2' sx={{ color: 'common.white' }}>
-                          ยังไม่ลงทะเบียนห้องที่ปรึกษา
-                        </Typography>
-                      )
-                    }
-                  >
-                    <IconButton aria-label={id} aria-describedby={id}>
-                      <Badge
-                        badgeContent={row.teacherOnClassroom.length > 0 ? row.teacherOnClassroom.length : '0'}
-                        color={row.teacherOnClassroom.length > 0 ? 'primary' : 'error'}
-                        sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
-                      >
-                        <AccountBoxMultipleOutline
-                          fontSize='small'
-                          sx={{ color: row.teacherOnClassroom.length > 0 ? 'warning.main' : 'error.main' }}
-                        />
-                      </Badge>
-                    </IconButton>
-                  </Tooltip>
-                </Fragment>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <IconButton
-                  sx={{ mb: 2 }}
-                  onClick={() => {
-                    setAddClassroomOpen(true);
-                    setCurrentData(row);
-                  }}
-                >
-                  <Tooltip
-                    title={
+          <Stack
+            direction='row'
+            alignItems='center'
+            justifyContent='center'
+            spacing={3}
+            divider={<Divider orientation='vertical' flexItem />}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Fragment>
+                <Tooltip
+                  title={
+                    !isEmpty(teacherOnClassroom.length && !isEmpty(classrooms)) ? (
+                      row.classrooms.map((item: any) => {
+                        return (
+                          <Typography key={item} variant='body2' sx={{ color: 'common.white' }}>
+                            {item}
+                          </Typography>
+                        );
+                      })
+                    ) : (
                       <Typography variant='body2' sx={{ color: 'common.white' }}>
-                        เพิ่มห้องที่ปรึกษา
+                        ยังไม่ได้เลือกประจำเป็นห้องปรึกษา
                       </Typography>
-                    }
+                    )
+                  }
+                >
+                  <IconButton
+                    aria-label={id}
+                    aria-describedby={id}
+                    sx={{
+                      cursor: 'default',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                      '&:active': {
+                        backgroundColor: 'transparent',
+                      },
+                      '&:disabled': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
                   >
-                    <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
-                  </Tooltip>
-                </IconButton>
-              </Box>
-            </Stack>
-          </Box>
+                    <Badge
+                      badgeContent={row.teacherOnClassroom.length > 0 ? row.teacherOnClassroom.length : '0'}
+                      color={row.teacherOnClassroom.length > 0 ? 'error' : 'secondary'}
+                      sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
+                    >
+                      <IconifyIcon
+                        icon={'codicon:symbol-class'}
+                        width={22}
+                        height={22}
+                        style={{ color: row.teacherOnClassroom.length > 0 ? '#56CA00' : 'rgba(58, 53, 65, 0.68)' }}
+                      />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              </Fragment>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <IconButton
+                onClick={() => {
+                  setAddClassroomOpen(true);
+                  setCurrentData(row);
+                }}
+              >
+                <Tooltip
+                  title={
+                    <Typography variant='body2' sx={{ color: 'common.white' }}>
+                      เพิ่มห้องที่ปรึกษา
+                    </Typography>
+                  }
+                >
+                  <BriefcasePlusOutline fontSize='small' sx={{ mr: 1, color: 'success.main' }} />
+                </Tooltip>
+              </IconButton>
+            </Box>
+          </Stack>
         );
       },
     },
@@ -386,13 +406,14 @@ const TeacherList = () => {
       hideSortIcons: true,
       align: 'center',
       renderCell: ({ row }: CellType) => {
+        const { loginCountByUser } = row;
         return (
           <Typography
             variant='body2'
             noWrap
             sx={{ fontWeight: 600, color: 'text.primary', textTransform: 'capitalize' }}
           >
-            {row.totalLogin ?? '0 '} วัน
+            {loginCountByUser.length > 0 ? loginCountByUser.length : 0} วัน
           </Typography>
         );
       },
