@@ -61,7 +61,11 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
         <Card>
           <CardHeader title='รายละเอียคความดี' />
           <CardContent>
-            <Timeline>
+            <Timeline
+              sx={{
+                paddingBottom: 3,
+              }}
+            >
               {info.map((item, index) => (
                 <TimelineItem key={item?.id}>
                   <TimelineSeparator>
