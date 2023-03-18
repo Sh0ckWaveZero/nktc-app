@@ -132,7 +132,7 @@ const StudentGoodnessSummaryReport = () => {
     deleteGoodnessIndividualById(storedToken, goodnessId).then((res: any) => {
       if (res?.status === 204) {
         setIsDeleted(true);
-        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+        toast.success('ลบข้อมูลความดีสำเร็จ', { id: toastId });
       } else {
         toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
       }
