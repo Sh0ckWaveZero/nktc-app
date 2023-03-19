@@ -52,6 +52,7 @@
     "react-hook-form": "^7.43.6",
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.8.0",
+    "react-number-format": "^5.1.4",
     "react-password-strength-bar": "^0.4.1",
     "react-perfect-scrollbar": "^1.5.8",
     "react-popper": "^2.3.0",
