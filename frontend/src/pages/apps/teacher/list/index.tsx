@@ -25,7 +25,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import { Fragment, MouseEvent, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
@@ -46,6 +46,7 @@ import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import IconifyIcon from '@/@core/components/icon';
+import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -53,6 +54,12 @@ interface UserRoleType {
 
 interface TeacherStatusType {
   [key: string]: ThemeColor;
+}
+
+interface RowOptionsType {
+  row: any;
+  handleDelete: (data: any) => void;
+  handleEdit: (data: any) => void;
 }
 
 // ** Vars
@@ -123,7 +130,7 @@ const renderClient = (row: any) => {
   }
 };
 
-const RowOptions = ({ id }: { id: number | string }) => {
+const RowOptions = ({ row, handleDelete, handleEdit }: RowOptionsType) => {
   // ** Hooks
 
   // ** State
@@ -136,7 +143,8 @@ const RowOptions = ({ id }: { id: number | string }) => {
     setAnchorEl(null);
   };
 
-  const handleDelete = () => {
+  const handleEditRow = () => {
+    handleEdit(row);
     handleRowOptionsClose();
   };
 
@@ -164,7 +172,7 @@ const RowOptions = ({ id }: { id: number | string }) => {
           <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
           ดู
         </MenuItem>
-        <MenuItem onClick={handleRowOptionsClose}>
+        <MenuItem onClick={handleEditRow}>
           <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
           แก้ไข
         </MenuItem>
@@ -188,6 +196,9 @@ const TeacherList = () => {
   const debouncedValue = useDebounce<string>(value, 500);
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
+  const [openDialogEdit, setOpenDialogEdit] = useState(false);
+  const [openDialogDelete, setOpenDialogDelete] = useState(false);
+  const [currentTeacher, setCurrentTeacher] = useState<any>(null);
 
   // ** Hooks
 
@@ -245,6 +256,13 @@ const TeacherList = () => {
     });
     toggleAddClassroomDrawer();
   };
+
+  const handleEdit = (data: any) => {
+    setCurrentTeacher(data);
+    setOpenDialogEdit(true);
+  };
+
+  const handleDelete = (data: any) => {};
 
   const columns: any = [
     {
@@ -314,7 +332,7 @@ const TeacherList = () => {
                       })
                     ) : (
                       <Typography variant='body2' sx={{ color: 'common.white' }}>
-                        ยังไม่ได้เลือกประจำเป็นห้องปรึกษา
+                        ยังไม่ได้เลือกเป็นปรึกษา
                       </Typography>
                     )
                   }
@@ -448,7 +466,7 @@ const TeacherList = () => {
       editable: false,
       hideSortIcons: true,
       align: 'right',
-      renderCell: ({ row }: CellType) => <RowOptions id={row.id} />,
+      renderCell: ({ row }: CellType) => <RowOptions row={row} handleEdit={handleEdit} handleDelete={handleDelete} />,
     },
   ];
 
@@ -485,6 +503,9 @@ const TeacherList = () => {
           />
         )}
       </Grid>
+      {openDialogEdit && (
+        <DialogEditUserInfo show={openDialogEdit} data={currentTeacher} onClose={() => setOpenDialogEdit(false)} />
+      )}
     </Fragment>
   );
 };
