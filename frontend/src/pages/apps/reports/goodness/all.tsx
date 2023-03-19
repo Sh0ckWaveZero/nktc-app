@@ -249,10 +249,6 @@ const ReportAllGoodness = () => {
     },
   ];
 
-  const onDeletedGoodness = (id: string): void => {
-    console.log('🚀 ~ file: summary.tsx:258 ~ onDeletedGoodness ~ id:', id);
-  };
-
   return (
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
