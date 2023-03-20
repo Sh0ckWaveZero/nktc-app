@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardHeader,
-  CircularProgress,
   Dialog,
   Grid,
   IconButton,
@@ -19,8 +18,10 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiThumbDown } from 'react-icons/hi';
+import IconifyIcon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
+import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
 import { deepOrange } from '@mui/material/colors';
 import { isEmpty } from '@/@core/utils/utils';
@@ -29,10 +30,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import useGetImage from '@/hooks/useGetImage';
 import useStudentList from '@/hooks/useStudentList';
-import IconifyIcon from '@/@core/components/icon';
-import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 
 interface CellType {
   row: any;
@@ -327,7 +325,7 @@ const ReportAllBadness = () => {
               <CloseIcon />
             </IconButton>
           ) : null}
-          <TimelineBadness info={info} />
+          <TimelineBadness info={info} user={auth} />
         </BootstrapDialog>
       </Fragment>
     )
