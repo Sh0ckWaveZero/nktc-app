@@ -1,41 +1,41 @@
+import * as yup from 'yup';
+
 // ** MUI Imports
 import {
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   FormControl,
   FormControlLabel,
-  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
   MenuItem,
-  styled,
   Switch,
   TextField,
   Typography,
+  styled,
 } from '@mui/material';
+import { Controller, useForm } from 'react-hook-form';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
-import { ReactElement, Ref, forwardRef, useState, Fragment } from 'react';
+import { Fragment, ReactElement, Ref, forwardRef, useState } from 'react';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
-
-import * as yup from 'yup';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs from 'dayjs';
+import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { FcCalendar } from 'react-icons/fc';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import thLocale from 'date-fns/locale/th';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+dayjs.extend(buddhistEra);
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -70,7 +70,7 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
     username: data?.username,
     jobTitle: data?.jobTitle,
     idCard: data?.idCard,
-    birthDate: data?.birthDate,
+    birthDate: data?.birthDate ? dayjs(new Date(data?.birthDate)) : null,
   };
 
   const showErrors = (field: string, valueLen: number, min: number) => {
@@ -239,9 +239,6 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
                       allowEmptyFormatting
                       mask='x'
                       customInput={TextField}
-                      InputLabelProps={{
-                        required: true,
-                      }}
                       sx={{
                         '& .MuiFormLabel-asterisk': {
                           color: (theme: any) => theme.palette.error.main,
@@ -253,19 +250,18 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
               </FormControl>
             </Grid>
             <Grid item sm={6} xs={12}>
-            <FormControl fullWidth>
+              <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                       <DatePicker
                         label='วันเกิด'
                         value={value}
-                        inputFormat='dd/MM/yyyy'
-                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 90))}
-                        maxDate={new Date()}
                         onChange={onChange}
+                        inputFormat='D MMMM BBBB'
+                        maxDate={dayjs(new Date())}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -279,6 +275,7 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
                         components={{
                           OpenPickerIcon: () => <FcCalendar />,
                         }}
+                        disableMaskedInput
                       />
                     </LocalizationProvider>
                   )}
