@@ -262,7 +262,9 @@ const TeacherList = () => {
     setOpenDialogEdit(true);
   };
 
-  const handleDelete = (data: any) => {};
+  const handleDelete = (data: any) => {
+    console.log(data);
+  };
 
   const columns: any = [
     {
