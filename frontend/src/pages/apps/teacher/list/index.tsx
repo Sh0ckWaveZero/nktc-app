@@ -263,7 +263,7 @@ const TeacherList = () => {
   };
 
   const handleDelete = (data: any) => {
-    console.log(data);
+    console.log('delete');
   };
 
   const columns: any = [
