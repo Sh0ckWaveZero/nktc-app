@@ -15,27 +15,31 @@ import {
   Typography,
 } from '@mui/material';
 import Button, { ButtonProps } from '@mui/material/Button';
-import { Fragment, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { Fragment, useEffect, useState } from 'react';
 import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
 
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs from 'dayjs';
 import { generateErrorMessages } from 'utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import thLocale from 'date-fns/locale/th';
+import th from 'dayjs/locale/th';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import { yupResolver } from '@hookform/resolvers/yup';
+
+dayjs.extend(buddhistEra);
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -132,7 +136,7 @@ const TabTeacherAccount = () => {
     academicStanding: auth?.user?.teacher?.academicStanding ?? '',
     department: auth?.user?.teacher?.department?.id ?? '',
     avatar: auth?.user?.account?.avatar ?? '',
-    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
+    birthDate: auth?.user?.account?.birthDate ? dayjs(new Date(auth?.user?.account?.birthDate)) : null,
     idCard: auth?.user?.account?.idCard ?? '',
   };
 
@@ -159,6 +163,7 @@ const TabTeacherAccount = () => {
       return toast.error('กรุณาเข้าสู่ระบบก่อนทำการบันทึกโปรไฟล์');
     }
     const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
+
     const profile = {
       id: auth?.user?.id,
       teacherInfo: auth?.user?.teacher?.id,
@@ -170,7 +175,7 @@ const TabTeacherAccount = () => {
       academicStanding: data.academicStanding,
       department: data.department,
       avatar: image ? image : null,
-      birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
+      birthDate: data.birthDate === '' ? null : data.birthDate ? dayjs(new Date(data.birthDate)) : null,
       idCard: data.idCard,
       classrooms: classroomSelected.map((item: any) => item.id),
     };
@@ -442,13 +447,12 @@ const TabTeacherAccount = () => {
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                       <DatePicker
                         label='วันเกิด'
                         value={value}
-                        inputFormat='dd-MM-yyyy'
-                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 90))}
-                        maxDate={new Date()}
+                        inputFormat='dd/MM/BBBB'
+                        maxDate={dayjs(new Date())}
                         onChange={onChange}
                         renderInput={(params) => (
                           <TextField
@@ -460,6 +464,7 @@ const TabTeacherAccount = () => {
                             }}
                           />
                         )}
+                        mask='__/__/____'
                         components={{
                           OpenPickerIcon: () => <FcCalendar />,
                         }}
