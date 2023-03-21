@@ -51,9 +51,9 @@ const ReportStudentBadness = () => {
   const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
-  const { search }: any = badnessIndividualStore(
+  const { fetchBadnessIndividualById }: any = badnessIndividualStore(
     (state: any) => ({
-      search: state.search,
+      fetchBadnessIndividualById: state.fetchBadnessIndividualById,
     }),
     shallow,
   );
@@ -72,7 +72,7 @@ const ReportStudentBadness = () => {
     try {
       setLoading(true);
 
-      const response = await search(storedToken, {
+      const response = await fetchBadnessIndividualById(storedToken, {
         studentId: user?.student?.id,
         ...params,
       });
@@ -138,9 +138,8 @@ const ReportStudentBadness = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        const { student } = row;
-        const account = student?.user?.account || {};
+      renderCell: () => {
+        const account = user?.account || {};
         const studentName = account.title + '' + account.firstName + ' ' + account.lastName;
         return (
           <Tooltip title={studentName} arrow>
@@ -165,8 +164,8 @@ const ReportStudentBadness = () => {
       editable: false,
       sortable: false,
       hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        const { classroom } = row;
+      renderCell: () => {
+        const classroom = user?.student?.classroom;
         return (
           <Tooltip title={classroom?.name} arrow>
             <span>
@@ -323,10 +322,6 @@ const ReportStudentBadness = () => {
                 onPageChange={(params: any) => setPage(params)}
                 rowsPerPageOptions={[5, 10, 20, 50]}
                 onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-                getRowClassName={(params) => {
-                  const { status } = params.row.student;
-                  return status === 'internship' ? 'internship' : 'normal';
-                }}
               />
             </Card>
           </Grid>
