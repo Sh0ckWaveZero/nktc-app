@@ -58,4 +58,18 @@ export class TeachersController {
   async getCheckIn(@Param('id') id: string) {
     return await this.teachersService.getCheckIn(id);
   }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async update(@Param('id') id: string, @Body() updateTeacherDto: any) {
+    try {
+      const response = await this.teachersService.update(id, updateTeacherDto)
+      return response;
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.NO_CONTENT,
+        error: 'Cannot update teacher',
+      }, HttpStatus.NO_CONTENT);
+    }
+  }
 }
