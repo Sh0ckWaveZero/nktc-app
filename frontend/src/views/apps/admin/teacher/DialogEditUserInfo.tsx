@@ -72,7 +72,6 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUserInfoType) => {
-  console.log('🚀 ~ file: DialogEditUserInfo.tsx:75 ~ DialogEditUserInfo ~ data:', data);
   const defaultValues = {
     firstName: data?.firstName,
     lastName: data?.lastName,

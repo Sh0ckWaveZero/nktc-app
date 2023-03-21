@@ -1,56 +1,78 @@
-// ** React Imports
-import { useState } from 'react';
+import * as yup from 'yup';
 
-// ** MUI Imports
 import {
+  Box,
+  Button,
   Drawer,
-  Typography,
   FormControl,
-  TextField,
-  FormHelperText,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
-  Button,
-  Box,
   Select,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Controller, useForm } from 'react-hook-form';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { Fragment, useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { BoxProps } from '@mui/material/Box';
-
-// ** Third Party Imports
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, Controller } from 'react-hook-form';
-
-// ** Icons Imports
 import Close from 'mdi-material-ui/Close';
+import { FcCalendar } from 'react-icons/fc';
+import IconifyIcon from '@/@core/components/icon';
+import PasswordStrengthBar from 'react-password-strength-bar';
+import { PatternFormat } from 'react-number-format';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import { styled } from '@mui/material/styles';
+import th from 'dayjs/locale/th';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-// ** Store Imports
-import { useUserStore } from '../../../../store';
+dayjs.extend(buddhistEra);
 
-interface SidebarAddUserType {
+interface SidebarAddTeacherType {
   open: boolean;
   toggle: () => void;
+  data: any;
+  onSubmitForm: (data: any) => void;
 }
 
 interface UserData {
-  email: string;
-  company: string;
-  country: string;
-  contact: number;
   fullName: string;
   username: string;
+  password: string;
+  idCard: string;
+  birthDate: Dayjs | null;
+  jobTitle: string;
 }
 
 const showErrors = (field: string, valueLen: number, min: number) => {
   if (valueLen === 0) {
-    return `${field} field is required`;
+    return `กรุณากรอก${field}`;
   } else if (valueLen > 0 && valueLen < min) {
-    return `${field} must be at least ${min} characters`;
+    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
   } else {
     return '';
   }
 };
+
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& label': {
+    display: 'flex',
+  },
+  '& label .MuiInputLabel-asterisk': {
+    color: theme.palette.error.main,
+  },
+  '& label .MuiInputLabel-asterisk:after': {
+    content: "'\\2009'",
+  },
+  '& .Mui-disabled': {
+    backgroundColor: theme.palette.background.default,
+  },
+}));
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
@@ -60,70 +82,77 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-const schema = yup.object().shape({
-  company: yup.string().required(),
-  country: yup.string().required(),
-  email: yup.string().email().required(),
-  contact: yup
-    .number()
-    .typeError('Contact Number field is required')
-    .min(10, (obj) => showErrors('Contact Number', obj.value.length, obj.min))
-    .required(),
-  fullName: yup
-    .string()
-    .min(3, (obj) => showErrors('First Name', obj.value.length, obj.min))
-    .required(),
-  username: yup
-    .string()
-    .min(3, (obj) => showErrors('Username', obj.value.length, obj.min))
-    .required(),
-});
-
-const defaultValues = {
-  email: '',
-  company: '',
-  country: '',
-  contact: '',
-  fullName: '',
-  username: '',
-};
-
-const SidebarAddUser = (props: SidebarAddUserType) => {
+const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
   // ** Props
-  const { open, toggle } = props;
+  const { open, toggle, data, onSubmitForm } = props;
 
-  // ** State
-  const [plan, setPlan] = useState<string>('basic');
-  const [role, setRole] = useState<string>('subscriber');
+  const schema = yup.object().shape({
+    fullName: yup
+      .string()
+      .min(3, (obj) => showErrors('ชื่อ-นามสกุล', obj.value.length, obj.min))
+      .test('fullName', 'ต้องมีเว้นวรรคระหว่าง ชื่อและนามสกุล', async (value: any) => {
+        if (value) {
+          return value.split(' ').length > 1 ? true : false;
+        }
+        return true;
+      })
+      .matches(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกเฉพาะภาษาไทยเท่านั้น')
+      .required(),
+    username: yup
+      .string()
+      .min(3, (obj) => showErrors('ชื่อผู้ใช้งานระบบ', obj.value.length, obj.min))
+      .test('username', 'ชื่อผู้ใช้งานนี้มีอยู่แล้ว', async (value: any) => {
+        if (value) {
+          return data.find((item: any) => item.username === value) ? false : true;
+        }
+        return true;
+      })
+      .matches( /^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
+      .required(),
+    password: yup
+      .string()
+      .min(8, (obj) => showErrors('รหัสผ่าน', obj.value.length, obj.min))
+      .matches(
+        /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
+        'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
+      )
+      .required(),
+    birthDate: yup.date().nullable(),
+  });
 
-  // ** Hooks
-  const addUser = useUserStore((state: any) => state.addUser);
+  const defaultValues = {
+    fullName: '',
+    username: '',
+    password: '',
+    idCard: '',
+    birthDate: null,
+    jobTitle: '',
+  };
 
   const {
     reset,
     control,
-    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit',
     resolver: yupResolver(schema),
   });
 
-  const onSubmit: any = (data: UserData) => {
-    () => addUser({ ...data, role, currentPlan: plan });
+  const onSubmit: any = (info: UserData) => {
+    toggle();
+    reset();
+    onSubmitForm(info);
+  };
+
+  const handleClose = () => {
     toggle();
     reset();
   };
 
-  const handleClose = () => {
-    setPlan('basic');
-    setRole('subscriber');
-    setValue('contact', '');
-    toggle();
-    reset();
-  };
+  const scoreWords = ['สั้นเกินไป', 'ง่าย', 'พอใช้ได้', 'ดี', 'ยอดเยี่ยม'];
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Drawer
@@ -135,27 +164,28 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
       sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
     >
       <Header>
-        <Typography variant='h6'>Add User</Typography>
+        <Typography variant='h6'>เพิ่มรายชื่อครู/อาจารย์</Typography>
         <Close fontSize='small' onClick={handleClose} sx={{ cursor: 'pointer' }} />
       </Header>
       <Box sx={{ p: 5 }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
               name='fullName'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
+                <CustomTextField
                   value={value}
-                  label='Full Name'
+                  label='ชื่อ-นามสกุล'
                   onChange={onChange}
-                  placeholder='John Doe'
+                  placeholder='อธิฐาน สุขสวัสดิ์'
+                  required
                   error={Boolean(errors.fullName)}
+                  helperText={errors.fullName ? errors.fullName.message : ''}
                 />
               )}
             />
-            {errors.fullName && <FormHelperText sx={{ color: 'error.main' }}>{errors.fullName.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
@@ -163,128 +193,149 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
+                <CustomTextField
                   value={value}
-                  label='Username'
+                  label='ชื่อเข้าใช้งานระบบ'
                   onChange={onChange}
-                  placeholder='johndoe'
+                  placeholder='nkxxx'
                   error={Boolean(errors.username)}
+                  helperText={errors.username ? errors.username.message : ''}
+                  required
                 />
               )}
             />
-            {errors.username && <FormHelperText sx={{ color: 'error.main' }}>{errors.username.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='email'
+              name='password'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
-                  type='email'
-                  value={value}
-                  label='Email'
-                  onChange={onChange}
-                  placeholder='johndoe@email.com'
-                  error={Boolean(errors.email)}
-                />
+                <Fragment>
+                  <CustomTextField
+                    value={value}
+                    type={showPassword ? 'text' : 'password'}
+                    onChange={onChange}
+                    id='password'
+                    label='รหัสผ่าน'
+                    placeholder='รหัสผ่าน'
+                    error={Boolean(errors.password)}
+                    helperText={errors.password?.message as string}
+                    aria-describedby='validation-schema-first-name'
+                    required
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment aria-label='สลับการแสดงรหัสผ่านปัจจุบัน' position='end'>
+                          <Tooltip title='สลับการแสดงรหัสผ่านปัจจุบัน' arrow>
+                            <span>
+                              <IconButton
+                                edge='end'
+                                aria-label='สลับการแสดงรหัสผ่านปัจจุบัน'
+                                onClick={() => setShowPassword(!showPassword)}
+                                onMouseDown={(event) => event.preventDefault()}
+                              >
+                                {showPassword ? (
+                                  <IconifyIcon icon='mdi:eye-remove' />
+                                ) : (
+                                  <IconifyIcon icon='ic:round-remove-red-eye' />
+                                )}
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <PasswordStrengthBar scoreWords={scoreWords} shortScoreWord={scoreWords[0]} password={value} />
+                </Fragment>
               )}
             />
-            {errors.email && <FormHelperText sx={{ color: 'error.main' }}>{errors.email.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='company'
+              name='idCard'
               control={control}
-              rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
+                <PatternFormat
                   value={value}
-                  label='Company'
                   onChange={onChange}
-                  placeholder='Company PVT LTD'
-                  error={Boolean(errors.company)}
+                  id='idCard'
+                  label='เลขที่บัตรประจำตัวประชาชน'
+                  format='# #### ##### ## #'
+                  allowEmptyFormatting
+                  mask='x'
+                  customInput={TextField}
+                  sx={{
+                    '& .MuiFormLabel-asterisk': {
+                      color: (theme: any) => theme.palette.error.main,
+                    },
+                  }}
                 />
               )}
             />
-            {errors.company && <FormHelperText sx={{ color: 'error.main' }}>{errors.company.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='country'
+              name='birthDate'
               control={control}
-              rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  label='Country'
-                  onChange={onChange}
-                  placeholder='Australia'
-                  error={Boolean(errors.country)}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                  <DatePicker
+                    label='วันเกิด'
+                    value={value}
+                    onChange={onChange}
+                    inputFormat='D MMMM BBBB'
+                    maxDate={dayjs(new Date())}
+                    renderInput={(params) => (
+                      <CustomTextField
+                        {...params}
+                        fullWidth
+                        inputProps={{
+                          ...params.inputProps,
+                          placeholder: 'วัน/เดือน/ปี',
+                        }}
+                      />
+                    )}
+                    components={{
+                      OpenPickerIcon: () => <FcCalendar />,
+                    }}
+                    disableMaskedInput
+                  />
+                </LocalizationProvider>
               )}
             />
-            {errors.country && <FormHelperText sx={{ color: 'error.main' }}>{errors.country.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='contact'
+              name='jobTitle'
               control={control}
-              rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <TextField
-                  type='number'
-                  value={value}
-                  label='Contact'
-                  onChange={onChange}
-                  placeholder='(397) 294-5153'
-                  error={Boolean(errors.contact)}
-                />
+                <Fragment>
+                  <InputLabel>ตำแหน่ง</InputLabel>
+                  <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
+                    <MenuItem value=''>
+                      <em>เลือกตำแหน่ง</em>
+                    </MenuItem>
+                    <MenuItem value='ผู้อำนวยการ'>ผู้อำนวยการ</MenuItem>
+                    <MenuItem value='รองผู้อำนวยการ'>รองผู้อำนวยการ</MenuItem>
+                    <MenuItem value='ข้าราชการ'>ข้าราชการ</MenuItem>
+                    <MenuItem value='พนักงานราชการ'>พนักงานราชการ</MenuItem>
+                    <MenuItem value='ครูอัตราจ้าง'>ครูอัตราจ้าง</MenuItem>
+                    <MenuItem value='เจ้าหน้าที่ธุรการ'>เจ้าหน้าที่ธุรการ</MenuItem>
+                    <MenuItem value='นักการภารโรง'>นักการภารโรง</MenuItem>
+                    <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
+                    <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
+                  </Select>
+                </Fragment>
               )}
             />
-            {errors.contact && <FormHelperText sx={{ color: 'error.main' }}>{errors.contact.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <InputLabel id='role-select'>Select Role</InputLabel>
-            <Select
-              fullWidth
-              value={role}
-              id='select-role'
-              label='Select Role'
-              labelId='role-select'
-              onChange={(e) => setRole(e.target.value)}
-              inputProps={{ placeholder: 'Select Role' }}
-            >
-              <MenuItem value='admin'>Admin</MenuItem>
-              <MenuItem value='author'>Author</MenuItem>
-              <MenuItem value='editor'>Editor</MenuItem>
-              <MenuItem value='maintainer'>Maintainer</MenuItem>
-              <MenuItem value='subscriber'>Subscriber</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <InputLabel id='plan-select'>Select Plan</InputLabel>
-            <Select
-              fullWidth
-              value={plan}
-              id='select-plan'
-              label='Select Plan'
-              labelId='plan-select'
-              onChange={(e) => setPlan(e.target.value)}
-              inputProps={{ placeholder: 'Select Plan' }}
-            >
-              <MenuItem value='basic'>Basic</MenuItem>
-              <MenuItem value='company'>Company</MenuItem>
-              <MenuItem value='enterprise'>Enterprise</MenuItem>
-              <MenuItem value='team'>Team</MenuItem>
-            </Select>
           </FormControl>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
-              Submit
+              เพิ่มรายชื่อ
             </Button>
             <Button size='large' variant='outlined' color='secondary' onClick={handleClose}>
-              Cancel
+              ยกเลิก
             </Button>
           </Box>
         </form>
@@ -293,4 +344,4 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
   );
 };
 
-export default SidebarAddUser;
+export default AddTeacherDrawer;
