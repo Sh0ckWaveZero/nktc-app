@@ -50,7 +50,7 @@ export class AuthService {
 
     // generate and sign token
     const token = this.createAccessToken(loginResults);
-    
+
     return {
       success: true,
       message: 'login successfully',
@@ -87,8 +87,10 @@ export class AuthService {
     return await this.usersService.finedById(user.id);
   }
 
-  private createAccessToken({ username }): any {
-    const user: JwtPayload = { username };
+  private createAccessToken(data: any): any {
+    const payload = { username: data.username, sub: data.id, roles: data.role };
+    const user: JwtPayload = payload;
+
     const token = this.jwtService.sign(user);
     return {
       expiresIn: configuration().jwtExpiresIn,
