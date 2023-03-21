@@ -18,6 +18,7 @@ interface TeacherState {
   updateProfile: (token: string, data: any) => any;
   update(token: string, data: any): any;
   addTeacher(token: string, data: any): any;
+  removeTeacher(token: string, id: string): any;
 }
 
 export const useTeacherStore = create<TeacherState>()(
@@ -96,6 +97,18 @@ export const useTeacherStore = create<TeacherState>()(
     addTeacher: async (token: string, body: any) => {
       try {
         const { data } = await httpClient.post(`${authConfig.teacherEndpoint}`, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
+    removeTeacher: async (token: string, id: string) => {
+      try {
+        const { data } = await httpClient.delete(`${authConfig.teacherEndpoint}/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
