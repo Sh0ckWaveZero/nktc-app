@@ -126,7 +126,6 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
   });
 
   const onSubmit = (info: FormData) => {
-    console.log('🚀 ~ file: DialogEditUserInfo.tsx:130 ~ onSubmit ~ info:', info);
     onSubmitForm({
       ...info,
       id: data?.teacherId,
