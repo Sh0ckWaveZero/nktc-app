@@ -362,4 +362,29 @@ export class BadnessIndividualService {
     });
     return !!deletedGoodnessIndividual;
   }
+
+  async findBadnessIndividual(id: string, skip: number, take: number): Promise<{ data: any, total: number }> {
+    const selectedStudents = await this.prisma.badnessIndividual.findMany({
+      where: {
+        studentKey: id,
+      },
+      skip: skip || 0,
+      take: take || 100,
+      orderBy: {
+        badDate: 'desc',
+      },
+    });
+
+    // total
+    const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
+      where: {
+        studentKey: id,
+      }
+    });
+
+    return {
+      data: selectedStudents || [],
+      total: totalSelectedStudents.length ? totalSelectedStudents.length : 0,
+    };
+  }
 }
