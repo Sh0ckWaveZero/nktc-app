@@ -13,6 +13,7 @@ import {
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Post } from "@nestjs/common";
 
 @ApiTags('teachers')
 @Controller('teachers')
@@ -70,6 +71,22 @@ export class TeachersController {
         status: HttpStatus.NO_CONTENT,
         error: 'Cannot update teacher',
       }, HttpStatus.NO_CONTENT);
+    }
+  }
+
+  // addTeacher
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async addTeacher(@Body() body: any) {
+    try {
+      const response = await this.teachersService.addTeacher(body);
+      return response;
+    }
+    catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Cannot add teacher',
+      }, HttpStatus.FORBIDDEN);
     }
   }
 }
