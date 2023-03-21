@@ -51,6 +51,7 @@ import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
+import DialogDeleteTeacher from '@/views/apps/admin/teacher/DialogDeleteTeacher';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -160,6 +161,11 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
     handleRowOptionsClose();
   };
 
+  const handleDeleteRow = () => {
+    handleDelete(row);
+    handleRowOptionsClose();
+  };
+
   return (
     <>
       <IconButton size='small' onClick={handleRowOptionsClick}>
@@ -193,7 +199,7 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
           แก้ไข
         </MenuItem>
-        <MenuItem onClick={handleDelete}>
+        <MenuItem onClick={handleDeleteRow}>
           <DeleteOutline fontSize='small' sx={{ mr: 2, color: 'error.main' }} />
           ลบ
         </MenuItem>
@@ -219,6 +225,7 @@ const TeacherList = () => {
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
   const [teachers, setTeachers] = useState<any>([]);
   const [isEdit, setIsEdit] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [isAddUser, setIsAddUser] = useState(false);
 
   // ** Hooks
@@ -230,13 +237,14 @@ const TeacherList = () => {
     }),
     shallow,
   );
-  const { fetchTeacher, updateClassroom, teacherLoading, update, addTeacher }: any = useTeacherStore(
+  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher }: any = useTeacherStore(
     (state) => ({
-      teacherLoading: state.teacherLoading,
-      fetchTeacher: state.fetchTeacher,
-      updateClassroom: state.updateClassroom,
-      update: state.update,
       addTeacher: state.addTeacher,
+      fetchTeacher: state.fetchTeacher,
+      removeTeacher: state.removeTeacher,
+      teacherLoading: state.teacherLoading,
+      update: state.update,
+      updateClassroom: state.updateClassroom,
     }),
     shallow,
   );
@@ -261,9 +269,13 @@ const TeacherList = () => {
     });
 
     return () => {
+      setCurrentData(null);
+      setIsAddUser(false);
+      setIsDelete(false);
       setIsEdit(false);
+      setTeachers([]);
     };
-  }, [debouncedValue, isEdit, isAddUser]);
+  }, [debouncedValue, isEdit, isAddUser, isDelete]);
 
   const defaultValue: any = currentData
     ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))
@@ -298,7 +310,8 @@ const TeacherList = () => {
   };
 
   const handleDelete = (data: any) => {
-    console.log('delete');
+    setCurrentTeacher(data);
+    setOpenDialogDelete(true);
   };
 
   const onHandleEditClose = (): void => {
@@ -371,7 +384,6 @@ const TeacherList = () => {
   };
 
   const onHandleAddTeacher = async (info: any) => {
-    console.log('info', info);
     setAddUserOpen(false);
 
     const salt = bcrypt.genSaltSync(10);
@@ -399,6 +411,26 @@ const TeacherList = () => {
       if (res?.name !== 'AxiosError') {
         toast.success('เพิ่มข้อมูลสำเร็จ', { id: toastId });
         setIsEdit(true);
+      } else {
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
+  };
+
+  const handleDeleteClose = () => {
+    setOpenDialogDelete(false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setOpenDialogDelete(false);
+
+    const toastId = toast.loading('กำลังลบข้อมูลของครู/อาจารย์...');
+    await removeTeacher(accessToken, currentTeacher?.id).then((res: any) => {
+      if (res?.name !== 'AxiosError') {
+        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+        setIsDelete(true);
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
@@ -673,6 +705,14 @@ const TeacherList = () => {
           data={currentTeacher}
           onClose={onHandleChangePasswordClose}
           onSubmitForm={handleChangePasswordTeacher}
+        />
+      )}
+      {openDialogDelete && (
+        <DialogDeleteTeacher
+          data={currentTeacher}
+          onClose={handleDeleteClose}
+          onSubmitted={handleDeleteConfirm}
+          open={openDialogDelete}
         />
       )}
     </Fragment>
