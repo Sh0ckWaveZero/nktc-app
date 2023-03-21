@@ -17,6 +17,7 @@ interface UserState {
   clearUser: () => void;
   changePassword: (token: string, data: any) => any;
   fetchUserById: (token: string, userId: string) => any;
+  resetPasswordByAdmin: (token: string, userId: string, data: any) => any;
 }
 
 export const useUserStore = create<UserState>()(
@@ -92,6 +93,18 @@ export const useUserStore = create<UserState>()(
         });
       } catch (err) {
         set({ userInfo: data, userLoading: false, hasErrors: true }, true);
+      }
+    },
+    resetPasswordByAdmin: async (token: string, body: any) => {
+      try {
+        const { data } = await httpClient.put(`${authConfig.userEndpoint}/update/password/${body?.teacher?.id}`, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data;
+      } catch (err) {
+        return err;
       }
     },
   }),
