@@ -30,7 +30,7 @@ import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -48,6 +48,17 @@ interface DialogEditUserInfoType {
   show: boolean;
   data: any;
   onClose: () => void;
+  onSubmitForm: (data: any) => void;
+}
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  username: string;
+  jobTitle: string;
+  idCard: string;
+  birthDate: Dayjs | null;
+  status: string;
 }
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
@@ -60,10 +71,8 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => {
-  // ** States
-  const [languages, setLanguages] = useState<string[]>([]);
-
+const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUserInfoType) => {
+  console.log('🚀 ~ file: DialogEditUserInfo.tsx:75 ~ DialogEditUserInfo ~ data:', data);
   const defaultValues = {
     firstName: data?.firstName,
     lastName: data?.lastName,
@@ -71,6 +80,7 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
     jobTitle: data?.jobTitle,
     idCard: data?.idCard,
     birthDate: data?.birthDate ? dayjs(new Date(data?.birthDate)) : null,
+    status: data?.status,
   };
 
   const showErrors = (field: string, valueLen: number, min: number) => {
@@ -84,15 +94,10 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
   };
 
   const schema = yup.object().shape({
-    email: yup.string().email().required(),
     lastName: yup
       .string()
       .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
       .matches(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น')
-      .required(),
-    password: yup
-      .string()
-      .min(8, (obj) => showErrors('password', obj.value.length, obj.min))
       .required(),
     firstName: yup
       .string()
@@ -104,14 +109,11 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
       .min(3, (obj) => showErrors('ชื่อผู้ใช้งาน', obj.value.length, obj.min))
       .matches(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษเท่านั้น')
       .required(),
+    jobTitle: yup.string(),
+    idCard: yup.string().matches(/^[0-9]+$/, 'กรุณากรอกเฉพาะตัวเลขเท่านั้น'),
+    birthDate: yup.date().nullable(),
+    status: yup.string(),
   });
-
-  const handleChange = (event: SelectChangeEvent<typeof languages>) => {
-    const {
-      target: { value },
-    } = event;
-    setLanguages(typeof value === 'string' ? value.split(',') : value);
-  };
 
   // ** Hook
   const {
@@ -124,7 +126,13 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = () => toast.success('Form Submitted');
+  const onSubmit = (info: FormData) => {
+    console.log('🚀 ~ file: DialogEditUserInfo.tsx:130 ~ onSubmit ~ info:', info);
+    onSubmitForm({
+      ...info,
+      id: data?.teacherId,
+    });
+  };
 
   return (
     <Dialog fullWidth open={show} maxWidth='md' scroll='body' onClose={onClose} TransitionComponent={Transition}>
@@ -310,8 +318,25 @@ const DialogEditUserInfo = ({ show, data, onClose }: DialogEditUserInfoType) => 
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel control={<Switch defaultChecked />} label='เปิด/ปิด การใช้งานบัญชี' />
+            <Grid item sm={6} xs={12}>
+              <FormControl fullWidth>
+                <Controller
+                  name='status'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Fragment>
+                      <InputLabel>สถานะบัญชีใช้งาน</InputLabel>
+                      <Select label='สถานะบัญชีใช้งาน' defaultValue={value} value={value} onChange={onChange}>
+                        <MenuItem value=''>
+                          <em>เลือกสถานะ</em>
+                        </MenuItem>
+                        <MenuItem value='true'>เปิดใช้งาน</MenuItem>
+                        <MenuItem value='false'>ปิดใช้งาน</MenuItem>
+                      </Select>
+                    </Fragment>
+                  )}
+                />
+              </FormControl>
             </Grid>
           </Grid>
         </DialogContent>
