@@ -15,7 +15,6 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-
 @ApiTags('users')
 @Controller('users')
 @ApiSecurity('access-key')
@@ -49,6 +48,16 @@ export class UsersController {
     @Body() updatePasswordDto: any,
   ) {
     await this.usersService.updatePassword(updatePasswordDto, req.user.id);
+    return { message: 'password_update_success' };
+  }
+
+  // change password for admin
+  @Put('update/password/:id')
+  public async updatePasswordForAdmin(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: any,
+  ) {
+    await this.usersService.updatePasswordForAdmin(updatePasswordDto, id);
     return { message: 'password_update_success' };
   }
 }

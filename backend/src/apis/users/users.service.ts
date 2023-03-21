@@ -82,6 +82,39 @@ export class UsersService {
     });
   }
 
+  // change password for admin
+  async updatePasswordForAdmin(payload: any, id: string): Promise<User> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!user) {
+        throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
+      }
+
+      const response = await this.prisma.user.update({
+        where: { id },
+        data: {
+          password: payload?.teacher?.password,
+          updatedAt: new Date(),
+          updatedBy: payload?.user?.id,
+        },
+      });
+
+      if (response) {
+        // audit log
+        return response;
+      }
+
+    } catch (error) {
+      return error;
+    }
+  }
+
+
   async create(userDto: any): Promise<any> {
     // check if user already exists in database
     const user = await this.prisma.user.findFirst({
