@@ -17,6 +17,7 @@ interface TeacherState {
   updateClassroom: (token: string, data: any) => any;
   updateProfile: (token: string, data: any) => any;
   update(token: string, data: any): any;
+  addTeacher(token: string, data: any): any;
 }
 
 export const useTeacherStore = create<TeacherState>()(
@@ -92,7 +93,18 @@ export const useTeacherStore = create<TeacherState>()(
         return err;
       }
     },
+    addTeacher: async (token: string, body: any) => {
+      try {
+        const { data } = await httpClient.post(`${authConfig.teacherEndpoint}`, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    },
     shallow,
   }),
-
 );
