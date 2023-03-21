@@ -30,7 +30,7 @@ import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index'
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 
-import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
+import AddTeacherDrawer from '@/views/apps/teacher/list/AddUserDrawer';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import CustomChip from '@/@core/components/mui/chip';
 import { DataGrid } from '@mui/x-data-grid';
@@ -219,6 +219,7 @@ const TeacherList = () => {
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
   const [teachers, setTeachers] = useState<any>([]);
   const [isEdit, setIsEdit] = useState(false);
+  const [isAddUser, setIsAddUser] = useState(false);
 
   // ** Hooks
   const { user } = useAuth();
@@ -229,12 +230,13 @@ const TeacherList = () => {
     }),
     shallow,
   );
-  const { fetchTeacher, updateClassroom, teacherLoading, update }: any = useTeacherStore(
+  const { fetchTeacher, updateClassroom, teacherLoading, update, addTeacher }: any = useTeacherStore(
     (state) => ({
       teacherLoading: state.teacherLoading,
       fetchTeacher: state.fetchTeacher,
       updateClassroom: state.updateClassroom,
       update: state.update,
+      addTeacher: state.addTeacher,
     }),
     shallow,
   );
@@ -261,7 +263,7 @@ const TeacherList = () => {
     return () => {
       setIsEdit(false);
     };
-  }, [debouncedValue, isEdit]);
+  }, [debouncedValue, isEdit, isAddUser]);
 
   const defaultValue: any = currentData
     ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))
@@ -328,7 +330,6 @@ const TeacherList = () => {
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     await update(accessToken, body).then((res: any) => {
-      console.log('🚀 ~ file: index.tsx:296 ~ awaitupdate ~ res:', res);
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         setIsEdit(true);
@@ -354,11 +355,49 @@ const TeacherList = () => {
         password: hashedPassword,
       },
     };
-    console.log('🚀 ~ file: index.tsx:352 ~ handleChangePasswordTeacher ~ body:', body);
     const toastId = toast.loading('กำลังเปลี่ยนรหัสผ่าน...');
     await resetPasswordByAdmin(accessToken, body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('เปลี่ยนรหัสผ่านสำเร็จ', { id: toastId });
+        setIsAddUser(true);
+      } else {
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
+
+    setIsAddUser(false);
+  };
+
+  const onHandleAddTeacher = async (info: any) => {
+    console.log('info', info);
+    setAddUserOpen(false);
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(info.password, salt);
+
+    const { password, fullName, ...rest } = info;
+    const [firstName, lastName] = fullName.split(' ');
+
+    const body = {
+      user: {
+        id: user?.id,
+      },
+      teacher: {
+        ...rest,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: 'Teacher',
+        status: 'true',
+      },
+    };
+
+    const toastId = toast.loading('กำลังเพิ่มข้อมูลของครู/อาจารย์...');
+    await addTeacher(accessToken, body).then((res: any) => {
+      if (res?.name !== 'AxiosError') {
+        toast.success('เพิ่มข้อมูลสำเร็จ', { id: toastId });
         setIsEdit(true);
       } else {
         const { data } = res?.response || {};
@@ -390,7 +429,7 @@ const TeacherList = () => {
                   variant='body2'
                   sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
                 >
-                  {title + '' + firstName + ' ' + lastName}
+                  {(title ? title : '') + '' + firstName + ' ' + lastName}
                 </Typography>
               </StyledLink>
               <StyledLink href={`/apps/user/view/${id}`} passHref>
@@ -601,8 +640,14 @@ const TeacherList = () => {
             />
           </Card>
         </Grid>
-
-        <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
+        {addUserOpen && (
+          <AddTeacherDrawer
+            open={addUserOpen}
+            toggle={toggleAddUserDrawer}
+            data={teachers}
+            onSubmitForm={onHandleAddTeacher}
+          />
+        )}
         {addClassroomOpen && (
           <SidebarAddClassroom
             open={addClassroomOpen}
