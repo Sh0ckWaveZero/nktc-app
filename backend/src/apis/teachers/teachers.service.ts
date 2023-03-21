@@ -374,4 +374,40 @@ export class TeachersService {
       return error;
     }
   }
+
+  async addTeacher(data: any) {
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          username: data?.teacher?.username,
+          password: data?.teacher?.password,
+          role: data?.teacher?.role,
+          account: {
+            create: {
+              firstName: data?.teacher?.firstName,
+              lastName: data?.teacher?.lastName,
+              idCard: data?.teacher?.idCard,
+              birthDate: data?.teacher?.birthDate === '' ? null : data?.teacher?.birthDate,
+              createdBy: data?.user?.id,
+              updatedBy: data?.user?.id,
+            },
+          },
+          teacher: {
+            create: {
+              jobTitle: data?.teacher?.jobTitle,
+              status: data?.teacher?.status || 'true',
+              createdBy: data?.user?.id,
+              updatedBy: data?.user?.id,
+            },
+          },
+          createdBy: data?.user?.id,
+          updatedBy: data?.user?.id,
+        },
+      });
+      return user;
+    } catch (error: any) {
+      console.error(error);
+      return error;
+    }
+  }
 }
