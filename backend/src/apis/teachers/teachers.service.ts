@@ -410,4 +410,26 @@ export class TeachersService {
       return error;
     }
   }
+
+  async deleteTeacher(id: string) {
+    // find user
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (isEmpty(user)) {
+      throw new NotFoundException('User not found');
+    }
+
+    // delete user
+    const deleteUser = await this.prisma.user.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return deleteUser;
+  }
 }
