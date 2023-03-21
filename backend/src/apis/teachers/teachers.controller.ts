@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -86,6 +87,22 @@ export class TeachersController {
       throw new HttpException({
         status: HttpStatus.FORBIDDEN,
         error: 'Cannot add teacher',
+      }, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  // deleteTeacher
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteTeacher(@Param('id') id: string) {
+    try {
+      const response = await this.teachersService.deleteTeacher(id);
+      return response;
+    }
+    catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Cannot delete teacher',
       }, HttpStatus.FORBIDDEN);
     }
   }
