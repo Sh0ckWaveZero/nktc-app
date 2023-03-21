@@ -18,6 +18,7 @@ interface GoodnessIndividualState {
   search: (token: string, body: Body) => any;
   summary: (token: string, body: any) => any;
   deleteGoodnessIndividualById: (token: string, id: string) => any;
+  fetchGoodnessIndividualById: (token: string, body: Body) => any;
 }
 
 export const goodnessIndividualStore = create<GoodnessIndividualState>()(
@@ -98,6 +99,21 @@ export const goodnessIndividualStore = create<GoodnessIndividualState>()(
         return response;
       } catch (err) {
         console.error('Error delete goodness individual:', err);
+        return err;
+      }
+    },
+    fetchGoodnessIndividualById: async (token: string, body: Body) => {
+      try {
+        const response = await httpClient.get(
+          `${authConfig.goodnessIndividualEndpoint}/${body.studentId}?skip=${body.skip}&take=${body.take}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        return response?.data;
+      } catch (err) {
+        console.error('Error get goodness individual:', err);
         return err;
       }
     }
