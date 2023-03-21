@@ -1,5 +1,5 @@
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
 
 import { BadnessIndividualService } from './badness-individual.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -10,6 +10,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @ApiBearerAuth()
 export class BadnessIndividualController {
   constructor(private readonly badnessIndividualService: BadnessIndividualService) {}
+
+  @Get(':studentId')
+  async findBadnessIndividual(@Param('studentId') studentId: string, @Query('skip') skip: number, @Query('take') take: number) {
+    return await this.badnessIndividualService.findBadnessIndividual(studentId, skip, take);
+  }
 
   @Post()
   async create(@Body() createBadnessIndividualDto: any) {
