@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // ** Config
-import {authConfig} from '@/configs/auth';
+import { authConfig } from '@/configs/auth';
 import { shallow } from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 interface TeacherQuery {
@@ -16,6 +16,7 @@ interface TeacherState {
   fetchClassroomByTeachId: (token: string, teacherId: string) => any;
   updateClassroom: (token: string, data: any) => any;
   updateProfile: (token: string, data: any) => any;
+  update(token: string, data: any): any;
 }
 
 export const useTeacherStore = create<TeacherState>()(
@@ -33,9 +34,9 @@ export const useTeacherStore = create<TeacherState>()(
             Authorization: `Bearer ${token}`,
           },
         });
-        set({ teacher: await data, teacherLoading: false, hasErrors: false });
+        return await data;
       } catch (err) {
-        set({ teacher: [], teacherLoading: false, hasErrors: true });
+        return err;
       }
     },
     fetchClassroomByTeachId: async (token: string, teacherId: string) => {
@@ -76,6 +77,19 @@ export const useTeacherStore = create<TeacherState>()(
         return await data;
       } catch (err) {
         set({ teacherLoading: false, hasErrors: true });
+      }
+    },
+    update: async (token: string, body: any) => {
+      set({ teacherLoading: true });
+      try {
+        const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${body?.teacher?.id}`, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data;
+      } catch (err) {
+        return err;
       }
     },
     shallow,
