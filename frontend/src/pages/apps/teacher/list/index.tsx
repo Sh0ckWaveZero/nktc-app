@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Fragment, MouseEvent, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
-import { useClassroomStore, useTeacherStore } from '@/store/index';
+import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 
@@ -34,19 +34,23 @@ import AddUserDrawer from '@/views/apps/teacher/list/AddUserDrawer';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import CustomChip from '@/@core/components/mui/chip';
 import { DataGrid } from '@mui/x-data-grid';
+import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
+import IconifyIcon from '@/@core/components/icon';
 import Link from 'next/link';
 import { LocalStorageService } from '@/services/localStorageService';
+import ResetPasswordDialog from '@/views/apps/admin/teacher/ResetPasswordDialog';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import { ThemeColor } from '@/@core/layouts/types';
+import bcrypt from 'bcryptjs';
+import { generateErrorMessages } from 'utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
-import IconifyIcon from '@/@core/components/icon';
-import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -60,6 +64,7 @@ interface RowOptionsType {
   row: any;
   handleDelete: (data: any) => void;
   handleEdit: (data: any) => void;
+  handleChangePassword: (data: any) => void;
 }
 
 // ** Vars
@@ -80,6 +85,8 @@ const userStatusObj: TeacherStatusType | any = {
   active: 'success',
   pending: 'warning',
   inactive: 'secondary',
+  true: 'success',
+  false: 'secondary',
 };
 
 // ** Styled component for the link for the avatar with image
@@ -130,7 +137,7 @@ const renderClient = (row: any) => {
   }
 };
 
-const RowOptions = ({ row, handleDelete, handleEdit }: RowOptionsType) => {
+const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsType) => {
   // ** Hooks
 
   // ** State
@@ -145,6 +152,11 @@ const RowOptions = ({ row, handleDelete, handleEdit }: RowOptionsType) => {
 
   const handleEditRow = () => {
     handleEdit(row);
+    handleRowOptionsClose();
+  };
+
+  const handleChangePasswordRow = () => {
+    handleChangePassword(row);
     handleRowOptionsClose();
   };
 
@@ -168,6 +180,11 @@ const RowOptions = ({ row, handleDelete, handleEdit }: RowOptionsType) => {
         }}
         PaperProps={{ style: { minWidth: '8rem' } }}
       >
+        <MenuItem onClick={handleChangePasswordRow}>
+          <IconifyIcon icon='mdi:password-check-outline' fontSize='1.3rem' style={{ marginRight: '10px' }} />
+          เปลี่ยนรหัสผ่าน
+        </MenuItem>
+
         <MenuItem>
           <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
           ดู
@@ -198,16 +215,26 @@ const TeacherList = () => {
   const id = open ? 'simple-popover' : undefined;
   const [openDialogEdit, setOpenDialogEdit] = useState(false);
   const [openDialogDelete, setOpenDialogDelete] = useState(false);
+  const [openChangePassword, setOpenChangePassword] = useState(false);
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
+  const [teachers, setTeachers] = useState<any>([]);
+  const [isEdit, setIsEdit] = useState(false);
 
   // ** Hooks
+  const { user } = useAuth();
 
-  const { teacher, fetchTeacher, updateClassroom, teacherLoading }: any = useTeacherStore(
+  const { resetPasswordByAdmin }: any = useUserStore(
     (state) => ({
-      teacher: state.teacher,
+      resetPasswordByAdmin: state.resetPasswordByAdmin,
+    }),
+    shallow,
+  );
+  const { fetchTeacher, updateClassroom, teacherLoading, update }: any = useTeacherStore(
+    (state) => ({
       teacherLoading: state.teacherLoading,
       fetchTeacher: state.fetchTeacher,
       updateClassroom: state.updateClassroom,
+      update: state.update,
     }),
     shallow,
   );
@@ -227,8 +254,14 @@ const TeacherList = () => {
   useEffect(() => {
     fetchTeacher(accessToken, {
       q: value,
+    }).then((res: any) => {
+      setTeachers(res || []);
     });
-  }, [debouncedValue]);
+
+    return () => {
+      setIsEdit(false);
+    };
+  }, [debouncedValue, isEdit]);
 
   const defaultValue: any = currentData
     ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))
@@ -264,6 +297,75 @@ const TeacherList = () => {
 
   const handleDelete = (data: any) => {
     console.log('delete');
+  };
+
+  const onHandleEditClose = (): void => {
+    setOpenDialogEdit(false);
+  };
+
+  const onHandleChangePasswordClose = (): void => {
+    setOpenChangePassword(false);
+  };
+
+  const handleChangePassword = (data: any) => {
+    setCurrentTeacher(data);
+    setOpenChangePassword(true);
+  };
+
+  const handleEditTeacher = async (data: any) => {
+    setOpenDialogEdit(false);
+    const body = {
+      user: {
+        id: user?.id,
+      },
+      teacher: {
+        ...data,
+      },
+      account: {
+        id: currentTeacher?.accountId,
+      },
+    };
+
+    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    await update(accessToken, body).then((res: any) => {
+      console.log('🚀 ~ file: index.tsx:296 ~ awaitupdate ~ res:', res);
+      if (res?.name !== 'AxiosError') {
+        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        setIsEdit(true);
+      } else {
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
+  };
+
+  const handleChangePasswordTeacher = async (data: any) => {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(data.password, salt);
+
+    setOpenChangePassword(false);
+    const body = {
+      user: {
+        id: user?.id,
+      },
+      teacher: {
+        id: data.id,
+        password: hashedPassword,
+      },
+    };
+    console.log('🚀 ~ file: index.tsx:352 ~ handleChangePasswordTeacher ~ body:', body);
+    const toastId = toast.loading('กำลังเปลี่ยนรหัสผ่าน...');
+    await resetPasswordByAdmin(accessToken, body).then((res: any) => {
+      if (res?.name !== 'AxiosError') {
+        toast.success('เปลี่ยนรหัสผ่านสำเร็จ', { id: toastId });
+        setIsEdit(true);
+      } else {
+        const { data } = res?.response || {};
+        const message = generateErrorMessages[data?.message] || data?.message;
+        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
   };
 
   const columns: any = [
@@ -468,7 +570,14 @@ const TeacherList = () => {
       editable: false,
       hideSortIcons: true,
       align: 'right',
-      renderCell: ({ row }: CellType) => <RowOptions row={row} handleEdit={handleEdit} handleDelete={handleDelete} />,
+      renderCell: ({ row }: CellType) => (
+        <RowOptions
+          row={row}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          handleChangePassword={handleChangePassword}
+        />
+      ),
     },
   ];
 
@@ -482,7 +591,7 @@ const TeacherList = () => {
             <DataGrid
               disableColumnMenu
               autoHeight={true}
-              rows={teacher}
+              rows={teachers}
               getRowHeight={() => 'auto'}
               columns={columns}
               pageSize={pageSize}
@@ -506,7 +615,20 @@ const TeacherList = () => {
         )}
       </Grid>
       {openDialogEdit && (
-        <DialogEditUserInfo show={openDialogEdit} data={currentTeacher} onClose={() => setOpenDialogEdit(false)} />
+        <DialogEditUserInfo
+          show={openDialogEdit}
+          data={currentTeacher}
+          onClose={onHandleEditClose}
+          onSubmitForm={handleEditTeacher}
+        />
+      )}
+      {openChangePassword && (
+        <ResetPasswordDialog
+          show={openChangePassword}
+          data={currentTeacher}
+          onClose={onHandleChangePasswordClose}
+          onSubmitForm={handleChangePasswordTeacher}
+        />
       )}
     </Fragment>
   );
