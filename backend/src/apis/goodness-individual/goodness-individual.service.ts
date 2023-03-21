@@ -363,4 +363,29 @@ export class GoodnessIndividualService {
     });
     return !!deletedGoodnessIndividual;
   }
+
+  async findGoodnessIndividual(id: string, skip: number, take: number): Promise<{ data: any, total: number }> {
+    const selectedStudents = await this.prisma.goodnessIndividual.findMany({
+      where: {
+        studentKey: id,
+      },
+      skip: skip || 0,
+      take: take || 100,
+      orderBy: {
+        goodDate: 'desc',
+      },
+    });
+
+    // total
+    const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany({
+      where: {
+        studentKey: id,
+      }
+    });
+
+    return {
+      data: selectedStudents || [],
+      total: totalSelectedStudents.length ? totalSelectedStudents.length : 0,
+    };
+  }
 }
