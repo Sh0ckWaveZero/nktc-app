@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import {
   Avatar,
   Button,
-  Checkbox,
   FormControl,
   FormHelperText,
   IconButton,
@@ -16,7 +15,6 @@ import {
 import Box, { BoxProps } from '@mui/material/Box';
 import { Controller, useForm } from 'react-hook-form';
 import { EyeOffOutline, EyeOutline } from 'mdi-material-ui';
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 import { ReactNode, useState } from 'react';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
@@ -72,13 +70,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   fontSize: '0.875rem',
   textDecoration: 'none',
   color: theme.palette.primary.main,
-}));
-
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
-  '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary,
-  },
 }));
 
 const schema = yup.object().shape({
@@ -235,7 +226,9 @@ const LoginPage = () => {
                 />
               </Box>
               <TypographyStyled variant='h5'>ยินดีต้อนรับสู่ ระบบช่วยเหลือผู้เรียน</TypographyStyled>
-              <Typography variant='body2' my={3}>กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน</Typography>
+              <Typography variant='body2' my={3}>
+                กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน
+              </Typography>
               <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
                 <FormControl fullWidth sx={{ mb: 4 }}>
                   <Controller
@@ -311,10 +304,6 @@ const LoginPage = () => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <FormControlLabel control={<Checkbox />} label='จดจำ' />
-                  <LinkStyled passHref href='/forgot-password'>
-                    ลืมรหัสผ่าน?
-                  </LinkStyled>
                 </Box>
                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                   ลงชื่อเข้าใช้
