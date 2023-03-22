@@ -5,6 +5,14 @@ import { authConfig } from '@/configs/auth';
 import { LoginParams } from '@/context/types';
 import { userInfo } from 'os';
 import httpClient from '@/@core/utils/http';
+
+
+interface Body {
+  userName: string;
+  skip?: number;
+  take?: number;
+}
+
 interface UserState {
   userInfo: any;
   userLoading: boolean,
@@ -18,6 +26,7 @@ interface UserState {
   changePassword: (token: string, data: any) => any;
   fetchUserById: (token: string, userId: string) => any;
   resetPasswordByAdmin: (token: string, userId: string, data: any) => any;
+  fetchAuditLogs: (token: string, body: any) => any;
 }
 
 export const useUserStore = create<UserState>()(
@@ -107,5 +116,17 @@ export const useUserStore = create<UserState>()(
         return err;
       }
     },
+    fetchAuditLogs: async (token: string, params: Body) => {
+      try {
+        const { data } = await httpClient.get(`${authConfig.userEndpoint}/audit-logs/${params.userName}?skip=${params.skip}&take=${params.take}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return await data;
+      } catch (err) {
+        return err;
+      }
+    }
   }),
 );
