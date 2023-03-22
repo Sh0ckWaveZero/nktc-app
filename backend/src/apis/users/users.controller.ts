@@ -3,10 +3,12 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
   Put,
+  Query,
   Request,
   UseGuards,
   UseInterceptors,
@@ -60,4 +62,21 @@ export class UsersController {
     await this.usersService.updatePasswordForAdmin(updatePasswordDto, id);
     return { message: 'password_update_success' };
   }
+
+  @Get('audit-logs/:username')
+  @HttpCode(HttpStatus.OK)
+  public async getAuditLogs(
+    @Param('username') username: string,
+    @Query('skip') skip: number,
+    @Query('take') take: number,
+  ) {
+    try {
+      return await this.usersService.getAuditLogs(username, skip, take);
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.NOT_FOUND,
+        error: 'Cannot get audit logs',
+      }, HttpStatus.FORBIDDEN);
+    }
+  };
 }

@@ -267,4 +267,30 @@ export class UsersService {
     });
     return teacherOnClassroom.map((item: any) => item.classroomId) ?? []
   }
+
+  // getAuditLogs  params: username, skip, take
+  async getAuditLogs(username: string, skip: number, take: number): Promise<any> {
+    const logs = await this.prisma.auditLog.findMany({
+      where: {
+        createdBy: username,
+      },
+      skip,
+      take,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // get total
+    const total = await this.prisma.auditLog.count({
+      where: {
+        createdBy: username,
+      },
+    });
+
+    return {
+      data: logs,
+      total,
+    };
+  }
 }
