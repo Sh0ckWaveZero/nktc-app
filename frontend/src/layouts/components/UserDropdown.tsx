@@ -174,7 +174,7 @@ const UserDropdown = (props: Props) => {
             ข้อมูลส่วนตัว
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/history')}>
           <Box sx={styles}>
             <EmailOutline sx={{ mr: 2 }} />
             ประวัติการใช้งาน
