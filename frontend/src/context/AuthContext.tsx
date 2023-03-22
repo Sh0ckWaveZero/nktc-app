@@ -76,36 +76,19 @@ const AuthProvider = ({ children }: Props) => {
     initAuth();
   }, []);
 
-  const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    axios
-      .post(authConfig.loginEndpoint as string, params)
-      .then(async (res) => {
-        localStorageService.setToken(res.data.token);
-      })
-      .then(() => {
-        axios
-          .get(authConfig.meEndpoint as string, {
-            headers: {
-              Authorization: `Bearer ${localStorageService.getToken()!}`,
-            },
-          })
-          .then(async (response) => {
-            if (response) {
-              const { data } = response;
-              const returnUrl = router.query.returnUrl;
-              setUser({ ...(await data) });
-              window.localStorage.setItem('userData', JSON.stringify(data));
-              const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
-              router.replace(redirectURL as string);
-            }
-          })
-          .catch((err) => {
-            if (errorCallback) errorCallback(err);
-          });
-      })
-      .catch((err) => {
-        if (errorCallback) errorCallback(err);
-      });
+  const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
+    try {
+      const response = await axios.post(authConfig.loginEndpoint as string, params);
+      const { data } = response;
+      localStorageService.setToken(data.token);
+      const returnUrl = router.query.returnUrl;
+      setUser(await data?.data);
+      window.localStorage.setItem('userData', JSON.stringify(data));
+      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+      router.replace(redirectURL as string);
+    } catch (err: any) {
+      if (errorCallback) errorCallback(err);
+    }
   };
 
   const handleLogout = () => {
