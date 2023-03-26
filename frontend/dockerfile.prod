@@ -1,7 +1,7 @@
 # 1. Install dependencies only when needed
 FROM node:alpine AS deps
-RUN apk add --no-cache libc6-compat
-RUN apk update && apk add --no-cache --virtual .gyp python make g++
+RUN apk update && apk add --no-cache libc6-compat
+RUN apk add --no-cache --virtual .gyp python make g++
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
