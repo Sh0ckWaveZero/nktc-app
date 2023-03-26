@@ -1,8 +1,7 @@
 # 1. Install dependencies only when needed
 FROM node:alpine AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk update && apk add --no-cache libc6-compat
-
+RUN apk add --no-cache libc6-compat
+RUN apk update && apk add --no-cache --virtual .gyp python make g++
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -13,7 +12,6 @@ RUN \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
   else echo "Lockfile not found." && exit 1; \
   fi
-
 
 # 2. Rebuild the source code only when needed
 FROM node:alpine AS builder
