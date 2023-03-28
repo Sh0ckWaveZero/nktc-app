@@ -15,8 +15,19 @@ const bootstrap = async () => {
   // Request Validation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  app.enableCors({
-    origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
+  // app.enableCors({
+  //   origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
+  // });
+
+  app.use((req: any, res: any, next: any) => {
+    res.header('Access-Control-Allow-Origin', configuration().host.toString());
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept');
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+    } else {
+      next();
+    }
   });
 
   app.use(requestIp.mw());
