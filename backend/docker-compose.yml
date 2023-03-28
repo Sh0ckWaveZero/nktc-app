@@ -1,5 +1,19 @@
 version: "3.8"
+
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - npm_nktc_stu
   api:
     stdin_open: true
     container_name: nktc-stu-backend
