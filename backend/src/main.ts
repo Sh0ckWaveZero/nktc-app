@@ -15,9 +15,13 @@ const bootstrap = async () => {
   // Request Validation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // app.enableCors({
-  //   origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
-  // });
+  app.enableCors({
+    origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
+    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+    credentials: true,
+  });
+  
 
   app.use(requestIp.mw());
   app.use(bodyParser.json({ limit: '5mb' }));
