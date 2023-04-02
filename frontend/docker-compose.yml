@@ -18,5 +18,5 @@ services:
       - 3000:3000
 networks:
   default:
-    name: npm_nktc_stu
+    name: nktc_stu
     external: true

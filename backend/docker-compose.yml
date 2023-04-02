@@ -17,5 +17,5 @@ services:
 
 networks:
   default:
-    name: npm_nktc_stu
+    name: nktc_stu
     external: true
