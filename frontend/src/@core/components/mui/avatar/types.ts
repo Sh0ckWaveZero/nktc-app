@@ -7,4 +7,5 @@ import { ThemeColor } from '@/@core/layouts/types';
 export type CustomAvatarProps = AvatarProps & {
   color?: ThemeColor;
   skin?: 'filled' | 'light' | 'light-static';
+  badge?: string;
 };

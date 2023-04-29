@@ -11,14 +11,16 @@ import { ThemeColor } from '@/@core/layouts/types';
 
 // ** Hooks Imports
 import useBgColor, { UseBgColorType } from '@/@core/hooks/useBgColor';
+import { Badge } from '@mui/material';
+import IconifyIcon from '../../icon';
 
 // eslint-disable-next-line react/display-name
 const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
   // ** Props
-  const { sx, src, skin, color } = props;
+  const { sx, src, skin, color, badge = '' } = props;
 
   // ** Hook
-  const theme:any = useTheme();
+  const theme: any = useTheme();
   const bgColors: UseBgColorType = useBgColor();
 
   const getAvatarStyles = (skin: 'filled' | 'light' | 'light-static' | undefined, skinColor: ThemeColor) => {
@@ -47,7 +49,28 @@ const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
     info: getAvatarStyles(skin, 'info'),
   };
 
-  return <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />;
+  if (badge) {
+    return (
+      <Badge
+        overlap='circular'
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        color='success'
+        badgeContent={<IconifyIcon icon={badge} />}
+        sx={{
+          '& .MuiBadge-badge': {
+            width: '2rem',
+            height: '2rem',
+            borderRadius: '50%',
+            border: `2px solid ${theme.palette.background.paper}`,
+          },
+        }}
+      >
+        <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />
+      </Badge>
+    );
+  } else {
+    return <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />;
+  }
 });
 
 Avatar.defaultProps = {

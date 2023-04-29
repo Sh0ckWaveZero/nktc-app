@@ -8,16 +8,16 @@ import CustomAvatar from '@/@core/components/mui/avatar';
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 import Link from 'next/link';
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material/styles';
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
+  color: theme.palette.primary.main,
+}));
 
 const CardMenu = (props: CardMenuProps) => {
   // ** Props
-  const { title, subtitle, color, icon, navLink } = props;
+  const { title, subtitle, color, icon, navLink, badge } = props;
   return (
     <CanViewNavLink navLink={navLink}>
       <LinkStyled href={`${navLink?.path}`} passHref>
@@ -45,13 +45,14 @@ const CardMenu = (props: CardMenuProps) => {
               }}
             >
               <CustomAvatar
+                badge={badge}
                 sx={{
                   boxShadow: 2,
                   m: 2,
-                  height: '5rem',
-                  width: '5rem',
+                  height: '4rem',
+                  width: '4rem',
                   '& svg': {
-                    fontSize: '4rem',
+                    fontSize: '3rem',
                     padding: '0.2rem',
                   },
                 }}

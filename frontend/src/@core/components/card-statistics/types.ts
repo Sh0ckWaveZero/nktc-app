@@ -39,4 +39,5 @@ export type CardMenuProps = {
   icon: ReactNode;
   color?: string;
   navLink: NavLink | undefined;
+  badge?: string;
 };

@@ -12,6 +12,8 @@ import {
   HiOutlineLightBulb,
   HiOutlineDatabase,
   HiOutlineSelector,
+  HiStar,
+  HiThumbDown,
 } from 'react-icons/hi';
 import {
   MdHistoryToggleOff,
@@ -28,8 +30,9 @@ import {
 import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useContext } from 'react';
-import { BsCalendar2Date, BsCalendar2Month, BsCalendar2Week } from 'react-icons/bs';
-import { TbReport } from "react-icons/tb";
+import { BsCalendar2Date, BsCalendar2Month, BsCalendar2Week, BsClipboardData } from 'react-icons/bs';
+import { TbChartBar, TbReport } from 'react-icons/tb';
+import IconifyIcon from '@/@core/components/icon';
 
 const Home = () => {
   // ** Hook
@@ -49,10 +52,10 @@ const Home = () => {
       },
     },
     {
-      title: 'เช็คชื่อ กิจกรรม',
+      title: 'เช็คชื่อ',
       subtitle: 'ตอนเช้า/หน้าเสาธง',
       color: '#FF9D7E',
-      icon: <HiOutlineFlag />,
+      icon: <IconifyIcon icon='icon-park-twotone:flag' />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
         path: '/apps/reports/check-in',
@@ -61,22 +64,182 @@ const Home = () => {
       },
     },
     {
+      title: 'เช็คชื่อ',
+      subtitle: 'กิจกรรม',
+      color: '#d7c842',
+      icon: <IconifyIcon icon='pepicons-pop:flag' />,
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/apps/reports/activity-check-in',
+        action: 'read',
+        subject: 'activity-check-in-page',
+      },
+    },
+    {
+      title: 'บันทึกความดี',
+      subtitle: 'รายบุคคล',
+      color: '#d7c842',
+      icon: <IconifyIcon icon='ic:round-star-outline' />,
+      navLink: {
+        title: 'บันทึกความดี รายบุคคล',
+        icon: 'heroicons:inbox',
+        action: 'read',
+        subject: 'record-goodness-page',
+        path: '/apps/record-goodness/individual',
+      },
+      badge: 'icon-park-outline:people',
+    },
+    {
+      title: 'บันทึกความดี',
+      subtitle: 'รายกลุ่ม',
+      color: '#d7c842',
+      icon: <IconifyIcon icon='ic:round-star-outline' />,
+      navLink: {
+        title: 'บันทึกความดี รายกลุ่ม',
+        icon: 'heroicons:inbox-stack',
+        action: 'read',
+        subject: 'record-goodness-page',
+        path: '/apps/record-goodness/group',
+      },
+      badge: 'ri:group-line',
+    },
+    {
+      title: 'บันทึกพฤติกรรม',
+      subtitle: 'ไม่เหมาะสม รายบุคคล',
+      color: '#d7c842',
+      icon: <IconifyIcon icon='heroicons:hand-thumb-down' />,
+      navLink: {
+        title: 'บันทึกพฤติกรรมที่ไม่เหมาะสม รายบุคคล',
+        icon: 'heroicons:inbox',
+        action: 'read',
+        subject: 'record-badness-page',
+        path: '/apps/record-badness/individual',
+      },
+      badge: 'icon-park-outline:people',
+    },
+    {
+      title: 'บันทึกพฤติกรรม',
+      subtitle: 'ไม่เหมาะสม รายกลุ่ม',
+      color: '#d7c842',
+      icon: <IconifyIcon icon='heroicons:hand-thumb-down' />,
+      navLink: {
+        title: 'บันทึกพฤติกรรมที่ไม่เหมาะสม รายกลุ่ม',
+        icon: 'heroicons:inbox',
+        action: 'read',
+        subject: 'record-badness-page',
+        path: '/apps/record-badness/individual',
+      },
+      badge: 'ri:group-line',
+    },
+    {
       title: 'Report',
-      subtitle: 'เช็คชื่อนหน้าเสาธง',
+      subtitle: 'เช็คชื่อหน้าเสาธง',
       color: '#82ad09',
-      icon: <BsCalendar2Date />,
+      icon: <BsClipboardData />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
         path: '/apps/reports/check-in/daily',
         action: 'read',
         subject: 'report-check-in-daily-page',
       },
+      badge: 'bi:calendar2-date',
+    },
+    {
+      title: 'Report',
+      subtitle: 'เช็คชื่อหน้าเสาธง',
+      color: '#82ad09',
+      icon: <BsClipboardData />,
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/apps/reports/check-in/summary',
+        action: 'read',
+        subject: 'report-check-in-page',
+      },
+      badge: 'tabler:sum',
+    },
+    {
+      title: 'Report',
+      subtitle: 'เช็คชื่อกิจกรรม',
+      color: '#82ad09',
+      icon: <TbChartBar />,
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/apps/reports/activity-check-in/daily',
+        action: 'read',
+        subject: 'activity-check-in-page',
+      },
+      badge: 'bi:calendar2-date',
+    },
+    {
+      title: 'Report',
+      subtitle: 'เช็คชื่อกิจกรรม',
+      color: '#82ad09',
+      icon: <TbChartBar />,
+      navLink: {
+        title: 'Report เช็คชื่อนหน้าเสาธง',
+        path: '/apps/reports/activity-check-in/summary',
+        action: 'read',
+        subject: 'activity-check-in-page',
+      },
+      badge: 'tabler:sum',
+    },
+    {
+      title: 'Report',
+      subtitle: 'ความดี',
+      color: '#82ad09',
+      icon: <HiStar />,
+      navLink: {
+        title: 'ทั้งหมด',
+        icon: 'heroicons:inbox-stack',
+        action: 'read',
+        subject: 'report-goodness-page',
+        path: '/apps/reports/goodness/all',
+      },
+    },
+    {
+      title: 'Report',
+      subtitle: 'พฤติกรรมไม่เหมาะสม',
+      color: '#82ad09',
+      icon: <HiThumbDown />,
+      navLink: {
+        title: 'ทั้งหมด',
+        icon: 'heroicons:inbox-stack',
+        action: 'read',
+        subject: 'report-badness-page',
+        path: '/apps/reports/badness/all',
+      },
+    },
+    {
+      title: 'Report',
+      subtitle: 'ลำดับความดี',
+      color: '#82ad09',
+      icon: <IconifyIcon icon='game-icons:trophy' />,
+      navLink: {
+        title: 'ลำดับคะแนนความดี',
+        icon: 'game-icons:trophy',
+        path: '/apps/reports/goodness/summary',
+        action: 'read',
+        subject: 'student-goodness-summary-report',
+      },
+    },
+    {
+      title: 'Report',
+      subtitle: 'ลำดับความประพฤติ',
+      color: '#82ad09',
+      icon: <IconifyIcon icon='icon-park-outline:bad-two' />,
+      navLink: {
+        title: 'ลำดับคะแนนความประพฤติ',
+        icon: 'icon-park-outline:bad-two',
+        path: '/apps/reports/badness/summary',
+        action: 'read',
+        subject: 'student-badness-summary-report',
+      },
     },
     {
       title: 'รายงานเช็คชื่อ',
       subtitle: 'เสาธงรายวัน',
       color: '#19adb5',
-      icon: <BsCalendar2Date />,
+      icon: <IconifyIcon icon='icon-park-twotone:flag' />,
       navLink: {
         title: 'รายงานเช็คชื่อเสาธงรายวัน',
         path: '/apps/admin/reports/check-in/daily',
@@ -307,6 +470,7 @@ const Home = () => {
               color={item.color}
               icon={item.icon}
               navLink={item.navLink}
+              badge={item.badge}
             />
           </Grid>
         ))}
