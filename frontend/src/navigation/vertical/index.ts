@@ -1,16 +1,15 @@
 // ** Icon imports
 import {
-  HomeOutline,
   HumanMaleBoard,
 } from 'mdi-material-ui';
-import { RiContactsBookLine, RiTeamLine, RiUser6Line } from 'react-icons/ri';
-import { FaFlagCheckered } from 'react-icons/fa';
+import { RiTeamLine } from 'react-icons/ri';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
-import { HiFlag, HiOutlineFlag, HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
-import {  BsCalendar2Month, BsCalendar2Week, BsClipboardData } from "react-icons/bs";
-import { TbChartBar, TbDice1, TbDice2 } from 'react-icons/tb';
+import { HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
+import { BsClipboardData } from "react-icons/bs";
+import { TbChartBar } from 'react-icons/tb';
+import { FiSettings } from 'react-icons/fi';
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -70,6 +69,21 @@ const navigation = (): VerticalNavItemsType => {
       path: '/pages/account-settings',
       action: 'read',
       subject: 'account-page',
+    },
+    {
+      title: 'การตั้งค่าระบบ',
+      icon: FiSettings,
+      action: 'read',
+      subject: 'setting-system-page',
+      children: [
+        {
+          title: 'ห้องเรียน',
+          icon: 'material-symbols:room-preferences-outline-rounded',
+          path: '/apps/settings/classroom',
+          action: 'read',
+          subject: 'setting-system-page',
+        },
+      ],
     },
     {
       sectionTitle: 'เกี่ยวกับระบบ',

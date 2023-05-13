@@ -14,6 +14,7 @@ type AuthConfig = {
   goodnessIndividualEndpoint?: string;
   badnessIndividualEndpoint?: string;
   userEndpoint?: string;
+  levelEndpoint?: string;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -34,4 +35,5 @@ export const authConfig: AuthConfig = {
   goodnessIndividualEndpoint: `${apiUrl}/goodness-individual`,
   badnessIndividualEndpoint: `${apiUrl}/badness-individual`,
   userEndpoint: `${apiUrl}/users`,
+  levelEndpoint: `${apiUrl}/levels`,
 };

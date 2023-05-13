@@ -1,20 +1,13 @@
-// ** React Imports
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-// ** MUI Components
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-
-// ** Third Party Imports
-import axios from 'axios';
-
-// ** Icon Imports
+import CardMedia from '@mui/material/CardMedia';
 import Icon from '@/@core/components/icon';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
 
 const ProfilePicture = styled('img')(({ theme }) => ({
   width: 120,
