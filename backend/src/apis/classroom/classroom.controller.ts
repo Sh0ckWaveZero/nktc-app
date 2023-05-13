@@ -15,9 +15,27 @@ export class ClassroomController {
     return await this.classroomService.findAll();
   }
 
+  @Post('search')
+  async search(@Body() body: any) {
+    return await this.classroomService.search(body);
+  }
+
   @Get('teacher/:id')
   @HttpCode(HttpStatus.OK)
   async findByTeacherId(@Param('id') id: string) {
     return await this.classroomService.findByTeacherId(id);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() body: any) {
+    return await this.classroomService.create(body);
+  }
+
+  // delete
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteById(@Param('id') id: string) {
+    return await this.classroomService.deleteById(id);
   }
 }

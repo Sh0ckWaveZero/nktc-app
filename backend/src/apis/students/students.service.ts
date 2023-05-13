@@ -153,41 +153,43 @@ export class StudentsService {
           const { url } = await this.minioService.upload({ data: body.avatar, path: 'avatars/students/' });
           avatar = url;
         }
-        return await this.prisma.user.update({
-          where: {
-            id,
-          },
-          data: {
-            updatedBy: id,
-            account: {
-              update: {
-                title: body.title,
-                firstName: body.firstName,
-                lastName: body.lastName,
-                birthDate: body.birthDate,
-                idCard: body.idCard,
-                addressLine1: body.addressLine1,
-                subdistrict: body.subdistrict,
-                district: body.district,
-                province: body.province,
-                postcode: body.postalCode,
-                updatedBy: id,
-                phone: body.phone,
-                avatar: avatar,
-              }
-            },
-            student: {
-              update: {
-                classroomId: body.classroom,
-                departmentId: body.department,
-                programId: body.program,
-                status: body.status,
-                updatedBy: id,
-              },
+      }
+      const res = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          updatedBy: id,
+          account: {
+            update: {
+              title: body.title,
+              firstName: body.firstName,
+              lastName: body.lastName,
+              birthDate: body.birthDate,
+              idCard: body.idCard,
+              addressLine1: body.addressLine1,
+              subdistrict: body.subdistrict,
+              district: body.district,
+              province: body.province,
+              postcode: body.postalCode,
+              updatedBy: id,
+              phone: body.phone,
+              avatar: avatar,
             }
           },
-        });
-      }
+          student: {
+            update: {
+              classroomId: body.classroom,
+              departmentId: body.department,
+              programId: body.program,
+              status: body.status,
+              updatedBy: id,
+            },
+          }
+        },
+      });
+      
+      return res;
     } catch (error) {
       return error;
     }

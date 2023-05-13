@@ -7,13 +7,16 @@ import { AppBarModule } from './apis/app-bar/app-bar.module';
 import { AppController } from './app.controller';
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { AuthModule } from './apis/auth/auth.module';
+import { BadnessIndividualModule } from './apis/badness-individual/badness-individual.module';
 import { ClassroomModule } from './apis/classroom/classroom.module';
 import { ConfigModule } from '@nestjs/config';
 import { DepartmentsModule } from './apis/departments/departments.module';
 import { GoodnessIndividualModule } from './apis/goodness-individual/goodness-individual.module';
+import { LevelModule } from './apis/level/level.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { MinioClientModule } from './apis/minio/minio-client.module';
 import { PrismaService as PrismaMongoDbService } from './common/services/prisma-mongodb.service';
+import { PrismaService } from './common/services/prisma.service';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 import { StaticsModule } from './apis/statics/statics.module';
@@ -24,8 +27,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './apis/users/users.module';
 import configuration from './config/configuration';
 import validate from './config/validation';
-import { PrismaService } from './common/services/prisma.service';
-import { BadnessIndividualModule } from './apis/badness-individual/badness-individual.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { BadnessIndividualModule } from './apis/badness-individual/badness-indiv
       },
     ),
     MinioClientModule,
+    LevelModule,
   ],
   controllers: [AppController],
   providers: [
