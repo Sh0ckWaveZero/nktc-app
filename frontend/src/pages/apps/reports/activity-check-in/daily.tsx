@@ -189,7 +189,7 @@ const DailyCheckInReportActivity = () => {
     } catch (error) {
       toast.error('เกิดข้อผิดพลาด');
     }
-  }, []);
+  });
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
     setLoading(true);
