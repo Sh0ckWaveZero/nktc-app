@@ -181,3 +181,36 @@ export const isValidHttpUrl = (string: any) => {
     return false;
   }
 }
+
+const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
+
+export const sortClassroomsByNumberAndDepartment = (classrooms: any) => {
+  const sortedClassrooms = classrooms.sort((a: any, b: any) => {
+    const [, prefixA, numberA, suffixA] = a.name.match(nameNumberRegex);
+    const [, prefixB, numberB, suffixB] = b.name.match(nameNumberRegex);
+
+    if (prefixA === prefixB) {
+      const [majorA, minorA] = numberA.split('/');
+      const [majorB, minorB] = numberB.split('/');
+
+      if (majorA === majorB) {
+        if (minorA === minorB) {
+          return suffixA.localeCompare(suffixB);
+        }
+        return Number(minorA) - Number(minorB);
+      }
+      return Number(majorA) - Number(majorB);
+    }
+
+    return prefixA.localeCompare(prefixB);
+  });
+
+  const sortedClassroomsByDepartment = sortedClassrooms.sort((a: any, b: any) => {
+    if (a.department.name === b.department.name) {
+      return 0;
+    }
+    return a.department.name > b.department.name ? 1 : -1;
+  });
+
+  return sortedClassroomsByDepartment;
+}

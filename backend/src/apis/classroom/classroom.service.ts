@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
+import { sortClassroomsByNumberAndDepartment } from 'src/utils/utils';
 
 @Injectable()
 export class ClassroomService {
@@ -65,9 +66,6 @@ export class ClassroomService {
       }
     }
 
-    // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
-    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'name', sort: 'desc' }];
-
     const selectedClassrooms = await this.prisma.classroom.findMany({
       where: filter,
       skip: query.skip || 0,
@@ -77,13 +75,20 @@ export class ClassroomService {
         program: true,
         department: true,
       },
-      orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort }))
+      orderBy: [
+        {
+          department: {
+            name: 'asc',
+          },
+        }],
     });
 
+    // sort by department.name asc
+    const sortedClassrooms = sortClassroomsByNumberAndDepartment(selectedClassrooms);
     const totalSelectedClassrooms = await this.prisma.classroom.findMany({});
-
+    
     return {
-      data: selectedClassrooms || [],
+      data: sortedClassrooms || [],
       total: totalSelectedClassrooms.length ? totalSelectedClassrooms.length : 0,
     };
   }
