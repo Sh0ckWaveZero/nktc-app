@@ -167,8 +167,8 @@ const ReportCheckInDaily = () => {
     const fetchData = async () => {
       try {
         let classroomsInfo = [];
-        let errorMessage = 'ไม่พบข้อมูลที่ปรีกษาประจำชั้น';
-        let redirectTo = '/pages/account-settings';
+        const errorMessage = 'ไม่พบข้อมูลที่ปรีกษาประจำชั้น';
+        const redirectTo = '/pages/account-settings';
         if (ability?.can('read', 'report-check-in-daily-page') && (auth?.user?.role as string) !== 'Admin') {
           if (isEmpty(auth?.user?.teacherOnClassroom)) {
             toast.error(errorMessage);

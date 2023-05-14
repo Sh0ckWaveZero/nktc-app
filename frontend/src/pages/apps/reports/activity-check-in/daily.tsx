@@ -154,11 +154,11 @@ const DailyCheckInReportActivity = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    const fetchData = async () => {
-      try {
+    try {
+      const fetchData = async () => {
         let classroomsInfo = [];
-        let errorMessage = 'ไม่พบข้อมูลห้องเรียนที่รับผิดชอบ';
-        let redirectTo = '/pages/account-settings';
+        const errorMessage = 'ไม่พบข้อมูลห้องเรียนที่รับผิดชอบ';
+        const redirectTo = '/pages/account-settings';
 
         if (ability?.can('read', 'daily-check-in-report-activity-page') && (auth?.user?.role as string) !== 'Admin') {
           if (isEmpty(auth?.user?.teacherOnClassroom)) {
@@ -184,12 +184,11 @@ const DailyCheckInReportActivity = () => {
         const classrooms = classroomsInfo || [];
         setDefaultClassroom(classrooms[0]);
         setClassrooms(classrooms);
-      } catch (error) {
-        toast.error('เกิดข้อผิดพลาด');
-      }
-    };
-
-    fetchData();
+      };
+      fetchData();
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   }, []);
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
