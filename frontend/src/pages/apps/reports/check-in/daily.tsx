@@ -164,28 +164,40 @@ const ReportCheckInDaily = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       try {
-        const classroomsInfo = await fetchTeachClassroom(storedToken, auth?.user?.teacher?.id);
+        let classroomsInfo = [];
+        let errorMessage = 'ไม่พบข้อมูลที่ปรีกษาประจำชั้น';
+        let redirectTo = '/pages/account-settings';
+        if (ability?.can('read', 'report-check-in-daily-page') && (auth?.user?.role as string) !== 'Admin') {
+          if (isEmpty(auth?.user?.teacherOnClassroom)) {
+            toast.error(errorMessage);
+            router.push(redirectTo);
+            return;
+          }
+
+          classroomsInfo = await fetchTeachClassroom(storedToken, auth?.user?.teacher?.id);
+
+          if (isEmpty(classroomsInfo)) {
+            toast.error(errorMessage);
+            router.push(redirectTo);
+            return;
+          }
+
+          await fetchDailyReport(null, classroomsInfo[0]?.id);
+        } else {
+          router.push('/401');
+          return;
+        }
+
         const classrooms = classroomsInfo || [];
         setDefaultClassroom(classrooms[0]);
         setClassrooms(classrooms);
-        await fetchDailyReport(null, classroomsInfo ? classroomsInfo[0].id : {});
       } catch (error) {
-        toast.error('เกิดข้อผิดพลาด');
+        toast.error('error');
       }
     };
-
-    if (ability?.can('read', 'report-check-in-daily-page') && (auth?.user?.role as string) !== 'Admin') {
-      if (isEmpty(auth?.user?.teacherOnClassroom)) {
-        toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
-        router.push('/pages/account-settings');
-        return;
-      }
-      fetch();
-    } else {
-      router.push('/401');
-    }
+    fetchData();
   });
 
   const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {

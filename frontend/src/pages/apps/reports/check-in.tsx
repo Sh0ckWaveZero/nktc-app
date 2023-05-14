@@ -100,24 +100,31 @@ const StudentCheckIn = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    const fetch = async () => {
-      await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
-        await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
-        const students = await data?.classrooms[0]?.students;
-        setDefaultClassroom(await data?.classrooms[0]);
-        setClassrooms(await data?.classrooms);
-        setCurrentStudents(students);
-      });
-    };
-    if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
-      if (isEmpty(auth?.user?.teacherOnClassroom)) {
-        toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
-        router.push('/pages/account-settings');
-        return;
+    try {
+      const fetch = async () => {
+        await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
+          await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
+          const students = await data?.classrooms[0]?.students || [];
+          setDefaultClassroom(await data?.classrooms[0]);
+          setClassrooms(await data?.classrooms);
+          setCurrentStudents(students);
+        });
+      };
+
+      if (ability?.can('read', 'check-in-page') && (auth?.user?.role as string) !== 'Admin') {
+        if (isEmpty(auth?.user?.teacherOnClassroom)) {
+          toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
+          router.push('/pages/account-settings');
+          return;
+        }
+        fetch();
+      } else {
+        router.push('/401');
       }
-      fetch();
-    } else {
-      router.push('/401');
+    } catch (error) {
+      toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
+      router.push('/pages/account-settings');
+      return;
     }
   });
 
