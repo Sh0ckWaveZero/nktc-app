@@ -262,21 +262,8 @@ export class ReportCheckInService {
     let endDate = new Date(end);
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
-
     // get all department
     const classrooms = await this.prisma.classroom.findMany({
-      orderBy: [
-        {
-          level: {
-            levelName: 'asc',
-          },
-        },
-        {
-          department: {
-            name: 'asc',
-          }
-        },
-      ],
       select: {
         id: true,
         name: true,
@@ -297,9 +284,38 @@ export class ReportCheckInService {
       },
     });
 
+    const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
+    const sortedClassrooms = classrooms.sort((a, b) => {
+      const [, prefixA, numberA, suffixA] = a.name.match(nameNumberRegex);
+      const [, prefixB, numberB, suffixB] = b.name.match(nameNumberRegex);
+
+      if (prefixA === prefixB) {
+        const [majorA, minorA] = numberA.split('/');
+        const [majorB, minorB] = numberB.split('/');
+
+        if (majorA === majorB) {
+          if (minorA === minorB) {
+            return suffixA.localeCompare(suffixB);
+          }
+          return Number(minorA) - Number(minorB);
+        }
+        return Number(majorA) - Number(majorB);
+      }
+
+      return prefixA.localeCompare(prefixB);
+    });
+
+    // sort by department.name asc
+    const sortedClassroomsByDepartment = sortedClassrooms.sort((a, b) => {
+      if (a.department.name === b.department.name) {
+        return 0;
+      }
+      return a.department.name > b.department.name ? 1 : -1;
+    });
+
     const students = await this.prisma.student.count();
 
-    const checkIn = await Promise.all(classrooms.map(async (classroom: any) => {
+    const checkIn = await Promise.all(sortedClassroomsByDepartment.map(async (classroom: any) => {
       const reportCheckIn = await this.prisma.reportCheckIn.findFirst({
         where: {
           classroomId: classroom.id,
