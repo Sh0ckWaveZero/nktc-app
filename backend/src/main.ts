@@ -18,7 +18,7 @@ const bootstrap = async () => {
   app.enableCors({
     origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
     allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, authorization',
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+    methods: 'GET,PUT,POST,PATCH,DELETE,UPDATE,OPTIONS',
     credentials: true,
   });
 
