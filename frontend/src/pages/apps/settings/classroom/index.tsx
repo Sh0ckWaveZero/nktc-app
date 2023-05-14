@@ -1,13 +1,10 @@
-import { Card, CardHeader, Grid, IconButton, Menu, MenuItem, Typography } from '@mui/material';
-import {
-  DeleteOutline,
-  DotsVertical,
-} from 'mdi-material-ui';
+import { alpha, Card, CardHeader, Grid, IconButton, Menu, MenuItem, styled, Typography } from '@mui/material';
+import { DeleteOutline, DotsVertical } from 'mdi-material-ui';
 import { Fragment, MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import AddClassroomDrawer from '@/views/apps/settings/classroom/AddClassroomDrawer';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import DialogDeleteClassroom from '@/views/apps/settings/classroom/DialogDeleteClassroom';
 import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/settings/classroom/TableHeader';
@@ -29,6 +26,33 @@ interface CellType {
 
 const localStorageService = new LocalStorageService();
 const accessToken = localStorageService.getToken()!;
+
+const ODD_OPACITY = 0.2;
+
+const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
+  [`& .${gridClasses.row}.even`]: {
+    backgroundColor: theme.palette.grey[100],
+    '&:hover, &.Mui-hovered': {
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
+      },
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity),
+      '&:hover, &.Mui-hovered': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          ODD_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity),
+        },
+      },
+    },
+  },
+}));
 
 const RowOptions = ({ row, handleDelete }: RowOptionsType) => {
   // ** State
@@ -260,7 +284,7 @@ const ClassroomList = () => {
           <Card>
             <CardHeader title='รายชื่อห้องเรียน' />
             <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddClassroomDrawer} />
-            <DataGrid
+            <StripedDataGrid
               disableColumnMenu
               autoHeight={true}
               rows={classrooms}
@@ -277,6 +301,7 @@ const ClassroomList = () => {
               components={{
                 NoRowsOverlay: CustomNoRowsOverlay,
               }}
+              getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
             />
           </Card>
         </Grid>
