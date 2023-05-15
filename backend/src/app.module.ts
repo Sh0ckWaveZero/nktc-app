@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 
 import { APP_GUARD } from '@nestjs/core';
 import { AccountsModule } from './apis/accounts/accounts.module';
@@ -18,6 +18,7 @@ import { MinioClientModule } from './apis/minio/minio-client.module';
 import { PrismaService as PrismaMongoDbService } from './common/services/prisma-mongodb.service';
 import { PrismaService } from './common/services/prisma.service';
 import { ProgramsModule } from './apis/programs/programs.module';
+import { ReportCheckInMiddleware } from './middlewares/report-check-in.middleware';
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 import { StaticsModule } from './apis/statics/statics.module';
 import { StudentsModule } from './apis/students/students.module';
@@ -71,5 +72,6 @@ import validate from './config/validation';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('auth/login');
+    consumer.apply(ReportCheckInMiddleware).forRoutes({ path: 'reportCheckIn', method: RequestMethod.POST });
   }
 }
