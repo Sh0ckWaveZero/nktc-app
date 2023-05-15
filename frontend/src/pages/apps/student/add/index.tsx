@@ -107,13 +107,11 @@ const schema = yup.object().shape({
   classroom: yup.object().required('กรุณาเลือกชั้นเรียน').nullable(),
   idCard: yup.string(),
   birthDate: yup.date().nullable().default(null).max(new Date(), 'วันเกิดไม่ถูกต้อง'),
-  state: yup.string(),
   addressLine1: yup.string(),
   subdistrict: yup.string(),
   district: yup.string(),
   province: yup.string(),
   postalCode: yup.string(),
-  status: yup.string().required('กรุณาเลือกสถานะ'),
 });
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -202,6 +200,7 @@ const AddStudentPage = () => {
   });
 
   const onSubmit = async (data: any, e: any) => {
+    console.log('🚀 ~ file: index.tsx:205 ~ onSubmit ~ data:', data);
     e.preventDefault();
 
     const { classroom: c, ...rest } = data;

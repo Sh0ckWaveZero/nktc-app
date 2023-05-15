@@ -222,8 +222,19 @@ const RowDaily = (prop: any) => {
                         <StyledTableCell align='right'>
                           <TableCellText>{ccyFormat(row.internshipPercent)}</TableCellText>
                         </StyledTableCell>
-                        <StyledTableCell align='right'>
-                          <TableCellText sx={{ color: theme.palette.info.dark }}>{row.total}</TableCellText>
+                        <StyledTableCell
+                          align='right'
+                          sx={{
+                            bgcolor: row.total > 0 ? theme.palette.success.main : theme.palette.background.default,
+                          }}
+                        >
+                          <TableCellText
+                            sx={{
+                              color: row.total > 0 ? theme.palette.common.white : theme.palette.info.dark,
+                            }}
+                          >
+                            {row.total}
+                          </TableCellText>
                         </StyledTableCell>
                       </StyledTableRow>
                     ))}
