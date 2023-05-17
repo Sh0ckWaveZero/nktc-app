@@ -1,11 +1,10 @@
 # 1. Install dependencies only when needed
-FROM node:alpine AS deps
+FROM node:lts-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN npm config set registry https://registry.npmjs.org/
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc ./
 RUN \
   if [ -f yarn.lock ]; then yarn --network-timeout 100000 --pure-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -14,17 +13,16 @@ RUN \
   fi
 
 # 2. Rebuild the source code only when needed
-FROM node:alpine AS builder
+FROM node:lts-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# This will do the trick, use the corresponding env file for each environment.
-COPY .env.prod .env
+COPY .env.production .env
 RUN yarn build
 RUN yarn cache clean --force
 
 # 3. Production image, copy all the files and run next
-FROM node:alpine AS runner
+FROM node:lts-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -36,7 +34,7 @@ COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./.next/standalone
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
