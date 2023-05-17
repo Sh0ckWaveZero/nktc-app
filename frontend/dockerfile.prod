@@ -4,7 +4,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN npm config set registry https://registry.npmjs.org/
 RUN \
   if [ -f yarn.lock ]; then yarn --network-timeout 100000 --pure-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -17,7 +18,7 @@ FROM node:lts-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY .env.production .env
+COPY .env.prod .env
 RUN yarn build
 RUN yarn cache clean --force
 
