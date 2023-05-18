@@ -21,13 +21,18 @@ export class ReportCheckInMiddleware implements NestMiddleware {
 
     // count total student
     const totalStudent = present.length + absent.length + late.length + leave.length + internship.length;
+    const totalPresent = present.length || 0;
+    const totalAbsent = absent.length || 0;
+    const totalLate = late.length || 0;
+    const totalLeave = leave.length || 0;
+    const totalInternship = internship.length || 0;
 
     // Record log to database
     await this.prisma.auditLog.create({
       data: {
         action: 'CheckIn',
         model: 'Classroom',
-        fieldName: 'present, absent, late, leave, internship',
+        fieldName: `present [${totalPresent}], absent [${totalAbsent}], late [${totalLate}], leave [${totalLeave}], internship [${totalInternship}]`,
         oldValue: null,
         newValue: teacherId,
         detail: `Teacher check in classroom ${classroomId} with ${totalStudent} students on ${new Date(checkInDate).toLocaleDateString()}`,
