@@ -125,6 +125,12 @@ const ReportCheckInDaily = () => {
   let isLeaveCheck: any[] = [];
   let isInternshipCheck: any[] = [];
 
+  // const [isPresentCheck, setIsPresentCheck] = useState<any[]>([]);
+  // const [isAbsentCheck, setIsAbsentCheck] = useState<any[]>([]);
+  // const [isLateCheck, setIsLateCheck] = useState<any[]>([]);
+  // const [isLeaveCheck, setIsLeaveCheck] = useState<any[]>([]);
+  // const [isInternshipCheck, setIsInternshipCheck] = useState<any[]>([]);
+
   // ** Hooks
   const auth = useAuth();
   const storedToken = localStorageService.getToken()!;
@@ -385,6 +391,13 @@ const ReportCheckInDaily = () => {
     isLeaveCheck.push(...leave);
     isInternshipCheck.push(...internship);
     onHandleToggle(values?.isCheckInStatus, values?.data);
+
+    //remove duplicate isPresentCheck
+    isPresentCheck = [...new Set(isPresentCheck)];
+    isAbsentCheck = [...new Set(isAbsentCheck)];
+    isLateCheck = [...new Set(isLateCheck)];
+    isLeaveCheck = [...new Set(isLeaveCheck)];
+    isInternshipCheck = [...new Set(isInternshipCheck)];
 
     const updated = {
       ...reportCheckInData,
