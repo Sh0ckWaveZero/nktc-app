@@ -388,32 +388,32 @@ export class ReportCheckInService {
             set: updateDailyReportDto.updatedBy,
           }
         }
-      });
-
-      return await this.prisma.reportCheckIn.update({
-        where: {
-          id: checkInId,
-        },
-        data: {
-          present: {
-            set: updateDailyReportDto.present
+      }).then(async () => {
+        return await this.prisma.reportCheckIn.update({
+          where: {
+            id: checkInId,
           },
-          absent: {
-            set: updateDailyReportDto.absent
-          },
-          late: {
-            set: updateDailyReportDto.late
-          },
-          leave: {
-            set: updateDailyReportDto.leave
-          },
-          internship: {
-            set: updateDailyReportDto.internship
-          },
-          updatedBy: {
-            set: updateDailyReportDto.updatedBy
+          data: {
+            present: {
+              set: updateDailyReportDto.present
+            },
+            absent: {
+              set: updateDailyReportDto.absent
+            },
+            late: {
+              set: updateDailyReportDto.late
+            },
+            leave: {
+              set: updateDailyReportDto.leave
+            },
+            internship: {
+              set: updateDailyReportDto.internship
+            },
+            updatedBy: {
+              set: updateDailyReportDto.updatedBy
+            }
           }
-        }
+        });
       });
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
