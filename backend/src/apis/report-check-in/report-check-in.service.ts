@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { ccyFormat } from 'src/common/shared/util';
@@ -362,31 +362,62 @@ export class ReportCheckInService {
   }
 
   async updateDailyReport(checkInId: string, updateDailyReportDto: any) {
-    return await this.prisma.reportCheckIn.update({
-      where: {
-        id: checkInId,
-      },
-      data: {
-        present: {
-          set: updateDailyReportDto.present
+    try {
+      // clear data before update
+      await this.prisma.reportCheckIn.update({
+        where: {
+          id: checkInId,
         },
-        absent: {
-          set: updateDailyReportDto.absent
-        },
-        late: {
-          set: updateDailyReportDto.late
-        },
-        leave: {
-          set: updateDailyReportDto.leave
-        },
-        internship: {
-          set: updateDailyReportDto.internship
-        },
-        updatedBy: {
-          set: updateDailyReportDto.updatedBy
+        data: {
+          present: {
+            set: []
+          },
+          absent: {
+            set: []
+          },
+          late: {
+            set: []
+          },
+          leave: {
+            set: []
+          },
+          internship: {
+            set: []
+          },
+          updatedBy: {
+            set: updateDailyReportDto.updatedBy,
+          }
         }
-      }
-    });
+      });
+
+      return await this.prisma.reportCheckIn.update({
+        where: {
+          id: checkInId,
+        },
+        data: {
+          present: {
+            set: updateDailyReportDto.present
+          },
+          absent: {
+            set: updateDailyReportDto.absent
+          },
+          late: {
+            set: updateDailyReportDto.late
+          },
+          leave: {
+            set: updateDailyReportDto.leave
+          },
+          internship: {
+            set: updateDailyReportDto.internship
+          },
+          updatedBy: {
+            set: updateDailyReportDto.updatedBy
+          }
+        }
+      });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async remove(id: string) {
