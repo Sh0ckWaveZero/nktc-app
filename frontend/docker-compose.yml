@@ -8,12 +8,7 @@ services:
       context: .
       # for deployment on production, use the following:
       dockerfile: dockerfile.prod
-      # for deployment on local, use the following:
-      # dockerfile: dockerfile.dev
-      # volumes:
-      #   - .:/app
-      #   - /app/node_modules
-      #   - /app/.next
+    restart: always
     ports:
       - 3000:3000
 networks:
