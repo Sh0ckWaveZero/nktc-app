@@ -9,7 +9,7 @@ services:
       context: .
       # for deployment on production, use the following:
       dockerfile: dockerfile.prod
-    # restart: always
+    restart: always
     env_file:
       - .env
     ports:
