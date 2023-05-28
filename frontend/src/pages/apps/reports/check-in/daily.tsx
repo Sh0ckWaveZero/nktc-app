@@ -417,7 +417,7 @@ const ReportCheckInDaily = () => {
       late: isLateCheck,
       leave: isLeaveCheck,
       internship: isInternshipCheck,
-      checkInDate: new Date(),
+      checkInDate: selectedDate,
       status: '1',
     };
 
