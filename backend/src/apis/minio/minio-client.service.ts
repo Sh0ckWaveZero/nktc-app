@@ -2,8 +2,8 @@ import * as crypto from 'crypto';
 
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { MinioService } from 'nestjs-minio-client';
 import configuration from '../../config/configuration';
+import { MinioService } from '../../lib';
 
 @Injectable()
 export class MinioClientService {
@@ -68,7 +68,7 @@ export class MinioClientService {
       const timestamp = Date.now().toString();
       const hashedFileName = crypto.createHash('md5').update(timestamp).digest('hex');
       const extension = '.webp';
-      const metaData = {
+      const metaData: any = {
         'Content-Encoding': 'base64',
         'Content-Type': 'image/webp',
       };

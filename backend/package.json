@@ -41,7 +41,7 @@
     "class-validator": "^0.14.0",
     "decode-uri-component": "0.2.2",
     "helmet": "^5.1.1",
-    "nestjs-minio-client": "^2.0.0",
+    "minio": "^7.1.1",
     "node-xlsx": "^0.23.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
