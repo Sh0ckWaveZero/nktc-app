@@ -35,56 +35,89 @@ export class StudentsService {
     }
   }
 
-  async findByClassroomId(id: string) {
-    return await this.prisma.user.findMany({
-      where: {
-        student: {
-          classroomId: id,
-        }
-      },
-      select: {
-        id: true,
-        username: true,
-        student: {
-          select: {
-            id: true,
-            studentId: true,
-            classroomId: true,
-            departmentId: true,
-            programId: true,
-            levelId: true,
-            levelClassroomId: true,
-            status: true,
-            classroom: {
-              select: {
-                name: true,
+  async findWithParams(body: any) {
+    try {
+      const filter = {};
+
+      if (body?.search?.fullName) {
+        const [firstName, lastName] = body.search.fullName.split(' ');
+
+        filter['account'] = {
+          AND: [
+            {
+              firstName: {
+                contains: firstName,
+              },
+            },
+            {
+              lastName: {
+                contains: lastName ? lastName : firstName,
+              },
+            },
+          ],
+        };
+      }
+
+      if (body?.classroomId) {
+        filter['student'] = {
+          classroomId: body.classroomId,
+        };
+      }
+
+      if (isEmpty(filter)) {
+        return [];
+      }
+
+      const result = await this.prisma.user.findMany({
+        where: filter,
+        select: {
+          id: true,
+          username: true,
+          student: {
+            select: {
+              id: true,
+              studentId: true,
+              classroomId: true,
+              departmentId: true,
+              programId: true,
+              levelId: true,
+              levelClassroomId: true,
+              status: true,
+              classroom: {
+                select: {
+                  name: true,
+                }
               }
+            }
+          },
+          account: {
+            select: {
+              id: true,
+              title: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
             }
           }
         },
-        account: {
-          select: {
-            id: true,
-            title: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          }
-        }
-      },
-      orderBy: [
-        {
-          account: {
-            firstName: 'asc',
+        orderBy: [
+          {
+            account: {
+              firstName: 'asc',
+            },
           },
-        },
-        {
-          account: {
-            lastName: 'asc',
+          {
+            account: {
+              lastName: 'asc',
+            },
           },
-        },
-      ]
-    });
+        ]
+      });
+
+      return result;
+    } catch (error) {
+      return [];
+    }
   }
 
   async createProfile(id: string, body: any) {
@@ -188,7 +221,7 @@ export class StudentsService {
           }
         },
       });
-      
+
       return res;
     } catch (error) {
       return error;

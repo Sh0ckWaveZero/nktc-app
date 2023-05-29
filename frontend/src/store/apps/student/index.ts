@@ -13,7 +13,7 @@ interface StudentState {
   hasErrors: boolean,
   fetchStudents: (token: string, params: StudentQuery) => any;
   studentsList: (token: string, params: StudentQuery) => any;
-  fetchStudentByClassroom: (token: string, classroomId: any) => any;
+  fetchStudentsWithParams: (token: string, params: any) => any;
   updateStudentProfile: (token: string, studentId: string, data: any) => any;
   createStudentProfile: (token: string, userId: string, data: any) => any;
   removeStudents: (token: string, studentId: string) => any;
@@ -44,7 +44,7 @@ export const useStudentStore = create<StudentState>()(
     },
     studentsList: async (token: string, params: StudentQuery) => {
       try {
-        const { data } = await httpClient.get(authConfig.studentEndpoint + '/list',
+        const { data } = await httpClient.get(`${authConfig.studentEndpoint}/list`,
           {
             params: params,
             headers: {
@@ -56,19 +56,20 @@ export const useStudentStore = create<StudentState>()(
         return err;
       }
     },
-    fetchStudentByClassroom: async (token: string, classroomId: any) => {
-      set({ loading: true, students: [] });
+    fetchStudentsWithParams: async (token: string, params: any) => {
       try {
-        const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}`,
+        const { data } = await httpClient.post(`${authConfig.studentEndpoint}/search-with-params`,
+          {
+            classroomId: params?.classroomId || null,
+            search: params?.search || null,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-        set({ students: await data, loading: false, hasErrors: false });
         return await data;
       } catch (err) {
-        set({ students: null, loading: false, hasErrors: true });
         return null;
       }
     },

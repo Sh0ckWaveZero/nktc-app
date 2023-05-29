@@ -56,9 +56,9 @@ export class StudentsController {
     }
   }
 
-  @Get('classroom/:id')
-  async findByClassroomId(@Param('id') id: string) {
-    return await this.studentsService.findByClassroomId(id);
+  @Post('search-with-params')
+  async findWithParams(@Body() body: any) {
+    return await this.studentsService.findWithParams(body);
   }
 
   @Post('profile/:id')

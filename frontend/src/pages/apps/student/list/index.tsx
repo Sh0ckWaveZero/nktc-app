@@ -1,26 +1,23 @@
 // ** React Imports
-import { useState, useEffect, Fragment } from 'react';
-
-// ** Next Import
-import Link from 'next/link';
-
-// ** MUI Imports
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
-import { SelectChangeEvent } from '@mui/material/Select';
-
+import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 // ** Custom Components Imports
 import CustomAvatar from '@/@core/components/mui/avatar';
-
 // ** Utils Import
 import { getInitials } from '@/@core/utils/get-initials';
-
+import { useAuth } from '@/hooks/useAuth';
+import useGetImage from '@/hooks/useGetImage';
+import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
+import useStudentList from '@/hooks/useStudentList';
+import { LocalStorageService } from '@/services/localStorageService';
+import { useClassroomStore, useStudentStore } from '@/store/index';
+import TableHeader from '@/views/apps/student/list/TableHeader';
 import {
   Avatar,
   Box,
   Button,
   Card,
   CardHeader,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,20 +25,19 @@ import {
   DialogTitle,
   Grid,
   Typography,
-  CircularProgress,
 } from '@mui/material';
-import { useClassroomStore, useStudentStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
-import TableHeader from '@/views/apps/student/list/TableHeader';
-import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
-import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { useEffectOnce } from '@/hooks/userCommon';
+import { SelectChangeEvent } from '@mui/material/Select';
+import { styled } from '@mui/material/styles';
+// ** MUI Imports
+import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { AccountEditOutline } from 'mdi-material-ui';
-import { useAuth } from '@/hooks/useAuth';
+// ** Next Import
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { LocalStorageService } from '@/services/localStorageService';
-import useGetImage from '@/hooks/useGetImage';
+import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
+import { shallow } from 'zustand/shallow';
 
 const localStorage = new LocalStorageService();
 const accessToken = localStorage.getToken()!;
@@ -99,7 +95,6 @@ const StudentList = () => {
   const { classroom } = router.query;
 
   // ** State
-  const [value, setValue] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentClassroomId, setCurrentClassroomId] = useState<any>(null);
   const [initClassroom, setInitClassroom] = useState<any>(null);
@@ -109,15 +104,19 @@ const StudentList = () => {
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
   const [openDeletedConfirm, setOpenDeletedConfirm] = useState<boolean>(false);
   const [deletedStudent, setDeletedStudent] = useState<any>(null);
+  const [currentStudent, setCurrentStudent] = useState<any>(null);
+  const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
+  const debouncedValue = useDebounce<string>(searchValue, 500);
 
-  const { fetchStudentByClassroom }: any = useStudentStore(
+  const { fetchStudentsWithParams }: any = useStudentStore(
     (state: any) => ({
-      fetchStudentByClassroom: state.fetchStudentByClassroom,
+      fetchStudentsWithParams: state.fetchStudentsWithParams,
     }),
     shallow,
   );
   const { fetchClassroom }: any = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
   const { removeStudents }: any = useStudentStore((state) => ({ removeStudents: state.removeStudents }), shallow);
+  const { loading: loadingStudents, students: studentsListData } = useStudentList(accessToken, debouncedValue);
 
   useEffectOnce(() => {
     (async () => {
@@ -145,12 +144,55 @@ const StudentList = () => {
   useEffect(() => {
     setLoadingStudent(true);
     (async () => {
-      await fetchStudentByClassroom(accessToken, currentClassroomId).then(async (res: any) => {
-        setStudents(await res);
+      const query = {
+        classroomId: currentClassroomId,
+        search: debouncedValue,
+      };
+
+      await fetchStudentsWithParams(accessToken, query).then(async (res: any) => {
+        setStudents((await res) || []);
         setLoadingStudent(false);
       });
     })();
-  }, [currentClassroomId]);
+  }, [currentClassroomId, debouncedValue]);
+
+  const onHandleChangeClassroom = (e: SelectChangeEvent, value: any) => {
+    e.preventDefault();
+    setCurrentClassroomId(value?.id);
+    setInitClassroom(value);
+  };
+
+  const handDeletedConfirm = async (event: any) => {
+    event.stopPropagation();
+    setOpenDeletedConfirm(false);
+    setStudents([]);
+    setLoadingStudent(true);
+    const toastId = toast.loading('กำลังลบข้อมูล...');
+    await removeStudents(accessToken, deletedStudent.id).then((res: any) => {
+      if (res?.status === 204) {
+        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+      } else {
+        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
+      }
+    });
+
+    await fetchStudentsWithParams(accessToken, currentClassroomId).then(async (res: any) => {
+      setStudents(await res);
+      setLoadingStudent(false);
+    });
+  };
+
+  const onHandleChangeFullName = useCallback(
+    (e: any, newValue: any) => {
+      e.preventDefault();
+      setCurrentStudent(newValue || null);
+    },
+    [setCurrentStudent],
+  );
+
+  const onSearchChange = useCallback((event: any, value: any, reason: any) => {
+    setSearchValue({ fullName: value });
+  }, []);
 
   const defaultColumns: GridColumns = [
     {
@@ -273,32 +315,6 @@ const StudentList = () => {
     },
   ];
 
-  const onHandleChangeClassroom = (e: SelectChangeEvent, value: any) => {
-    e.preventDefault();
-    setCurrentClassroomId(value?.id);
-    setInitClassroom(value);
-  };
-
-  const handDeletedConfirm = async (event: any) => {
-    event.stopPropagation();
-    setOpenDeletedConfirm(false);
-    setStudents([]);
-    setLoadingStudent(true);
-    const toastId = toast.loading('กำลังลบข้อมูล...');
-    await removeStudents(accessToken, deletedStudent.id).then((res: any) => {
-      if (res?.status === 204) {
-        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
-      } else {
-        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
-      }
-    });
-
-    await fetchStudentByClassroom(accessToken, currentClassroomId).then(async (res: any) => {
-      setStudents(await res);
-      setLoadingStudent(false);
-    });
-  };
-
   return (
     <Fragment>
       <Grid container spacing={6}>
@@ -315,11 +331,15 @@ const StudentList = () => {
             />
             {classrooms && (
               <TableHeader
-                value={value}
                 defaultClassroom={initClassroom}
                 classrooms={classrooms}
                 onHandleChange={onHandleChangeClassroom}
                 loading={loadingClassroom}
+                loadingStudents={loadingStudents}
+                fullName={currentStudent}
+                onHandleChangeStudent={onHandleChangeFullName}
+                onSearchChange={onSearchChange}
+                students={studentsListData}
               />
             )}
             <DataGrid

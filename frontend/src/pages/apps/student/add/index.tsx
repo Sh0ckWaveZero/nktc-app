@@ -200,7 +200,6 @@ const AddStudentPage = () => {
   });
 
   const onSubmit = async (data: any, e: any) => {
-    console.log('🚀 ~ file: index.tsx:205 ~ onSubmit ~ data:', data);
     e.preventDefault();
 
     const { classroom: c, ...rest } = data;

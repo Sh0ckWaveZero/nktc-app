@@ -5,13 +5,7 @@ import { useStudentStore } from '@/store/index';
 import toast from 'react-hot-toast';
 
 const useStudentList = (storedToken: string, debouncedValue: string) => {
-  const { studentsList }: any = useStudentStore(
-    (state: any) => ({
-      fetchStudents: state.fetchStudents,
-      studentsList: state.studentsList,
-    }),
-    shallow,
-  );
+  const { studentsList }: any = useStudentStore((state: any) => ({ studentsList: state.studentsList }), shallow);
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
 
@@ -24,6 +18,7 @@ const useStudentList = (storedToken: string, debouncedValue: string) => {
         setLoading(false);
       } catch (error: any) {
         toast.error(error?.message || 'เกิดข้อผิดพลาด');
+        setStudents([]);
         setLoading(false);
       }
     };
