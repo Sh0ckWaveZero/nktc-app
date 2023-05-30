@@ -27,19 +27,39 @@ export class ReportCheckInMiddleware implements NestMiddleware {
     const totalLeave = leave.length || 0;
     const totalInternship = internship.length || 0;
 
+    //get classroom name
+    const classroom = await this.prisma.classroom.findUnique({
+      where: {
+        id: classroomId,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    // get teacher name
+    const teacher = await this.prisma.teacher.findUnique({
+      where: {
+        id: teacherId,
+      },
+      select: {
+        teacherId: true,
+      },
+    });
+
     // Record log to database
     await this.prisma.auditLog.create({
       data: {
         action: 'CheckIn',
         model: 'Classroom',
-        fieldName: `present [${totalPresent}], absent [${totalAbsent}], late [${totalLate}], leave [${totalLeave}], internship [${totalInternship}]`,
+        fieldName: `present, absent, late, leave, internship`,
         oldValue: null,
-        newValue: teacherId,
-        detail: `Teacher check in classroom ${classroomId} with ${totalStudent} students on ${new Date(checkInDate).toLocaleDateString()}`,
+        newValue: teacher.teacherId,
+        detail: `ห้องเรียน${classroom.name} จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(checkInDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`,
         ipAddr,
         browser: result.browser.name,
         device: result.device.type,
-        createdBy: teacherId,
+        createdBy: teacher.teacherId,
       },
     });
 
