@@ -270,16 +270,41 @@ export class UsersService {
 
   // getAuditLogs  params: username, skip, take
   async getAuditLogs(username: string, skip: number, take: number): Promise<any> {
-    const logs = await this.prisma.auditLog.findMany({
+
+    const teacher = await this.prisma.teacher.findUnique({
       where: {
-        createdBy: username,
+        teacherId: username,
       },
+    });
+
+    let filter = {};
+
+    if (teacher) {
+      filter = {
+        OR: [
+          {
+            createdBy: username,
+          },
+          {
+            createdBy: teacher.id,
+          },
+        ],
+      };
+    } else {
+      filter = {
+        createdBy: username,
+      };
+    }
+
+    const logs = await this.prisma.auditLog.findMany({
+      where: filter,
       skip,
       take,
       orderBy: {
         createdAt: 'desc',
       },
     });
+
 
     // get total
     const total = await this.prisma.auditLog.count({
