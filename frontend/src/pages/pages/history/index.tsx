@@ -14,6 +14,13 @@ interface CellType {
   row: any;
 }
 
+type Action = 'CheckIn' | 'Login';
+
+const ACTIONS: Record<Action, string> = {
+  CheckIn: 'เช็คชื่อหน้าเสาธง',
+  Login: 'เข้าสู่ระบบ',
+};
+
 const localStorageService = new LocalStorageService();
 const accessToken = localStorageService.getToken()!;
 
@@ -71,9 +78,10 @@ const HistoryPage = () => {
       filterable: false,
       renderCell: ({ row }: CellType) => {
         const { action } = row;
+        const actionDescription: string = ACTIONS[action as Action] ?? action;
         return (
           <Typography noWrap variant='body2'>
-            {action}
+            {actionDescription}
           </Typography>
         );
       },
