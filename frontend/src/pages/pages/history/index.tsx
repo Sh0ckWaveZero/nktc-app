@@ -1,4 +1,4 @@
-import { Avatar, Card, CardHeader, Grid, Typography } from '@mui/material';
+import { Avatar, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -122,9 +122,11 @@ const HistoryPage = () => {
       renderCell: ({ row }: CellType) => {
         const { detail } = row;
         return (
-          <Typography noWrap variant='body2'>
-            {detail}
-          </Typography>
+          <Tooltip title={detail} placement='bottom-start' arrow>
+            <Typography noWrap variant='body2'>
+              {detail}
+            </Typography>
+          </Tooltip>
         );
       },
     },
