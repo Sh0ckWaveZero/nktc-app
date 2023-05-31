@@ -9,6 +9,36 @@ export class ActivityCheckInService {
   constructor(private prisma: PrismaService) { }
 
   async create(createReportCheckInDto: Prisma.ReportCheckInCreateInput) {
+
+    let startDate = new Date(createReportCheckInDto.checkInDate);
+    let endDate = new Date(createReportCheckInDto.checkInDate);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    const activityCheckInReport = await this.prisma.activityCheckInReport.findFirst({
+      where: {
+        teacherId: createReportCheckInDto.teacherId,
+        classroomId: createReportCheckInDto.classroomId,
+        checkInDate: {
+          gte: startDate,
+          lte: endDate
+        },
+      }
+    });
+
+    if (activityCheckInReport) {
+      // update
+      return await this.prisma.activityCheckInReport.update({
+        where: {
+          id: activityCheckInReport.id
+        },
+        data: {
+          ...createReportCheckInDto,
+          updatedBy: createReportCheckInDto.teacherId,
+        }
+      });
+    }
+
     return await this.prisma.activityCheckInReport.create({
       data: {
         ...createReportCheckInDto,
