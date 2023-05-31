@@ -323,17 +323,20 @@ const DailyCheckInReportActivity = () => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
     const { reportCheckInData } = values?.data || {};
-    const { present = [], absent = [], internship = [] } = reportCheckInData || {};
+    const { present = [], absent = [] } = reportCheckInData || {};
+
     isPresentCheck.push(...present);
     isAbsentCheck.push(...absent);
-    isInternshipCheck.push(...internship);
+
     onHandleToggle(values?.isCheckInStatus, values?.data);
+
+    isPresentCheck = [...new Set(isPresentCheck)];
+    isAbsentCheck = [...new Set(isAbsentCheck)];
 
     const updated = {
       ...reportCheckInData,
       present: isPresentCheck,
       absent: isAbsentCheck,
-      internship: isInternshipCheck,
       updateBy: auth?.user?.id,
     };
 
@@ -342,8 +345,7 @@ const DailyCheckInReportActivity = () => {
       classroomId,
       present: isPresentCheck,
       absent: isAbsentCheck,
-      internship: isInternshipCheck,
-      checkInDate: new Date(),
+      checkInDate: selectedDate,
       status: '1',
     };
 
@@ -363,6 +365,41 @@ const DailyCheckInReportActivity = () => {
     }, 200);
     toggleCloseEditCheckIn();
     onClearAll();
+  };
+
+  const handleDateChange = async (date: Date | null) => {
+    setDateSelected(date);
+    await fetchDailyReport(date);
+  };
+
+  const handleSelectChange = async (event: any) => {
+    event.preventDefault();
+    const {
+      target: { value },
+    } = event;
+    const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
+    setLoading(true);
+    setDefaultClassroom(classroomName);
+    await fetchDailyReport(null, classroomName.id);
+  };
+
+  const toggleCloseEditCheckIn = () => setOpenEditDrawer(!openEditDrawer);
+
+  const handleCloseDeletedConfirm = () => setOpenDeletedConfirm(false);
+
+  const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
+
+  const handDeletedConfirm = async () => {
+    toast.promise(removeActivityCheckIn(storedToken, reportCheckInData?.id), {
+      loading: 'กำลังลบการเช็คชื่อ...',
+      success: 'ลบการเช็คชื่อสำเร็จ',
+      error: 'เกิดข้อผิดพลาด',
+    });
+
+    setOpenDeletedConfirm(false);
+    setTimeout(() => {
+      fetchDailyReport(selectedDate, '');
+    }, 200);
   };
 
   const columns: GridColumns = [
@@ -476,41 +513,6 @@ const DailyCheckInReportActivity = () => {
       },
     },
   ];
-
-  const handleDateChange = async (date: Date | null) => {
-    setDateSelected(date);
-    await fetchDailyReport(date);
-  };
-
-  const handleSelectChange = async (event: any) => {
-    event.preventDefault();
-    const {
-      target: { value },
-    } = event;
-    const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
-    setLoading(true);
-    setDefaultClassroom(classroomName);
-    await fetchDailyReport(null, classroomName.id);
-  };
-
-  const toggleCloseEditCheckIn = () => setOpenEditDrawer(!openEditDrawer);
-
-  const handleCloseDeletedConfirm = () => setOpenDeletedConfirm(false);
-
-  const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
-
-  const handDeletedConfirm = async () => {
-    toast.promise(removeActivityCheckIn(storedToken, reportCheckInData?.id), {
-      loading: 'กำลังลบการเช็คชื่อ...',
-      success: 'ลบการเช็คชื่อสำเร็จ',
-      error: 'เกิดข้อผิดพลาด',
-    });
-
-    setOpenDeletedConfirm(false);
-    setTimeout(() => {
-      fetchDailyReport(selectedDate, '');
-    }, 200);
-  };
 
   return (
     ability?.can('read', 'check-in-page') &&
