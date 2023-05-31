@@ -233,28 +233,10 @@ export class GoodnessIndividualService {
   /@returns {Object} - อ็อบเจกต์ที่มีข้อมูลสรุปคะแนนความดีของนักเรียนและจำนวนทั้งหมด
   */
   async getGoodnessSummary(query: any): Promise<{ data: any, total: number }> {
-    // ดึงข้อมูลนักเรียนที่มีคะแนนความดีจากฐานข้อมูล
-    const selectedStudents = await this.prisma.goodnessIndividual.findMany({
-      skip: query.skip || 0,
-      take: query.take || 1000,
-      select: {
-        studentKey: true,
-      },
-      distinct: ['studentKey'],
-    });
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
     const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
     // ดึงข้อมูลคะแนนความดีของนักเรียนที่เลือกและข้อมูลเกี่ยวกับนักเรียนและชั้นเรียน
     const filteredGoodnessIndividual = await this.prisma.goodnessIndividual.findMany({
-      where: {
-        OR: [
-          {
-            studentKey: {
-              in: selectedStudents.map((item: any) => item.studentKey),
-            },
-          }
-        ]
-      },
       include: {
         student: {
           include: {
@@ -275,6 +257,7 @@ export class GoodnessIndividualService {
       },
       orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
     });
+    
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
       const { id, studentId, goodnessScore, studentKey } = cur;
@@ -294,14 +277,21 @@ export class GoodnessIndividualService {
       }
       return acc;
     }, {}));
+
     // เรียงลำดับคะแนนความดีของนักเรียน
     summarizedStudents.sort((a: any, b: any) => b.goodnessScore - a.goodnessScore);
+
+    const skip = query.skip || 0;
+    const take = query.take || 1000;
+
+    // กำหนดขอบเขตของข้อมูลที่จะแสดงผล
+    const studentsScope = summarizedStudents.slice(skip, skip + take);
 
     // กำหนดลำดับเลขนักเรียนในการแสดงผล
     let runningNumber = query.skip === 0 ? 1 : query.skip + 1;
 
     // เพิ่มลำดับเลขนักเรียนในข้อมูลสรุปคะแนนความดี
-    const summaryWithRunningNumber = summarizedStudents.map((student: any) => {
+    const summaryWithRunningNumber = studentsScope.map((student: any) => {
       return {
         ...student,
         runningNumber: runningNumber++

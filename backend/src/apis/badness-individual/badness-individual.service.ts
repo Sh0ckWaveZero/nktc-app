@@ -232,28 +232,10 @@ export class BadnessIndividualService {
   /@returns {Object} - อ็อบเจกต์ที่มีข้อมูลสรุปคะแนนความประพฤติของนักเรียนและจำนวนทั้งหมด
   */
   async getBadnessSummary(query: any): Promise<{ data: any, total: number }> {
-    // ดึงข้อมูลนักเรียนที่มีคะแนนความประพฤติจากฐานข้อมูล
-    const selectedStudents = await this.prisma.badnessIndividual.findMany({
-      skip: query.skip || 0,
-      take: query.take || 1000,
-      select: {
-        studentKey: true,
-      },
-      distinct: ['studentKey'],
-    });
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
     const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
     // ดึงข้อมูลคะแนนความประพฤติของนักเรียนที่เลือกและข้อมูลเกี่ยวกับนักเรียนและชั้นเรียน
     const filteredBadnessIndividual = await this.prisma.badnessIndividual.findMany({
-      where: {
-        OR: [
-          {
-            studentKey: {
-              in: selectedStudents.map((item: any) => item.studentKey),
-            },
-          }
-        ]
-      },
       include: {
         student: {
           include: {
@@ -296,11 +278,17 @@ export class BadnessIndividualService {
     // เรียงลำดับคะแนนความประพฤติของนักเรียน
     summarizedStudents.sort((a: any, b: any) => b.badnessScore - a.badnessScore);
 
+    const skip = query.skip || 0;
+    const take = query.take || 1000;
+
+    // กำหนดขอบเขตของข้อมูลที่จะแสดงผล
+    const studentsScope = summarizedStudents.slice(skip, skip + take);
+
     // กำหนดลำดับเลขนักเรียนในการแสดงผล
     let runningNumber = query.skip === 0 ? 1 : query.skip + 1;
 
     // เพิ่มลำดับเลขนักเรียนในข้อมูลสรุปคะแนนความประพฤติ
-    const summaryWithRunningNumber = summarizedStudents.map((student: any) => {
+    const summaryWithRunningNumber = studentsScope.map((student: any) => {
       return {
         ...student,
         runningNumber: runningNumber++
