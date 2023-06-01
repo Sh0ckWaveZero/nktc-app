@@ -102,6 +102,11 @@ export class StudentsService {
         },
         orderBy: [
           {
+            student: {
+              studentId: 'asc',
+            },
+          },
+          {
             account: {
               firstName: 'asc',
             },
