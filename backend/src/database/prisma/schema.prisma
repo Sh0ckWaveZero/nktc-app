@@ -147,6 +147,7 @@ model Student {
   createdBy          String?
   goodnessIndividual GoodnessIndividual[]
   badnessIndividual  BadnessIndividual[]
+  VisitStudent       VisitStudent[]
 
   @@unique([userId, studentId], name: "student_users")
   @@map("student")
@@ -209,6 +210,7 @@ model Classroom {
   activityCheckInReport ActivityCheckInReport[]
   goodnessIndividual    GoodnessIndividual[]
   badnessIndividual     BadnessIndividual[]
+  VisitStudent          VisitStudent[]
 
   @@map("classroom")
 }
@@ -438,6 +440,28 @@ model BadnessIndividual {
   createdBy     String?
 
   @@map("badnessIndividual")
+}
+
+// การเยี่ยมบ้านนักเรียน
+model VisitStudent {
+  id           String     @id @default(cuid())
+  studentId    String // รหัสนักเรียน
+  studentKey   String // รหัสนักเรียน
+  student      Student?   @relation(fields: [studentKey], references: [id])
+  classroomId  String?
+  classroom    Classroom? @relation(fields: [classroomId], references: [id])
+  visitDate    DateTime? // วันที่เยี่ยมบ้าน
+  visitDetail  Json? // รายละเอียดการเยี่ยมบ้าน
+  visitMap     String? // แผนที่การเยี่ยมบ้าน
+  images       String[]   @default([]) // รูปภาพ
+  visitNo      Int? // การเยียมบ้านครั้งที่
+  academicYear String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  updatedBy    String?
+  createdBy    String?
+
+  @@map("visitStudent")
 }
 
 enum Role {

@@ -56,10 +56,11 @@ export class TeachersController {
     }
   }
 
-  @Get(':id/check-in')
-  async getCheckIn(@Param('id') id: string) {
-    return await this.teachersService.getCheckIn(id);
+  @Get(':id/students')
+  async getStudentsByTeacherId(@Param('id') id: string) {
+    return await this.teachersService.getStudentsByTeacherId(id);
   }
+
 
   @Put(':id')
   @HttpCode(HttpStatus.ACCEPTED)

@@ -26,6 +26,7 @@ import { TeachersModule } from './apis/teachers/teachers.module';
 import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './apis/users/users.module';
+import { VisitsModule } from './apis/visits/visits.module';
 import configuration from './config/configuration';
 import validate from './config/validation';
 
@@ -40,6 +41,7 @@ import validate from './config/validation';
     AppBarModule,
     AuditLogModule,
     AuthModule,
+    BadnessIndividualModule,
     ClassroomModule,
     DepartmentsModule,
     GoodnessIndividualModule,
@@ -49,7 +51,7 @@ import validate from './config/validation';
     StudentsModule,
     TeachersModule,
     UsersModule,
-    BadnessIndividualModule,
+    VisitsModule,
     ConfigModule.forRoot(
       {
         load: [configuration],

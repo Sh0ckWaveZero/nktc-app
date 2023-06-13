@@ -139,7 +139,7 @@ export class TeachersService {
     })
   }
 
-  async getCheckIn(id: string) {
+  async getStudentsByTeacherId(id: string) {
     // get teacher on classroom
     const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
       where: {
@@ -202,10 +202,20 @@ export class TeachersService {
             firstName: true,
             lastName: true,
             avatar: true,
+            addressLine1: true,
+            subdistrict: true,
+            district: true,
+            province: true,
+            postcode: true,
           }
         }
       },
       orderBy: [
+        {
+          student: {
+            studentId: 'asc',
+          },
+        },
         {
           account: {
             firstName: 'asc',
@@ -236,6 +246,13 @@ export class TeachersService {
                 lastName: student.account.lastName,
                 avatar: student.account.avatar,
                 status: student.student.status,
+                account: {
+                  addressLine1: student.account.addressLine1,
+                  subdistrict: student.account.subdistrict,
+                  district: student.account.district,
+                  province: student.account.province,
+                  postcode: student.account.postcode,
+                }
               })),
           };
         }),
