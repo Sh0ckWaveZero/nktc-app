@@ -37,6 +37,12 @@ export class VisitsService {
       },
     });
 
+    if (isEmpty(students)) {
+      return {
+        students: [],
+      };
+    }
+
     // รับข้อมูลการเข้าเยี่ยมชมโดยใช้ classroomId, academicYear, visitNo
     const visits = await this.prisma.visitStudent.findMany({
       where: {
@@ -48,30 +54,20 @@ export class VisitsService {
 
     let visitStudent = [];
 
-    if (!isEmpty(visits)) {
-      // ถ้า visits ไม่ว่างเปล่า (มีข้อมูล)
-      for (const visit of visits) {
-        // วนลูปผ่านทุก visit ใน visits
-        const student = students.find(student => student.student.id === visit.studentId);
-        // ค้นหา student ที่ตรงกับ studentId ของ visit ใน students
-        if (student) {
-          // ถ้าพบ student
-          visitStudent.push({
-            ...student,
-            visit: visit,
-          });
-          // เพิ่มข้อมูลเข้าไปใน visitStudent ในรูปแบบของ object ที่ประกอบด้วย student และ visit
-        }
-      }
-    } else {
-      // ถ้า visits ว่างเปล่า (ไม่มีข้อมูล)
-      for (const student of students) {
-        // วนลูปผ่านทุก student ใน students
+    // Students ที่มีการเข้าเยี่ยมชม
+    for (const student of students) {
+      // ค้นหา student ที่ตรงกับ studentId ของ visit ใน students
+      const visit = visits.find(visit => visit.studentId === student.student.id);
+      if (visit) {
+        visitStudent.push({
+          ...student,
+          visit: visit,
+        });
+      } else {
         visitStudent.push({
           ...student,
           visit: null,
         });
-        // เพิ่มข้อมูลเข้าไปใน visitStudent ในรูปแบบของ object ที่ประกอบด้วย student และ visit ที่มีค่าเป็น null
       }
     }
 
