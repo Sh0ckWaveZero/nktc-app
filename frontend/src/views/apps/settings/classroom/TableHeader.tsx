@@ -1,7 +1,6 @@
 import { Box, Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-import { ExportVariant } from 'mdi-material-ui';
 import IconifyIcon from '@/@core/components/icon';
 
 interface TableHeaderProps {
