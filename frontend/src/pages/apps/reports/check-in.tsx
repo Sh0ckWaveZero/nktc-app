@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useContext, useState } from 'react';
+import { Fragment, useContext, useRef, useState } from 'react';
 
 // ** MUI Imports
 import {
@@ -15,7 +15,9 @@ import {
   Container,
   Grid,
   IconButton,
+  Stack,
   styled,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -42,11 +44,13 @@ import { shallow } from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
 import Icon from '@/@core/components/icon';
-
+import IconifyIcon from '@/@core/components/icon';
+import RenderAvatar from '@/@core/components/avatar';
 interface CellType {
   row: any;
 }
 const localStorageService = new LocalStorageService();
+const storedToken = localStorageService.getToken()!;
 
 const CheckboxStyled = styled(Checkbox)<CheckboxProps>(() => ({
   padding: '0 0 0 4px',
@@ -57,7 +61,6 @@ const StudentCheckIn = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
-  const storedToken = localStorageService.getToken()!;
 
   const { getReportCheckIn, addReportCheckIn }: any = useReportCheckInStore(
     (state) => ({
@@ -66,8 +69,8 @@ const StudentCheckIn = () => {
     }),
     shallow,
   );
-  const { fetchClassroomByTeachId }: any = useTeacherStore(
-    (state) => ({ fetchClassroomByTeachId: state.fetchClassroomByTeachId }),
+  const { fetchStudentsByTeacherId }: any = useTeacherStore(
+    (state) => ({ fetchStudentsByTeacherId: state.fetchStudentsByTeacherId }),
     shallow,
   );
   const ability = useContext(AbilityContext);
@@ -97,14 +100,17 @@ const StudentCheckIn = () => {
   const [reportCheckIn, setReportCheckIn] = useState<any>(false);
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  const timer: any = useRef(null);
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     try {
       const fetch = async () => {
-        await fetchClassroomByTeachId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
+        await fetchStudentsByTeacherId(storedToken, auth?.user?.teacher?.id as string).then(async ({ data }: any) => {
           await getCheckInStatus(auth?.user?.teacher?.id as string, await data?.classrooms[0]?.id);
-          const students = await data?.classrooms[0]?.students || [];
+          const students = (await data?.classrooms[0]?.students) || [];
           setDefaultClassroom(await data?.classrooms[0]);
           setClassrooms(await data?.classrooms);
           setCurrentStudents(students);
@@ -375,6 +381,19 @@ const StudentCheckIn = () => {
     onHandleCheckAll(params.field);
   };
 
+  const handleMouseEnter = () => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    timer.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 2000);
+  };
+
   const columns: GridColumns = [
     {
       flex: 0.25,
@@ -386,9 +405,52 @@ const StudentCheckIn = () => {
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
         return (
-          <Typography noWrap variant='body1' sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}>
-            {row.title + '' + row.firstName + ' ' + row.lastName}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <RenderAvatar row={row} storedToken={storedToken} />
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+              <Typography
+                noWrap
+                variant='body2'
+                sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {row?.title + '' + row?.firstName + ' ' + row?.lastName}
+              </Typography>
+              <Stack direction='row' alignItems='center' gap={1}>
+                <Typography
+                  noWrap
+                  variant='caption'
+                  sx={{
+                    textDecoration: 'none',
+                  }}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  @{row?.studentId}
+                </Typography>
+                {isHovered && (
+                  <Tooltip title='คัดลอกไปยังคลิปบอร์ด' placement='top'>
+                    <span>
+                      <IconButton
+                        size='small'
+                        sx={{ p: 0, ml: 0 }}
+                        onClick={() => {
+                          navigator.clipboard.writeText(row?.studentId);
+                          toast.success('คัดลอกไปยังคลิปบอร์ดเรียบร้อยแล้ว');
+                        }}
+                      >
+                        <IconifyIcon
+                          icon='pajamas:copy-to-clipboard'
+                          color={`${theme.palette.grey[500]}`}
+                          width={16}
+                          height={16}
+                        />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+              </Stack>
+            </Box>
+          </Box>
         );
       },
     },
@@ -724,7 +786,7 @@ const StudentCheckIn = () => {
                   onCellClick={handleCellClick}
                   onColumnHeaderClick={handleColumnHeaderClick}
                   rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                  rowsPerPageOptions={[pageSize]}
+                  rowsPerPageOptions={[pageSize, 100]}
                   onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
                   getRowClassName={(params) => {
                     return params.row.status === 'internship' ? 'internship' : 'normal';
