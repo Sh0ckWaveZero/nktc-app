@@ -1,4 +1,5 @@
 // ** React Imports
+import RenderAvatar from '@/@core/components/avatar';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 // ** Custom Components Imports
 import CustomAvatar from '@/@core/components/mui/avatar';
@@ -50,43 +51,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-// ** Styled component for the link for the avatar with image
-const AvatarWithImageLink = styled(Link)(({ theme }) => ({
-  marginRight: theme.spacing(3),
-}));
-
-// ** Styled component for the link for the avatar without image
-const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  marginRight: theme.spacing(3),
-}));
-
-// ** renders client column
-const renderClient = (row: any) => {
-  if (row?.avatar) {
-    const { isLoading, image } = useGetImage(row.avatar, accessToken);
-
-    return isLoading ? (
-      <CircularProgress />
-    ) : (
-      <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={image as string} sx={{ mr: 3, width: 40, height: 40 }} />
-      </AvatarWithImageLink>
-    );
-  } else {
-    return (
-      <AvatarWithoutImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar
-          skin='light'
-          color={row?.avatarColor || 'primary'}
-          sx={{ mr: 3, width: 40, height: 40, fontSize: '.875rem' }}
-        >
-          {getInitials(row.account?.firstName + ' ' + row.account?.lastName)}
-        </CustomAvatar>
-      </AvatarWithoutImageLink>
-    );
-  }
-};
 
 const StudentList = () => {
   // ** Hooks
@@ -208,7 +172,7 @@ const StudentList = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(account)}
+            <RenderAvatar row={account} storedToken={accessToken} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <LinkStyled href={`/apps/student/view/${id}`} passHref>
                 <Typography
