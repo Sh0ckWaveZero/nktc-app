@@ -1,19 +1,9 @@
-// ** React Import
-import { useEffect, useRef } from 'react';
-
-// ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import interactionPlugin from '@fullcalendar/interaction';
 import thLocale from '@fullcalendar/core/locales/th';
-
-// ** Types
-import { CalendarType } from '@/types/apps/calendarTypes';
-import styled from '@emotion/styled';
-
 // // ** Third Party Style Import
 // import 'bootstrap-icons/font/bootstrap-icons.css';
 
