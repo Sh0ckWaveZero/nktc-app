@@ -13,7 +13,7 @@ interface TeacherState {
   teacherLoading: boolean,
   hasErrors: boolean,
   fetchTeacher: (token: string, params: TeacherQuery) => any;
-  fetchClassroomByTeachId: (token: string, teacherId: string) => any;
+  fetchStudentsByTeacherId: (token: string, teacherId: string) => any;
   updateClassroom: (token: string, data: any) => any;
   updateProfile: (token: string, data: any) => any;
   update(token: string, data: any): any;
@@ -41,9 +41,9 @@ export const useTeacherStore = create<TeacherState>()(
         return err;
       }
     },
-    fetchClassroomByTeachId: async (token: string, teacherId: string) => {
+    fetchStudentsByTeacherId: async (token: string, teacherId: string) => {
       try {
-        const { data } = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/check-in`, {
+        const { data } = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/students`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
