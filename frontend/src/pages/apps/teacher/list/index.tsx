@@ -1,5 +1,4 @@
 import {
-  AccountBoxMultipleOutline,
   BriefcasePlusOutline,
   ChartDonut,
   CogOutline,
@@ -15,7 +14,6 @@ import {
   Box,
   Card,
   CardHeader,
-  CircularProgress,
   Divider,
   Grid,
   IconButton,
@@ -25,13 +23,12 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Fragment, MouseEvent, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 
 import AddTeacherDrawer from '@/views/apps/teacher/list/AddUserDrawer';
-import CustomAvatar from '@/@core/components/mui/avatar';
 import CustomChip from '@/@core/components/mui/chip';
 import { DataGrid } from '@mui/x-data-grid';
 import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
@@ -44,14 +41,13 @@ import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import { ThemeColor } from '@/@core/layouts/types';
 import bcrypt from 'bcryptjs';
 import { generateErrorMessages } from 'utils/event';
-import { getInitials } from '@/@core/utils/get-initials';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
 import DialogDeleteTeacher from '@/views/apps/admin/teacher/DialogDeleteTeacher';
+import RenderAvatar from '@/@core/components/avatar';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -90,16 +86,6 @@ const userStatusObj: TeacherStatusType | any = {
   false: 'secondary',
 };
 
-// ** Styled component for the link for the avatar with image
-const AvatarWithImageLink = styled(Link)(({ theme }) => ({
-  marginRight: theme.spacing(3),
-}));
-
-// ** Styled component for the link for the avatar without image
-const AvatarWithoutImageLink = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  marginRight: theme.spacing(3),
-}));
 
 const StyledLink = styled(Link)(({ theme }) => ({
   display: 'flex',
@@ -111,32 +97,6 @@ const StyledLink = styled(Link)(({ theme }) => ({
 const localStorageService = new LocalStorageService();
 
 const accessToken = localStorageService.getToken()!;
-
-// ** renders client column
-const renderClient = (row: any) => {
-  if (row?.avatar.length) {
-    const { isLoading, image } = useGetImage(row?.avatar, accessToken);
-    return isLoading ? (
-      <CircularProgress />
-    ) : (
-      <AvatarWithImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar src={image as string} sx={{ mr: 3, width: 40, height: 40 }} />
-      </AvatarWithImageLink>
-    );
-  } else {
-    return (
-      <AvatarWithoutImageLink href={`/apps/user/view/${row.id}`}>
-        <CustomAvatar
-          skin='light'
-          color={row?.avatarColor || 'primary'}
-          sx={{ mr: 3, width: 40, height: 40, fontSize: '.875rem' }}
-        >
-          {getInitials(row.firstName + ' ' + row.lastName)}
-        </CustomAvatar>
-      </AvatarWithoutImageLink>
-    );
-  }
-};
 
 const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsType) => {
   // ** Hooks
@@ -452,7 +412,7 @@ const TeacherList = () => {
         const { id, title, firstName, lastName, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
+            <RenderAvatar row={row} storedToken={accessToken} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <StyledLink href={`/apps/user/view/${id}`} passHref>
                 <Typography
