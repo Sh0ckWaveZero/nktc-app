@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardHeader,
-  CircularProgress,
   Grid,
   IconButton,
   Stack,
@@ -15,23 +14,20 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
-import { useClassroomStore, useTeacherStore, useVisitStore } from '@/store/index';
+import { useClassroomStore, useVisitStore } from '@/store/index';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
-import CustomAvatar from '@/@core/components/mui/avatar';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { CustomNoRowsOverlayCheckedIn } from '@/@core/components/check-in/checkedIn';
 import { Icon } from '@iconify/react';
 import IconifyIcon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/visit/TableHeader';
-import { getInitials } from '@/@core/utils/get-initials';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
-import useGetImage from '@/hooks/useGetImage';
 import { useRouter } from 'next/router';
 import RenderAvatar from '@/@core/components/avatar';
 
