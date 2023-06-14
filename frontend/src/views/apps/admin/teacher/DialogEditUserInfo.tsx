@@ -8,12 +8,10 @@ import {
   DialogActions,
   DialogContent,
   FormControl,
-  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
   MenuItem,
-  Switch,
   TextField,
   Typography,
   styled,
@@ -22,8 +20,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
-import { Fragment, ReactElement, Ref, forwardRef, useState } from 'react';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { Fragment, ReactElement, Ref, forwardRef } from 'react';
+import Select from '@mui/material/Select';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
@@ -32,7 +30,6 @@ import { PatternFormat } from 'react-number-format';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs, { Dayjs } from 'dayjs';
 import th from 'dayjs/locale/th';
-import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 dayjs.extend(buddhistEra);
