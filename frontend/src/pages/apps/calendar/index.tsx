@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -14,7 +14,7 @@ import { useSettings } from '@/@core/hooks/useSettings';
 
 // ** Types
 // import { RootState, AppDispatch } from 'src/store'
-import { CalendarColors, CalendarFiltersType } from '@/types/apps/calendarTypes';
+import { CalendarColors } from '@/types/apps/calendarTypes';
 
 // ** FullCalendar & App Components Imports
 
@@ -31,7 +31,6 @@ import { CalendarColors, CalendarFiltersType } from '@/types/apps/calendarTypes'
 
 import SidebarLeft from '@/store/apps/calendar/SidebarLeft';
 import Calendar from '@/store/apps/calendar/Calendar';
-import AddEventSidebar from '@/store/apps/calendar/AddEventSidebar';
 import CalendarWrapper from '@/@core/styles/libs/fullcalendar';
 
 // ** CalendarColors
