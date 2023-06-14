@@ -2,7 +2,7 @@
 import {
   HumanMaleBoard,
 } from 'mdi-material-ui';
-import { RiTeamLine } from 'react-icons/ri';
+import { RiSurveyLine, RiTeamLine } from 'react-icons/ri';
 
 // ** Type import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
@@ -79,9 +79,16 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'ห้องเรียน',
           icon: 'material-symbols:room-preferences-outline-rounded',
-          path: '/apps/settings/classroom',
+          path: '/apps/visit/classroom',
           action: 'read',
           subject: 'setting-system-page',
+        },
+        {
+          title: 'ปฏิทิน',
+          icon: 'mdi:calendar-blank-outline',
+          path: '/apps/calendar',
+          action: 'read',
+          subject: 'calendar-page',
         },
       ],
     },
@@ -146,6 +153,21 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'report-badness-group-page',
           path: '/apps/record-badness/group',
         }
+      ],
+    },
+    {
+      title: 'บันทึกเยี่ยมบ้าน',
+      icon: RiSurveyLine,
+      action: 'read',
+      subject: 'visit-student-page',
+      children: [
+        {
+          title: 'รายชื่อนักเรียน',
+          icon: 'mdi:home-switch-outline',
+          path: '/apps/visit/list',
+          action: 'read',
+          subject: 'visit-student-list-page',
+        },
       ],
     },
     {
