@@ -44,7 +44,6 @@ const BadnessGroup = () => {
   const [searchValue, setSearchValue] = useState<any>({});
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [openSelectStudents, setOpenSelectStudents] = useState(false);
-  const [currentImage, setCurrentImage] = useState<any>(null);
   const [openGoodnessDetail, setOpenGoodnessDetail] = useState(false);
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
   const [selectClassrooms, setSelectClassrooms] = useState<any>([] || null);
@@ -61,7 +60,7 @@ const BadnessGroup = () => {
     [setSelectStudents],
   );
 
-  const onSearchStudents = useCallback((event: any, value: any, reason: any) => {
+  const onSearchStudents = useCallback((event: any, value: any) => {
     setSearchValue({ fullName: value });
   }, []);
 
