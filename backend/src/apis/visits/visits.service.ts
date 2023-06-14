@@ -27,6 +27,7 @@ export class VisitsService {
         },
       },
       select: {
+        id: true,
         username: true,
         role: true,
         student: true,
