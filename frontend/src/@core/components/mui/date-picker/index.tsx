@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -8,9 +8,7 @@ import dayjs from 'dayjs';
 import { DatePickerProps } from './types';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { FcCalendar } from 'react-icons/fc';
-import { IconButton, TextField } from '@mui/material';
-import { VscClose } from 'react-icons/vsc';
-import { ToolbarBottom } from "../../../styles/libs/react-draft-wysiwyg/index";
+import { TextField } from '@mui/material';
 dayjs.extend(buddhistEra);
 
 const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
