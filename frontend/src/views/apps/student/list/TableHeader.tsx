@@ -1,8 +1,7 @@
 // ** MUI Imports
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
-import { Autocomplete, FormControl, Grid, Stack } from '@mui/material';
-import Box from '@mui/material/Box';
+import { Autocomplete, FormControl, Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
