@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 // ** Types
-import { ThemeColor } from '@/@core/layouts/types';
-import { SidebarLeftType, CalendarFiltersType } from '@/types/apps/calendarTypes';
 
 const SidebarLeft = (props: any) => {
   const {
