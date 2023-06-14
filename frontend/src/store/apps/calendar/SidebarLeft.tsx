@@ -82,7 +82,7 @@ const SidebarLeft = (props: any) => {
           },
         }}
       >
-        <Button fullWidth variant='contained' onClick={()=>{}}>
+        <Button fullWidth variant='contained'>
           เพิ่มกิจกรรม
         </Button>
 
@@ -95,7 +95,7 @@ const SidebarLeft = (props: any) => {
             <Checkbox
               color='secondary'
               // checked={store.selectedCalendars.length === colorsArr.length}
-              onChange={(e) => {}}
+
             />
           }
         />
