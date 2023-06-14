@@ -34,7 +34,8 @@ const TableHeader = (props: TableHeaderProps) => {
           labelId='demo-multiple-name-label'
           id='demo-multiple-name'
           displayEmpty
-          value={defaultValue}
+          defaultValue={defaultValue || ''}
+          value={defaultValue || ''}
           onChange={handleChange}
           input={<OutlinedInput id='select-multiple-chip' label='ห้องเรียน' />}
           renderValue={(selected: any) => (
