@@ -1,41 +1,54 @@
 // ** React Imports
-import { useState, useEffect, forwardRef, useCallback, Fragment } from 'react'
+import { useState, useEffect, forwardRef, useCallback, Fragment } from 'react';
 
 // ** MUI Imports
-import {Box, Button, Drawer, FormControl, FormControlLabel, FormHelperText, IconButton, InputLabel, MenuItem, Select, Switch, TextField, Typography} from '@mui/material'
-
+import {
+  Box,
+  Button,
+  Drawer,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 // ** Third Party Imports
-import DatePicker from 'react-datepicker'
-import { useForm, Controller } from 'react-hook-form'
+import DatePicker from 'react-datepicker';
+import { useForm, Controller } from 'react-hook-form';
 
 // ** Icon Imports
-import Icon from '@/@core/components/icon'
+import Icon from '@/@core/components/icon';
 
 // ** Styled Components
-import DatePickerWrapper from '@/@core/styles/libs/react-datepicker'
+import DatePickerWrapper from '@/@core/styles/libs/react-datepicker';
 
 // ** Types
-import { EventDateType, AddEventSidebarType } from '@/types/apps/calendarTypes'
+import { EventDateType, AddEventSidebarType } from '@/types/apps/calendarTypes';
 
 interface PickerProps {
-  label?: string
-  error?: boolean
-  registername?: string
+  label?: string;
+  error?: boolean;
+  registername?: string;
 }
 
 interface DefaultStateType {
-  url: string
-  title: string
-  allDay: boolean
-  calendar: string
-  description: string
-  endDate: Date | string
-  startDate: Date | string
-  guests: string[] | string | undefined
+  url: string;
+  title: string;
+  allDay: boolean;
+  calendar: string;
+  description: string;
+  endDate: Date | string;
+  startDate: Date | string;
+  guests: string[] | string | undefined;
 }
 
-const capitalize = (string: string) => string && string[0].toUpperCase() + string.slice(1)
+const capitalize = (string: string) => string && string[0].toUpperCase() + string.slice(1);
 
 const defaultState: DefaultStateType = {
   url: '',
@@ -45,8 +58,8 @@ const defaultState: DefaultStateType = {
   description: '',
   endDate: new Date(),
   calendar: 'Business',
-  startDate: new Date()
-}
+  startDate: new Date(),
+};
 
 const AddEventSidebar = (props: AddEventSidebarType) => {
   // ** Props
@@ -60,26 +73,26 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
     deleteEvent,
     handleSelectEvent,
     addEventSidebarOpen,
-    handleAddEventSidebarToggle
-  } = props
+    handleAddEventSidebarToggle,
+  } = props;
 
   // ** States
-  const [values, setValues] = useState<DefaultStateType>(defaultState)
+  const [values, setValues] = useState<DefaultStateType>(defaultState);
 
   const {
     control,
     setValue,
     clearErrors,
     handleSubmit,
-    formState: { errors }
-  } = useForm({ defaultValues: { title: '' } })
+    formState: { errors },
+  } = useForm({ defaultValues: { title: '' } });
 
   const handleSidebarClose = async () => {
-    setValues(defaultState)
-    clearErrors()
-    dispatch(handleSelectEvent(null))
-    handleAddEventSidebarToggle()
-  }
+    setValues(defaultState);
+    clearErrors();
+    dispatch(handleSelectEvent(null));
+    handleAddEventSidebarToggle();
+  };
 
   const onSubmit = (data: { title: string }) => {
     const modifiedEvent = {
@@ -92,37 +105,37 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
       extendedProps: {
         calendar: capitalize(values.calendar),
         guests: values.guests && values.guests.length ? values.guests : undefined,
-        description: values.description.length ? values.description : undefined
-      }
-    }
-    if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
-      dispatch(addEvent(modifiedEvent))
+        description: values.description.length ? values.description : undefined,
+      },
+    };
+    if (store?.selectedEvent === null || (store?.selectedEvent !== null && !store?.selectedEvent.title.length)) {
+      dispatch(addEvent(modifiedEvent));
     } else {
-      dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }))
+      dispatch(updateEvent({ id: store?.selectedEvent.id, ...modifiedEvent }));
     }
-    calendarApi.refetchEvents()
-    handleSidebarClose()
-  }
+    calendarApi.refetchEvents();
+    handleSidebarClose();
+  };
 
   const handleDeleteEvent = () => {
-    if (store.selectedEvent) {
-      dispatch(deleteEvent(store.selectedEvent.id))
+    if (store?.selectedEvent) {
+      dispatch(deleteEvent(store?.selectedEvent.id));
     }
 
     // calendarApi.getEventById(store.selectedEvent.id).remove()
-    handleSidebarClose()
-  }
+    handleSidebarClose();
+  };
 
   const handleStartDate = (date: Date) => {
     if (date > values.endDate) {
-      setValues({ ...values, startDate: new Date(date), endDate: new Date(date) })
+      setValues({ ...values, startDate: new Date(date), endDate: new Date(date) });
     }
-  }
+  };
 
   const resetToStoredValues = useCallback(() => {
-    if (store.selectedEvent !== null) {
-      const event = store.selectedEvent
-      setValue('title', event.title || '')
+    if (store?.selectedEvent !== null) {
+      const event = store?.selectedEvent;
+      setValue('title', event.title || '');
       setValues({
         url: event.url || '',
         title: event.title || '',
@@ -131,23 +144,23 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
         description: event.extendedProps.description || '',
         calendar: event.extendedProps.calendar || 'Business',
         endDate: event.end !== null ? event.end : event.start,
-        startDate: event.start !== null ? event.start : new Date()
-      })
+        startDate: event.start !== null ? event.start : new Date(),
+      });
     }
-  }, [setValue, store.selectedEvent])
+  }, [setValue, store?.selectedEvent]);
 
   const resetToEmptyValues = useCallback(() => {
-    setValue('title', '')
-    setValues(defaultState)
-  }, [setValue])
+    setValue('title', '');
+    setValues(defaultState);
+  }, [setValue]);
 
   useEffect(() => {
-    if (store.selectedEvent !== null) {
-      resetToStoredValues()
+    if (store?.selectedEvent !== null) {
+      resetToStoredValues();
     } else {
-      resetToEmptyValues()
+      resetToEmptyValues();
     }
-  }, [addEventSidebarOpen, resetToStoredValues, resetToEmptyValues, store.selectedEvent])
+  }, [addEventSidebarOpen, resetToStoredValues, resetToEmptyValues, store?.selectedEvent]);
 
   const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
     return (
@@ -159,11 +172,11 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
         sx={{ width: '100%' }}
         error={props.error}
       />
-    )
-  })
+    );
+  });
 
-  const RenderSidebarFooter = () => {
-    if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
+  const RenderSidebarFooter = (props: any) => {
+    if (store?.selectedEvent === null || (store?.selectedEvent !== null && !store?.selectedEvent.title.length)) {
       return (
         <Fragment>
           <Button size='large' type='submit' variant='contained' sx={{ mr: 4 }}>
@@ -173,7 +186,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
             Reset
           </Button>
         </Fragment>
-      )
+      );
     } else {
       return (
         <Fragment>
@@ -184,9 +197,9 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
             Reset
           </Button>
         </Fragment>
-      )
+      );
     }
-  }
+  };
 
   return (
     <Drawer
@@ -202,7 +215,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
           display: 'flex',
           justifyContent: 'space-between',
           backgroundColor: 'background.default',
-          p: theme => theme.spacing(3, 3.255, 3, 5.255)
+          p: (theme) => theme.spacing(3, 3.255, 3, 5.255),
         }}
       >
         <Typography variant='h6'>
@@ -223,7 +236,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
           </IconButton>
         </Box>
       </Box>
-      <Box className='sidebar-body' sx={{ p: theme => theme.spacing(5, 6) }}>
+      <Box className='sidebar-body' sx={{ p: (theme) => theme.spacing(5, 6) }}>
         <DatePickerWrapper>
           <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
             <FormControl fullWidth sx={{ mb: 6 }}>
@@ -247,7 +260,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
                 label='Calendar'
                 value={values.calendar}
                 labelId='event-calendar'
-                onChange={e => setValues({ ...values, calendar: e.target.value })}
+                onChange={(e) => setValues({ ...values, calendar: e.target.value })}
               >
                 <MenuItem value='Personal'>Personal</MenuItem>
                 <MenuItem value='Business'>Business</MenuItem>
@@ -288,7 +301,10 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
               <FormControlLabel
                 label='All Day'
                 control={
-                  <Switch checked={values.allDay} onChange={e => setValues({ ...values, allDay: e.target.checked })} />
+                  <Switch
+                    checked={values.allDay}
+                    onChange={(e) => setValues({ ...values, allDay: e.target.checked })}
+                  />
                 }
               />
             </FormControl>
@@ -299,7 +315,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
               sx={{ mb: 6 }}
               label='Event URL'
               value={values.url}
-              onChange={e => setValues({ ...values, url: e.target.value })}
+              onChange={(e) => setValues({ ...values, url: e.target.value })}
             />
             <FormControl fullWidth sx={{ mb: 6 }}>
               <InputLabel id='event-guests'>Guests</InputLabel>
@@ -309,7 +325,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
                 value={values.guests}
                 labelId='event-guests'
                 id='event-guests-select'
-                onChange={e => setValues({ ...values, guests: e.target.value })}
+                onChange={(e) => setValues({ ...values, guests: e.target.value })}
               >
                 <MenuItem value='bruce'>Bruce</MenuItem>
                 <MenuItem value='clark'>Clark</MenuItem>
@@ -326,7 +342,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
               label='Description'
               id='event-description'
               value={values.description}
-              onChange={e => setValues({ ...values, description: e.target.value })}
+              onChange={(e) => setValues({ ...values, description: e.target.value })}
             />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <RenderSidebarFooter />
@@ -335,7 +351,7 @@ const AddEventSidebar = (props: AddEventSidebarType) => {
         </DatePickerWrapper>
       </Box>
     </Drawer>
-  )
-}
+  );
+};
 
-export default AddEventSidebar
+export default AddEventSidebar;
