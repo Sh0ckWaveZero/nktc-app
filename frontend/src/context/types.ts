@@ -29,7 +29,7 @@ export interface UserDataType {
   account?: Account;
   teacher?: Teacher;
   student?: Student;
-  teacherOnClassroom?: string[];
+  teacherOnClassroom?: any;
 }
 
 export interface Account {
