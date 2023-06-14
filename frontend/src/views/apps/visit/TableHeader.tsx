@@ -1,9 +1,8 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
 
 // ** Icons Imports
-import { RiFileEditLine } from 'react-icons/ri';
 
 interface TableHeaderProps {
   classrooms: any;
