@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../../common/services/prisma.service';
 
 @Injectable()
 export class LevelService {

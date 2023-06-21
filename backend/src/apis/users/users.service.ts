@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../../common/services/prisma.service';
 import { compare, hash } from 'bcrypt';
 
 interface FormatLogin extends Partial<User> {

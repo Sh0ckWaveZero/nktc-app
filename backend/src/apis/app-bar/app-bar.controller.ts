@@ -1,6 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/apis/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../apis/auth/jwt-auth.guard';
 import { AppBarService } from './app-bar.service';
 
 @ApiTags('app-bar')

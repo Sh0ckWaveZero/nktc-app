@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcrypt';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
-import { isEmpty, isValidHttpUrl } from 'src/utils/utils';
+import { isEmpty, isValidHttpUrl } from '../../utils/utils';
 
 @Injectable()
 export class StudentsService {

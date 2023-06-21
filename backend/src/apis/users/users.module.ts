@@ -6,7 +6,7 @@ import { PrismaService } from '../../common/services/prisma.service';
 import { AuthController } from '../auth/auth.conroller';
 import { AuthService } from '../auth/auth.service';
 import { JwtStrategy } from '../auth/jwt.strategy';
-import configuration from 'src/config/configuration';
+import configuration from '../../config/configuration';
 import { UsersController } from "./users.controller";
 
 @Module({

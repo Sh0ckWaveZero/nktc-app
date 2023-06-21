@@ -3,9 +3,7 @@ import type { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StaticsService } from './statics.service';
-import configuration from 'src/config/configuration';
-import { join } from 'path';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
+import configuration from '../../config/configuration';
 
 @ApiTags('statics')
 @Controller('statics')

@@ -8,7 +8,7 @@ import { PrismaService } from '../../common/services/prisma.service';
 import { AuthController } from './auth.conroller';
 import { UsersModule } from '../users/users.module';
 import { LocalStrategy } from './local.strategy';
-import configuration from 'src/config/configuration';
+import configuration from '../../config/configuration';
 
 @Module({
   imports: [

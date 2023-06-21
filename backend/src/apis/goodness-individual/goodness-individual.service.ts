@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { MinioClientService } from '../minio/minio-client.service';
-import { PrismaService } from 'src/common/services/prisma.service';
-import configuration from 'src/config/configuration';
+import { PrismaService } from '../../common/services/prisma.service';
+import configuration from '../../config/configuration';
 
 @Injectable()
 export class GoodnessIndividualService {

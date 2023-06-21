@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
-import { isValidHttpUrl, isEmpty } from "src/utils/utils";
+import { isValidHttpUrl, isEmpty } from "../../utils/utils";
 
 @Injectable()
 export class TeachersService {

@@ -2,7 +2,7 @@ import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 import * as requestIp from 'request-ip';
 import * as UAParser from 'ua-parser-js';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../common/services/prisma.service';
 
 @Injectable()
 export class ReportCheckInMiddleware implements NestMiddleware {
