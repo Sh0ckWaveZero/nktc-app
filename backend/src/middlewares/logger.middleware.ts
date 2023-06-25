@@ -1,4 +1,4 @@
-import * as UAParser from 'ua-parser-js';
+import UAParser from 'ua-parser-js';
 import * as requestIp from 'request-ip';
 
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';

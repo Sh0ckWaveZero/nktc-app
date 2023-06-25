@@ -66,30 +66,33 @@ export class ClassroomService {
       }
     }
 
-    const selectedClassrooms = await this.prisma.classroom.findMany({
-      where: filter,
-      skip: query.skip || 0,
-      take: query.take || 20,
-      include: {
-        level: true,
-        program: true,
-        department: true,
-      },
-      orderBy: [
-        {
-          department: {
-            name: 'asc',
-          },
-        }],
-    });
+    // get classrooms and total count in one transaction
+    const [classrooms, total] = await this.prisma.$transaction([
+      this.prisma.classroom.findMany({
+        where: filter,
+        skip: query.skip || 0,
+        take: query.take || 20,
+        include: {
+          level: true,
+          program: true,
+          department: true,
+        },
+        orderBy: [
+          {
+            department: {
+              name: 'asc',
+            },
+          }],
+      }),
+      this.prisma.classroom.count(),
+    ]);
 
     // sort by department.name asc
-    const sortedClassrooms = sortClassroomsByNumberAndDepartment(selectedClassrooms);
-    const totalSelectedClassrooms = await this.prisma.classroom.findMany({});
-    
+    const sortedClassrooms = sortClassroomsByNumberAndDepartment(classrooms);
+
     return {
       data: sortedClassrooms || [],
-      total: totalSelectedClassrooms.length ? totalSelectedClassrooms.length : 0,
+      total: total,
     };
   }
 
