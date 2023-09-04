@@ -1,13 +1,15 @@
 declare const module: any;
 
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
-import helmet from 'helmet';
-import { AppModule } from './app.module';
-import * as requestIp from 'request-ip';
 import * as bodyParser from 'body-parser';
+import * as requestIp from 'request-ip';
+
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { AppModule } from './app.module';
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import configuration from './config/configuration';
+import helmet from 'helmet';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
