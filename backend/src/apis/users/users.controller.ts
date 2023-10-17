@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
   public async me(@Request() req: any) {
@@ -31,16 +31,17 @@ export class UsersController {
   }
 
   @Get(':id')
-  public async findById(
-    @Param('id') id: string
-  ) {
+  public async findById(@Param('id') id: string) {
     try {
       return await this.usersService.findById(id);
     } catch (error) {
-      throw new HttpException({
-        status: HttpStatus.NOT_FOUND,
-        error: 'Cannot get user',
-      }, HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Cannot get user',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -73,10 +74,13 @@ export class UsersController {
     try {
       return await this.usersService.getAuditLogs(username, skip, take);
     } catch (error) {
-      throw new HttpException({
-        status: HttpStatus.NOT_FOUND,
-        error: 'Cannot get audit logs',
-      }, HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Cannot get audit logs',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
-  };
+  }
 }

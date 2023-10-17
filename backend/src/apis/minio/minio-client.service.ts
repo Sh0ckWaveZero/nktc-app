@@ -52,11 +52,9 @@ export class MinioClientService {
         console.log('Bucket policy set');
       },
     );
-
   }
 
-
-  private readonly bucketName = configuration().minioBucket
+  private readonly bucketName = configuration().minioBucket;
 
   public get client() {
     return this.minio.client;
@@ -64,9 +62,15 @@ export class MinioClientService {
 
   public async upload(file: any, bucketName: string = this.bucketName) {
     try {
-      const buffer = Buffer.from(file?.data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+      const buffer = Buffer.from(
+        file?.data.replace(/^data:image\/\w+;base64,/, ''),
+        'base64',
+      );
       const timestamp = Date.now().toString();
-      const hashedFileName = crypto.createHash('md5').update(timestamp).digest('hex');
+      const hashedFileName = crypto
+        .createHash('md5')
+        .update(timestamp)
+        .digest('hex');
       const extension = '.webp';
       const metaData: any = {
         'Content-Encoding': 'base64',
@@ -75,14 +79,20 @@ export class MinioClientService {
       const fileName = `${file.path}${hashedFileName}${extension}`;
 
       await new Promise<void>((resolve, reject) => {
-        this.client.putObject(bucketName, fileName, buffer, metaData, (err: any) => {
-          if (err) {
-            reject(err);
-            return;
-          }
+        this.client.putObject(
+          bucketName,
+          fileName,
+          buffer,
+          metaData,
+          (err: any) => {
+            if (err) {
+              reject(err);
+              return;
+            }
 
-          resolve();
-        });
+            resolve();
+          },
+        );
       });
 
       return {
@@ -95,7 +105,6 @@ export class MinioClientService {
 
   async delete(objetName: string, bucketName: string = this.bucketName) {
     try {
-
       await new Promise<void>((resolve, reject) => {
         this.client.removeObject(bucketName, objetName, (err: any) => {
           if (err) {
@@ -112,6 +121,5 @@ export class MinioClientService {
         HttpStatus.BAD_REQUEST,
       );
     }
-
   }
 }

@@ -5,6 +5,6 @@ import { PrismaService } from '../../common/services/prisma.service';
 
 @Module({
   controllers: [AuditLogController],
-  providers: [AuditLogService, PrismaService]
+  providers: [AuditLogService, PrismaService],
 })
-export class AuditLogModule { }
+export class AuditLogModule {}

@@ -10,9 +10,7 @@ import { PrismaService } from '../common/services/prisma.service';
 export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger(LoggerMiddleware.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');

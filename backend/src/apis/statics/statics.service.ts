@@ -3,11 +3,7 @@ import { MinioClientService } from '../minio/minio-client.service';
 
 @Injectable()
 export class StaticsService {
-
-  constructor(
-    private readonly minioService: MinioClientService,
-  ) { }
-
+  constructor(private readonly minioService: MinioClientService) {}
 
   async getAvatar(bucketName: string, id: string) {
     try {

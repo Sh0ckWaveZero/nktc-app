@@ -6,30 +6,31 @@ import { isEmpty, isValidHttpUrl } from '../../utils/utils';
 
 @Injectable()
 export class StudentsService {
-
   constructor(
     private prisma: PrismaService,
-    private readonly minioService: MinioClientService
-  ) { }
+    private readonly minioService: MinioClientService,
+  ) {}
 
   async findBucket() {
     try {
       this.minioService.client.listBuckets(async (err, buckets) => {
-        if (err)
-          return console.log(err);
+        if (err) return console.log(err);
         console.log('buckets :', buckets);
         return buckets;
       });
 
-      var data = []
-      var stream = this.minioService.client.listObjects('nktc-app', '', true)
-      stream.on('data', function (obj) { data.push(obj) })
-      stream.on("end", function (obj) {
+      const data = [];
+      const stream = this.minioService.client.listObjects('nktc-app', '', true);
+      stream.on('data', function (obj) {
+        data.push(obj);
+      });
+      stream.on('end', function (obj) {
         console.log('data :', data);
         return data;
-      })
-      stream.on('error', function (err) { console.log(err) })
-
+      });
+      stream.on('error', function (err) {
+        console.log(err);
+      });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -86,9 +87,9 @@ export class StudentsService {
               classroom: {
                 select: {
                   name: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           account: {
             select: {
@@ -97,8 +98,8 @@ export class StudentsService {
               firstName: true,
               lastName: true,
               avatar: true,
-            }
-          }
+            },
+          },
         },
         orderBy: [
           {
@@ -116,7 +117,7 @@ export class StudentsService {
               lastName: 'asc',
             },
           },
-        ]
+        ],
       });
 
       return result;
@@ -129,7 +130,7 @@ export class StudentsService {
     const checkExisting = await this.prisma.student.findFirst({
       where: {
         studentId: body.studentId,
-      }
+      },
     });
 
     if (checkExisting) {
@@ -160,7 +161,7 @@ export class StudentsService {
             phone: body.phone,
             updatedBy: id,
             createdBy: id,
-          }
+          },
         },
         student: {
           create: {
@@ -172,12 +173,12 @@ export class StudentsService {
             levelId: body.level,
             levelClassroomId: body.levelClassroom,
           },
-        }
+        },
       },
     });
     return {
       message: 'เพิ่มข้อมูลนักเรียนเรียบร้อยแล้ว',
-    }
+    };
   }
 
   async updateProfile(id: string, body: any) {
@@ -188,7 +189,10 @@ export class StudentsService {
         if (isUrl) {
           avatar = body.avatar;
         } else {
-          const { url } = await this.minioService.upload({ data: body.avatar, path: 'avatars/students/' });
+          const { url } = await this.minioService.upload({
+            data: body.avatar,
+            path: 'avatars/students/',
+          });
           avatar = url;
         }
       }
@@ -213,7 +217,7 @@ export class StudentsService {
               updatedBy: id,
               phone: body.phone,
               avatar: avatar,
-            }
+            },
           },
           student: {
             update: {
@@ -223,7 +227,7 @@ export class StudentsService {
               status: body.status,
               updatedBy: id,
             },
-          }
+          },
         },
       });
 
@@ -238,17 +242,19 @@ export class StudentsService {
     const checkRelatedData = this.prisma.student.findFirst({
       where: {
         id,
-      }
+      },
     });
 
     if (!checkRelatedData) {
-      throw new Error('ไม่สามารถลบข้อมูลนักเรียนได้ เนื่องจากมีข้อมูลที่ไม่มีอยู่ในระบบแล้ว');
+      throw new Error(
+        'ไม่สามารถลบข้อมูลนักเรียนได้ เนื่องจากมีข้อมูลที่ไม่มีอยู่ในระบบแล้ว',
+      );
     }
 
     return this.prisma.user.delete({
       where: {
         id,
-      }
+      },
     });
   }
 
@@ -261,7 +267,7 @@ export class StudentsService {
         filer['account'] = {
           ['firstName']: {
             contains: firstName,
-          }
+          },
         };
       }
 
@@ -269,7 +275,7 @@ export class StudentsService {
         filer['account'] = {
           ['lastName']: {
             contains: lastName,
-          }
+          },
         };
       }
     }
@@ -278,7 +284,7 @@ export class StudentsService {
       filer['student'] = {
         ['classroomId']: {
           contains: query.classroomId,
-        }
+        },
       };
     }
 
@@ -298,8 +304,8 @@ export class StudentsService {
               select: {
                 id: true,
                 name: true,
-              }
-            }
+              },
+            },
           },
         },
         account: {
@@ -309,7 +315,7 @@ export class StudentsService {
             firstName: true,
             lastName: true,
             avatar: true,
-          }
+          },
         },
       },
       orderBy: [
@@ -335,8 +341,8 @@ export class StudentsService {
         id: student.student.id,
         studentId: student.username,
         classroom: student.student.classroom,
-      }
-    })
+      };
+    });
   }
 
   async search(query: any) {
@@ -348,7 +354,7 @@ export class StudentsService {
         filer['account'] = {
           ['firstName']: {
             contains: firstName,
-          }
+          },
         };
       }
 
@@ -356,13 +362,13 @@ export class StudentsService {
         filer['account'] = {
           ['lastName']: {
             contains: lastName,
-          }
+          },
         };
       }
     }
 
     if (query.studentId) {
-      filer['username'] = { contains: query.studentId }
+      filer['username'] = { contains: query.studentId };
     }
 
     if (isEmpty(filer)) {
@@ -390,7 +396,7 @@ export class StudentsService {
             classroom: {
               select: {
                 name: true,
-              }
+              },
             },
             goodnessIndividual: {
               select: {
@@ -399,7 +405,7 @@ export class StudentsService {
               },
               orderBy: {
                 createdAt: 'desc',
-              }
+              },
             },
             badnessIndividual: {
               select: {
@@ -410,7 +416,7 @@ export class StudentsService {
                 createdAt: 'desc',
               },
             },
-          }
+          },
         },
         account: {
           select: {
@@ -419,8 +425,8 @@ export class StudentsService {
             firstName: true,
             lastName: true,
             avatar: true,
-          }
-        }
+          },
+        },
       },
       orderBy: [
         {
@@ -452,13 +458,19 @@ export class StudentsService {
         badnessIndividual: {
           select: {
             badnessScore: true,
-          }
+          },
         },
       },
     });
 
-    const goodScore = student.goodnessIndividual.reduce((a, b) => a + b.goodnessScore, 0);
-    const badScore = student.badnessIndividual.reduce((a, b) => a + b.badnessScore, 0);
+    const goodScore = student.goodnessIndividual.reduce(
+      (a, b) => a + b.goodnessScore,
+      0,
+    );
+    const badScore = student.badnessIndividual.reduce(
+      (a, b) => a + b.badnessScore,
+      0,
+    );
 
     return {
       totalTrophy: Math.floor((goodScore - badScore) / 100),
@@ -477,28 +489,30 @@ export class StudentsService {
       },
     });
 
-    const teachers = await Promise.all(teacherIds.map((teacherId) => {
-      return this.prisma.user.findFirst({
-        where: {
-          teacher: {
-            id: teacherId.teacherId,
+    const teachers = await Promise.all(
+      teacherIds.map((teacherId) => {
+        return this.prisma.user.findFirst({
+          where: {
+            teacher: {
+              id: teacherId.teacherId,
+            },
           },
-        },
-        select: {
-          id: true,
-          username: true,
-          account: {
-            select: {
-              id: true,
-              title: true,
-              firstName: true,
-              lastName: true,
-              avatar: true,
-            }
+          select: {
+            id: true,
+            username: true,
+            account: {
+              select: {
+                id: true,
+                title: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
           },
-        }
-      })
-    }));
+        });
+      }),
+    );
 
     return teachers;
   }

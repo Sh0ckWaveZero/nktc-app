@@ -7,7 +7,7 @@ import { AuthController } from '../auth/auth.conroller';
 import { AuthService } from '../auth/auth.service';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import configuration from '../../config/configuration';
-import { UsersController } from "./users.controller";
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [
@@ -28,4 +28,4 @@ import { UsersController } from "./users.controller";
   providers: [AuthService, UsersService, JwtStrategy, PrismaService],
   exports: [PassportModule, JwtModule],
 })
-export class UsersModule { }
+export class UsersModule {}

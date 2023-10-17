@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 
 import { APP_GUARD } from '@nestjs/core';
 import { AccountsModule } from './apis/accounts/accounts.module';
@@ -52,12 +57,10 @@ import validate from './config/validation';
     TeachersModule,
     UsersModule,
     VisitsModule,
-    ConfigModule.forRoot(
-      {
-        load: [configuration],
-        validate,
-      },
-    ),
+    ConfigModule.forRoot({
+      load: [configuration],
+      validate,
+    }),
     MinioClientModule,
     LevelModule,
   ],
@@ -74,6 +77,8 @@ import validate from './config/validation';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('auth/login');
-    consumer.apply(ReportCheckInMiddleware).forRoutes({ path: 'reportCheckIn', method: RequestMethod.POST });
+    consumer
+      .apply(ReportCheckInMiddleware)
+      .forRoutes({ path: 'reportCheckIn', method: RequestMethod.POST });
   }
 }

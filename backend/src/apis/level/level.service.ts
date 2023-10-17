@@ -5,8 +5,7 @@ import { PrismaService } from '../../common/services/prisma.service';
 
 @Injectable()
 export class LevelService {
-
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
     return await this.prisma.level.findMany({
@@ -17,8 +16,8 @@ export class LevelService {
       orderBy: [
         {
           levelName: 'asc',
-        }
-      ]
-    })
+        },
+      ],
+    });
   }
 }

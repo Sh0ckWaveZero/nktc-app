@@ -35,4 +35,4 @@ import configuration from '../../config/configuration';
   ],
   exports: [PassportModule, JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}

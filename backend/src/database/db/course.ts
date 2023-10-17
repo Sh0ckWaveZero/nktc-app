@@ -1,16 +1,14 @@
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client';
 import { createByAdmin } from '../../utils/utils';
 
 export const courseData = () => {
   const admin = createByAdmin();
-  return Prisma.validator<Prisma.CourseCreateInput[]>()(
-    [
-      {
-        courseId: 'course_001',
-        courseName: 'course1',
-        status: 'description1',
-        ...admin,
-      }
-    ]
-  );
-}
+  return Prisma.validator<Prisma.CourseCreateInput[]>()([
+    {
+      courseId: 'course_001',
+      courseName: 'course1',
+      status: 'description1',
+      ...admin,
+    },
+  ]);
+};

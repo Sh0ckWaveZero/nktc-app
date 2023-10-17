@@ -1,6 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import xlsx from 'node-xlsx';
-import * as fs from 'fs'
+import * as fs from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -24,12 +24,12 @@ export const getBirthday = async (date: string) => {
     monthThai
       .filter((item: string) => date.search(item) > -1)
       .map((item: string) => {
-        return (monthThai.indexOf(item) + 1).toString().padStart(2, "0");
+        return (monthThai.indexOf(item) + 1).toString().padStart(2, '0');
       })[0],
   ]);
   const year = await getBuddhistYear(date);
   return new Date(`${year}-${monthNumber[0]}-${_date}`);
-}
+};
 
 const getBuddhistYear = async (date: string) => {
   const year = new Date().getFullYear();
@@ -38,10 +38,18 @@ const getBuddhistYear = async (date: string) => {
   const twoDigitYear = date.substring(date.length - 2, date.length).trim();
   const fourDigitYear = twoDigitYear.padStart(4, twoDigitBuddhistYear);
   return parseInt(fourDigitYear) - buddhistYear;
-}
+};
 
-export const getClassroomId = async (levelClassroomId: string, departmentName: string, group: string = '', programName: string) => {
-  let name = group === '' ? `${levelClassroomId}-${departmentName}` : `${levelClassroomId}-${programName}`;
+export const getClassroomId = async (
+  levelClassroomId: string,
+  departmentName: string,
+  group: string = '',
+  programName: string,
+) => {
+  const name =
+    group === ''
+      ? `${levelClassroomId}-${departmentName}`
+      : `${levelClassroomId}-${programName}`;
 
   const res = await prisma.classroom.findFirst({
     where: {
@@ -49,10 +57,10 @@ export const getClassroomId = async (levelClassroomId: string, departmentName: s
     },
     select: {
       id: true,
-    }
+    },
   });
   return res?.id;
-}
+};
 
 export const getLevelClassroomId = async (level: string, classroom: string) => {
   const name = `${level}${classroom}`;
@@ -62,10 +70,10 @@ export const getLevelClassroomId = async (level: string, classroom: string) => {
     },
     select: {
       id: true,
-    }
+    },
   });
   return res?.id;
-}
+};
 
 export const getLevelClassroomByName = async (name: string) => {
   const res = await prisma.levelClassroom.findFirst({
@@ -74,12 +82,16 @@ export const getLevelClassroomByName = async (name: string) => {
     },
     select: {
       id: true,
-    }
+    },
   });
   return res?.id;
-}
+};
 
-export const getProgramId = async (name: string, level: string, programName: string = '') => {
+export const getProgramId = async (
+  name: string,
+  level: string,
+  programName: string = '',
+) => {
   let query = '';
   if (programName === '') {
     query = `${name} ${level}`;
@@ -92,17 +104,19 @@ export const getProgramId = async (name: string, level: string, programName: str
     },
     select: {
       id: true,
-    }
+    },
   });
   return res?.id;
-}
+};
 
 export const readWorkSheetFromFile = (path: string) => {
   const workSheetsFromFile = xlsx.parse(
-    fs.readFileSync(`${process.cwd()}/src/database/db/nktc-services/db/import/${path}.xlsx`)
+    fs.readFileSync(
+      `${process.cwd()}/src/database/db/nktc-services/db/import/${path}.xlsx`,
+    ),
   );
   return workSheetsFromFile;
-}
+};
 
 export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   const admin = createByAdmin();
@@ -119,11 +133,10 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
     level: {
       connect: {
         id: res?.id,
-      }
-    }
-  }
-
-}
+      },
+    },
+  };
+};
 
 export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
   const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
@@ -135,8 +148,7 @@ export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
   });
 
   return res;
-
-}
+};
 
 export const getDepartIdByName = async (name: string, id: string) => {
   const names = name.trim();
@@ -146,7 +158,7 @@ export const getDepartIdByName = async (name: string, id: string) => {
     },
   });
   return res.id;
-}
+};
 
 export const getDepartId = async (name: string, id: string) => {
   const names = name.trim();
@@ -156,7 +168,7 @@ export const getDepartId = async (name: string, id: string) => {
     },
   });
   return res;
-}
+};
 
 export const createByAdmin = () => {
   const startDate = new Date();
@@ -166,12 +178,11 @@ export const createByAdmin = () => {
     updatedAt: startDate,
     createdAt: startDate,
   };
-}
-
+};
 
 export const isEmpty = (obj: any) =>
-  [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
-
+  [Object, Array].includes((obj || {}).constructor) &&
+  !Object.entries(obj || {}).length;
 
 export const isValidHttpUrl = (string: any) => {
   try {
@@ -180,7 +191,7 @@ export const isValidHttpUrl = (string: any) => {
   } catch (err) {
     return false;
   }
-}
+};
 
 const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
 
@@ -205,12 +216,14 @@ export const sortClassroomsByNumberAndDepartment = (classrooms: any) => {
     return prefixA.localeCompare(prefixB);
   });
 
-  const sortedClassroomsByDepartment = sortedClassrooms.sort((a: any, b: any) => {
-    if (a.department.name === b.department.name) {
-      return 0;
-    }
-    return a.department.name > b.department.name ? 1 : -1;
-  });
+  const sortedClassroomsByDepartment = sortedClassrooms.sort(
+    (a: any, b: any) => {
+      if (a.department.name === b.department.name) {
+        return 0;
+      }
+      return a.department.name > b.department.name ? 1 : -1;
+    },
+  );
 
   return sortedClassroomsByDepartment;
-}
+};

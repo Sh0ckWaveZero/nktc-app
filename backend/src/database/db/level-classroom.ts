@@ -1,5 +1,9 @@
 import { PrismaClient } from '@Prisma/client';
-import { readWorkSheetFromFile, createByAdmin, getLevelId } from '../../utils/utils';
+import {
+  readWorkSheetFromFile,
+  createByAdmin,
+  getLevelId,
+} from '../../utils/utils';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +25,7 @@ export const createLevelClassroom = async () => {
           levelId: level?.id || '',
           ...admin,
         };
-      })
+      }),
   );
 
   return await prisma.levelClassroom.createMany({

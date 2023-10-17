@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
-import { isValidHttpUrl, isEmpty } from "../../utils/utils";
+import { isValidHttpUrl, isEmpty } from '../../utils/utils';
 
 @Injectable()
 export class TeachersService {
-  constructor(private prisma: PrismaService, private readonly minioService: MinioClientService) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly minioService: MinioClientService,
+  ) {}
 
   async findAll(q = '') {
     const [firstName, lastName] = q.split(' ');
@@ -26,13 +29,13 @@ export class TeachersService {
                 contains: lastName ? lastName : firstName,
               },
             },
-          }
+          },
         ],
       },
       orderBy: [
         {
           username: 'asc',
-        }
+        },
       ],
       include: {
         account: true,
@@ -46,8 +49,7 @@ export class TeachersService {
         teacherId: {
           in: teachers.map((item: any) => {
             return item.teacher.id;
-          }
-          ),
+          }),
         },
       },
     });
@@ -57,9 +59,9 @@ export class TeachersService {
         OR: teacherOnClassroom.map((item: any) => {
           return {
             id: item.classroomId,
-          }
-        })
-      }
+          };
+        }),
+      },
     });
 
     // audit log
@@ -68,8 +70,7 @@ export class TeachersService {
         createdBy: {
           in: teachers.map((item: any) => {
             return item.username;
-          }
-          ),
+          }),
         },
         action: 'Login',
       },
@@ -77,7 +78,6 @@ export class TeachersService {
 
     // This function takes in a list of logins and returns the number of logins per user per day.
     const loginCount = login.reduce((acc: any, item: any) => {
-
       const date = new Date(item.createdAt).toLocaleDateString();
       if (acc[item.createdBy]) {
         if (acc[item.createdBy][date]) {
@@ -102,11 +102,11 @@ export class TeachersService {
 
       const loginCountByUserSummary = loginCount[teacher.username]
         ? Object.keys(loginCount[teacher.username]).map((key: any) => {
-          return {
-            date: key,
-            count: loginCount[teacher.username][key],
-          };
-        })
+            return {
+              date: key,
+              count: loginCount[teacher.username][key],
+            };
+          })
         : [];
 
       return {
@@ -136,7 +136,7 @@ export class TeachersService {
         classrooms: classroomList,
         loginCountByUser: loginCountByUserSummary,
       };
-    })
+    });
   }
 
   async getStudentsByTeacherId(id: string) {
@@ -149,15 +149,16 @@ export class TeachersService {
         classroomId: true,
       },
     });
-    const classroomIds = teacherOnClassroom.map((item: any) => item.classroomId) ?? []
+    const classroomIds =
+      teacherOnClassroom.map((item: any) => item.classroomId) ?? [];
 
     const classrooms = await this.prisma.classroom.findMany({
       where: {
         OR: classroomIds.map((item: any) => {
           return {
             id: item,
-          }
-        })
+          };
+        }),
       },
       orderBy: [
         {
@@ -182,9 +183,9 @@ export class TeachersService {
           OR: classroomIds.map((item: any) => {
             return {
               classroomId: item,
-            }
-          })
-        }
+            };
+          }),
+        },
       },
       select: {
         id: true,
@@ -193,7 +194,7 @@ export class TeachersService {
           select: {
             classroomId: true,
             status: true,
-          }
+          },
         },
         account: {
           select: {
@@ -207,8 +208,8 @@ export class TeachersService {
             district: true,
             province: true,
             postcode: true,
-          }
-        }
+          },
+        },
       },
       orderBy: [
         {
@@ -226,7 +227,7 @@ export class TeachersService {
             lastName: 'asc',
           },
         },
-      ]
+      ],
     });
 
     return {
@@ -252,7 +253,7 @@ export class TeachersService {
                   district: student.account.district,
                   province: student.account.province,
                   postcode: student.account.postcode,
-                }
+                },
               })),
           };
         }),
@@ -271,7 +272,7 @@ export class TeachersService {
       await this.prisma.teacherOnClassroom.deleteMany({
         where: {
           teacherId: updateTeacherDto.teacherInfo,
-        }
+        },
       });
     }
 
@@ -287,7 +288,6 @@ export class TeachersService {
     });
   }
 
-
   async updateProfile(userId: string, updateTeacherDto: any) {
     try {
       let avatar = '';
@@ -296,7 +296,10 @@ export class TeachersService {
         if (isUrl) {
           avatar = updateTeacherDto.avatar;
         } else {
-          const { url } = await this.minioService.upload({ data: updateTeacherDto.avatar, path: 'avatars/teachers/' });
+          const { url } = await this.minioService.upload({
+            data: updateTeacherDto.avatar,
+            path: 'avatars/teachers/',
+          });
           avatar = url;
         }
       }
@@ -311,7 +314,7 @@ export class TeachersService {
           academicStanding: updateTeacherDto.academicStanding,
           departmentId: updateTeacherDto.department,
           updatedBy: userId,
-        }
+        },
       });
       // update account
       const updateAccount = await this.prisma.account.update({
@@ -323,20 +326,26 @@ export class TeachersService {
           firstName: updateTeacherDto.firstName,
           lastName: updateTeacherDto.lastName,
           avatar: avatar,
-          birthDate: updateTeacherDto.birthDate === '' ? null : updateTeacherDto.birthDate,
+          birthDate:
+            updateTeacherDto.birthDate === ''
+              ? null
+              : updateTeacherDto.birthDate,
           idCard: updateTeacherDto.idCard,
           updatedBy: userId,
-        }
+        },
       });
 
       // update classroom
-      const updateClassroom = await this.updateClassroom(userId, updateTeacherDto);
+      const updateClassroom = await this.updateClassroom(
+        userId,
+        updateTeacherDto,
+      );
       return {
         data: {
           updateClassroom,
           updateTeacher,
           updateAccount,
-        }
+        },
       };
     } catch (error) {
       console.error(error);
@@ -345,8 +354,14 @@ export class TeachersService {
   }
 
   async update(id: string, data: any) {
-    console.log('🚀 ~ file: teachers.service.ts:329 ~ TeachersService ~ update ~ id:', id);
-    console.log('🚀 ~ file: teachers.service.ts:329 ~ TeachersService ~ update ~ data:', data);
+    console.log(
+      '🚀 ~ file: teachers.service.ts:329 ~ TeachersService ~ update ~ id:',
+      id,
+    );
+    console.log(
+      '🚀 ~ file: teachers.service.ts:329 ~ TeachersService ~ update ~ data:',
+      data,
+    );
     try {
       // find teacher
       const teacherInfo = await this.prisma.teacher.findUnique({
@@ -354,7 +369,10 @@ export class TeachersService {
           id: id,
         },
       });
-      console.log('🚀 ~ file: teachers.service.ts:338 ~ TeachersService ~ update ~ teacherInfo:', isEmpty(teacherInfo));
+      console.log(
+        '🚀 ~ file: teachers.service.ts:338 ~ TeachersService ~ update ~ teacherInfo:',
+        isEmpty(teacherInfo),
+      );
 
       if (isEmpty(teacherInfo)) {
         throw new NotFoundException('Teacher not found');
@@ -379,13 +397,14 @@ export class TeachersService {
         data: {
           firstName: data?.teacher?.firstName,
           lastName: data?.teacher?.lastName,
-          birthDate: data?.teacher?.birthDate === '' ? null : data?.teacher?.birthDate,
+          birthDate:
+            data?.teacher?.birthDate === '' ? null : data?.teacher?.birthDate,
           idCard: data?.teacher?.idCard,
           updatedBy: data?.user?.id,
         },
       });
 
-      return (teacher && account) ? true : false;
+      return teacher && account ? true : false;
     } catch (error: any) {
       console.error(error);
       return error;
@@ -404,7 +423,10 @@ export class TeachersService {
               firstName: data?.teacher?.firstName,
               lastName: data?.teacher?.lastName,
               idCard: data?.teacher?.idCard,
-              birthDate: data?.teacher?.birthDate === '' ? null : data?.teacher?.birthDate,
+              birthDate:
+                data?.teacher?.birthDate === ''
+                  ? null
+                  : data?.teacher?.birthDate,
               createdBy: data?.user?.id,
               updatedBy: data?.user?.id,
             },

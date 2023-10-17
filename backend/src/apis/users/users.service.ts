@@ -9,7 +9,7 @@ interface FormatLogin extends Partial<User> {
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findById(id: string) {
     const { password: p, ...rest } = await this.prisma.user.findUnique({
@@ -108,12 +108,10 @@ export class UsersService {
         // audit log
         return response;
       }
-
     } catch (error) {
       return error;
     }
   }
-
 
   async create(userDto: any): Promise<any> {
     // check if user already exists in database
@@ -145,7 +143,7 @@ export class UsersService {
   }
 
   //use by auth module to login user
-  async login({ username, password, }: any): Promise<FormatLogin> {
+  async login({ username, password }: any): Promise<FormatLogin> {
     const user = await this.prisma.user.findFirst({
       where: { username },
       include: {
@@ -186,7 +184,7 @@ export class UsersService {
     }
 
     // get teacher on classroom
-    let teacherOnClassroom = []
+    let teacherOnClassroom = [];
     if (user.teacher) {
       teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
     }
@@ -202,7 +200,6 @@ export class UsersService {
     const { password: p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
-
 
   //use by auth module to get user in database
   async findByPayload({ username }: any): Promise<any> {
@@ -245,7 +242,7 @@ export class UsersService {
     });
 
     // get teacher on classroom
-    let teacherOnClassroom = []
+    let teacherOnClassroom = [];
     if (user.teacher) {
       teacherOnClassroom = await this.findTeacherOnClassroom(user.teacher.id);
     }
@@ -254,7 +251,6 @@ export class UsersService {
     const { password: p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
-
 
   async findTeacherOnClassroom(teacherId: string): Promise<any> {
     const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
@@ -265,12 +261,15 @@ export class UsersService {
         classroomId: true,
       },
     });
-    return teacherOnClassroom.map((item: any) => item.classroomId) ?? []
+    return teacherOnClassroom.map((item: any) => item.classroomId) ?? [];
   }
 
   // getAuditLogs  params: username, skip, take
-  async getAuditLogs(username: string, skip: number, take: number): Promise<any> {
-
+  async getAuditLogs(
+    username: string,
+    skip: number,
+    take: number,
+  ): Promise<any> {
     const teacher = await this.prisma.teacher.findUnique({
       where: {
         teacherId: username,
@@ -304,7 +303,6 @@ export class UsersService {
         createdAt: 'desc',
       },
     });
-
 
     // get total
     const total = await this.prisma.auditLog.count({

@@ -8,19 +8,31 @@ import { PrismaService } from '../common/services/prisma.service';
 export class ReportCheckInMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ReportCheckInMiddleware.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');
     const parser = new UAParser(userAgent);
     const result = parser.getResult();
-    const { teacherId, classroomId, present, absent, late, leave, internship, checkInDate } = req.body;
+    const {
+      teacherId,
+      classroomId,
+      present,
+      absent,
+      late,
+      leave,
+      internship,
+      checkInDate,
+    } = req.body;
     const ipAddr = requestIp.getClientIp(req);
 
     // count total student
-    const totalStudent = present.length + absent.length + late.length + leave.length + internship.length;
+    const totalStudent =
+      present.length +
+      absent.length +
+      late.length +
+      leave.length +
+      internship.length;
     const totalPresent = present.length || 0;
     const totalAbsent = absent.length || 0;
     const totalLate = late.length || 0;
@@ -55,7 +67,15 @@ export class ReportCheckInMiddleware implements NestMiddleware {
         fieldName: `present, absent, late, leave, internship`,
         oldValue: null,
         newValue: teacher.teacherId,
-        detail: `ห้องเรียน${classroom.name} จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(checkInDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+        detail: `ห้องเรียน${
+          classroom.name
+        } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
+          checkInDate,
+        ).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}`,
         ipAddr,
         browser: result.browser.name,
         device: result.device.type,

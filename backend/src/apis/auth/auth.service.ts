@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(userDto: any): Promise<RegistrationStatus> {
     try {
@@ -38,7 +38,6 @@ export class AuthService {
       };
     }
   }
-
 
   async login(loginUserDto: any, ipAddress: string): Promise<any> {
     // find user in db
@@ -78,10 +77,10 @@ export class AuthService {
 
   async validateUser(payload: JwtPayload): Promise<any> {
     const user = await this.usersService.findByPayload(payload);
-    if (!user) throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
+    if (!user)
+      throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
     return user;
   }
-
 
   public async getMe(user: any) {
     return await this.usersService.finedById(user.id);

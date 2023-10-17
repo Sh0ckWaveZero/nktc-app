@@ -7,6 +7,6 @@ import { PrismaService } from '../../common/services/prisma.service';
 @Module({
   imports: [MinioClientModule],
   controllers: [BadnessIndividualController],
-  providers: [BadnessIndividualService, PrismaService]
+  providers: [BadnessIndividualService, PrismaService],
 })
-export class BadnessIndividualModule { }
+export class BadnessIndividualModule {}

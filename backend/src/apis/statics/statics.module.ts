@@ -6,6 +6,6 @@ import { MinioClientModule } from '../minio/minio-client.module';
 @Module({
   imports: [MinioClientModule],
   controllers: [StaticsController],
-  providers: [StaticsService]
+  providers: [StaticsService],
 })
 export class StaticsModule {}

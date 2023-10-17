@@ -7,8 +7,7 @@ import { AppBarService } from './app-bar.service';
 @Controller('app-bar')
 @UseGuards(JwtAuthGuard)
 export class AppBarController {
-  constructor(private readonly appBarService: AppBarService) { }
-
+  constructor(private readonly appBarService: AppBarService) {}
 
   @ApiSecurity('access-key')
   @Get('search')

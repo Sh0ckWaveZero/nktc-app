@@ -1,40 +1,58 @@
 import { Prisma } from '@prisma/client';
-import { hash } from 'bcrypt'
-import { createByAdmin, getBirthday, getClassroomId, getProgramId, readWorkSheetFromFile, getLevelByName, getLevelClassroomByName } from "../../utils/utils";
+import { hash } from 'bcrypt';
+import {
+  createByAdmin,
+  getBirthday,
+  getClassroomId,
+  getProgramId,
+  readWorkSheetFromFile,
+  getLevelByName,
+  getLevelClassroomByName,
+} from '../../utils/utils';
 
 export const userStudentData = async (fileName: string) => {
   const workSheetsFromFile = readWorkSheetFromFile(fileName);
   const admin = createByAdmin();
 
-  const userStudent = await Promise.all(workSheetsFromFile[0].data
-    .filter((data: any, id: number) => id > 1 && data)
-    .map(async (item: any) => {
-      const [
-        no,
-        idCard,
-        studentId,
-        levelClassroom,
-        title,
-        firstName,
-        lastName,
-        birthDateTh,
-        programName,
-        departmentName,
-        group
-      ] = item;
-      const password = await hash(studentId.toString(), 12);
-      const levelName = levelClassroom.toString().search(/ปวช/) !== -1 ? "ปวช." : "ปวส.";
-      const levelClassroomId = await getLevelClassroomByName(levelClassroom);
-      const level = await getLevelByName(levelName);
-      const birthDate = await getBirthday(birthDateTh.toString());
-      const programId = await getProgramId(departmentName, levelName, programName);
-      const classroomId = await getClassroomId(levelClassroom, departmentName, group, programName);
+  const userStudent = await Promise.all(
+    workSheetsFromFile[0].data
+      .filter((data: any, id: number) => id > 1 && data)
+      .map(async (item: any) => {
+        const [
+          no,
+          idCard,
+          studentId,
+          levelClassroom,
+          title,
+          firstName,
+          lastName,
+          birthDateTh,
+          programName,
+          departmentName,
+          group,
+        ] = item;
+        const password = await hash(studentId.toString(), 12);
+        const levelName =
+          levelClassroom.toString().search(/ปวช/) !== -1 ? 'ปวช.' : 'ปวส.';
+        const levelClassroomId = await getLevelClassroomByName(levelClassroom);
+        const level = await getLevelByName(levelName);
+        const birthDate = await getBirthday(birthDateTh.toString());
+        const programId = await getProgramId(
+          departmentName,
+          levelName,
+          programName,
+        );
+        const classroomId = await getClassroomId(
+          levelClassroom,
+          departmentName,
+          group,
+          programName,
+        );
 
-      return Prisma.validator<Prisma.UserCreateInput>()(
-        {
+        return Prisma.validator<Prisma.UserCreateInput>()({
           username: studentId.toString(),
           password,
-          role: "Student",
+          role: 'Student',
           account: {
             create: {
               title: title ?? '',
@@ -42,8 +60,8 @@ export const userStudentData = async (fileName: string) => {
               lastName,
               idCard: idCard.toString() ?? null,
               birthDate,
-              ...admin
-            }
+              ...admin,
+            },
           },
           student: {
             create: {
@@ -51,26 +69,26 @@ export const userStudentData = async (fileName: string) => {
               levelClassroom: {
                 connect: {
                   id: levelClassroomId,
-                }
+                },
               },
               classroom: {
                 connect: {
-                  id: classroomId
-                }
+                  id: classroomId,
+                },
               },
               program: {
                 connect: {
                   id: programId,
-                }
+                },
               },
               ...level,
               ...admin,
             },
           },
           ...admin,
-        },
-      );
-    }));
+        });
+      }),
+  );
 
   return userStudent;
-}
+};

@@ -1,47 +1,41 @@
 import { Prisma } from '@prisma/client';
-import { hash } from 'bcrypt'
+import { hash } from 'bcrypt';
 import { createByAdmin, readWorkSheetFromFile } from '../../utils/utils';
 
 export const userTeacher = async (fileName: string) => {
   const [workSheetsFromFile] = readWorkSheetFromFile(fileName);
   const admin = createByAdmin();
 
-  const userTeacher = await Promise.all(workSheetsFromFile.data
-    .filter((data: any, id: number) => id > 1 && data)
-    .map(async (item: any) => {
-      const [
-        title,
-        firstName,
-        lastName,
-        username,
-        userPassword,
-      ] = item;
-      const password = await hash(userPassword, 12);
+  const userTeacher = await Promise.all(
+    workSheetsFromFile.data
+      .filter((data: any, id: number) => id > 1 && data)
+      .map(async (item: any) => {
+        const [title, firstName, lastName, username, userPassword] = item;
+        const password = await hash(userPassword, 12);
 
-      return Prisma.validator<Prisma.UserCreateInput>()(
-        {
+        return Prisma.validator<Prisma.UserCreateInput>()({
           username,
           password,
-          role: "Teacher",
+          role: 'Teacher',
           account: {
             create: {
               title,
               firstName,
               lastName,
-              ...admin
-            }
+              ...admin,
+            },
           },
           teacher: {
             create: {
               teacherId: username,
-              status: "Active",
-              ...admin
-            }
+              status: 'Active',
+              ...admin,
+            },
           },
           ...admin,
-        },
-      );
-    }));
+        });
+      }),
+  );
 
   return userTeacher;
-}
+};

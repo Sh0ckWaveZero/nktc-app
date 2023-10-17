@@ -5,17 +5,18 @@ import configuration from '../../config/configuration';
 
 @Injectable()
 export class BadnessIndividualService {
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly minioService: MinioClientService,
-  ) { }
+  ) {}
   async create(body: any) {
-
     let image: any = '';
     try {
       if (body.image) {
-        const response = await this.minioService.upload({ data: body.image, path: 'badness-individual/images/' });
+        const response = await this.minioService.upload({
+          data: body.image,
+          path: 'badness-individual/images/',
+        });
         image = response?.url;
       }
 
@@ -29,10 +30,10 @@ export class BadnessIndividualService {
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
           student: {
-            connect: { id: body.studentKey }
+            connect: { id: body.studentKey },
           },
           classroom: {
-            connect: { id: body.classroomId }
+            connect: { id: body.classroomId },
           },
         },
       });
@@ -46,7 +47,10 @@ export class BadnessIndividualService {
     let image: any = '';
     try {
       if (body.image) {
-        const response = await this.minioService.upload({ data: body.image, path: 'badness-individual/images/' });
+        const response = await this.minioService.upload({
+          data: body.image,
+          path: 'badness-individual/images/',
+        });
         image = response?.url;
       }
       const response = await this.prisma.badnessIndividual.createMany({
@@ -76,38 +80,38 @@ export class BadnessIndividualService {
 
       if (firstName) {
         filter['student'] = {
-          'user': {
-            'account': {
-              'firstName': {
+          user: {
+            account: {
+              firstName: {
                 contains: firstName,
               },
-            }
+            },
           },
-        }
+        };
       }
 
       if (lastName) {
         filter['student'] = {
-          'user': {
-            'account': {
-              'lastName': {
+          user: {
+            account: {
+              lastName: {
                 contains: lastName,
               },
-            }
+            },
           },
-        }
+        };
       }
     }
 
     if (query.classroomId) {
       filter['classroom'] = {
         id: query.classroomId,
-      }
+      };
     }
 
     if (query.badDate) {
-      let startDate = new Date(query.badDate);
-      let endDate = new Date(query.badDate);
+      const startDate = new Date(query.badDate);
+      const endDate = new Date(query.badDate);
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
@@ -132,60 +136,68 @@ export class BadnessIndividualService {
     });
 
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
-    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
+    const sortCondition =
+      query?.sort && query?.sort?.length > 0
+        ? query?.sort
+        : [{ field: 'createdAt', sort: 'desc' }];
     // ดึงข้อมูลคะแนนความประพฤติของนักเรียนที่เลือกและข้อมูลเกี่ยวกับนักเรียนและชั้นเรียน
-    const filteredBadnessIndividual = await this.prisma.badnessIndividual.findMany({
-      where: {
-        OR: [
-          {
-            studentKey: {
-              in: selectedStudents.map((item: any) => item.studentKey),
+    const filteredBadnessIndividual =
+      await this.prisma.badnessIndividual.findMany({
+        where: {
+          OR: [
+            {
+              studentKey: {
+                in: selectedStudents.map((item: any) => item.studentKey),
+              },
             },
-          }
-        ]
-      },
-      include: {
-        student: {
-          include: {
-            user: {
-              select: {
-                account: {
-                  select: {
-                    title: true,
-                    firstName: true,
-                    lastName: true,
-                  }
-                }
-              }
-            }
-          },
+          ],
         },
-        classroom: true,
-      },
-      orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
-    });
+        include: {
+          student: {
+            include: {
+              user: {
+                select: {
+                  account: {
+                    select: {
+                      title: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          classroom: true,
+        },
+        orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
+      });
 
     // สรุปคะแนนความประพฤติของนักเรียน
-    const summarizedStudents = Object.values(filteredBadnessIndividual.reduce((acc: any, cur: any) => {
-      const { studentId, badnessScore, studentKey } = cur;
-      const { title, firstName, lastName } = cur.student.user.account;
-      const { name } = cur.classroom;
-      const key = studentId;
-      if (acc[key]) {
-        acc[key].badnessScore += badnessScore;
-      } else {
-        acc[key] = {
-          id: studentKey,
-          studentId,
-          badnessScore,
-          fullName: title + firstName + ' ' + lastName,
-          name
-        };
-      }
-      return acc;
-    }, {}));
+    const summarizedStudents = Object.values(
+      filteredBadnessIndividual.reduce((acc: any, cur: any) => {
+        const { studentId, badnessScore, studentKey } = cur;
+        const { title, firstName, lastName } = cur.student.user.account;
+        const { name } = cur.classroom;
+        const key = studentId;
+        if (acc[key]) {
+          acc[key].badnessScore += badnessScore;
+        } else {
+          acc[key] = {
+            id: studentKey,
+            studentId,
+            badnessScore,
+            fullName: title + firstName + ' ' + lastName,
+            name,
+          };
+        }
+        return acc;
+      }, {}),
+    );
     // เรียงลำดับคะแนนความประพฤติของนักเรียน
-    summarizedStudents.sort((a: any, b: any) => b.badnessScore - a.badnessScore);
+    summarizedStudents.sort(
+      (a: any, b: any) => b.badnessScore - a.badnessScore,
+    );
 
     // กำหนดลำดับเลขนักเรียนในการแสดงผล
     let runningNumber = query.skip === 0 ? 1 : query.skip + 1;
@@ -194,7 +206,7 @@ export class BadnessIndividualService {
     const summaryWithRunningNumber = summarizedStudents.map((student: any) => {
       return {
         ...student,
-        runningNumber: runningNumber++
+        runningNumber: runningNumber++,
       };
     });
 
@@ -211,15 +223,17 @@ export class BadnessIndividualService {
       data: summaryWithRunningNumber.map((item: any) => {
         return {
           ...item,
-          info: filteredBadnessIndividual.filter((gi: any) => gi.studentId === item.studentId).map((gi: any) => {
-            return {
-              id: gi.id,
-              badnessDetail: gi.badnessDetail,
-              badnessScore: gi.badnessScore,
-              badDate: gi.badDate,
-              image: gi.image,
-            };
-          }),
+          info: filteredBadnessIndividual
+            .filter((gi: any) => gi.studentId === item.studentId)
+            .map((gi: any) => {
+              return {
+                id: gi.id,
+                badnessDetail: gi.badnessDetail,
+                badnessScore: gi.badnessScore,
+                badDate: gi.badDate,
+                image: gi.image,
+              };
+            }),
         };
       }),
       total: totalSelectedStudents.length || 0,
@@ -231,52 +245,60 @@ export class BadnessIndividualService {
   / @param {Object} query - อ็อบเจกต์ที่มีค่าคุณลักษณะต่างๆ เพื่อกำหนดการดึงข้อมูล
   /@returns {Object} - อ็อบเจกต์ที่มีข้อมูลสรุปคะแนนความประพฤติของนักเรียนและจำนวนทั้งหมด
   */
-  async getBadnessSummary(query: any): Promise<{ data: any, total: number }> {
+  async getBadnessSummary(query: any): Promise<{ data: any; total: number }> {
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
-    const sortCondition = query?.sort && query?.sort?.length > 0 ? query?.sort : [{ field: 'createdAt', sort: 'desc' }];
+    const sortCondition =
+      query?.sort && query?.sort?.length > 0
+        ? query?.sort
+        : [{ field: 'createdAt', sort: 'desc' }];
     // ดึงข้อมูลคะแนนความประพฤติของนักเรียนที่เลือกและข้อมูลเกี่ยวกับนักเรียนและชั้นเรียน
-    const filteredBadnessIndividual = await this.prisma.badnessIndividual.findMany({
-      include: {
-        student: {
-          include: {
-            user: {
-              select: {
-                account: {
-                  select: {
-                    title: true,
-                    firstName: true,
-                    lastName: true,
-                  }
-                }
-              }
-            }
+    const filteredBadnessIndividual =
+      await this.prisma.badnessIndividual.findMany({
+        include: {
+          student: {
+            include: {
+              user: {
+                select: {
+                  account: {
+                    select: {
+                      title: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+            },
           },
+          classroom: true,
         },
-        classroom: true,
-      },
-      orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
-    });
+        orderBy: sortCondition.map(({ field, sort }) => ({ [field]: sort })),
+      });
     // สรุปคะแนนความประพฤติของนักเรียน
-    const summarizedStudents = Object.values(filteredBadnessIndividual.reduce((acc: any, cur: any) => {
-      const { id, studentId, badnessScore } = cur;
-      const { title, firstName, lastName } = cur.student.user.account;
-      const { name } = cur.classroom;
-      const key = studentId;
-      if (acc[key]) {
-        acc[key].badnessScore += badnessScore;
-      } else {
-        acc[key] = {
-          id: id,
-          studentId,
-          badnessScore,
-          firstName: title + firstName + ' ' + lastName,
-          name
-        };
-      }
-      return acc;
-    }, {}));
+    const summarizedStudents = Object.values(
+      filteredBadnessIndividual.reduce((acc: any, cur: any) => {
+        const { id, studentId, badnessScore } = cur;
+        const { title, firstName, lastName } = cur.student.user.account;
+        const { name } = cur.classroom;
+        const key = studentId;
+        if (acc[key]) {
+          acc[key].badnessScore += badnessScore;
+        } else {
+          acc[key] = {
+            id: id,
+            studentId,
+            badnessScore,
+            firstName: title + firstName + ' ' + lastName,
+            name,
+          };
+        }
+        return acc;
+      }, {}),
+    );
     // เรียงลำดับคะแนนความประพฤติของนักเรียน
-    summarizedStudents.sort((a: any, b: any) => b.badnessScore - a.badnessScore);
+    summarizedStudents.sort(
+      (a: any, b: any) => b.badnessScore - a.badnessScore,
+    );
 
     const skip = query.skip || 0;
     const take = query.take || 1000;
@@ -291,7 +313,7 @@ export class BadnessIndividualService {
     const summaryWithRunningNumber = studentsScope.map((student: any) => {
       return {
         ...student,
-        runningNumber: runningNumber++
+        runningNumber: runningNumber++,
       };
     });
 
@@ -308,15 +330,17 @@ export class BadnessIndividualService {
       data: summaryWithRunningNumber.map((item: any) => {
         return {
           ...item,
-          info: filteredBadnessIndividual.filter((gi: any) => gi.studentId === item.studentId).map((gi: any) => {
-            return {
-              id: gi.id,
-              badnessDetail: gi.badnessDetail,
-              badnessScore: gi.badnessScore,
-              badDate: gi.badDate,
-              image: gi.image,
-            };
-          }),
+          info: filteredBadnessIndividual
+            .filter((gi: any) => gi.studentId === item.studentId)
+            .map((gi: any) => {
+              return {
+                id: gi.id,
+                badnessDetail: gi.badnessDetail,
+                badnessScore: gi.badnessScore,
+                badDate: gi.badDate,
+                image: gi.image,
+              };
+            }),
         };
       }),
       total: totalSelectedStudents.length || 0,
@@ -340,18 +364,23 @@ export class BadnessIndividualService {
     if (badnessIndividual.image) {
       const fileName = `${configuration().hostUrl}/statics/`;
       const objectName = badnessIndividual.image.replace(fileName, '');
-      await this.minioService.delete(objectName)
+      await this.minioService.delete(objectName);
     }
 
-    const deletedGoodnessIndividual = await this.prisma.badnessIndividual.delete({
-      where: {
-        id: id,
-      },
-    });
+    const deletedGoodnessIndividual =
+      await this.prisma.badnessIndividual.delete({
+        where: {
+          id: id,
+        },
+      });
     return !!deletedGoodnessIndividual;
   }
 
-  async findBadnessIndividual(id: string, skip: number, take: number): Promise<{ data: any, total: number }> {
+  async findBadnessIndividual(
+    id: string,
+    skip: number,
+    take: number,
+  ): Promise<{ data: any; total: number }> {
     const selectedStudents = await this.prisma.badnessIndividual.findMany({
       where: {
         studentKey: id,
@@ -367,7 +396,7 @@ export class BadnessIndividualService {
     const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
       where: {
         studentKey: id,
-      }
+      },
     });
 
     return {

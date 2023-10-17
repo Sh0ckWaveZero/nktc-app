@@ -7,6 +7,6 @@ import { MinioClientModule } from '../minio/minio-client.module';
 @Module({
   imports: [MinioClientModule],
   controllers: [GoodnessIndividualController],
-  providers: [GoodnessIndividualService, PrismaService]
+  providers: [GoodnessIndividualService, PrismaService],
 })
-export class GoodnessIndividualModule { }
+export class GoodnessIndividualModule {}

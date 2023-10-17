@@ -1,22 +1,17 @@
-
 import { PrismaClient } from '@internal/prisma/client';
 import { SearchData } from '../../apis/app-bar/db';
-
-
 
 const prisma = new PrismaClient();
 
 const main = async () => {
-
-  console.log("Seeding...");
+  console.log('Seeding...');
 
   const appBar = await prisma.appbar.createMany({
-    data: SearchData
+    data: SearchData,
   });
 
   console.log({ appBar });
-}
-
+};
 
 main()
   .catch((err: any) => console.log(err))

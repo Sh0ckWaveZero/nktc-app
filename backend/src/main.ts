@@ -18,8 +18,12 @@ const bootstrap = async () => {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   app.enableCors({
-    origin: configuration().node_env === 'development' ? '*' : configuration().host.toString(),
-    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, authorization',
+    origin:
+      configuration().node_env === 'development'
+        ? '*'
+        : configuration().host.toString(),
+    allowedHeaders:
+      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, authorization',
     methods: 'GET,PUT,POST,PATCH,DELETE,UPDATE,OPTIONS',
     credentials: true,
   });
@@ -30,7 +34,7 @@ const bootstrap = async () => {
 
   // Helmet Middleware against known security vulnerabilities
   app.use(helmet());
-  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+  app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 
   // Enable OpenAPI documentation for the application
   if (configuration().node_env === 'development') {

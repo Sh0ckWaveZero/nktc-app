@@ -1,4 +1,15 @@
-import { Controller, Post, Body, UseGuards, Query, Delete, HttpCode, Param, HttpStatus, Get } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Query,
+  Delete,
+  HttpCode,
+  Param,
+  HttpStatus,
+  Get,
+} from '@nestjs/common';
 import { GoodnessIndividualService } from './goodness-individual.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -8,21 +19,35 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class GoodnessIndividualController {
-  constructor(private readonly goodnessIndividualService: GoodnessIndividualService) { }
+  constructor(
+    private readonly goodnessIndividualService: GoodnessIndividualService,
+  ) {}
 
   @Get(':studentId')
-  async findGoodnessIndividual(@Param('studentId') studentId: string, @Query('skip') skip: number, @Query('take') take: number) {
-    return await this.goodnessIndividualService.findGoodnessIndividual(studentId, skip, take);
+  async findGoodnessIndividual(
+    @Param('studentId') studentId: string,
+    @Query('skip') skip: number,
+    @Query('take') take: number,
+  ) {
+    return await this.goodnessIndividualService.findGoodnessIndividual(
+      studentId,
+      skip,
+      take,
+    );
   }
 
   @Post()
   async create(@Body() createGoodnessIndividualDto: any) {
-    return await this.goodnessIndividualService.create(createGoodnessIndividualDto);
+    return await this.goodnessIndividualService.create(
+      createGoodnessIndividualDto,
+    );
   }
 
   @Post('group')
   async group(@Body() createGoodnessIndividualDto: any) {
-    return await this.goodnessIndividualService.group(createGoodnessIndividualDto);
+    return await this.goodnessIndividualService.group(
+      createGoodnessIndividualDto,
+    );
   }
 
   @Post('search')

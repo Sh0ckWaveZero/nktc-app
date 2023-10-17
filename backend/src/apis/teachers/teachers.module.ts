@@ -9,4 +9,4 @@ import { MinioClientModule } from '../minio/minio-client.module';
   controllers: [TeachersController],
   providers: [TeachersService, PrismaService],
 })
-export class TeachersModule { }
+export class TeachersModule {}

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
@@ -8,7 +19,7 @@ import { ClassroomService } from './classroom.service';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ClassroomController {
-  constructor(private readonly classroomService: ClassroomService) { }
+  constructor(private readonly classroomService: ClassroomService) {}
 
   @Get()
   async findAll() {

@@ -5,6 +5,6 @@ import { PrismaService } from '../../common/services/prisma.service';
 
 @Module({
   controllers: [ReportCheckInController],
-  providers: [ReportCheckInService, PrismaService]
+  providers: [ReportCheckInService, PrismaService],
 })
-export class ReportCheckInModule { }
+export class ReportCheckInModule {}
