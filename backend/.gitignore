@@ -44,3 +44,6 @@ lerna-debug.log*
 
 /src/database/prisma/db/*
 backend/src/database/db/nktc-services/*
+
+# VS Code Counter
+.VSCodeCounter/*
