@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -16,7 +16,7 @@ interface UserState {
   findDailyReportAdmin: (token: string, param: any) => any;
 }
 
-export const useActivityCheckInStore = create<UserState>()(
+export const useActivityCheckInStore = createWithEqualityFn<UserState>()(
   (set) => ({
     activityCheckIn: null,
     activityCheckInLoading: false,

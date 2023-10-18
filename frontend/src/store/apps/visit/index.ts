@@ -1,5 +1,5 @@
 import { authConfig } from '@/configs/auth';
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 import httpClient from '@/@core/utils/http';
 
 interface VisitQuery {
@@ -11,7 +11,7 @@ interface VisitState {
   fetchVisits: (token: string, params: VisitQuery) => any;
 }
 
-export const useVisitStore = create<VisitState>()(
+export const useVisitStore = createWithEqualityFn<VisitState>()(
   (set) => ({
     fetchVisits: async (token: string, params: VisitQuery) => {
       try {

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -17,7 +17,7 @@ interface UserState {
   findStudentWeeklyReport: (token: string, param: any) => any;
 }
 
-export const useReportCheckInStore = create<UserState>()(
+export const useReportCheckInStore = createWithEqualityFn<UserState>()(
   (set) => ({
     reportCheckIn: null,
     reportCheckInLoading: false,

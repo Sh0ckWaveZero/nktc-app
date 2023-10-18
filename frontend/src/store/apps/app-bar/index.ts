@@ -1,11 +1,11 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 import { devtools, persist } from 'zustand/middleware';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 
-export const useAppbarStore = create<any>()(
+export const useAppbarStore = createWithEqualityFn<any>()(
   devtools(
     persist((set) => ({
       appbar: [],

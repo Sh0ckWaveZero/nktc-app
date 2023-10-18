@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -8,7 +8,7 @@ interface UserState {
   fetchLevels: (token: string) => any;
 }
 
-export const useLevelStore = create<UserState>()(
+export const useLevelStore = createWithEqualityFn<UserState>()(
   () => ({
     fetchLevels: async (token: string) => {
       try {

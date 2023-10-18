@@ -1,6 +1,6 @@
 import { Dayjs } from 'dayjs';
 import { authConfig } from '@/configs/auth';
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 import httpClient from '@/@core/utils/http';
 
 type Body = {
@@ -20,7 +20,7 @@ interface BadnessIndividualState {
   fetchBadnessIndividualById: (token: string, body: Body) => any;
 }
 
-export const badnessIndividualStore = create<BadnessIndividualState>()(
+export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualState>()(
   () => ({
     createBadnessIndividual: async (token: string, body: any) => {
       try {

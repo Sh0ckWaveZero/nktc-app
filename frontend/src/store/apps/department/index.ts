@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -9,7 +9,7 @@ interface UserState {
   fetchDepartment: (token: string) => any;
 }
 
-export const useDepartmentStore = create<UserState>()(
+export const useDepartmentStore = createWithEqualityFn<UserState>()(
   () => ({
     department: null,
     fetchDepartment: async (token: string) => {

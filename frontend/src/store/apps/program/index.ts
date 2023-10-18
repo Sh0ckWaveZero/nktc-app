@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -8,7 +8,7 @@ interface UserState {
   fetchProgram: (token: string) => any;
 }
 
-export const useProgramStore = create<UserState>()(
+export const useProgramStore = createWithEqualityFn<UserState>()(
   () => ({
     department: null,
     fetchProgram: async (token: string) => {

@@ -1,5 +1,5 @@
 import { authConfig } from '@/configs/auth';
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 import httpClient from '@/@core/utils/http';
 
 interface StudentQuery {
@@ -22,7 +22,7 @@ interface StudentState {
   getTeacherClassroom: (token: string, classroomId: string) => any;
 }
 
-export const useStudentStore = create<StudentState>()(
+export const useStudentStore = createWithEqualityFn<StudentState>()(
   (set) => ({
     students: [],
     loading: false,

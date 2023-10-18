@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';;
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -22,7 +22,7 @@ interface classroomState {
   createClassroom: (token: string, data: any) => any;
 }
 
-export const useClassroomStore = create<classroomState>()(
+export const useClassroomStore = createWithEqualityFn<classroomState>()(
   (set) => ({
     classroom: [],
     teacherClassroom: [],
