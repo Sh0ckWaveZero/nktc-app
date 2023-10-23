@@ -64,12 +64,24 @@ const TableHeader = (props: TableHeaderProps) => {
     });
   };
 
+  const date = new Date();
+  const options = { timeZone: 'Asia/Bangkok' };
+  const formattedDate = date.toLocaleString('th-TH', options).replace(/\//g, '-').replace(',', '').replace(/ /g, '_');
+  const filename = `${formattedDate}`;
+
   const datas: Data[] = mapDataToTable(props.data);
 
   return (
     <Grid container spacing={2} sx={{ px: 3, py: 2 }} display='flex' direction='row' justifyContent='space-between'>
       <Grid item xs={12} sm={12} md={12} lg={2}>
-        <CsvDownloader filename='myfile' extension='.csv' separator=',' columns={columns} datas={datas as any}>
+        <CsvDownloader
+          prefix='System Access Report'
+          filename={filename}
+          extension='.csv'
+          separator=','
+          columns={columns}
+          datas={datas as any}
+        >
           <Button
             color='primary'
             variant='contained'
