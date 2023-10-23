@@ -68,7 +68,7 @@ const TabSecurity = () => {
       confirmNewPassword: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const auth = useAuth();

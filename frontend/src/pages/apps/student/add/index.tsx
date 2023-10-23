@@ -196,7 +196,7 @@ const AddStudentPage = () => {
   } = useForm({
     defaultValues: initialData,
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onSubmit = async (data: any, e: any) => {

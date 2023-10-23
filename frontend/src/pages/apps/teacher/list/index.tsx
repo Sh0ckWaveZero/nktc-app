@@ -198,11 +198,10 @@ const TeacherList = () => {
     }),
     shallow,
   );
-  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher, downloadTeacher }: any =
+  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher }: any =
     useTeacherStore(
       (state) => ({
         addTeacher: state.addTeacher,
-        downloadTeacher: state.downloadTeacher,
         fetchTeacher: state.fetchTeacher,
         removeTeacher: state.removeTeacher,
         teacherLoading: state.teacherLoading,

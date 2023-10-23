@@ -90,7 +90,7 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onSubmit = (info: FormData) => {

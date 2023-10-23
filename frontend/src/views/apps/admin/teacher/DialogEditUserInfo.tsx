@@ -119,7 +119,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onSubmit = (info: FormData) => {

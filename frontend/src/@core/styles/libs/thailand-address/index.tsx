@@ -268,7 +268,7 @@ export const CustomSuggestionPanel = ({ children }: CustomSuggestionPanelPropTyp
     return null;
   }
 
-  return createPortal(children(ds, shouldDisplaySuggestion, onSuggestionSelected), suggestionContainerElem);
+  return createPortal(<>{children(ds, shouldDisplaySuggestion, onSuggestionSelected)}</>, suggestionContainerElem);
 };
 
 export const SubdistrictInput = AddressInputField('subdistrict');
@@ -284,7 +284,7 @@ ThailandAddressTypeahead.ProvinceInput = ProvinceInput;
 ThailandAddressTypeahead.PostalCodeInput = PostalCodeInput;
 ThailandAddressTypeahead.SubdistrictInput = SubdistrictInput;
 
-ThailandAddressTypeahead.Suggestion = DefaultSuggestionPanel;
+ThailandAddressTypeahead.Suggestion = DefaultSuggestionPanel as any;
 ThailandAddressTypeahead.CustomSuggestion = CustomSuggestionPanel;
 
 export { ThailandAddressValue };

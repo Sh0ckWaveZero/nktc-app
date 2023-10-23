@@ -137,7 +137,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
   } = useForm({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onSubmit: any = (info: UserData) => {

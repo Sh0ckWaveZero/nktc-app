@@ -148,7 +148,7 @@ const TabTeacherAccount = () => {
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onHandleChange = (event: any, value: any) => {

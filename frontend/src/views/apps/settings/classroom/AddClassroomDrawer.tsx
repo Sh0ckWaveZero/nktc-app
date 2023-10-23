@@ -162,7 +162,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   } = useForm({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   useEffect(() => {
