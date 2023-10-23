@@ -86,7 +86,6 @@ const userStatusObj: TeacherStatusType | any = {
   false: 'secondary',
 };
 
-
 const StyledLink = styled(Link)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -144,7 +143,9 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           vertical: 'top',
           horizontal: 'right',
         }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
+        slotProps={{
+          paper: { sx: { minWidth: '8rem' } },
+        }}
       >
         <MenuItem onClick={handleChangePasswordRow}>
           <IconifyIcon icon='mdi:password-check-outline' fontSize='1.3rem' style={{ marginRight: '10px' }} />
@@ -197,17 +198,19 @@ const TeacherList = () => {
     }),
     shallow,
   );
-  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher }: any = useTeacherStore(
-    (state) => ({
-      addTeacher: state.addTeacher,
-      fetchTeacher: state.fetchTeacher,
-      removeTeacher: state.removeTeacher,
-      teacherLoading: state.teacherLoading,
-      update: state.update,
-      updateClassroom: state.updateClassroom,
-    }),
-    shallow,
-  );
+  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher, downloadTeacher }: any =
+    useTeacherStore(
+      (state) => ({
+        addTeacher: state.addTeacher,
+        downloadTeacher: state.downloadTeacher,
+        fetchTeacher: state.fetchTeacher,
+        removeTeacher: state.removeTeacher,
+        teacherLoading: state.teacherLoading,
+        update: state.update,
+        updateClassroom: state.updateClassroom,
+      }),
+      shallow,
+    );
   const { classroom, fetchClassroom }: any = useClassroomStore(
     (state) => ({
       classroom: state.classroom,
@@ -618,7 +621,12 @@ const TeacherList = () => {
         <Grid item xs={12}>
           <Card>
             <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
-            <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+            <TableHeader
+              value={value}
+              handleFilter={handleFilter}
+              toggle={toggleAddUserDrawer}
+               data={teachers} 
+            />
             <DataGrid
               disableColumnMenu
               autoHeight={true}
