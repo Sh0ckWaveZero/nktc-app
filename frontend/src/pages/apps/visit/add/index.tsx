@@ -1,14 +1,5 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-} from '@mui/material';
+import { Avatar, Box, Button, Card, CardContent, CardHeader, Grid } from '@mui/material';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { defaultValues, schema, surveyList } from './survey-list';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { Icon } from '@iconify/react';
@@ -21,6 +12,7 @@ import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SurveyForm from '@/@core/components/visit/SurveyForm';
 import SurveyList from '@/@core/components/visit/SurveyList';
+import { defaultValues, schema, surveyList } from '@/views/apps/visit/survey-list';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
@@ -79,19 +71,14 @@ const CreateVisit = () => {
     },
   ];
 
-  const {
-    reset,
-    control,
-    handleSubmit,
-  } = useForm({
-    defaultValues,
+  const { reset, control, handleSubmit } = useForm({
+    defaultValues: defaultValues,
     mode: 'onChange',
     resolver: yupResolver(schema) as any,
   });
 
   const onSubmit = async (data: any, e: any) => {
     e.preventDefault();
-
   };
 
   return (
