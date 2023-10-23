@@ -6,10 +6,6 @@ import { Classroom } from '@/types/apps/teacherTypes';
 import { shallow } from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 
-interface ClassroomQuery {
-  q?: string;
-}
-
 interface classroomState {
   classroom: Classroom[];
   classroomLoading: boolean,

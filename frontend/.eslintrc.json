@@ -37,6 +37,7 @@
           "global"
         ]
       }
-    ]
+    ],
+    "@typescript-eslint/no-extra-semi": "off"
   }
 }
