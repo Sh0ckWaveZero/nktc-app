@@ -13,18 +13,18 @@ export class StudentsService {
 
   async findBucket() {
     try {
-      this.minioService.client.listBuckets(async (err, buckets) => {
-        if (err) return console.log(err);
-        console.log('buckets :', buckets);
-        return buckets;
+      const buckets = await this.minioService.client.listBuckets().catch((err) => {
+        console.log(err);
+        return [];
       });
+      console.log('buckets :', buckets);
 
       const data = [];
       const stream = this.minioService.client.listObjects('nktc-app', '', true);
       stream.on('data', function (obj) {
         data.push(obj);
       });
-      stream.on('end', function (obj) {
+      stream.on('end', function () {
         console.log('data :', data);
         return data;
       });
@@ -56,6 +56,12 @@ export class StudentsService {
               },
             },
           ],
+        };
+      }
+
+      if (body?.search?.studentId) {
+        filter['username'] = {
+          contains: body.search.studentId,
         };
       }
 

@@ -1,24 +1,9 @@
-// ** React Imports
-import RenderAvatar from '@/@core/components/avatar';
-import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-// ** Custom Components Imports
-import CustomAvatar from '@/@core/components/mui/avatar';
-// ** Utils Import
-import { getInitials } from '@/@core/utils/get-initials';
-import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
-import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
-import useStudentList from '@/hooks/useStudentList';
-import { LocalStorageService } from '@/services/localStorageService';
-import { useClassroomStore, useStudentStore } from '@/store/index';
-import TableHeader from '@/views/apps/student/list/TableHeader';
 import {
   Avatar,
   Box,
   Button,
   Card,
   CardHeader,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -27,18 +12,25 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
-import { styled } from '@mui/material/styles';
-// ** MUI Imports
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
-import { AccountEditOutline } from 'mdi-material-ui';
-// ** Next Import
-import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Fragment, useCallback, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
+import { useClassroomStore, useStudentStore } from '@/store/index';
+import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
+
+import { AccountEditOutline } from 'mdi-material-ui';
+import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
+import Link from 'next/link';
+import { LocalStorageService } from '@/services/localStorageService';
+import RenderAvatar from '@/@core/components/avatar';
+import { SelectChangeEvent } from '@mui/material/Select';
+import TableHeader from '@/views/apps/student/list/TableHeader';
 import { shallow } from 'zustand/shallow';
+import { styled } from '@mui/material/styles';
+import toast from 'react-hot-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/router';
+import useStudentList from '@/hooks/useStudentList';
 
 const localStorage = new LocalStorageService();
 const accessToken = localStorage.getToken()!;
@@ -50,7 +42,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
 }));
-
 
 const StudentList = () => {
   // ** Hooks
@@ -69,7 +60,7 @@ const StudentList = () => {
   const [openDeletedConfirm, setOpenDeletedConfirm] = useState<boolean>(false);
   const [deletedStudent, setDeletedStudent] = useState<any>(null);
   const [currentStudent, setCurrentStudent] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
+  const [searchValue, setSearchValue] = useState<any>({ fullName: '', studentId: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
 
   const { fetchStudentsWithParams }: any = useStudentStore(
@@ -154,9 +145,19 @@ const StudentList = () => {
     [setCurrentStudent],
   );
 
-  const onSearchChange = useCallback((event: any, value: any, reason: any) => {
-    setSearchValue({ fullName: value });
-  }, []);
+  const onSearchChange = useCallback(
+    (event: any, value: any, reason: any) => {
+      setSearchValue({ ...searchValue, fullName: value });
+    },
+    [setSearchValue, searchValue],
+  );
+
+  const onHandleStudentId = useCallback(
+    (value: any) => {
+      setSearchValue({ ...searchValue, studentId: value });
+    },
+    [setSearchValue, searchValue],
+  );
 
   const defaultColumns: GridColumns = [
     {
@@ -174,20 +175,17 @@ const StudentList = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <RenderAvatar row={account} storedToken={accessToken} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <LinkStyled href={`/apps/student/view/${id}`} passHref>
-                <Typography
-                  noWrap
-                  variant='body2'
-                  sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
-                >
-                  {account?.title + '' + account?.firstName + ' ' + account?.lastName}
-                </Typography>
-              </LinkStyled>
-              <LinkStyled href={`/apps/student/view/${id}`} passHref>
-                <Typography noWrap variant='caption' sx={{ textDecoration: 'none' }}>
-                  @{username}
-                </Typography>
-              </LinkStyled>
+              <Typography
+                noWrap
+                variant='body2'
+                sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
+              >
+                {account?.title + '' + account?.firstName + ' ' + account?.lastName}
+              </Typography>
+
+              <Typography noWrap variant='caption' sx={{ textDecoration: 'none' }}>
+                @{username}
+              </Typography>
             </Box>
           </Box>
         );
@@ -295,14 +293,16 @@ const StudentList = () => {
             />
             {classrooms && (
               <TableHeader
-                defaultClassroom={initClassroom}
                 classrooms={classrooms}
-                onHandleChange={onHandleChangeClassroom}
+                defaultClassroom={initClassroom}
+                fullName={currentStudent}
                 loading={loadingClassroom}
                 loadingStudents={loadingStudents}
-                fullName={currentStudent}
+                onHandleChange={onHandleChangeClassroom}
                 onHandleChangeStudent={onHandleChangeFullName}
+                onHandleStudentId={onHandleStudentId}
                 onSearchChange={onSearchChange}
+                studentId={searchValue.studentId}
                 students={studentsListData}
               />
             )}
