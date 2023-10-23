@@ -6,24 +6,26 @@ import useGetImage from '@/hooks/useGetImage';
 interface RenderAvatarProps {
   row: any;
   storedToken: string;
+  customStyle?: any;
 }
 
 const RenderAvatar = (props: RenderAvatarProps) => {
-  const { row, storedToken } = props;
+  const {
+    row,
+    storedToken,
+    customStyle = {
+      mr: 3,
+      width: 40,
+      height: 40,
+    },
+  } = props;
+
   if (row?.avatar) {
     const { isLoading, image } = useGetImage(row.avatar, storedToken);
-    return isLoading ? (
-      <CircularProgress />
-    ) : (
-      <CustomAvatar src={image as string} sx={{ mr: 3, width: 40, height: 40 }} />
-    );
+    return isLoading ? <CircularProgress /> : <CustomAvatar src={image as string} sx={customStyle} />;
   } else {
     return (
-      <CustomAvatar
-        skin='light'
-        color={row?.avatarColor || 'primary'}
-        sx={{ mr: 3, width: 40, height: 40, fontSize: '.875rem' }}
-      >
+      <CustomAvatar skin='light' color={row?.avatarColor || 'primary'} sx={customStyle}>
         {getInitials(row?.firstName + ' ' + row?.lastName)}
       </CustomAvatar>
     );

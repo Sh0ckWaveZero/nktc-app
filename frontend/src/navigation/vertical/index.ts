@@ -79,7 +79,7 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'ห้องเรียน',
           icon: 'material-symbols:room-preferences-outline-rounded',
-          path: '/apps/visit/classroom',
+          path: '/apps/settings/classroom',
           action: 'read',
           subject: 'setting-system-page',
         },

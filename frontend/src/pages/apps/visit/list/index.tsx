@@ -200,7 +200,7 @@ const VisitStudentList = () => {
           if (data?.addressLine1 && data?.subDistrict && data?.district && data?.province && data?.postalCode) {
             return `${data?.addressLine1} ต.${data?.subDistrict} อ.${data?.district} จ.${data?.province} ${data?.postalCode}`;
           } else {
-            return 'ไม่มีข้อมูลที่อยู่';
+            return 'ไม่มีข้อมูล';
           }
         };
         return (
@@ -220,11 +220,24 @@ const VisitStudentList = () => {
       hideSortIcons: true,
       align: alignCenter,
       renderCell: ({ row }: CellType) => {
+        const url: string = '/apps/visit/add';
         return (
           <Button
             variant='contained'
             color='error'
             startIcon={<IconifyIcon icon='fluent:home-more-20-regular' width={16} height={16} />}
+            onClick={() => {
+              router.push(
+                {
+                  pathname: url,
+                  query: {
+                    data: JSON.stringify({ ...row, defaultClassroom }),
+                  },
+                },
+                url,
+                { shallow: true },
+              );
+            }}
           >
             <Typography
               noWrap

@@ -72,6 +72,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'student-badness-summary-report');
     can(['read'], 'visit-student-page');
     can(['read'], 'visit-student-list-page');
+    can(['create'], 'create-visit-student-page');
   } else if (role === 'Student') {
     can(['read'], 'student-academic-performance-report');
     can(['read'], 'student-badness-report');
