@@ -13,7 +13,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import SurveyForm from '@/@core/components/visit/SurveyForm';
 import SurveyList from '@/@core/components/visit/SurveyList';
 import { defaultValues, schema, surveyList } from '@/views/apps/visit/survey-list';
-
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken()!;
 
