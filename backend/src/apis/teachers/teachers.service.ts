@@ -2,13 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
 import { isValidHttpUrl, isEmpty } from '../../utils/utils';
-
 @Injectable()
 export class TeachersService {
   constructor(
     private prisma: PrismaService,
     private readonly minioService: MinioClientService,
-  ) {}
+  ) { }
 
   async findAll(q = '') {
     const [firstName, lastName] = q.split(' ');
@@ -101,12 +100,7 @@ export class TeachersService {
         .map((cl: any) => cl.name);
 
       const loginCountByUserSummary = loginCount[teacher.username]
-        ? Object.keys(loginCount[teacher.username]).map((key: any) => {
-            return {
-              date: key,
-              count: loginCount[teacher.username][key],
-            };
-          })
+        ? Object.entries(loginCount[teacher.username]).map(([date, count]) => ({ date, count }))
         : [];
 
       return {

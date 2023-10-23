@@ -10,18 +10,18 @@ import {
   HttpStatus,
   HttpCode,
   Delete,
+  Post,
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Post } from '@nestjs/common';
 
 @ApiTags('teachers')
 @Controller('teachers')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TeachersController {
-  constructor(private readonly teachersService: TeachersService) {}
+  constructor(private readonly teachersService: TeachersService) { }
 
   @Get()
   async findAll(@Query() { q }) {
