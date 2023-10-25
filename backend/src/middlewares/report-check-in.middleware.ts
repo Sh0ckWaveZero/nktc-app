@@ -1,19 +1,18 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 import * as requestIp from 'request-ip';
-import * as UAParser from 'ua-parser-js';
+var uap = require('ua-parser-js');
 import { PrismaService } from '../common/services/prisma.service';
 
 @Injectable()
 export class ReportCheckInMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ReportCheckInMiddleware.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');
-    const parser = new UAParser(userAgent);
-    const result = parser.getResult();
+    const parser = uap(userAgent);
     const {
       teacherId,
       classroomId,
@@ -67,18 +66,17 @@ export class ReportCheckInMiddleware implements NestMiddleware {
         fieldName: `present, absent, late, leave, internship`,
         oldValue: null,
         newValue: teacher.teacherId,
-        detail: `ห้องเรียน${
-          classroom.name
-        } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
-          checkInDate,
-        ).toLocaleDateString('th-TH', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}`,
+        detail: `ห้องเรียน${classroom.name
+          } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
+            checkInDate,
+          ).toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}`,
         ipAddr,
-        browser: result.browser.name,
-        device: result.device.type,
+        browser: parser.browser.name,
+        device: parser.device.type,
         createdBy: teacher.teacherId,
       },
     });

@@ -1,4 +1,4 @@
-import UAParser from 'ua-parser-js';
+var uap = require('ua-parser-js');
 import * as requestIp from 'request-ip';
 
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
@@ -14,8 +14,7 @@ export class LoggerMiddleware implements NestMiddleware {
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');
-    const parser = new UAParser(userAgent);
-    const result = parser.getResult();
+    const parser = uap(userAgent);
     const { username, password } = req.body;
     const ipAddr = requestIp.getClientIp(req);
 
@@ -29,8 +28,8 @@ export class LoggerMiddleware implements NestMiddleware {
         newValue: username,
         detail: 'User login',
         ipAddr,
-        browser: result.browser.name,
-        device: result.device.type,
+        browser: parser.browser.name,
+        device: parser.device.type,
         createdBy: username,
       },
     });
