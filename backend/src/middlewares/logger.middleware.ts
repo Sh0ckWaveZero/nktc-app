@@ -1,4 +1,4 @@
-var uap = require('ua-parser-js');
+import uap from 'ua-parser-js';
 import * as requestIp from 'request-ip';
 
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
@@ -10,11 +10,12 @@ import { PrismaService } from '../common/services/prisma.service';
 export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger(LoggerMiddleware.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');
-    const parser = uap(userAgent);
+    const parser = new uap.UAParser(userAgent);
+    const result = parser.getResult();
     const { username, password } = req.body;
     const ipAddr = requestIp.getClientIp(req);
 
@@ -28,8 +29,8 @@ export class LoggerMiddleware implements NestMiddleware {
         newValue: username,
         detail: 'User login',
         ipAddr,
-        browser: parser.browser.name,
-        device: parser.device.type,
+        browser: result.browser?.name || 'Unknown',
+        device: result.device?.vendor || 'Unknown',
         createdBy: username,
       },
     });

@@ -8,11 +8,12 @@ import { PrismaService } from '../common/services/prisma.service';
 export class ReportCheckInMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ReportCheckInMiddleware.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async use(req: any, res: Response, next: NextFunction) {
     const userAgent = req.get('User-Agent');
-    const parser = uap(userAgent);
+    const parser = new uap.UAParser(userAgent);
+    const result = parser.getResult();
     const {
       teacherId,
       classroomId,
@@ -66,17 +67,18 @@ export class ReportCheckInMiddleware implements NestMiddleware {
         fieldName: `present, absent, late, leave, internship`,
         oldValue: null,
         newValue: teacher.teacherId,
-        detail: `ห้องเรียน${classroom.name
-          } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
-            checkInDate,
-          ).toLocaleDateString('th-TH', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}`,
+        detail: `ห้องเรียน${
+          classroom.name
+        } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
+          checkInDate,
+        ).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}`,
         ipAddr,
-        browser: parser.browser.name,
-        device: parser.device.type,
+        browser: result.browser?.name || 'Unknown',
+        device: result.device?.vendor || 'Unknown',
         createdBy: teacher.teacherId,
       },
     });
