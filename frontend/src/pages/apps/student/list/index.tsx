@@ -83,7 +83,7 @@ const StudentList = () => {
             setInitClassroom(await res.filter((item: any) => item.id === classroom).map((elm: any) => elm.id));
           }
         } else {
-          const teacherClassroom = await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
+          const teacherClassroom = await res?.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
           setClassrooms(teacherClassroom);
           if (classroom) {
             const currentQueryClassroom = await teacherClassroom.filter((item: any) => item.id === classroom);

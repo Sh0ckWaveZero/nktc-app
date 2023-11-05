@@ -42,10 +42,11 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // ** Global css styles
 import '../styles/globals.css';
-import { AxiosInterceptor } from '@/@core/utils/http';
+
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { LocalStorageProvider } from '@/context/LocalStorageContext';
+import { AxiosInterceptor } from '@/@core/components/auth/axiosInterceptor';
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {

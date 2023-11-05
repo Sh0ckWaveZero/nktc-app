@@ -16,7 +16,7 @@ export const useAppbarStore = createWithEqualityFn<any>()(
             Authorization: `Bearer ${token}`,
           },
         });
-        set({ appbar: await response.data });
+        set({ appbar: await response?.data });
       }
     }), {
       name: 'appbar-store',

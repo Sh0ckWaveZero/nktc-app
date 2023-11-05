@@ -382,7 +382,7 @@ const TabTeacherAccount = () => {
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
                         {!isEmpty(departmentValues)
-                          ? departmentValues.map((department: any) => (
+                          ? departmentValues?.map((department: any) => (
                               <MenuItem key={department.id} value={department.id}>
                                 {department.name}
                               </MenuItem>

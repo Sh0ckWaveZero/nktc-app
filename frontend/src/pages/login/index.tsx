@@ -88,7 +88,7 @@ interface FormData {
 }
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(true);
 
   // ** Hooks
   const auth = useAuth();
@@ -274,7 +274,7 @@ const LoginPage = () => {
                         onChange={onChange}
                         id='auth-login-v2-password'
                         error={Boolean(errors.password)}
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? 'password' : 'text'}
                         endAdornment={
                           <InputAdornment position='end'>
                             <IconButton
