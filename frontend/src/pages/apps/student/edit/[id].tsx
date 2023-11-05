@@ -227,7 +227,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
     await updateStudentProfile(storedToken, users.id, student).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
-        route.push(`/apps/student/list?classroom=${c.id}`);
+        route.push(`/apps/student/list?classroom=${encodeURIComponent(c.id)}`);
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;

@@ -219,7 +219,7 @@ const AddStudentPage = () => {
       }
     });
 
-    route.push(`/apps/student/list?classroom=${c.id}`);
+    route.push(`/apps/student/list?classroom=${encodeURIComponent(c.id)}`);
   };
 
   const addressInputStyle = {
