@@ -32,7 +32,6 @@ import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-i
 import { HiFlag } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/reports/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -41,11 +40,11 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/router';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
-const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
@@ -81,7 +80,9 @@ const StudentCheckIn = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+
+  const storedToken = useLocal.getToken()!;
 
   const { getActivityCheckIn, addActivityCheckIn }: any = useActivityCheckInStore(
     (state) => ({

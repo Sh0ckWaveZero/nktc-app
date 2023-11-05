@@ -21,7 +21,6 @@ import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from 'utils/event';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
@@ -34,10 +33,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 dayjs.extend(buddhistEra);
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -72,6 +70,8 @@ interface DialogAddGoodnessGroupProps {
 }
 const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const { onOpen, data, handleClose, auth, handleSusses } = props;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
 
   // hooks
   const { createBadnessGroup }: any = badnessIndividualStore(

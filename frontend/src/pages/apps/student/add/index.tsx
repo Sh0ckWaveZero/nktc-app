@@ -31,11 +31,9 @@ import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { handleKeyDown } from 'utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
-import imageCompression from 'browser-image-compression';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import th from 'dayjs/locale/th';
@@ -45,6 +43,7 @@ import { useEffectOnce } from '@/hooks/userCommon';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.extend(buddhistEra);
 
@@ -136,13 +135,13 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-const localStorageService = new LocalStorageService();
 
 const AddStudentPage = () => {
   // hooks
   const theme = useTheme();
   const route = useRouter();
   const { user } = useAuth();
+  const useLocal = useLocalStorage();
 
   // ** State
   const [classroom, setClassroom] = useState([initialData.classroom]);
@@ -151,7 +150,7 @@ const AddStudentPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
-  const accessToken = localStorageService.getToken();
+  const accessToken = useLocal.getToken()!;;
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),

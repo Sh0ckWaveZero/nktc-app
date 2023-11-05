@@ -7,7 +7,6 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiStar } from 'react-icons/hi';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import { goodnessIndividualStore } from '@/store/index';
 import { isEmpty } from '@/@core/utils/utils';
@@ -19,12 +18,12 @@ import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
 import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 import IconifyIcon from '@/@core/components/icon';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -44,7 +43,8 @@ export interface DialogTitleProps {
 const ReportAllGoodness = () => {
   // ** Hooks
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { search }: any = goodnessIndividualStore(

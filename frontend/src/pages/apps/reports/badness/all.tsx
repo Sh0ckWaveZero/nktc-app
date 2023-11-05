@@ -19,7 +19,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiThumbDown } from 'react-icons/hi';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
@@ -31,12 +30,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -56,7 +55,8 @@ export interface DialogTitleProps {
 const ReportAllBadness = () => {
   // ** Hooks
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { search }: any = badnessIndividualStore(
@@ -118,7 +118,7 @@ const ReportAllBadness = () => {
     [setCurrentStudent],
   );
 
-  const onSearchChange = useCallback((event: any, value: any, reason: any) => {
+  const onSearchChange = useCallback((event: any, value: any) => {
     setSearchValue({ fullName: value });
   }, []);
 

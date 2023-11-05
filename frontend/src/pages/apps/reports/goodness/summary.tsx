@@ -2,7 +2,6 @@ import {
   Avatar,
   Card,
   CardHeader,
-  CircularProgress,
   Dialog,
   Grid,
   IconButton,
@@ -22,19 +21,17 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
@@ -53,7 +50,8 @@ export interface DialogTitleProps {
 const StudentGoodnessSummaryReport = () => {
   // ** Hooks
   const { user }: any = useAuth();
-
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { deleteGoodnessIndividualById, summary }: any = goodnessIndividualStore(

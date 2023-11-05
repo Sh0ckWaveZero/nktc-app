@@ -3,7 +3,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
@@ -12,11 +11,10 @@ import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.locale('th');
 dayjs.extend(buddhistEra);
-
-const localStorageService = new LocalStorageService();
 
 const AdminActivityCheckInDailyReport = () => {
   // ** Store Vars
@@ -27,7 +25,8 @@ const AdminActivityCheckInDailyReport = () => {
     shallow,
   );
 
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);

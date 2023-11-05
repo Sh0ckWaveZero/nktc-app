@@ -26,7 +26,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { generateErrorMessages } from 'utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
@@ -36,11 +35,10 @@ import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.extend(buddhistEra);
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -75,7 +73,8 @@ interface DialogAddCardProps {
 }
 const DialogAddCard = (props: DialogAddCardProps) => {
   const { show, data, handleClose, handleOnSearch, user } = props;
-
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   // hooks
   const { createGoodnessIndividual }: any = goodnessIndividualStore(
     (state: any) => ({ createGoodnessIndividual: state.createGoodnessIndividual }),

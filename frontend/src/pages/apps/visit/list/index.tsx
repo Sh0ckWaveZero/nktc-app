@@ -21,7 +21,6 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import { CustomNoRowsOverlayCheckedIn } from '@/@core/components/check-in/checkedIn';
 import { Icon } from '@iconify/react';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/visit/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
@@ -30,12 +29,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/router';
 import RenderAvatar from '@/@core/components/avatar';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const VisitStudentList = () => {
   // ** Hooks
@@ -47,7 +45,8 @@ const VisitStudentList = () => {
 
   const ability = useContext(AbilityContext);
   const router = useRouter();
-
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);

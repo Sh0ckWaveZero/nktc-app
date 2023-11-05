@@ -6,7 +6,6 @@ import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Divider from '@mui/material/Divider';
-import { LocalStorageService } from '@/services/localStorageService';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@/@core/context/settingsContext';
@@ -16,6 +15,7 @@ import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import { useRouter } from 'next/router';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface Props {
   settings: Settings;
@@ -30,8 +30,6 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }));
 
-const localStorageService = new LocalStorageService();
-
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props;
@@ -41,11 +39,12 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
+  const useLocal = useLocalStorage();
   const { user, logout } = useAuth();
 
   // ** Vars
   const { direction } = settings;
-  const storedToken = localStorageService.getToken()!;
+  const storedToken = useLocal.getToken()!;
 
   const { isLoading, image } = useGetImage(user?.account?.avatar as string, storedToken);
 

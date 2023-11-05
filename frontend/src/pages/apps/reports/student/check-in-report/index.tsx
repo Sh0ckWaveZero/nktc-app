@@ -7,7 +7,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableHeaderWeekly from '@/views/apps/reports/student/TableHeaderWeekly';
@@ -17,15 +16,15 @@ import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import useGetFullNameWithTitle from '@/hooks/useFullNameWithTitle';
 import { useReportCheckInStore } from '@/store/index';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.locale('th');
 dayjs.extend(buddhistEra);
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
-
 const StudentCheckInReport = () => {
   const { user } = useAuth();
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   const { fullName } = useGetFullNameWithTitle({ user } as any);
 
   // ** Store Vars

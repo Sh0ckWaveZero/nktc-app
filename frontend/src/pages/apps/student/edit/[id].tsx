@@ -47,6 +47,7 @@ import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.extend(buddhistEra);
 
@@ -104,8 +105,6 @@ const schema = yup.object().shape({
   status: yup.string().required('กรุณาเลือกสถานะ'),
 });
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -130,6 +129,9 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 }));
 
 const StudentEditPage = ({ users, classroomId }: any) => {
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
+  
   const initialData: Data = {
     studentId: users.student.studentId || '',
     title: users.account.title || '',

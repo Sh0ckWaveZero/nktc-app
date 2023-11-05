@@ -20,19 +20,19 @@ import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   // row: teachersTypes;
   row: any;
 }
-const localStorageService = new LocalStorageService();
 
 const ReportCheckInDaily = () => {
   // ** Hooks
   const auth = useAuth();
-  const accessToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const accessToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
 

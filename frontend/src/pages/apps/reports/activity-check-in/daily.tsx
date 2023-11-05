@@ -47,7 +47,7 @@ import {
 import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
-import { LocalStorageService } from '@/services/localStorageService';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   // row: teachersTypes;
@@ -81,7 +81,6 @@ const checkInStatueName: any = {
   internship: 'นักศึกษาฝึกงาน',
 };
 
-const localStorageService = new LocalStorageService();
 
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
@@ -117,7 +116,8 @@ const DailyCheckInReportActivity = () => {
 
   // ** Hooks
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
 
   const { fetchTeachClassroom }: any = useClassroomStore(
     (state) => ({

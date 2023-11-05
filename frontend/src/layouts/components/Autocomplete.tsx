@@ -59,7 +59,7 @@ import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
-import { LocalStorageService } from '@/services/localStorageService';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 
 const LinkStyled = styled(Link)(({ theme }) => ({
@@ -89,8 +89,6 @@ interface DefaultSuggestionsType {
     suggestion: string;
   }[];
 }
-
-const localStorageService = new LocalStorageService();
 
 const defaultSuggestionsData: DefaultSuggestionsType[] = [
   {
@@ -403,6 +401,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   // ** Hooks & Vars
+  const useLocal = useLocalStorage();
   const theme = useTheme();
   const router = useRouter();
   const { layout } = settings;
@@ -415,7 +414,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   // Get all data using API
   useEffect(() => {
-    const storedToken = localStorageService.getToken()!;
+    const storedToken = useLocal.getToken()!;
     fetch(debouncedValue, storedToken);
   }, [debouncedValue]);
 

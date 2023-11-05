@@ -4,11 +4,11 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import React from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 import { useUserStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
@@ -21,8 +21,6 @@ const ACTIONS: Record<Action, string> = {
   Login: 'เข้าสู่ระบบ',
 };
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken()!;
 
 const HistoryPage = () => {
   const { user } = useAuth();
@@ -42,7 +40,8 @@ const HistoryPage = () => {
   const fullName = `${user?.account?.title && user.account.title + user?.account?.firstName} ${
     user?.account?.lastName
   }`;
-
+  const useLocal = useLocalStorage();
+  const accessToken = useLocal.getToken()!;
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);

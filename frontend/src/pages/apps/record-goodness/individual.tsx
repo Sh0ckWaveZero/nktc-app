@@ -7,7 +7,6 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
 import { HiOutlineStar } from 'react-icons/hi';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/record-goodness/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
@@ -15,6 +14,7 @@ import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudentStore } from '@/store/index';
 import RenderAvatar from '@/@core/components/avatar';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 
 interface CellType {
@@ -26,13 +26,13 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken()!;
 
 const RecordGoodnessIndividual = () => {
   // ** Hooks
   const { user } = useAuth();
-  
+  const useLocal = useLocalStorage();
+
+  const accessToken = useLocal.getToken()!;
 
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);

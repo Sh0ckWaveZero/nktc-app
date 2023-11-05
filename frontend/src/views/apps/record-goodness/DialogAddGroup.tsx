@@ -21,7 +21,6 @@ import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from 'utils/event';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
@@ -33,10 +32,8 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 dayjs.extend(buddhistEra);
-
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -71,7 +68,8 @@ interface DialogAddGoodnessGroupProps {
 }
 const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const { onOpen, data, handleClose, auth, handleSusses } = props;
-
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   // hooks
   const { createGoodnessGroup }: any = goodnessIndividualStore(
     (state: any) => ({ createGoodnessGroup: state.createGoodnessGroup }),
@@ -162,7 +160,14 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   );
 
   return (
-    <Dialog fullWidth open={onOpen} maxWidth='sm' scroll='body' onClose={onHandleClose} TransitionComponent={Transition}>
+    <Dialog
+      fullWidth
+      open={onOpen}
+      maxWidth='sm'
+      scroll='body'
+      onClose={onHandleClose}
+      TransitionComponent={Transition}
+    >
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
         <IconButton size='small' onClick={onHandleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
           <Icon icon='mdi:close' />

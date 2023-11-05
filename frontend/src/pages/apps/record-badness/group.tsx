@@ -8,7 +8,6 @@ import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogCla
 import DialogStudentGroup from '@/views/apps/record-goodness/DialogStudentsGroup';
 import { HiThumbDown } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
@@ -16,12 +15,12 @@ import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
 import { deepOrange } from '@mui/material/colors';
 import DialogAddGroup from '@/views/apps/record-badness/DialogAddGroup';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 export interface DialogTitleProps {
   id: string;
   children?: React.ReactNode;
@@ -31,8 +30,9 @@ export interface DialogTitleProps {
 const BadnessGroup = () => {
   // ** Hooks
   const auth = useAuth();
+  const useLocal = useLocalStorage();
 
-  const storedToken = localStorageService.getToken()!;
+  const storedToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
 
   // ** Local State

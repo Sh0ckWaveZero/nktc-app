@@ -17,18 +17,17 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { badnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -48,7 +47,8 @@ export interface DialogTitleProps {
 const ReportStudentBadness = () => {
   // ** Hooks
   const { user }: any = useAuth();
-  const storedToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const storedToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { fetchBadnessIndividualById }: any = badnessIndividualStore(

@@ -6,7 +6,7 @@ import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColumns } from '@mui/x-data-grid';
 
 // ** Store Imports
-import { useReportCheckInStore, useClassroomStore, useActivityCheckInStore } from '@/store/index';
+import { useClassroomStore, useActivityCheckInStore } from '@/store/index';
 
 // ** Custom Components Imports
 import { useEffectOnce } from '@/hooks/userCommon';
@@ -20,19 +20,19 @@ import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/activity-check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface CellType {
   // row: teachersTypes;
   row: any;
 }
-const localStorageService = new LocalStorageService();
 
 const SummaryCheckInReportActivity = () => {
   // ** Hooks
   const auth = useAuth();
-  const accessToken = localStorageService.getToken()!;
+  const useLocal = useLocalStorage();
+  const accessToken = useLocal.getToken()!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
 

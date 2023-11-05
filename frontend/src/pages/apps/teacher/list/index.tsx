@@ -34,7 +34,6 @@ import { DataGrid } from '@mui/x-data-grid';
 import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
 import IconifyIcon from '@/@core/components/icon';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import ResetPasswordDialog from '@/views/apps/admin/teacher/ResetPasswordDialog';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 import TableHeader from '@/views/apps/teacher/list/TableHeader';
@@ -48,6 +47,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import DialogDeleteTeacher from '@/views/apps/admin/teacher/DialogDeleteTeacher';
 import RenderAvatar from '@/@core/components/avatar';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface UserRoleType {
   [key: string]: ReactElement;
@@ -93,13 +93,9 @@ const StyledLink = styled(Link)(({ theme }) => ({
   marginRight: theme.spacing(8),
 }));
 
-const localStorageService = new LocalStorageService();
 
-const accessToken = localStorageService.getToken()!;
 
 const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsType) => {
-  // ** Hooks
-
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const rowOptionsOpen = Boolean(anchorEl);
@@ -170,6 +166,9 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
 };
 
 const TeacherList = () => {
+  const useLocal = useLocalStorage();
+  const accessToken = useLocal.getToken()!;
+  
   // ** Local State
   const [value, setValue] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(10);

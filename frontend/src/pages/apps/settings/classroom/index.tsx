@@ -6,7 +6,6 @@ import AddClassroomDrawer from '@/views/apps/settings/classroom/AddClassroomDraw
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import DialogDeleteClassroom from '@/views/apps/settings/classroom/DialogDeleteClassroom';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/settings/classroom/TableHeader';
 import { generateErrorMessages } from 'utils/event';
 import { shallow } from 'zustand/shallow';
@@ -14,6 +13,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useClassroomStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface RowOptionsType {
   row: any;
@@ -23,9 +23,6 @@ interface RowOptionsType {
 interface CellType {
   row: any;
 }
-
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken()!;
 
 const ODD_OPACITY = 0.2;
 
@@ -100,6 +97,8 @@ const RowOptions = ({ row, handleDelete }: RowOptionsType) => {
 };
 
 const ClassroomList = () => {
+  const useLocal = useLocalStorage();
+  const accessToken = useLocal.getToken()!;
   // ** Local State
   const [value, setValue] = useState<string>('');
 

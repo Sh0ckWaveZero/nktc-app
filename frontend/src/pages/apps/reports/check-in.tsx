@@ -42,15 +42,13 @@ import { useRouter } from 'next/router';
 import { Close } from 'mdi-material-ui';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '../../../hooks/useAuth';
-import { LocalStorageService } from '@/services/localStorageService';
 import Icon from '@/@core/components/icon';
 import IconifyIcon from '@/@core/components/icon';
 import RenderAvatar from '@/@core/components/avatar';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 interface CellType {
   row: any;
 }
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const CheckboxStyled = styled(Checkbox)<CheckboxProps>(() => ({
   padding: '0 0 0 4px',
@@ -61,6 +59,9 @@ const StudentCheckIn = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
+  const useLocal = useLocalStorage();
+
+  const storedToken = useLocal.getToken()!;
 
   const { getReportCheckIn, addReportCheckIn }: any = useReportCheckInStore(
     (state) => ({

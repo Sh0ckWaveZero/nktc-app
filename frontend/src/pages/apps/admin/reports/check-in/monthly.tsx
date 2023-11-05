@@ -30,7 +30,7 @@ const AdminCheckInMonthlyReport = () => {
     shallow,
   );
 
-  const storedToken = localStorageService.getToken()!;
+  const storedToken = useLocal.getToken()!;
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
