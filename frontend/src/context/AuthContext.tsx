@@ -71,7 +71,7 @@ const AuthProvider = ({ children }: Props) => {
     try {
       const response = await axios.post(authConfig.loginEndpoint as string, params);
       const { data } = response;
-      useLocal.setToken(data.token);
+      useLocal.setToken(data?.access_token);
       const returnUrl = router.query.returnUrl;
       setUser(await data?.data);
       window.localStorage.setItem('userData', JSON.stringify(data));
