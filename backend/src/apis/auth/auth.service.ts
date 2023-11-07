@@ -4,6 +4,8 @@ import { User } from '@prisma/client';
 import { UsersService } from '../../apis/users/users.service';
 import configuration from '../../config/configuration';
 import { JwtPayload } from './jwt.strategy';
+import { Tokens } from './types/tokens.type';
+import { PrismaService } from '../../common/services/prisma.service';
 
 export interface RegistrationStatus {
   success: boolean;
@@ -21,7 +23,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly prisma: PrismaService,
+  ) { }
 
   async register(userDto: any): Promise<RegistrationStatus> {
     try {
@@ -41,20 +44,22 @@ export class AuthService {
 
   async login(loginUserDto: any, ipAddress: string): Promise<any> {
     // find user in db
-    const loginResults = await this.usersService.login(loginUserDto);
+    const info = await this.usersService.login(loginUserDto);
 
-    if (!loginResults) {
+    if (!info) {
       return null;
     }
 
     // generate and sign token
-    const token = this.createAccessToken(loginResults);
+    const tokens = await this.getTokens(info);
+    await this.updateRefreshToken(info?.id as any, tokens.refresh_token);
+
 
     return {
       success: true,
       message: 'login successfully',
-      data: loginResults,
-      ...token,
+      data: info,
+      ...tokens,
     };
   }
 
@@ -66,12 +71,14 @@ export class AuthService {
     const { password: p, ...rest } = user;
 
     // generate and sign token
-    const token = this.createAccessToken(rest);
+    const tokens = await this.getTokens(rest);
+    await this.updateRefreshToken(rest?.id as any, tokens.refresh_token);
+
     return {
       success: true,
       message: 'Password has been updated successfully',
       data: rest,
-      ...token,
+      ...tokens,
     };
   }
 
@@ -86,14 +93,36 @@ export class AuthService {
     return await this.usersService.finedById(user.id);
   }
 
-  private createAccessToken(data: any): any {
-    const payload = { username: data.username, sub: data.id, roles: data.role };
+  async updateRefreshToken(userId: number, rt: string): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: userId as any,
+      },
+      data: {
+        refreshToken: rt,
+      },
+    });
+  }
+
+  async getTokens(data: any): Promise<Tokens> {
+    const payload = { username: data?.username, sub: data?.id, roles: data?.role };
+
     const user: JwtPayload = payload;
 
-    const token = this.jwtService.sign(user);
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(user, {
+        secret: configuration().jwtSecret,
+        expiresIn: configuration().jwtExpiresIn,
+      }),
+      this.jwtService.signAsync(user, {
+        secret: configuration().rtSecret,
+        expiresIn: '7d',
+      }),
+    ]);
+
     return {
-      expiresIn: configuration().jwtExpiresIn,
-      token,
+      access_token: at,
+      refresh_token: rt,
     };
   }
 }

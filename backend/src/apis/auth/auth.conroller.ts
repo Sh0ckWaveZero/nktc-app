@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
+import { Tokens } from './types/tokens.type';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -94,4 +95,5 @@ export class AuthController {
       throw new HttpException(error.message, HttpStatus.FORBIDDEN);
     }
   }
+
 }
