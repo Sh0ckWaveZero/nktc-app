@@ -11,9 +11,9 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { ReportCheckInService } from './report-check-in.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/common/guards';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('reportCheckIn')

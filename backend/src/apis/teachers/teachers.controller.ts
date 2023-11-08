@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/common/guards';
 
 @ApiTags('teachers')
 @Controller('teachers')

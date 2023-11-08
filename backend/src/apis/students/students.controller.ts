@@ -16,8 +16,8 @@ import {
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../auth/common/guards';
 
 @ApiTags('students')
 @Controller('students')

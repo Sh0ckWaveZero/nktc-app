@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StaticsService } from './statics.service';
 import configuration from '../../config/configuration';
+import { JwtAuthGuard } from '../auth/common/guards';
 
 @ApiTags('statics')
 @Controller('statics')

@@ -1,11 +1,12 @@
-import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UsersService } from '../../apis/users/users.service';
 import configuration from '../../config/configuration';
-import { JwtPayload } from './jwt.strategy';
+import { JwtPayload } from './strategies/jwt.strategy';
 import { Tokens } from './types/tokens.type';
 import { PrismaService } from '../../common/services/prisma.service';
+import * as argon from 'argon2';
 
 export interface RegistrationStatus {
   success: boolean;
@@ -72,7 +73,7 @@ export class AuthService {
 
     // generate and sign token
     const tokens = await this.getTokens(rest);
-    await this.updateRefreshToken(rest?.id as any, tokens.refresh_token);
+    await this.updateRefreshToken(rest?.id, tokens.refresh_token);
 
     return {
       success: true,
@@ -93,13 +94,31 @@ export class AuthService {
     return await this.usersService.finedById(user.id);
   }
 
-  async updateRefreshToken(userId: number, rt: string): Promise<void> {
+  async refreshTokens(data: any): Promise<Tokens> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: data.sub,
+      },
+    });
+    if (!user || !user.refreshToken) throw new ForbiddenException('Access Denied');
+
+    const rtMatches = await argon.verify(user.refreshToken, data.refreshToken);
+    if (!rtMatches) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(data);
+    await this.updateRefreshToken(user.id, tokens.refresh_token);
+
+    return tokens;
+  }
+
+  async updateRefreshToken(userId: string, rt: string): Promise<void> {
+    const hash = await argon.hash(rt);
     await this.prisma.user.update({
       where: {
-        id: userId as any,
+        id: userId,
       },
       data: {
-        refreshToken: rt,
+        refreshToken: hash,
       },
     });
   }

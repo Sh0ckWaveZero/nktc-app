@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DepartmentsService } from './departments.service';
+import { JwtAuthGuard } from '../auth/common/guards';
 
 @Controller('departments')
 @ApiTags('departments')

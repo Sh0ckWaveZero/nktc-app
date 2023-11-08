@@ -23,14 +23,13 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
 import { Tokens } from './types/tokens.type';
+import { JwtAuthGuard, LocalAuthGuard, RefreshTokenGuard } from './common/guards';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   public async register(
@@ -96,4 +95,12 @@ export class AuthController {
     }
   }
 
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refreshTokens(
+    @Request() req: any
+  ): Promise<Tokens> {
+    return this.authService.refreshTokens(req.user);
+  }
 }
