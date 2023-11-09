@@ -46,7 +46,7 @@ import '../styles/globals.css';
 import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { LocalStorageProvider } from '@/context/LocalStorageContext';
-import { AxiosInterceptor } from '@/@core/components/auth/axiosInterceptor';
+import { AxiosInterceptor } from '@/@core/components/auth/AxiosInterceptor';
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -111,28 +111,28 @@ const App = (props: ExtendedAppProps) => {
 
       <LocalStorageProvider>
         <AuthProvider>
-          <AxiosInterceptor>
-            <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
-              <SettingsConsumer>
-                {({ settings }) => {
-                  return (
-                    <ThemeComponent settings={settings}>
-                      <WindowWrapper>
+          <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
+            <SettingsConsumer>
+              {({ settings }) => {
+                return (
+                  <ThemeComponent settings={settings}>
+                    <WindowWrapper>
+                      <AxiosInterceptor>
                         <Guard authGuard={authGuard} guestGuard={guestGuard}>
                           <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
                             {getLayout(<Component {...pageProps} />)}
                           </AclGuard>
                         </Guard>
-                      </WindowWrapper>
-                      <ReactHotToast>
-                        <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-                      </ReactHotToast>
-                    </ThemeComponent>
-                  );
-                }}
-              </SettingsConsumer>
-            </SettingsProvider>
-          </AxiosInterceptor>
+                      </AxiosInterceptor>
+                    </WindowWrapper>
+                    <ReactHotToast>
+                      <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
+                    </ReactHotToast>
+                  </ThemeComponent>
+                );
+              }}
+            </SettingsConsumer>
+          </SettingsProvider>
         </AuthProvider>
       </LocalStorageProvider>
     </CacheProvider>

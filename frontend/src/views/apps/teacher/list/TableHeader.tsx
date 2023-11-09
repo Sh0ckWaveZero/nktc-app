@@ -53,15 +53,19 @@ const TableHeader = (props: TableHeaderProps) => {
   ];
 
   const mapDataToTable = (data: any[]): Data[] => {
-    return data.map((item: any, index: number) => {
-      return {
-        id: index + 1,
-        username: item.username,
-        fullName: `${item.firstName} ${item.lastName}`,
-        logs: item.loginCountByUser?.map((log: any) => log.date).join('| '),
-        total: item.loginCountByUser.length,
-      };
-    });
+    if (Array.isArray(data)) {
+      return data?.map((item: any, index: number) => {
+        return {
+          id: index + 1,
+          username: item.username,
+          fullName: `${item.firstName} ${item.lastName}`,
+          logs: item.loginCountByUser?.map((log: any) => log.date).join('| '),
+          total: item.loginCountByUser.length,
+        };
+      });
+    } else {
+      return [];
+    }
   };
 
   const date = new Date();
