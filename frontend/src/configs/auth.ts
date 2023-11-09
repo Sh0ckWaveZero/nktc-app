@@ -16,6 +16,7 @@ type AuthConfig = {
   userEndpoint?: string;
   levelEndpoint?: string;
   visitEndpoint?: string;
+  refreshTokenEndpoint?: string;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -38,4 +39,5 @@ export const authConfig: AuthConfig = {
   userEndpoint: `${apiUrl}/users`,
   levelEndpoint: `${apiUrl}/levels`,
   visitEndpoint: `${apiUrl}/visits`,
+  refreshTokenEndpoint: `${apiUrl}/auth/refresh`,
 };
