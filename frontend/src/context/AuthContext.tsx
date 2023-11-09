@@ -75,6 +75,7 @@ const AuthProvider = ({ children }: Props) => {
       const returnUrl = router.query.returnUrl;
       setUser(await data?.data);
       window.localStorage.setItem('userData', JSON.stringify(data));
+      window.localStorage.setItem('refresh_token', data?.refresh_token);
       const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
       router.replace(redirectURL as string);
     } catch (err: any) {
