@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@aldabil/react-scheduler@^2.7.25":
-  version "2.7.25"
-  resolved "https://registry.yarnpkg.com/@aldabil/react-scheduler/-/react-scheduler-2.7.25.tgz#0e741c42917caa8acc1f3ef7b00f1f4b672968cd"
-  integrity sha512-KiW+3RKOFDd3ZH3pSpxpdmiLIC/9BsLHHwNgGYH49z5GC26LbUh7xAOOM4bz4zW9OH1ObVu2eNXp7B/o/xZxow==
+"@aldabil/react-scheduler@2.7.26":
+  version "2.7.26"
+  resolved "https://registry.yarnpkg.com/@aldabil/react-scheduler/-/react-scheduler-2.7.26.tgz#faaebc593342ff09eecac5f371383b5b454f59f9"
+  integrity sha512-SnqcBQiBCzDiZ2h9DoXnTH8HJ5J/mU1A3KtXqLIqP2cNog9/9ws9m6EZ8i3mIx3SFPpPCfQ2/P7Yp8zyFlr4Zg==
 
 "@babel/code-frame@^7.0.0":
   version "7.18.6"
@@ -658,7 +658,7 @@
     prop-types "^15.8.1"
     react-transition-group "^4.4.5"
 
-"@next/bundle-analyzer@14.0.2":
+"@next/bundle-analyzer@^14.0.2":
   version "14.0.2"
   resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-14.0.2.tgz#bf207f7d5c1891ca57e21ec53245c7c5e69e094a"
   integrity sha512-EsFpYsXUq0oj3LnTCCWQ6bH8D2M1MWVJJCQ7hn4g+rP4/ksfOMjfsHpsOUscaAadLwdXoupmRqsQ23Y/7NlpDg==
