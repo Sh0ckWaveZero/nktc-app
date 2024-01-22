@@ -37,10 +37,10 @@ import validate from './config/validation';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 50,
-    }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
     AccountsModule,
     ActivityCheckInModule,
     AppBarModule,
