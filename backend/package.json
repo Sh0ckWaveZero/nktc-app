@@ -53,6 +53,7 @@
     "rimraf": "^5.0.5",
     "run-script-webpack-plugin": "^0.2.0",
     "rxjs": "^7.8.1",
+    "semver": "^7.6.0",
     "swagger-ui-express": "^5.0.0",
     "ua-parser-js": "^1.0.37",
     "webpack": "^5.90.3"
