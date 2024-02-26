@@ -5,17 +5,18 @@ import { InvariantError } from '../exceptions/invariantError';
 
 const db = new PrismaClient();
 
-export const authenticationsService = {
-  verifyRefreshToken: async (refresh_token: string) => {
+class AuthenticationsService {
+  async verifyRefreshToken(refresh_token: string) {
     const token = await db.user.findFirst({
       where: {
         refreshToken: refresh_token,
       },
     });
 
-    if (!token) throw new NotFoundError("Token is incorrect!")
-  },
-  addRefreshToken: async (userId: string, hash: string) => {
+    if (!token) throw new NotFoundError("Token is incorrect!");
+  }
+
+  async addRefreshToken(userId: string, hash: string) {
     const token = await db.user.update({
       where: {
         id: userId,
@@ -26,11 +27,12 @@ export const authenticationsService = {
       select: {
         refreshToken: true,
       },
-    })
+    });
 
+    if (!token) throw new InvariantError("Token failed to be added");
 
-    if (!token) throw new InvariantError("Token failed to be added")
-
-    return token.refreshToken
+    return token.refreshToken;
   }
 }
+
+export const authenticationsService = new AuthenticationsService();

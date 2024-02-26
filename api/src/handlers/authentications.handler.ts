@@ -3,8 +3,8 @@ import { authenticationsService } from '../services/authentications.service';
 import { usersService } from '../services/users.service';
 
 
-export const authenticationsHandler = {
-  postAuthentications: async ({ jwt, refreshJwt, body, set }: any) => {
+class AuthenticationsHandler {
+  async postAuthentications({ jwt, refreshJwt, body, set }: any) {
     const userId = await usersService.verifyUserByUsername(body.username);
 
     const access_token = await jwt.sign(userId);
@@ -20,13 +20,9 @@ export const authenticationsHandler = {
         refresh_token: refresh_token,
       },
     };
-  },
-  putAuthentications: async ({
-    jwt,
-    refreshJwt,
-    body: { refresh_token },
-    set,
-  }: any) => {
+  }
+
+  async putAuthentications({ jwt, refreshJwt, body: { refresh_token }, set }: any) {
     await authenticationsService.verifyRefreshToken(refresh_token)
 
     const tokenPayload = await refreshJwt.verify(refresh_token);
@@ -39,12 +35,9 @@ export const authenticationsHandler = {
         access_token: access_token,
       },
     };
-  },
-  deleteAuthentications: async ({
-    refreshJwt,
-    body: { refresh_token },
-    set,
-  }: any) => {
+  }
+
+  async deleteAuthentications({ refreshJwt, body: { refresh_token }, set }: any) {
     await authenticationsService.verifyRefreshToken(refresh_token)
 
     await refreshJwt.verify(refresh_token);
@@ -53,5 +46,7 @@ export const authenticationsHandler = {
     return {
       message: "Refresh token has been successfully deleted",
     };
-  },
-};
+  }
+}
+
+export const authenticationsHandler = new AuthenticationsHandler();

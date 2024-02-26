@@ -8,13 +8,16 @@
   },
   "dependencies": {
     "@elysiajs/bearer": "^0.8.0",
+    "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.5",
     "@prisma/client": "5.10.2",
-    "elysia": "latest"
+    "elysia": "latest",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/uuid": "^9.0.8",
     "bun-types": "latest",
     "prisma": "^5.10.2"
   },

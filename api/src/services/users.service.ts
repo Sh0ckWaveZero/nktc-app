@@ -4,24 +4,30 @@ import { InvariantError } from '../exceptions/invariantError';
 import { AuthenticationError } from '../exceptions/authenticationError';
 import { AuthorizationError } from '../exceptions/authorizationError';
 
-const db = new PrismaClient();
 interface loginPayload {
   username: string,
   password: string
 }
 
-export const usersService = {
-  getUsers: async () => {
-    return await db.user.findMany({
+class UsersService {
+  private db: PrismaClient;
+
+  constructor() {
+    this.db = new PrismaClient();
+  }
+
+  async getUsers() {
+    return await this.db.user.findMany({
       select: {
         id: true,
         username: true,
         email: true,
       }
     });
-  },
-  getUserById: async (id: string) => {
-    const user = await db.user.findFirst({
+  }
+
+  async getUserById(id: string) {
+    const user = await this.db.user.findFirst({
       where: {
         id: {
           equals: id,
@@ -36,17 +42,18 @@ export const usersService = {
 
     if (!user) throw new NotFoundError("User not found");
     return user;
-  },
+  }
 
-  deleteUser: async (id: string) => {
-    await db.user.delete({
+  async deleteUser(id: string) {
+    await this.db.user.delete({
       where: {
         id: id,
       },
     });
-  },
-  getPasswordByUsername: async (username: string) => {
-    const getPassword = await db.user.findFirst({
+  }
+
+  async getPasswordByUsername(username: string) {
+    const getPassword = await this.db.user.findFirst({
       where: {
         username: {
           equals: username
@@ -60,10 +67,10 @@ export const usersService = {
     if (!getPassword) throw new InvariantError("Username is not found!")
 
     return getPassword.password
-  },
+  }
 
-  loginUser: async (body: loginPayload) => {
-    const user = await db.user.findFirst({
+  async loginUser(body: loginPayload) {
+    const user = await this.db.user.findFirst({
       where: {
         username: {
           equals: body.username,
@@ -77,13 +84,12 @@ export const usersService = {
       }
     })
 
-
     if (!user) throw new AuthenticationError("Username or password is wrong!")
     return user
-  },
+  }
 
-  verifyUserByUsername: async (username: string) => {
-    const user = await db.user.findFirst({
+  async verifyUserByUsername(username: string) {
+    const user = await this.db.user.findFirst({
       where: {
         username: {
           equals: username,
@@ -97,10 +103,10 @@ export const usersService = {
     if (!user) throw new AuthenticationError("Username or password is wrong!")
 
     return user;
-  },
+  }
 
-  verifyUserById: async (id: string) => {
-    const user = await db.user.findFirst({
+  async verifyUserById(id: string) {
+    const user = await this.db.user.findFirst({
       where: {
         username: {
           equals: id,
@@ -109,10 +115,10 @@ export const usersService = {
     });
 
     if (!user) throw new AuthorizationError("You have no access!")
-  },
+  }
 
-  verifyUsernameIsAvailable: async (username: string) => {
-    const isAvailable = await db.user.findFirst({
+  async verifyUsernameIsAvailable(username: string) {
+    const isAvailable = await this.db.user.findFirst({
       where: {
         username: {
           equals: username
@@ -122,4 +128,6 @@ export const usersService = {
 
     if (isAvailable) throw new InvariantError('Username already exist!')
   }
-};
+}
+
+export const usersService = new UsersService();

@@ -8,6 +8,8 @@ import { cors } from '@elysiajs/cors';
 import { jwt } from '@elysiajs/jwt';
 import { bearer } from '@elysiajs/bearer';
 import { configureAuthenticationsRoutes } from './routes/authentications.route';
+import { configureUsersRoutes } from './routes/users.route';
+import { cookie } from '@elysiajs/cookie';
 
 export const app = new Elysia({
   // prefix: env.BUN_PREFIX,
@@ -61,17 +63,16 @@ export const app = new Elysia({
     name: 'refreshJwt',
     secret: env.RT_SECRET as string,
   }))
-  // .use(cookie())
+  .use(cookie())
   .use(cors())
   .use(bearer())
   .use(swagger({
-    path: "/swagger"
+    path: "/docs"
   }));
-
-
 
 app
   .get("/", () => `Welcome to Bun NKTC`)
+  .group("/users", configureUsersRoutes)
   .group("/authentications", configureAuthenticationsRoutes)
 
 app.listen(3000);
