@@ -73,9 +73,9 @@ export const app = new Elysia({
 app
   .get("/", () => `Welcome to Bun NKTC`)
   .group("/users", configureUsersRoutes)
-  .group("/authentications", configureAuthenticationsRoutes)
+  .group("/auth", configureAuthenticationsRoutes)
 
-app.listen(3000);
+app.listen(env.PORT || 3001);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

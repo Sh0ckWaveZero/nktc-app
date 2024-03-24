@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { NotFoundError } from "elysia";
-import { InvariantError } from '../exceptions/invariantError';
-
-
-const db = new PrismaClient();
+import { InvariantError } from '@/exceptions/invariantError';
 
 class AuthenticationsService {
+
+  constructor(
+    private db: PrismaClient = new PrismaClient(),
+  ) { }
   async verifyRefreshToken(refresh_token: string) {
-    const token = await db.user.findFirst({
+    const token = await this.db.user.findFirst({
       where: {
         refreshToken: refresh_token,
       },
@@ -17,7 +18,7 @@ class AuthenticationsService {
   }
 
   async addRefreshToken(userId: string, hash: string) {
-    const token = await db.user.update({
+    const token = await this.db.user.update({
       where: {
         id: userId,
       },

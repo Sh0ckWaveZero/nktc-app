@@ -1,6 +1,7 @@
 import { t } from 'elysia';
-import { usersService } from '../services/users.service';
-class UsersHandler {
+import { usersService } from '@/services/users.service';
+class UsersController {
+
   async getUsers() {
     const users = await usersService.getUsers();
     return {
@@ -10,7 +11,6 @@ class UsersHandler {
   }
 
   async getUserById({ set, params: { id } }: any) {
-    console.log('🚀 ~ UsersHandler ~ getUserById ~ id:', id);
     const user = await usersService.getUserById(id);
     set.status = 200;
     return {
@@ -60,4 +60,4 @@ class UsersHandler {
   });
 }
 
-export const usersHandler = new UsersHandler();
+export const userController = new UsersController();

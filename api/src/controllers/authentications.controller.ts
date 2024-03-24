@@ -1,16 +1,25 @@
 
-import { authenticationsService } from '../services/authentications.service';
-import { usersService } from '../services/users.service';
+import { authenticationsService } from '@/services/authentications.service';
+import { usersService } from '@/services/users.service';
 
 
-class AuthenticationsHandler {
+class AuthenticationsController {
+  constructor(
+
+  ) { }
   async postAuthentications({ jwt, refreshJwt, body, set }: any) {
     const userId = await usersService.verifyUserByUsername(body.username);
+    if (!userId) {
+      throw new Error('User not found');
+    }
 
     const access_token = await jwt.sign(userId);
     const refresh_token = await refreshJwt.sign(userId);
 
-    await authenticationsService.addRefreshToken(userId.id, refresh_token)
+    const tokenAdded = await authenticationsService.addRefreshToken(userId.id, refresh_token);
+    if (!tokenAdded) {
+      throw new Error('Failed to add refresh token');
+    }
 
     set.status = 201;
 
@@ -49,4 +58,4 @@ class AuthenticationsHandler {
   }
 }
 
-export const authenticationsHandler = new AuthenticationsHandler();
+export const authenticationController = new AuthenticationsController();

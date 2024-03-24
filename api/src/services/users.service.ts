@@ -1,8 +1,8 @@
 import { NotFoundError } from "elysia";
 import { PrismaClient } from "@prisma/client";
-import { InvariantError } from '../exceptions/invariantError';
-import { AuthenticationError } from '../exceptions/authenticationError';
-import { AuthorizationError } from '../exceptions/authorizationError';
+import { InvariantError } from '@/exceptions/invariantError';
+import { AuthenticationError } from '@/exceptions/authenticationError';
+import { AuthorizationError } from '@/exceptions/authorizationError';
 
 interface loginPayload {
   username: string,
@@ -10,11 +10,12 @@ interface loginPayload {
 }
 
 class UsersService {
-  private db: PrismaClient;
 
-  constructor() {
-    this.db = new PrismaClient();
-  }
+
+  constructor(
+    private db = new PrismaClient(),
+  ) { }
+
 
   async getUsers() {
     return await this.db.user.findMany({

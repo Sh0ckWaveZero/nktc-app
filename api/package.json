@@ -11,7 +11,7 @@
     "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/jwt": "^1.0.2",
-    "@elysiajs/swagger": "^1.0.2",
+    "@elysiajs/swagger": "^1.0.3",
     "@prisma/client": "5.11.0",
     "elysia": "1.0.7",
     "uuid": "^9.0.1"
