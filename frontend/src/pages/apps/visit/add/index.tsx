@@ -72,7 +72,11 @@ const CreateVisit = () => {
     },
   ];
 
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: defaultValues,
     mode: 'onChange',
     resolver: yupResolver(schema) as any,
@@ -80,74 +84,83 @@ const CreateVisit = () => {
 
   const onSubmit = async (data: any, e: any) => {
     e.preventDefault();
+    console.log('🚀 ~ file: index.tsx:82 ~ onSubmit ~ data:', data);
   };
 
+  console.log('🚀 ~ CreateVisit ~ errors:', errors);
+
+  
   return (
     ability?.can('create', 'create-visit-student-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
       <Fragment>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Button
-            variant='contained'
-            onClick={() => router.back()}
-            startIcon={<Icon icon='mdi:arrow-left' width={24} height={24} />}
-            sx={{
-              mb: 5,
-            }}
-          >
-            ย้อนกลับ
-          </Button>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Card>
-                <CardHeader
-                  avatar={
-                    <Avatar sx={{ color: 'primary.main' }} aria-label='create-visit'>
-                      <Icon icon='mdi:home-switch-outline' width={24} height={24} />
-                    </Avatar>
-                  }
-                  sx={{
-                    color: 'text.primary',
-                    pb: 2,
-                  }}
-                  title={`สร้างบันทึกการเยี่ยมบ้านนักเรียน`}
-                  subheader={`ครั้งที่ 2  ภาคเรียนที่ 2 ปีการศึกษา 2565`}
-                />
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {student && (
-                        <RenderAvatar
-                          row={student?.account}
-                          storedToken={storedToken}
-                          customStyle={{
-                            width: 150,
-                            height: 150,
-                            mb: 10,
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box sx={{ mb: 6 }}>{<SurveyList list={about as any} />}</Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box sx={{ mb: 6 }}>{survey && <SurveyForm control={control} list={survey} />}</Box>
-                    </Grid>
+        <Button
+          variant='contained'
+          onClick={() => router.back()}
+          startIcon={<Icon icon='mdi:arrow-left' width={24} height={24} />}
+          sx={{
+            mb: 5,
+          }}
+        >
+          ย้อนกลับ
+        </Button>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader
+                avatar={
+                  <Avatar sx={{ color: 'primary.main' }} aria-label='create-visit'>
+                    <Icon icon='mdi:home-switch-outline' width={24} height={24} />
+                  </Avatar>
+                }
+                sx={{
+                  color: 'text.primary',
+                  pb: 2,
+                }}
+                title={`สร้างบันทึกการเยี่ยมบ้านนักเรียน`}
+                subheader={`ครั้งที่ 2  ภาคเรียนที่ 2 ปีการศึกษา 2565`}
+              />
+              <CardContent>
+                <Grid container spacing={2}>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {student && (
+                      <RenderAvatar
+                        row={student?.account}
+                        storedToken={storedToken}
+                        customStyle={{
+                          width: 150,
+                          height: 150,
+                          mb: 10,
+                        }}
+                      />
+                    )}
                   </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ mb: 6 }}>{<SurveyList list={about as any} />}</Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                      <Fragment>
+                        <Box sx={{ mb: 6 }}>{survey && <SurveyForm control={control} list={survey} errors={errors}/>}</Box>
+                      </Fragment>
+                      <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
+                        บันทึกข้อมูล
+                      </Button>
+                    </form>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           </Grid>
-        </form>
+        </Grid>
       </Fragment>
     )
   );

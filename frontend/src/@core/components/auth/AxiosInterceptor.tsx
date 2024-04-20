@@ -3,7 +3,6 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, useMediaQuer
 import { Fragment, useEffect, useState } from 'react';
 
 import IconifyIcon from '../icon';
-import Lottie from 'lottie-react';
 import { authConfig } from '@/configs/auth';
 import httpClient from '../../utils/http';
 import timeoutAnimation from '../../animations/TimeoutAnimation.json';
@@ -42,7 +41,7 @@ const UnauthorizedDialog = ({ open, handleClose }: any) => (
       เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน
     </DialogTitle>
     <DialogContent>
-      <Lottie animationData={timeoutAnimation} loop={5} />
+      
     </DialogContent>
     <DialogActions
       sx={{

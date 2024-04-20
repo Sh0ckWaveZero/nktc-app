@@ -12,14 +12,14 @@
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/jwt": "^1.0.2",
     "@elysiajs/swagger": "^1.0.3",
-    "@prisma/client": "5.11.0",
+    "@prisma/client": "^5.12.1",
     "elysia": "1.0.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.8",
     "bun-types": "latest",
-    "prisma": "^5.11.0"
+    "prisma": "^5.12.1"
   },
   "module": "src/index.js"
 }

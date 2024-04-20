@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography, alpha, useTheme } from '@mui/material';
 
 // ** Custom Components Imports
 import CustomAvatar from '@/@core/components/mui/avatar';
@@ -18,13 +18,16 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 const CardMenu = (props: CardMenuProps) => {
   // ** Props
   const { title, subtitle, color, icon, navLink, badge } = props;
+  const theme = useTheme();
+  const hoverBgColor = theme.palette.mode === 'dark' ? theme.palette.grey[800] : alpha(theme.palette.primary.main, 0.08);
+
   return (
     <CanViewNavLink navLink={navLink}>
       <LinkStyled href={`${navLink?.path}`} passHref>
         <Card
           sx={{
             ':hover': {
-              backgroundColor: '#f5f5f5',
+              backgroundColor: hoverBgColor,
               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
               cursor: 'pointer',
               '& .MuiAvatar-root': {
