@@ -10,7 +10,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -27,7 +27,6 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 interface CellType {
   row: any;
 }
-
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -108,7 +107,7 @@ const ReportStudentBadness = () => {
     setPageSize(newPage);
   }, []);
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 160,
@@ -289,6 +288,11 @@ const ReportStudentBadness = () => {
     },
   ];
 
+  const handlePaginationModelChange = (paginationModel: any) => {
+    setPage(paginationModel.page);
+    onHandleChangePage(paginationModel.pageSize);
+  };
+
   return (
     ability?.can('read', 'student-badness-report') &&
     user?.role !== 'Admin' && (
@@ -305,23 +309,21 @@ const ReportStudentBadness = () => {
                 sx={{ color: 'text.primary' }}
                 title={`Report ความประพฤติ`}
               />
-
               <DataGrid
                 autoHeight
                 columns={columns}
                 rows={data ?? []}
                 disableColumnMenu
                 loading={loading}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
                 pagination
                 paginationMode='server'
-                pageSize={pageSize}
                 rowCount={total}
-                onPageChange={(params: any) => setPage(params)}
-                rowsPerPageOptions={[5, 10, 20, 50]}
-                onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
+                paginationModel={{ page, pageSize }}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPaginationModelChange={(paginationModel) => handlePaginationModelChange(paginationModel)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
+                }}
               />
             </Card>
           </Grid>

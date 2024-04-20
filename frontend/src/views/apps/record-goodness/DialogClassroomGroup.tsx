@@ -12,7 +12,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import React, { ChangeEvent, useState } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -65,7 +65,7 @@ export default function DialogClassroomGoodnessGroup({
   studentsList,
 }: Props) {
   const [pageSize, setPageSize] = useState(students.length > 0 ? students.length : 10);
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 160,

@@ -14,7 +14,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -31,7 +31,6 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 interface CellType {
   row: any;
 }
-
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -139,7 +138,7 @@ const StudentGoodnessSummaryReport = () => {
     setOpenConfirm(false);
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.05,
       minWidth: 60,
@@ -283,6 +282,13 @@ const StudentGoodnessSummaryReport = () => {
     },
   ];
 
+  const handlePaginationModelChange = (paginationModel: any) => {
+    const { page, pageSize } = paginationModel;
+    setPage(page);
+    setPageSize(pageSize);
+    onHandleChangePage(pageSize);
+  };
+
   return (
     ability?.can('read', 'student-badness-summary-report') && (
       <Fragment>
@@ -304,16 +310,15 @@ const StudentGoodnessSummaryReport = () => {
                 rows={data ?? []}
                 disableColumnMenu
                 loading={loading}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
                 pagination
                 paginationMode='server'
-                pageSize={pageSize}
                 rowCount={total}
-                onPageChange={(params: any) => setPage(params)}
-                rowsPerPageOptions={[10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
+                pageSizeOptions={[10, 20, 50, 100]}
+                paginationModel={{ page, pageSize }}
+                onPaginationModelChange={(paginationModel) => handlePaginationModelChange(paginationModel)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
+                }}
               />
             </Card>
           </Grid>

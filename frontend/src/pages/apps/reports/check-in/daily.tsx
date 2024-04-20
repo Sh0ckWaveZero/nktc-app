@@ -18,7 +18,7 @@ import {
   styled,
   alpha,
 } from '@mui/material';
-import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
 
 // ** Custom Components Imports
 import CustomChip from '@/@core/components/mui/chip';
@@ -439,7 +439,7 @@ const ReportCheckInDaily = () => {
     onClearAll();
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.15,
       minWidth: 160,
@@ -627,7 +627,7 @@ const ReportCheckInDaily = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                headerHeight={150}
+                columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 rowsPerPageOptions={[pageSize]}

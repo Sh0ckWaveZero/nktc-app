@@ -12,7 +12,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import { useClassroomStore, useStudentStore } from '@/store/index';
@@ -159,7 +159,7 @@ const StudentList = () => {
     [setSearchValue, searchValue],
   );
 
-  const defaultColumns: GridColumns = [
+  const defaultColumns: GridColDef[] = [
     {
       flex: 0.25,
       minWidth: 230,
@@ -309,14 +309,14 @@ const StudentList = () => {
             <DataGrid
               autoHeight
               rows={students}
-              pageSize={pageSize}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
               columns={defaultColumns}
               loading={loadingStudent}
-              rowsPerPageOptions={[10, 25, 50]}
-              onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+              pageSizeOptions={[10, 20, 50, 100]}
+              paginationModel={{ page: 0, pageSize }}
+              onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+              slots={{
+                noRowsOverlay: CustomNoRowsOverlay,
               }}
               disableColumnMenu
             />

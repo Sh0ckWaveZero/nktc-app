@@ -22,7 +22,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColumns, GridEventListener } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColDef[], GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useReportCheckInStore, useTeacherStore } from '@/store/index';
@@ -395,7 +395,7 @@ const StudentCheckIn = () => {
     }, 2000);
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.25,
       minWidth: 220,
@@ -782,7 +782,7 @@ const StudentCheckIn = () => {
                   columns={columns}
                   rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
                   disableColumnMenu
-                  headerHeight={150}
+                  columnHeaderHeight={150}
                   loading={loading}
                   onCellClick={handleCellClick}
                   onColumnHeaderClick={handleColumnHeaderClick}

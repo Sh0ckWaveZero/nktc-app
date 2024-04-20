@@ -10,7 +10,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -138,7 +138,7 @@ const ReportAllBadness = () => {
     setOpen(false);
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 160,

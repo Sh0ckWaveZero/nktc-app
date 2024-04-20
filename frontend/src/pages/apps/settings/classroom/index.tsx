@@ -276,6 +276,13 @@ const ClassroomList = () => {
     },
   ];
 
+  const handlePaginationModelChange = (paginationModel: any) => {
+    const { page, pageSize } = paginationModel;
+    setPage(page);
+    setPageSize(pageSize);
+    onHandleChangePage(pageSize);
+  };
+
   return (
     <Fragment>
       <Grid container spacing={6}>
@@ -292,13 +299,12 @@ const ClassroomList = () => {
               loading={loading}
               pagination
               paginationMode='server'
-              pageSize={pageSize}
               rowCount={total}
-              onPageChange={(params: any) => setPage(params)}
-              rowsPerPageOptions={[5, 10, 20, 50]}
-              onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+              pageSizeOptions={[10, 20, 50, 100]}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(paginationModel) => handlePaginationModelChange(paginationModel)}
+              slots={{
+                noRowsOverlay: CustomNoRowsOverlay,
               }}
               getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
             />

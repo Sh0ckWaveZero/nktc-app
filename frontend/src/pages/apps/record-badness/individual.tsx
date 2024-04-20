@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Card, CardHeader, Grid, Typography } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useState } from 'react';
 
 import { AccountEditOutline } from 'mdi-material-ui';
@@ -25,7 +25,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-
 const RecordBadnessIndividual = () => {
   // ** Hooks
   const { user } = useAuth();
@@ -49,7 +48,7 @@ const RecordBadnessIndividual = () => {
     setOpenDialog(false);
   };
 
-  const defaultColumns: GridColumns = [
+  const defaultColumns: GridColDef[] = [
     {
       flex: 0.25,
       minWidth: 230,
@@ -164,7 +163,7 @@ const RecordBadnessIndividual = () => {
       });
     })();
   };
-  
+
   const onClearSearch = () => {
     setFullName('');
     setStudentId('');
@@ -199,14 +198,14 @@ const RecordBadnessIndividual = () => {
             <DataGrid
               autoHeight
               rows={students}
-              pageSize={pageSize}
-              disableSelectionOnClick
+              paginationModel={{ page: 0, pageSize }}
+              disableRowSelectionOnClick
               columns={defaultColumns}
               loading={loadingStudent}
-              rowsPerPageOptions={[10, 25, 50]}
-              onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+              pageSizeOptions={[10, 25, 50]}
+              onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+              slots={{
+                noRowsOverlay: CustomNoRowsOverlay,
               }}
               disableColumnMenu
             />

@@ -1,5 +1,5 @@
 import { Avatar, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { Fragment, useCallback, useEffect, useState } from 'react';
@@ -20,7 +20,6 @@ const ACTIONS: Record<Action, string> = {
   CheckIn: 'เช็คชื่อหน้าเสาธง',
   Login: 'เข้าสู่ระบบ',
 };
-
 
 const HistoryPage = () => {
   const { user } = useAuth();
@@ -65,7 +64,7 @@ const HistoryPage = () => {
     setPageSize(newPage);
   }, []);
 
-  const defaultColumns: GridColumns = [
+  const defaultColumns: GridColDef[] = [
     {
       flex: 0.1,
       field: 'action',
@@ -185,6 +184,13 @@ const HistoryPage = () => {
     },
   ];
 
+  const handlePaginationModelChange = (paginationModel: any) => {
+    const { page, pageSize } = paginationModel;
+    setPage(page);
+    setPageSize(pageSize);
+    onHandleChangePage(pageSize);
+  };
+
   return (
     <Fragment>
       <Grid container spacing={6}>
@@ -208,13 +214,12 @@ const HistoryPage = () => {
               disableColumnMenu
               pagination
               paginationMode='server'
-              pageSize={pageSize}
               rowCount={total}
-              onPageChange={(params: any) => setPage(params)}
-              rowsPerPageOptions={[5, 10, 20, 50]}
-              onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+              pageSizeOptions={[10, 20, 50, 100]}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(paginationModel) => handlePaginationModelChange(paginationModel)}
+              slots={{
+                noRowsOverlay: CustomNoRowsOverlay,
               }}
             />
           </Card>

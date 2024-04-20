@@ -12,7 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { useClassroomStore, useVisitStore } from '@/store/index';
 
@@ -121,7 +121,7 @@ const VisitStudentList = () => {
     }, 2000);
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.25,
       minWidth: 220,
@@ -350,7 +350,7 @@ const VisitStudentList = () => {
                   columns={columns}
                   rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
                   disableColumnMenu
-                  headerHeight={150}
+                  columnHeaderHeight={150}
                   loading={loading}
                   rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
                   rowsPerPageOptions={[pageSize, 100]} // Include `pageSize` and `100` in the rowsPerPageOptions

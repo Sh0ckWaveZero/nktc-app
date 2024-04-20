@@ -3,7 +3,7 @@ import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
 import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useClassroomStore, useActivityCheckInStore } from '@/store/index';
@@ -96,7 +96,7 @@ const SummaryCheckInReportActivity = () => {
     return `${isNaN(num) || isEmpty(num) ? '0.00' : num.toFixed(2)}`;
   };
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 130,
@@ -288,7 +288,7 @@ const SummaryCheckInReportActivity = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                headerHeight={150}
+                columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 rowsPerPageOptions={[pageSize]}

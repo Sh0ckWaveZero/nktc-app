@@ -31,7 +31,7 @@
     "@mui/icons-material": "5.15.15",
     "@mui/lab": "5.0.0-alpha.161",
     "@mui/material": "5.15.5",
-    "@mui/x-data-grid": "^5.17.26",
+    "@mui/x-data-grid": "^6.19.11",
     "@mui/x-date-pickers": "^5.0.20",
     "@next/bundle-analyzer": "^14.2.2",
     "@pdf-lib/fontkit": "^1.1.1",

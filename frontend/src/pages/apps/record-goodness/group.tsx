@@ -1,5 +1,5 @@
 import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -134,7 +134,7 @@ const GoodnessGroup = () => {
     setSearchValue({ fullName: null });
   }, []);
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 160,
@@ -261,11 +261,11 @@ const GoodnessGroup = () => {
                 columns={columns}
                 rows={students}
                 disableColumnMenu
-                pageSize={pageSize}
-                rowsPerPageOptions={[10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
+                paginationModel={{ page: 0, pageSize }}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
                 }}
               />
             </Card>

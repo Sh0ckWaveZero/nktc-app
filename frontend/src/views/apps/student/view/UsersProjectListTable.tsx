@@ -122,10 +122,10 @@ const InvoiceListTable = () => {
         autoHeight
         rows={data}
         columns={columns}
-        pageSize={pageSize}
-        disableSelectionOnClick
-        rowsPerPageOptions={[7, 10, 25, 50]}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+        disableRowSelectionOnClick
+        pageSizeOptions={[10, 20, 50, 100]}
+        paginationModel={{ page: 0, pageSize }}
+        onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
       />
     </Card>
   );

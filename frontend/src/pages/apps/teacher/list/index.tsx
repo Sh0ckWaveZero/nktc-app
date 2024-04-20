@@ -93,8 +93,6 @@ const StyledLink = styled(Link)(({ theme }) => ({
   marginRight: theme.spacing(8),
 }));
 
-
-
 const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsType) => {
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -168,7 +166,7 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
 const TeacherList = () => {
   const useLocal = useLocalStorage();
   const accessToken = useLocal.getToken()!;
-  
+
   // ** Local State
   const [value, setValue] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(10);
@@ -197,18 +195,17 @@ const TeacherList = () => {
     }),
     shallow,
   );
-  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher }: any =
-    useTeacherStore(
-      (state) => ({
-        addTeacher: state.addTeacher,
-        fetchTeacher: state.fetchTeacher,
-        removeTeacher: state.removeTeacher,
-        teacherLoading: state.teacherLoading,
-        update: state.update,
-        updateClassroom: state.updateClassroom,
-      }),
-      shallow,
-    );
+  const { addTeacher, removeTeacher, update, teacherLoading, updateClassroom, fetchTeacher }: any = useTeacherStore(
+    (state) => ({
+      addTeacher: state.addTeacher,
+      fetchTeacher: state.fetchTeacher,
+      removeTeacher: state.removeTeacher,
+      teacherLoading: state.teacherLoading,
+      update: state.update,
+      updateClassroom: state.updateClassroom,
+    }),
+    shallow,
+  );
   const { classroom, fetchClassroom }: any = useClassroomStore(
     (state) => ({
       classroom: state.classroom,
@@ -619,22 +616,17 @@ const TeacherList = () => {
         <Grid item xs={12}>
           <Card>
             <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
-            <TableHeader
-              value={value}
-              handleFilter={handleFilter}
-              toggle={toggleAddUserDrawer}
-               data={teachers} 
-            />
+            <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} data={teachers} />
             <DataGrid
               disableColumnMenu
               autoHeight={true}
               rows={teachers}
               getRowHeight={() => 'auto'}
               columns={columns}
-              pageSize={pageSize}
-              disableSelectionOnClick
-              rowsPerPageOptions={[10, 25, 50]}
-              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+              paginationModel={{ page: 0, pageSize }}
+              disableRowSelectionOnClick
+              pageSizeOptions={[10, 25, 50]}
+              onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
             />
           </Card>
         </Grid>

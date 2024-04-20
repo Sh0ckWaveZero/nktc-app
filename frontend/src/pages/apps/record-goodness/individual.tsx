@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Card, CardHeader, Grid, Typography } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useState } from 'react';
 
 import { AccountEditOutline } from 'mdi-material-ui';
@@ -16,7 +16,6 @@ import { useStudentStore } from '@/store/index';
 import RenderAvatar from '@/@core/components/avatar';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-
 interface CellType {
   row: any;
 }
@@ -25,7 +24,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
 }));
-
 
 const RecordGoodnessIndividual = () => {
   // ** Hooks
@@ -50,7 +48,7 @@ const RecordGoodnessIndividual = () => {
     setOpenDialog(false);
   };
 
-  const defaultColumns: GridColumns = [
+  const defaultColumns: GridColDef[] = [
     {
       flex: 0.25,
       minWidth: 230,
@@ -165,7 +163,7 @@ const RecordGoodnessIndividual = () => {
       });
     })();
   };
-  
+
   const onClearSearch = () => {
     setFullName('');
     setStudentId('');
@@ -200,14 +198,14 @@ const RecordGoodnessIndividual = () => {
             <DataGrid
               autoHeight
               rows={students}
-              pageSize={pageSize}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
               columns={defaultColumns}
               loading={loadingStudent}
-              rowsPerPageOptions={[10, 25, 50]}
-              onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
+              paginationModel={{ page: 0, pageSize }}
+              pageSizeOptions={[10, 20, 50, 100]}
+              onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+              slots={{
+                noRowsOverlay: CustomNoRowsOverlay,
               }}
               disableColumnMenu
             />
