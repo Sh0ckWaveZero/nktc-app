@@ -2,16 +2,14 @@
 import { FormControl, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import th from 'dayjs/locale/th';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
+
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
-
-dayjs.extend(buddhistEra);
+import newAdapter from 'utils/newAdapter';
+import { FcCalendar } from 'react-icons/fc';
 
 interface TableHeaderProps {
   value: any;
@@ -45,25 +43,25 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
             <DatePicker
               label='เลือกวันที่'
+              format='DD MMMM YYYY'
               value={selectedDate}
-              inputFormat='DD MMMM BBBB'
-              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-              maxDate={dayjs(new Date())}
+              disableFuture
               onChange={(newDate) => handleSelectedDate(newDate)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  inputProps={{
-                    ...params.inputProps,
+              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
+              maxDate={dayjs(new Date())}
+              slotProps={{
+                textField: {
+                  inputProps: {
                     placeholder: 'วัน เดือน ปี',
-                  }}
-                />
-              )}
-              disableMaskedInput
+                  },
+                },
+              }}
+              slots={{
+                openPickerIcon: () => <FcCalendar />,
+              }}
             />
           </LocalizationProvider>
         </FormControl>

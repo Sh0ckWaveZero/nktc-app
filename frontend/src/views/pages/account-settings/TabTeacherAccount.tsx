@@ -38,6 +38,7 @@ import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import { yupResolver } from '@hookform/resolvers/yup';
+import newAdapter from 'utils/newAdapter';
 
 dayjs.extend(buddhistEra);
 
@@ -447,26 +448,24 @@ const TabTeacherAccount = () => {
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                       <DatePicker
                         label='วันเกิด'
+                        format='dd/MM/BBBB'
                         value={value}
-                        inputFormat='dd/MM/BBBB'
-                        maxDate={dayjs(new Date())}
+                        disableFuture
                         onChange={onChange}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            fullWidth
-                            inputProps={{
-                              ...params.inputProps,
+                        maxDate={dayjs(new Date())}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            }}
-                          />
-                        )}
-                        mask='__/__/____'
-                        components={{
-                          OpenPickerIcon: () => <FcCalendar />,
+                            },
+                          },
+                        }}
+                        slots={{
+                          openPickerIcon: () => <FcCalendar />,
                         }}
                       />
                     </LocalizationProvider>

@@ -29,27 +29,23 @@ import dayjs, { Dayjs } from 'dayjs';
 import { generateErrorMessages, handleKeyDown } from 'utils/event';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import { GetServerSideProps } from 'next';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { LocalStorageService } from '@/services/localStorageService';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import httpClient from '@/@core/utils/http';
+import newAdapter from 'utils/newAdapter';
 import { shallow } from 'zustand/shallow';
 import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useEffectOnce } from '@/hooks/userCommon';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-
-dayjs.extend(buddhistEra);
 
 interface Data {
   studentId: string;
@@ -105,7 +101,6 @@ const schema = yup.object().shape({
   status: yup.string().required('กรุณาเลือกสถานะ'),
 });
 
-
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
   height: 120,
@@ -131,7 +126,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 const StudentEditPage = ({ users, classroomId }: any) => {
   const useLocal = useLocalStorage();
   const storedToken = useLocal.getToken()!;
-  
+
   const initialData: Data = {
     studentId: users.student.studentId || '',
     title: users.account.title || '',
@@ -215,12 +210,12 @@ const StudentEditPage = ({ users, classroomId }: any) => {
 
     const { classroom: c, department: d, program: p, ...rest } = data;
     const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
-    
+
     const student = {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      avatar:  image ? image : null,
+      avatar: image ? image : null,
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
@@ -492,29 +487,26 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                       name='birthDate'
                       control={control}
                       render={({ field: { value, onChange } }) => (
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                        <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                           <DatePicker
                             label='วันเกิด'
-                            inputFormat='DD MMMM BBBB'
+                            format='DD MMMM YYYY'
+                            value={value}
+                            disableFuture
+                            onChange={onChange}
                             minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
                             maxDate={dayjs(new Date())}
-                            value={value}
-                            onChange={onChange}
-                            disableMaskedInput
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                inputProps={{
-                                  ...params.inputProps,
+                            slotProps={{
+                              textField: {
+                                inputProps: {
                                   placeholder: 'วัน/เดือน/ปี',
-                                }}
-                                error={!!errors.birthDate}
-                                helperText={errors.birthDate ? (errors.birthDate.message as string) : ''}
-                              />
-                            )}
-                            components={{
-                              OpenPickerIcon: () => <FcCalendar />,
+                                },
+                                error: !!errors.birthDate,
+                                helperText: errors.birthDate ? (errors.birthDate.message as string) : '',
+                              },
+                            }}
+                            slots={{
+                              openPickerIcon: () => <FcCalendar />,
                             }}
                           />
                         </LocalizationProvider>

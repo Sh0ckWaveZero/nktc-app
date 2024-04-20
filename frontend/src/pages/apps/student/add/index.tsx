@@ -26,14 +26,13 @@ import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/l
 import dayjs, { Dayjs } from 'dayjs';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import LoadingButton from '@mui/lab/LoadingButton';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { handleKeyDown } from 'utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
+import newAdapter from 'utils/newAdapter';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import th from 'dayjs/locale/th';
@@ -41,11 +40,11 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import useImageCompression from '@/hooks/useImageCompression';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-dayjs.extend(buddhistEra);
+
 
 interface Data {
   studentId: string;
@@ -135,7 +134,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-
 const AddStudentPage = () => {
   // hooks
   const theme = useTheme();
@@ -150,7 +148,7 @@ const AddStudentPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
-  const accessToken = useLocal.getToken()!;;
+  const accessToken = useLocal.getToken()!;
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -471,29 +469,26 @@ const AddStudentPage = () => {
                         name='birthDate'
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                             <DatePicker
                               label='วันเกิด'
-                              inputFormat='DD MMMM BBBB'
+                              format='DD MMMM YYYY'
+                              value={value}
+                              disableFuture
+                              onChange={onChange}
                               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
                               maxDate={dayjs(new Date())}
-                              value={value}
-                              onChange={onChange}
-                              disableMaskedInput
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  fullWidth
-                                  inputProps={{
-                                    ...params.inputProps,
+                              slotProps={{
+                                textField: {
+                                  inputProps: {
                                     placeholder: 'วัน/เดือน/ปี',
-                                  }}
-                                  error={!!errors.birthDate}
-                                  helperText={errors.birthDate ? (errors.birthDate.message as string) : ''}
-                                />
-                              )}
-                              components={{
-                                OpenPickerIcon: () => <FcCalendar />,
+                                  },
+                                  error: !!errors.birthDate,
+                                  helperText: errors.birthDate ? (errors.birthDate.message as string) : '',
+                                },
+                              }}
+                              slots={{
+                                openPickerIcon: () => <FcCalendar />,
                               }}
                             />
                           </LocalizationProvider>

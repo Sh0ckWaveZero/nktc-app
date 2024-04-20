@@ -21,7 +21,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColDef[], GridEventListener, gridClasses } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
 import { Fragment, useContext, useRef, useState } from 'react';
 import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
 
@@ -604,17 +604,17 @@ const StudentCheckIn = () => {
                 columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                rowsPerPageOptions={[10, 25, 50, 100, pageSize]}
+                pageSizeOptions={[10, 25, 50, 100, pageSize]}
                 onCellClick={handleCellClick}
                 onColumnHeaderClick={handleColumnHeaderClick}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+                onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
                 getRowClassName={(params) => {
                   return params.row.status === 'internship' ? 'internship' : 'normal';
                 }}
-                components={{
-                  NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
+                slots={{
+                  noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
                 }}
-                componentsProps={{
+                slotProps={{
                   row: {
                     onMouseEnter: handlePopperOpen,
                     onMouseLeave: handlePopperClose,

@@ -89,7 +89,6 @@ const checkInStatueName: any = {
   internship: 'นักศึกษาฝึกงาน',
 };
 
-
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
@@ -630,10 +629,10 @@ const ReportCheckInDaily = () => {
                 columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                rowsPerPageOptions={[pageSize]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
+                pageSizeOptions={[pageSize]}
+                onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
                 }}
                 getRowClassName={(params) => {
                   const { status } = params.row.student;

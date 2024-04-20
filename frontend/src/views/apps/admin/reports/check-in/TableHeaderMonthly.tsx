@@ -2,17 +2,15 @@
 import { FormControl, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import dayjs, { Dayjs } from 'dayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import th from 'dayjs/locale/th';
-dayjs.extend(buddhistEra);
 
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import newAdapter from 'utils/newAdapter';
+import th from 'dayjs/locale/th';
+import { FcCalendar } from 'react-icons/fc';
 
 interface TableHeaderProps {
   value: any;
@@ -46,23 +44,22 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
             <DatePicker
               openTo='month'
               views={['month', 'year']}
               label='เลือกเดือน'
+              format='MMMM YYYY'
               value={selectedDate}
-              inputFormat='MMMM BBBB'
-              disableMaskedInput
+              disableFuture
+              onChange={(newDate) => handleSelectedDate(newDate)}
               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
               maxDate={dayjs(new Date())}
-              onChange={(newDate) => handleSelectedDate(newDate)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                />
-              )}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                },
+              }}
             />
           </LocalizationProvider>
         </FormControl>

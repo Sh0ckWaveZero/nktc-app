@@ -34,8 +34,9 @@ import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import newAdapter from 'utils/newAdapter';
+import { FcCalendar } from 'react-icons/fc';
 dayjs.extend(buddhistEra);
-
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -183,25 +184,25 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
           <Grid item xs={12}>
             <Grid container spacing={6}>
               <Grid item xs={12} sm={6}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                   <DatePicker
                     label='เลือกวันที่'
+                    format='DD MMMM YYYY'
                     value={selectedDate}
-                    inputFormat='DD MMMM BBBB'
-                    minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-                    maxDate={dayjs(new Date())}
+                    disableFuture
                     onChange={(newDate) => handleSelectedDate(newDate)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        inputProps={{
-                          ...params.inputProps,
+                    minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
+                    maxDate={dayjs(new Date())}
+                    slotProps={{
+                      textField: {
+                        inputProps: {
                           placeholder: 'วัน เดือน ปี',
-                        }}
-                      />
-                    )}
-                    disableMaskedInput
+                        },
+                      },
+                    }}
+                    slots={{
+                      openPickerIcon: () => <FcCalendar />,
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>

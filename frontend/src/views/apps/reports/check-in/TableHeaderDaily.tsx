@@ -1,12 +1,12 @@
-// ** MUI Imports
-import Chip from '@/@core/components/mui/chip';
-import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
-import thLocale from 'date-fns/locale/th';
+import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
+
 import { BsXCircle } from 'react-icons/bs';
+import Chip from '@/@core/components/mui/chip';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { FcCalendar } from 'react-icons/fc';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import newAdapter from 'utils/newAdapter';
+import th from 'date-fns/locale/th';
 
 interface TableHeaderProps {
   value: any;
@@ -36,23 +36,21 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
       <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+        <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
           <DatePicker
             label='เลือกวันที่'
+            format='dd-MM-yyyy'
             value={selectedDate}
-            inputFormat='dd-MM-yyyy'
+            disableFuture
+            onChange={(newDate) => handleDateChange(newDate)}
             minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
             maxDate={new Date()}
-            onChange={(newDate) => handleDateChange(newDate)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth
-                inputProps={{
-                  ...params.inputProps,
-                  placeholder: 'วัน/เดือน/ปี',
-                }}
-                sx={{
+            slotProps={{
+              textField: {
+                inputProps: {
+                  placeholder: 'วัน เดือน ปี',
+                },
+                sx: {
                   '& .MuiInputBase-input': {
                     fontSize: '0.813rem',
                     height: '2rem',
@@ -60,9 +58,12 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
                   '& .MuiInputLabel-root': {
                     padding: '0.4rem 0 0 0',
                   },
-                }}
-              />
-            )}
+                },
+              },
+            }}
+            slots={{
+              openPickerIcon: () => <FcCalendar />,
+            }}
           />
         </LocalizationProvider>
       </FormControl>

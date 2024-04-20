@@ -21,18 +21,15 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
 import { Fragment, ReactElement, Ref, forwardRef } from 'react';
-import Select from '@mui/material/Select';
+import dayjs, { Dayjs } from 'dayjs';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import dayjs, { Dayjs } from 'dayjs';
+import Select from '@mui/material/Select';
+import newAdapter from 'utils/newAdapter';
 import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
-
-dayjs.extend(buddhistEra);
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -258,27 +255,23 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                       <DatePicker
                         label='วันเกิด'
+                        format='D MMMM YYYY'
                         value={value}
+                        disableFuture
                         onChange={onChange}
-                        inputFormat='D MMMM BBBB'
-                        maxDate={dayjs(new Date())}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            fullWidth
-                            inputProps={{
-                              ...params.inputProps,
+                        slotProps={{
+                          textField: {
+                            inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            }}
-                          />
-                        )}
-                        components={{
-                          OpenPickerIcon: () => <FcCalendar />,
+                            },
+                          },
                         }}
-                        disableMaskedInput
+                        slots={{
+                          openPickerIcon: () => <FcCalendar />,
+                        }}
                       />
                     </LocalizationProvider>
                   )}

@@ -36,9 +36,10 @@ import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import newAdapter from 'utils/newAdapter';
+import { FcCalendar } from 'react-icons/fc';
 
 dayjs.extend(buddhistEra);
-
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -225,25 +226,25 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                   <DatePicker
                     label='เลือกวันที่'
+                    format='DD MMMM YYYY'
                     value={selectedDate}
-                    inputFormat='DD MMMM BBBB'
+                    disableFuture
+                    onChange={(newDate) => handleSelectedDate(newDate)}
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
-                    onChange={(newDate) => handleSelectedDate(newDate)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        inputProps={{
-                          ...params.inputProps,
+                    slotProps={{
+                      textField: {
+                        inputProps: {
                           placeholder: 'วัน เดือน ปี',
-                        }}
-                      />
-                    )}
-                    disableMaskedInput
+                        },
+                      },
+                    }}
+                    slots={{
+                      openPickerIcon: () => <FcCalendar />,
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
