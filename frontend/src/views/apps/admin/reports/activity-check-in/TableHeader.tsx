@@ -49,7 +49,7 @@ const TableHeader = (props: TableHeaderProps) => {
               value={selectedDate}
               disableFuture
               onChange={(newDate) => handleSelectedDate(newDate)}
-              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
+              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
               maxDate={dayjs(new Date())}
               slotProps={{
                 textField: {

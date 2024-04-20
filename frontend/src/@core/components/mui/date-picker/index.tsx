@@ -16,7 +16,7 @@ const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
         value={value}
         disableFuture
         onChange={onChange}
-        minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
+        minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
         maxDate={dayjs(new Date())}
         slotProps={{
           textField: {
