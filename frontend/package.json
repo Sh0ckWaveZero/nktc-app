@@ -29,7 +29,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@iconify/react": "^4.1.1",
     "@mui/icons-material": "5.15.15",
-    "@mui/lab": "5.0.0-alpha.161",
+    "@mui/lab": "6.0.0-alpha.3",
     "@mui/material": "5.15.5",
     "@mui/x-data-grid": "^6.19.11",
     "@mui/x-date-pickers": "^5.0.20",
