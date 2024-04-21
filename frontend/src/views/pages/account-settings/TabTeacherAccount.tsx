@@ -20,12 +20,10 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { Fragment, useEffect, useState } from 'react';
 import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs from 'dayjs';
 import { generateErrorMessages } from 'utils/event';
 import { isEmpty } from '@/@core/utils/utils';
@@ -39,8 +37,6 @@ import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import { yupResolver } from '@hookform/resolvers/yup';
 import newAdapter from 'utils/newAdapter';
-
-dayjs.extend(buddhistEra);
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -451,7 +447,7 @@ const TabTeacherAccount = () => {
                     <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                       <DatePicker
                         label='วันเกิด'
-                        format='dd/MM/BBBB'
+                        format='DD MMMM YYYY'
                         value={value}
                         disableFuture
                         onChange={onChange}

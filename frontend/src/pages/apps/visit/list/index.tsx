@@ -350,13 +350,12 @@ const VisitStudentList = () => {
                   columns={columns}
                   rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
                   disableColumnMenu
-                  columnHeaderHeight={150}
                   loading={loading}
                   rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                  rowsPerPageOptions={[pageSize, 100]} // Include `pageSize` and `100` in the rowsPerPageOptions
-                  onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                  components={{
-                    NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+                  pageSizeOptions={[pageSize]}
+                  onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+                  slots={{
+                    noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
                   }}
                 />
               </Box>

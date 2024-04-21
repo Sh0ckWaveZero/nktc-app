@@ -7,7 +7,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
@@ -15,11 +14,13 @@ import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderM
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useReportCheckInStore } from '@/store/index';
+
 dayjs.locale('th');
 dayjs.extend(buddhistEra);
 
-const localStorageService = new LocalStorageService();
+const useLocal = useLocalStorage();
 
 const AdminCheckInMonthlyReport = () => {
   // ** Store Vars

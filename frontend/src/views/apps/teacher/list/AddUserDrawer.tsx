@@ -279,7 +279,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
                   <DatePicker
                     label='วันเกิด'
-                    format='D MMMM BBBB'
+                    format='D MMMM YYYY'
                     value={value}
                     disableFuture
                     onChange={onChange}

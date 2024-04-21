@@ -12,7 +12,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowHeightParams } from '@mui/x-data-grid';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import { useClassroomStore, useStudentStore } from '@/store/index';
@@ -51,6 +51,7 @@ const StudentList = () => {
 
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState<number>(0);
   const [currentClassroomId, setCurrentClassroomId] = useState<any>(null);
   const [initClassroom, setInitClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
@@ -313,11 +314,15 @@ const StudentList = () => {
               columns={defaultColumns}
               loading={loadingStudent}
               pageSizeOptions={[10, 20, 50, 100]}
-              paginationModel={{ page: 0, pageSize }}
-              onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(paginationModel) => {
+                setPage(paginationModel.page);
+                setPageSize(paginationModel.pageSize);
+              }}
               slots={{
                 noRowsOverlay: CustomNoRowsOverlay,
               }}
+              getRowHeight={() => 'auto'} 
               disableColumnMenu
             />
           </Card>

@@ -82,7 +82,7 @@ export default function CustomDay(props: TableHeaderProps) {
     <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
       <DatePicker
         label='เลือกสัปดาห์'
-        format='วันที่ d ของสัปดาห์ MMMM BBBB'
+        format='วันที่ d ของสัปดาห์ MMMM YYYY'
         value={selectedDate}
         onChange={(newDate) => handleSelectedDate(newDate)}
         slotProps={{

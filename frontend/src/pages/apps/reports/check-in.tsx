@@ -22,7 +22,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColDef[], GridEventListener } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColDef, GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
 import { useReportCheckInStore, useTeacherStore } from '@/store/index';
@@ -782,18 +782,17 @@ const StudentCheckIn = () => {
                   columns={columns}
                   rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
                   disableColumnMenu
-                  columnHeaderHeight={150}
                   loading={loading}
                   onCellClick={handleCellClick}
                   onColumnHeaderClick={handleColumnHeaderClick}
                   rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                  rowsPerPageOptions={[pageSize, 100]}
-                  onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+                  pageSizeOptions={[pageSize, 100]}
+                  onPaginationModelChange={(params) => setPageSize(params.pageSize)}
                   getRowClassName={(params) => {
                     return params.row.status === 'internship' ? 'internship' : 'normal';
                   }}
-                  components={{
-                    NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+                  slots={{
+                    noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
                   }}
                 />
               </Box>

@@ -601,7 +601,6 @@ const StudentCheckIn = () => {
                 columns={columns}
                 rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
                 disableColumnMenu
-                columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
                 pageSizeOptions={[10, 25, 50, 100, pageSize]}

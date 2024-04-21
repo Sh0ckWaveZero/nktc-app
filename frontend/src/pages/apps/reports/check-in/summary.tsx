@@ -412,13 +412,12 @@ const ReportCheckInDaily = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                rowsPerPageOptions={[pageSize]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
+                pageSizeOptions={[pageSize]}
+                onPaginationModelChange={(paginationModel) => setPageSize(paginationModel.pageSize)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
                 }}
                 sx={{ overflowX: 'auto' }}
               />

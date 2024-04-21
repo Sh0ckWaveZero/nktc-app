@@ -48,6 +48,7 @@ import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/Edi
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import dayjs, { Dayjs } from 'dayjs';
 
 interface CellType {
   // row: teachersTypes;
@@ -144,7 +145,7 @@ const DailyCheckInReportActivity = () => {
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
-  const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
+  const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
   const [loading, setLoading] = useState<boolean>(true);
   const [openEditDrawer, setOpenEditDrawer] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -190,7 +191,7 @@ const DailyCheckInReportActivity = () => {
     }
   });
 
-  const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
+  const fetchDailyReport = async (date: Dayjs | null = null, classroom: any = '') => {
     setLoading(true);
     const classroomInfo = classroom || defaultClassroom.id;
     const dateInfo = date || selectedDate;
@@ -366,7 +367,7 @@ const DailyCheckInReportActivity = () => {
     onClearAll();
   };
 
-  const handleDateChange = async (date: Date | null) => {
+  const handleDateChange = async (date: Dayjs | null) => {
     setDateSelected(date);
     await fetchDailyReport(date);
   };
@@ -528,12 +529,7 @@ const DailyCheckInReportActivity = () => {
                 }
                 sx={{ color: 'text.primary' }}
                 title={`รายงานการเช็คชื่อการเข้าร่วมกิจกรรม`}
-                subheader={`${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}`}
+                subheader={dayjs(selectedDate).locale('th').format('dddd, D MMMM YYYY')}
               />
               <CardContent>
                 {!isEmpty(currentStudents) && (
@@ -554,7 +550,6 @@ const DailyCheckInReportActivity = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                columnHeaderHeight={150}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 pageSizeOptions={[pageSize]}
@@ -577,7 +572,7 @@ const DailyCheckInReportActivity = () => {
             onSubmitted={onSubmittedCheckIn}
             toggle={toggleCloseEditCheckIn}
             data={selectedStudent}
-            selectedDate={selectedDate as Date}
+            selectedDate={selectedDate}
           />
         )}
 
@@ -598,12 +593,7 @@ const DailyCheckInReportActivity = () => {
               <DialogContent>
                 <DialogContentText id='alert-dialog-description'>
                   {`คุณต้องการลบข้อมูลการเช็คชื่อของ
-                  ${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  ${dayjs(selectedDate).locale('th').format('dddd, D MMMM YYYY')}
                   ใช่หรือไม่?`}
                 </DialogContentText>
               </DialogContent>
