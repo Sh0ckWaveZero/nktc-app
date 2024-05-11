@@ -35,7 +35,6 @@ import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import newAdapter from 'utils/newAdapter';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
@@ -469,7 +468,7 @@ const AddStudentPage = () => {
                         name='birthDate'
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                           <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                             <DatePicker
                               label='วันเกิด'
                               format='DD MMMM YYYY'

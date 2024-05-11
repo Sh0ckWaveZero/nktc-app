@@ -8,7 +8,6 @@ import { FcCalendar } from 'react-icons/fc';
 
 import { SiMicrosoftexcel } from 'react-icons/si';
 import newAdapter from 'utils/newAdapter';
-import th from 'dayjs/locale/th';
 
 interface TableHeaderProps {
   value: any;
@@ -42,7 +41,7 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
             <DatePicker
               label='เลือกวันที่'
               format='DD MMMM YYYY'

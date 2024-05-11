@@ -27,7 +27,6 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import { PatternFormat } from 'react-number-format';
 import newAdapter from 'utils/newAdapter';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 interface SidebarAddTeacherType {
@@ -276,7 +275,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               name='birthDate'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                   <DatePicker
                     label='วันเกิด'
                     format='D MMMM YYYY'

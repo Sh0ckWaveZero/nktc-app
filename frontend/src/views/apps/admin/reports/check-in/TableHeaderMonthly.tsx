@@ -9,8 +9,6 @@ import dayjs, { Dayjs } from 'dayjs';
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
 import newAdapter from 'utils/newAdapter';
-import th from 'dayjs/locale/th';
-import { FcCalendar } from 'react-icons/fc';
 
 interface TableHeaderProps {
   value: any;
@@ -44,7 +42,7 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+           <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
             <DatePicker
               openTo='month'
               views={['month', 'year']}

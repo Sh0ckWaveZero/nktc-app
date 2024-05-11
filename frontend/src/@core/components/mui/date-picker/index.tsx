@@ -5,11 +5,10 @@ import { FcCalendar } from 'react-icons/fc';
 import React from 'react';
 import dayjs from 'dayjs';
 import newAdapter from 'utils/newAdapter';
-import th from 'dayjs/locale/th';
 
 const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
   return (
-    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
       <DatePicker
         label='วันเกิด'
         format='DD MMMM YYYY'

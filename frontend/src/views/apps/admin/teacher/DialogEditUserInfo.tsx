@@ -28,7 +28,6 @@ import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
 import Select from '@mui/material/Select';
 import newAdapter from 'utils/newAdapter';
-import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 const Transition = forwardRef(function Transition(
@@ -255,7 +254,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                       <DatePicker
                         label='วันเกิด'
                         format='D MMMM YYYY'

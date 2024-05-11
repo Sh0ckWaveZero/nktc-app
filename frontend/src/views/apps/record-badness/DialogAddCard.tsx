@@ -32,7 +32,6 @@ import { deepOrange } from '@mui/material/colors';
 import { generateErrorMessages } from 'utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { shallow } from 'zustand/shallow';
-import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
@@ -227,7 +226,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                   <DatePicker
                     label='เลือกวันที่'
                     format='DD MMMM YYYY'

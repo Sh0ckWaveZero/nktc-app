@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@aldabil/react-scheduler@^2.9.0":
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/@aldabil/react-scheduler/-/react-scheduler-2.9.0.tgz#e19012700d80a8f8033ec678d725e7177e1fc7b6"
-  integrity sha512-vny1oWLgR/768nHH8BFvJpaqpXQSKdRm3qpuJcUw4RVxJ1HyVfhI2J0NWOC2GPKnoH9JqChYIzVa+j11v+VVjg==
+"@aldabil/react-scheduler@^2.9.2":
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/@aldabil/react-scheduler/-/react-scheduler-2.9.2.tgz#1b7af846c15cb2933053045bf0eedecb20798e56"
+  integrity sha512-WederN8Pmhg7nQdT7685UITFUPk/FDjMC0bSuyeqgHZSn2nhVMqiLVFC4q0kHh+v75lQCPqkFKr8FBnEoZNRig==
 
 "@babel/code-frame@^7.0.0":
   version "7.18.6"
@@ -676,15 +676,15 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
-"@mui/x-data-grid@7.3.0":
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-data-grid/-/x-data-grid-7.3.0.tgz#ca6706e3a67e08ea2d54ecc7640ff01f15f9f542"
-  integrity sha512-IIDS6Yvxe+1eRj65q8cgnJg5yF2aIJYuHrY00W/UaFyjxwj3xSzqg3bdEfbjE2gHGS7lEJJbXSenPNGybzW99A==
+"@mui/x-data-grid@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-data-grid/-/x-data-grid-7.4.0.tgz#1901f2908aca760146ccae74b064fc15462bcf63"
+  integrity sha512-ILu0AVqqHQf4wN/nblsJ/k7PkvlB115vQ/FEiYk7neZlc/kOJOUyst3MWMVClAecZ8+JEs476q40xd4r1CtMfw==
   dependencies:
     "@babel/runtime" "^7.24.0"
     "@mui/system" "^5.15.14"
     "@mui/utils" "^5.15.14"
-    clsx "^2.1.0"
+    clsx "^2.1.1"
     prop-types "^15.8.1"
     reselect "^4.1.8"
 
@@ -701,10 +701,10 @@
     prop-types "^15.8.1"
     react-transition-group "^4.4.5"
 
-"@next/bundle-analyzer@^14.2.2":
-  version "14.2.2"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-14.2.2.tgz#8095665de2c18d06eb16b81729d660338da03adf"
-  integrity sha512-Zp2xG3VTPHUquOcBaRtrr0/n7mqnjKUmprGcJXPEKGgP5rAsLymIfWKm3jIVWIw5Eb4fNOfX4v+L+qiSvs+OJw==
+"@next/bundle-analyzer@^14.2.3":
+  version "14.2.3"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-14.2.3.tgz#dfa43586983d3fffdeb5f3c50f2c65ab1c51f184"
+  integrity sha512-Z88hbbngMs7njZKI8kTJIlpdLKYfMSLwnsqYe54AP4aLmgL70/Ynx/J201DQ+q2Lr6FxFw1uCeLGImDrHOl2ZA==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
@@ -1727,6 +1727,11 @@ clsx@^2.0.0, clsx@^2.1.0:
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.0.tgz#e851283bcb5c80ee7608db18487433f7b23f77cb"
   integrity sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==
 
+clsx@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
+  integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
+
 color-convert@^1.9.0:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -1915,10 +1920,10 @@ date-fns@^2.30.0:
   dependencies:
     "@babel/runtime" "^7.21.0"
 
-dayjs@^1.11.10:
-  version "1.11.10"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.10.tgz#68acea85317a6e164457d6d6947564029a6a16a0"
-  integrity sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==
+dayjs@^1.11.11:
+  version "1.11.11"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.11.tgz#dfe0e9d54c5f8b68ccf8ca5f72ac603e7e5ed59e"
+  integrity sha512-okzr3f11N6WuqYtZSvm+F776mB41wRZMhKP+hc34YdW+KmtYYK9iqvHSwo2k9FEH3fhGXvOPV6yz2IcSrfRUDg==
 
 debounce@^1.2.1:
   version "1.2.1"
@@ -2523,10 +2528,15 @@ eslint-plugin-prettier@^4.2.1:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-"eslint-plugin-react-hooks@^4.5.0 || 5.0.0-canary-7118f5dd7-20230705", eslint-plugin-react-hooks@^4.6.0:
+"eslint-plugin-react-hooks@^4.5.0 || 5.0.0-canary-7118f5dd7-20230705":
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.0.tgz#4c3e697ad95b77e93f8646aaa1630c1ba607edd3"
   integrity sha512-oFc7Itz9Qxh2x4gNHStv3BqJq54ExXmfC+a1NjAta66IAN87Wu0R/QArgIS9qKzX3dXKPI9H5crl9QchNMY9+g==
+
+eslint-plugin-react-hooks@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.2.tgz#c829eb06c0e6f484b3fbb85a97e57784f328c596"
+  integrity sha512-QzliNJq4GinDBcD8gPB5v0wh6g8q3SUi6EFF0x8N/BL9PoVs0atuGc47ozMRyOWAKdwaZ5OnbOEa3WR+dSGKuQ==
 
 eslint-plugin-react@^7.33.2:
   version "7.33.2"
@@ -3810,10 +3820,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-mdi-material-ui@^7.8.0:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/mdi-material-ui/-/mdi-material-ui-7.8.0.tgz#cd08de23cfeddd7b593d71dbd533d873409f5f63"
-  integrity sha512-jLZKGDZ94Mav4c3r8Cyehqs1dHOviXuIm7vGGCIyxIf4UsWNiveQTCoCrKG2K63IWCHcMg0EfjLFqh4LGaYvoQ==
+mdi-material-ui@7.9.1:
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/mdi-material-ui/-/mdi-material-ui-7.9.1.tgz#f28dbd6883a8c6198ca78e19c9f23728b2599226"
+  integrity sha512-13Ecd6hbYZWzY1yLCwQRGqnYzIv9HjSbRM7Vl+4GsllBY6KWv0IhCr4gVlcMGf+ahJxBH3Ba5ImZICls1Aqtyg==
 
 mdn-data@2.0.14:
   version "2.0.14"
@@ -4338,13 +4348,13 @@ react-datepicker@^4.25.0:
     react-onclickoutside "^6.13.0"
     react-popper "^2.3.0"
 
-react-dom@^18.2.0:
-  version "18.2.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
-  integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
+react-dom@^18.3.1:
+  version "18.3.1"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.3.1.tgz#c2265d79511b57d479b3dd3fdfa51536494c5cb4"
+  integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
   dependencies:
     loose-envify "^1.1.0"
-    scheduler "^0.23.0"
+    scheduler "^0.23.2"
 
 react-dropzone@14.2.3:
   version "14.2.3"
@@ -4731,10 +4741,10 @@ safe-regex-test@^1.0.3:
     es-errors "^1.3.0"
     is-regex "^1.1.4"
 
-scheduler@^0.23.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.23.0.tgz#ba8041afc3d30eb206a487b6b384002e4e61fdfe"
-  integrity sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==
+scheduler@^0.23.2:
+  version "0.23.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.23.2.tgz#414ba64a3b282892e944cf2108ecc078d115cdc3"
+  integrity sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==
   dependencies:
     loose-envify "^1.1.0"
 

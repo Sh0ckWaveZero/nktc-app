@@ -7,7 +7,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { FcCalendar } from 'react-icons/fc';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import newAdapter from 'utils/newAdapter';
-import th from 'dayjs/locale/th';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface TableHeaderProps {
@@ -38,7 +37,7 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
       <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
-        <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+         <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
           <DatePicker
             label='เลือกวันที่'
             format='DD-MM-YYYY'

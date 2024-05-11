@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import th from 'dayjs/locale/th';
 
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
@@ -43,7 +42,7 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+           <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
             <DatePicker
               label='เลือกวันที่'
               format='DD MMMM YYYY'

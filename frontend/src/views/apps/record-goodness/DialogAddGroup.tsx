@@ -27,7 +27,6 @@ import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import th from 'dayjs/locale/th';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -183,7 +182,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
           <Grid item xs={12}>
             <Grid container spacing={6}>
               <Grid item xs={12} sm={6}>
-                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                   <DatePicker
                     label='เลือกวันที่'
                     format='DD MMMM YYYY'

@@ -9,7 +9,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import th from 'dayjs/locale/th';
 import newAdapter from 'utils/newAdapter';
 
 dayjs.extend(isBetweenPlugin);
@@ -79,7 +78,7 @@ export default function CustomDay(props: TableHeaderProps) {
   };
 
   return (
-    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+     <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
       <DatePicker
         label='เลือกสัปดาห์'
         format='วันที่ d ของสัปดาห์ MMMM YYYY'

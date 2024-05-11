@@ -38,7 +38,6 @@ import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import httpClient from '@/@core/utils/http';
 import newAdapter from 'utils/newAdapter';
 import { shallow } from 'zustand/shallow';
-import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useEffectOnce } from '@/hooks/userCommon';
 import useGetImage from '@/hooks/useGetImage';
@@ -487,7 +486,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                       name='birthDate'
                       control={control}
                       render={({ field: { value, onChange } }) => (
-                        <LocalizationProvider dateAdapter={newAdapter} adapterLocale={th as any}>
+                        <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                           <DatePicker
                             label='วันเกิด'
                             format='DD MMMM YYYY'
