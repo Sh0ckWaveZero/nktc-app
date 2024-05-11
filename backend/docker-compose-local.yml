@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   postgres:
-    image: postgres
+    image: postgres:15.7-bullseye
     container_name: postgres
     restart: always
     environment:
@@ -68,23 +68,6 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-
-  cache:
-    image: redis:latest
-    container_name: redis-cache
-    restart: always
-    ports:
-      - '6379:6379'
-    env_file:
-      - .env
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_PORT=6379
-      - REDIS_DATABASES=16
-    volumes:
-      - cache:/data
-    networks:
-      - proxy
 
 networks:
   proxy:
