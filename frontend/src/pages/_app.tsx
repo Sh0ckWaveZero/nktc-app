@@ -2,9 +2,8 @@
 import { ReactNode } from 'react';
 
 // ** Next Imports
-import Head from 'next/head';
 import { Router } from 'next/router';
-import type { NextPage } from 'next';
+import type { Metadata, NextPage } from 'next';
 import type { AppProps } from 'next/app';
 
 // ** Loader Import
@@ -85,6 +84,13 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
   }
 };
 
+export const metadata: Metadata = {
+  title: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+  description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+  keywords: themeConfig.templateName,
+  viewport: 'initial-scale=1, width=device-width',
+};
+
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -102,13 +108,6 @@ const App = (props: ExtendedAppProps) => {
 
   return (
     <CacheProvider value={emotionCache}>
-      <Head>
-        <title>{`${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`}</title>
-        <meta name='description' content={`${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`} />
-        <meta name='keywords' content={themeConfig.templateName} />
-        <meta name='viewport' content='initial-scale=1, width=device-width' />
-      </Head>
-
       <LocalStorageProvider>
         <AuthProvider>
           <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
