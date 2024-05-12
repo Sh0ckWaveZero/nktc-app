@@ -27,7 +27,7 @@ const Avatar = styled(MuiAvatar)<AvatarProps>(({ theme }) => ({
 
 const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
   // ** Props
-  const { title, color, icon, stats, trend, trendNumber } = props;
+  const { title, color = 'primary', icon, stats, trend = 'positive', trendNumber } = props;
 
   const TrendIcon = trend === 'positive' ? ChevronUp : ChevronDown;
 
@@ -82,8 +82,3 @@ const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
 };
 
 export default CardStatsHorizontal;
-
-CardStatsHorizontal.defaultProps = {
-  color: 'primary',
-  trend: 'positive',
-};

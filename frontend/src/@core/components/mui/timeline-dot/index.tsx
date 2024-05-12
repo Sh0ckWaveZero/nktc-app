@@ -10,7 +10,7 @@ import { CustomTimelineDotProps, ColorsType } from './types';
 
 const TimelineDot = (props: CustomTimelineDotProps) => {
   // ** Props
-  const { sx, skin, color, variant } = props;
+  const { sx, skin, color = 'grey', variant = 'filled' } = props;
 
   // ** Hook
   const theme = useTheme();
@@ -59,11 +59,6 @@ const TimelineDot = (props: CustomTimelineDotProps) => {
       sx={color && skin === 'light' && variant === 'filled' ? Object.assign(colors[color], sx) : sx}
     />
   );
-};
-
-TimelineDot.defaultProps = {
-  color: 'grey',
-  variant: 'filled',
 };
 
 export default TimelineDot;
