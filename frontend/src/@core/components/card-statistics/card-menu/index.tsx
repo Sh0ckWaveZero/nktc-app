@@ -17,9 +17,10 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 
 const CardMenu = (props: CardMenuProps) => {
   // ** Props
-  const { title, subtitle, color, icon, navLink, badge } = props;
+  const { title, subtitle, color = 'primary', icon, navLink, badge } = props;
   const theme = useTheme();
-  const hoverBgColor = theme.palette.mode === 'dark' ? theme.palette.grey[800] : alpha(theme.palette.primary.main, 0.08);
+  const hoverBgColor =
+    theme.palette.mode === 'dark' ? theme.palette.grey[800] : alpha(theme.palette.primary.main, 0.08);
 
   return (
     <CanViewNavLink navLink={navLink}>
@@ -73,8 +74,3 @@ const CardMenu = (props: CardMenuProps) => {
 };
 
 export default CardMenu;
-
-CardMenu.defaultProps = {
-  color: 'primary',
-  trend: 'positive',
-};
