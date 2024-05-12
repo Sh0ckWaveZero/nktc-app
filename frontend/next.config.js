@@ -21,7 +21,7 @@ const withTM = require('next-transpile-modules');
 
 const nextConfig = {
   trailingSlash: true,
-  reactStrictMode: false,
+  reactStrictMode: true,
   output: 'standalone',
   webpack: config => {
     config.resolve.alias = {
