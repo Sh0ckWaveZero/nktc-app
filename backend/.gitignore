@@ -47,3 +47,6 @@ backend/src/database/db/nktc-services/*
 
 # VS Code Counter
 .VSCodeCounter/*
+
+# root folder files
+/data
