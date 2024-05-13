@@ -35,6 +35,20 @@ $ npm install
 mv simple.env .env
 ```
 
+## Setup environment in Container with Podman
+
+**Create network**
+
+```bash
+podman network create proxy  
+```
+
+**Run container** 
+
+```bash
+strong
+```
+
 ## Running the app
 
 ```bash
