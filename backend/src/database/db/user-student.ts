@@ -19,14 +19,12 @@ export const userStudentData = async (fileName: string) => {
       .filter((data: any, id: number) => id > 1 && data)
       .map(async (item: any) => {
         const [
-          no,
           idCard,
           studentId,
           levelClassroom,
           title,
           firstName,
           lastName,
-          birthDateTh,
           programName,
           departmentName,
           group,
@@ -36,17 +34,18 @@ export const userStudentData = async (fileName: string) => {
           levelClassroom.toString().search(/ปวช/) !== -1 ? 'ปวช.' : 'ปวส.';
         const levelClassroomId = await getLevelClassroomByName(levelClassroom);
         const level = await getLevelByName(levelName);
-        const birthDate = await getBirthday(birthDateTh.toString());
+        // const birthDate = birthDateTh ? await getBirthday(birthDateTh.toString()) : null;
         const programId = await getProgramId(
-          departmentName,
+          departmentName.trim(),
           levelName,
-          programName,
+          programName.trim(),
+          group
         );
         const classroomId = await getClassroomId(
           levelClassroom,
-          departmentName,
+          departmentName.trim(),
           group,
-          programName,
+          programName.trim(),
         );
 
         return Prisma.validator<Prisma.UserCreateInput>()({
@@ -59,7 +58,6 @@ export const userStudentData = async (fileName: string) => {
               firstName,
               lastName,
               idCard: idCard.toString() ?? null,
-              birthDate,
               ...admin,
             },
           },

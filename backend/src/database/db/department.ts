@@ -9,8 +9,8 @@ export const departmentData = async () => {
     workSheetsFromFile[0].data
       .filter((data: any, id: number) => id > 1 && data)
       .map(async (item: any) => {
-        const departmentId = item[0].toString();
-        const name = item[1].toString();
+        const departmentId = item[0].trim().toString();
+        const name = item[1].trim().toString();
         const description = item[2].toString();
 
         return Prisma.validator<Prisma.DepartmentCreateInput>()({

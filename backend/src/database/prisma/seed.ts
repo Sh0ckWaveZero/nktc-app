@@ -17,7 +17,7 @@ const main = async () => {
   // await seedDepartment()
   // await seedLevelClassroom()
   // await seedClassroom()
-  await seedStudents()
+  await seedStudents()   
     // await seedTeacher()
     // await seedAdmin()
     .then(() => {
@@ -58,13 +58,19 @@ const seedClassroom = async () => {
 };
 
 const seedStudents = async () => {
-  const students = (await userStudentData('student-cv66-3')).map(
-    async (item: any) => {
-      return await prisma.user.create({
-        data: item,
-      });
-    },
-  );
+  try {
+    const students = (await userStudentData('67_อิเล็กทรอนิกส์')).map(
+      async (item: any) => {
+        return await prisma.user.create({
+          data: item,
+        });
+      },
+    )
+    console.log(students);
+  }
+  catch (err) {
+    console.log(err)
+  }
 };
 
 const seedTeacher = async () => {
