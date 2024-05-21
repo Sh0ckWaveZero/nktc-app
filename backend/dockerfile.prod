@@ -1,9 +1,9 @@
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:18-alpine as build
+FROM node:22-alpine3.18 as build
 
-RUN apk add --no-cache curl bash openssl1.1-compat \
+RUN apk add --no-cache curl bash openssl \
   && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
 
 WORKDIR /usr/src/app
@@ -23,7 +23,6 @@ ENV NODE_ENV production
 
 RUN yarn cache clean --force \
   && /usr/local/bin/node-prune \
-  && apk del openssl1.1-compat curl bash \
   && rm -rf \
   node_modules/rxjs/src/ \
   node_modules/rxjs/bundles/ \
@@ -42,7 +41,7 @@ USER node
 ###################
 # PRODUCTION
 ###################
-FROM node:18-alpine AS deploy
+FROM node:22-alpine3.18 AS deploy
 
 ENV TZ Asia/Bangkok
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
