@@ -2,6 +2,6 @@ import { authenticationController } from '@/controllers/authentications.controll
 
 export function configureAuthenticationsRoutes(app: any) {
   return app
-    .post("/login", authenticationController.postAuthentications)
-    .put("/", authenticationController.putAuthentications)
+    .post('/login', authenticationController.createAuthentication)
+    .put('/', authenticationController.updateAccessToken);
 }

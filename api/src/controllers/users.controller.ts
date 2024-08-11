@@ -1,12 +1,12 @@
-import { t } from 'elysia';
 import { usersService } from '@/services/users.service';
-class UsersController {
+import { t } from 'elysia';
 
+class UsersController {
   async getUsers() {
     const users = await usersService.getUsers();
     return {
-      status: "success",
-      data: users
+      status: 'success',
+      data: users,
     };
   }
 
@@ -14,42 +14,50 @@ class UsersController {
     const user = await usersService.getUserById(id);
     set.status = 200;
     return {
-      status: "success",
-      data: user
+      status: 'success',
+      data: user,
     };
   }
 
   async deleteUser({ params: { id } }: any) {
     await usersService.deleteUser(id);
     return {
-      status: "success",
-      message: `User ${id} has been successfully deleted!`
+      status: 'success',
+      message: `User ${id} has been successfully deleted!`,
     };
   }
 
   async loginUser({ jwt, setCookie, body, set }: any) {
-    const hashedPassword = await usersService.getPasswordByUsername(body.username);
-    const isMatch = await Bun.password.verify(body.password, hashedPassword);
+    const hashedPassword = await usersService.getPasswordByUsername(
+      body.username,
+    );
+    const hasMatchingPassword = await Bun.password.verify(
+      body.password,
+      hashedPassword,
+    );
 
-    if (!isMatch) {
+    if (!hasMatchingPassword) {
       set.status = 401;
       return {
-        status: "failed",
-        message: `Unauthorized! Invalid username or password.`
+        status: 'failed',
+        message: `Unauthorized! Invalid username or password.`,
       };
     }
 
-    const login = await usersService.loginUser({ username: body.username, password: hashedPassword });
+    const login = await usersService.loginUser({
+      username: body.username,
+      password: hashedPassword,
+    });
 
-    setCookie("auth", await jwt.sign(login), {
+    setCookie('auth', await jwt.sign(login), {
       httpOnly: true,
       maxAge: 4 * 86400,
     });
 
     set.status = 200;
     return {
-      status: "success",
-      message: `Sign in successfully!`
+      status: 'success',
+      message: `Sign in successfully!`,
     };
   }
 

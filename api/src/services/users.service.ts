@@ -1,21 +1,16 @@
-import { NotFoundError } from "elysia";
-import { PrismaClient } from "@prisma/client";
-import { InvariantError } from '@/exceptions/invariantError';
 import { AuthenticationError } from '@/exceptions/authenticationError';
 import { AuthorizationError } from '@/exceptions/authorizationError';
+import { InvariantError } from '@/exceptions/invariantError';
+import { PrismaClient } from '@prisma/client';
+import { NotFoundError } from 'elysia';
 
 interface loginPayload {
-  username: string,
-  password: string
+  username: string;
+  password: string;
 }
 
 class UsersService {
-
-
-  constructor(
-    private db = new PrismaClient(),
-  ) { }
-
+  constructor(private db = new PrismaClient()) {}
 
   async getUsers() {
     return await this.db.user.findMany({
@@ -23,7 +18,7 @@ class UsersService {
         id: true,
         username: true,
         email: true,
-      }
+      },
     });
   }
 
@@ -38,10 +33,10 @@ class UsersService {
         id: true,
         username: true,
         email: true,
-      }
+      },
     });
 
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError('User not found');
     return user;
   }
 
@@ -57,17 +52,17 @@ class UsersService {
     const getPassword = await this.db.user.findFirst({
       where: {
         username: {
-          equals: username
-        }
+          equals: username,
+        },
       },
       select: {
-        password: true
-      }
-    })
+        password: true,
+      },
+    });
 
-    if (!getPassword) throw new InvariantError("Username is not found!")
+    if (!getPassword) throw new InvariantError('Username is not found!');
 
-    return getPassword.password
+    return getPassword.password;
   }
 
   async loginUser(body: loginPayload) {
@@ -77,16 +72,16 @@ class UsersService {
           equals: body.username,
         },
         password: {
-          equals: body.password
-        }
+          equals: body.password,
+        },
       },
       select: {
-        id: true
-      }
-    })
+        id: true,
+      },
+    });
 
-    if (!user) throw new AuthenticationError("Username or password is wrong!")
-    return user
+    if (!user) throw new AuthenticationError('Username or password is wrong!');
+    return user;
   }
 
   async verifyUserByUsername(username: string) {
@@ -101,7 +96,7 @@ class UsersService {
       },
     });
 
-    if (!user) throw new AuthenticationError("Username or password is wrong!")
+    if (!user) throw new AuthenticationError('Username or password is wrong!');
 
     return user;
   }
@@ -115,19 +110,19 @@ class UsersService {
       },
     });
 
-    if (!user) throw new AuthorizationError("You have no access!")
+    if (!user) throw new AuthorizationError('You have no access!');
   }
 
   async verifyUsernameIsAvailable(username: string) {
     const isAvailable = await this.db.user.findFirst({
       where: {
         username: {
-          equals: username
-        }
+          equals: username,
+        },
       },
-    })
+    });
 
-    if (isAvailable) throw new InvariantError('Username already exist!')
+    if (isAvailable) throw new InvariantError('Username already exist!');
   }
 }
 
