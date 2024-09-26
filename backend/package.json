@@ -56,7 +56,7 @@
     "semver": "7.6.3",
     "swagger-ui-express": "5.0.1",
     "ua-parser-js": "1.0.38",
-    "webpack": "5.93.0"
+    "webpack": "5.94.0"
   },
   "devDependencies": {
     "@babel/core": "7.24.5",
