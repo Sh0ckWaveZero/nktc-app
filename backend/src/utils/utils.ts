@@ -95,7 +95,7 @@ export const getProgramId = async (
   const query = group === 'ปกติ' ? programName : `${programName} (${group})`;
 
   // find level
-  const levelIds = await getLevelId(level as 'ปวช.' | 'ปวส.');
+  const levelIds = await getLevelId(level);
   const levelId = levelIds[level];
 
   const res = await prisma.program.findFirst({
@@ -139,16 +139,19 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   };
 };
 
-export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
-  const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
+export const getLevelId = async (level: string) => {
+  try {
+    const res = await prisma.level.findFirstOrThrow({
+      where: {
+        levelId: level,
+      },
+    });
 
-  const res = await prisma.level.findFirst({
-    where: {
-      levelId: isLevel,
-    },
-  });
-
-  return res;
+    return res;
+  } catch (error) {
+    console.error('Error fetching level ID:', { level, error });
+    throw error;
+  }
 };
 
 export const getDepartIdByName = async (name: string, id: string) => {

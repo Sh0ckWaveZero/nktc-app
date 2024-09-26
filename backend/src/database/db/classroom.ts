@@ -25,6 +25,9 @@ export const Classroom = async () => {
           department,
           departmentIds,
         ] = item;
+        console.log('🚀 ~ .map ~ levelName:', levelName);
+
+        
         const programId = await getProgramId(program, levelName);
         const level = await getLevelId(levelName);
         const departmentId = await getDepartId(departmentIds, classroomId);
