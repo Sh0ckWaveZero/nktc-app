@@ -15,12 +15,12 @@
     "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/jwt": "^1.1.1",
-    "@elysiajs/swagger": "^1.1.1",
+    "@elysiajs/swagger": "1.1.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "5.21.0",
     "add": "^2.0.6",
     "drizzle-orm": "^0.33.0",
-    "elysia": "^1.1.16",
+    "elysia": "1.1.22",
     "pg": "^8.13.0",
     "postgres": "^3.4.4",
     "uuid": "^10.0.0"
@@ -28,9 +28,9 @@
   "devDependencies": {
     "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
-    "bun-types": "^1.1.29",
+    "bun-types": "1.1.30",
     "drizzle-kit": "^0.24.2",
-    "prisma": "^5.20.0"
+    "prisma": "5.21.0"
   },
   "module": "src/index.js"
 }
