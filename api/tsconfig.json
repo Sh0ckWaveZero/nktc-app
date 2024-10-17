@@ -5,13 +5,9 @@
     "rootDir": "./src",
     "moduleResolution": "node",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
-    "types": [
-      "bun-types"
-    ],
+    "types": ["bun-types"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

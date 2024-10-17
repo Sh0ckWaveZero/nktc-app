@@ -68,12 +68,8 @@
           "tableFrom": "_ClassroomToTeacher",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "A"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -82,12 +78,8 @@
           "tableFrom": "_ClassroomToTeacher",
           "tableTo": "teacher",
           "schemaTo": "public",
-          "columnsFrom": [
-            "B"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -327,12 +319,8 @@
           "tableFrom": "accounts",
           "tableTo": "user",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -537,12 +525,8 @@
           "tableFrom": "course",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "classrommId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["classrommId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -551,12 +535,8 @@
           "tableFrom": "course",
           "tableTo": "program",
           "schemaTo": "public",
-          "columnsFrom": [
-            "programId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -825,12 +805,8 @@
           "tableFrom": "reportCheckIn",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "classroomKey"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["classroomKey"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -839,12 +815,8 @@
           "tableFrom": "reportCheckIn",
           "tableTo": "teacher",
           "schemaTo": "public",
-          "columnsFrom": [
-            "teacherKey"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["teacherKey"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -997,12 +969,8 @@
           "tableFrom": "session",
           "tableTo": "user",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1247,12 +1215,8 @@
           "tableFrom": "teacher",
           "tableTo": "department",
           "schemaTo": "public",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1261,12 +1225,8 @@
           "tableFrom": "teacher",
           "tableTo": "levelClassroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelClassroomId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelClassroomId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1275,12 +1235,8 @@
           "tableFrom": "teacher",
           "tableTo": "program",
           "schemaTo": "public",
-          "columnsFrom": [
-            "programId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1289,12 +1245,8 @@
           "tableFrom": "teacher",
           "tableTo": "user",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1357,12 +1309,8 @@
           "tableFrom": "user_role",
           "tableTo": "role_permission",
           "schemaTo": "public",
-          "columnsFrom": [
-            "rolePermisssionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["rolePermisssionId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1371,12 +1319,8 @@
           "tableFrom": "user_role",
           "tableTo": "user",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1500,12 +1444,8 @@
           "tableFrom": "_ClassroomToLevelClassroom",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "A"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["A"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -1514,12 +1454,8 @@
           "tableFrom": "_ClassroomToLevelClassroom",
           "tableTo": "levelClassroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "B"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["B"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1705,12 +1641,8 @@
           "tableFrom": "student",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "classroomId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["classroomId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1719,12 +1651,8 @@
           "tableFrom": "student",
           "tableTo": "department",
           "schemaTo": "public",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1733,12 +1661,8 @@
           "tableFrom": "student",
           "tableTo": "levelClassroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelClassroomId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelClassroomId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1747,12 +1671,8 @@
           "tableFrom": "student",
           "tableTo": "level",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1761,12 +1681,8 @@
           "tableFrom": "student",
           "tableTo": "program",
           "schemaTo": "public",
-          "columnsFrom": [
-            "programId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1775,12 +1691,8 @@
           "tableFrom": "student",
           "tableTo": "user",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1894,12 +1806,8 @@
           "tableFrom": "activityCheckInReport",
           "tableTo": "classroom",
           "schemaTo": "public",
-          "columnsFrom": [
-            "classroomKey"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["classroomKey"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1908,12 +1816,8 @@
           "tableFrom": "activityCheckInReport",
           "tableTo": "teacher",
           "schemaTo": "public",
-          "columnsFrom": [
-            "teacherKey"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["teacherKey"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -2053,12 +1957,8 @@
           "tableFrom": "classroom",
           "tableTo": "department",
           "schemaTo": "public",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -2067,12 +1967,8 @@
           "tableFrom": "classroom",
           "tableTo": "level",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -2081,12 +1977,8 @@
           "tableFrom": "classroom",
           "tableTo": "program",
           "schemaTo": "public",
-          "columnsFrom": [
-            "programId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -2197,12 +2089,8 @@
           "tableFrom": "levelClassroom",
           "tableTo": "level",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -2211,12 +2099,8 @@
           "tableFrom": "levelClassroom",
           "tableTo": "program",
           "schemaTo": "public",
-          "columnsFrom": [
-            "programId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -2386,12 +2270,8 @@
           "tableFrom": "user",
           "tableTo": "verificationtokens",
           "schemaTo": "public",
-          "columnsFrom": [
-            "verificationToken"
-          ],
-          "columnsTo": [
-            "token"
-          ],
+          "columnsFrom": ["verificationToken"],
+          "columnsTo": ["token"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -2536,12 +2416,8 @@
           "tableFrom": "program",
           "tableTo": "department",
           "schemaTo": "public",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -2550,12 +2426,8 @@
           "tableFrom": "program",
           "tableTo": "level",
           "schemaTo": "public",
-          "columnsFrom": [
-            "levelId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -2567,13 +2439,7 @@
   "enums": {
     "public.Role": {
       "name": "Role",
-      "values": [
-        "Admin",
-        "User",
-        "Student",
-        "Teacher",
-        "Parent"
-      ],
+      "values": ["Admin", "User", "Student", "Teacher", "Parent"],
       "schema": "public"
     }
   },

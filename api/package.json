@@ -4,7 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
-    "format": "prettier . --write",
+    "format": "prettier . --write --config prettier.config.cjs",
     "format:check": "prettier . --check",
     "introspect": "bunx --bun drizzle-kit --config drizzle.config.ts introspect",
     "generate": "bunx --bun drizzle-kit --config drizzle.config.ts generate",
