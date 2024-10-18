@@ -5,6 +5,10 @@ class AuthenticationsController {
   constructor() {}
   async createAuthentication({ jwt, refreshJwt, body, set }: any) {
     const userId = await usersService.verifyUserByUsername(body.username);
+    console.log(
+      '🚀 ~ AuthenticationsController ~ createAuthentication ~ userId:',
+      userId,
+    );
     if (!userId) {
       throw new Error('User not found');
     }

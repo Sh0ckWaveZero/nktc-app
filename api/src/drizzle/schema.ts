@@ -24,7 +24,10 @@ export const role = pgEnum('Role', [
 export const rolePermission = pgTable(
   'role_permission',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     name: text('name').notNull(),
     label: text('label').notNull(),
     permissions: jsonb('permissions').notNull(),
@@ -85,7 +88,10 @@ export const classroomToLevelClassroom = pgTable(
 export const activityCheckInReport = pgTable(
   'activity_check_in_report',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     teacherId: text('teacherId').notNull(),
     teacherKey: text('teacherKey'),
     classroomId: text('classroomId').notNull(),
@@ -129,7 +135,10 @@ export const activityCheckInReport = pgTable(
 export const userRole = pgTable(
   'user_role',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     userId: text('userId').notNull(),
     createdAt: timestamp('created_at', { precision: 3, mode: 'string' })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -165,7 +174,10 @@ export const userRole = pgTable(
 export const user = pgTable(
   'user',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     username: text('username').notNull(),
     password: text('password').notNull(),
     email: text('email'),
@@ -217,7 +229,10 @@ export const user = pgTable(
 export const teacher = pgTable(
   'teacher',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     teacherId: text('teacherId'),
     jobTitle: text('jobTitle'),
     academicStanding: text('academicStanding'),
@@ -288,7 +303,10 @@ export const teacher = pgTable(
 export const level = pgTable(
   'level',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     levelId: text('levelId'),
     levelName: text('levelName'),
     levelFullName: text('levelFullName'),
@@ -315,7 +333,10 @@ export const level = pgTable(
 export const session = pgTable(
   'session',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     sessionToken: text('sessionToken').notNull(),
     expires: timestamp('expires', { precision: 3, mode: 'string' }).notNull(),
     userId: text('userId').notNull(),
@@ -340,7 +361,10 @@ export const session = pgTable(
 export const student = pgTable(
   'student',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     studentId: text('studentId'),
     isGraduation: boolean('isGraduation'),
     graduationYear: integer('graduationYear'),
@@ -431,7 +455,10 @@ export const student = pgTable(
 export const levelClassroom = pgTable(
   'level_classroom',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     levelClassroomId: text('levelClassroomId'),
     name: text('name'),
     description: text('description'),
@@ -498,7 +525,10 @@ export const verificationTokens = pgTable(
 export const classroom = pgTable(
   'classroom',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     classroomId: text('classroomId'),
     name: text('name'),
     description: text('description'),
@@ -554,7 +584,10 @@ export const classroom = pgTable(
 );
 
 export const department = pgTable('department', {
-  id: text('id').primaryKey().notNull(),
+  id: text('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`)
+    .notNull(),
   departmentId: text('departmentId'),
   name: text('name'),
   description: text('description'),
@@ -571,7 +604,10 @@ export const department = pgTable('department', {
 });
 
 export const auditLog = pgTable('audit_log', {
-  id: text('id').primaryKey().notNull(),
+  id: text('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`)
+    .notNull(),
   action: text('action'),
   model: text('model'),
   recordId: text('recordId'),
@@ -591,7 +627,10 @@ export const auditLog = pgTable('audit_log', {
 export const course = pgTable(
   'course',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     courseId: text('courseId'),
     courseName: text('courseName'),
     numberOfCredit: integer('numberOfCredit'),
@@ -637,7 +676,10 @@ export const course = pgTable(
 export const accounts = pgTable(
   'accounts',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     userId: text('userId'),
     avatar: text('avatar'),
     title: text('title'),
@@ -699,7 +741,10 @@ export const accounts = pgTable(
 export const program = pgTable(
   'program',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     programId: text('programId').notNull(),
     name: text('name'),
     description: text('description'),
@@ -743,7 +788,10 @@ export const program = pgTable(
 export const teacherOnClassroom = pgTable(
   'teacher_on_classroom',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     teacherId: text('teacherId').notNull(),
     classroomId: text('classroomId').notNull(),
     createdAt: timestamp('created_at', { precision: 3, mode: 'string' })
@@ -772,7 +820,10 @@ export const teacherOnClassroom = pgTable(
 export const reportCheckIn = pgTable(
   'report_check_in',
   {
-    id: text('id').primaryKey().notNull(),
+    id: text('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`)
+      .notNull(),
     teacherId: text('teacherId').notNull(),
     teacherKey: text('teacherKey'),
     classroomId: text('classroomId').notNull(),

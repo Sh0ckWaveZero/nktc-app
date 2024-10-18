@@ -5,7 +5,7 @@ import { AuthorizationError } from '@/exceptions/authorizationError';
 import { InvariantError } from '@/exceptions/invariantError';
 import { PrismaClient } from '@prisma/client';
 import { and, eq } from 'drizzle-orm';
-import { NotFoundError, t } from 'elysia';
+import { NotFoundError } from 'elysia';
 
 interface loginPayload {
   username: string;
@@ -69,6 +69,7 @@ class UsersService {
   }
 
   async loginUser(body: loginPayload) {
+    console.log('🚀 ~ UsersService ~ loginUser ~ body:', body);
     const [userInfo] = await db
       .select({
         id: user.id,
@@ -85,17 +86,20 @@ class UsersService {
   }
 
   async verifyUserByUsername(username: string) {
-    const [userInfo] = await db
-      .select({
-        id: user.id,
-      })
-      .from(user)
-      .where(eq(user.username, username))
-      .catch((err) => {
-        throw new AuthenticationError('Username or password is wrong!');
-      });
+    try {
+      const [selectedUser] = await db
+        .select()
+        .from(user)
+        .where(eq(user.username, username))
+        .catch((err) => {
+          throw new AuthenticationError('❌ User not found!');
+        });
 
-    return userInfo;
+      return selectedUser;
+    } catch (err) {
+      console.error('Error verifying user by username:', err);
+      throw new AuthenticationError('Username or password is wrong!');
+    }
   }
 
   async verifyUserById(id: string) {
