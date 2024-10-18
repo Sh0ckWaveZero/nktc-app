@@ -37,7 +37,6 @@ async function createUserWithAccount(
           ...admin,
         })
         .returning();
-      console.log('New User:', JSON.stringify(newUser, null, 2));
 
       // Insert into account table using the user ID
       await trx

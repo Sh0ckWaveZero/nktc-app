@@ -88,7 +88,9 @@ class UsersService {
   async verifyUserByUsername(username: string) {
     try {
       const [selectedUser] = await db
-        .select()
+        .select({
+          id: user.id,
+        })
         .from(user)
         .where(eq(user.username, username))
         .catch((err) => {

@@ -1,4 +1,5 @@
 import { usersService } from '@/services/users.service';
+import { password } from 'bun';
 import { t } from 'elysia';
 
 class UsersController {
@@ -31,10 +32,12 @@ class UsersController {
     const hashedPassword = await usersService.getPasswordByUsername(
       body.username,
     );
-    const hasMatchingPassword = await Bun.password.verify(
+
+    const hasMatchingPassword = await password.verify(
       body.password,
       hashedPassword,
     );
+
 
     if (!hasMatchingPassword) {
       set.status = 401;

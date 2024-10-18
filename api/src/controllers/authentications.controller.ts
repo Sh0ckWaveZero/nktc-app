@@ -2,22 +2,19 @@ import { authenticationsService } from '@/services/authentications.service';
 import { usersService } from '@/services/users.service';
 
 class AuthenticationsController {
-  constructor() {}
+  constructor() { }
   async createAuthentication({ jwt, refreshJwt, body, set }: any) {
-    const userId = await usersService.verifyUserByUsername(body.username);
-    console.log(
-      '🚀 ~ AuthenticationsController ~ createAuthentication ~ userId:',
-      userId,
-    );
-    if (!userId) {
+    const user = await usersService.verifyUserByUsername(body.username);
+
+    if (!user.id) {
       throw new Error('User not found');
     }
 
-    const accessToken = await jwt.sign(userId);
-    const refreshToken = await refreshJwt.sign(userId);
+    const accessToken = await jwt.sign(user);
+    const refreshToken = await refreshJwt.sign(user);
 
     const tokenAdded = await authenticationsService.addRefreshToken(
-      userId.id,
+      user.id,
       refreshToken,
     );
     if (!tokenAdded) {
