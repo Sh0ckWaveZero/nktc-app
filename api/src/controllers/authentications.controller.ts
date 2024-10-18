@@ -5,6 +5,7 @@ class AuthenticationsController {
   constructor() { }
   async createAuthentication({ jwt, refreshJwt, body, set }: any) {
     const user = await usersService.verifyUserByUsername(body.username);
+    console.log('🚀 ~ AuthenticationsController ~ createAuthentication ~ user:', user);
 
     if (!user.id) {
       throw new Error('User not found');

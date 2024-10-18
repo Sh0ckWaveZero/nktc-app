@@ -1,9 +1,7 @@
 import { db } from '@/db';
 import { user } from '@/drizzle/schema';
 import { AuthenticationError } from '@/exceptions/authenticationError';
-import { AuthorizationError } from '@/exceptions/authorizationError';
 import { InvariantError } from '@/exceptions/invariantError';
-import { PrismaClient } from '@prisma/client';
 import { and, eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
@@ -13,63 +11,51 @@ interface loginPayload {
 }
 
 class UsersService {
-  constructor(private db = new PrismaClient()) {}
+  constructor() { }
 
   async getUsers() {
-    return await this.db.user.findMany({
-      select: {
-        id: true,
-        username: true,
-        email: true,
-      },
-    });
+    return await db.select({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    }).from(user);
   }
 
   async getUserById(id: string) {
-    const user = await this.db.user.findFirst({
-      where: {
-        id: {
-          equals: id,
-        },
-      },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-      },
-    });
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      })
+      .from(user)
+      .where(eq(user.id, id))
+      .catch((err) => {
+        throw new NotFoundError('User not found');
+      });
 
-    if (!user) throw new NotFoundError('User not found');
-    return user;
+    return userInfo;
   }
 
   async deleteUser(id: string) {
-    await this.db.user.delete({
-      where: {
-        id: id,
-      },
-    });
+    return await db.delete(user).where(eq(user.id, id)).returning();
   }
 
   async getPasswordByUsername(username: string) {
-    const getPassword = await this.db.user.findFirst({
-      where: {
-        username: {
-          equals: username,
-        },
-      },
-      select: {
-        password: true,
-      },
-    });
-
-    if (!getPassword) throw new InvariantError('Username is not found!');
+    const [getPassword] = await db
+      .select({
+        password: user.password,
+      })
+      .from(user)
+      .where(eq(user.username, username))
+      .catch((err) => {
+        throw new InvariantError('Username is not found!');
+      });
 
     return getPassword.password;
   }
 
   async loginUser(body: loginPayload) {
-    console.log('🚀 ~ UsersService ~ loginUser ~ body:', body);
     const [userInfo] = await db
       .select({
         id: user.id,
@@ -105,27 +91,31 @@ class UsersService {
   }
 
   async verifyUserById(id: string) {
-    const user = await this.db.user.findFirst({
-      where: {
-        username: {
-          equals: id,
-        },
-      },
-    });
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+      })
+      .from(user)
+      .where(eq(user.id, id))
+      .catch((err) => {
+        throw new AuthenticationError('❌ You have no access!');
+      });
 
-    if (!user) throw new AuthorizationError('You have no access!');
+    return userInfo;
   }
 
   async verifyUsernameIsAvailable(username: string) {
-    const isAvailable = await this.db.user.findFirst({
-      where: {
-        username: {
-          equals: username,
-        },
-      },
-    });
+    const [isAvailable] = await db
+      .select({
+        username: user.username,
+      })
+      .from(user)
+      .where(eq(user.username, username))
+      .catch((err) => {
+        throw new InvariantError('❌ Username already exist!');
+      });
 
-    if (isAvailable) throw new InvariantError('Username already exist!');
+    return isAvailable;
   }
 }
 
