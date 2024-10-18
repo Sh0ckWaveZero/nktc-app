@@ -1,8 +1,11 @@
+import { db } from '@/db';
+import { user } from '@/drizzle/schema';
 import { AuthenticationError } from '@/exceptions/authenticationError';
 import { AuthorizationError } from '@/exceptions/authorizationError';
 import { InvariantError } from '@/exceptions/invariantError';
 import { PrismaClient } from '@prisma/client';
-import { NotFoundError } from 'elysia';
+import { and, eq } from 'drizzle-orm';
+import { NotFoundError, t } from 'elysia';
 
 interface loginPayload {
   username: string;
@@ -66,39 +69,33 @@ class UsersService {
   }
 
   async loginUser(body: loginPayload) {
-    const user = await this.db.user.findFirst({
-      where: {
-        username: {
-          equals: body.username,
-        },
-        password: {
-          equals: body.password,
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+      })
+      .from(user)
+      .where(
+        and(eq(user.username, body.username), eq(user.password, body.password)),
+      )
+      .catch((err) => {
+        throw new AuthenticationError('Username or password is wrong!');
+      });
 
-    if (!user) throw new AuthenticationError('Username or password is wrong!');
-    return user;
+    return userInfo;
   }
 
   async verifyUserByUsername(username: string) {
-    const user = await this.db.user.findFirst({
-      where: {
-        username: {
-          equals: username,
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+      })
+      .from(user)
+      .where(eq(user.username, username))
+      .catch((err) => {
+        throw new AuthenticationError('Username or password is wrong!');
+      });
 
-    if (!user) throw new AuthenticationError('Username or password is wrong!');
-
-    return user;
+    return userInfo;
   }
 
   async verifyUserById(id: string) {

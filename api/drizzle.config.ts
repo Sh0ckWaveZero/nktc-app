@@ -6,7 +6,7 @@ export default defineConfig({
   out: './src/drizzle',
   schema: './src/drizzle/schema.ts',
   dbCredentials: {
-    url: env.DATABASE_URL!,
+    url: env.DRIZZLE_DATABASE_URL! as string,
   },
   // Print all statements
   verbose: true,

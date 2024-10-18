@@ -8,6 +8,8 @@
     "format:check": "prettier . --check",
     "introspect": "bunx --bun drizzle-kit --config drizzle.config.ts introspect",
     "generate": "bunx --bun drizzle-kit --config drizzle.config.ts generate",
+    "push": "bunx --bun drizzle-kit --config drizzle.config.ts push",
+    "pull": "bunx --bun drizzle-kit --config drizzle.config.ts pull",
     "postinstall": "prisma generate"
   },
   "dependencies": {

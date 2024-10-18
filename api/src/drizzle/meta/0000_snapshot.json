@@ -4,8 +4,100 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public._ClassroomToTeacher": {
-      "name": "_ClassroomToTeacher",
+    "public.role_permission": {
+      "name": "role_permission",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permissions": {
+          "name": "permissions",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "role_permission_label_key": {
+          "name": "role_permission_label_key",
+          "columns": [
+            {
+              "expression": "label",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "role_permission_name_key": {
+          "name": "role_permission_name_key",
+          "columns": [
+            {
+              "expression": "name",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public._classroom_to_level_classroom": {
+      "name": "_classroom_to_level_classroom",
       "schema": "",
       "columns": {
         "A": {
@@ -22,8 +114,8 @@
         }
       },
       "indexes": {
-        "_ClassroomToTeacher_AB_unique": {
-          "name": "_ClassroomToTeacher_AB_unique",
+        "_ClassroomToLevelClassroom_AB_unique": {
+          "name": "_ClassroomToLevelClassroom_AB_unique",
           "columns": [
             {
               "expression": "A",
@@ -45,8 +137,8 @@
           "method": "btree",
           "with": {}
         },
-        "_ClassroomToTeacher_B_index": {
-          "name": "_ClassroomToTeacher_B_index",
+        "_classroom_to_level_classroom_B_index": {
+          "name": "_classroom_to_level_classroom_B_index",
           "columns": [
             {
               "expression": "B",
@@ -63,9 +155,9 @@
         }
       },
       "foreignKeys": {
-        "_ClassroomToTeacher_A_fkey": {
-          "name": "_ClassroomToTeacher_A_fkey",
-          "tableFrom": "_ClassroomToTeacher",
+        "_ClassroomToLevelClassroom_A_fkey": {
+          "name": "_ClassroomToLevelClassroom_A_fkey",
+          "tableFrom": "_classroom_to_level_classroom",
           "tableTo": "classroom",
           "schemaTo": "public",
           "columnsFrom": ["A"],
@@ -73,14 +165,1580 @@
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "_ClassroomToTeacher_B_fkey": {
-          "name": "_ClassroomToTeacher_B_fkey",
-          "tableFrom": "_ClassroomToTeacher",
-          "tableTo": "teacher",
+        "_ClassroomToLevelClassroom_B_fkey": {
+          "name": "_ClassroomToLevelClassroom_B_fkey",
+          "tableFrom": "_classroom_to_level_classroom",
+          "tableTo": "level_classroom",
           "schemaTo": "public",
           "columnsFrom": ["B"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.activity_check_in_report": {
+      "name": "activity_check_in_report",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherId": {
+          "name": "teacherId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacherKey": {
+          "name": "teacherKey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroomId": {
+          "name": "classroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "classroomKey": {
+          "name": "classroomKey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "present": {
+          "name": "present",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        },
+        "absent": {
+          "name": "absent",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        },
+        "internship": {
+          "name": "internship",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        },
+        "checkInDate": {
+          "name": "checkInDate",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "checkInTime": {
+          "name": "checkInTime",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "activityCheckInReport_classroomKey_fkey": {
+          "name": "activityCheckInReport_classroomKey_fkey",
+          "tableFrom": "activity_check_in_report",
+          "tableTo": "classroom",
+          "schemaTo": "public",
+          "columnsFrom": ["classroomKey"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "activityCheckInReport_teacherKey_fkey": {
+          "name": "activityCheckInReport_teacherKey_fkey",
+          "tableFrom": "activity_check_in_report",
+          "tableTo": "teacher",
+          "schemaTo": "public",
+          "columnsFrom": ["teacherKey"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rolePermissionId": {
+          "name": "rolePermissionId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_role_userId_fkey": {
+          "name": "user_role_userId_fkey",
+          "tableFrom": "user_role",
+          "tableTo": "user",
+          "schemaTo": "public",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "user_role_rolePermissionId_fkey": {
+          "name": "user_role_rolePermissionId_fkey",
+          "tableFrom": "user_role",
+          "tableTo": "role_permission",
+          "schemaTo": "public",
+          "columnsFrom": ["rolePermissionId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "Role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'User'"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verificationToken": {
+          "name": "verificationToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refreshToken": {
+          "name": "refreshToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accessToken": {
+          "name": "accessToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "user_username_key": {
+          "name": "user_username_key",
+          "columns": [
+            {
+              "expression": "username",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "user_username_verificationToken_key": {
+          "name": "user_username_verificationToken_key",
+          "columns": [
+            {
+              "expression": "username",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "verificationToken",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_index_verificationToken": {
+          "name": "users_index_verificationToken",
+          "columns": [
+            {
+              "expression": "username",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "verificationToken",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_verificationToken_fkey": {
+          "name": "user_verificationToken_fkey",
+          "tableFrom": "user",
+          "tableTo": "verification_tokens",
+          "schemaTo": "public",
+          "columnsFrom": ["verificationToken"],
+          "columnsTo": ["token"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.teacher": {
+      "name": "teacher",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherId": {
+          "name": "teacherId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "jobTitle": {
+          "name": "jobTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "academicStanding": {
+          "name": "academicStanding",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroomIds": {
+          "name": "classroomIds",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        },
+        "rfId": {
+          "name": "rfId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "programId": {
+          "name": "programId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelClassroomId": {
+          "name": "levelClassroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "teacher_teacherId_key": {
+          "name": "teacher_teacherId_key",
+          "columns": [
+            {
+              "expression": "teacherId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "teacher_userId_key": {
+          "name": "teacher_userId_key",
+          "columns": [
+            {
+              "expression": "userId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "teacher_userId_teacherId_key": {
+          "name": "teacher_userId_teacherId_key",
+          "columns": [
+            {
+              "expression": "userId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "teacherId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "teacher_departmentId_fkey": {
+          "name": "teacher_departmentId_fkey",
+          "tableFrom": "teacher",
+          "tableTo": "department",
+          "schemaTo": "public",
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "teacher_programId_fkey": {
+          "name": "teacher_programId_fkey",
+          "tableFrom": "teacher",
+          "tableTo": "program",
+          "schemaTo": "public",
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "teacher_userId_fkey": {
+          "name": "teacher_userId_fkey",
+          "tableFrom": "teacher",
+          "tableTo": "user",
+          "schemaTo": "public",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "teacher_level_classroom_id_fkey": {
+          "name": "teacher_level_classroom_id_fkey",
+          "tableFrom": "teacher",
+          "tableTo": "level_classroom",
+          "schemaTo": "public",
+          "columnsFrom": ["levelClassroomId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.level": {
+      "name": "level",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "levelId": {
+          "name": "levelId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelName": {
+          "name": "levelName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelFullName": {
+          "name": "levelFullName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "level_levelId_key": {
+          "name": "level_levelId_key",
+          "columns": [
+            {
+              "expression": "levelId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionToken": {
+          "name": "sessionToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "session_sessionToken_key": {
+          "name": "session_sessionToken_key",
+          "columns": [
+            {
+              "expression": "sessionToken",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "session_userId_fkey": {
+          "name": "session_userId_fkey",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "schemaTo": "public",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.student": {
+      "name": "student",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "studentId": {
+          "name": "studentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isGraduation": {
+          "name": "isGraduation",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "graduationYear": {
+          "name": "graduationYear",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "graduationDate": {
+          "name": "graduationDate",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "studentStatus": {
+          "name": "studentStatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "group": {
+          "name": "group",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'normal'"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroomId": {
+          "name": "classroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "programId": {
+          "name": "programId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelId": {
+          "name": "levelId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelClassroomId": {
+          "name": "levelClassroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "student_studentId_key": {
+          "name": "student_studentId_key",
+          "columns": [
+            {
+              "expression": "studentId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "student_userId_key": {
+          "name": "student_userId_key",
+          "columns": [
+            {
+              "expression": "userId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "student_userId_studentId_key": {
+          "name": "student_userId_studentId_key",
+          "columns": [
+            {
+              "expression": "userId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "studentId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "student_classroomId_fkey": {
+          "name": "student_classroomId_fkey",
+          "tableFrom": "student",
+          "tableTo": "classroom",
+          "schemaTo": "public",
+          "columnsFrom": ["classroomId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "student_departmentId_fkey": {
+          "name": "student_departmentId_fkey",
+          "tableFrom": "student",
+          "tableTo": "department",
+          "schemaTo": "public",
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "student_levelId_fkey": {
+          "name": "student_levelId_fkey",
+          "tableFrom": "student",
+          "tableTo": "level",
+          "schemaTo": "public",
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "student_programId_fkey": {
+          "name": "student_programId_fkey",
+          "tableFrom": "student",
+          "tableTo": "program",
+          "schemaTo": "public",
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "student_userId_fkey": {
+          "name": "student_userId_fkey",
+          "tableFrom": "student",
+          "tableTo": "user",
+          "schemaTo": "public",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "student_levelClassroomId_fkey": {
+          "name": "student_levelClassroomId_fkey",
+          "tableFrom": "student",
+          "tableTo": "level_classroom",
+          "schemaTo": "public",
+          "columnsFrom": ["levelClassroomId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.level_classroom": {
+      "name": "level_classroom",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "levelClassroomId": {
+          "name": "levelClassroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "programId": {
+          "name": "programId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelId": {
+          "name": "levelId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroomIds": {
+          "name": "classroomIds",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        }
+      },
+      "indexes": {
+        "levelClassroom_levelClassroomId_key": {
+          "name": "levelClassroom_levelClassroomId_key",
+          "columns": [
+            {
+              "expression": "levelClassroomId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "levelClassroom_levelId_fkey": {
+          "name": "levelClassroom_levelId_fkey",
+          "tableFrom": "level_classroom",
+          "tableTo": "level",
+          "schemaTo": "public",
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "levelClassroom_programId_fkey": {
+          "name": "levelClassroom_programId_fkey",
+          "tableFrom": "level_classroom",
+          "tableTo": "program",
+          "schemaTo": "public",
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.verification_tokens": {
+      "name": "verification_tokens",
+      "schema": "",
+      "columns": {
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "verification_tokens_identifier_token_key": {
+          "name": "verification_tokens_identifier_token_key",
+          "columns": [
+            {
+              "expression": "identifier",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "token",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "verification_tokens_token_unique": {
+          "columns": ["token"],
+          "nullsNotDistinct": false,
+          "name": "verification_tokens_token_unique"
+        }
+      }
+    },
+    "public.classroom": {
+      "name": "classroom",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "classroomId": {
+          "name": "classroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "teacherIds": {
+          "name": "teacherIds",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        },
+        "levelId": {
+          "name": "levelId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "programId": {
+          "name": "programId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "levelClassroomIds": {
+          "name": "levelClassroomIds",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"RAY\"}'"
+        }
+      },
+      "indexes": {
+        "classroom_classroomId_key": {
+          "name": "classroom_classroomId_key",
+          "columns": [
+            {
+              "expression": "classroomId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "classroom_name_key": {
+          "name": "classroom_name_key",
+          "columns": [
+            {
+              "expression": "name",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "classroom_departmentId_fkey": {
+          "name": "classroom_departmentId_fkey",
+          "tableFrom": "classroom",
+          "tableTo": "department",
+          "schemaTo": "public",
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "classroom_levelId_fkey": {
+          "name": "classroom_levelId_fkey",
+          "tableFrom": "classroom",
+          "tableTo": "level",
+          "schemaTo": "public",
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "classroom_programId_fkey": {
+          "name": "classroom_programId_fkey",
+          "tableFrom": "classroom",
+          "tableTo": "program",
+          "schemaTo": "public",
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.department": {
+      "name": "department",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.audit_log": {
+      "name": "audit_log",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recordId": {
+          "name": "recordId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fieldName": {
+          "name": "fieldName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "oldValue": {
+          "name": "oldValue",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "newValue": {
+          "name": "newValue",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detail": {
+          "name": "detail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ipAddr": {
+          "name": "ipAddr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "browser": {
+          "name": "browser",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "device": {
+          "name": "device",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.course": {
+      "name": "course",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "courseId": {
+          "name": "courseId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "courseName": {
+          "name": "courseName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numberOfCredit": {
+          "name": "numberOfCredit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "evaluation": {
+          "name": "evaluation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "programId": {
+          "name": "programId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroomId": {
+          "name": "classroomId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "course_courseId_key": {
+          "name": "course_courseId_key",
+          "columns": [
+            {
+              "expression": "courseId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "course_programId_fkey": {
+          "name": "course_programId_fkey",
+          "tableFrom": "course",
+          "tableTo": "program",
+          "schemaTo": "public",
+          "columnsFrom": ["programId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "course_classroomId_fkey": {
+          "name": "course_classroomId_fkey",
+          "tableFrom": "course",
+          "tableTo": "classroom",
+          "schemaTo": "public",
+          "columnsFrom": ["classroomId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
           "onUpdate": "cascade"
         }
       },
@@ -328,8 +1986,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.audit_log": {
-      "name": "audit_log",
+    "public.program": {
+      "name": "program",
       "schema": "",
       "columns": {
         "id": {
@@ -337,228 +1995,12 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true
-        },
-        "action": {
-          "name": "action",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "recordId": {
-          "name": "recordId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "fieldName": {
-          "name": "fieldName",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "oldValue": {
-          "name": "oldValue",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "newValue": {
-          "name": "newValue",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "detail": {
-          "name": "detail",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ipAddr": {
-          "name": "ipAddr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "browser": {
-          "name": "browser",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "device": {
-          "name": "device",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.course": {
-      "name": "course",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "courseId": {
-          "name": "courseId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "courseName": {
-          "name": "courseName",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "numberOfCredit": {
-          "name": "numberOfCredit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "evaluation": {
-          "name": "evaluation",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "programId": {
           "name": "programId",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "classrommId": {
-          "name": "classrommId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
           "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "course_courseId_key": {
-          "name": "course_courseId_key",
-          "columns": [
-            {
-              "expression": "courseId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "course_classrommId_fkey": {
-          "name": "course_classrommId_fkey",
-          "tableFrom": "course",
-          "tableTo": "classroom",
-          "schemaTo": "public",
-          "columnsFrom": ["classrommId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "course_programId_fkey": {
-          "name": "course_programId_fkey",
-          "tableFrom": "course",
-          "tableTo": "program",
-          "schemaTo": "public",
-          "columnsFrom": ["programId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.department": {
-      "name": "department",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "departmentId": {
-          "name": "departmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "name": {
           "name": "name",
@@ -572,6 +2014,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "levelId": {
+          "name": "levelId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -604,13 +2058,51 @@
           "notNull": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "program_programId_key": {
+          "name": "program_programId_key",
+          "columns": [
+            {
+              "expression": "programId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "program_departmentId_fkey": {
+          "name": "program_departmentId_fkey",
+          "tableFrom": "program",
+          "tableTo": "department",
+          "schemaTo": "public",
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "program_levelId_fkey": {
+          "name": "program_levelId_fkey",
+          "tableFrom": "program",
+          "tableTo": "level",
+          "schemaTo": "public",
+          "columnsFrom": ["levelId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.level": {
-      "name": "level",
+    "public.teacher_on_classroom": {
+      "name": "teacher_on_classroom",
       "schema": "",
       "columns": {
         "id": {
@@ -619,23 +2111,17 @@
           "primaryKey": true,
           "notNull": true
         },
-        "levelId": {
-          "name": "levelId",
+        "teacherId": {
+          "name": "teacherId",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "levelName": {
-          "name": "levelName",
+        "classroomId": {
+          "name": "classroomId",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "levelFullName": {
-          "name": "levelFullName",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -664,11 +2150,18 @@
         }
       },
       "indexes": {
-        "level_levelId_key": {
-          "name": "level_levelId_key",
+        "teacherOnClassroom_teacherId_classroomId_key": {
+          "name": "teacherOnClassroom_teacherId_classroomId_key",
           "columns": [
             {
-              "expression": "levelId",
+              "expression": "teacherId",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            },
+            {
+              "expression": "classroomId",
               "asc": true,
               "nulls": "last",
               "opclass": "text_ops",
@@ -685,8 +2178,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.reportCheckIn": {
-      "name": "reportCheckIn",
+    "public.report_check_in": {
+      "name": "report_check_in",
       "schema": "",
       "columns": {
         "id": {
@@ -802,7 +2295,7 @@
       "foreignKeys": {
         "reportCheckIn_classroomKey_fkey": {
           "name": "reportCheckIn_classroomKey_fkey",
-          "tableFrom": "reportCheckIn",
+          "tableFrom": "report_check_in",
           "tableTo": "classroom",
           "schemaTo": "public",
           "columnsFrom": ["classroomKey"],
@@ -812,7 +2305,7 @@
         },
         "reportCheckIn_teacherKey_fkey": {
           "name": "reportCheckIn_teacherKey_fkey",
-          "tableFrom": "reportCheckIn",
+          "tableFrom": "report_check_in",
           "tableTo": "teacher",
           "schemaTo": "public",
           "columnsFrom": ["teacherKey"],
@@ -824,564 +2317,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.role_permission": {
-      "name": "role_permission",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "role_permission_label_key": {
-          "name": "role_permission_label_key",
-          "columns": [
-            {
-              "expression": "label",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "role_permission_name_key": {
-          "name": "role_permission_name_key",
-          "columns": [
-            {
-              "expression": "name",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.session": {
-      "name": "session",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "sessionToken": {
-          "name": "sessionToken",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires": {
-          "name": "expires",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "session_sessionToken_key": {
-          "name": "session_sessionToken_key",
-          "columns": [
-            {
-              "expression": "sessionToken",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "session_userId_fkey": {
-          "name": "session_userId_fkey",
-          "tableFrom": "session",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.teacherOnClassroom": {
-      "name": "teacherOnClassroom",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "teacherId": {
-          "name": "teacherId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "classroomId": {
-          "name": "classroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "teacherOnClassroom_teacherId_classroomId_key": {
-          "name": "teacherOnClassroom_teacherId_classroomId_key",
-          "columns": [
-            {
-              "expression": "teacherId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "classroomId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.teacher": {
-      "name": "teacher",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "teacherId": {
-          "name": "teacherId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "jobTitle": {
-          "name": "jobTitle",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "academicStanding": {
-          "name": "academicStanding",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "classroomIds": {
-          "name": "classroomIds",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        },
-        "rfId": {
-          "name": "rfId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "programId": {
-          "name": "programId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "departmentId": {
-          "name": "departmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelClassroomId": {
-          "name": "levelClassroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "teacher_teacherId_key": {
-          "name": "teacher_teacherId_key",
-          "columns": [
-            {
-              "expression": "teacherId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "teacher_userId_key": {
-          "name": "teacher_userId_key",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "teacher_userId_teacherId_key": {
-          "name": "teacher_userId_teacherId_key",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "teacherId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "teacher_departmentId_fkey": {
-          "name": "teacher_departmentId_fkey",
-          "tableFrom": "teacher",
-          "tableTo": "department",
-          "schemaTo": "public",
-          "columnsFrom": ["departmentId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "teacher_levelClassroomId_fkey": {
-          "name": "teacher_levelClassroomId_fkey",
-          "tableFrom": "teacher",
-          "tableTo": "levelClassroom",
-          "schemaTo": "public",
-          "columnsFrom": ["levelClassroomId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "teacher_programId_fkey": {
-          "name": "teacher_programId_fkey",
-          "tableFrom": "teacher",
-          "tableTo": "program",
-          "schemaTo": "public",
-          "columnsFrom": ["programId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "teacher_userId_fkey": {
-          "name": "teacher_userId_fkey",
-          "tableFrom": "teacher",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.user_role": {
-      "name": "user_role",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rolePermisssionId": {
-          "name": "rolePermisssionId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_role_rolePermisssionId_fkey": {
-          "name": "user_role_rolePermisssionId_fkey",
-          "tableFrom": "user_role",
-          "tableTo": "role_permission",
-          "schemaTo": "public",
-          "columnsFrom": ["rolePermisssionId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "user_role_userId_fkey": {
-          "name": "user_role_userId_fkey",
-          "tableFrom": "user_role",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.verificationtokens": {
-      "name": "verificationtokens",
-      "schema": "",
-      "columns": {
-        "identifier": {
-          "name": "identifier",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires": {
-          "name": "expires",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "verificationtokens_identifier_token_key": {
-          "name": "verificationtokens_identifier_token_key",
-          "columns": [
-            {
-              "expression": "identifier",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "token",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public._ClassroomToLevelClassroom": {
-      "name": "_ClassroomToLevelClassroom",
+    "public._classroom_to_teacher": {
+      "name": "_classroom_to_teacher",
       "schema": "",
       "columns": {
         "A": {
@@ -1398,8 +2335,8 @@
         }
       },
       "indexes": {
-        "_ClassroomToLevelClassroom_AB_unique": {
-          "name": "_ClassroomToLevelClassroom_AB_unique",
+        "_classroom_to_teacher_AB_unique": {
+          "name": "_classroom_to_teacher_AB_unique",
           "columns": [
             {
               "expression": "A",
@@ -1421,8 +2358,8 @@
           "method": "btree",
           "with": {}
         },
-        "_ClassroomToLevelClassroom_B_index": {
-          "name": "_ClassroomToLevelClassroom_B_index",
+        "_classroom_to_teacher_B_index": {
+          "name": "_classroom_to_teacher_B_index",
           "columns": [
             {
               "expression": "B",
@@ -1439,9 +2376,9 @@
         }
       },
       "foreignKeys": {
-        "_ClassroomToLevelClassroom_A_fkey": {
-          "name": "_ClassroomToLevelClassroom_A_fkey",
-          "tableFrom": "_ClassroomToLevelClassroom",
+        "_classroom_to_teacher_A_fkey": {
+          "name": "_classroom_to_teacher_A_fkey",
+          "tableFrom": "_classroom_to_teacher",
           "tableTo": "classroom",
           "schemaTo": "public",
           "columnsFrom": ["A"],
@@ -1449,986 +2386,14 @@
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "_ClassroomToLevelClassroom_B_fkey": {
-          "name": "_ClassroomToLevelClassroom_B_fkey",
-          "tableFrom": "_ClassroomToLevelClassroom",
-          "tableTo": "levelClassroom",
+        "_ClassroomToTeacher_B_fkey": {
+          "name": "_ClassroomToTeacher_B_fkey",
+          "tableFrom": "_classroom_to_teacher",
+          "tableTo": "teacher",
           "schemaTo": "public",
           "columnsFrom": ["B"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.student": {
-      "name": "student",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "studentId": {
-          "name": "studentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "isGraduation": {
-          "name": "isGraduation",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "graduationYear": {
-          "name": "graduationYear",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "graduationDate": {
-          "name": "graduationDate",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "studentStatus": {
-          "name": "studentStatus",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "group": {
-          "name": "group",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'normal'"
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "classroomId": {
-          "name": "classroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "departmentId": {
-          "name": "departmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "programId": {
-          "name": "programId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelId": {
-          "name": "levelId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelClassroomId": {
-          "name": "levelClassroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "student_studentId_key": {
-          "name": "student_studentId_key",
-          "columns": [
-            {
-              "expression": "studentId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "student_userId_key": {
-          "name": "student_userId_key",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "student_userId_studentId_key": {
-          "name": "student_userId_studentId_key",
-          "columns": [
-            {
-              "expression": "userId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "studentId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "student_classroomId_fkey": {
-          "name": "student_classroomId_fkey",
-          "tableFrom": "student",
-          "tableTo": "classroom",
-          "schemaTo": "public",
-          "columnsFrom": ["classroomId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "student_departmentId_fkey": {
-          "name": "student_departmentId_fkey",
-          "tableFrom": "student",
-          "tableTo": "department",
-          "schemaTo": "public",
-          "columnsFrom": ["departmentId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "student_levelClassroomId_fkey": {
-          "name": "student_levelClassroomId_fkey",
-          "tableFrom": "student",
-          "tableTo": "levelClassroom",
-          "schemaTo": "public",
-          "columnsFrom": ["levelClassroomId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "student_levelId_fkey": {
-          "name": "student_levelId_fkey",
-          "tableFrom": "student",
-          "tableTo": "level",
-          "schemaTo": "public",
-          "columnsFrom": ["levelId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "student_programId_fkey": {
-          "name": "student_programId_fkey",
-          "tableFrom": "student",
-          "tableTo": "program",
-          "schemaTo": "public",
-          "columnsFrom": ["programId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "student_userId_fkey": {
-          "name": "student_userId_fkey",
-          "tableFrom": "student",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.activityCheckInReport": {
-      "name": "activityCheckInReport",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "teacherId": {
-          "name": "teacherId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "teacherKey": {
-          "name": "teacherKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "classroomId": {
-          "name": "classroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "classroomKey": {
-          "name": "classroomKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "present": {
-          "name": "present",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        },
-        "absent": {
-          "name": "absent",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        },
-        "internship": {
-          "name": "internship",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        },
-        "checkInDate": {
-          "name": "checkInDate",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "checkInTime": {
-          "name": "checkInTime",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activityCheckInReport_classroomKey_fkey": {
-          "name": "activityCheckInReport_classroomKey_fkey",
-          "tableFrom": "activityCheckInReport",
-          "tableTo": "classroom",
-          "schemaTo": "public",
-          "columnsFrom": ["classroomKey"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "activityCheckInReport_teacherKey_fkey": {
-          "name": "activityCheckInReport_teacherKey_fkey",
-          "tableFrom": "activityCheckInReport",
-          "tableTo": "teacher",
-          "schemaTo": "public",
-          "columnsFrom": ["teacherKey"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.classroom": {
-      "name": "classroom",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "classroomId": {
-          "name": "classroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "teacherIds": {
-          "name": "teacherIds",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        },
-        "levelId": {
-          "name": "levelId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "programId": {
-          "name": "programId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "departmentId": {
-          "name": "departmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelClassroomIds": {
-          "name": "levelClassroomIds",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        }
-      },
-      "indexes": {
-        "classroom_classroomId_key": {
-          "name": "classroom_classroomId_key",
-          "columns": [
-            {
-              "expression": "classroomId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "classroom_name_key": {
-          "name": "classroom_name_key",
-          "columns": [
-            {
-              "expression": "name",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "classroom_departmentId_fkey": {
-          "name": "classroom_departmentId_fkey",
-          "tableFrom": "classroom",
-          "tableTo": "department",
-          "schemaTo": "public",
-          "columnsFrom": ["departmentId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "classroom_levelId_fkey": {
-          "name": "classroom_levelId_fkey",
-          "tableFrom": "classroom",
-          "tableTo": "level",
-          "schemaTo": "public",
-          "columnsFrom": ["levelId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "classroom_programId_fkey": {
-          "name": "classroom_programId_fkey",
-          "tableFrom": "classroom",
-          "tableTo": "program",
-          "schemaTo": "public",
-          "columnsFrom": ["programId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.levelClassroom": {
-      "name": "levelClassroom",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "levelClassroomId": {
-          "name": "levelClassroomId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "programId": {
-          "name": "programId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelId": {
-          "name": "levelId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "classroomIds": {
-          "name": "classroomIds",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"RAY\"}'"
-        }
-      },
-      "indexes": {
-        "levelClassroom_levelClassroomId_key": {
-          "name": "levelClassroom_levelClassroomId_key",
-          "columns": [
-            {
-              "expression": "levelClassroomId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "levelClassroom_levelId_fkey": {
-          "name": "levelClassroom_levelId_fkey",
-          "tableFrom": "levelClassroom",
-          "tableTo": "level",
-          "schemaTo": "public",
-          "columnsFrom": ["levelId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "levelClassroom_programId_fkey": {
-          "name": "levelClassroom_programId_fkey",
-          "tableFrom": "levelClassroom",
-          "tableTo": "program",
-          "schemaTo": "public",
-          "columnsFrom": ["programId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "Role",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'User'"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verificationToken": {
-          "name": "verificationToken",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "refreshToken": {
-          "name": "refreshToken",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "accessToken": {
-          "name": "accessToken",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "expiresAt": {
-          "name": "expiresAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "user_username_key": {
-          "name": "user_username_key",
-          "columns": [
-            {
-              "expression": "username",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "user_username_verificationToken_key": {
-          "name": "user_username_verificationToken_key",
-          "columns": [
-            {
-              "expression": "username",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "verificationToken",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "users_index_verificationToken": {
-          "name": "users_index_verificationToken",
-          "columns": [
-            {
-              "expression": "username",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "verificationToken",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "user_verificationToken_fkey": {
-          "name": "user_verificationToken_fkey",
-          "tableFrom": "user",
-          "tableTo": "verificationtokens",
-          "schemaTo": "public",
-          "columnsFrom": ["verificationToken"],
-          "columnsTo": ["token"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.message": {
-      "name": "message",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "byDefault",
-            "name": "message_id_seq",
-            "increment": "1",
-            "minValue": "1",
-            "maxValue": "9223372036854775807",
-            "startWith": "1",
-            "cache": "1",
-            "cycle": false,
-            "schema": "public"
-          }
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "message_sent": {
-          "name": "message_sent",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.program": {
-      "name": "program",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "programId": {
-          "name": "programId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "levelId": {
-          "name": "levelId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "departmentId": {
-          "name": "departmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "program_programId_key": {
-          "name": "program_programId_key",
-          "columns": [
-            {
-              "expression": "programId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "program_departmentId_fkey": {
-          "name": "program_departmentId_fkey",
-          "tableFrom": "program",
-          "tableTo": "department",
-          "schemaTo": "public",
-          "columnsFrom": ["departmentId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "program_levelId_fkey": {
-          "name": "program_levelId_fkey",
-          "tableFrom": "program",
-          "tableTo": "level",
-          "schemaTo": "public",
-          "columnsFrom": ["levelId"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
           "onUpdate": "cascade"
         }
       },
@@ -2452,7 +2417,58 @@
   },
   "internal": {
     "tables": {
-      "reportCheckIn": {
+      "activity_check_in_report": {
+        "columns": {
+          "present": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          },
+          "absent": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          },
+          "internship": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          }
+        }
+      },
+      "teacher": {
+        "columns": {
+          "classroomIds": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          }
+        }
+      },
+      "level_classroom": {
+        "columns": {
+          "classroomIds": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          }
+        }
+      },
+      "classroom": {
+        "columns": {
+          "teacherIds": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          },
+          "levelClassroomIds": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          }
+        }
+      },
+      "report_check_in": {
         "columns": {
           "present": {
             "isArray": true,
@@ -2475,57 +2491,6 @@
             "rawType": "text"
           },
           "internship": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      },
-      "teacher": {
-        "columns": {
-          "classroomIds": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      },
-      "activityCheckInReport": {
-        "columns": {
-          "present": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          },
-          "absent": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          },
-          "internship": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      },
-      "classroom": {
-        "columns": {
-          "teacherIds": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          },
-          "levelClassroomIds": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      },
-      "levelClassroom": {
-        "columns": {
-          "classroomIds": {
             "isArray": true,
             "dimensions": 1,
             "rawType": "text"
