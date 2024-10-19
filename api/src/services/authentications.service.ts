@@ -1,7 +1,6 @@
 import { DbClient } from '@/db';
 import { user } from '@/drizzle/schema';
 import { InvariantError } from '@/exceptions/invariantError';
-import { PrismaClient } from '@prisma/client';
 import { eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 

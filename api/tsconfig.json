@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ES2022",
-    "rootDir": "./src",
+    "rootDir": "./",
     "moduleResolution": "node",
     "paths": {
       "@/*": ["./src/*"]
