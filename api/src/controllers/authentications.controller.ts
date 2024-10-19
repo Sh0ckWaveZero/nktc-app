@@ -2,10 +2,9 @@ import { authenticationsService } from '@/services/authentications.service';
 import { usersService } from '@/services/users.service';
 
 class AuthenticationsController {
-  constructor() { }
+  constructor() {}
   async createAuthentication({ jwt, refreshJwt, body, set }: any) {
     const user = await usersService.verifyUserByUsername(body.username);
-    console.log('🚀 ~ AuthenticationsController ~ createAuthentication ~ user:', user);
 
     if (!user.id) {
       throw new Error('User not found');

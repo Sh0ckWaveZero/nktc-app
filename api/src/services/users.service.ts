@@ -11,14 +11,16 @@ interface loginPayload {
 }
 
 class UsersService {
-  constructor() { }
+  constructor() {}
 
   async getUsers() {
-    return await db.select({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    }).from(user);
+    return await db
+      .select({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      })
+      .from(user);
   }
 
   async getUserById(id: string) {

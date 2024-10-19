@@ -38,7 +38,6 @@ class UsersController {
       hashedPassword,
     );
 
-
     if (!hasMatchingPassword) {
       set.status = 401;
       return {

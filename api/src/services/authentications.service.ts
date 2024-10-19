@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
 class AuthenticationsService {
-  constructor(private db: PrismaClient = new PrismaClient()) { }
+  constructor(private db: PrismaClient = new PrismaClient()) {}
   async verifyRefreshToken(refresh_token: string) {
     const token = await db
       .select()
@@ -15,7 +15,6 @@ class AuthenticationsService {
       .catch((err) => {
         throw new NotFoundError('Token is incorrect!');
       });
-
 
     return token;
   }
