@@ -16,11 +16,26 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
+/**
+ * Database client initialized with drizzle and PostgreSQL pool.
+ */
 export const DbClient = drizzle(pool, { schema });
 
+/**
+ * Type definition for the database client.
+ */
 export type DbClient = ReturnType<typeof drizzle>;
 
-export async function initializeDbConnection() {
+/**
+ * Initializes the database connection.
+ * Attempts to connect to the database and logs the result.
+ * If the connection fails, the process exits with an error code.
+ *
+ * @async
+ * @function initializeDbConnection
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ */
+export async function initializeDbConnection(): Promise<void> {
   try {
     const client = await pool.connect();
     console.log('✅ Database connection successful');
