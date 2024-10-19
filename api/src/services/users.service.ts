@@ -1,4 +1,4 @@
-import { db } from '@/db';
+import { DbClient } from '@/db';
 import { user } from '@/drizzle/schema';
 import { AuthenticationError } from '@/exceptions/authenticationError';
 import { InvariantError } from '@/exceptions/invariantError';
@@ -11,10 +11,10 @@ interface loginPayload {
 }
 
 class UsersService {
-  constructor() {}
+  constructor(private db: DbClient) {}
 
   async getUsers() {
-    return await db
+    return await this.db
       .select({
         id: user.id,
         username: user.username,
@@ -24,7 +24,7 @@ class UsersService {
   }
 
   async getUserById(id: string) {
-    const [userInfo] = await db
+    const [userInfo] = await this.db
       .select({
         id: user.id,
         username: user.username,
@@ -40,11 +40,11 @@ class UsersService {
   }
 
   async deleteUser(id: string) {
-    return await db.delete(user).where(eq(user.id, id)).returning();
+    return await this.db.delete(user).where(eq(user.id, id)).returning();
   }
 
   async getPasswordByUsername(username: string) {
-    const [getPassword] = await db
+    const [getPassword] = await this.db
       .select({
         password: user.password,
       })
@@ -58,7 +58,7 @@ class UsersService {
   }
 
   async loginUser(body: loginPayload) {
-    const [userInfo] = await db
+    const [userInfo] = await this.db
       .select({
         id: user.id,
       })
@@ -75,7 +75,7 @@ class UsersService {
 
   async verifyUserByUsername(username: string) {
     try {
-      const [selectedUser] = await db
+      const [selectedUser] = await this.db
         .select({
           id: user.id,
         })
@@ -93,7 +93,7 @@ class UsersService {
   }
 
   async verifyUserById(id: string) {
-    const [userInfo] = await db
+    const [userInfo] = await this.db
       .select({
         id: user.id,
       })
@@ -107,7 +107,7 @@ class UsersService {
   }
 
   async verifyUsernameIsAvailable(username: string) {
-    const [isAvailable] = await db
+    const [isAvailable] = await this.db
       .select({
         username: user.username,
       })
@@ -121,4 +121,4 @@ class UsersService {
   }
 }
 
-export const usersService = new UsersService();
+export const usersService = new UsersService(DbClient);

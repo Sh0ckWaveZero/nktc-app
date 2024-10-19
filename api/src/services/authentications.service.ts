@@ -1,4 +1,4 @@
-import { db } from '@/db';
+import { DbClient } from '@/db';
 import { user } from '@/drizzle/schema';
 import { InvariantError } from '@/exceptions/invariantError';
 import { PrismaClient } from '@prisma/client';
@@ -6,9 +6,9 @@ import { eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
 class AuthenticationsService {
-  constructor(private db: PrismaClient = new PrismaClient()) {}
+  constructor(private db: DbClient) {}
   async verifyRefreshToken(refresh_token: string) {
-    const token = await db
+    const token = await this.db
       .select()
       .from(user)
       .where(eq(user.refreshToken, refresh_token))
@@ -20,7 +20,7 @@ class AuthenticationsService {
   }
 
   async addRefreshToken(userId: string, hash: string) {
-    const usersTable = await db
+    const usersTable = await this.db
       .update(user)
       .set({
         refreshToken: hash,
@@ -36,4 +36,4 @@ class AuthenticationsService {
   }
 }
 
-export const authenticationsService = new AuthenticationsService();
+export const authenticationsService = new AuthenticationsService(DbClient);

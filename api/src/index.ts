@@ -5,6 +5,7 @@ import { jwt } from '@elysiajs/jwt';
 import { swagger } from '@elysiajs/swagger';
 import { env } from 'bun';
 import { Elysia } from 'elysia';
+import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
 import { AuthorizationError } from './exceptions/authorizationError';
 import { InvariantError } from './exceptions/invariantError';
@@ -80,6 +81,9 @@ app
   .get('/', () => `Welcome to Bun NKTC`)
   .group('/users', configureUsersRoutes)
   .group('/auth', configureAuthenticationsRoutes);
+
+// Initialize the database connection
+initializeDbConnection();
 
 app.listen(env.PORT || 3001);
 

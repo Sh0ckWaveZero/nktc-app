@@ -3,17 +3,30 @@ import { env } from 'bun';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
-const pool = new Pool({
-  connectionString: env.DRIZZLE_DATABASE_URL!,
-});
+const connectionUrl = env.DRIZZLE_DATABASE_URL;
 
-pool.on('error', (err, client) => {
+if (!connectionUrl) {
+  throw new Error('DRIZZLE_DATABASE_URL is not defined');
+}
+
+const pool = new Pool({ connectionString: connectionUrl });
+
+pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 
-pool.on('connect', () => {
-  console.log('🚀 Connected to database');
-});
+export const DbClient = drizzle(pool, { schema });
 
-export const db = drizzle(pool, { schema });
+export type DbClient = ReturnType<typeof drizzle>;
+
+export async function initializeDbConnection() {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Database connection successful');
+    client.release();
+  } catch (err) {
+    console.error('❌ Cannot connect to the database', err);
+    process.exit(-1);
+  }
+}
