@@ -9,8 +9,8 @@ import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
 import { AuthorizationError } from './exceptions/authorizationError';
 import { InvariantError } from './exceptions/invariantError';
-import { configureAuthenticationsRoutes } from './routes/authentications.route';
-import { configureUsersRoutes } from './routes/users.route';
+import { initializeAuthRoutes } from './routes/authentications.route';
+import { initializeUsersRoutes } from './routes/users.route';
 
 export const app = new Elysia({
   // prefix: env.BUN_PREFIX,
@@ -18,6 +18,30 @@ export const app = new Elysia({
     hostname: env.BUN_HOST,
   },
 })
+  .use(
+    jwt({
+      name: 'jwt',
+      secret: env.JWT_SECRET as string,
+      exp: '7d',
+    }),
+  )
+  .use(
+    jwt({
+      name: 'refreshJwt',
+      secret: env.RT_SECRET as string,
+    }),
+  )
+  .use(cookie())
+  .use(cors())
+  .use(bearer())
+  .use(
+    swagger({
+      path: '/docs',
+    }),
+  )
+  .get('/', () => `Welcome to Bun NKTC`)
+  .group('/users', initializeUsersRoutes)
+  .group('/auth', initializeAuthRoutes)
   .error('AUTHENTICATION_ERROR', AuthenticationError)
   .error('AUTHORIZATION_ERROR', AuthorizationError)
   .error('INVARIANT_ERROR', InvariantError)
@@ -54,39 +78,14 @@ export const app = new Elysia({
           message: 'Something went wrong!',
         };
     }
+  });
+
+initializeDbConnection()
+  .then(() => {
+    app.listen(env.PORT || 3001, () => {
+      console.log(`🦊 Elysia is running at ${env.PORT || 3001}`);
+    });
   })
-  .use(
-    jwt({
-      name: 'jwt',
-      secret: env.JWT_SECRET as string,
-      exp: '7d',
-    }),
-  )
-  .use(
-    jwt({
-      name: 'refreshJwt',
-      secret: env.RT_SECRET as string,
-    }),
-  )
-  .use(cookie())
-  .use(cors())
-  .use(bearer())
-  .use(
-    swagger({
-      path: '/docs',
-    }),
-  );
-
-app
-  .get('/', () => `Welcome to Bun NKTC`)
-  .group('/users', configureUsersRoutes)
-  .group('/auth', configureAuthenticationsRoutes);
-
-// Initialize the database connection
-initializeDbConnection();
-
-app.listen(env.PORT || 3001);
-
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+  .catch((error) => {
+    console.error('Failed to initialize database connection:', error);
+  });

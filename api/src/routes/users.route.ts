@@ -1,7 +1,7 @@
 import { userController } from '@/controllers/users.controller';
 import { apiMiddleware } from '@/middleware/ApiMiddleware';
 
-export function configureUsersRoutes(app: any) {
+export function initializeUsersRoutes(app: any) {
   return (
     app
       .get('/', userController.getUsers, {
