@@ -1,7 +1,7 @@
 import { authenticationsService } from '@/services/authentications.service';
 import { usersService } from '@/services/users.service';
 
-class AuthenticationsController {
+class AuthController {
   constructor() {}
   async createAuthentication({ jwt, refreshJwt, body, set }: any) {
     const user = await usersService.verifyUserByUsername(body.username);
@@ -67,4 +67,4 @@ class AuthenticationsController {
   }
 }
 
-export const authenticationController = new AuthenticationsController();
+export const authController = new AuthController();

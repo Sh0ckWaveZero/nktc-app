@@ -9,8 +9,8 @@ import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
 import { AuthorizationError } from './exceptions/authorizationError';
 import { InvariantError } from './exceptions/invariantError';
-import { initializeAuthRoutes } from './routes/authentications.route';
-import { initializeUsersRoutes } from './routes/users.route';
+import { authRoutes } from './routes/authentications.route';
+import { usersRoutes } from './routes/users.route';
 
 export const app = new Elysia({
   // prefix: env.BUN_PREFIX,
@@ -40,8 +40,8 @@ export const app = new Elysia({
     }),
   )
   .get('/', () => `Welcome to Bun NKTC`)
-  .group('/users', initializeUsersRoutes)
-  .group('/auth', initializeAuthRoutes)
+  .use(authRoutes)
+  .use(usersRoutes)
   .error('AUTHENTICATION_ERROR', AuthenticationError)
   .error('AUTHORIZATION_ERROR', AuthorizationError)
   .error('INVARIANT_ERROR', InvariantError)
