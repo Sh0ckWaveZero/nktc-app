@@ -1,5 +1,5 @@
 import { JwtAuthGuard } from '@/middleware/jwtAuthGuard';
-import { AuthModel } from '@/model';
+import { AuthModel } from '@/model/auth.model';
 import { authService } from '@/services/auth.service';
 import Elysia from 'elysia';
 
