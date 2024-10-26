@@ -1,5 +1,5 @@
-import { userController } from '@/controllers/users.controller';
 import { apiMiddleware } from '@/middleware/ApiMiddleware';
+import { userController } from '@/services/users.service';
 import Elysia from 'elysia';
 
 export const usersRoutes = new Elysia().group('/users', (app) =>

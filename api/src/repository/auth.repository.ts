@@ -4,7 +4,7 @@ import { InvariantError } from '@/exceptions/invariantError';
 import { eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
-class AuthenticationsService {
+class AuthRepository {
   constructor(private db: DbClient) {}
   async verifyRefreshToken(refresh_token: string) {
     const token = await this.db
@@ -35,4 +35,4 @@ class AuthenticationsService {
   }
 }
 
-export const authenticationsService = new AuthenticationsService(DbClient);
+export const authRepo = new AuthRepository(DbClient);

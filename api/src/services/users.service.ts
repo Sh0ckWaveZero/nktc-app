@@ -1,124 +1,73 @@
-import { DbClient } from '@/db';
-import { user } from '@/drizzle/schema';
-import { AuthenticationError } from '@/exceptions/authenticationError';
-import { InvariantError } from '@/exceptions/invariantError';
-import { and, eq } from 'drizzle-orm';
-import { NotFoundError } from 'elysia';
+import { usersService } from '@/repository/users.repository';
+import { password } from 'bun';
+import { t } from 'elysia';
 
-interface loginPayload {
-  username: string;
-  password: string;
-}
-
-class UsersService {
-  constructor(private db: DbClient) {}
-
+class UsersController {
   async getUsers() {
-    return await this.db
-      .select({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      })
-      .from(user);
+    const users = await usersService.getUsers();
+    return {
+      status: 'success',
+      data: users,
+    };
   }
 
-  async getUserById(id: string) {
-    const [userInfo] = await this.db
-      .select({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      })
-      .from(user)
-      .where(eq(user.id, id))
-      .catch((err) => {
-        throw new NotFoundError('User not found');
-      });
-
-    return userInfo;
+  async getUserById({ set, params: { id } }: any) {
+    const user = await usersService.getUserById(id);
+    set.status = 200;
+    return {
+      status: 'success',
+      data: user,
+    };
   }
 
-  async deleteUser(id: string) {
-    return await this.db.delete(user).where(eq(user.id, id)).returning();
+  async deleteUser({ params: { id } }: any) {
+    await usersService.deleteUser(id);
+    return {
+      status: 'success',
+      message: `User ${id} has been successfully deleted!`,
+    };
   }
 
-  async getPasswordByUsername(username: string) {
-    const [getPassword] = await this.db
-      .select({
-        password: user.password,
-      })
-      .from(user)
-      .where(eq(user.username, username))
-      .catch((err) => {
-        throw new InvariantError('Username is not found!');
-      });
+  async loginUser({ jwt, setCookie, body, set }: any) {
+    const hashedPassword = await usersService.getPasswordByUsername(
+      body.username,
+    );
 
-    return getPassword.password;
-  }
+    const hasMatchingPassword = await password.verify(
+      body.password,
+      hashedPassword,
+    );
 
-  async loginUser(body: loginPayload) {
-    const [userInfo] = await this.db
-      .select({
-        id: user.id,
-      })
-      .from(user)
-      .where(
-        and(eq(user.username, body.username), eq(user.password, body.password)),
-      )
-      .catch((err) => {
-        throw new AuthenticationError('Username or password is wrong!');
-      });
-
-    return userInfo;
-  }
-
-  async verifyUserByUsername(username: string) {
-    try {
-      const [selectedUser] = await this.db
-        .select({
-          id: user.id,
-        })
-        .from(user)
-        .where(eq(user.username, username))
-        .catch((err) => {
-          throw new AuthenticationError('❌ User not found!');
-        });
-
-      return selectedUser;
-    } catch (err) {
-      console.error('Error verifying user by username:', err);
-      throw new AuthenticationError('Username or password is wrong!');
+    if (!hasMatchingPassword) {
+      set.status = 401;
+      return {
+        status: 'failed',
+        message: `Unauthorized! Invalid username or password.`,
+      };
     }
+
+    const login = await usersService.loginUser({
+      username: body.username,
+      password: hashedPassword,
+    });
+
+    setCookie('auth', await jwt.sign(login), {
+      httpOnly: true,
+      maxAge: 4 * 86400,
+    });
+
+    set.status = 200;
+    return {
+      status: 'success',
+      message: `Sign in successfully!`,
+    };
   }
 
-  async verifyUserById(id: string) {
-    const [userInfo] = await this.db
-      .select({
-        id: user.id,
-      })
-      .from(user)
-      .where(eq(user.id, id))
-      .catch((err) => {
-        throw new AuthenticationError('❌ You have no access!');
-      });
-
-    return userInfo;
-  }
-
-  async verifyUsernameIsAvailable(username: string) {
-    const [isAvailable] = await this.db
-      .select({
-        username: user.username,
-      })
-      .from(user)
-      .where(eq(user.username, username))
-      .catch((err) => {
-        throw new InvariantError('❌ Username already exist!');
-      });
-
-    return isAvailable;
-  }
+  validateCreateUser = t.Object({
+    username: t.String(),
+    password: t.String(),
+    email: t.String(),
+  });
 }
 
-export const usersService = new UsersService(DbClient);
+export const userController = new UsersController();

@@ -1,7 +1,6 @@
 import { bearer } from '@elysiajs/bearer';
 import { cookie } from '@elysiajs/cookie';
 import { cors } from '@elysiajs/cors';
-import { jwt } from '@elysiajs/jwt';
 import { swagger } from '@elysiajs/swagger';
 import { env } from 'bun';
 import { Elysia } from 'elysia';
@@ -9,7 +8,7 @@ import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
 import { AuthorizationError } from './exceptions/authorizationError';
 import { InvariantError } from './exceptions/invariantError';
-import { authRoutes } from './routes/authentications.route';
+import { authRoutes } from './routes/auth.route';
 import { usersRoutes } from './routes/users.route';
 
 export const app = new Elysia({
@@ -18,19 +17,13 @@ export const app = new Elysia({
     hostname: env.BUN_HOST,
   },
 })
-  .use(
-    jwt({
-      name: 'jwt',
-      secret: env.JWT_SECRET as string,
-      exp: '7d',
-    }),
-  )
-  .use(
-    jwt({
-      name: 'refreshJwt',
-      secret: env.RT_SECRET as string,
-    }),
-  )
+  .trace(async ({ onHandle }) => {
+    onHandle(({ begin, onStop }) => {
+      onStop(({ end }) => {
+        console.log('🪝 handle took', end - begin, 'ms');
+      });
+    });
+  })
   .use(cookie())
   .use(cors())
   .use(bearer())
