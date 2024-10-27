@@ -10,6 +10,8 @@ const client = new pg.Client({
 
 const db = drizzle(client, { schema });
 
+export type Db = ReturnType<typeof drizzle>;
+
 async function seed() {
   try {
     await client.connect();
