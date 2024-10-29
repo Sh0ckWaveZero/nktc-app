@@ -1,10 +1,10 @@
-import { JwtAuthGuard } from '@/middleware/jwtAuthGuard';
+import { isAuthenticated } from '@/middleware';
 import { AuthModel } from '@/model/auth.model';
 import { authService } from '@/services/auth.service';
 import Elysia from 'elysia';
 
 export const authRoutes = new Elysia({ prefix: '/auth' })
-  .use(JwtAuthGuard)
+  .use(isAuthenticated)
   .use(AuthModel)
   .post('/login', authService.loginHandler, {
     body: 'auth.login',
