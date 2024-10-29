@@ -73,6 +73,8 @@ export const app = new Elysia({
     }
   });
 
+export type AppType = typeof app;
+
 initializeDbConnection()
   .then(() => {
     app.listen(env.PORT || 3001, () => {
