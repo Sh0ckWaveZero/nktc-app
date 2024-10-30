@@ -20,29 +20,36 @@ export const isAuthenticated = new Elysia({ name: 'AuthHandler' })
   )
   .macro(({ onBeforeHandle }) => ({
     isSignIn(value: boolean = false) {
-      onBeforeHandle(async ({ jwt, request: { headers }, set, error }) => {
-        const setUnauthorizedResponse = () => {
-          set.status = 401;
-          set.headers['WWW-Authenticate'] =
-            `Bearer realm='sign', error="invalid_request"`;
-          return {
-            status: 'error',
-            message: 'Unauthorized',
+      onBeforeHandle(
+        async ({ jwt, refreshJwt, request: { headers }, set, error }) => {
+          const setUnauthorizedResponse = () => {
+            set.status = 401;
+            set.headers['WWW-Authenticate'] =
+              `Bearer realm='sign', error="invalid_request"`;
+            return {
+              status: 'error',
+              message: 'Unauthorized',
+            };
           };
-        };
 
-        const authorization: string | null = headers.get(
-          HEADER_KEY.AUTHORIZATION,
-        );
-        if (!authorization) return error(400);
-        const bearer = authorization?.startsWith('Bearer ')
-          ? authorization.slice(7)
-          : null;
-        const payload = await jwt.verify(bearer!);
+          const authorization: string | null = headers.get(
+            HEADER_KEY.AUTHORIZATION,
+          );
 
-        if (!payload) {
-          return setUnauthorizedResponse();
-        }
-      });
+          if (!authorization) {
+            return setUnauthorizedResponse();
+          }
+
+          const bearer = authorization?.startsWith('Bearer ')
+            ? authorization.slice(7)
+            : null;
+
+          const payload = await jwt.verify(bearer!);
+
+          if (!payload) {
+            return setUnauthorizedResponse();
+          }
+        },
+      );
     },
   }));
