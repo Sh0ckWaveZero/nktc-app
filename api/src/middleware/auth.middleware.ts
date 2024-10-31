@@ -40,13 +40,21 @@ export const isAuthenticated = new Elysia({ name: 'AuthHandler' })
             return setUnauthorizedResponse();
           }
 
-          const bearer = authorization?.startsWith('Bearer ')
+          const bearer = authorization.startsWith('Bearer ')
             ? authorization.slice(7)
             : null;
 
-          const payload = await jwt.verify(bearer!);
+          if (!bearer) {
+            return setUnauthorizedResponse();
+          }
 
-          if (!payload) {
+          try {
+            const payload = await jwt.verify(bearer);
+
+            if (!payload) {
+              return setUnauthorizedResponse();
+            }
+          } catch (err) {
             return setUnauthorizedResponse();
           }
         },
