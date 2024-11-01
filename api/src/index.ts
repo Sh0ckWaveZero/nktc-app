@@ -1,9 +1,9 @@
 import { bearer } from '@elysiajs/bearer';
 import { cookie } from '@elysiajs/cookie';
 import { cors } from '@elysiajs/cors';
-import { swagger } from '@elysiajs/swagger';
 import { env } from 'bun';
 import { Elysia } from 'elysia';
+import { swaggerConfig } from './config/swagger';
 import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
 import { AuthorizationError } from './exceptions/authorizationError';
@@ -27,11 +27,7 @@ export const app = new Elysia({
   .use(cookie())
   .use(cors())
   .use(bearer())
-  .use(
-    swagger({
-      path: '/docs',
-    }),
-  )
+  .use(swaggerConfig())
   .get('/', () => `Welcome to Bun NKTC`)
   .use(authRoutes)
   .use(usersRoutes)

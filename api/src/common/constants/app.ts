@@ -19,3 +19,24 @@ export enum HEADER_KEY {
   X_REPO_VERSION = 'x-repo-version',
   USER_AGENT = 'User-Agent',
 }
+
+export const swaggerOptions = {
+  info: {
+    title: 'NKTC Documentation',
+    description: 'Development documentation',
+    contact: {
+      name: 'MidSeeLee',
+    },
+    license: { name: 'MIT', url: 'https://opensource.org/license/mit' },
+    termsOfService: 'termsOfService',
+  },
+  tags: {
+    auth: { name: 'Auth', description: 'Authentication endpoints' },
+    app: { name: 'App', description: 'General endpoints' },
+    user: { name: 'User', description: 'User endpoints' },
+    setting: { name: 'Setting', description: 'Setting endpoints' },
+    device: { name: 'Device', description: 'Device management endpoints' },
+    permission: { name: 'Permission', description: 'Permission endpoints' },
+    role: { name: 'Role', description: 'Role endpoints' },
+  },
+};
