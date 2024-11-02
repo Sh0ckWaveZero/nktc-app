@@ -21,14 +21,14 @@
     "add": "^2.0.6",
     "drizzle-orm": "^0.33.0",
     "elysia": "1.1.22",
-    "pg": "^8.13.0",
-    "uuid": "^10.0.0"
+    "pg": "^8.13.1",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
-    "bun-types": "1.1.30",
-    "drizzle-kit": "^0.24.2"
+    "bun-types": "1.1.33",
+    "drizzle-kit": "^0.27.1"
   },
   "module": "src/index.js"
 }
