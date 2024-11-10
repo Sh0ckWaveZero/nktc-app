@@ -1,10 +1,9 @@
 import { authRepo } from '@/repository/auth.repository';
 import { usersService } from '@/repository/users.repository';
-import Elysia, { InferContext } from 'elysia';
 
 class AuthService {
-  constructor() {}
-  async loginHandler({ jwt, refreshJwt, body, set }: any) {
+  constructor() { }
+  async loginHandler({ jwt, refreshJwt, body, set, cookie }: any) {
     const user = await usersService.verifyUserByUsername(body.username);
 
     if (!user.id) {

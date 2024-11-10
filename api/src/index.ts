@@ -1,5 +1,4 @@
 import { bearer } from '@elysiajs/bearer';
-import { cookie } from '@elysiajs/cookie';
 import { cors } from '@elysiajs/cors';
 import { env } from 'bun';
 import { Elysia } from 'elysia';
@@ -24,7 +23,6 @@ export const app = new Elysia({
       });
     });
   })
-  .use(cookie())
   .use(cors())
   .use(bearer())
   .use(swaggerConfig())
