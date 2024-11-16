@@ -48,3 +48,6 @@ frontend/.next/
 frontend/.idea/
 web/
 backend/src/database/db/nktc-services
+.env*
+.flaskenv*
+.env.vault
