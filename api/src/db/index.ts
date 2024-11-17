@@ -1,5 +1,7 @@
+import { databaseLogger } from '@/config/logger';
 import * as schema from '@/drizzle/schema';
 import { env } from 'bun';
+import chalk from 'chalk';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
@@ -38,10 +40,10 @@ export type DbClient = ReturnType<typeof drizzle>;
 export async function initializeDbConnection(): Promise<void> {
   try {
     const client = await pool.connect();
-    console.log('✅ Database connection successful');
-    client.release();
+    databaseLogger.info(chalk.yellow('✅  Database connection successful')),
+      client.release();
   } catch (err) {
-    console.error('❌ Cannot connect to the database', err);
+    databaseLogger.error(chalk.red('❌  Database connection failed'), err);
     process.exit(-1);
   }
 }

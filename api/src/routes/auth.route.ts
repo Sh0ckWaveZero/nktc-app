@@ -38,4 +38,4 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
       isSignIn: true,
     },
   )
-  .put('/', authService.updateAccessToken)
+  .put('/', authService.updateAccessToken);

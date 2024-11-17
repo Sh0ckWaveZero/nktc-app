@@ -2,7 +2,7 @@ import { authRepo } from '@/repository/auth.repository';
 import { usersService } from '@/repository/users.repository';
 
 class AuthService {
-  constructor() { }
+  constructor() {}
   async loginHandler({ jwt, refreshJwt, body, set, cookie }: any) {
     const user = await usersService.verifyUserByUsername(body.username);
 

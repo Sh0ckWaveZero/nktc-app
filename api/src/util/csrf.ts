@@ -1,4 +1,4 @@
-import { randomUUIDv7 } from "bun";
+import { randomUUIDv7 } from 'bun';
 
 interface CsrfCookieOptions {
   httpOnly?: boolean;
@@ -15,7 +15,7 @@ const CSRF_DEFAULTS = {
   sameSite: 'Strict' as const,
   domain: '',
   path: '/',
-  maxAge: 7200 // 2 hours
+  maxAge: 7200, // 2 hours
 } satisfies Required<CsrfCookieOptions>;
 
 export const generateCsrfToken = async (): Promise<string> => {
@@ -29,6 +29,11 @@ export const generateCsrfToken = async (): Promise<string> => {
   }
 };
 
-export const setCsrfCookie = (token: string, options: CsrfCookieOptions = {}): string => {
-  return `csrf=${token}; ${Object.entries({ ...CSRF_DEFAULTS, ...options }).map(([key, value]) => `${key}=${value}`).join('; ')}`;
+export const setCsrfCookie = (
+  token: string,
+  options: CsrfCookieOptions = {},
+): string => {
+  return `csrf=${token}; ${Object.entries({ ...CSRF_DEFAULTS, ...options })
+    .map(([key, value]) => `${key}=${value}`)
+    .join('; ')}`;
 };

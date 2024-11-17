@@ -2,6 +2,7 @@ import { bearer } from '@elysiajs/bearer';
 import { cors } from '@elysiajs/cors';
 import { env } from 'bun';
 import { Elysia } from 'elysia';
+import { appLogger } from './config/logger';
 import { swaggerConfig } from './config/swagger';
 import { initializeDbConnection } from './db';
 import { AuthenticationError } from './exceptions/authenticationError';
@@ -72,9 +73,9 @@ export type AppType = typeof app;
 initializeDbConnection()
   .then(() => {
     app.listen(env.PORT || 3001, () => {
-      console.log(`🦊 Elysia is running at ${env.PORT || 3001}`);
+      appLogger.info(`🚀 App is running at ${env.PORT || 3001}`);
     });
   })
   .catch((error) => {
-    console.error('Failed to initialize database connection:', error);
+    appLogger.error('❌ Failed to initialize database connection:', error);
   });
