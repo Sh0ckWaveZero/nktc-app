@@ -33,7 +33,10 @@ export const setCsrfCookie = (
   token: string,
   options: CsrfCookieOptions = {},
 ): string => {
-  return `csrf=${token}; ${Object.entries({ ...CSRF_DEFAULTS, ...options })
+  const cookieOptions = { ...CSRF_DEFAULTS, ...options };
+  const cookieString = Object.entries(cookieOptions)
     .map(([key, value]) => `${key}=${value}`)
-    .join('; ')}`;
+    .join('; ');
+
+  return `csrf=${token}; ${cookieString}`;
 };
