@@ -15,12 +15,12 @@
     "@elysiajs/bearer": "^1.1.2",
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/jwt": "^1.1.1",
-    "@elysiajs/swagger": "1.1.5",
+    "@elysiajs/swagger": "1.1.6",
     "@ianvs/prettier-plugin-sort-imports": "4.4.0",
     "add": "^2.0.6",
     "dayjs": "^1.11.13",
-    "drizzle-orm": "^0.33.0",
-    "elysia": "1.1.22",
+    "drizzle-orm": "^0.36.3",
+    "elysia": "1.1.25",
     "pg": "^8.13.1",
     "pino-pretty": "^13.0.0",
     "pino-roll": "^2.2.0",
@@ -30,7 +30,7 @@
     "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
     "bun-types": "1.1.33",
-    "drizzle-kit": "0.27.2"
+    "drizzle-kit": "0.28.1"
   },
   "module": "src/index.js"
 }
