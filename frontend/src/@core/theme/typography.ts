@@ -29,7 +29,7 @@ const typography = (fontFamily: string): Theme['typography'] =>
     h2: {
       fontSize: '2.375rem',
       fontWeight: 500,
-      lineHeight: 1.47368421cod
+      lineHeight: 1.47368421
     },
     h3: {
       fontSize: '1.75rem',

@@ -55,6 +55,7 @@ export class AuthController {
     @Body() loginUserDto: any,
   ): Promise<any> {
     const loginResults = await this.authService.login(loginUserDto, userIp);
+    console.log('🚀 ~ AuthController ~ loginResults:', loginResults);
 
     if (!loginResults) {
       throw new UnauthorizedException(

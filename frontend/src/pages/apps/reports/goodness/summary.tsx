@@ -313,7 +313,7 @@ const StudentGoodnessSummaryReport = () => {
                 loading={loading}
                 pagination
                 paginationMode='server'
-                rowCount={total}
+                rowCount={total ?? 0} // changed to ensure a numeric rowCount is always passed
                 pageSizeOptions={[10, 20, 50, 100]}
                 paginationModel={{ page, pageSize }}
                 onPaginationModelChange={(paginationModel) => handlePaginationModelChange(paginationModel)}
