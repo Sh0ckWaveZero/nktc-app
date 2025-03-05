@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Classroom } from '../db/classroom';
 import { departmentData } from '../db/department';
-import { levelData } from '../db/level';
+import { levelData, seedLevels } from '../db/level'; // Import the updated function
 import { createLevelClassroom } from '../db/level-classroom';
 import { programData } from '../db/program';
 import { userAdmin } from '../db/user-admin';
@@ -12,14 +12,14 @@ const prisma = new PrismaClient();
 
 const main = async () => {
   console.log('Seeding...');
-  // await seedLevels()
-  // await seedProgram()
+  // await seedLevels() // Using the fixed seedLevels function
+  await seedProgram()
   // await seedDepartment()
   // await seedLevelClassroom()
   // await seedClassroom()
   // await seedStudents()   
     // await seedTeacher()
-    await seedAdmin()
+    // await seedAdmin()
     .then(() => {
       console.log('Seeding complete 🎉');
     })
@@ -28,12 +28,13 @@ const main = async () => {
     });
 };
 
-const seedLevels = async () => {
-  const level = levelData().forEach(async (item: any) => {
-    return await prisma.level.create({ data: item });
-  });
-  console.log(level);
-};
+// Remove the old seedLevels function since we've moved it to level.ts
+// const seedLevels = async () => {
+//   const level = levelData().forEach(async (item: any) => {
+//     return await prisma.level.create({ data: item });
+//   });
+//   console.log(level);
+// };
 
 const seedProgram = async () => {
   const data = await programData();

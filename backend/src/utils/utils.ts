@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import xlsx from 'node-xlsx';
 import * as fs from 'fs';
+import * as XLSX from 'xlsx';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -110,13 +111,58 @@ export const getProgramId = async (
   return res?.id;
 };
 
-export const readWorkSheetFromFile = (path: string) => {
-  const workSheetsFromFile = xlsx.parse(
-    fs.readFileSync(
-      `${process.cwd()}/src/database/db/nktc-services/db/import/${path}.xlsx`,
-    ),
-  );
-  return workSheetsFromFile;
+export const readWorkSheetFromFile = (filename: string) => {
+  console.log('🚀 ~ readWorkSheetFromFile ~ filename:', filename);
+  try {
+    if (!path) {
+      throw new Error("Path module is not properly loaded");
+    }
+    
+    // Use process.cwd() to get the project root directory
+    const projectRoot = process.cwd();
+    console.log('🚀 ~ readWorkSheetFromFile ~ projectRoot:', projectRoot);
+
+    // Construct the file path using path.join for cross-platform compatibility
+    const filePath = path.join(
+      projectRoot,
+      'src',
+      'database',
+      'db',
+      'nktc-services',
+      'db',
+      'import',
+      `${filename}.xlsx`
+    );
+
+    console.log('🚀 ~ readWorkSheetFromFile ~ filePath:', filePath);
+
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+      console.error(`File not found: ${filePath}`);
+      // Check if directory exists
+      const dirPath = path.dirname(filePath);
+      if (!fs.existsSync(dirPath)) {
+        console.error(`Directory not found: ${dirPath}`);
+        // Try to create directories if they don't exist
+        fs.mkdirSync(dirPath, { recursive: true });
+        console.log(`Created directory: ${dirPath}`);
+      }
+      return [];
+    }
+
+    // Read the Excel file
+    const workbook = XLSX.readFile(filePath);
+
+    // Process all sheets and extract data
+    return workbook.SheetNames.map(sheetName => {
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      return { name: sheetName, data };
+    });
+  } catch (error) {
+    console.error('Error reading worksheet file:', error);
+    return [];
+  }
 };
 
 export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
@@ -139,19 +185,10 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   };
 };
 
-export const getLevelId = async (level: string) => {
-  try {
-    const res = await prisma.level.findFirstOrThrow({
-      where: {
-        levelId: level,
-      },
-    });
-
-    return res;
-  } catch (error) {
-    console.error('Error fetching level ID:', { level, error });
-    throw error;
-  }
+export const getLevelId = async (levelName: string): Promise<any> => {
+  // Import the new function to avoid duplicate code
+  const { getLevelId: newGetLevelId } = require('./levelUtils');
+  return newGetLevelId(levelName);
 };
 
 export const getDepartIdByName = async (name: string, id: string) => {
@@ -175,12 +212,11 @@ export const getDepartId = async (name: string, id: string) => {
 };
 
 export const createByAdmin = () => {
-  const startDate = new Date();
   return {
-    createdBy: 'Admin',
-    updatedBy: 'Admin',
-    updatedAt: startDate,
-    createdAt: startDate,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: 'SYSTEM',
+    updatedBy: 'SYSTEM',
   };
 };
 
