@@ -36,10 +36,8 @@ export const userStudentData = async (fileName: string) => {
         const level = await getLevelByName(levelName);
         // const birthDate = birthDateTh ? await getBirthday(birthDateTh.toString()) : null;
         const programId = await getProgramId(
-          departmentName.trim(),
-          levelName,
           programName.trim(),
-          group
+          levelName,
         );
         const classroomId = await getClassroomId(
           levelClassroom,

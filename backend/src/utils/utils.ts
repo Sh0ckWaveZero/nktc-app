@@ -88,39 +88,34 @@ export const getLevelClassroomByName = async (name: string) => {
   return res?.id;
 };
 export const getProgramId = async (
-  department: string,
+  programName: string,
   level: string,
-  programName: string = '',
-  group: string = '',
 ) => {
-  const query = group === 'ปกติ' ? programName : `${programName} (${group})`;
-
   // find level
   const levelIds = await getLevelId(level);
   const levelId = levelIds[level];
 
   const res = await prisma.program.findFirst({
     where: {
-      name: query,
+      name: programName,
       levelId: levelId,
     },
     select: {
       id: true,
     },
   });
+
   return res?.id;
 };
 
 export const readWorkSheetFromFile = (filename: string) => {
-  console.log('🚀 ~ readWorkSheetFromFile ~ filename:', filename);
   try {
     if (!path) {
       throw new Error("Path module is not properly loaded");
     }
-    
+
     // Use process.cwd() to get the project root directory
     const projectRoot = process.cwd();
-    console.log('🚀 ~ readWorkSheetFromFile ~ projectRoot:', projectRoot);
 
     // Construct the file path using path.join for cross-platform compatibility
     const filePath = path.join(
@@ -133,8 +128,6 @@ export const readWorkSheetFromFile = (filename: string) => {
       'import',
       `${filename}.xlsx`
     );
-
-    console.log('🚀 ~ readWorkSheetFromFile ~ filePath:', filePath);
 
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
