@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["linux-musl-openssl-3.0.x", "darwin-arm64"]
+  binaryTargets = ["linux-musl-openssl-3.0.x", "darwin-arm64", "windows"]
 }
 
 datasource db {
@@ -36,7 +36,7 @@ model User {
   @@map("user")
 }
 
-model RolePermisssion {
+model RolePermission {
   id          String     @id @default(cuid())
   name        String     @unique
   label       String     @unique
@@ -51,15 +51,15 @@ model RolePermisssion {
 }
 
 model UserRole {
-  id                String           @id @default(cuid())
-  user              User             @relation(fields: [userId], references: [id])
-  userId            String
-  rolePermisssion   RolePermisssion? @relation(fields: [rolePermisssionId], references: [id])
-  rolePermisssionId String?
-  createdAt         DateTime         @default(now()) @map("created_at")
-  updatedAt         DateTime         @updatedAt @map("updated_at")
-  updatedBy         String?
-  createdBy         String?
+  id               String          @id @default(cuid())
+  user             User            @relation(fields: [userId], references: [id])
+  userId           String
+  rolePermission   RolePermission? @relation(fields: [rolePermissionId], references: [id]) // Fixed from "rolePermisssion"
+  rolePermissionId String? // Fixed from "rolePermisssionId"
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  updatedBy        String?
+  createdBy        String?
 
   @@map("user_role")
 }
@@ -226,7 +226,7 @@ model LevelClassroom {
   teacher          Teacher[]
   program          Program?    @relation(fields: [programId], references: [id])
   programId        String?
-  level            Level?      @relation(fields: [levelId], references: [id])
+  level            Level?      @relation(fields: [levelId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   levelId          String?
   createdAt        DateTime    @default(now()) @map("created_at")
   updatedAt        DateTime    @updatedAt @map("updated_at")
@@ -306,8 +306,8 @@ model Course {
   status         String?
   programId      String? // รหัสสาขาวิชา
   program        Program?   @relation(fields: [programId], references: [id])
-  classrommId    String?
-  classromm      Classroom? @relation(fields: [classrommId], references: [id])
+  classroomId    String? // Corrected from classrommId
+  classroom      Classroom? @relation(fields: [classroomId], references: [id]) // Corrected from classromm
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
   updatedBy      String?
@@ -325,7 +325,7 @@ model Level {
   levelName      String?
   levelFullName  String?
   program        Program[]
-  classRoom      Classroom[]
+  classroom      Classroom[] // Fixed from "classRoom" to maintain consistent naming
   student        Student[]
   levelClassroom LevelClassroom[]
   createdAt      DateTime         @default(now()) @map("created_at")
@@ -409,8 +409,8 @@ model GoodnessIndividual {
   student        Student?   @relation(fields: [studentKey], references: [id])
   classroomId    String?
   classroom      Classroom? @relation(fields: [classroomId], references: [id])
-  goodnessScore  Int? // คะแนนทความดี
-  goodnessDetail String? // รายละเอียดคะแนนทความดี
+  goodnessScore  Int? // คะแนนความดี  // Corrected from คะแนนทความดี
+  goodnessDetail String? // รายละเอียดคะแนนความดี  // Corrected from ทความดี
   image          String? // รูปภาพ
   goodDate       DateTime? // วันที่ทำความดี
   createdAt      DateTime   @default(now()) @map("created_at")
@@ -429,8 +429,8 @@ model BadnessIndividual {
   student       Student?   @relation(fields: [studentKey], references: [id])
   classroomId   String?
   classroom     Classroom? @relation(fields: [classroomId], references: [id])
-  badnessScore  Int? // คะแนนทความไม่เหมาะสม
-  badnessDetail String? // รายละเอียดคะแนนทความไม่เหมาะสม
+  badnessScore  Int? // คะแนนความไม่เหมาะสม  // Corrected from คะแนนทความไม่เหมาะสม
+  badnessDetail String? // รายละเอียดคะแนนความไม่เหมาะสม  // Corrected from ทความไม่เหมาะสม
   image         String? // รูปภาพ
   badDate       DateTime? // วันที่ทำความไม่เหมาะสม
   createdAt     DateTime   @default(now()) @map("created_at")
@@ -453,7 +453,7 @@ model VisitStudent {
   visitDetail  Json? // รายละเอียดการเยี่ยมบ้าน
   visitMap     String? // แผนที่การเยี่ยมบ้าน
   images       String[]   @default([]) // รูปภาพ
-  visitNo      Int? // การเยียมบ้านครั้งที่
+  visitNo      Int? // การเยี่ยมบ้านครั้งที่  // Corrected from การเยียมบ้านครั้งที่
   academicYear String?
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")

@@ -18,12 +18,11 @@ export const createLevelClassroom = async () => {
         const levelClassroomId = item[0].toString().trim();
         const name = item[1].toString();
         const level = await getLevelId(item[2].toString());
-        console.log('🚀 ~ .map ~ level:', level);
 
         return {
           levelClassroomId,
           name,
-          levelId: level?.id || '',
+          levelId: Object.values(level)[0] as string,
           ...admin,
         };
       }),
