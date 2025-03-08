@@ -13,7 +13,6 @@ import {
   Checkbox,
   CheckboxProps,
   Container,
-  Grid,
   IconButton,
   Stack,
   styled,
@@ -22,6 +21,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridCellParams, GridColDef, GridEventListener } from '@mui/x-data-grid';
 
 // ** Store Imports
@@ -691,7 +691,7 @@ const StudentCheckIn = () => {
     (auth?.user?.role as string) !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={
@@ -717,7 +717,7 @@ const StudentCheckIn = () => {
                     >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
                       openAlert ? (
-                        <Grid item xs={12} sx={{ mb: 3 }}>
+                        <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
                           <Alert
                             severity='error'
                             sx={{ '& a': { fontWeight: 400 } }}
@@ -737,7 +737,7 @@ const StudentCheckIn = () => {
                         </Grid>
                       ) : null
                     ) : openAlert ? (
-                      <Grid item xs={12} sx={{ mb: 3 }}>
+                      <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
                         <Alert
                           severity='success'
                           sx={{ '& a': { fontWeight: 400 } }}
@@ -780,7 +780,7 @@ const StudentCheckIn = () => {
                 <DataGrid
                   autoHeight
                   columns={columns}
-                  rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                  rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
                   disableColumnMenu
                   loading={loading}
                   onCellClick={handleCellClick}

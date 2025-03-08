@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 // ** MUI Imports
 import { deepmerge } from '@mui/utils';
-import { Theme } from '@mui/material/styles';
+import { Theme } from '@mui/system';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
@@ -65,9 +65,9 @@ const ThemeComponent = (props: Props) => {
 
   return (
     <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyles styles={() => GlobalStyling(theme, settings) as any} />
-        {children}
+      <CssBaseline />
+      <GlobalStyles styles={() => GlobalStyling(theme, settings) as any} />
+      {children}
     </ThemeProvider>
   );
 };

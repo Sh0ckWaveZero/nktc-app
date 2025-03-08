@@ -4,12 +4,12 @@ import {
   CardHeader,
   CircularProgress,
   Dialog,
-  Grid,
   IconButton,
   Tooltip,
   Typography,
   styled,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -300,7 +300,7 @@ const ReportStudentGoodness = () => {
     user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

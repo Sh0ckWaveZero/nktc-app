@@ -1,4 +1,5 @@
-import { Avatar, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
+import { Avatar, Card, CardHeader, Tooltip, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -194,7 +195,7 @@ const HistoryPage = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader
               avatar={

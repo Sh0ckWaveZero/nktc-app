@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import List from '@mui/material/List';
 import MuiDialog from '@mui/material/Dialog';
 import ListItem from '@mui/material/ListItem';
@@ -362,7 +362,7 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
   return (
     <Grid container spacing={6} sx={{ ml: 0 }}>
       {defaultSuggestionsData.map((item, index) => (
-        <Grid item xs={12} sm={6} key={index}>
+        <Grid size={{ xs: 12, sm: 6 }} key={index}>
           <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
             {item.category}
           </Typography>

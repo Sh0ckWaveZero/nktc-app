@@ -8,7 +8,6 @@ import {
   DialogContent,
   FormControl,
   FormHelperText,
-  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -17,6 +16,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 import { MouseEvent, ReactElement, Ref, forwardRef, useCallback, useEffect, useState } from 'react';
@@ -180,8 +180,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
         </Box>
         <Grid container spacing={6}>
           <Grid
-            item
-            xs={12}
+            size={{ xs: 12 }}
             sx={{
               display: 'flex',
               justifyContent: 'center',
@@ -198,9 +197,9 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               </CustomAvatar>
             )}
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Grid container spacing={6}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   name='fullName'
@@ -212,7 +211,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   name='classroom'
@@ -224,8 +223,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                   <DatePicker
                     label='เลือกวันที่'
                     format='DD MMMM YYYY'
@@ -247,7 +246,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
                   <InputLabel id='goodTypeScore-label'>คะแนนความดี</InputLabel>
                   <Select
@@ -270,7 +269,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   multiline
@@ -285,7 +284,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+              <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>

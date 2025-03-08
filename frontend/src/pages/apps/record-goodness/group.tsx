@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 
@@ -15,6 +15,7 @@ import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   row: any;
@@ -238,7 +239,7 @@ const GoodnessGroup = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

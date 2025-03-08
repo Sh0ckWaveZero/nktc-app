@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 
 // ** MUI Imports
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
@@ -17,7 +17,7 @@ const ACLPage = () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item md={6} xs={12}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardHeader title='Common' />
           <CardContent>
@@ -27,7 +27,7 @@ const ACLPage = () => {
         </Card>
       </Grid>
       {ability?.can('read', 'analytics') ? (
-        <Grid item md={6} xs={12}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardHeader title='Analytics' />
             <CardContent>

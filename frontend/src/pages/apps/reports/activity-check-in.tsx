@@ -9,7 +9,6 @@ import {
   Checkbox,
   CheckboxProps,
   Container,
-  Grid,
   IconButton,
   Paper,
   Popper,
@@ -41,6 +40,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   row: any;
@@ -116,7 +116,7 @@ const StudentCheckIn = () => {
   const timer: any = useRef(null);
 
   // ** Popper
-  const popperRef: any = useRef();
+  const popperRef: any = useRef(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const openPopper = Boolean(anchorEl);
 
@@ -522,7 +522,7 @@ const StudentCheckIn = () => {
     (auth?.user?.role as string) !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={
@@ -548,7 +548,7 @@ const StudentCheckIn = () => {
                     >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
                       openAlert ? (
-                        <Grid item xs={12} sx={{ mb: 3 }}>
+                        <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
                           <Alert
                             severity='error'
                             sx={{ '& a': { fontWeight: 400 } }}
@@ -568,7 +568,7 @@ const StudentCheckIn = () => {
                         </Grid>
                       ) : null
                     ) : openAlert ? (
-                      <Grid item xs={12} sx={{ mb: 3 }}>
+                      <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
                         <Alert
                           severity='success'
                           sx={{ '& a': { fontWeight: 400 } }}
@@ -599,7 +599,7 @@ const StudentCheckIn = () => {
               <DataGridCustom
                 autoHeight
                 columns={columns}
-                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
                 disableColumnMenu
                 loading={loading}
                 rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}

@@ -1,4 +1,5 @@
-import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Dialog, IconButton, Tooltip, Typography, styled } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -23,7 +24,6 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 interface CellType {
   row: any;
 }
-
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -254,7 +254,7 @@ const ReportAllGoodness = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={
@@ -291,10 +291,11 @@ const ReportAllGoodness = () => {
                 rows={currentStudents ?? []}
                 disableColumnMenu
                 loading={loadingStudent}
-                rowsPerPageOptions={[pageSize, 10, 20, 50]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
+                pagination
+                pageSizeOptions={[10, 20, 50]}
+                onPaginationModelChange={(params) => setPageSize(params.pageSize)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
                 }}
               />
             </Card>

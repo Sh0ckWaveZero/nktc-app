@@ -2,7 +2,8 @@
 
 // ** Icons Imports
 import IconifyIcon from '@/@core/components/icon';
-import { Button, TextField, Box, Grid, Stack } from '@mui/material';
+import { Button, TextField, Box, Stack } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import CsvDownloader from 'react-csv-downloader';
 
 interface TableHeaderProps {
@@ -77,7 +78,7 @@ const TableHeader = (props: TableHeaderProps) => {
 
   return (
     <Grid container spacing={2} sx={{ px: 3, py: 2 }} display='flex' direction='row' justifyContent='space-between'>
-      <Grid item xs={12} sm={12} md={12} lg={2}>
+      <Grid size={{ xs: 12, md: 12, lg: 2 }}>
         <CsvDownloader
           prefix='System Access Report'
           filename={filename}
@@ -97,7 +98,7 @@ const TableHeader = (props: TableHeaderProps) => {
           </Button>
         </CsvDownloader>
       </Grid>
-      <Grid item xs={12} md={12} lg={6}>
+      <Grid size={{ xs: 12, md: 12, lg: 2 }}>
         <Stack direction='row' spacing={2} justifyContent='flex-end'>
           <TextField
             fullWidth

@@ -6,7 +6,6 @@ import {
   Typography,
   CardHeader,
   Card,
-  Grid,
   Avatar,
   CardContent,
   Button,
@@ -49,6 +48,7 @@ import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import dayjs, { Dayjs } from 'dayjs';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   // row: teachersTypes;
@@ -519,7 +519,7 @@ const DailyCheckInReportActivity = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

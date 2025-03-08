@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, CardHeader, Grid, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, CardHeader, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useState } from 'react';
 
@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useStudentStore } from '@/store/index';
 import RenderAvatar from '@/@core/components/avatar';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   row: any;
@@ -174,7 +175,7 @@ const RecordGoodnessIndividual = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader
               avatar={

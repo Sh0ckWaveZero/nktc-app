@@ -6,7 +6,6 @@ import {
   Typography,
   CardHeader,
   Card,
-  Grid,
   Avatar,
   CardContent,
   Button,
@@ -18,6 +17,7 @@ import {
   styled,
   alpha,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
 
 // ** Custom Components Imports
@@ -585,7 +585,7 @@ const ReportCheckInDaily = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

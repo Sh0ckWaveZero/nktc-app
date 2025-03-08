@@ -1,7 +1,6 @@
 // ** MUI Imports
 import CardContent from '@mui/material/CardContent';
 import {
-  Grid,
   Radio,
   Select,
   Button,
@@ -14,13 +13,14 @@ import {
   OutlinedInput,
   FormControlLabel,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 const TabInfo = () => {
   return (
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} sx={{ mt: 4.8 }}>
+          <Grid size={{ xs: 12 }} sx={{ mt: 4.8 }}>
             <TextField
               fullWidth
               multiline
@@ -30,10 +30,10 @@ const TabInfo = () => {
               defaultValue='The name’s John Deo. I am a tireless seeker of knowledge, occasional purveyor of wisdom and also, coincidentally, a graphic designer. Algolia helps businesses across industries quickly create relevant 😎, scalable 😀, and lightning 😍 fast search and discovery experiences.'
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField fullWidth type='number' label='Phone' placeholder='(012) 3456-7890' />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label='Website'
@@ -41,7 +41,7 @@ const TabInfo = () => {
               defaultValue='https://themeselection.com/'
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Country</InputLabel>
               <Select label='Country' defaultValue='USA'>
@@ -52,7 +52,7 @@ const TabInfo = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel id='form-layouts-separator-multiple-select-label'>Languages</InputLabel>
               <Select
@@ -72,7 +72,7 @@ const TabInfo = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl>
               <FormLabel sx={{ fontSize: '0.875rem' }}>Gender</FormLabel>
               <RadioGroup row defaultValue='male' aria-label='gender' name='account-settings-info-radio'>
@@ -82,7 +82,7 @@ const TabInfo = () => {
               </RadioGroup>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Button variant='contained' sx={{ mr: 3.5 }}>
               Save Changes
             </Button>

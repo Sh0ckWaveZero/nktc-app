@@ -1,4 +1,5 @@
-import { Autocomplete, Button, FormControl, Grid, TextField, Tooltip } from '@mui/material';
+import { Autocomplete, Button, FormControl, TextField, Tooltip } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 import CustomDatePicker from '@/@core/components/mui/date-picker';
 import { Dayjs } from 'dayjs';
@@ -51,7 +52,7 @@ const TableHeader = (props: TableHeaderProps) => {
         justifyContent: 'flex-end',
       }}
     >
-      <Grid item xs={12} sm={3}>
+      <Grid size={{ xs: 12, sm: 3 }}>
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
@@ -63,11 +64,7 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
             getOptionLabel={(option: any) => option.fullName || ''}
             isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
-            renderOption={(props, option) => (
-              <li key={option.id} {...props}>
-                {`${option?.title}${option?.fullName} `}
-              </li>
-            )}
+            renderOption={(props, option) => <li {...props}>{`${option?.title}${option?.fullName} `}</li>}
             renderInput={(params) => (
               <TextField {...params} label='ชื่อ-สกุล นักเรียน' placeholder='เลือกชื่อ-สกุล นักเรียน' />
             )}
@@ -75,7 +72,7 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={3}>
+      <Grid size={{ xs: 12, sm: 3 }}>
         <FormControl fullWidth>
           <Autocomplete
             id='classroom'
@@ -85,11 +82,7 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleClassroomChange(_, newValue)}
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-            renderOption={(props, option) => (
-              <li key={option.classroomId} {...props}>
-                {option.name}
-              </li>
-            )}
+            renderOption={(props, option) => <li {...props}>{option.name}</li>}
             renderInput={(params) => (
               <TextField
                 error={isEmpty(classrooms) && classroomLoading}
@@ -105,12 +98,12 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={3}>
+      <Grid size={{ xs: 12, sm: 3 }}>
         <FormControl fullWidth>
           <CustomDatePicker label={datePickLabel} value={selectDate} onChange={onChangeDate} />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={2}>
+      <Grid size={{ xs: 12, sm: 2 }}>
         <FormControl fullWidth>
           <Tooltip title='ค้นหา' arrow>
             <span>
@@ -130,7 +123,7 @@ const TableHeader = (props: TableHeaderProps) => {
           </Tooltip>
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={1}>
+      <Grid size={{ xs: 12, sm: 1 }}>
         <FormControl fullWidth>
           <Tooltip title='ล้างข้อมูลค้นหา' arrow>
             <span>

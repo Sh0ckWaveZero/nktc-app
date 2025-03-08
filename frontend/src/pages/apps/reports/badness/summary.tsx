@@ -4,7 +4,6 @@ import {
   Card,
   CardHeader,
   Dialog,
-  Grid,
   IconButton,
   Tooltip,
   Typography,
@@ -27,6 +26,7 @@ import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   row: any;
@@ -293,7 +293,7 @@ const StudentGoodnessSummaryReport = () => {
     ability?.can('read', 'student-badness-summary-report') && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

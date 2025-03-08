@@ -192,7 +192,7 @@ const StudentOverview = (props: any) => {
         <Grid item xs={12} md={7} lg={8}>
           <Grid container spacing={6}>
             {trophyOverview?.totalTrophy >= 1 && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <CardAward trophyOverview={trophyOverview} fullName={fullName} />
               </Grid>
             )}

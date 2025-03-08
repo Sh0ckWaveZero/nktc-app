@@ -15,7 +15,6 @@ import {
   Card,
   CardHeader,
   Divider,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -23,6 +22,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
@@ -613,7 +613,7 @@ const TeacherList = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader title='ข้อมูลครู / บุคลากร ทั้งหมด' />
             <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} data={teachers} />

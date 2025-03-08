@@ -2,7 +2,8 @@
 import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
-import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
+import { Typography, CardHeader, Card, Avatar } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 // ** Store Imports
@@ -386,7 +387,7 @@ const ReportCheckInDaily = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

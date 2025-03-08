@@ -9,9 +9,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Grid,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef, GridRowHeightParams } from '@mui/x-data-grid';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
@@ -281,7 +281,7 @@ const StudentList = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader
               avatar={
@@ -322,7 +322,7 @@ const StudentList = () => {
               slots={{
                 noRowsOverlay: CustomNoRowsOverlay,
               }}
-              getRowHeight={() => 'auto'} 
+              getRowHeight={() => 'auto'}
               disableColumnMenu
             />
           </Card>

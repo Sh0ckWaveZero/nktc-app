@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  Grid,
   IconButton,
   TextField,
   Typography,
@@ -16,6 +15,7 @@ import {
   MenuItem,
   FormHelperText,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCallback } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
 
@@ -179,10 +179,10 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
           </Typography>
         </Box>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Grid container spacing={6}>
-              <Grid item xs={12} sm={6}>
-                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                   <DatePicker
                     label='เลือกวันที่'
                     format='DD MMMM YYYY'
@@ -204,7 +204,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
                   <InputLabel id='goodTypeScore-label'>คะแนนความดี</InputLabel>
                   <Select
@@ -227,7 +227,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                   {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
                 </FormControl>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   multiline
@@ -242,7 +242,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+              <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>

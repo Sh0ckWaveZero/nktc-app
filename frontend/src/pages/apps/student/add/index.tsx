@@ -11,7 +11,6 @@ import {
   CardHeader,
   FormControl,
   FormHelperText,
-  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -19,6 +18,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { Fragment, useEffect, useState } from 'react';
@@ -42,8 +42,6 @@ import useImageCompression from '@/hooks/useImageCompression';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-
-
 
 interface Data {
   studentId: string;
@@ -245,14 +243,14 @@ const AddStudentPage = () => {
     <Fragment>
       <Grid container spacing={4}>
         {/* Student Details */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <LinkStyled href={`/apps/student/list`} passHref>
             <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
               ย้อนกลับ
             </Button>
           </LinkStyled>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader
               avatar={
@@ -266,7 +264,7 @@ const AddStudentPage = () => {
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={5}>
-                  <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+                  <Grid sx={{ mt: 4.8, mb: 3 }} size={{ xs: 12 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <ImgStyled src={imgSrc} alt='Profile Pic' />
                       <Box>
@@ -297,19 +295,19 @@ const AddStudentPage = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
-                      <Grid item>
+                      <Grid>
                         <Icon icon='bxs:user-detail' />
                       </Grid>
-                      <Grid item>
+                      <Grid>
                         <Typography variant='body2' sx={{ fontWeight: 600 }}>
                           ข้อมูลนักเรียน
                         </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='studentId'
@@ -337,7 +335,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth error={!!errors.title}>
                       <Controller
                         name='title'
@@ -359,7 +357,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='firstName'
@@ -379,7 +377,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='lastName'
@@ -399,7 +397,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='classroom'
@@ -425,11 +423,7 @@ const AddStudentPage = () => {
                                 helperText={errors.classroom ? (errors.classroom.message as string) : ''}
                               />
                             )}
-                            renderOption={(props, option) => (
-                              <li key={option.classroomId} {...props}>
-                                {option.name}
-                              </li>
-                            )}
+                            renderOption={(props, option) => <li {...props}>{option.name}</li>}
                             filterSelectedOptions
                             groupBy={(option: any) => option.department?.name}
                             noOptionsText='ไม่พบข้อมูล'
@@ -438,7 +432,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='idCard'
@@ -462,13 +456,13 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='birthDate'
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                           <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+                          <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                             <DatePicker
                               label='วันเกิด'
                               format='DD MMMM YYYY'
@@ -495,7 +489,7 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='phone'
@@ -519,19 +513,19 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid size={{ xs: 12, sm: 12 }}>
                     <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
-                      <Grid item>
+                      <Grid>
                         <Icon icon='icon-park-outline:guide-board' />
                       </Grid>
-                      <Grid item>
+                      <Grid>
                         <Typography variant='body2' sx={{ fontWeight: 600 }}>
                           ที่อยู่ปัจจุบัน
                         </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid size={{ xs: 12, sm: 12 }}>
                     <FormControl fullWidth>
                       <Controller
                         name='addressLine1'
@@ -550,32 +544,32 @@ const AddStudentPage = () => {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid size={{ xs: 12, sm: 12 }}>
                     <FormControl fullWidth>
                       <ThailandAddressTypeahead value={currentAddress} onValueChange={(val) => setCurrentAddress(val)}>
                         <Grid container spacing={5}>
-                          <Grid item xs={12} sm={6}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
                             <ThailandAddressTypeahead.SubdistrictInput
                               className='sub-district-input'
                               style={addressInputStyle as any}
                               placeholder='ตำบล / แขวง'
                             />
                           </Grid>
-                          <Grid item xs={12} sm={6}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
                             <ThailandAddressTypeahead.DistrictInput
                               className='district-input'
                               style={addressInputStyle as any}
                               placeholder='อำเภอ / เขต'
                             />
                           </Grid>
-                          <Grid item xs={12} sm={6}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
                             <ThailandAddressTypeahead.ProvinceInput
                               className='province-input'
                               style={addressInputStyle as any}
                               placeholder='จังหวัด'
                             />
                           </Grid>
-                          <Grid item xs={12} sm={6}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
                             <ThailandAddressTypeahead.PostalCodeInput
                               className='postal-code-input'
                               style={addressInputStyle as any}
@@ -615,7 +609,7 @@ const AddStudentPage = () => {
                       {/* </StyledContainer> */}
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Button type='submit' variant='contained' sx={{ mr: 4 }}>
                       บันทึกการเพิ่มข้อมูล
                     </Button>

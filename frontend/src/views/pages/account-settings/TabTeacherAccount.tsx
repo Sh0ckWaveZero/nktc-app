@@ -7,13 +7,13 @@ import {
   CircularProgress,
   FormControl,
   FormHelperText,
-  Grid,
   InputLabel,
   MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Button, { ButtonProps } from '@mui/material/Button';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -117,7 +117,7 @@ const TabTeacherAccount = () => {
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassrooms(await data);
         const defaultClassroom: any =
-          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
+          (await data?.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
         setClassroomSelected(defaultClassroom);
         setLoading(false);
       });
@@ -201,7 +201,7 @@ const TabTeacherAccount = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <Grid container spacing={5}>
-            <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+            <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {isLoading || isCompressing ? (
                   <CircularProgress
@@ -246,7 +246,7 @@ const TabTeacherAccount = () => {
                 </Box>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid size={{ xs: 12, sm: 2 }}>
               <FormControl fullWidth>
                 <Controller
                   name='title'
@@ -272,7 +272,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -293,7 +293,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -314,7 +314,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -341,7 +341,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='academicStanding'
@@ -364,7 +364,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='department'
@@ -393,7 +393,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -412,7 +412,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Autocomplete
                 id='checkboxes-tags-teacher-classroom'
                 multiple={true}
@@ -423,11 +423,7 @@ const TabTeacherAccount = () => {
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
                 isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props, option) => (
-                  <li key={option.classroomId} {...props}>
-                    {option.name}
-                  </li>
-                )}
+                renderOption={(props, option) => <li {...props}>{option.name}</li>}
                 renderInput={(params) => (
                   <TextField {...params} label='ครูที่ปรึกษาระดับชั้น' placeholder='เลือกห้องเรียน' />
                 )}
@@ -437,13 +433,13 @@ const TabTeacherAccount = () => {
                 noOptionsText='ไม่พบข้อมูล'
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                     <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
                       <DatePicker
                         label='วันเกิด'
                         format='DD MMMM YYYY'
@@ -468,7 +464,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
                 บันทึกการเปลี่ยนแปลง
               </Button>

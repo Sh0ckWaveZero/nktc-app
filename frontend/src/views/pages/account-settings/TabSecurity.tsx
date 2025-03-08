@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
@@ -49,7 +49,6 @@ const schema = yup.object().shape({
   newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
   confirmNewPassword: yup.string().required('กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
 });
-
 
 const TabSecurity = () => {
   // hooks
@@ -139,9 +138,9 @@ const TabSecurity = () => {
             <Typography variant='h6'>เปลี่ยนรหัสผ่าน</Typography>
           </Box>
           <Grid container spacing={5}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Grid container spacing={5}>
-                <Grid item xs={12} sx={{ mt: 4.75 }}>
+                <Grid size={{ xs: 12 }} sx={{ mt: 4.75 }}>
                   <FormControl fullWidth>
                     <Controller
                       name='currentPassword'
@@ -179,7 +178,7 @@ const TabSecurity = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sx={{ mt: 6 }}>
+                <Grid size={{ xs: 12 }} sx={{ mt: 6 }}>
                   <FormControl fullWidth>
                     <Controller
                       name='newPassword'
@@ -221,7 +220,7 @@ const TabSecurity = () => {
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <FormControl fullWidth>
                     <Controller
                       name='confirmNewPassword'

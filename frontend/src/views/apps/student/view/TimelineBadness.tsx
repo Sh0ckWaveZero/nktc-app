@@ -1,4 +1,5 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Grid, Typography, styled, Tooltip, Button } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Tooltip, Button } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
@@ -58,7 +59,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
 const TimelineBadness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader title='รายละเอียคความประพฤติ' />
           <CardContent>

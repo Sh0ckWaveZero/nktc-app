@@ -1,7 +1,7 @@
 import 'dayjs/locale/th';
 
 // ** Types Imports
-import { Avatar, Card, CardHeader, Grid } from '@mui/material';
+import { Avatar, Card, CardHeader } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 // ** React Imports
 import { useEffect, useState } from 'react';
@@ -16,10 +16,10 @@ import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 dayjs.locale('th');
 dayjs.extend(buddhistEra);
-
 
 const AdminCheckActivityInMonthlyReport = () => {
   // ** Store Vars
@@ -53,7 +53,7 @@ const AdminCheckActivityInMonthlyReport = () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader
             avatar={
@@ -67,7 +67,7 @@ const AdminCheckActivityInMonthlyReport = () => {
           />
         </Card>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <TableHeaderMonthly value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
           {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}

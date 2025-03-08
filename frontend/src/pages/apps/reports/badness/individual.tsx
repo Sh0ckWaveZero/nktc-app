@@ -4,7 +4,6 @@ import {
   CardHeader,
   CircularProgress,
   Dialog,
-  Grid,
   IconButton,
   Tooltip,
   Typography,
@@ -23,7 +22,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-
+import Grid from '@mui/material/Grid2';
 interface CellType {
   row: any;
 }
@@ -298,7 +297,7 @@ const ReportStudentBadness = () => {
     user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

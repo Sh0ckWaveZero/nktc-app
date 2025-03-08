@@ -5,7 +5,7 @@ import { useState, useEffect, SyntheticEvent } from 'react';
 import { useRouter } from 'next/router';
 
 // ** MUI Components
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import TabContext from '@mui/lab/TabContext';
 import { styled, Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -60,7 +60,6 @@ const StudentProfile = ({ tab, data }: { tab: string; data: any }) => {
     if (tab && tab !== activeTab) {
       setActiveTab(tab);
     }
-
   }, [tab]);
 
   // const tabContentList: { [key: string]: ReactElement } = {
@@ -72,14 +71,12 @@ const StudentProfile = ({ tab, data }: { tab: string; data: any }) => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
-        {/* <UserProfileHeader /> */}
-      </Grid>
+      <Grid size={{ xs: 12 }}>{/* <UserProfileHeader /> */}</Grid>
       {activeTab === undefined ? null : (
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TabContext value={activeTab}>
             <Grid container spacing={6}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 {/* <TabList
                   variant='scrollable'
                   scrollButtons='auto'

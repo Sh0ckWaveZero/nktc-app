@@ -1,5 +1,6 @@
-import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
-import { DataGrid,GridColDef } from '@mui/x-data-grid';
+import { Avatar, Button, Card, CardHeader, Tooltip, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -240,7 +241,7 @@ const BadnessGroup = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

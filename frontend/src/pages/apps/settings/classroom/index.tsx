@@ -1,4 +1,5 @@
-import { alpha, Card, CardHeader, Grid, IconButton, Menu, MenuItem, styled, Typography } from '@mui/material';
+import { alpha, Card, CardHeader, IconButton, Menu, MenuItem, styled, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DeleteOutline, DotsVertical } from 'mdi-material-ui';
 import { Fragment, MouseEvent, useCallback, useEffect, useState } from 'react';
 
@@ -286,7 +287,7 @@ const ClassroomList = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardHeader title='รายชื่อห้องเรียน' />
             <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddClassroomDrawer} />

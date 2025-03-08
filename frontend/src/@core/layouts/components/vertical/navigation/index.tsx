@@ -1,5 +1,5 @@
 // ** React Import
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useRef, useState, useEffect } from 'react';
 
 // ** MUI Import
 import List from '@mui/material/List';
@@ -73,6 +73,7 @@ const Navigation = (props: Props) => {
 
   // ** Ref
   const shadowRef: any = useRef(null);
+  const scrollbarRef = useRef<any>(null);
 
   // ** Hooks
   const theme = useTheme();
@@ -84,15 +85,37 @@ const Navigation = (props: Props) => {
   // ** Fixes Navigation InfiniteScroll
   const handleInfiniteScroll = (ref: any | HTMLElement) => {
     if (ref) {
-      ref._getBoundingClientRect = ref.getBoundingClientRect;
-
-      ref.getBoundingClientRect = () => {
-        const original = ref._getBoundingClientRect();
-
-        return { ...original, height: Math.floor(original.height) };
+      // Store reference to the scrollbar
+      scrollbarRef.current = ref;
+      
+      // Complete replacement of the method to avoid any recursion
+      ref.getBoundingClientRect = function() {
+        // Use Element.prototype.getBoundingClientRect directly to avoid recursion
+        const rect = Element.prototype.getBoundingClientRect.call(this);
+        
+        // Create a new object to avoid modifying the original rect
+        return {
+          top: rect.top,
+          right: rect.right,
+          bottom: rect.bottom,
+          left: rect.left,
+          width: rect.width,
+          height: Math.floor(rect.height), // Apply the flooring here
+          x: rect.x,
+          y: rect.y,
+          toJSON: rect.toJSON
+        };
       };
     }
   };
+  
+  // Clean up scrollbar on unmount to avoid the "destroy" error
+  useEffect(() => {
+    return () => {
+      // Clean reference to avoid destroy call on null
+      scrollbarRef.current = null;
+    };
+  }, []);
 
   // ** Scroll Menu
   const scrollMenu = (container: any) => {
@@ -158,6 +181,7 @@ const Navigation = (props: Props) => {
                 options: { wheelPropagation: false },
                 onScrollY: (container: any) => scrollMenu(container),
                 containerRef: (ref: any) => handleInfiniteScroll(ref),
+                component: 'div', // Specify a component type
               })}
         >
           {beforeVerticalNavMenuContent && beforeVerticalNavMenuContentPosition === 'static'

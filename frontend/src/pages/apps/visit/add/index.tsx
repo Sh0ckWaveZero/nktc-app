@@ -105,7 +105,7 @@ const CreateVisit = () => {
           ย้อนกลับ
         </Button>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={
@@ -143,10 +143,10 @@ const CreateVisit = () => {
                       />
                     )}
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Box sx={{ mb: 6 }}>{<SurveyList list={about as any} />}</Box>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <form noValidate onSubmit={handleSubmit(onSubmit)}>
                       <Fragment>
                         <Box sx={{ mb: 6 }}>{survey && <SurveyForm control={control} list={survey} errors={errors}/>}</Box>

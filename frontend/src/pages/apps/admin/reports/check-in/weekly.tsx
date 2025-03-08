@@ -1,5 +1,6 @@
 // ** Types Imports
-import { Avatar, Card, CardHeader, Grid } from '@mui/material';
+import { Avatar, Card, CardHeader } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import dayjs, { Dayjs } from 'dayjs';
 // ** React Imports
 import { useEffect, useState } from 'react';
@@ -15,7 +16,6 @@ import { shallow } from 'zustand/shallow';
 import { useReportCheckInStore } from '@/store/index';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 dayjs.extend(buddhistEra);
-
 
 const AdminCheckInWeeklyReport = () => {
   // ** Store Vars
@@ -53,7 +53,7 @@ const AdminCheckInWeeklyReport = () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader
             avatar={
@@ -67,7 +67,7 @@ const AdminCheckInWeeklyReport = () => {
           />
         </Card>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <TableHeaderWeekly value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
           {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}

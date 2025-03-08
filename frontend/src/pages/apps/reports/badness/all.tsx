@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Dialog,  IconButton, Tooltip, Typography, styled } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useCallback, useContext, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -20,6 +20,7 @@ import { useDebounce } from '@/hooks/userCommon';
 import useFetchClassrooms from '@/hooks/useFetchClassrooms';
 import useStudentList from '@/hooks/useStudentList';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   row: any;
@@ -252,7 +253,7 @@ const ReportAllBadness = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

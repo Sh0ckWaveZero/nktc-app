@@ -2,7 +2,8 @@
 import { Fragment } from 'react';
 
 // ** MUI Imports
-import { Box, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 // ** Icon Imports
 import Icon from '@/@core/components/icon';
@@ -41,7 +42,7 @@ const UserViewLeft = ({
     return (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent sx={{ pt: 15, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                 {user?.account?.avatar ? (

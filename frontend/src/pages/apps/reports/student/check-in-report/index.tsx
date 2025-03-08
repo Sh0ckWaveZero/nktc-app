@@ -68,7 +68,7 @@ const StudentCheckInReport = () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader
             avatar={
@@ -82,7 +82,7 @@ const StudentCheckInReport = () => {
           />
         </Card>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <TableHeaderWeekly selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
           {loading ? <Spinner /> : <TableSpanning value={value} />}

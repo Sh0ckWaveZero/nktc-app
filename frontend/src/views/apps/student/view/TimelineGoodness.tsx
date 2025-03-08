@@ -1,4 +1,5 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Grid, Typography, styled, Button, Tooltip } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Button, Tooltip } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
@@ -17,21 +18,20 @@ interface Props {
 const getImage = (image: string) => {
   const useLocal = useLocalStorage();
   const storedToken = useLocal.getToken()!;
-  
-  
+
   const { isLoading, image: badnessImage } = useGetImage(image, storedToken);
-  
+
   return isLoading ? (
     <CircularProgress />
-    ) : badnessImage ? (
-      <div
+  ) : badnessImage ? (
+    <div
       style={{
         cursor: 'pointer',
       }}
       onClick={() => {
         window.open(badnessImage, '_blank');
       }}
-      >
+    >
       <Avatar alt='บันทึกความดี' src={badnessImage as any} sx={{ width: '5.5rem', height: '5.5rem' }} />
     </div>
   ) : (
@@ -59,7 +59,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
 const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader title='รายละเอียคความดี' />
           <CardContent>

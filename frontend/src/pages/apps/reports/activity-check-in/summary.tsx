@@ -2,7 +2,7 @@
 import { Fragment, useContext, useState } from 'react';
 
 // ** MUI Imports
-import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
+import { Typography, CardHeader, Card, Avatar } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 // ** Store Imports
@@ -22,6 +22,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Grid from '@mui/material/Grid2';
 
 interface CellType {
   // row: teachersTypes;
@@ -262,7 +263,7 @@ const SummaryCheckInReportActivity = () => {
     auth?.user?.role !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

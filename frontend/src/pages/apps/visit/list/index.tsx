@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardHeader,
-  Grid,
   IconButton,
   Stack,
   Tooltip,
@@ -12,6 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { useClassroomStore, useVisitStore } from '@/store/index';
@@ -306,7 +306,7 @@ const VisitStudentList = () => {
     (auth?.user?.role as string) !== 'Admin' && (
       <Fragment>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
                 avatar={

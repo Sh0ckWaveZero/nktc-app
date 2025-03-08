@@ -1,4 +1,5 @@
-import { Button, FormControl, Grid, Tooltip } from '@mui/material';
+import { Button, FormControl, Tooltip } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 import { Fragment } from 'react';
 import Icon from '@/@core/components/icon';
@@ -25,7 +26,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
           justifyContent: 'space-between',
         }}
       >
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Grid
             container
             spacing={2}
@@ -35,7 +36,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
               justifyContent: 'flex-start',
             }}
           >
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth>
                 <Tooltip title='เพิ่มรายชื่อนักเรียนมากกว่าหนึ่ง' arrow>
                   <span>
@@ -54,7 +55,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
                 </Tooltip>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth>
                 <Tooltip title='เพิ่มรายชื่อรายชั้นเรียน' arrow>
                   <span>
@@ -75,7 +76,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Grid
             container
             sx={{
@@ -84,7 +85,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
               justifyContent: 'flex-end',
             }}
           >
-            <Grid item xs={12} sm={5}>
+             <Grid size={{ xs: 12, sm: 5 }}>
               <FormControl fullWidth>
                 <Tooltip title={tooltipName} arrow>
                   <span>
