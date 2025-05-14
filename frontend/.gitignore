@@ -4,3 +4,6 @@ node_modules
 .env.prod
 .VSCodeCounter
 analyze
+
+# Audit reports
+audit-reports/
