@@ -3,7 +3,9 @@
 ###################
 FROM node:18-alpine as build
 
-RUN apk add --no-cache curl bash openssl1.1-compat \
+#RUN apk add --no-cache curl bash openssl1.1-compat \
+ # && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
+RUN apk add --no-cache curl bash openssl \
   && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
 
 WORKDIR /usr/src/app
@@ -23,7 +25,6 @@ ENV NODE_ENV production
 
 RUN yarn cache clean --force \
   && /usr/local/bin/node-prune \
-  && apk del openssl1.1-compat curl bash \
   && rm -rf \
   node_modules/rxjs/src/ \
   node_modules/rxjs/bundles/ \
@@ -38,6 +39,7 @@ RUN yarn cache clean --force \
   && find /usr/src/app/node_modules/ -type f -iname "*.md" -exec rm {} \;
 
 USER node
+
 
 ###################
 # PRODUCTION

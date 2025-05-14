@@ -262,10 +262,6 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                     <MenuItem value=''>
                       <em>คะแนนความดี</em>
                     </MenuItem>
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
                     <MenuItem value={5}>5</MenuItem>
                   </Select>
                   {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}

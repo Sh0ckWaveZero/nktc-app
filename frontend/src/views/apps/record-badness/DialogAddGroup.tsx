@@ -220,11 +220,11 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                       <em>คะแนนพฤติกรรมที่ไม่เหมาะสม</em>
                     </MenuItem>
                     <MenuItem value={0}>ตักเตือน</MenuItem>
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
                     <MenuItem value={5}>5</MenuItem>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                    <MenuItem value={40}>40</MenuItem>
                   </Select>
                   {onSubmit && !badTypeScore && <FormHelperText>กรุณากรอกคะแนนพฤติกรรมที่ไม่เหมาะสม</FormHelperText>}
                 </FormControl>
