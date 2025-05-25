@@ -3,9 +3,7 @@ import { PrismaService } from '@common/services/prisma.service';
 import { ProgramData } from './entities';
 import { 
   XlsxImportConfig, 
-  ProcessRowResult,
   createXlsxImportService,
-  createProcessRowFunction,
   extractCellValue,
   validateRequiredFields
 } from '@common/utils/xlsx-import.utils';
@@ -13,43 +11,16 @@ import {
 /**
  * Service สำหรับจัดการข้อมูลโปรแกรม/หลักสูตร
  * ใช้ functional programming approach สำหรับการ import XLSX
- * 
- * @class ProgramsService
  */
 @Injectable()
 export class ProgramsService {
-  private xlsxImportService;
+  private xlsxImportService: any;
 
-  /**
-   * สร้าง instance ของ ProgramsService
-   * @param prisma - instance ของ Prisma service สำหรับการดำเนินการฐานข้อมูล
-   */
-  constructor(private prisma: PrismaService) {
-    // สร้าง XLSX import service โดยใช้ functional approach
-    this.xlsxImportService = createXlsxImportService<ProgramData>({
-      getImportConfig: () => ({
-        columnMapping: {
-          'id': 'รหัส',
-          'name': 'ชื่อ',
-          'description': 'รายละเอียด',
-        },
-        requiredColumns: ['id', 'name'],
-        entityName: 'โปรแกรม',
-      }),
+  constructor(private prisma: PrismaService) {}
 
-      processRow: async (row, headerMap, config, user, rowNumber) => {
-        const result = await this.extractAndValidateProgramData(row, headerMap, config, user);
-        if (typeof result === 'string') {
-          return { error: result };
-        }
-        return { data: result };
-      },
-
-      createEntity: (data: ProgramData) => this.createProgramEntity(data),
-
-      prisma: this.prisma
-    });
-  }
+  // =============================================================================
+  // PUBLIC METHODS - XLSX IMPORT
+  // =============================================================================
 
   /**
    * Import XLSX file สำหรับโปรแกรม
@@ -58,8 +29,12 @@ export class ProgramsService {
    * @returns ผลลัพธ์การ import
    */
   async importFromXlsx(file: Express.Multer.File, user: any) {
-    return this.xlsxImportService.importFromXlsx(file, user);
+    return this.getXlsxImportService().importFromXlsx(file, user);
   }
+
+  // =============================================================================
+  // PUBLIC METHODS - CRUD OPERATIONS
+  // =============================================================================
 
   /**
    * ดึงข้อมูลโปรแกรมทั้งหมดจากฐานข้อมูล
@@ -74,6 +49,46 @@ export class ProgramsService {
       },
     });
   }
+
+  // =============================================================================
+  // PRIVATE METHODS - XLSX IMPORT HELPERS
+  // =============================================================================
+
+  /**
+   * สร้าง XLSX import service โดยใช้ functional approach แบบ lazy loading
+   */
+  private getXlsxImportService() {
+    if (!this.xlsxImportService) {
+      this.xlsxImportService = createXlsxImportService<ProgramData>({
+        getImportConfig: () => ({
+          columnMapping: {
+            'id': 'รหัส',
+            'name': 'ชื่อ',
+            'description': 'รายละเอียด',
+          },
+          requiredColumns: ['id', 'name'],
+          entityName: 'โปรแกรม',
+        }),
+
+        processRow: async (row, headerMap, config, user, rowNumber) => {
+          const result = await this.extractAndValidateProgramData(row, headerMap, config, user);
+          if (typeof result === 'string') {
+            return { error: result };
+          }
+          return { data: result };
+        },
+
+        createEntity: (data: ProgramData) => this.createProgramEntity(data),
+
+        prisma: this.prisma
+      });
+    }
+    return this.xlsxImportService;
+  }
+
+  // =============================================================================
+  // PRIVATE METHODS - DATA PROCESSING
+  // =============================================================================
 
   /**
    * ดึงและ validate ข้อมูลโปรแกรมจากแถว Excel
@@ -94,7 +109,6 @@ export class ProgramsService {
     const name = extractCellValue(row, headerMap, config.columnMapping, 'name');
     const description = extractCellValue(row, headerMap, config.columnMapping, 'description') || '';
 
-    // Validate required fields
     const validationError = validateRequiredFields(
       { programId, name },
       ['programId', 'name']
@@ -104,11 +118,7 @@ export class ProgramsService {
       return validationError;
     }
 
-    // Check if program already exists
-    const existingProgram = await this.prisma.program.findUnique({
-      where: { programId },
-    });
-
+    const existingProgram = await this.checkProgramExists(programId);
     if (existingProgram) {
       return `โปรแกรมรหัส "${programId}" มีอยู่ในระบบแล้ว`;
     }
@@ -120,6 +130,22 @@ export class ProgramsService {
       createdBy: user.username,
       updatedBy: user.username,
     };
+  }
+
+  // =============================================================================
+  // PRIVATE METHODS - DATABASE QUERIES
+  // =============================================================================
+
+  /**
+   * ตรวจสอบว่าโปรแกรมมีอยู่ในระบบแล้วหรือไม่
+   * @private
+   * @param programId - รหัสโปรแกรมที่ต้องการตรวจสอบ
+   * @returns โปรแกรมที่พบ หรือ null
+   */
+  private async checkProgramExists(programId: string) {
+    return this.prisma.program.findUnique({
+      where: { programId },
+    });
   }
 
   /**
