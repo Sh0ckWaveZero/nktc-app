@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@Prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import {
   getDepartId,
   getDepartIdByName,
