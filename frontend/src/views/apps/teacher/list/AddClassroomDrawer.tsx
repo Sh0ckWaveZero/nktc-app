@@ -79,7 +79,7 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
               getOptionLabel={(option: any) => option?.name ?? ''}
               isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
               renderOption={(props, option, { selected }) => (
-                <li key={option.classroomId} {...props}>
+                <li {...props}>
                   <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
                   {option.name}
                 </li>

@@ -64,7 +64,7 @@ const TableHeader = (props: TableHeaderProps) => {
             getOptionLabel={(option: any) => option.fullName || ''}
             isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
             renderOption={(props, option) => (
-              <li key={option.id} {...props}>
+              <li {...props}>
                 {`${option?.title}${option?.fullName} `}
               </li>
             )}
@@ -86,7 +86,7 @@ const TableHeader = (props: TableHeaderProps) => {
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
             renderOption={(props, option) => (
-              <li key={option.classroomId} {...props}>
+              <li {...props}>
                 {option.name}
               </li>
             )}

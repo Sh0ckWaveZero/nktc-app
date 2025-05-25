@@ -448,7 +448,7 @@ const StudentEditPage = ({ users, classroomId }: any) => {
                             />
                           )}
                           renderOption={(props, option) => (
-                            <li key={option.classroomId} {...props}>
+                            <li {...props}>
                               {option.name}
                             </li>
                           )}

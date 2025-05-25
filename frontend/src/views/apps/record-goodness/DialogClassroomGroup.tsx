@@ -176,7 +176,7 @@ export default function DialogClassroomGoodnessGroup({
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
             renderOption={(props, option) => (
-              <li key={option.classroomId} {...props}>
+              <li {...props}>
                 {option.name}
               </li>
             )}

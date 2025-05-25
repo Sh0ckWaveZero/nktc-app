@@ -5,7 +5,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import CustomAvatar from '@/@core/components/mui/avatar';
 
 // ** Types Imports
-import { CardMenuProps } from '@/@core/components/card-statistics/types';
+import type { CardMenuProps } from '@/@core/components/card-statistics/types';
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 import Link from 'next/link';
 import { styled } from '@mui/material/styles';
@@ -17,7 +17,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 
 const CardMenu = (props: CardMenuProps) => {
   // ** Props
-  const { title, subtitle, color, icon, navLink, badge } = props;
+  const { title, subtitle, color = 'primary', icon, navLink, badge } = props;
   return (
     <CanViewNavLink navLink={navLink}>
       <LinkStyled href={`${navLink?.path}`} passHref>
@@ -70,8 +70,3 @@ const CardMenu = (props: CardMenuProps) => {
 };
 
 export default CardMenu;
-
-CardMenu.defaultProps = {
-  color: 'primary',
-  trend: 'positive',
-};

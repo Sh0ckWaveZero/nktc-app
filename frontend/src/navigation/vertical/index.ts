@@ -5,7 +5,7 @@ import {
 import { RiSurveyLine, RiTeamLine } from 'react-icons/ri';
 
 // ** Type import
-import { VerticalNavItemsType } from '@/@core/layouts/types';
+import type { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
 import { BsClipboardData } from "react-icons/bs";
 import { TbChartBar } from 'react-icons/tb';
@@ -82,6 +82,13 @@ const navigation = (): VerticalNavItemsType => {
           path: '/apps/settings/classroom',
           action: 'read',
           subject: 'setting-system-page',
+        },
+        {
+          title: 'สาขาวิชา',
+          icon: 'material-symbols:school-outline',
+          path: '/apps/settings/program',
+          action: 'manage',
+          subject: 'settings-program-list-pages',
         },
         {
           title: 'ปฏิทิน',

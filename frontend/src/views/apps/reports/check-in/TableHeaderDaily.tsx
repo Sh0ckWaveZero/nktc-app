@@ -1,11 +1,12 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
 import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
-import thLocale from 'date-fns/locale/th';
+import dayjs from 'dayjs';
+import th from 'dayjs/locale/th';
 import { BsXCircle } from 'react-icons/bs';
 
 interface TableHeaderProps {
@@ -36,14 +37,14 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
       <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
           <DatePicker
             label='เลือกวันที่'
-            value={selectedDate}
-            inputFormat='dd-MM-yyyy'
-            minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
-            maxDate={new Date()}
-            onChange={(newDate) => handleDateChange(newDate)}
+            value={selectedDate ? dayjs(selectedDate) : null}
+            inputFormat='DD-MM-YYYY'
+            minDate={dayjs().subtract(1, 'year')}
+            maxDate={dayjs()}
+            onChange={(newDate) => handleDateChange(newDate ? newDate.toDate() : null)}
             renderInput={(params) => (
               <TextField
                 {...params}

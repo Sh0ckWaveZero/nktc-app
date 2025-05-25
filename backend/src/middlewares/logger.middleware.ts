@@ -1,4 +1,4 @@
-import uap from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 import * as requestIp from 'request-ip';
 
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
@@ -13,27 +13,31 @@ export class LoggerMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) { }
 
   async use(req: any, res: Response, next: NextFunction) {
-    const userAgent = req.get('User-Agent');
-    const parser = new uap.UAParser(userAgent);
-    const result = parser.getResult();
-    const { username, password } = req.body;
-    const ipAddr = requestIp.getClientIp(req);
+    try {
+      const userAgent = req.get('User-Agent');
+      const parser = new UAParser(userAgent);
+      const result = parser.getResult();
+      const { username, password } = req.body;
+      const ipAddr = requestIp.getClientIp(req);
 
-    // Record log to database
-    await this.prisma.auditLog.create({
-      data: {
-        action: 'Login',
-        model: 'User',
-        fieldName: 'username',
-        oldValue: null,
-        newValue: username,
-        detail: 'User login',
-        ipAddr,
-        browser: result.browser?.name || 'Unknown',
-        device: result.device?.vendor || 'Unknown',
-        createdBy: username,
-      },
-    });
+      // Record log to database
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'Login',
+          model: 'User',
+          fieldName: 'username',
+          oldValue: null,
+          newValue: username,
+          detail: 'User login',
+          ipAddr,
+          browser: result.browser?.name || 'Unknown',
+          device: result.device?.vendor || 'Unknown',
+          createdBy: username,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error in LoggerMiddleware:', error);
+    }
 
     next();
   }
