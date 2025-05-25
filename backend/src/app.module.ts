@@ -25,6 +25,7 @@ import { PrismaService } from './common/services/prisma.service';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { ReportCheckInMiddleware } from './middlewares/report-check-in.middleware';
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
+import { SecurityMiddleware } from './middlewares/security.middleware';
 import { StaticsModule } from './apis/statics/statics.module';
 import { StudentsModule } from './apis/students/students.module';
 import { TeachersModule } from './apis/teachers/teachers.module';
@@ -37,10 +38,12 @@ import validate from './config/validation';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 50,
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 นาที
+        limit: 100, // 100 requests ต่อนาที
+      }
+    ]),
     AccountsModule,
     ActivityCheckInModule,
     AppBarModule,
@@ -76,6 +79,9 @@ import validate from './config/validation';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // เพิ่ม SecurityMiddleware สำหรับทุก routes
+    consumer.apply(SecurityMiddleware).forRoutes('*');
+    
     consumer.apply(LoggerMiddleware).forRoutes('auth/login');
     consumer
       .apply(ReportCheckInMiddleware)
