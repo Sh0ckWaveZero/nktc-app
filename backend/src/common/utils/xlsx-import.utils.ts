@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '@common/services/prisma.service';
 import * as xlsx from 'node-xlsx';
 
 // =============================================================================
