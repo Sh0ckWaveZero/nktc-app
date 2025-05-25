@@ -45,13 +45,12 @@ export class MinioClientService {
     };
     this.client.setBucketPolicy(
       configuration().minioBucket,
-      JSON.stringify(policy),
-      function (err: any) {
-        if (err) throw err;
-
-        console.log('Bucket policy set');
-      },
-    );
+      JSON.stringify(policy)
+    ).then(() => {
+      this.logger.log('Bucket policy set');
+    }).catch(err => {
+      throw err;
+    });
   }
 
   private readonly bucketName = configuration().minioBucket;
@@ -111,7 +110,7 @@ export class MinioClientService {
             reject(err);
             return;
           }
-          console.log('File deleted successfully');
+          this.logger.log('File deleted successfully');
           resolve();
         });
       });

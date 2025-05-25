@@ -44,7 +44,13 @@ const bootstrap = async () => {
       .setVersion('1.0')
       .addBearerAuth()
       .build();
-    const document = SwaggerModule.createDocument(app, config);
+    const document = SwaggerModule.createDocument(app, config, {
+      ignoreGlobalPrefix: true,
+      operationIdFactory: (
+        controllerKey: string,
+        methodKey: string,
+      ) => methodKey,
+    });
     SwaggerModule.setup('api', app, document);
   }
   await app.listen(configuration().port);
