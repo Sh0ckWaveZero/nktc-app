@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '@apis/auth/jwt-auth.guard';
 import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/guards/roles.decorator';
 import { ProgramsService } from './programs.service';
-import { FileUploadDto } from './dto/file-upload.dto';
+import { ProgramFileUploadDto } from './dto/file-upload.dto';
 
 @Controller('programs')
 @ApiTags('programs')
@@ -48,7 +48,7 @@ export class ProgramsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'ไฟล์ XLSX ที่มีข้อมูลโปรแกรม (คอลัมน์ที่จำเป็น: รหัส, ชื่อ, รายละเอียด)',
-    type: FileUploadDto,
+    type: ProgramFileUploadDto,
   })
   @ApiOperation({ summary: 'นำเข้าข้อมูลโปรแกรมจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
   @HttpCode(HttpStatus.OK)

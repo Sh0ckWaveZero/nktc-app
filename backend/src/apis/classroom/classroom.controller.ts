@@ -17,7 +17,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nes
 import { JwtAuthGuard } from '@apis/auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadDto } from './dto/file-upload.dto';
+import { ClassroomFileUploadDto } from './dto/file-upload.dto';
 import { Roles } from '../../common/guards/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 
@@ -64,7 +64,7 @@ export class ClassroomController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'ไฟล์ XLSX ที่มีข้อมูลห้องเรียน (คอลัมน์ที่จำเป็น: รหัส, ชื่อระดับชั้นเรียนสาขาวิชา, ระดับชั้น, แผนกวิชา)',
-    type: FileUploadDto,
+    type: ClassroomFileUploadDto,
   })
   @ApiOperation({ summary: 'นำเข้าข้อมูลห้องเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
   @HttpCode(HttpStatus.OK)

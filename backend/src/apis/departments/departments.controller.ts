@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/guards/roles.decorator';
 import { DepartmentsService } from './departments.service';
-import { FileUploadDto } from './dto/file-upload.dto';
+import { DepartmentFileUploadDto } from './dto/file-upload.dto';
 
 @Controller('departments')
 @ApiTags('departments')
@@ -36,7 +36,7 @@ export class DepartmentsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'ไฟล์ XLSX ที่มีข้อมูลแผนกวิชา (คอลัมน์ที่จำเป็น: รหัสแผนกวิชา, ชื่อแผนกวิชา)',
-    type: FileUploadDto,
+    type: DepartmentFileUploadDto,
   })
   @ApiOperation({ summary: 'นำเข้าข้อมูลแผนกวิชาจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
   @HttpCode(HttpStatus.OK)
