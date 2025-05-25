@@ -1,49 +1,73 @@
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Grid, TextField } from '@mui/material';
 import { Plus } from 'mdi-material-ui';
+import { SiMicrosoftexcel } from 'react-icons/si';
 
 interface TableHeaderProps {
   value: string;
   handleFilter: (val: string) => void;
-  handleAddProgram: () => void;
+  handleUploadFile: () => void;
+  handleUpload: (file: File) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
 /**
  * ส่วนหัวของตารางสำหรับจัดการสาขาวิชา
  * @param value - ค่าการค้นหา
  * @param handleFilter - ฟังก์ชันสำหรับจัดการการค้นหา
- * @param handleAddProgram - ฟังก์ชันสำหรับเพิ่มสาขาวิชาใหม่
+ * @param handleUploadFile - ฟังก์ชันสำหรับเพิ่มสาขาวิชาใหม่
+ * @param handleUpload - ฟังก์ชันสำหรับอัพโหลดไฟล์
+ * @param fileInputRef - ตัวอ้างอิงสำหรับ input ไฟล์
  */
-const TableHeader = ({ value, handleFilter, handleAddProgram }: TableHeaderProps) => {
-  return (
-    <Box
-      sx={{
-        p: 5,
-        pb: 3,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <TextField
-        size='small'
-        value={value}
-        sx={{ mr: 6, mb: 2 }}
-        placeholder='ค้นหาสาขาวิชา...'
-        onChange={(e) => handleFilter(e.target.value)}
-      />
+const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, fileInputRef }: TableHeaderProps) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleUpload(file);
+    }
+  };
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <Button
-          sx={{ mb: 2 }}
-          onClick={handleAddProgram}
-          variant='contained'
-          startIcon={<Plus fontSize='small' />}
-        >
-          เพิ่มสาขาวิชา
-        </Button>
-      </Box>
-    </Box>
+  return (
+    <Grid container spacing={3} alignItems="center" sx={{ pb: 2, px: 4 }}>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          size='small'
+          value={value}
+          onChange={(e) => handleFilter(e.target.value)}
+          placeholder="ค้นหา..."
+          variant="outlined"
+        />
+      </Grid>
+      <Grid item xs={12} sm={6} container justifyContent="flex-end" spacing={2}>
+        <Grid item>
+          <Button
+            component="label"
+            variant="contained"
+            color="primary"
+            startIcon={<SiMicrosoftexcel />}
+          >
+            อัปโหลดไฟล์
+            <input
+              hidden
+              accept=".xlsx, .xls"
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<Plus />}
+            onClick={handleUploadFile}
+          >
+            เพิ่มสาขาวิชา
+          </Button>
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
 

@@ -9,7 +9,7 @@ import {
 } from '@common/utils/xlsx-import.utils';
 
 /**
- * Service สำหรับจัดการข้อมูลโปรแกรม/หลักสูตร
+ * Service สำหรับจัดการข้อมูลสาขาวิชา/หลักสูตร
  * ใช้ functional programming approach สำหรับการ import XLSX
  */
 @Injectable()
@@ -23,7 +23,7 @@ export class ProgramsService {
   // =============================================================================
 
   /**
-   * Import XLSX file สำหรับโปรแกรม
+   * Import XLSX file สำหรับสาขาวิชา
    * @param file - ไฟล์ XLSX ที่จะ import
    * @param user - ผู้ใช้ที่ทำการ import
    * @returns ผลลัพธ์การ import
@@ -37,10 +37,10 @@ export class ProgramsService {
   // =============================================================================
 
   /**
-   * ดึงข้อมูลโปรแกรมทั้งหมดจากฐานข้อมูล
-   * จัดเรียงตามชื่อโปรแกรมจาก A-Z
+   * ดึงข้อมูลสาขาวิชาทั้งหมดจากฐานข้อมูล
+   * จัดเรียงตามชื่อสาขาวิชาจาก A-Z
    * 
-   * @returns Promise ที่ resolve เป็น array ของโปรแกรมทั้งหมด
+   * @returns Promise ที่ resolve เป็น array ของสาขาวิชาทั้งหมด
    */
   async findAll() {
     return await this.prisma.program.findMany({
@@ -48,6 +48,106 @@ export class ProgramsService {
         name: 'asc',
       },
     });
+  }
+
+  /**
+   * ดึงข้อมูลสาขาวิชาตาม ID
+   * 
+   * @param id - ID ของสาขาวิชาที่ต้องการค้นหา
+   * @returns ข้อมูลสาขาวิชาที่พบ
+   */
+  async findOne(id: string) {
+    try {
+      const program = await this.prisma.program.findUnique({
+        where: { id }
+      });
+
+      if (!program) {
+        throw new Error('ไม่พบสาขาวิชาที่ต้องการค้นหา');
+      }
+
+      return program;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * อัพเดทข้อมูลสาขาวิชาตาม ID
+   * 
+   * @param id - ID ของสาขาวิชาที่ต้องการอัพเดท
+   * @param updateData - ข้อมูลที่ต้องการอัพเดท
+   * @param username - ชื่อผู้ใช้ที่ทำการอัพเดท
+   * @returns ข้อมูลสาขาวิชาหลังอัพเดท
+   */
+  async update(id: string, updateData: Partial<ProgramData>, username: string) {
+    try {
+      // ตรวจสอบว่าสาขาวิชามีอยู่จริงหรือไม่
+      const program = await this.prisma.program.findUnique({
+        where: { id },
+      });
+
+      if (!program) {
+        throw new Error('ไม่พบสาขาวิชาที่ต้องการอัพเดท');
+      }
+
+      // อัพเดทข้อมูลสาขาวิชา
+      return await this.prisma.program.update({
+        where: { id },
+        data: {
+          ...updateData,
+          updatedBy: username,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * ลบสาขาวิชาตาม ID
+   * ตรวจสอบว่าสาขาวิชามีความสัมพันธ์กับข้อมูลอื่นก่อนลบ
+   * 
+   * @param id - ID ของสาขาวิชาที่ต้องการลบ
+   * @returns ผลลัพธ์การลบ
+   */
+  async remove(id: string) {
+    try {
+      // ตรวจสอบว่าสาขาวิชามีอยู่จริงหรือไม่
+      const program = await this.prisma.program.findUnique({
+        where: { id },
+        include: {
+          student: { select: { id: true } },
+          classroom: { select: { id: true } },
+          teacher: { select: { id: true } },
+        },
+      });
+
+      if (!program) {
+        throw new Error('ไม่พบสาขาวิชาที่ต้องการลบ');
+      }
+
+      // ตรวจสอบว่ามีข้อมูลที่เกี่ยวข้องหรือไม่
+      if (program.student.length > 0) {
+        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีนักเรียนที่เชื่อมโยงกับสาขาวิชานี้');
+      }
+
+      if (program.classroom.length > 0) {
+        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีห้องเรียนที่เชื่อมโยงกับสาขาวิชานี้');
+      }
+
+      if (program.teacher.length > 0) {
+        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีครู/อาจารย์ที่เชื่อมโยงกับสาขาวิชานี้');
+      }
+
+      // ลบสาขาวิชา
+      return await this.prisma.program.delete({
+        where: { id },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   // =============================================================================
@@ -67,7 +167,7 @@ export class ProgramsService {
             'description': 'รายละเอียด',
           },
           requiredColumns: ['id', 'name'],
-          entityName: 'โปรแกรม',
+          entityName: 'สาขาวิชา',
         }),
 
         processRow: async (row, headerMap, config, user, rowNumber) => {
@@ -91,13 +191,13 @@ export class ProgramsService {
   // =============================================================================
 
   /**
-   * ดึงและ validate ข้อมูลโปรแกรมจากแถว Excel
+   * ดึงและ validate ข้อมูลสาขาวิชาจากแถว Excel
    * @private
    * @param row - แถวข้อมูลจาก Excel
    * @param headerMap - mapping header กับ index
    * @param config - configuration การ import
    * @param user - ผู้ใช้ที่ทำการ import
-   * @returns ข้อมูลโปรแกรมที่ validate แล้ว หรือข้อความ error
+   * @returns ข้อมูลสาขาวิชาที่ validate แล้ว หรือข้อความ error
    */
   private async extractAndValidateProgramData(
     row: any[],
@@ -120,7 +220,7 @@ export class ProgramsService {
 
     const existingProgram = await this.checkProgramExists(programId);
     if (existingProgram) {
-      return `โปรแกรมรหัส "${programId}" มีอยู่ในระบบแล้ว`;
+      return `สาขาวิชารหัส "${programId}" มีอยู่ในระบบแล้ว`;
     }
 
     return {
@@ -137,10 +237,10 @@ export class ProgramsService {
   // =============================================================================
 
   /**
-   * ตรวจสอบว่าโปรแกรมมีอยู่ในระบบแล้วหรือไม่
+   * ตรวจสอบว่าสาขาวิชามีอยู่ในระบบแล้วหรือไม่
    * @private
-   * @param programId - รหัสโปรแกรมที่ต้องการตรวจสอบ
-   * @returns โปรแกรมที่พบ หรือ null
+   * @param programId - รหัสสาขาวิชาที่ต้องการตรวจสอบ
+   * @returns สาขาวิชาที่พบ หรือ null
    */
   private async checkProgramExists(programId: string) {
     return this.prisma.program.findUnique({
@@ -149,10 +249,10 @@ export class ProgramsService {
   }
 
   /**
-   * สร้าง entity โปรแกรมในฐานข้อมูล
+   * สร้าง entity สาขาวิชาในฐานข้อมูล
    * @private
-   * @param data - ข้อมูลโปรแกรมที่จะสร้าง
-   * @returns entity โปรแกรมที่สร้างแล้ว
+   * @param data - ข้อมูลสาขาวิชาที่จะสร้าง
+   * @returns entity สาขาวิชาที่สร้างแล้ว
    */
   private async createProgramEntity(data: ProgramData): Promise<any> {
     const dateTimeInit = new Date();

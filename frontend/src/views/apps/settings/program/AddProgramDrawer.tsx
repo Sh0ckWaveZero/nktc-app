@@ -13,14 +13,20 @@ import {
 } from '@mui/material';
 import { Close } from 'mdi-material-ui';
 import { Controller, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { LocalStorageService } from '@/services/localStorageService';
+import { shallow } from 'zustand/shallow';
+import { useLevelStore } from '@/store/apps/level';
+import { useDepartmentStore } from '@/store/apps/department';
 
 interface ProgramFormData {
   programId: string;
   name: string;
   description?: string;
+  levelId?: string;
+  departmentId?: string;
   status?: string;
 }
 
@@ -49,10 +55,21 @@ const schema = yup.object().shape({
   programId: yup.string().required('กรุณากรอกรหัสโปรแกรม'),
   name: yup.string().required('กรุณากรอกชื่อโปรแกรม'),
   description: yup.string(),
+  levelId: yup.string().required('กรุณาเลือกระดับชั้น'),
+  departmentId: yup.string().required('กรุณาเลือกแผนก'),
   status: yup.string().oneOf(['active', 'inactive']),
 });
 
+const localStorageService = new LocalStorageService();
+const accessToken = localStorageService.getToken()!;
+
 const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawerProps) => {
+  const [levelList, setLevelList] = useState<any[]>([]);
+  const [departmentList, setDepartmentList] = useState<any[]>([]);
+  
+  const { fetchLevels } = useLevelStore((state) => ({ fetchLevels: state.fetchLevels }), shallow);
+  const { fetchDepartment } = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
+  
   const {
     reset,
     control,
@@ -63,17 +80,37 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
       programId: '',
       name: '',
       description: '',
+      levelId: '',
+      departmentId: '',
       status: 'active',
     },
     resolver: yupResolver(schema) as any
   });
 
   useEffect(() => {
+    // ดึงข้อมูลระดับชั้น
+    fetchLevels(accessToken).then((res:any) => {
+      if (res && Array.isArray(res)) {
+        setLevelList(res || []);
+      }
+    });
+    
+    // ดึงข้อมูลแผนก
+    fetchDepartment(accessToken).then((res:any) => {
+      if (res && Array.isArray(res)) {
+        setDepartmentList(res || []);
+      }
+    });
+  }, [fetchLevels, fetchDepartment]);
+  
+  useEffect(() => {
     if (editData) {
       reset({
         programId: editData.programId,
         name: editData.name,
         description: editData.description || '',
+        levelId: editData.levelId || '',
+        departmentId: editData.departmentId || '',
         status: editData.status || 'active',
       });
     } else {
@@ -81,6 +118,8 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
         programId: '',
         name: '',
         description: '',
+        levelId: '',
+        departmentId: '',
         status: 'active',
       });
     }
@@ -172,6 +211,68 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
                 placeholder='รายละเอียดของโปรแกรม'
                 sx={{ mb: 5 }}
               />
+            )}
+          />
+
+          <Controller
+            name='levelId'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FormControl fullWidth sx={{ mb: 5 }}>
+                <InputLabel id='level-select'>ระดับชั้น</InputLabel>
+                <Select
+                  value={value}
+                  label='ระดับชั้น'
+                  onChange={onChange}
+                  labelId='level-select'
+                  error={Boolean(errors.levelId)}
+                >
+                  <MenuItem value=''>
+                    <em>เลือกระดับชั้น</em>
+                  </MenuItem>
+                  {levelList.map((level) => (
+                    <MenuItem key={level.id} value={level.id}>
+                      {level.levelName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.levelId && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.levelId.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+          
+          <Controller
+            name='departmentId'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FormControl fullWidth sx={{ mb: 5 }}>
+                <InputLabel id='department-select'>แผนก</InputLabel>
+                <Select
+                  value={value}
+                  label='แผนก'
+                  onChange={onChange}
+                  labelId='department-select'
+                  error={Boolean(errors.departmentId)}
+                >
+                  <MenuItem value=''>
+                    <em>เลือกแผนก</em>
+                  </MenuItem>
+                  {departmentList.map((department) => (
+                    <MenuItem key={department.id} value={department.id}>
+                      {department.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.departmentId && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.departmentId.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
             )}
           />
 

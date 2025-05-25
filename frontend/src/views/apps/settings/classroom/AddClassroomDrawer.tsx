@@ -110,9 +110,9 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
     shallow,
   );
 
-  const { fetchProgram }: any = useProgramStore(
+  const { fetchPrograms }: any = useProgramStore(
     (state) => ({
-      fetchProgram: state.fetchProgram,
+      fetchPrograms: state.fetchPrograms,
     }),
     shallow,
   );
@@ -173,7 +173,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
 
   useEffect(() => {
     if (hideProgram) {
-      fetchProgram(accessToken).then((res: any) => {
+      fetchPrograms(accessToken).then((res: any) => {
         if (res.length > 0) {
           setProgramList(res.filter((item: any) => item.levelId === getValues('levelId')));
         }

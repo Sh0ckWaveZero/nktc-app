@@ -1,6 +1,6 @@
-import { alpha, Card, CardHeader, Grid, IconButton, Menu, MenuItem, styled, Typography } from '@mui/material';
+import { alpha, Card, CardHeader, Grid, IconButton, Menu, MenuItem, styled, Typography, Button } from '@mui/material';
 import { DeleteOutline, DotsVertical, Plus } from 'mdi-material-ui';
-import { MouseEvent, useCallback, useEffect, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useState, useRef } from 'react';
 
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
@@ -11,6 +11,7 @@ import { useDebounce } from '@/hooks/userCommon';
 import AddProgramDrawer from '@/views/apps/settings/program/AddProgramDrawer';
 import TableHeader from '@/views/apps/settings/program/TableHeader';
 import DialogDeleteProgram from '@/views/apps/settings/program/DialogDeleteProgram';
+import { useProgramStore, ProgramType } from '@/store/apps/program';
 
 interface RowOptionsType {
   row: ProgramType;
@@ -20,20 +21,6 @@ interface RowOptionsType {
 
 interface CellType {
   row: ProgramType;
-}
-
-interface ProgramType {
-  id: string;
-  programId: string;
-  name: string;
-  description?: string;
-  levelId?: string;
-  departmentId?: string;
-  status?: string;
-  created_at: string;
-  updated_at: string;
-  createdBy: string;
-  updatedBy: string;
 }
 
 const localStorageService = new LocalStorageService();
@@ -122,10 +109,21 @@ const RowOptions = ({ row, handleDelete, handleEdit }: RowOptionsType) => {
 
 const ProgramManagement = () => {
   const { user } = useAuth();
-  
+
+  // ** Store
+  const {
+    programs,
+    loading,
+    error,
+    fetchPrograms,
+    createProgram,
+    updateProgram,
+    deleteProgram,
+    setError,
+    uploadPrograms,
+  } = useProgramStore();
+
   // ** States
-  const [programs, setPrograms] = useState<ProgramType[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [addProgramOpen, setAddProgramOpen] = useState(false);
   const [editProgramData, setEditProgramData] = useState<ProgramType | null>(null);
@@ -134,6 +132,8 @@ const ProgramManagement = () => {
 
   const debouncedSearchValue = useDebounce(searchValue, 500);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   // ** Columns
   const columns: GridColDef[] = [
     {
@@ -141,9 +141,7 @@ const ProgramManagement = () => {
       minWidth: 100,
       field: 'programId',
       headerName: 'รหัสสาขาวิชา',
-      renderCell: ({ row }: CellType) => (
-        <Typography variant='body2'>{row.programId}</Typography>
-      ),
+      renderCell: ({ row }: CellType) => <Typography variant='body2'>{row.programId}</Typography>,
     },
     {
       flex: 0.25,
@@ -174,14 +172,15 @@ const ProgramManagement = () => {
       headerName: 'สถานะ',
       renderCell: ({ row }: CellType) => {
         const status = row.status === 'active' ? 'ใช้งาน' : row.status === 'inactive' ? 'ไม่ใช้งาน' : 'ไม่ระบุ';
-        const color = row.status === 'active' ? 'success.main' : row.status === 'inactive' ? 'error.main' : 'text.secondary';
-        
+        const color =
+          row.status === 'active' ? 'success.main' : row.status === 'inactive' ? 'error.main' : 'text.secondary';
+
         return (
-          <Typography 
-            variant='body2' 
-            sx={{ 
+          <Typography
+            variant='body2'
+            sx={{
               color: color,
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             {status}
@@ -195,110 +194,33 @@ const ProgramManagement = () => {
       sortable: false,
       field: 'actions',
       headerName: 'การจัดการ',
-      renderCell: ({ row }: CellType) => (
-        <RowOptions 
-          row={row} 
-          handleDelete={handleDelete} 
-          handleEdit={handleEdit}
-        />
-      ),
-    },
-  ];
-
-  // ** Mock Data (replace with actual API calls)
-  const mockPrograms: ProgramType[] = [
-    {
-      id: 'cmb2dv3560000xjq91benom0n',
-      programId: 'P001',
-      name: 'ช่างกลโรงงาน',
-      description: 'ช่างกลโรงงาน',
-      levelId: 'cmb2cuxj00000bn1uf5t8782a',
-      departmentId: undefined,
-      status: 'active',
-      created_at: '2025-05-24T15:27:13.507Z',
-      updated_at: '2025-05-24T15:27:13.507Z',
-      createdBy: 'Admin',
-      updatedBy: 'Admin',
-    },
-    {
-      id: 'cmb2dv3560001xjq973yd509m',
-      programId: 'P002',
-      name: 'เทคนิคการผลิต',
-      description: 'เทคนิคการผลิต',
-      levelId: 'cmb2cuxje0001bn1u1c6oxvgg',
-      departmentId: undefined,
-      status: 'active',
-      created_at: '2025-05-24T15:27:13.507Z',
-      updated_at: '2025-05-24T15:27:13.507Z',
-      createdBy: 'Admin',
-      updatedBy: 'Admin',
-    },
-    {
-      id: 'cmb2dv356000dxjq9ouchfv68',
-      programId: 'P014',
-      name: 'ไฟฟ้า',
-      description: 'ไฟฟ้า',
-      levelId: 'cmb2cuxje0001bn1u1c6oxvgg',
-      departmentId: undefined,
-      status: 'active',
-      created_at: '2025-05-24T15:27:13.507Z',
-      updated_at: '2025-05-24T15:27:13.507Z',
-      createdBy: 'Admin',
-      updatedBy: 'Admin',
-    },
-    {
-      id: 'cmb2dv357000uxjq9bfy3mzao',
-      programId: 'P031',
-      name: 'เทคโนโลยีคอมพิวเตอร์',
-      description: 'เทคโนโลยีคอมพิวเตอร์',
-      levelId: 'cmb2cuxje0001bn1u1c6oxvgg',
-      departmentId: undefined,
-      status: 'active',
-      created_at: '2025-05-24T15:27:13.507Z',
-      updated_at: '2025-05-24T15:27:13.507Z',
-      createdBy: 'Admin',
-      updatedBy: 'Admin',
-    },
-    {
-      id: 'cmb2dv357000xxjq9gjvau651',
-      programId: 'P034',
-      name: 'เทคโนโลยีธุรกิจดิจิทัล',
-      description: 'เทคโนโลยีธุรกิจดิจิทัล',
-      levelId: 'cmb2cuxje0001bn1u1c6oxvgg',
-      departmentId: undefined,
-      status: 'active',
-      created_at: '2025-05-24T15:27:13.507Z',
-      updated_at: '2025-05-24T15:27:13.507Z',
-      createdBy: 'Admin',
-      updatedBy: 'Admin',
+      renderCell: ({ row }: CellType) => <RowOptions row={row} handleDelete={handleDelete} handleEdit={handleEdit} />,
     },
   ];
 
   // ** Effects
   useEffect(() => {
-    fetchPrograms();
+    loadPrograms();
   }, [debouncedSearchValue]);
 
-  // ** Functions
-  const fetchPrograms = useCallback(async () => {
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      // const response = await programAPI.getPrograms({ search: debouncedSearchValue });
-      // setPrograms(response.data);
-      
-      // Filter mock data based on search
-      const filteredPrograms = mockPrograms.filter(program => 
-        program.name.toLowerCase().includes(debouncedSearchValue.toLowerCase()) ||
-        program.programId.toLowerCase().includes(debouncedSearchValue.toLowerCase())
-      );
-      setPrograms(filteredPrograms);
-    } catch (error) {
-      toast.error('เกิดข้อผิดพลาดในการดึงข้อมูล');
-    } finally {
-      setLoading(false);
+  // ** Handle error display
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setError(null);
     }
-  }, [debouncedSearchValue]);
+  }, [error, setError]);
+
+  // ** Functions
+  const loadPrograms = useCallback(async () => {
+    try {
+      await fetchPrograms(accessToken, {
+        search: debouncedSearchValue,
+      });
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล'); // เพิ่มการแจ้งเตือน Error
+    }
+  }, [debouncedSearchValue, fetchPrograms]);
 
   const handleAddProgram = () => {
     setEditProgramData(null);
@@ -317,61 +239,70 @@ const ProgramManagement = () => {
 
   const handleConfirmDelete = async () => {
     if (!selectedProgram) return;
-    
+
     try {
-      // TODO: Replace with actual API call
-      // await programAPI.deleteProgram(selectedProgram.id);
-      
-      setPrograms(prev => prev.filter(program => program.id !== selectedProgram.id));
+      await deleteProgram(accessToken, selectedProgram.id);
       toast.success('ลบสาขาวิชาเรียบร้อยแล้ว');
     } catch (error) {
-      toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
+      // Error handled ใน store
     } finally {
       setDeleteDialogOpen(false);
       setSelectedProgram(null);
     }
   };
 
-  const handleProgramSubmit = (programData: Partial<ProgramType>) => {
-    if (editProgramData) {
-      // Update existing program
-      setPrograms(prev => 
-        prev.map(program => 
-          program.id === editProgramData.id 
-            ? { ...program, ...programData, updated_at: new Date().toISOString() }
-            : program
-        )
-      );
-      toast.success('แก้ไขสาขาวิชาเรียบร้อยแล้ว');
-    } else {
-      // Add new program
-      const newProgram: ProgramType = {
-        ...programData as ProgramType,
-        id: Date.now().toString(),
-        programId: programData.programId || `P${Date.now()}`,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        createdBy: 'Admin',
-        updatedBy: 'Admin',
-      };
-      setPrograms(prev => [newProgram, ...prev]);
-      toast.success('เพิ่มสาขาวิชาเรียบร้อยแล้ว');
+  const handleProgramSubmit = async (programData: Partial<ProgramType>) => {
+    try {
+      if (editProgramData) {
+        // Update existing program
+        await updateProgram(accessToken, editProgramData.id, programData);
+        toast.success('แก้ไขสาขาวิชาเรียบร้อยแล้ว');
+      } else {
+        // Add new program
+        await createProgram(accessToken, programData);
+        toast.success('เพิ่มสาขาวิชาเรียบร้อยแล้ว');
+      }
+      setAddProgramOpen(false);
+      // โหลดข้อมูลใหม่หลังจากบันทึก
+      await loadPrograms();
+    } catch (error) {
+      // Error handled ใน store
     }
-    setAddProgramOpen(false);
+  };
+
+  const handleFileUpload = async (file: File): Promise<void> => {
+    try {
+      await uploadPrograms(accessToken, file);
+      toast.success('อัปโหลดไฟล์สำเร็จ');
+      await loadPrograms();
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+    }
+  };
+
+  const handleFileInputClick = (): void => {
+    fileInputRef.current?.click();
   };
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <CardHeader 
-            title='จัดการสาขาวิชา' 
-            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }} 
+          <CardHeader
+            title='จัดการสาขาวิชา'
+            sx={{
+              pb: 6, // เพิ่ม padding-bottom ให้มากขึ้นเพื่อความสวยงาม
+              '& .MuiCardHeader-title': {
+                letterSpacing: '.15px',
+              },
+            }}
           />
           <TableHeader
             value={searchValue}
             handleFilter={setSearchValue}
-            handleAddProgram={handleAddProgram}
+            handleUploadFile={handleFileInputClick}
+            handleUpload={handleFileUpload}
+            fileInputRef={fileInputRef}
           />
           <StripedDataGrid
             autoHeight
@@ -379,6 +310,11 @@ const ProgramManagement = () => {
             columns={columns}
             loading={loading}
             disableSelectionOnClick
+            getRowId={(row) => {
+              if ('id' in row) return row.id;
+              if ('programId' in row) return row.programId;
+              return '';
+            }}
             getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
