@@ -234,11 +234,6 @@ export const getClassroomId = async (
     },
   });
 
-  if (!res?.id) {
-    console.log(`🪲 ~ utils.ts:264 ~ res:`, res);
-  }
-
-
   return res?.id;
 };
 
@@ -315,24 +310,14 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   };
 };
 
-// export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
-//   const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
-
-//   const res = await prisma.level.findFirst({
-//     where: {
-//       levelId: isLevel,
-//     },
-//   });
-
-//   return res;
-// };
-
 export const getLevelId = async (level: string) => {
-  console.log(`🪲 ~ utils.ts:359 ~ getLevelId ~ level:`, level);
   try {
     const res = await prisma.level.findFirstOrThrow({
       where: {
-        levelId: level,
+        OR: [
+          { levelId: level },
+          { levelName: level },
+        ]
       },
     });
 
