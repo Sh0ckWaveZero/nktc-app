@@ -14,10 +14,10 @@ const main = async () => {
   console.log('Seeding...');
   // await seedLevels()
   // await seedProgram()
-  await seedDepartment()
+  // await seedDepartment()
   // await seedLevelClassroom()
   // await seedClassroom()
-  // await seedStudents()
+  await seedStudents()
     // await seedTeacher()
     // await seedAdmin()
     .then(() => {

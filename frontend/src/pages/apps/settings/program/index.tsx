@@ -277,6 +277,7 @@ const ProgramManagement = () => {
       await loadPrograms();
     } catch (error) {
       toast.error('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+      console.error('Error details:', error);
     }
   };
 
@@ -285,43 +286,45 @@ const ProgramManagement = () => {
   };
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader
-            title='จัดการสาขาวิชา'
-            sx={{
-              pb: 6, // เพิ่ม padding-bottom ให้มากขึ้นเพื่อความสวยงาม
-              '& .MuiCardHeader-title': {
-                letterSpacing: '.15px',
-              },
-            }}
-          />
-          <TableHeader
-            value={searchValue}
-            handleFilter={setSearchValue}
-            handleUploadFile={handleFileInputClick}
-            handleUpload={handleFileUpload}
-            fileInputRef={fileInputRef}
-          />
-          <StripedDataGrid
-            autoHeight
-            rows={programs}
-            columns={columns}
-            loading={loading}
-            disableSelectionOnClick
-            getRowId={(row) => {
-              if ('id' in row) return row.id;
-              if ('programId' in row) return row.programId;
-              return '';
-            }}
-            getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
-            components={{
-              NoRowsOverlay: CustomNoRowsOverlay,
-            }}
-            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
-          />
-        </Card>
+    <>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Card>
+            <CardHeader
+              title='จัดการสาขาวิชา'
+              sx={{
+                pb: 6,
+                '& .MuiCardHeader-title': {
+                  letterSpacing: '.15px',
+                },
+              }}
+            />
+            <TableHeader
+              value={searchValue}
+              handleFilter={setSearchValue}
+              handleUploadFile={handleFileInputClick}
+              handleUpload={handleFileUpload}
+              fileInputRef={fileInputRef}
+            />
+            <StripedDataGrid
+              autoHeight
+              rows={programs}
+              columns={columns}
+              loading={loading}
+              disableSelectionOnClick
+              getRowId={(row) => {
+                if ('id' in row) return row.id;
+                if ('programId' in row) return row.programId;
+                return '';
+              }}
+              getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
+              components={{
+                NoRowsOverlay: CustomNoRowsOverlay,
+              }}
+              sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
+            />
+          </Card>
+        </Grid>
       </Grid>
 
       <AddProgramDrawer
@@ -337,7 +340,7 @@ const ProgramManagement = () => {
         onConfirm={handleConfirmDelete}
         programName={selectedProgram?.name || ''}
       />
-    </Grid>
+    </>
   );
 };
 

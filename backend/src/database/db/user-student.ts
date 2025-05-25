@@ -56,16 +56,16 @@ export const userStudentData = async (fileName: string) => {
             programName,          // Branch
             group,                // Type
           ] = item;
-          
+
           // Log the row being processed for debugging
           console.log(`Processing student row ${index + 2}: ID=${studentId}, Name=${title} ${firstName} ${lastName}`);
-          
+
           // Skip if no student ID
           if (!studentId) {
             console.log(`Skipping row ${index + 2} with missing student ID`);
             return null;
           }
-          
+
           // Skip duplicates after the first occurrence
           if (uniqueStudentIds.get(studentId.toString()) > 1) {
             uniqueStudentIds.set(studentId.toString(), uniqueStudentIds.get(studentId.toString()) - 1);
@@ -74,16 +74,16 @@ export const userStudentData = async (fileName: string) => {
               return null;
             }
           }
-          
+
           // Convert studentId to string and validate
           const studentIdString = studentId.toString().trim();
           if (!studentIdString) {
             console.log(`Skipping row ${index + 2} with empty student ID after conversion`);
             return null;
           }
-          
+
           const password = await hash(studentIdString, 12);
-          
+
           // Determine level name with more robust checking
           let levelName: 'ปวช.' | 'ปวส.' = 'ปวช.';  // Default to ปวช. if we can't determine
           if (levelClassroom) {
@@ -98,7 +98,7 @@ export const userStudentData = async (fileName: string) => {
           } else {
             console.log(`Level classroom is undefined for student ${studentIdString}, using default level: ปวช.`);
           }
-          
+
           // Safely get levelClassroomId
           let levelClassroomId = null;
           try {
@@ -111,7 +111,7 @@ export const userStudentData = async (fileName: string) => {
           } catch (error) {
             console.log(`Error getting level classroom ID for student ${studentIdString}: ${error.message}`);
           }
-          
+
           // Safely get level
           let levelConnection = null;
           try {
@@ -126,19 +126,20 @@ export const userStudentData = async (fileName: string) => {
             console.log(`Error getting level for student ${studentIdString}: ${error.message}`);
             levelConnection = null;
           }
-          
+
           // Since there's no birthdate in Excel, set to null
           let birthDate = null;
-          
+
           // Safely get programId
           let programId = null;
           try {
             if (departmentName && levelName) {
               programId = await getProgramId(
-                departmentName,
-                levelName,
-                programName || '',
+                levelConnection.level.connect.id,
+                programName.trim(),
+                group
               );
+
               console.log(`Program ID for ${studentIdString}: ${programId}`);
             } else {
               console.log(`Missing department or level for student ${studentIdString}`);
@@ -146,7 +147,7 @@ export const userStudentData = async (fileName: string) => {
           } catch (error) {
             console.log(`Error getting program ID for student ${studentIdString}: ${error.message}`);
           }
-          
+
           // Safely get classroomId
           let classroomId = null;
           try {
@@ -175,15 +176,15 @@ export const userStudentData = async (fileName: string) => {
           if (levelClassroomId) {
             studentData.levelClassroom = { connect: { id: levelClassroomId } };
           }
-          
+
           if (classroomId) {
             studentData.classroom = { connect: { id: classroomId } };
           }
-          
+
           if (programId) {
             studentData.program = { connect: { id: programId } };
           }
-          
+
           if (levelConnection && levelConnection.level) {
             studentData.level = levelConnection.level;
           }
@@ -219,6 +220,6 @@ export const userStudentData = async (fileName: string) => {
   // Filter out null values from processing errors
   const validUserStudents = userStudent.filter(item => item !== null);
   console.log(`Successfully processed ${validUserStudents.length} out of ${userStudent.length} student records`);
-  
+
   return validUserStudents;
 };

@@ -10,7 +10,7 @@ export const getBirthday = async (date: string) => {
     console.log('Date is undefined, null or empty');
     return null;
   }
-  
+
   try {
     // Define Thai month abbreviations
     const monthThai = [
@@ -27,7 +27,7 @@ export const getBirthday = async (date: string) => {
       'พ.ย.',
       'ธ.ค.',
     ];
-    
+
     // Also include full month names for more robust parsing
     const fullMonthThai = [
       'มกราคม',
@@ -43,23 +43,23 @@ export const getBirthday = async (date: string) => {
       'พฤศจิกายน',
       'ธันวาคม',
     ];
-    
+
     // Check if string is completely numeric (likely not a Thai date)
     const isNumeric = /^\d+$/.test(date.replace(/\s/g, ''));
     if (isNumeric) {
       console.log(`Date string contains only numbers, not a valid Thai date format: ${date}`);
       return null;
     }
-    
+
     // Check if the date contains any Thai month format
-    const hasThaiMonth = monthThai.some(month => date.includes(month)) || 
-                         fullMonthThai.some(month => date.includes(month));
-    
+    const hasThaiMonth = monthThai.some(month => date.includes(month)) ||
+      fullMonthThai.some(month => date.includes(month));
+
     if (!hasThaiMonth) {
       console.log(`No Thai month found in date string: ${date}`);
       return null;
     }
-    
+
     // Safely extract the day
     let _date = '01';
     try {
@@ -78,7 +78,7 @@ export const getBirthday = async (date: string) => {
     } catch (error) {
       console.log(`Error extracting day from date string: ${date}, using default day (01)`);
     }
-    
+
     // Find month number safely - check both abbreviations and full names
     let monthNum = '01';
     try {
@@ -88,7 +88,7 @@ export const getBirthday = async (date: string) => {
         .map((item: string) => {
           return (monthThai.indexOf(item) + 1).toString().padStart(2, '0');
         });
-      
+
       // If not found, check full month names
       if (foundMonths.length === 0) {
         const foundFullMonths = fullMonthThai
@@ -96,7 +96,7 @@ export const getBirthday = async (date: string) => {
           .map((item: string) => {
             return (fullMonthThai.indexOf(item) + 1).toString().padStart(2, '0');
           });
-        
+
         if (foundFullMonths.length > 0) {
           monthNum = foundFullMonths[0];
         }
@@ -106,7 +106,7 @@ export const getBirthday = async (date: string) => {
     } catch (error) {
       console.log(`Error extracting month from date string: ${date}, using default month (01)`);
     }
-    
+
     // Get year safely
     let year = new Date().getFullYear();
     try {
@@ -114,10 +114,10 @@ export const getBirthday = async (date: string) => {
     } catch (error) {
       console.log(`Error extracting year from date string: ${date}, using current year`);
     }
-    
+
     // Construct date and validate
     const dateObj = new Date(`${year}-${monthNum}-${_date}`);
-    
+
     // Final validation check
     if (!isNaN(dateObj.getTime())) {
       // Ensure the date is reasonable (not in the future, not too far in the past)
@@ -126,12 +126,12 @@ export const getBirthday = async (date: string) => {
         console.log(`Birthday year ${dateObj.getFullYear()} is in the future: ${date}`);
         return null;
       }
-      
+
       if (dateObj.getFullYear() < 1900) {
         console.log(`Birthday year ${dateObj.getFullYear()} is too far in the past: ${date}`);
         return null;
       }
-      
+
       return dateObj;
     } else {
       console.log(`Constructed invalid date from string: ${date}`);
@@ -147,11 +147,11 @@ const getBuddhistYear = async (date: string) => {
   if (!date || typeof date !== 'string') {
     return new Date().getFullYear();
   }
-  
+
   try {
     const currentYear = new Date().getFullYear();
     const buddhistYearOffset = 543;
-    
+
     // First, check for 4-digit years in the date string (e.g., 2540, 2545)
     // These would be Buddhist years (BE) and need to be converted to CE
     const fourDigitMatch = date.match(/\b(25[0-9]{2})\b/);
@@ -164,7 +164,7 @@ const getBuddhistYear = async (date: string) => {
         return westernYear;
       }
     }
-    
+
     // Also check for Buddhist years in expanded range (2400-2599)
     const expandedYearMatch = date.match(/\b(2[4-5][0-9]{2})\b/);
     if (expandedYearMatch && expandedYearMatch[1]) {
@@ -176,28 +176,28 @@ const getBuddhistYear = async (date: string) => {
         return westernYear;
       }
     }
-    
+
     // For 2-digit years, we need to be more careful
     // Check for digits at the end of the string, which might be years
     const twoDigitRegex = /.*?(\d{1,2})$/;
     const twoDigitMatch = date.match(twoDigitRegex);
-    
+
     if (twoDigitMatch && twoDigitMatch[1]) {
       let twoDigitYear = twoDigitMatch[1].trim();
-      
+
       // Ensure we have a 2-digit format (pad with leading zero if needed)
       twoDigitYear = twoDigitYear.padStart(2, '0');
-      
+
       // Get the current Buddhist century prefix (e.g., '25' for current years)
       // For years in the current century (1957-2056 in CE, which is 2500-2599 in BE)
       const buddhistCenturyPrefix = '25';
-      
+
       // Construct full year in Buddhist Era
       const fullBuddhistYear = parseInt(`${buddhistCenturyPrefix}${twoDigitYear}`);
-      
+
       // Convert to Western year
       const westernYear = fullBuddhistYear - buddhistYearOffset;
-      
+
       // Validate result is a reasonable year
       if (westernYear >= 1900 && westernYear <= (currentYear + 5)) { // Allow a small buffer for future dates
         return westernYear;
@@ -205,7 +205,7 @@ const getBuddhistYear = async (date: string) => {
         console.log(`Calculated unreasonable year (${westernYear}) from date string: ${date}, using current year`);
       }
     }
-    
+
     // If no year found or invalid, return current year
     return currentYear;
   } catch (error) {
@@ -221,9 +221,9 @@ export const getClassroomId = async (
   programName: string,
 ) => {
   const name =
-    group === ''
-      ? `${levelClassroomId}-${departmentName}`
-      : `${levelClassroomId}-${programName}`;
+    group === 'ปกติ'
+      ? `${levelClassroomId}-${programName}`
+      : `${levelClassroomId}-${programName} (${group})`;
 
   const res = await prisma.classroom.findFirst({
     where: {
@@ -233,6 +233,12 @@ export const getClassroomId = async (
       id: true,
     },
   });
+
+  if (!res?.id) {
+    console.log(`🪲 ~ utils.ts:264 ~ res:`, res);
+  }
+
+
   return res?.id;
 };
 
@@ -262,19 +268,16 @@ export const getLevelClassroomByName = async (name: string) => {
 };
 
 export const getProgramId = async (
-  name: string,
   level: string,
   programName: string = '',
+  group: string = '',
 ) => {
-  let query = '';
-  if (programName === '') {
-    query = `${name} ${level}`;
-  } else {
-    query = `${programName} ${level}`;
-  }
+  const query = group === 'ปกติ' ? programName : `${programName} (${group})`;
+
   const res = await prisma.program.findFirst({
     where: {
-      description: query,
+      name: query,
+      levelId: level,
     },
     select: {
       id: true,
@@ -312,16 +315,32 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   };
 };
 
-export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
-  const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
+// export const getLevelId = async (level: 'ปวช.' | 'ปวส.') => {
+//   const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
 
-  const res = await prisma.level.findFirst({
-    where: {
-      levelId: isLevel,
-    },
-  });
+//   const res = await prisma.level.findFirst({
+//     where: {
+//       levelId: isLevel,
+//     },
+//   });
 
-  return res;
+//   return res;
+// };
+
+export const getLevelId = async (level: string) => {
+  console.log(`🪲 ~ utils.ts:359 ~ getLevelId ~ level:`, level);
+  try {
+    const res = await prisma.level.findFirstOrThrow({
+      where: {
+        levelId: level,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    console.error('Error fetching level ID:', { level, error });
+    throw error;
+  }
 };
 
 export const getDepartIdByName = async (name: string, id: string) => {
