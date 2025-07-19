@@ -5,6 +5,7 @@ import { ReactNode, useContext } from 'react';
 // ** Emotion Imports
 import { CacheProvider } from '@emotion/react';
 import type { EmotionCache } from '@emotion/cache';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
 // ** Component Imports
 import ThemeComponent from '@/@core/theme/ThemeComponent';
@@ -56,30 +57,32 @@ export default function Providers({
   emotionCache = clientSideEmotionCache 
 }: ProvidersProps) {
   return (
-    <CacheProvider value={emotionCache}>
-      <AuthProvider>
-        <ACLProvider>
-          <AxiosInterceptor>
-            <SettingsProvider>
-              <SettingsConsumer>
-                {({ settings }) => (
-                  <ThemeComponent settings={settings}>
-                    <WindowWrapper>
-                      {children}
-                      <ReactHotToast>
-                        <Toaster 
-                          position={settings.toastPosition} 
-                          toastOptions={{ className: 'react-hot-toast' }} 
-                        />
-                      </ReactHotToast>
-                    </WindowWrapper>
-                  </ThemeComponent>
-                )}
-              </SettingsConsumer>
-            </SettingsProvider>
-          </AxiosInterceptor>
-        </ACLProvider>
-      </AuthProvider>
-    </CacheProvider>
+    <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+      <CacheProvider value={emotionCache}>
+        <AuthProvider>
+          <ACLProvider>
+            <AxiosInterceptor>
+              <SettingsProvider>
+                <SettingsConsumer>
+                  {({ settings }) => (
+                    <ThemeComponent settings={settings}>
+                      <WindowWrapper>
+                        {children}
+                        <ReactHotToast>
+                          <Toaster 
+                            position={settings.toastPosition} 
+                            toastOptions={{ className: 'react-hot-toast' }} 
+                          />
+                        </ReactHotToast>
+                      </WindowWrapper>
+                    </ThemeComponent>
+                  )}
+                </SettingsConsumer>
+              </SettingsProvider>
+            </AxiosInterceptor>
+          </ACLProvider>
+        </AuthProvider>
+      </CacheProvider>
+    </AppRouterCacheProvider>
   );
 }

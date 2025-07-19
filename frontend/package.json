@@ -31,6 +31,7 @@
     "@mui/icons-material": "^7.2.0",
     "@mui/lab": "^7.0.0-beta.14",
     "@mui/material": "^7.2.0",
+    "@mui/material-nextjs": "^7.2.0",
     "@mui/system": "^7.2.0",
     "@mui/x-data-grid": "^7.29.8",
     "@mui/x-date-pickers": "^7.29.4",
