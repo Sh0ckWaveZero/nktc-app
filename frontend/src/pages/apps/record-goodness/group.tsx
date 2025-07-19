@@ -38,13 +38,13 @@ const GoodnessGroup = () => {
   const [students, setStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(10);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [selectStudents, setSelectStudents] = useState<any>([] || null);
+  const [selectStudents, setSelectStudents] = useState<any>([]);
   const [searchValue, setSearchValue] = useState<any>({});
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [openSelectStudents, setOpenSelectStudents] = useState(false);
   const [openGoodnessDetail, setOpenGoodnessDetail] = useState(false);
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
-  const [selectClassrooms, setSelectClassrooms] = useState<any>([] || null);
+  const [selectClassrooms, setSelectClassrooms] = useState<any>([]);
 
   const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
   const { loading: studentLoading, students: studentsList } = useStudentList(storedToken, debouncedValue);

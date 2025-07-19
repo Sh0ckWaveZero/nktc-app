@@ -51,16 +51,16 @@
     "jsonwebtoken": "^9.0.2",
     "keen-slider": "^6.8.6",
     "mdi-material-ui": "^7.7.0",
-    "next": "^13.5.6",
+    "next": "^15.4.2",
     "next-compose-plugins": "^2.2.1",
     "nextjs-cors": "^2.1.2",
     "nprogress": "^0.2.0",
     "pdf-lib": "^1.17.1",
-    "react": "^18.2.0",
+    "react": "^19.1.0",
     "react-confetti": "^6.1.0",
     "react-csv-downloader": "^2.9.1",
     "react-datepicker": "^4.21.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^19.1.0",
     "react-dropzone": "14.2.0",
     "react-hook-form": "^7.47.0",
     "react-hot-toast": "^2.4.1",
@@ -102,7 +102,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "next-transpile-modules": "^10.0.1",
     "prettier": "^2.8.8",
-    "typescript": "5.1.6"
+    "typescript": "^5.8.3"
   },
   "author": "Midseelee",
   "license": "APACHE-2.0"
