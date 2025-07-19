@@ -6,6 +6,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:stream": "turbo run dev --ui=stream",
+    "dev:tui": "turbo run dev --ui=tui",
     "start": "turbo run start",
     "lint": "turbo run lint",
     "test": "turbo run test",
