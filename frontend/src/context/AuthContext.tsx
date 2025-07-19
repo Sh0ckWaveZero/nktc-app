@@ -2,7 +2,7 @@
 import { createContext, useEffect, useState, ReactNode } from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // ** Axios
 import axios from 'axios';
@@ -43,6 +43,7 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const storedToken = localStorageService.getToken()!;
   useEffect(() => {
@@ -81,10 +82,10 @@ const AuthProvider = ({ children }: Props) => {
       const response = await axios.post(authConfig.loginEndpoint as string, params);
       const { data } = response;
       localStorageService.setToken(data.token);
-      const returnUrl = router.query.returnUrl;
+      const returnUrl = searchParams.get('returnUrl');
       setUser(await data?.data);
       window.localStorage.setItem('userData', JSON.stringify(data));
-      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
       router.replace(redirectURL as string);
     } catch (err: any) {
       if (errorCallback) errorCallback(err);

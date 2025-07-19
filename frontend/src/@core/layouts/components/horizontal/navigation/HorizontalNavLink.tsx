@@ -3,7 +3,7 @@ import { ElementType, Fragment } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -62,22 +62,15 @@ const HorizontalNavLink = (props: Props) => {
 
   // ** Hook & Vars
   const router = useRouter();
+  const pathname = usePathname();
   const { navSubItemIcon, menuTextTruncate } = themeConfig;
 
   const IconTag = item.icon ? item.icon : navSubItemIcon;
 
   const Wrapper = !hasParent ? List : Fragment;
 
-  const handleURLQueries = () => {
-    if (Object.keys(router.query).length && item.path) {
-      const arr = Object.keys(router.query);
-
-      return router.asPath.includes(item.path) && router.asPath.includes(router.query[arr[0]] as string);
-    }
-  };
-
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries()) {
+    if (pathname === item.path) {
       return true;
     } else {
       return false;

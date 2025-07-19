@@ -22,7 +22,7 @@ import Fade, { FadeProps } from '@mui/material/Fade';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';

@@ -27,7 +27,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs from 'dayjs';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';

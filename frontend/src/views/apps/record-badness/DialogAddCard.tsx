@@ -30,7 +30,7 @@ import { LocalStorageService } from '@/services/localStorageService';
 import { badnessIndividualStore } from '@/store/apps/badness-individual';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { shallow } from 'zustand/shallow';
 import th from 'dayjs/locale/th';
@@ -168,7 +168,6 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       maxWidth='sm'
       scroll='body'
       onClose={handleClose}
-      onBackdropClick={handleClose}
       TransitionComponent={Transition}
     >
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>

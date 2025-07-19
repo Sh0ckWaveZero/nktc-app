@@ -1,9 +1,11 @@
+'use client';
+
 // ** React Imports
 import { useEffect, useCallback, useRef, useState, ChangeEvent, ReactNode } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -62,9 +64,11 @@ import { useDebounce } from '@/hooks/userCommon';
 import { LocalStorageService } from '@/services/localStorageService';
 
 
-const LinkStyled = styled(Link)(({ theme }) => ({
+const LinkStyled = styled(Box)(({ theme }) => ({
   textDecoration: 'none',
-  color: theme.palette.primary.main
+  color: theme.palette.primary.main,
+  cursor: 'pointer',
+  width: '100%'
 }))
 
 interface Props {
@@ -305,7 +309,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
       </Typography>
       <List sx={{ py: 0 }}>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/dashboards/ecommerce/'>
+          <Link href='/dashboards/ecommerce/'>
             <Box
               sx={{
                 display: 'flex',
@@ -322,7 +326,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
           </Link>
         </ListItem>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/apps/user/view/2/'>
+          <Link href='/apps/user/view/2/'>
             <Box
               sx={{
                 display: 'flex',
@@ -339,7 +343,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
           </Link>
         </ListItem>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/pages/account-settings/'>
+          <Link href='/pages/account-settings/'>
             <Box
               sx={{
                 display: 'flex',
@@ -371,8 +375,8 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
           <List sx={{ py: 2.5 }}>
             {item.suggestions.map((suggestionItem, index2) => (
               <ListItem key={index2} sx={{ py: 2 }} disablePadding>
-                <LinkStyled passHref href={suggestionItem.link}>
-                  <Box
+                <Link href={suggestionItem.link}>
+                  <LinkStyled
                     onClick={() => setOpenDialog(false)}
                     sx={{
                       display: 'flex',
@@ -385,8 +389,8 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
                     <Typography variant='body2' sx={{ color: 'text.primary' }}>
                       {suggestionItem.suggestion}
                     </Typography>
-                  </Box>
-                </LinkStyled>
+                  </LinkStyled>
+                </Link>
               </ListItem>
             ))}
           </List>

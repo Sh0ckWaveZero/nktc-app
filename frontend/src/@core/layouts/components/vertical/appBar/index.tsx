@@ -1,3 +1,5 @@
+'use client';
+
 // ** React Imports
 import { ReactNode } from 'react';
 

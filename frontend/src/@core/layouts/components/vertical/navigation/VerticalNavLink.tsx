@@ -3,7 +3,7 @@ import { ElementType } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip'
@@ -85,6 +85,7 @@ const VerticalNavLink = ({
 }: Props) => {
   // ** Hooks
   const router = useRouter()
+  const pathname = usePathname()
 
   // ** Vars
   const { navCollapsed } = settings
@@ -92,7 +93,7 @@ const VerticalNavLink = ({
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
 
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
+    if (pathname === item.path) {
       return true
     } else {
       return false

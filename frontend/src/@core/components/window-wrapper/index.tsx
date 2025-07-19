@@ -2,7 +2,7 @@
 import { useState, useEffect, ReactNode } from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   children: ReactNode;
@@ -18,7 +18,7 @@ const WindowWrapper = ({ children }: Props) => {
     if (typeof window !== 'undefined') {
       setWindowReadyFlag(true);
     }
-  }, [router.route]);
+  }, [router]);
 
   if (windowReadyFlag) {
     return <>{children}</>;

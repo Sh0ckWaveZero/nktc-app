@@ -28,7 +28,7 @@ import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
@@ -167,7 +167,6 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       maxWidth='sm'
       scroll='body'
       onClose={handleClose}
-      onBackdropClick={handleClose}
       TransitionComponent={Transition}
     >
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>

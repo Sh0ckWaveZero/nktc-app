@@ -1,3 +1,5 @@
+'use client';
+
 // ** MUI Imports
 import { styled } from '@mui/material/styles';
 import Box, { BoxProps } from '@mui/material/Box';

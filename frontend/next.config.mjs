@@ -1,7 +1,7 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
 
 const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+  enabled: process.env.ANALYZE === 'false',
 });
 
 /** @type {import('next').NextConfig} */
@@ -138,6 +138,7 @@ const nextConfig = {
   // Environment Variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 };
 

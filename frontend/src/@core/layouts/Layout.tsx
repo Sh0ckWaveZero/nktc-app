@@ -1,3 +1,5 @@
+'use client';
+
 // ** React Import
 import { useEffect, useRef } from 'react';
 

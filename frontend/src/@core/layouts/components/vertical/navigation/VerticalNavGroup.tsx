@@ -1,8 +1,10 @@
+'use client';
+
 // ** React Imports
 import { useEffect, Fragment } from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip';
@@ -91,7 +93,8 @@ const VerticalNavGroup = (props: Props) => {
   // ** Hooks & Vars
   const theme = useTheme();
   const router = useRouter();
-  const currentURL = router.pathname;
+  const pathname = usePathname();
+  const currentURL = pathname;
   const { skin, direction, navCollapsed, verticalNavToggleType } = settings;
 
   // ** Accordion menu group open toggle
@@ -164,7 +167,7 @@ const VerticalNavGroup = (props: Props) => {
     if (navCollapsed && !navHover) {
       setGroupActive([]);
     }
-  }, [router.asPath]);
+  }, [pathname]);
 
   useEffect(() => {
     if (navCollapsed && !navHover) {

@@ -1,8 +1,10 @@
+'use client';
+
 // ** React Imports
 import { SyntheticEvent, useState, useEffect, Fragment } from 'react';
 
 // ** Next Import
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -94,7 +96,8 @@ const HorizontalNavGroup = (props: Props) => {
   // ** Hooks & Vars
   const theme = useTheme();
   const router = useRouter();
-  const currentURL = router.pathname;
+  const pathname = usePathname();
+  const currentURL = pathname;
   const { skin, direction } = settings;
   const { navSubItemIcon, menuTextTruncate, horizontalMenuToggle, horizontalMenuAnimation } = themeConfig;
 
@@ -150,7 +153,7 @@ const HorizontalNavGroup = (props: Props) => {
 
   useEffect(() => {
     handleGroupClose();
-  }, [router.asPath]);
+  }, [pathname]);
 
   const IconTag = item.icon ? item.icon : navSubItemIcon;
   const ToggleIcon = direction === 'rtl' ? ChevronLeft : ChevronRight;

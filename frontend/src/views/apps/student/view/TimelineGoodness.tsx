@@ -4,7 +4,7 @@ import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, Timeline
 
 import { CircularProgress } from '@mui/material';
 import { LocalStorageService } from '@/services/localStorageService';
-import { calculateTimeAgo } from 'utils/datetime';
+import { calculateTimeAgo } from '@/utils/datetime';
 import useGetImage from '@/hooks/useGetImage';
 import IconifyIcon from '@/@core/components/icon';
 

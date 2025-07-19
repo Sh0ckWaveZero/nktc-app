@@ -2,7 +2,7 @@
 import { ReactNode, ReactElement, useEffect } from 'react';
 
 // ** Next Imports
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 
 // ** Hooks Import
 import { useAuth } from '@/hooks/useAuth';
@@ -16,25 +16,19 @@ const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props;
   const auth = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(
     () => {
-      if (!router.isReady) {
-        return;
-      }
-
       if (auth.user === null && !window.localStorage.getItem('userData')) {
-        if (router.asPath !== '/') {
-          router.replace({
-            pathname: '/login',
-            query: { returnUrl: router.asPath },
-          });
+        if (pathname !== '/') {
+          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
         } else {
           router.replace('/login');
         }
       }
     },
-    [router.route],
+    [pathname, auth.user, router],
   );
 
   if (auth.loading || auth.user === null) {

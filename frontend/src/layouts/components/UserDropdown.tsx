@@ -1,3 +1,5 @@
+'use client';
+
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
 import { Fragment, SyntheticEvent, useState } from 'react';
 
@@ -15,7 +17,7 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   settings: Settings;
@@ -104,7 +106,7 @@ const UserDropdown = (props: Props) => {
 
   const avatarAccount = () => {
     return user?.role === 'Admin' ? (
-      <Avatar alt={user?.username} src=' /images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+      <Avatar alt={user?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
     ) : (
       customAvatar(user?.account)
     );

@@ -1,7 +1,7 @@
 // ** React Imports
 import { useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Swal from "sweetalert2";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -42,7 +42,7 @@ const AxiosInterceptor = ({ children }: any) => {
         }
       },
     );
-  }, [router.route]);
+  }, [router]);
   return children;
 }
 
