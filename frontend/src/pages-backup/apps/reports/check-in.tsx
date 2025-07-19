@@ -685,123 +685,119 @@ const StudentCheckIn = () => {
     });
   };
 
-  return (
-    ability?.can('read', 'check-in-page') &&
-    (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <HiOutlineFlag />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`เช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง`}
-                subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}`}
-              />
-              <CardContent>
-                {!isEmpty(currentStudents) && (
-                  <>
-                    <Typography
-                      variant='subtitle1'
-                      sx={{ pb: 3 }}
-                    >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                    {isEmpty(reportCheckIn) ? (
-                      openAlert ? (
-                        <Grid item xs={12} sx={{ mb: 3 }}>
-                          <Alert
-                            severity='error'
-                            sx={{ '& a': { fontWeight: 400 } }}
-                            action={
-                              <IconButton
-                                size='small'
-                                color='inherit'
-                                aria-label='close'
-                                onClick={() => setOpenAlert(false)}
-                              >
-                                <Close fontSize='inherit' />
-                              </IconButton>
-                            }
+  return (ability?.can('read', 'check-in-page') &&
+  (auth?.user?.role as string) !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <HiOutlineFlag />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`เช็คชื่อตอนเช้า กิจกรรมหน้าเสาธง`}
+            subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}`}
+          />
+          <CardContent>
+            {!isEmpty(currentStudents) && (
+              <>
+                <Typography
+                  variant='subtitle1'
+                  sx={{ pb: 3 }}
+                >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                {isEmpty(reportCheckIn) ? (
+                  openAlert ? (
+                    <Grid sx={{ mb: 3 }} size={12}>
+                      <Alert
+                        severity='error'
+                        sx={{ '& a': { fontWeight: 400 } }}
+                        action={
+                          <IconButton
+                            size='small'
+                            color='inherit'
+                            aria-label='close'
+                            onClick={() => setOpenAlert(false)}
                           >
-                            <AlertTitle>ยังไม่มีการเช็คชื่อหน้าเสาธง</AlertTitle>
-                          </Alert>
-                        </Grid>
-                      ) : null
-                    ) : openAlert ? (
-                      <Grid item xs={12} sx={{ mb: 3 }}>
-                        <Alert
-                          severity='success'
-                          sx={{ '& a': { fontWeight: 400 } }}
-                          action={
-                            <IconButton
-                              size='small'
-                              color='inherit'
-                              aria-label='close'
-                              onClick={() => setOpenAlert(false)}
-                            >
-                              <Close fontSize='inherit' />
-                            </IconButton>
-                          }
+                            <Close fontSize='inherit' />
+                          </IconButton>
+                        }
+                      >
+                        <AlertTitle>ยังไม่มีการเช็คชื่อหน้าเสาธง</AlertTitle>
+                      </Alert>
+                    </Grid>
+                  ) : null
+                ) : openAlert ? (
+                  <Grid sx={{ mb: 3 }} size={12}>
+                    <Alert
+                      severity='success'
+                      sx={{ '& a': { fontWeight: 400 } }}
+                      action={
+                        <IconButton
+                          size='small'
+                          color='inherit'
+                          aria-label='close'
+                          onClick={() => setOpenAlert(false)}
                         >
-                          <AlertTitle>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</AlertTitle>
-                        </Alert>
-                      </Grid>
-                    ) : null}
-                  </>
-                )}
-              </CardContent>
-              <TableHeader
-                value={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name}
-                handleSubmit={onHandleSubmit}
-              />
-              <Box
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  '& .internship--cell': {
-                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
-                  },
-                  '& .internship--header': {
-                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
-                  },
-                }}
-              >
-                <DataGrid
-                  autoHeight
-                  columns={columns}
-                  rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-                  disableColumnMenu
-                  headerHeight={150}
-                  loading={loading}
-                  onCellClick={handleCellClick}
-                  onColumnHeaderClick={handleColumnHeaderClick}
-                  rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                  rowsPerPageOptions={[pageSize, 100]}
-                  onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                  getRowClassName={(params) => {
-                    return params.row.status === 'internship' ? 'internship' : 'normal';
-                  }}
-                  components={{
-                    NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
-                  }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
-      </Fragment>
-    )
-  );
+                          <Close fontSize='inherit' />
+                        </IconButton>
+                      }
+                    >
+                      <AlertTitle>เช็คชื่อหน้าเสาธงเรียบร้อยแล้ว</AlertTitle>
+                    </Alert>
+                  </Grid>
+                ) : null}
+              </>
+            )}
+          </CardContent>
+          <TableHeader
+            value={classrooms}
+            handleChange={handleSelectChange}
+            defaultValue={defaultClassroom?.name}
+            handleSubmit={onHandleSubmit}
+          />
+          <Box
+            sx={{
+              height: '100%',
+              width: '100%',
+              '& .internship--cell': {
+                backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+              },
+              '& .internship--header': {
+                backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
+              },
+            }}
+          >
+            <DataGrid
+              autoHeight
+              columns={columns}
+              rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+              disableColumnMenu
+              headerHeight={150}
+              loading={loading}
+              onCellClick={handleCellClick}
+              onColumnHeaderClick={handleColumnHeaderClick}
+              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+              rowsPerPageOptions={[pageSize, 100]}
+              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+              getRowClassName={(params) => {
+                return params.row.status === 'internship' ? 'internship' : 'normal';
+              }}
+              components={{
+                NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+              }}
+            />
+          </Box>
+        </Card>
+      </Grid>
+    </Grid>
+  </Fragment>));
 };
 
 StudentCheckIn.acl = {

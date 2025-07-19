@@ -235,85 +235,78 @@ const BadnessGroup = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'report-badness-group-page') &&
-    auth?.user?.role !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <HiThumbDown
-                      style={{
-                        color: deepOrange[800],
-                      }}
-                    />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`บันทึกพฤติกรรมที่ไม่เหมาะสมแบบกลุ่ม ${students ? students.length : 0} คน`}
-              />
-              <TableHeaderGroup
-                onOpenClassroom={onOpenSelectClassroom}
-                onOpenGoodnessDetail={onOpenGoodnessDetail}
-                onOpenSelectStudents={onOpenSelectStudents}
-                students={students}
-                tooltipName='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกพฤติกรรมที่ไม่เหมาะสม'
-              />
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={students}
-                disableColumnMenu
-                pageSize={pageSize}
-                rowsPerPageOptions={[10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-
-        <DialogStudentGroup
-          handleCloseSelectStudents={handleCloseSelectStudents}
-          onAddStudents={handleAddStudents}
-          onSearchStudents={onSearchStudents}
-          onSelectStudents={onSelectStudents}
-          openSelectStudents={openSelectStudents}
-          studentLoading={studentLoading}
-          studentsList={studentsList}
-        />
-
-        <DialogClassroomGoodnessGroup
-          classroomLoading={classroomLoading}
-          classrooms={classrooms}
-          defaultClassroom={defaultClassroom}
-          handleCloseSelectStudents={handleCloseSelectStudents}
-          onAddClassroom={onAddClassroom}
-          onCloseClassroom={handleCloseClassroom}
-          onHandleClassroomChange={onHandleClassroomChange}
-          onSelectionModelChange={onSelectionModelChange}
-          openSelectClassroom={openSelectClassroom}
-          selectClassrooms={selectClassrooms}
-          studentLoading={studentLoading}
-          students={students}
-          studentsList={studentsList}
-        />
-
-        <DialogAddGroup
-          onOpen={openGoodnessDetail}
-          data={students}
-          handleClose={handleCloseGoodnessDetail}
-          auth={auth}
-          handleSusses={handleSusses}
-        />
-      </Fragment>
-    )
-  );
+  return (ability?.can('read', 'report-badness-group-page') &&
+  auth?.user?.role !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <HiThumbDown
+                  style={{
+                    color: deepOrange[800],
+                  }}
+                />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`บันทึกพฤติกรรมที่ไม่เหมาะสมแบบกลุ่ม ${students ? students.length : 0} คน`}
+          />
+          <TableHeaderGroup
+            onOpenClassroom={onOpenSelectClassroom}
+            onOpenGoodnessDetail={onOpenGoodnessDetail}
+            onOpenSelectStudents={onOpenSelectStudents}
+            students={students}
+            tooltipName='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกพฤติกรรมที่ไม่เหมาะสม'
+          />
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={students}
+            disableColumnMenu
+            pageSize={pageSize}
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    <DialogStudentGroup
+      handleCloseSelectStudents={handleCloseSelectStudents}
+      onAddStudents={handleAddStudents}
+      onSearchStudents={onSearchStudents}
+      onSelectStudents={onSelectStudents}
+      openSelectStudents={openSelectStudents}
+      studentLoading={studentLoading}
+      studentsList={studentsList}
+    />
+    <DialogClassroomGoodnessGroup
+      classroomLoading={classroomLoading}
+      classrooms={classrooms}
+      defaultClassroom={defaultClassroom}
+      handleCloseSelectStudents={handleCloseSelectStudents}
+      onAddClassroom={onAddClassroom}
+      onCloseClassroom={handleCloseClassroom}
+      onHandleClassroomChange={onHandleClassroomChange}
+      onSelectionModelChange={onSelectionModelChange}
+      openSelectClassroom={openSelectClassroom}
+      selectClassrooms={selectClassrooms}
+      studentLoading={studentLoading}
+      students={students}
+      studentsList={studentsList}
+    />
+    <DialogAddGroup
+      onOpen={openGoodnessDetail}
+      data={students}
+      handleClose={handleCloseGoodnessDetail}
+      auth={auth}
+      handleSusses={handleSusses}
+    />
+  </Fragment>));
 };
 
 BadnessGroup.acl = {

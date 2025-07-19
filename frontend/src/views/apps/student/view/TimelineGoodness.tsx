@@ -57,7 +57,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
 const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Card>
           <CardHeader title='รายละเอียคความดี' />
           <CardContent>

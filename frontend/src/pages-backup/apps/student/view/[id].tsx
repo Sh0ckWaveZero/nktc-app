@@ -72,14 +72,14 @@ const StudentProfile = ({ tab, data }: { tab: string; data: any }) => {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         {/* <UserProfileHeader /> */}
       </Grid>
       {activeTab === undefined ? null : (
-        <Grid item xs={12}>
+        <Grid size={12}>
           <TabContext value={activeTab}>
             <Grid container spacing={6}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 {/* <TabList
                   variant='scrollable'
                   scrollButtons='auto'

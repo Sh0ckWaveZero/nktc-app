@@ -51,7 +51,11 @@ const TableHeader = (props: TableHeaderProps) => {
         justifyContent: 'flex-end',
       }}
     >
-      <Grid item xs={12} sm={3}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 3
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
@@ -75,7 +79,11 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={3}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 3
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='classroom'
@@ -105,12 +113,20 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={3}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 3
+        }}>
         <FormControl fullWidth>
           <CustomDatePicker label={datePickLabel} value={selectDate} onChange={onChangeDate} />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 2
+        }}>
         <FormControl fullWidth>
           <Tooltip title='ค้นหา' arrow>
             <span>
@@ -130,7 +146,11 @@ const TableHeader = (props: TableHeaderProps) => {
           </Tooltip>
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={1}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 1
+        }}>
         <FormControl fullWidth>
           <Tooltip title='ล้างข้อมูลค้นหา' arrow>
             <span>

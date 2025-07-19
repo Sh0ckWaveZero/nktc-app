@@ -67,7 +67,7 @@ const TabAccount = () => {
     <CardContent>
       <form>
         <Grid container spacing={7}>
-          <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+          <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ImgStyled src={imgSrc} alt='Profile Pic' />
               <Box>
@@ -91,13 +91,25 @@ const TabAccount = () => {
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <TextField fullWidth label='ชื่อผู้ใช้งาน' placeholder='johnDoe' defaultValue='johnDoe' />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <TextField fullWidth label='ชื่อ-นามสกุล' placeholder='John Doe' defaultValue='John Doe' />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <TextField
               fullWidth
               type='email'
@@ -106,7 +118,11 @@ const TabAccount = () => {
               defaultValue='johnDoe@example.com'
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <FormControl fullWidth>
               <InputLabel>Role</InputLabel>
               <Select label='Role' defaultValue='admin'>
@@ -118,7 +134,11 @@ const TabAccount = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <FormControl fullWidth>
               <InputLabel>สถานะ</InputLabel>
               <Select label='Status' defaultValue='active'>
@@ -128,12 +148,16 @@ const TabAccount = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
             <TextField fullWidth label='สถาศึกษา' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.' />
           </Grid>
 
           {openAlert ? (
-            <Grid item xs={12} sx={{ mb: 3 }}>
+            <Grid sx={{ mb: 3 }} size={12}>
               <Alert
                 severity='warning'
                 sx={{ '& a': { fontWeight: 400 } }}
@@ -151,7 +175,7 @@ const TabAccount = () => {
             </Grid>
           ) : null}
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Button variant='contained' sx={{ mr: 3.5 }}>
               บันทึกการเปลี่ยนแปลง
             </Button>

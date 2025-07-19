@@ -283,97 +283,93 @@ const StudentGoodnessSummaryReport = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'student-badness-summary-report') && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <IconifyIcon icon={'icon-park-outline:bad-two'} />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`เรียงลำดับ คะแนนตามความประพฤติ`}
-              />
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={data ?? []}
-                disableColumnMenu
-                loading={loading}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                pagination
-                paginationMode='server'
-                pageSize={pageSize}
-                rowCount={total}
-                onPageChange={(params: any) => setPage(params)}
-                rowsPerPageOptions={[10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-        <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='คะแนนตามความพฤติ' open={open}>
-          {handleClose ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <TimelineBadness info={info} user={user} onDeleted={onDeletedBadness} />
-        </BootstrapDialog>
-        <BootstrapDialog
-          fullWidth
-          maxWidth='xs'
-          onClose={handleCloseConfirm}
-          aria-labelledby='ยืนยันการลบบันทึกความประพฤติ'
-          open={openConfirm}
+  return (ability?.can('read', 'student-badness-summary-report') && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <IconifyIcon icon={'icon-park-outline:bad-two'} />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`เรียงลำดับ คะแนนตามความประพฤติ`}
+          />
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={data ?? []}
+            disableColumnMenu
+            loading={loading}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            pagination
+            paginationMode='server'
+            pageSize={pageSize}
+            rowCount={total}
+            onPageChange={(params: any) => setPage(params)}
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='คะแนนตามความพฤติ' open={open}>
+      {handleClose ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
         >
-          {handleCloseConfirm ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleCloseConfirm}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความประพฤติ</DialogTitle>
-          <DialogContent>
-            <DialogContentText id='alert-delete-badness' p={5}>
-              {`คุณต้องการลบข้อมูลการการบันทึกความประพฤตินี้ ใช่หรือไม่?`}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className='dialog-badness-dense'>
-            <Button color='secondary' onClick={handleCloseConfirm}>
-              ยกเลิก
-            </Button>
-            <Button variant='contained' color='error' onClick={handleConfirm}>
-              ยืนยัน
-            </Button>
-          </DialogActions>
-        </BootstrapDialog>
-      </Fragment>
-    )
-  );
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <TimelineBadness info={info} user={user} onDeleted={onDeletedBadness} />
+    </BootstrapDialog>
+    <BootstrapDialog
+      fullWidth
+      maxWidth='xs'
+      onClose={handleCloseConfirm}
+      aria-labelledby='ยืนยันการลบบันทึกความประพฤติ'
+      open={openConfirm}
+    >
+      {handleCloseConfirm ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleCloseConfirm}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความประพฤติ</DialogTitle>
+      <DialogContent>
+        <DialogContentText id='alert-delete-badness' p={5}>
+          {`คุณต้องการลบข้อมูลการการบันทึกความประพฤตินี้ ใช่หรือไม่?`}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions className='dialog-badness-dense'>
+        <Button color='secondary' onClick={handleCloseConfirm}>
+          ยกเลิก
+        </Button>
+        <Button variant='contained' color='error' onClick={handleConfirm}>
+          ยืนยัน
+        </Button>
+      </DialogActions>
+    </BootstrapDialog>
+  </Fragment>));
 };
 
 StudentGoodnessSummaryReport.acl = {

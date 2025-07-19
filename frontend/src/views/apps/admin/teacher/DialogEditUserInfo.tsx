@@ -151,7 +151,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
           </Box>
 
           <Grid container spacing={6}>
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -175,7 +179,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -199,7 +207,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <Controller
                   name='username'
@@ -227,7 +235,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -252,7 +264,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
@@ -286,7 +302,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
               </FormControl>
             </Grid>
 
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -313,7 +333,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid item sm={6} xs={12}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='status'

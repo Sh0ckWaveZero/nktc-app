@@ -280,7 +280,7 @@ const ClassroomList = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardHeader title='รายชื่อห้องเรียน' />
             <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddClassroomDrawer} />

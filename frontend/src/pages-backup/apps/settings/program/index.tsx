@@ -288,7 +288,7 @@ const ProgramManagement = () => {
   return (
     <>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardHeader
               title='จัดการสาขาวิชา'
@@ -326,14 +326,12 @@ const ProgramManagement = () => {
           </Card>
         </Grid>
       </Grid>
-
       <AddProgramDrawer
         open={addProgramOpen}
         toggle={() => setAddProgramOpen(!addProgramOpen)}
         onSubmit={handleProgramSubmit}
         editData={editProgramData}
       />
-
       <DialogDeleteProgram
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}

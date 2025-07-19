@@ -516,136 +516,132 @@ const StudentCheckIn = () => {
     setAnchorEl(null);
   };
 
-  return (
-    ability?.can('read', 'check-in-page') &&
-    (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <HiFlag />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`เช็คชื่อกิจกรรม`}
-                subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}`}
-              />
-              <CardContent>
-                {!isEmpty(currentStudents) && (
-                  <>
-                    <Typography
-                      variant='subtitle1'
-                      sx={{ pb: 3 }}
-                    >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                    {isEmpty(reportCheckIn) ? (
-                      openAlert ? (
-                        <Grid item xs={12} sx={{ mb: 3 }}>
-                          <Alert
-                            severity='error'
-                            sx={{ '& a': { fontWeight: 400 } }}
-                            action={
-                              <IconButton
-                                size='small'
-                                color='inherit'
-                                aria-label='close'
-                                onClick={() => setOpenAlert(false)}
-                              >
-                                <Close fontSize='inherit' />
-                              </IconButton>
-                            }
+  return (ability?.can('read', 'check-in-page') &&
+  (auth?.user?.role as string) !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <HiFlag />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`เช็คชื่อกิจกรรม`}
+            subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}`}
+          />
+          <CardContent>
+            {!isEmpty(currentStudents) && (
+              <>
+                <Typography
+                  variant='subtitle1'
+                  sx={{ pb: 3 }}
+                >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                {isEmpty(reportCheckIn) ? (
+                  openAlert ? (
+                    <Grid sx={{ mb: 3 }} size={12}>
+                      <Alert
+                        severity='error'
+                        sx={{ '& a': { fontWeight: 400 } }}
+                        action={
+                          <IconButton
+                            size='small'
+                            color='inherit'
+                            aria-label='close'
+                            onClick={() => setOpenAlert(false)}
                           >
-                            <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
-                          </Alert>
-                        </Grid>
-                      ) : null
-                    ) : openAlert ? (
-                      <Grid item xs={12} sx={{ mb: 3 }}>
-                        <Alert
-                          severity='success'
-                          sx={{ '& a': { fontWeight: 400 } }}
-                          action={
-                            <IconButton
-                              size='small'
-                              color='inherit'
-                              aria-label='close'
-                              onClick={() => setOpenAlert(false)}
-                            >
-                              <Close fontSize='inherit' />
-                            </IconButton>
-                          }
+                            <Close fontSize='inherit' />
+                          </IconButton>
+                        }
+                      >
+                        <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
+                      </Alert>
+                    </Grid>
+                  ) : null
+                ) : openAlert ? (
+                  <Grid sx={{ mb: 3 }} size={12}>
+                    <Alert
+                      severity='success'
+                      sx={{ '& a': { fontWeight: 400 } }}
+                      action={
+                        <IconButton
+                          size='small'
+                          color='inherit'
+                          aria-label='close'
+                          onClick={() => setOpenAlert(false)}
                         >
-                          <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
-                        </Alert>
-                      </Grid>
-                    ) : null}
-                  </>
-                )}
-              </CardContent>
-              <TableHeader
-                value={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name ?? ''}
-                handleSubmit={onHandleSubmit}
-              />
-              <DataGridCustom
-                autoHeight
-                columns={columns}
-                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-                disableColumnMenu
-                headerHeight={150}
-                loading={loading}
-                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                rowsPerPageOptions={[10, 25, 50, 100, pageSize]}
-                onCellClick={handleCellClick}
-                onColumnHeaderClick={handleColumnHeaderClick}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                getRowClassName={(params) => {
-                  return params.row.status === 'internship' ? 'internship' : 'normal';
+                          <Close fontSize='inherit' />
+                        </IconButton>
+                      }
+                    >
+                      <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
+                    </Alert>
+                  </Grid>
+                ) : null}
+              </>
+            )}
+          </CardContent>
+          <TableHeader
+            value={classrooms}
+            handleChange={handleSelectChange}
+            defaultValue={defaultClassroom?.name ?? ''}
+            handleSubmit={onHandleSubmit}
+          />
+          <DataGridCustom
+            autoHeight
+            columns={columns}
+            rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+            disableColumnMenu
+            headerHeight={150}
+            loading={loading}
+            rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+            rowsPerPageOptions={[10, 25, 50, 100, pageSize]}
+            onCellClick={handleCellClick}
+            onColumnHeaderClick={handleColumnHeaderClick}
+            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            getRowClassName={(params) => {
+              return params.row.status === 'internship' ? 'internship' : 'normal';
+            }}
+            components={{
+              NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
+            }}
+            componentsProps={{
+              row: {
+                onMouseEnter: handlePopperOpen,
+                onMouseLeave: handlePopperClose,
+              },
+            }}
+          />
+          <Popper
+            ref={popperRef}
+            open={openPopper}
+            anchorEl={anchorEl}
+            placement={'auto'}
+            onMouseLeave={() => setAnchorEl(null)}
+          >
+            {() => (
+              <Paper
+                sx={{
+                  transform: 'translateX(-140px)',
+                  zIndex: 100,
                 }}
-                components={{
-                  NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
-                }}
-                componentsProps={{
-                  row: {
-                    onMouseEnter: handlePopperOpen,
-                    onMouseLeave: handlePopperClose,
-                  },
-                }}
-              />
-              <Popper
-                ref={popperRef}
-                open={openPopper}
-                anchorEl={anchorEl}
-                placement={'auto'}
-                onMouseLeave={() => setAnchorEl(null)}
               >
-                {() => (
-                  <Paper
-                    sx={{
-                      transform: 'translateX(-140px)',
-                      zIndex: 100,
-                    }}
-                  >
-                    <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
-                      ฝึกงาน
-                    </Typography>
-                  </Paper>
-                )}
-              </Popper>
-            </Card>
-          </Grid>
-        </Grid>
-      </Fragment>
-    )
-  );
+                <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
+                  ฝึกงาน
+                </Typography>
+              </Paper>
+            )}
+          </Popper>
+        </Card>
+      </Grid>
+    </Grid>
+  </Fragment>));
 };
 
 StudentCheckIn.acl = {

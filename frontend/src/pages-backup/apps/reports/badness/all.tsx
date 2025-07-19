@@ -259,77 +259,73 @@ const ReportAllBadness = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'report-goodness-page') &&
-    auth?.user?.role !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <HiThumbDown
-                      style={{
-                        color: deepOrange[800],
-                      }}
-                    />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`รายงานการบันทึกพฤติกรรมที่ไม่เหมาะสม`}
-              />
-              <TableHeader
-                classroomLoading={classroomLoading as boolean}
-                classrooms={classrooms}
-                datePickLabel='วันที่บันทึกพฤติกรรมที่ไม่เหมาะสม'
-                defaultClassroom={defaultClassroom}
-                fullName={currentStudent}
-                loadingStudents={loadingStudents}
-                onChangeDate={onChangeDate}
-                onClear={onClear}
-                onHandleChangeStudent={onHandleChangeStudent}
-                onHandleClassroomChange={onHandleClassroomChange}
-                onSearch={onSearch}
-                onSearchChange={onSearchChange}
-                selectDate={selectedDate}
-                students={studentsListData}
-              />
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={currentStudents ?? []}
-                disableColumnMenu
-                loading={loadingStudent}
-                rowsPerPageOptions={[pageSize, 10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-        <BootstrapDialog fullWidth maxWidth='sm' onClose={handleClose} aria-labelledby='คะแนนตามความพฤติ' open={open}>
-          {handleClose ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <TimelineBadness info={info} user={auth} />
-        </BootstrapDialog>
-      </Fragment>
-    )
-  );
+  return (ability?.can('read', 'report-goodness-page') &&
+  auth?.user?.role !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <HiThumbDown
+                  style={{
+                    color: deepOrange[800],
+                  }}
+                />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`รายงานการบันทึกพฤติกรรมที่ไม่เหมาะสม`}
+          />
+          <TableHeader
+            classroomLoading={classroomLoading as boolean}
+            classrooms={classrooms}
+            datePickLabel='วันที่บันทึกพฤติกรรมที่ไม่เหมาะสม'
+            defaultClassroom={defaultClassroom}
+            fullName={currentStudent}
+            loadingStudents={loadingStudents}
+            onChangeDate={onChangeDate}
+            onClear={onClear}
+            onHandleChangeStudent={onHandleChangeStudent}
+            onHandleClassroomChange={onHandleClassroomChange}
+            onSearch={onSearch}
+            onSearchChange={onSearchChange}
+            selectDate={selectedDate}
+            students={studentsListData}
+          />
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={currentStudents ?? []}
+            disableColumnMenu
+            loading={loadingStudent}
+            rowsPerPageOptions={[pageSize, 10, 20, 50, 100]}
+            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    <BootstrapDialog fullWidth maxWidth='sm' onClose={handleClose} aria-labelledby='คะแนนตามความพฤติ' open={open}>
+      {handleClose ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <TimelineBadness info={info} user={auth} />
+    </BootstrapDialog>
+  </Fragment>));
 };
 
 ReportAllBadness.acl = {

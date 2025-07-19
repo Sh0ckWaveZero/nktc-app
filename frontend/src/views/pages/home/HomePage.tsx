@@ -13,7 +13,7 @@ const HomePage = () => {
   return (
     <UserLayout>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography variant='h4'>
             หน้าหลัก 🏠
           </Typography>
@@ -21,7 +21,12 @@ const HomePage = () => {
             ยินดีต้อนรับสู่ระบบดูแลช่วยเหลือนักเรียน
           </Typography>
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+            lg: 4
+          }}>
           <Card>
             <CardContent>
               <Typography variant='h6' sx={{ marginBottom: 2 }}>
@@ -33,7 +38,12 @@ const HomePage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+            lg: 4
+          }}>
           <Card>
             <CardContent>
               <Typography variant='h6' sx={{ marginBottom: 2 }}>
@@ -45,7 +55,12 @@ const HomePage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+            lg: 4
+          }}>
           <Card>
             <CardContent>
               <Typography variant='h6' sx={{ marginBottom: 2 }}>

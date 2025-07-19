@@ -105,8 +105,12 @@ const VerticalNavLink = ({
       <ListItem
         disablePadding
         className='nav-link'
-        disabled={item.disabled || false}
-        sx={{ mt: 1.5, px: '0 !important' }}
+        sx={{ 
+          mt: 1.5, 
+          px: '0 !important',
+          pointerEvents: item.disabled ? 'none' : 'auto',
+          opacity: item.disabled ? 0.5 : 1
+        }}
       >
         <MenuNavLink
           component={Link}

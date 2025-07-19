@@ -368,7 +368,12 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
   return (
     <Grid container spacing={6} sx={{ ml: 0 }}>
       {defaultSuggestionsData.map((item, index) => (
-        <Grid item xs={12} sm={6} key={index}>
+        <Grid
+          key={index}
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
             {item.category}
           </Typography>

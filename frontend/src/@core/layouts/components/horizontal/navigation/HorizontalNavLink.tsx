@@ -90,7 +90,6 @@ const HorizontalNavLink = (props: Props) => {
         <Link href={`${item.path}`} passHref>
           <ListItem
             component={'p'}
-            disabled={item.disabled}
             className={clsx({ active: isNavLinkActive() })}
             target={item.openInNewTab ? '_blank' : undefined}
             onClick={(e) => {
@@ -100,7 +99,9 @@ const HorizontalNavLink = (props: Props) => {
               }
             }}
             sx={{
-              ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
+              pointerEvents: item.disabled ? 'none' : 'auto',
+              opacity: item.disabled ? 0.5 : 1,
+              ...(item.disabled ? {} : { cursor: 'pointer' }),
               ...(!hasParent
                 ? {
                     px: 5.5,

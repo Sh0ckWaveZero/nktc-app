@@ -181,14 +181,12 @@ const DialogAddCard = (props: DialogAddCardProps) => {
         </Box>
         <Grid container spacing={6}>
           <Grid
-            item
-            xs={12}
             sx={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
             }}
-          >
+            size={12}>
             {isLoading ? (
               <CircularProgress size={100} />
             ) : image ? (
@@ -199,9 +197,13 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               </CustomAvatar>
             )}
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Grid container spacing={6}>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   name='fullName'
@@ -213,7 +215,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   name='classroom'
@@ -225,7 +231,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                   <DatePicker
                     label='เลือกวันที่'
@@ -248,7 +258,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl required fullWidth error={onSubmit && !badTypeScore}>
                   <InputLabel id='badTypeScore-label'>คะแนนพฤติกรรมที่ไม่เหมาะสม</InputLabel>
                   <Select
@@ -272,7 +286,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   {onSubmit && !badTypeScore && <FormHelperText>กรุณากรอกคะแนนพฤติกรรมที่ไม่เหมาะสม</FormHelperText>}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   multiline
@@ -287,7 +305,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+              <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>

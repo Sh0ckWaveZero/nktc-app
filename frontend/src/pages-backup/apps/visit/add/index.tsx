@@ -80,75 +80,69 @@ const CreateVisit = () => {
     e.preventDefault();
   };
 
-  return (
-    ability?.can('create', 'create-visit-student-page') &&
-    (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Button
-            variant='contained'
-            onClick={() => router.back()}
-            startIcon={<Icon icon='mdi:arrow-left' width={24} height={24} />}
-            sx={{
-              mb: 5,
-            }}
-          >
-            ย้อนกลับ
-          </Button>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Card>
-                <CardHeader
-                  avatar={
-                    <Avatar sx={{ color: 'primary.main' }} aria-label='create-visit'>
-                      <Icon icon='mdi:home-switch-outline' width={24} height={24} />
-                    </Avatar>
-                  }
+  return (ability?.can('create', 'create-visit-student-page') &&
+  (auth?.user?.role as string) !== 'Admin' && (<Fragment>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Button
+        variant='contained'
+        onClick={() => router.back()}
+        startIcon={<Icon icon='mdi:arrow-left' width={24} height={24} />}
+        sx={{
+          mb: 5,
+        }}
+      >
+        ย้อนกลับ
+      </Button>
+      <Grid container spacing={6}>
+        <Grid size={12}>
+          <Card>
+            <CardHeader
+              avatar={
+                <Avatar sx={{ color: 'primary.main' }} aria-label='create-visit'>
+                  <Icon icon='mdi:home-switch-outline' width={24} height={24} />
+                </Avatar>
+              }
+              sx={{
+                color: 'text.primary',
+                pb: 2,
+              }}
+              title={`สร้างบันทึกการเยี่ยมบ้านนักเรียน`}
+              subheader={`ครั้งที่ 2  ภาคเรียนที่ 2 ปีการศึกษา 2565`}
+            />
+            <CardContent>
+              <Grid container spacing={2}>
+                <Grid
                   sx={{
-                    color: 'text.primary',
-                    pb: 2,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}
-                  title={`สร้างบันทึกการเยี่ยมบ้านนักเรียน`}
-                  subheader={`ครั้งที่ 2  ภาคเรียนที่ 2 ปีการศึกษา 2565`}
-                />
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                  size={12}>
+                  {student && (
+                    <RenderAvatar
+                      row={student?.account}
+                      storedToken={storedToken}
+                      customStyle={{
+                        width: 150,
+                        height: 150,
+                        mb: 10,
                       }}
-                    >
-                      {student && (
-                        <RenderAvatar
-                          row={student?.account}
-                          storedToken={storedToken}
-                          customStyle={{
-                            width: 150,
-                            height: 150,
-                            mb: 10,
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box sx={{ mb: 6 }}>{<SurveyList list={about as any} />}</Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box sx={{ mb: 6 }}>{survey && <SurveyForm control={control} list={survey} />}</Box>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </form>
-      </Fragment>
-    )
-  );
+                    />
+                  )}
+                </Grid>
+                <Grid size={12}>
+                  <Box sx={{ mb: 6 }}>{<SurveyList list={about as any} />}</Box>
+                </Grid>
+                <Grid size={12}>
+                  <Box sx={{ mb: 6 }}>{survey && <SurveyForm control={control} list={survey} />}</Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </form>
+  </Fragment>));
 };
 
 CreateVisit.acl = {

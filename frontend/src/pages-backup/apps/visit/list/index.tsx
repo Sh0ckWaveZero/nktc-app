@@ -302,71 +302,67 @@ const VisitStudentList = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'visit-student-list-page') &&
-    (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <Icon icon='mdi:home-switch-outline' width={24} height={24} />
-                  </Avatar>
-                }
-                sx={{
-                  color: 'text.primary',
-                  pb: 2,
-                }}
-                title={`บันทึกการเยี่ยมบ้านนักเรียน ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}
-              />
+  return (ability?.can('read', 'visit-student-list-page') &&
+  (auth?.user?.role as string) !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <Icon icon='mdi:home-switch-outline' width={24} height={24} />
+              </Avatar>
+            }
+            sx={{
+              color: 'text.primary',
+              pb: 2,
+            }}
+            title={`บันทึกการเยี่ยมบ้านนักเรียน ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}
+          />
 
-              <TableHeader
-                classrooms={classrooms}
-                handleChange={(event: any) => {
-                  const classroom = classrooms?.find((item: any) => item?.name === event?.target?.value);
-                  setDefaultClassroom(classroom);
-                }}
-                defaultValue={defaultClassroom?.name}
-                visitNo={visitNo}
-                handleVisitNoChange={(event: any) => {
-                  setVisitNo(event?.target?.value);
-                }}
-              />
-              <Box
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  '& .internship--cell': {
-                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
-                  },
-                  '& .internship--header': {
-                    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
-                  },
-                }}
-              >
-                <DataGrid
-                  autoHeight
-                  columns={columns}
-                  rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-                  disableColumnMenu
-                  headerHeight={150}
-                  loading={loading}
-                  rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                  rowsPerPageOptions={[pageSize, 100]} // Include `pageSize` and `100` in the rowsPerPageOptions
-                  onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                  components={{
-                    NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
-                  }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
-      </Fragment>
-    )
-  );
+          <TableHeader
+            classrooms={classrooms}
+            handleChange={(event: any) => {
+              const classroom = classrooms?.find((item: any) => item?.name === event?.target?.value);
+              setDefaultClassroom(classroom);
+            }}
+            defaultValue={defaultClassroom?.name}
+            visitNo={visitNo}
+            handleVisitNoChange={(event: any) => {
+              setVisitNo(event?.target?.value);
+            }}
+          />
+          <Box
+            sx={{
+              height: '100%',
+              width: '100%',
+              '& .internship--cell': {
+                backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+              },
+              '& .internship--header': {
+                backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
+              },
+            }}
+          >
+            <DataGrid
+              autoHeight
+              columns={columns}
+              rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+              disableColumnMenu
+              headerHeight={150}
+              loading={loading}
+              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+              rowsPerPageOptions={[pageSize, 100]} // Include `pageSize` and `100` in the rowsPerPageOptions
+              onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+              components={{
+                NoRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayCheckedIn,
+              }}
+            />
+          </Box>
+        </Card>
+      </Grid>
+    </Grid>
+  </Fragment>));
 };
 
 VisitStudentList.acl = {

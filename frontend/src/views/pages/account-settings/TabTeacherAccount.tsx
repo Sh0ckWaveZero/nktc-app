@@ -205,7 +205,7 @@ const TabTeacherAccount = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <Grid container spacing={5}>
-            <Grid item xs={12} sx={{ mt: 4.8, mb: 3 }}>
+            <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {isLoading || isCompressing ? (
                   <CircularProgress
@@ -250,7 +250,11 @@ const TabTeacherAccount = () => {
                 </Box>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 2
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='title'
@@ -276,7 +280,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 4
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -297,7 +305,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -318,7 +330,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -345,7 +361,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='academicStanding'
@@ -368,7 +388,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='department'
@@ -397,7 +421,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -416,7 +444,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <Autocomplete
                 id='checkboxes-tags-teacher-classroom'
                 multiple={true}
@@ -441,7 +473,11 @@ const TabTeacherAccount = () => {
                 noOptionsText='ไม่พบข้อมูล'
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
@@ -474,7 +510,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
                 บันทึกการเปลี่ยนแปลง
               </Button>

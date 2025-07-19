@@ -289,63 +289,59 @@ const ReportStudentGoodness = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'student-goodness-report') &&
-    user?.role !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <IconifyIcon icon={'humbleicons:bulb'} />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`Report ความดี`}
-              />
+  return (ability?.can('read', 'student-goodness-report') &&
+  user?.role !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <IconifyIcon icon={'humbleicons:bulb'} />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`Report ความดี`}
+          />
 
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={data ?? []}
-                disableColumnMenu
-                loading={loading}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                pagination
-                paginationMode='server'
-                pageSize={pageSize}
-                rowCount={total}
-                onPageChange={(params: any) => setPage(params)}
-                rowsPerPageOptions={[5, 10, 20, 50]}
-                onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-        <BootstrapDialog onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
-          {handleClose ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <img src={currentImage as any} alt='บันทึกความดี' width='100%' height='100%' />
-        </BootstrapDialog>
-      </Fragment>
-    )
-  );
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={data ?? []}
+            disableColumnMenu
+            loading={loading}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            pagination
+            paginationMode='server'
+            pageSize={pageSize}
+            rowCount={total}
+            onPageChange={(params: any) => setPage(params)}
+            rowsPerPageOptions={[5, 10, 20, 50]}
+            onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    <BootstrapDialog onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+      {handleClose ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <img src={currentImage as any} alt='บันทึกความดี' width='100%' height='100%' />
+    </BootstrapDialog>
+  </Fragment>));
 };
 
 ReportStudentGoodness.acl = {

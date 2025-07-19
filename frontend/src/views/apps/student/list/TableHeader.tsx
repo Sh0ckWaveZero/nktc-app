@@ -57,7 +57,13 @@ const TableHeader = (props: TableHeaderProps) => {
         p: 5,
       }}
     >
-      <Grid item xs={12} sm={12} md={12} lg={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 2
+        }}>
         <FormControl fullWidth>
           <TextField
             fullWidth
@@ -71,7 +77,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 4
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
@@ -95,7 +107,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 4
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='checkboxes-tags-classroom'
@@ -125,7 +143,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 2
+        }}>
         <FormControl fullWidth>
           <LinkStyled href='/apps/student/add' passHref>
             <Button

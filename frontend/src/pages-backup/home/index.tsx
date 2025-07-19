@@ -462,7 +462,14 @@ const Home = () => {
       {menuList
         .filter((menu: CardMenuProps) => filterAbility(menu))
         .map((item, index) => (
-          <Grid item key={`grid-item-${index}`} xs={12} sm={6} md={2} sx={{ order: index }}>
+          <Grid
+            key={`grid-item-${index}`}
+            sx={{ order: index }}
+            size={{
+              xs: 12,
+              sm: 6,
+              md: 2
+            }}>
             <CardMenu
               key={`card-menu-${index}`}
               title={item.title}

@@ -285,97 +285,93 @@ const StudentGoodnessSummaryReport = () => {
     },
   ];
 
-  return (
-    ability?.can('read', 'student-goodness-summary-report') && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <IconifyIcon icon={'game-icons:trophy'} />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`เรียงลำดับ คะแนนตามความดี`}
-              />
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={data ?? []}
-                disableColumnMenu
-                loading={loading}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                pagination
-                paginationMode='server'
-                pageSize={pageSize}
-                rowCount={total}
-                onPageChange={(params: any) => setPage(params)}
-                rowsPerPageOptions={[10, 20, 50, 100]}
-                onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-        <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
-          {handleClose ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <TimelineGoodness info={info} user={user} onDeleted={onDeletedGoodness} />
-        </BootstrapDialog>
-        <BootstrapDialog
-          fullWidth
-          maxWidth='xs'
-          onClose={handleCloseConfirm}
-          aria-labelledby='บรรทึกความดี'
-          open={openConfirm}
+  return (ability?.can('read', 'student-goodness-summary-report') && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <IconifyIcon icon={'game-icons:trophy'} />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`เรียงลำดับ คะแนนตามความดี`}
+          />
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={data ?? []}
+            disableColumnMenu
+            loading={loading}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            pagination
+            paginationMode='server'
+            pageSize={pageSize}
+            rowCount={total}
+            onPageChange={(params: any) => setPage(params)}
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            onPageSizeChange={(newPageSize: number) => onHandleChangePage(newPageSize)}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+      {handleClose ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
         >
-          {handleCloseConfirm ? (
-            <IconButton
-              aria-label='close'
-              onClick={handleCloseConfirm}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความดี</DialogTitle>
-          <DialogContent>
-            <DialogContentText id='alert-delete-goodness' p={5}>
-              {`คุณต้องการลบข้อมูลการการบันทึกความดีนี้ ใช่หรือไม่?`}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className='dialog-goodness-dense'>
-            <Button color='secondary' onClick={handleCloseConfirm}>
-              ยกเลิก
-            </Button>
-            <Button variant='contained' color='error' onClick={handleConfirm}>
-              ยืนยัน
-            </Button>
-          </DialogActions>
-        </BootstrapDialog>
-      </Fragment>
-    )
-  );
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <TimelineGoodness info={info} user={user} onDeleted={onDeletedGoodness} />
+    </BootstrapDialog>
+    <BootstrapDialog
+      fullWidth
+      maxWidth='xs'
+      onClose={handleCloseConfirm}
+      aria-labelledby='บรรทึกความดี'
+      open={openConfirm}
+    >
+      {handleCloseConfirm ? (
+        <IconButton
+          aria-label='close'
+          onClick={handleCloseConfirm}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความดี</DialogTitle>
+      <DialogContent>
+        <DialogContentText id='alert-delete-goodness' p={5}>
+          {`คุณต้องการลบข้อมูลการการบันทึกความดีนี้ ใช่หรือไม่?`}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions className='dialog-goodness-dense'>
+        <Button color='secondary' onClick={handleCloseConfirm}>
+          ยกเลิก
+        </Button>
+        <Button variant='contained' color='error' onClick={handleConfirm}>
+          ยืนยัน
+        </Button>
+      </DialogActions>
+    </BootstrapDialog>
+  </Fragment>));
 };
 
 StudentGoodnessSummaryReport.acl = {

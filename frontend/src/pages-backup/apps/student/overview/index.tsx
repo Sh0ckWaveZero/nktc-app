@@ -178,7 +178,12 @@ const StudentOverview = (props: any) => {
     <Fragment>
       {trophyOverview?.totalTrophy >= 1 && <ConfettiAnimation width={confettiWidth} height={confettiHeight} />}
       <Grid container spacing={6}>
-        <Grid item xs={12} md={5} lg={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5,
+            lg: 4
+          }}>
           <UserViewLeft
             classroomName={classroomName}
             fullName={fullName}
@@ -189,17 +194,29 @@ const StudentOverview = (props: any) => {
             user={user}
           />
         </Grid>
-        <Grid item xs={12} md={7} lg={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 7,
+            lg: 8
+          }}>
           <Grid container spacing={6}>
             {trophyOverview?.totalTrophy >= 1 && (
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <CardAward trophyOverview={trophyOverview} fullName={fullName} />
               </Grid>
             )}
             {menuList
               .filter((menu: CardMenuProps) => filterAbility(menu))
               .map((item, index) => (
-                <Grid item key={`grid-item-${index}`} xs={12} sm={6} md={4} sx={{ order: index }}>
+                <Grid
+                  key={`grid-item-${index}`}
+                  sx={{ order: index }}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4
+                  }}>
                   <CardMenu
                     key={`card-menu-${index}`}
                     title={item.title}

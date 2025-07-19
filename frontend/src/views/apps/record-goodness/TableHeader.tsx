@@ -25,7 +25,11 @@ const TableHeader = (props: TableHeaderProps) => {
         justifyContent: 'flex-end',
       }}
     >
-      <Grid item xs={12} sm={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 4
+        }}>
         <FormControl fullWidth>
           <TextField
             className='studentName'
@@ -43,7 +47,11 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 4
+        }}>
         <FormControl fullWidth>
           <TextField
             className='studentId'
@@ -61,7 +69,11 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 2
+        }}>
         <FormControl fullWidth>
           <Button
             size='large'
@@ -76,7 +88,11 @@ const TableHeader = (props: TableHeaderProps) => {
           </Button>
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 2
+        }}>
         <FormControl fullWidth>
           <Button
             size='large'

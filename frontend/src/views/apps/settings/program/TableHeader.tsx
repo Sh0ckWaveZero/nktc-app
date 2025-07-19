@@ -28,7 +28,11 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
 
   return (
     <Grid container spacing={3} alignItems="center" sx={{ pb: 2, px: 4 }}>
-      <Grid item xs={12} sm={6}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 6
+        }}>
         <TextField
           fullWidth
           size='small'
@@ -38,8 +42,15 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
           variant="outlined"
         />
       </Grid>
-      <Grid item xs={12} sm={6} container justifyContent="flex-end" spacing={2}>
-        <Grid item>
+      <Grid
+        container
+        justifyContent="flex-end"
+        spacing={2}
+        size={{
+          xs: 12,
+          sm: 6
+        }}>
+        <Grid>
           <Button
             component="label"
             variant="contained"
@@ -56,7 +67,7 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
             />
           </Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <Button
             variant="contained"
             color="secondary"

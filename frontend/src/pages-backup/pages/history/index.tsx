@@ -189,7 +189,7 @@ const HistoryPage = () => {
   return (
     <Fragment>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardHeader
               avatar={

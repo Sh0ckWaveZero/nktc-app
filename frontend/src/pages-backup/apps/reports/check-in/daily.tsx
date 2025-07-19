@@ -586,114 +586,108 @@ const ReportCheckInDaily = () => {
     }, 200);
   };
 
-  return (
-    ability?.can('read', 'check-in-page') &&
-    auth?.user?.role !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <BsCalendar2Date />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`รายงานการเช็คชื่อตอนเช้า`}
-                subheader={`${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}`}
-              />
-              <CardContent>
-                {!isEmpty(currentStudents) && (
-                  <Typography variant='subtitle1'>{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                )}
-              </CardContent>
-              <TableHeaderDaily
-                value={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name}
-                selectedDate={selectedDate}
-                handleDateChange={handleDateChange}
-                handleClickOpen={handleClickOpenDeletedConfirm}
-                isDisabled={isEmpty(reportCheckInData)}
-              />
-              <DataGridCustom
-                autoHeight
-                columns={columns}
-                rows={currentStudents ?? []}
-                disableColumnMenu
-                headerHeight={150}
-                loading={loading}
-                rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                rowsPerPageOptions={[pageSize]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                getRowClassName={(params) => {
-                  const { status } = params.row.student;
-                  return status === 'internship' ? 'internship' : 'normal';
-                }}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-
-        {openEditDrawer && (
-          <SidebarEditCheckInDrawer
-            open={openEditDrawer}
-            onSubmitted={onSubmittedCheckIn}
-            toggle={toggleCloseEditCheckIn}
-            data={selectedStudent}
-            selectedDate={selectedDate as Date}
+  return (ability?.can('read', 'check-in-page') &&
+  auth?.user?.role !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <BsCalendar2Date />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`รายงานการเช็คชื่อตอนเช้า`}
+            subheader={`${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}`}
           />
-        )}
-
-        {openDeletedConfirm && (
-          <Fragment>
-            <Dialog
-              open={openDeletedConfirm}
-              disableEscapeKeyDown
-              aria-labelledby='alert-dialog-title'
-              aria-describedby='alert-dialog-description'
-              onClose={(event, reason) => {
-                if (reason !== 'backdropClick') {
-                  setOpenDeletedConfirm(false);
-                }
-              }}
-            >
-              <DialogTitle id='alert-dialog-title'>ยืนยันการลบเช็คชื่อหน้าเสาธง?</DialogTitle>
-              <DialogContent>
-                <DialogContentText id='alert-dialog-description'>
-                  {`คุณต้องการลบข้อมูลการเช็คชื่อของ
-                  ${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                  ใช่หรือไม่?`}
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions className='dialog-actions-dense'>
-                <Button color='secondary' onClick={handleCloseDeletedConfirm}>
-                  ยกเลิก
-                </Button>
-                <Button variant='outlined' color='error' onClick={handDeletedConfirm}>
-                  ยืนยัน
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </Fragment>
-        )}
+          <CardContent>
+            {!isEmpty(currentStudents) && (
+              <Typography variant='subtitle1'>{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+            )}
+          </CardContent>
+          <TableHeaderDaily
+            value={classrooms}
+            handleChange={handleSelectChange}
+            defaultValue={defaultClassroom?.name}
+            selectedDate={selectedDate}
+            handleDateChange={handleDateChange}
+            handleClickOpen={handleClickOpenDeletedConfirm}
+            isDisabled={isEmpty(reportCheckInData)}
+          />
+          <DataGridCustom
+            autoHeight
+            columns={columns}
+            rows={currentStudents ?? []}
+            disableColumnMenu
+            headerHeight={150}
+            loading={loading}
+            rowHeight={isEmpty(currentStudents) ? 100 : 50}
+            rowsPerPageOptions={[pageSize]}
+            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            getRowClassName={(params) => {
+              const { status } = params.row.student;
+              return status === 'internship' ? 'internship' : 'normal';
+            }}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+    {openEditDrawer && (
+      <SidebarEditCheckInDrawer
+        open={openEditDrawer}
+        onSubmitted={onSubmittedCheckIn}
+        toggle={toggleCloseEditCheckIn}
+        data={selectedStudent}
+        selectedDate={selectedDate as Date}
+      />
+    )}
+    {openDeletedConfirm && (
+      <Fragment>
+        <Dialog
+          open={openDeletedConfirm}
+          disableEscapeKeyDown
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+          onClose={(event, reason) => {
+            if (reason !== 'backdropClick') {
+              setOpenDeletedConfirm(false);
+            }
+          }}
+        >
+          <DialogTitle id='alert-dialog-title'>ยืนยันการลบเช็คชื่อหน้าเสาธง?</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              {`คุณต้องการลบข้อมูลการเช็คชื่อของ
+              ${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+              ใช่หรือไม่?`}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className='dialog-actions-dense'>
+            <Button color='secondary' onClick={handleCloseDeletedConfirm}>
+              ยกเลิก
+            </Button>
+            <Button variant='outlined' color='error' onClick={handDeletedConfirm}>
+              ยืนยัน
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Fragment>
-    )
-  );
+    )}
+  </Fragment>));
 };
 
 ReportCheckInDaily.acl = {

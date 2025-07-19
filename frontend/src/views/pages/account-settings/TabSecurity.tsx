@@ -138,9 +138,13 @@ const TabSecurity = () => {
             <Typography variant='h6'>เปลี่ยนรหัสผ่าน</Typography>
           </Box>
           <Grid container spacing={5}>
-            <Grid item xs={12} sm={6}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <Grid container spacing={5}>
-                <Grid item xs={12} sx={{ mt: 4.75 }}>
+                <Grid sx={{ mt: 4.75 }} size={12}>
                   <FormControl fullWidth>
                     <Controller
                       name='currentPassword'
@@ -178,7 +182,7 @@ const TabSecurity = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sx={{ mt: 6 }}>
+                <Grid sx={{ mt: 6 }} size={12}>
                   <FormControl fullWidth>
                     <Controller
                       name='newPassword'
@@ -220,7 +224,7 @@ const TabSecurity = () => {
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <FormControl fullWidth>
                     <Controller
                       name='confirmNewPassword'

@@ -5,8 +5,8 @@ import { Skin, ThemeColor } from '@/@core/layouts/types';
 const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) => {
 
   // ** Vars
-  const lightColor = '58, 53, 65';
-  const darkColor = '231, 227, 252';
+  const lightColor = '#3A3541';
+  const darkColor = '#E7E3FC';
   const mainColor = mode === 'light' ? lightColor : darkColor;
 
 
@@ -111,22 +111,22 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       A700: '#303030',
     },
     text: {
-      primary: `rgba(${mainColor}, 0.87)`,
-      secondary: `rgba(${mainColor}, 0.68)`,
-      disabled: `rgba(${mainColor}, 0.38)`,
+      primary: mode === 'light' ? 'rgba(58, 53, 65, 0.87)' : 'rgba(231, 227, 252, 0.87)',
+      secondary: mode === 'light' ? 'rgba(58, 53, 65, 0.68)' : 'rgba(231, 227, 252, 0.68)',
+      disabled: mode === 'light' ? 'rgba(58, 53, 65, 0.38)' : 'rgba(231, 227, 252, 0.38)',
     },
-    divider: `rgba(${mainColor}, 0.12)`,
+    divider: mode === 'light' ? 'rgba(58, 53, 65, 0.12)' : 'rgba(231, 227, 252, 0.12)',
     background: {
       paper: mode === 'light' ? '#FFF' : '#312D4B',
       default: defaultBgColor(),
     },
     action: {
-      active: `rgba(${mainColor}, 0.54)`,
-      hover: `rgba(${mainColor}, 0.04)`,
-      selected: `rgba(${mainColor}, 0.08)`,
-      disabled: `rgba(${mainColor}, 0.3)`,
-      disabledBackground: `rgba(${mainColor}, 0.18)`,
-      focus: `rgba(${mainColor}, 0.12)`,
+      active: mode === 'light' ? 'rgba(58, 53, 65, 0.54)' : 'rgba(231, 227, 252, 0.54)',
+      hover: mode === 'light' ? 'rgba(58, 53, 65, 0.04)' : 'rgba(231, 227, 252, 0.04)',
+      selected: mode === 'light' ? 'rgba(58, 53, 65, 0.08)' : 'rgba(231, 227, 252, 0.08)',
+      disabled: mode === 'light' ? 'rgba(58, 53, 65, 0.3)' : 'rgba(231, 227, 252, 0.3)',
+      disabledBackground: mode === 'light' ? 'rgba(58, 53, 65, 0.18)' : 'rgba(231, 227, 252, 0.18)',
+      focus: mode === 'light' ? 'rgba(58, 53, 65, 0.12)' : 'rgba(231, 227, 252, 0.12)',
     },
   };
 };

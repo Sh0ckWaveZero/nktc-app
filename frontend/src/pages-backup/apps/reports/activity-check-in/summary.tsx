@@ -257,53 +257,49 @@ const SummaryCheckInReportActivity = () => {
     await fetchDailyReport(classroomName.id);
   };
 
-  return (
-    ability?.can('read', 'report-check-in-summary-page') &&
-    auth?.user?.role !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <BsBarChartLine />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`รายงานสรุปการเช็คชื่อกิจกรรม ชั้น ${classroomName?.name}`}
-              />
+  return (ability?.can('read', 'report-check-in-summary-page') &&
+  auth?.user?.role !== 'Admin' && (<Fragment>
+    <Grid container spacing={6}>
+      <Grid size={12}>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                <BsBarChartLine />
+              </Avatar>
+            }
+            sx={{ color: 'text.primary' }}
+            title={`รายงานสรุปการเช็คชื่อกิจกรรม ชั้น ${classroomName?.name}`}
+          />
 
-              <TableHeaderSummary
-                students={currentStudents}
-                classrooms={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={classroomName?.name}
-                selectedDate={selectedDate}
-                handleDateChange={handleDateChange}
-                isDisabled={isEmpty(currentStudents)}
-              />
-              <DataGrid
-                autoHeight
-                columns={columns}
-                rows={currentStudents ?? []}
-                disableColumnMenu
-                headerHeight={150}
-                loading={loading}
-                rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                rowsPerPageOptions={[pageSize]}
-                onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-                components={{
-                  NoRowsOverlay: CustomNoRowsOverlay,
-                }}
-                sx={{ overflowX: 'auto' }}
-              />
-            </Card>
-          </Grid>
-        </Grid>
-      </Fragment>
-    )
-  );
+          <TableHeaderSummary
+            students={currentStudents}
+            classrooms={classrooms}
+            handleChange={handleSelectChange}
+            defaultValue={classroomName?.name}
+            selectedDate={selectedDate}
+            handleDateChange={handleDateChange}
+            isDisabled={isEmpty(currentStudents)}
+          />
+          <DataGrid
+            autoHeight
+            columns={columns}
+            rows={currentStudents ?? []}
+            disableColumnMenu
+            headerHeight={150}
+            loading={loading}
+            rowHeight={isEmpty(currentStudents) ? 100 : 50}
+            rowsPerPageOptions={[pageSize]}
+            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            sx={{ overflowX: 'auto' }}
+          />
+        </Card>
+      </Grid>
+    </Grid>
+  </Fragment>));
 };
 
 SummaryCheckInReportActivity.acl = {
