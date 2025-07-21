@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NKTC Student Management System - A comprehensive student management platform for technical colleges, built as a monorepo using Turbo Repo with Next.js frontend and NestJS backend.
+NKTC Student Management System - ระบบจัดการและดูแลช่วยเหลือนักเรียนของวิทยาลัยเทคนิค ระบบครบวงจรสำหรับการบริหารจัดการข้อมูlนักเรียน การเช็คชื่อ การประเมินพฤติกรรม และการเยี่ยมบ้าน
+
+### Key Features
+- **การจัดการผู้ใช้งาน** - นักเรียน, ครู/บุคลากร, ผู้ดูแลระบบ
+- **ระบบเช็คชื่อ** - เช็คชื่อหน้าเสาธง และเช็คชื่อกิจกรรม
+- **ระบบประเมินพฤติกรรม** - บันทึกความดี และพฤติกรรมไม่เหมาะสม
+- **ระบบเยี่ยมบ้าน** - การจัดการและบันทึกการเยี่ยมบ้าน
+- **ระบบรายงาน** - รายงานและสถิติต่างๆ
+- **การตั้งค่าระบบ** - จัดการข้อมูลพื้นฐานและสิทธิ์การใช้งาน
 
 ## Architecture
 
@@ -276,3 +284,80 @@ MINIO_PORT=9000
 - **Turbo Repo**: Monorepo management with caching
 - **ESLint + Prettier**: Code formatting and linting
 - **TypeScript**: Strict type checking across both projects
+- **SWC**: Fast TypeScript/JavaScript compiler
+- **Docker**: Containerization for deployment
+
+## API Endpoints Overview
+
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `POST /auth/refresh` - Refresh JWT token
+
+### User Management
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `POST /users` - Create new user
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+### Students
+- `GET /students` - Get all students
+- `GET /students/:id` - Get student by ID
+- `POST /students` - Create new student
+- `PUT /students/:id` - Update student
+
+### Teachers
+- `GET /teachers` - Get all teachers
+- `GET /teachers/:id` - Get teacher by ID
+- `POST /teachers` - Create new teacher
+- `PUT /teachers/:id` - Update teacher
+
+### Check-in Reports
+- `GET /report-check-in` - Get check-in reports
+- `POST /report-check-in` - Create check-in report
+- `GET /activity-check-in` - Get activity check-in reports
+
+### Behavior Records
+- `GET /goodness-individual` - Get goodness records
+- `POST /goodness-individual` - Create goodness record
+- `GET /badness-individual` - Get badness records
+- `POST /badness-individual` - Create badness record
+
+### Home Visits
+- `GET /visits` - Get visit records
+- `POST /visits` - Create visit record
+- `PUT /visits/:id` - Update visit record
+
+### Settings
+- `GET /classroom` - Get classrooms
+- `POST /classroom` - Create classroom
+- `GET /programs` - Get programs
+- `POST /programs` - Create program
+- `GET /departments` - Get departments
+
+## Database Models Overview
+
+### Core Models
+- **User** - Base user authentication
+- **Account** - Personal information
+- **Student** - Student-specific data
+- **Teacher** - Teacher-specific data
+- **Department** - Academic departments
+- **Program** - Academic programs/majors
+- **Classroom** - Class management
+- **Level** - Education levels (ปวช.1, ปวช.2, etc.)
+- **LevelClassroom** - Level-specific classrooms
+
+### Activity Models
+- **ReportCheckIn** - Daily attendance records
+- **ActivityCheckInReport** - Activity attendance
+- **GoodnessIndividual** - Good behavior records
+- **BadnessIndividual** - Inappropriate behavior records
+- **VisitStudent** - Home visit records
+
+### System Models
+- **Session** - User sessions
+- **VerificationToken** - Email verification
+- **RolePermission** - Role-based permissions
+- **UserRole** - User role assignments

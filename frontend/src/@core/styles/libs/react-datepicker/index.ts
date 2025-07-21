@@ -61,7 +61,7 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
           ...(theme.direction === 'ltr' ? { left: 15 } : { right: 15 }),
           backgroundImage: `${"url('data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' style=\\'width:24px;height:24px\\' viewBox=\\'0 0 24 24\\'%3E%3Cpath fill=\\'currentColor\\' d=\\'M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z\\' /%3E%3C/svg%3E')"
             .replace('currentColor', theme.palette.text.secondary)
-            .replace('#', '%23')}`,
+            .replace(/#/g, '%23')}`,
           '& .react-datepicker__navigation-icon': {
             display: 'none'
           }
@@ -73,7 +73,7 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
           ...(theme.direction === 'ltr' ? { right: 15 } : { left: 15 }),
           backgroundImage: `${"url('data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' style=\\'width:24px;height:24px\\' viewBox=\\'0 0 24 24\\'%3E%3Cpath fill=\\'currentColor\\' d=\\'M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z\\' /%3E%3C/svg%3E')"
             .replace('currentColor', theme.palette.text.secondary)
-            .replace('#', '%23')}`,
+            .replace(/#/g, '%23')}`,
           '& .react-datepicker__navigation-icon': {
             display: 'none'
           }
