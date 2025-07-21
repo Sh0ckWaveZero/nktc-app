@@ -41,19 +41,20 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
           <DatePicker
             label='เลือกวันที่'
             value={selectedDate ? dayjs(selectedDate) : null}
-            inputFormat='DD-MM-YYYY'
+            format='DD-MM-YYYY'
             minDate={dayjs().subtract(1, 'year')}
             maxDate={dayjs()}
             onChange={(newDate) => handleDateChange(newDate ? newDate.toDate() : null)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth
-                inputProps={{
-                  ...params.inputProps,
+            slots={{
+              textField: TextField
+            }}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                inputProps: {
                   placeholder: 'วัน/เดือน/ปี',
-                }}
-                sx={{
+                },
+                sx: {
                   '& .MuiInputBase-input': {
                     fontSize: '0.813rem',
                     height: '2rem',
@@ -61,9 +62,9 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
                   '& .MuiInputLabel-root': {
                     padding: '0.4rem 0 0 0',
                   },
-                }}
-              />
-            )}
+                }
+              }
+            }}
           />
         </LocalizationProvider>
       </FormControl>

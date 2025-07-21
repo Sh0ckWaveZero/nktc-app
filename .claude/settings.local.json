@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "WebFetch(domain:nextjs.org)",
+      "Bash(bun run:*)",
+      "Bash(bun remove:*)",
+      "Bash(rm:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(# Create a list of files with UserLayout and process them\nfind src/views -name \"\"*.tsx\"\" | xargs grep -l \"\"UserLayout\"\" | while read file; do\n  echo \"\"Processing: $file\"\"\n  # Remove import line\n  sed -i '''' ''/import UserLayout from/d'' \"\"$file\"\"\n  # Remove empty import comment if exists\n  sed -i '''' ''/^\\/\\/ \\*\\* Layout Import$/d'' \"\"$file\"\"\n  # Remove UserLayout wrapper - opening tag\n  sed -i '''' ''s/<UserLayout>//'' \"\"$file\"\"\n  # Remove UserLayout wrapper - closing tag  \n  sed -i '''' ''s/<\\/UserLayout>//'' \"\"$file\"\"\n  # Remove any empty lines that might be left\n  sed -i '''' ''/^[[:space:]]*$/N;/^\\n$/d'' \"\"$file\"\"\ndone)",
+      "Bash(# Fix indentation and extra whitespace in all view files\nfind src/views -name \"\"*.tsx\"\" | while read file; do\n  # Remove multiple empty lines and fix indentation\n  sed -i '''' ''/^[[:space:]]*$/N;/^\\n$/d'' \"\"$file\"\"\n  sed -i '''' ''s/^    </<    </'' \"\"$file\"\"\ndone)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:mui.com)"
+    ],
+    "deny": []
+  }
+}

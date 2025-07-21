@@ -1,4 +1,5 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Grid, Typography, styled, Button, Tooltip } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Button, Tooltip } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
@@ -14,7 +15,7 @@ interface Props {
   onDeleted?: (id: string) => void;
 }
 const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
+const storedToken = localStorageService.getToken() || '';
 
 const getImage = (image: string) => {
   const { isLoading, image: badnessImage } = useGetImage(image, storedToken);

@@ -2,13 +2,9 @@
 
 // ** MUI Components
 import { Typography, Card, CardContent } from '@mui/material';
-
-// ** Layout Import
-import UserLayout from '@/layouts/UserLayout';
-
 const VisitAddPage = () => {
   return (
-    <UserLayout>
+    
       <Card>
         <CardContent>
           <Typography variant='h4' sx={{ mb: 2 }}>
@@ -19,7 +15,7 @@ const VisitAddPage = () => {
           </Typography>
         </CardContent>
       </Card>
-    </UserLayout>
+    
   );
 };
 

@@ -18,7 +18,7 @@ import useGetPDF from '@/hooks/useGetPDF';
 import { useSettings } from '@/@core/hooks/useSettings';
 
 const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken()!;
+const accessToken = localStorage.getToken() || '';
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')(({ theme }) => ({
   right: 0,

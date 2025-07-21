@@ -5,8 +5,8 @@ import { Skin, ThemeColor } from '@/@core/layouts/types';
 const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) => {
 
   // ** Vars
-  const lightColor = '#3A3541';
-  const darkColor = '#E7E3FC';
+  const lightColor = '58, 53, 65';
+  const darkColor = '231, 227, 252';
   const mainColor = mode === 'light' ? lightColor : darkColor;
 
 
@@ -30,10 +30,10 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
     if (skin === 'bordered' && mode === 'light') {
       return '#FFF';
     } else if (skin === 'bordered' && mode === 'dark') {
-      return '#312D4B';
+      return '#2a1f3d';
     } else if (mode === 'light') {
       return '#F4F5FA';
-    } else return '#28243D';
+    } else return '#1a1625';
   };
 
   return {
@@ -41,11 +41,11 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       dark: darkColor,
       main: mainColor,
       light: lightColor,
-      darkBg: '#28243D',
+      darkBg: '#1a1625',
       lightBg: '#F4F5FA',
       primaryGradient: primaryGradient(),
-      bodyBg: mode === 'light' ? '#F4F5FA' : '#28243D', // Same as palette.background.default but doesn't consider bordered skin
-      tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#3D3759',
+      bodyBg: mode === 'light' ? '#F4F5FA' : '#1a1625', // Same as palette.background.default but doesn't consider bordered skin
+      tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#2a1f3d',
     },
     common: {
       black: '#000',
@@ -111,22 +111,22 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       A700: '#303030',
     },
     text: {
-      primary: mode === 'light' ? 'rgba(58, 53, 65, 0.87)' : 'rgba(231, 227, 252, 0.87)',
-      secondary: mode === 'light' ? 'rgba(58, 53, 65, 0.68)' : 'rgba(231, 227, 252, 0.68)',
-      disabled: mode === 'light' ? 'rgba(58, 53, 65, 0.38)' : 'rgba(231, 227, 252, 0.38)',
+      primary: `rgba(${mainColor}, 0.98)`,
+      secondary: `rgba(${mainColor}, 0.85)`,
+      disabled: `rgba(${mainColor}, 0.50)`,
     },
-    divider: mode === 'light' ? 'rgba(58, 53, 65, 0.12)' : 'rgba(231, 227, 252, 0.12)',
+    divider: `rgba(${mainColor}, 0.12)`,
     background: {
-      paper: mode === 'light' ? '#FFF' : '#312D4B',
+      paper: mode === 'light' ? '#FFF' : '#2a1f3d',
       default: defaultBgColor(),
     },
     action: {
-      active: mode === 'light' ? 'rgba(58, 53, 65, 0.54)' : 'rgba(231, 227, 252, 0.54)',
-      hover: mode === 'light' ? 'rgba(58, 53, 65, 0.04)' : 'rgba(231, 227, 252, 0.04)',
-      selected: mode === 'light' ? 'rgba(58, 53, 65, 0.08)' : 'rgba(231, 227, 252, 0.08)',
-      disabled: mode === 'light' ? 'rgba(58, 53, 65, 0.3)' : 'rgba(231, 227, 252, 0.3)',
-      disabledBackground: mode === 'light' ? 'rgba(58, 53, 65, 0.18)' : 'rgba(231, 227, 252, 0.18)',
-      focus: mode === 'light' ? 'rgba(58, 53, 65, 0.12)' : 'rgba(231, 227, 252, 0.12)',
+      active: `rgba(${mainColor}, 0.65)`,
+      hover: `rgba(${mainColor}, 0.08)`,
+      selected: `rgba(${mainColor}, 0.12)`,
+      disabled: `rgba(${mainColor}, 0.35)`,
+      disabledBackground: `rgba(${mainColor}, 0.22)`,
+      focus: `rgba(${mainColor}, 0.15)`,
     },
   };
 };

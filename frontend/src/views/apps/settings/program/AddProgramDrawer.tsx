@@ -61,7 +61,7 @@ const schema = yup.object().shape({
 });
 
 const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken()!;
+const accessToken = localStorageService.getToken() || '';
 
 const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawerProps) => {
   const [levelList, setLevelList] = useState<any[]>([]);

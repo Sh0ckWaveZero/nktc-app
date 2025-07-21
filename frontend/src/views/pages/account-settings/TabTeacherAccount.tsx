@@ -72,7 +72,7 @@ const schema = yup.object().shape({
 });
 
 const localStorage = new LocalStorageService();
-const storedToken = localStorage.getToken()!;
+const storedToken = localStorage.getToken() || '';
 
 const TabTeacherAccount = () => {
   // Hooks
@@ -487,22 +487,20 @@ const TabTeacherAccount = () => {
                       <DatePicker
                         label='วันเกิด'
                         value={value}
-                        inputFormat='dd/MM/BBBB'
+                        format='dd/MM/BBBB'
                         maxDate={dayjs(new Date())}
                         onChange={onChange}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            fullWidth
-                            inputProps={{
-                              ...params.inputProps,
+                        slots={{
+                          textField: TextField,
+                          openPickerIcon: () => <FcCalendar />
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            }}
-                          />
-                        )}
-                        mask='__/__/____'
-                        components={{
-                          OpenPickerIcon: () => <FcCalendar />,
+                            }
+                          }
                         }}
                       />
                     </LocalizationProvider>

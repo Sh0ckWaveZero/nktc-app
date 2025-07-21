@@ -43,9 +43,9 @@ interface Props {
 }
 
 // ** Styled Components
-const MenuNavLink = styled(ListItemButton)<
-  ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }
->(({ theme }) => ({
+const MenuNavLink = styled(ListItemButton, {
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'href' && prop !== 'target',
+})<ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }>(({ theme }) => ({
   width: '100%',
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,

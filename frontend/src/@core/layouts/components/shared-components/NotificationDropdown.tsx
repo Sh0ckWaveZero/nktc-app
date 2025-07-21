@@ -1,11 +1,13 @@
+'use client';
+
 // ** React Imports
-import { useState, SyntheticEvent, Fragment, ReactNode } from 'react';
+import { useState, SyntheticEvent, Fragment, ReactNode, useEffect } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import { styled, Theme } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MuiMenu, { MenuProps } from '@mui/material/Menu';
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem';
@@ -95,9 +97,20 @@ const NotificationDropdown = (props: Props) => {
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  // ** Hook
-  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+  // ** Hooks
+  const theme = useTheme();
+  const hidden = useMediaQuery(theme.breakpoints.down('lg'));
+
+  // ** Fix hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   // ** Vars
   const { direction } = settings;

@@ -28,8 +28,6 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
 // ** Configs
 import themeConfig from '@/configs/themeConfig';
-
-
 // ** Hooks
 import { useAuth } from '@/hooks/useAuth';
 
@@ -181,6 +179,4 @@ const LoginPage = () => {
     </Box>
   );
 };
-
-
 export default LoginPage;

@@ -31,7 +31,9 @@ const ImgStyled = styled('img')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
+const ButtonStyled = styled(Button, {
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'htmlFor',
+})<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     width: '100%',
     textAlign: 'center',

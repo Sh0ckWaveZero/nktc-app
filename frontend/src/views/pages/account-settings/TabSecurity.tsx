@@ -76,7 +76,7 @@ const TabSecurity = () => {
     (state) => ({ changePassword: state.changePassword, login: state.login }),
     shallow,
   );
-  const storedToken = localStorageService.getToken()!;
+  const storedToken = localStorageService.getToken() || '';
 
   // ** States
   const [values, setValues] = useState<State>({

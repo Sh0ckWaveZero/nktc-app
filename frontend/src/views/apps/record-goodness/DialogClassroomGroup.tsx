@@ -12,7 +12,7 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { DataGrid, GridColumns } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import React, { ChangeEvent, useState } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -65,7 +65,7 @@ export default function DialogClassroomGoodnessGroup({
   studentsList,
 }: Props) {
   const [pageSize, setPageSize] = useState(students.length > 0 ? students.length : 10);
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     {
       flex: 0.13,
       minWidth: 160,
@@ -196,19 +196,42 @@ export default function DialogClassroomGoodnessGroup({
         </FormControl>
         <DataGrid
           checkboxSelection
-          autoHeight
           columns={columns}
           rows={defaultClassroom ? studentsList : []}
           disableColumnMenu
           loading={studentLoading}
-          rowsPerPageOptions={[pageSize, 10, 20, 50, 100]}
-          onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-          onSelectionModelChange={onSelectionModelChange}
-          components={{
-            NoRowsOverlay: CustomNoRowsOverlay,
+          getRowHeight={() => 'auto'}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: pageSize, page: 0 },
+            },
+          }}
+          pageSizeOptions={[pageSize, 10, 20, 50, 100]}
+          onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+          onRowSelectionModelChange={onSelectionModelChange}
+          slots={{
+            noRowsOverlay: CustomNoRowsOverlay,
           }}
           sx={{
             my: 2,
+            '& .MuiDataGrid-row': {
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+              maxHeight: 'none !important',
+            },
+            '& .MuiDataGrid-cell': {
+              display: 'flex',
+              alignItems: 'center',
+              lineHeight: 'unset !important',
+              maxHeight: 'none !important',
+              overflow: 'visible',
+              whiteSpace: 'normal',
+              wordWrap: 'break-word',
+            },
+            '& .MuiDataGrid-renderingZone': {
+              maxHeight: 'none !important',
+            },
           }}
         />
       </DialogContent>

@@ -2,7 +2,8 @@
 import { Fragment } from 'react';
 
 // ** MUI Imports
-import { Box, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 // ** Icon Imports
 import Icon from '@/@core/components/icon';

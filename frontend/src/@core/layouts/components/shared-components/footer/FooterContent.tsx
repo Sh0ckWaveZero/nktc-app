@@ -1,6 +1,11 @@
+'use client';
+
 // ** MUI Imports
-import { Box, Theme, Typography, useMediaQuery } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+
+// ** Custom Hook
+import { useResponsive } from '@/@core/hooks/useResponsive';
 
 // ** Next Import
 import Link from 'next/link';
@@ -11,8 +16,12 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 }));
 
 const FooterContent = () => {
-  // ** Var
-  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+  // ** Hooks
+  const { isTablet, mounted } = useResponsive();
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Box
@@ -33,7 +42,7 @@ const FooterContent = () => {
           MIDSEELEE
         </LinkStyled>
       </Typography>
-      {hidden ? null : (
+      {isTablet ? null : (
         <Box
           sx={{
             display: 'flex',

@@ -1,4 +1,5 @@
-import { Button, FormControl, Grid, Tooltip } from '@mui/material';
+import { Button, FormControl, Tooltip } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import { Fragment } from 'react';
 import Icon from '@/@core/components/icon';

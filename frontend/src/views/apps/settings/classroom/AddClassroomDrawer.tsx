@@ -90,7 +90,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
 }));
 
 const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken()!;
+const accessToken = localStorageService.getToken() || '';
 
 const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   // ** Props

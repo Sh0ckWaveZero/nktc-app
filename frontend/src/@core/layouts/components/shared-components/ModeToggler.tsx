@@ -1,6 +1,7 @@
 // ** MUI Imports
 import { PaletteMode } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import { useColorScheme } from '@mui/material/styles';
 
 // ** Icons Imports
 import WeatherNight from 'mdi-material-ui/WeatherNight';
@@ -17,22 +18,20 @@ interface Props {
 const ModeToggler = (props: Props) => {
   // ** Props
   const { settings, saveSettings } = props;
-
-  const handleModeChange = (mode: PaletteMode) => {
-    saveSettings({ ...settings, mode });
-  };
+  
+  // ** MUI v7 Color Scheme Hook
+  const { mode, setMode } = useColorScheme();
 
   const handleModeToggle = () => {
-    if (settings.mode === 'light') {
-      handleModeChange('dark');
-    } else {
-      handleModeChange('light');
-    }
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    // Also update settings for backward compatibility
+    saveSettings({ ...settings, mode: newMode });
   };
 
   return (
     <IconButton color='inherit' aria-haspopup='true' onClick={handleModeToggle}>
-      {settings.mode === 'dark' ? <WeatherSunny /> : <WeatherNight />}
+      {mode === 'dark' ? <WeatherSunny /> : <WeatherNight />}
     </IconButton>
   );
 };

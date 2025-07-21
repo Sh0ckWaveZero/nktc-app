@@ -49,21 +49,21 @@ const TableHeader = (props: TableHeaderProps) => {
             <DatePicker
               label='เลือกวันที่'
               value={selectedDate}
-              inputFormat='DD MMMM BBBB'
+              format='DD MMMM BBBB'
               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
               maxDate={dayjs(new Date())}
               onChange={(newDate) => handleSelectedDate(newDate)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  inputProps={{
-                    ...params.inputProps,
+              slots={{
+                textField: TextField
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  inputProps: {
                     placeholder: 'วัน เดือน ปี',
-                  }}
-                />
-              )}
-              disableMaskedInput
+                  }
+                }
+              }}
             />
           </LocalizationProvider>
         </FormControl>

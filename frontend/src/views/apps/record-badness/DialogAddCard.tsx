@@ -41,7 +41,7 @@ import useImageCompression from '@/hooks/useImageCompression';
 dayjs.extend(buddhistEra);
 
 const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
+const storedToken = localStorageService.getToken() || '';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -240,21 +240,21 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   <DatePicker
                     label='เลือกวันที่'
                     value={selectedDate}
-                    inputFormat='DD MMMM BBBB'
+                    format='DD MMMM BBBB'
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
                     onChange={(newDate) => handleSelectedDate(newDate)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        inputProps={{
-                          ...params.inputProps,
+                    slots={{
+                      textField: TextField
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        inputProps: {
                           placeholder: 'วัน เดือน ปี',
-                        }}
-                      />
-                    )}
-                    disableMaskedInput
+                        }
+                      }
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>

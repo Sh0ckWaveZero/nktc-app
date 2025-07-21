@@ -43,7 +43,7 @@ interface ProvidersProps {
 const ACLProvider = ({ children }: { children: ReactNode }) => {
   const auth = useContext(AuthContext);
   
-  const ability = auth.user?.role ? buildAbilityFor(auth.user.role, 'all') : undefined!;
+  const ability = auth.user?.role ? buildAbilityFor(auth.user.role, 'all') : buildAbilityFor('guest', 'all');
   
   return (
     <AbilityContext.Provider value={ability}>

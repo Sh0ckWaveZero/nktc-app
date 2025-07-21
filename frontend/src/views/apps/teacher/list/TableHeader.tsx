@@ -2,7 +2,8 @@
 
 // ** Icons Imports
 import IconifyIcon from '@/@core/components/icon';
-import { Button, TextField, Box, Grid, Stack } from '@mui/material';
+import { Button, TextField, Box, Stack } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import CsvDownloader from 'react-csv-downloader';
 
 interface TableHeaderProps {

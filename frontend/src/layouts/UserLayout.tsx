@@ -1,9 +1,10 @@
+'use client';
+
 // ** React Imports
 import { ReactNode } from 'react';
 
-// ** MUI Imports
-import { Theme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+// ** Custom Hook
+import { useLayoutBreakpoint } from '@/@core/hooks/useResponsive';
 
 // ** Layout Imports
 // !Do not remove this Layout import
@@ -31,6 +32,7 @@ interface Props {
 const UserLayout = ({ children }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings();
+  const { hidden, mounted } = useLayoutBreakpoint();
 
   /**
    *  The below variable will hide the current layout menu at given screen size.
@@ -40,7 +42,11 @@ const UserLayout = ({ children }: Props) => {
    *  to know more about what values can be passed to this hook.
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
-  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+
+  // Show loading only on initial mount to prevent flash
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Layout

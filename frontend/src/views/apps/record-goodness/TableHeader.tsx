@@ -1,4 +1,5 @@
-import { Button, FormControl, Grid, TextField } from '@mui/material';
+import { Button, FormControl, TextField } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import Icon from '@/@core/components/icon';
 import { ChangeEvent } from 'react';

@@ -119,13 +119,37 @@ const InvoiceListTable = () => {
         </Box>
       </CardContent>
       <DataGrid
-        autoHeight
         rows={data}
         columns={columns}
-        pageSize={pageSize}
-        disableSelectionOnClick
-        rowsPerPageOptions={[7, 10, 25, 50]}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+        disableRowSelectionOnClick
+        getRowHeight={() => 'auto'}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: pageSize, page: 0 },
+          },
+        }}
+        pageSizeOptions={[7, 10, 25, 50]}
+        onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+        sx={{
+          '& .MuiDataGrid-row': {
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+            maxHeight: 'none !important',
+          },
+          '& .MuiDataGrid-cell': {
+            display: 'flex',
+            alignItems: 'center',
+            lineHeight: 'unset !important',
+            maxHeight: 'none !important',
+            overflow: 'visible',
+            whiteSpace: 'normal',
+            wordWrap: 'break-word',
+          },
+          '& .MuiDataGrid-renderingZone': {
+            maxHeight: 'none !important',
+          },
+        }}
       />
     </Card>
   );

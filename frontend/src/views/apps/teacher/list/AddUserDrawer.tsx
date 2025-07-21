@@ -284,22 +284,20 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
                     label='วันเกิด'
                     value={value}
                     onChange={onChange}
-                    inputFormat='D MMMM BBBB'
+                    format='D MMMM BBBB'
                     maxDate={dayjs(new Date())}
-                    renderInput={(params) => (
-                      <CustomTextField
-                        {...params}
-                        fullWidth
-                        inputProps={{
-                          ...params.inputProps,
-                          placeholder: 'วัน/เดือน/ปี',
-                        }}
-                      />
-                    )}
-                    components={{
-                      OpenPickerIcon: () => <FcCalendar />,
+                    slots={{
+                      textField: CustomTextField,
+                      openPickerIcon: () => <FcCalendar />
                     }}
-                    disableMaskedInput
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        inputProps: {
+                          placeholder: 'วัน/เดือน/ปี',
+                        }
+                      }
+                    }}
                   />
                 </LocalizationProvider>
               )}

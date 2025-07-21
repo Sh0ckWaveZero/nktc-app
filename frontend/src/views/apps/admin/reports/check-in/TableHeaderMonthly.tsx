@@ -52,17 +52,18 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
               views={['month', 'year']}
               label='เลือกเดือน'
               value={selectedDate}
-              inputFormat='MMMM BBBB'
-              disableMaskedInput
+              format='MMMM BBBB'
               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
               maxDate={dayjs(new Date())}
               onChange={(newDate) => handleSelectedDate(newDate)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                />
-              )}
+              slots={{
+                textField: TextField
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true
+                }
+              }}
             />
           </LocalizationProvider>
         </FormControl>

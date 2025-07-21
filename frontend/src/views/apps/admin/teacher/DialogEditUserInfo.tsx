@@ -279,22 +279,20 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                         label='วันเกิด'
                         value={value}
                         onChange={onChange}
-                        inputFormat='D MMMM BBBB'
+                        format='D MMMM BBBB'
                         maxDate={dayjs(new Date())}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            fullWidth
-                            inputProps={{
-                              ...params.inputProps,
-                              placeholder: 'วัน/เดือน/ปี',
-                            }}
-                          />
-                        )}
-                        components={{
-                          OpenPickerIcon: () => <FcCalendar />,
+                        slots={{
+                          textField: TextField,
+                          openPickerIcon: () => <FcCalendar />
                         }}
-                        disableMaskedInput
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            inputProps: {
+                              placeholder: 'วัน/เดือน/ปี',
+                            }
+                          }
+                        }}
                       />
                     </LocalizationProvider>
                   )}

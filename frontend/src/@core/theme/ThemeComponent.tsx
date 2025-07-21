@@ -42,14 +42,15 @@ const ThemeComponent = (props: Props) => {
 
   // ** Pass ThemeOptions to CreateTheme Function to create partial theme without component overrides
   let theme = createTheme({
-    ...coreThemeConfig,
     cssVariables: {
       colorSchemeSelector: 'class'
     },
     colorSchemes: {
-      light: true,
-      dark: true
-    }
+      light: themeOptions({ ...settings, mode: 'light' }),
+      dark: themeOptions({ ...settings, mode: 'dark' })
+    },
+    defaultColorScheme: settings.mode,
+    ...coreThemeConfig
   });
 
   // ** Deep Merge Component overrides of core and user

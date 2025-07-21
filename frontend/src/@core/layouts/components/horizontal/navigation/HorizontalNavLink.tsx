@@ -38,8 +38,9 @@ interface Props {
   hasParent: boolean;
 }
 
-const ListItem = styled(MuiListItem)<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(
-  ({ theme }) => ({
+const ListItem = styled(MuiListItem, {
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'target',
+})<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(({ theme }) => ({
     width: 'auto',
     paddingTop: theme.spacing(2.25),
     color: theme.palette.text.primary,
