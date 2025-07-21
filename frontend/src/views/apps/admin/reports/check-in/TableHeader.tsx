@@ -2,13 +2,16 @@
 import { FormControl, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import th from 'dayjs/locale/th';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
-import newAdapter from 'utils/newAdapter';
-import { FcCalendar } from 'react-icons/fc';
+
+dayjs.extend(buddhistEra);
 
 interface TableHeaderProps {
   value: any;
@@ -42,24 +45,24 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-           <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
             <DatePicker
               label='เลือกวันที่'
-              format='DD MMMM YYYY'
               value={selectedDate}
-              disableFuture
-              onChange={(newDate) => handleSelectedDate(newDate)}
+              format='DD MMMM BBBB'
               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
               maxDate={dayjs(new Date())}
+              onChange={(newDate) => handleSelectedDate(newDate)}
+              slots={{
+                textField: TextField
+              }}
               slotProps={{
                 textField: {
+                  fullWidth: true,
                   inputProps: {
                     placeholder: 'วัน เดือน ปี',
-                  },
-                },
-              }}
-              slots={{
-                openPickerIcon: () => <FcCalendar />,
+                  }
+                }
               }}
             />
           </LocalizationProvider>

@@ -1,5 +1,7 @@
+'use client';
+
 // ** React Import
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // ** Type Import
 import { LayoutProps } from '@/@core/layouts/types';
@@ -12,10 +14,20 @@ const Layout = (props: LayoutProps) => {
   // ** Props
   const { hidden, children, settings, saveSettings } = props;
 
+  // ** State to prevent double rendering
+  const [mounted, setMounted] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
   // ** Ref
   const isCollapsed = useRef(settings.navCollapsed);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || hasInitialized) return;
+
     if (hidden) {
       if (settings.navCollapsed) {
         saveSettings({ ...settings, navCollapsed: false, layout: 'vertical' });
@@ -35,7 +47,14 @@ const Layout = (props: LayoutProps) => {
         saveSettings({ ...settings, layout: settings.lastLayout });
       }
     }
-  }, [hidden]);
+    
+    setHasInitialized(true);
+  }, [hidden, mounted]);
+
+  // Prevent rendering until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
   if (settings.layout === 'horizontal') {
     return <HorizontalLayout {...props}>{children}</HorizontalLayout>;

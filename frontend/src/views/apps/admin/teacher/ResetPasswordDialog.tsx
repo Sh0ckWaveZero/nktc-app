@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   FormControl,
+  Grid,
   IconButton,
   InputAdornment,
   TextField,
@@ -15,7 +16,6 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { Controller, useForm } from 'react-hook-form';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
@@ -125,7 +125,7 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
           </Box>
 
           <Grid container spacing={6}>
-            <Grid size={{ xs: 12 }}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <Controller
                   name='password'

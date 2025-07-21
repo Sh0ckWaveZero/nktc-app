@@ -1,24 +1,23 @@
 import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Tooltip, Button } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
 import { CircularProgress } from '@mui/material';
-import { calculateTimeAgo } from 'utils/datetime';
+import { LocalStorageService } from '@/services/localStorageService';
+import { calculateTimeAgo } from '@/utils/datetime';
 import useGetImage from '@/hooks/useGetImage';
 import IconifyIcon from '@/@core/components/icon';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface Props {
   info: any[];
   user: any;
   onDeleted?: (id: string) => void;
 }
+const localStorageService = new LocalStorageService();
+const storedToken = localStorageService.getToken() || '';
 
 const getImage = (image: string) => {
-  const useLocal = useLocalStorage();
-  const storedToken = useLocal.getToken()!;
-
   const { isLoading, image: badnessImage } = useGetImage(image, storedToken);
 
   return isLoading ? (
@@ -59,7 +58,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
 const TimelineBadness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
-      <Grid size={{ xs: 12 }}>
+      <Grid size={12}>
         <Card>
           <CardHeader title='รายละเอียคความประพฤติ' />
           <CardContent>

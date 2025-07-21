@@ -9,10 +9,23 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  Request,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '@apis/auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
-import { JwtAuthGuard } from '../auth/common/guards';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ClassroomFileUploadDto } from './dto/file-upload.dto';
+import { Roles } from '../../common/guards/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('classrooms')
 @Controller('classrooms')
@@ -48,5 +61,23 @@ export class ClassroomController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteById(@Param('id') id: string) {
     return await this.classroomService.deleteById(id);
+  }
+
+  @Post('upload')
+  @UseGuards(RolesGuard)
+  @Roles('Admin')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description:
+      'ไฟล์ XLSX ที่มีข้อมูลห้องเรียน (คอลัมน์ที่จำเป็น: รหัส, ชื่อระดับชั้นเรียนสาขาวิชา, ระดับชั้น, แผนกวิชา)',
+    type: ClassroomFileUploadDto,
+  })
+  @ApiOperation({
+    summary: 'นำเข้าข้อมูลห้องเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)',
+  })
+  @HttpCode(HttpStatus.OK)
+  async uploadXlsx(@UploadedFile() file: Express.Multer.File, @Request() req) {
+    return await this.classroomService.importFromXlsx(file, req.user);
   }
 }

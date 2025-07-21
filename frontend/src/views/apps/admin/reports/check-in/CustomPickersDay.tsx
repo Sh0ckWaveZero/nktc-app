@@ -9,7 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import newAdapter from 'utils/newAdapter';
+import th from 'dayjs/locale/th';
 
 dayjs.extend(isBetweenPlugin);
 dayjs.extend(weekOfYear);
@@ -78,19 +78,18 @@ export default function CustomDay(props: TableHeaderProps) {
   };
 
   return (
-     <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+    <LocalizationProvider
+      dateAdapter={AdapterDayjs}
+      adapterLocale={th}
+    >
       <DatePicker
+        disableMaskedInput
         label='เลือกสัปดาห์'
-        format='วันที่ d ของสัปดาห์ MMMM YYYY'
         value={selectedDate}
-        onChange={(newDate) => handleSelectedDate(newDate)}
-        slotProps={{
-          textField: {
-            inputProps: {
-              placeholder: 'วัน เดือน ปี',
-            },
-          },
-        }}
+        onChange={(newValue: any) => handleSelectedDate(newValue)}
+        renderDay={renderWeekPickerDay}
+        renderInput={(params) => <TextField {...params} />}
+        inputFormat='วันที่ d ของสัปดาห์ MMMM BBBB'
       />
     </LocalizationProvider>
   );

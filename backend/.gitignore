@@ -1,52 +1,46 @@
-# compiled output
-/dist
-/node_modules
+# Backend specific ignores
+
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/
+bun.lock
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+.env.dev
+.env.prod
+
+# Database
+src/database/db/
+prisma/migrations/
+
+# Uploads
+uploads/
 
 # Logs
-logs
 *.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+logs/
 
-# OS
+# Cache
+.turbo/
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+
+# System
 .DS_Store
 
-# Tests
-/coverage
-/.nyc_output
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# db migrations
-/prisma/db/import
-
-# Git Submodules
-.gitmodules
-.env.prod
-.env.dev
-
-/src/database/prisma/db/*
-backend/src/database/db/nktc-services/*
-
-# VS Code Counter
-.VSCodeCounter/*
-
-# root folder files
-/data
+# Certificates
+*.pem
+*.key
+*.crt

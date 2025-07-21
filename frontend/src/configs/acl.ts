@@ -3,7 +3,7 @@ import { AbilityBuilder, Ability } from '@casl/ability';
 export type Subjects = string
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete'
 
-export type AppAbility = Ability<[Actions, Subjects]> | undefined
+export type AppAbility = Ability<[Actions, Subjects]>
 
 export const AppAbility = Ability as any
 export type ACLObj = {
@@ -42,6 +42,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['manage'], 'student-badness-summary-report');
     can(['read'], 'setting-system-page');
     can(['manage'], 'settings-classroom-list-pages');
+    can(['manage'], 'settings-program-list-pages');
     can(['read'], 'calendar-page');
   } else if (role === 'Teacher') {
     can(['create'], 'add-student-page');

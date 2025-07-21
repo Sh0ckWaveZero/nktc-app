@@ -1,3 +1,5 @@
+'use client';
+
 // ** React Imports
 import { Fragment, ReactNode } from 'react';
 

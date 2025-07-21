@@ -19,15 +19,19 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { Fragment, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { BoxProps } from '@mui/material/Box';
 import Close from 'mdi-material-ui/Close';
 import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import PasswordStrengthBar from 'react-password-strength-bar';
 import { PatternFormat } from 'react-number-format';
-import newAdapter from 'utils/newAdapter';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
+import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
+
+dayjs.extend(buddhistEra);
 
 interface SidebarAddTeacherType {
   open: boolean;
@@ -103,7 +107,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
         }
         return true;
       })
-      .matches(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
+      .matches( /^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
       .required(),
     password: yup
       .string()
@@ -275,24 +279,24 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               name='birthDate'
               control={control}
               render={({ field: { value, onChange } }) => (
-                 <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                   <DatePicker
                     label='วันเกิด'
-                    format='D MMMM YYYY'
                     value={value}
-                    disableFuture
                     onChange={onChange}
+                    format='D MMMM BBBB'
                     maxDate={dayjs(new Date())}
+                    slots={{
+                      textField: CustomTextField,
+                      openPickerIcon: () => <FcCalendar />
+                    }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         inputProps: {
                           placeholder: 'วัน/เดือน/ปี',
-                        },
-                      },
-                    }}
-                    slots={{
-                      openPickerIcon: () => <FcCalendar />,
+                        }
+                      }
                     }}
                   />
                 </LocalizationProvider>

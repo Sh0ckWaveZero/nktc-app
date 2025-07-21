@@ -7,35 +7,39 @@ import {
   CircularProgress,
   FormControl,
   FormHelperText,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import Button, { ButtonProps } from '@mui/material/Button';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { Fragment, useEffect, useState } from 'react';
 import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs from 'dayjs';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
+import th from 'dayjs/locale/th';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import { yupResolver } from '@hookform/resolvers/yup';
-import newAdapter from 'utils/newAdapter';
+
+dayjs.extend(buddhistEra);
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -68,7 +72,7 @@ const schema = yup.object().shape({
 });
 
 const localStorage = new LocalStorageService();
-const storedToken = localStorage.getToken()!;
+const storedToken = localStorage.getToken() || '';
 
 const TabTeacherAccount = () => {
   // Hooks
@@ -117,7 +121,7 @@ const TabTeacherAccount = () => {
       await fetchClassroom(storedToken).then(async (data: any) => {
         setClassrooms(await data);
         const defaultClassroom: any =
-          (await data?.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
+          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
         setClassroomSelected(defaultClassroom);
         setLoading(false);
       });
@@ -201,7 +205,7 @@ const TabTeacherAccount = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <Grid container spacing={5}>
-            <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
+            <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {isLoading || isCompressing ? (
                   <CircularProgress
@@ -246,7 +250,11 @@ const TabTeacherAccount = () => {
                 </Box>
               </Box>
             </Grid>
-            <Grid size={{ xs: 12, sm: 2 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 2
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='title'
@@ -272,7 +280,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 4
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -293,7 +305,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -314,7 +330,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -341,7 +361,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='academicStanding'
@@ -364,7 +388,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='department'
@@ -377,7 +405,7 @@ const TabTeacherAccount = () => {
                         <MenuItem value=''>
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
-                        {Array.isArray(departmentValues) && !isEmpty(departmentValues)
+                        {!isEmpty(departmentValues)
                           ? departmentValues.map((department: any) => (
                               <MenuItem key={department.id} value={department.id}>
                                 {department.name}
@@ -393,7 +421,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -412,7 +444,11 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <Autocomplete
                 id='checkboxes-tags-teacher-classroom'
                 multiple={true}
@@ -423,7 +459,11 @@ const TabTeacherAccount = () => {
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
                 isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    {option.name}
+                  </li>
+                )}
                 renderInput={(params) => (
                   <TextField {...params} label='ครูที่ปรึกษาระดับชั้น' placeholder='เลือกห้องเรียน' />
                 )}
@@ -433,30 +473,34 @@ const TabTeacherAccount = () => {
                 noOptionsText='ไม่พบข้อมูล'
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                       <DatePicker
                         label='วันเกิด'
-                        format='DD MMMM YYYY'
                         value={value}
-                        disableFuture
-                        onChange={onChange}
+                        format='dd/MM/BBBB'
                         maxDate={dayjs(new Date())}
+                        onChange={onChange}
+                        slots={{
+                          textField: TextField,
+                          openPickerIcon: () => <FcCalendar />
+                        }}
                         slotProps={{
                           textField: {
                             fullWidth: true,
                             inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            },
-                          },
-                        }}
-                        slots={{
-                          openPickerIcon: () => <FcCalendar />,
+                            }
+                          }
                         }}
                       />
                     </LocalizationProvider>
@@ -464,7 +508,7 @@ const TabTeacherAccount = () => {
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12 }}>
+            <Grid size={12}>
               <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
                 บันทึกการเปลี่ยนแปลง
               </Button>

@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Grid,
   IconButton,
   TextField,
   Typography,
@@ -15,27 +16,28 @@ import {
   MenuItem,
   FormHelperText,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCallback } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { generateErrorMessages } from 'utils/event';
+import { LocalStorageService } from '@/services/localStorageService';
+import { generateErrorMessages } from '@/utils/event';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import th from 'dayjs/locale/th';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import newAdapter from 'utils/newAdapter';
-import { FcCalendar } from 'react-icons/fc';
 dayjs.extend(buddhistEra);
+
+const localStorageService = new LocalStorageService();
+const storedToken = localStorageService.getToken() || '';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -70,8 +72,6 @@ interface DialogAddGoodnessGroupProps {
 }
 const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const { onOpen, data, handleClose, auth, handleSusses } = props;
-  const useLocal = useLocalStorage();
-  const storedToken = useLocal.getToken()!;
 
   // hooks
   const { createBadnessGroup }: any = badnessIndividualStore(
@@ -180,32 +180,40 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
           </Typography>
         </Box>
         <Grid container spacing={6}>
-          <Grid size={{ xs: 12 }}>
+          <Grid size={12}>
             <Grid container spacing={6}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                   <DatePicker
                     label='เลือกวันที่'
-                    format='DD MMMM YYYY'
                     value={selectedDate}
-                    disableFuture
-                    onChange={(newDate) => handleSelectedDate(newDate)}
+                    format='DD MMMM BBBB'
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
+                    onChange={(newDate) => handleSelectedDate(newDate)}
+                    slots={{
+                      textField: TextField
+                    }}
                     slotProps={{
                       textField: {
+                        fullWidth: true,
                         inputProps: {
                           placeholder: 'วัน เดือน ปี',
-                        },
-                      },
-                    }}
-                    slots={{
-                      openPickerIcon: () => <FcCalendar />,
+                        }
+                      }
                     }}
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl required fullWidth error={onSubmit && !badTypeScore}>
                   <InputLabel id='badTypeScore-label'>คะแนนพฤติกรรมที่ไม่เหมาะสม</InputLabel>
                   <Select
@@ -220,16 +228,16 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                       <em>คะแนนพฤติกรรมที่ไม่เหมาะสม</em>
                     </MenuItem>
                     <MenuItem value={0}>ตักเตือน</MenuItem>
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
                     <MenuItem value={5}>5</MenuItem>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                    <MenuItem value={40}>40</MenuItem>
                   </Select>
                   {onSubmit && !badTypeScore && <FormHelperText>กรุณากรอกคะแนนพฤติกรรมที่ไม่เหมาะสม</FormHelperText>}
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 12 }}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   multiline
@@ -244,7 +252,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                 />
               </Grid>
 
-              <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
+              <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>

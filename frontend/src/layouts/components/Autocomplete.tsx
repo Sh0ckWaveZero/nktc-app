@@ -1,13 +1,15 @@
+'use client';
+
 // ** React Imports
 import { useEffect, useCallback, useRef, useState, ChangeEvent, ReactNode } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import MuiDialog from '@mui/material/Dialog';
 import ListItem from '@mui/material/ListItem';
@@ -59,12 +61,14 @@ import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { LocalStorageService } from '@/services/localStorageService';
 
 
-const LinkStyled = styled(Link)(({ theme }) => ({
+const LinkStyled = styled(Box)(({ theme }) => ({
   textDecoration: 'none',
-  color: theme.palette.primary.main
+  color: theme.palette.primary.main,
+  cursor: 'pointer',
+  width: '100%'
 }))
 
 interface Props {
@@ -89,6 +93,8 @@ interface DefaultSuggestionsType {
     suggestion: string;
   }[];
 }
+
+const localStorageService = new LocalStorageService();
 
 const defaultSuggestionsData: DefaultSuggestionsType[] = [
   {
@@ -303,7 +309,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
       </Typography>
       <List sx={{ py: 0 }}>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/dashboards/ecommerce/'>
+          <Link href='/dashboards/ecommerce/'>
             <Box
               sx={{
                 display: 'flex',
@@ -320,7 +326,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
           </Link>
         </ListItem>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/apps/user/view/2/'>
+          <Link href='/apps/user/view/2/'>
             <Box
               sx={{
                 display: 'flex',
@@ -337,7 +343,7 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
           </Link>
         </ListItem>
         <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link passHref href='/pages/account-settings/'>
+          <Link href='/pages/account-settings/'>
             <Box
               sx={{
                 display: 'flex',
@@ -362,15 +368,20 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
   return (
     <Grid container spacing={6} sx={{ ml: 0 }}>
       {defaultSuggestionsData.map((item, index) => (
-        <Grid size={{ xs: 12, sm: 6 }} key={index}>
+        <Grid
+          key={index}
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
             {item.category}
           </Typography>
           <List sx={{ py: 2.5 }}>
             {item.suggestions.map((suggestionItem, index2) => (
               <ListItem key={index2} sx={{ py: 2 }} disablePadding>
-                <LinkStyled passHref href={suggestionItem.link}>
-                  <Box
+                <Link href={suggestionItem.link}>
+                  <LinkStyled
                     onClick={() => setOpenDialog(false)}
                     sx={{
                       display: 'flex',
@@ -383,8 +394,8 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
                     <Typography variant='body2' sx={{ color: 'text.primary' }}>
                       {suggestionItem.suggestion}
                     </Typography>
-                  </Box>
-                </LinkStyled>
+                  </LinkStyled>
+                </Link>
               </ListItem>
             ))}
           </List>
@@ -401,7 +412,6 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   // ** Hooks & Vars
-  const useLocal = useLocalStorage();
   const theme = useTheme();
   const router = useRouter();
   const { layout } = settings;
@@ -414,7 +424,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   // Get all data using API
   useEffect(() => {
-    const storedToken = useLocal.getToken()!;
+    const storedToken = localStorageService.getToken()!;
     fetch(debouncedValue, storedToken);
   }, [debouncedValue]);
 

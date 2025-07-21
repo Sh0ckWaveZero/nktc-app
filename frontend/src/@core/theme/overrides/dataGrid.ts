@@ -108,7 +108,7 @@ const DataGrid = (theme: Theme) => {
       },
       defaultProps: {
         rowHeight: 50,
-        columnHeaderHeight: 54,
+        headerHeight: 54,
       },
     },
   };

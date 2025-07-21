@@ -1,25 +1,35 @@
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import { ReactNode, createContext, useEffect, useState } from 'react';
+// ** React Imports
+import { createContext, useEffect, useState, ReactNode } from 'react';
 
+// ** Next Import
+import { useRouter, useSearchParams } from 'next/navigation';
+
+// ** Axios
+import axios from 'axios';
+
+// ** Config
 import { authConfig } from '@/configs/auth';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { AuthValuesType, ErrCallbackType, LoginParams, RegisterParams, UserDataType } from './types';
+
+// ** Types
+import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
+
+import { LocalStorageService } from '@/services/localStorageService';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
-  isInitialized: false,
+  user: null,
   loading: true,
+  setUser: () => null,
+  setLoading: () => Boolean,
+  isInitialized: false,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
-  register: () => Promise.resolve(),
   setIsInitialized: () => Boolean,
-  setLoading: () => Boolean,
-  setUser: () => null,
-  user: null,
+  register: () => Promise.resolve(),
 };
 
 const AuthContext = createContext(defaultProvider);
+const localStorageService = new LocalStorageService();
 
 type Props = {
   children: ReactNode;
@@ -33,9 +43,9 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const useLocal = useLocalStorage();
+  const searchParams = useSearchParams();
 
-  const storedToken = useLocal.getToken();
+  const storedToken = localStorageService.getToken()!;
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
       setIsInitialized(true);
@@ -55,13 +65,13 @@ const AuthProvider = ({ children }: Props) => {
           .catch((_) => {
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
-            useLocal.removeToken();
+            localStorageService.removeToken();
             setUser(null);
             setLoading(false);
             router.replace('/login');
           });
       } else {
-        handleLogout();
+        setLoading(false);
       }
     };
     initAuth();
@@ -71,12 +81,11 @@ const AuthProvider = ({ children }: Props) => {
     try {
       const response = await axios.post(authConfig.loginEndpoint as string, params);
       const { data } = response;
-      useLocal.setToken(data?.access_token);
-      const returnUrl = router.query.returnUrl;
+      localStorageService.setToken(data.token);
+      const returnUrl = searchParams.get('returnUrl');
       setUser(await data?.data);
       window.localStorage.setItem('userData', JSON.stringify(data));
-      window.localStorage.setItem('refresh_token', data?.refresh_token);
-      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/';
+      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
       router.replace(redirectURL as string);
     } catch (err: any) {
       if (errorCallback) errorCallback(err);
@@ -84,11 +93,10 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   const handleLogout = () => {
-    setLoading(false);
     setUser(null);
     setIsInitialized(false);
     window.localStorage.removeItem('userData');
-    useLocal.removeToken();
+    localStorageService.removeToken();
     router.push('/login');
   };
 

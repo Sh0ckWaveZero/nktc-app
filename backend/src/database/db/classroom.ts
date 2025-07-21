@@ -1,6 +1,8 @@
-import { PrismaClient } from '@Prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import {
   getDepartId,
+  getDepartIdByName,
+  getLevelByName,
   getLevelId,
   getProgramId,
   readWorkSheetFromFile,
@@ -14,53 +16,172 @@ export const Classroom = async () => {
     workSheetsFromFile[0].data
       .filter((data: any, id: number) => id > 1 && data)
       .map(async (item: any) => {
-        const [
-          classroomId,
-          name,
-          levelId,
-          classroom,
-          program,
-          department,
-          departmentIds,
-        ] = item;
+        try {
+          const [
+            classroomId,
+            name,
+            levelName,
+            classroom,
+            program,
+            department,
+            departmentIds,
+          ] = item;
 
-        const programId = await getProgramId(program, levelId);
-        const level = await getLevelId(levelId);
-        const departmentId = await getDepartId(departmentIds, classroomId);
+          // Generate a default classroom ID if missing
+          const processedClassroomId =
+            classroomId || `CR${Date.now().toString().slice(-8)}`;
 
-        return {
-          classroomId,
-          name,
-          programId,
-          departmentId: departmentId?.id || '',
-          levelId: Object.values(level)[0] as string,
-        };
+          // Try to get program, level and department IDs
+          let programId, level, departmentId;
+          try {
+            programId = await getProgramId(program, levelName);
+          } catch (error) {
+            console.log(
+              `Error getting program ID for ${processedClassroomId}: ${error.message}`,
+            );
+            programId = null;
+          }
+
+          try {
+            level = await getLevelId(levelName);
+          } catch (error) {
+            console.log(
+              `Error getting level ID for ${processedClassroomId}: ${error.message}`,
+            );
+            level = { id: '' };
+          }
+
+          try {
+            departmentId = await getDepartId(
+              departmentIds,
+              processedClassroomId,
+            );
+          } catch (error) {
+            console.log(
+              `Error getting department ID for ${processedClassroomId}: ${error.message}`,
+            );
+            departmentId = { id: '' };
+          }
+
+          return {
+            classroomId: processedClassroomId,
+            name: name || `Classroom ${processedClassroomId}`,
+            programId,
+            departmentId: departmentId?.id || '',
+            levelId: level?.id || '',
+          };
+        } catch (error) {
+          console.log('Error processing item:', item, error);
+          // Generate a placeholder entry instead of returning null
+          const fallbackId = `CR${Date.now().toString().slice(-8)}`;
+          return {
+            classroomId: fallbackId,
+            name: `Classroom ${fallbackId}`,
+            programId: null,
+            departmentId: '',
+            levelId: '',
+          };
+        }
       }),
   );
 
-  // Process each classroom - update if exists, create if not
-  const results = await Promise.all(
-    classroomData.map(async (data) => {
-      // Check if classroom already exists
-      const existingClassroom = await prisma.classroom.findUnique({
-        where: { classroomId: data.classroomId },
-      });
+  // Process all classroom data, no filtering
+  const results = [];
+  for (const data of classroomData) {
+    try {
+      // Ensure name is not null or undefined
+      const processedName =
+        data.name ||
+        `Classroom ${data.classroomId || Date.now().toString().slice(-8)}`;
 
-      if (existingClassroom) {
-        // Update existing classroom
-        return await prisma.classroom.update({
-          where: { classroomId: data.classroomId },
-          data: data,
+      // For duplicate name issues, make the name unique by appending timestamp
+      let uniqueName = processedName;
+      try {
+        const existingWithSameName = await prisma.classroom.findUnique({
+          where: { name: processedName },
         });
-      } else {
-        // Create new classroom
-        return await prisma.classroom.create({
-          data: data,
-        });
+
+        if (
+          existingWithSameName &&
+          existingWithSameName.classroomId !== data.classroomId
+        ) {
+          // If a record with the same name but different classroomId exists, make the name unique
+          uniqueName = `${processedName} (${Date.now().toString().slice(-4)})`;
+          console.log(
+            `Renamed duplicate classroom name ${processedName} to ${uniqueName}`,
+          );
+        }
+      } catch (error) {
+        console.log(`Error checking for duplicate name: ${error.message}`);
+        uniqueName = `${processedName} (${Date.now().toString().slice(-4)})`;
       }
-    })
-  );
 
-  console.log(`Updated/Created ${results.length} classrooms`);
+      try {
+        const result = await prisma.classroom.upsert({
+          where: { classroomId: data.classroomId },
+          update: {
+            name: uniqueName,
+            programId: data.programId,
+            departmentId: data.departmentId || '',
+            levelId: data.levelId || '',
+          },
+          create: {
+            classroomId: data.classroomId,
+            name: uniqueName,
+            programId: data.programId,
+            departmentId: data.departmentId || '',
+            levelId: data.levelId || '',
+          },
+        });
+        results.push(result);
+        console.log(
+          `Successfully processed classroom ${data.classroomId}: ${uniqueName}`,
+        );
+      } catch (error) {
+        console.log(
+          `Error upserting classroom ${data?.classroomId}: ${error.message}`,
+        );
+
+        // Try one more time with a new name if upsert failed
+        try {
+          const retryName = `${uniqueName} (retry-${Date.now()
+            .toString()
+            .slice(-6)})`;
+          const result = await prisma.classroom.upsert({
+            where: { classroomId: data.classroomId },
+            update: {
+              name: retryName,
+              programId: data.programId,
+              departmentId: data.departmentId || '',
+              levelId: data.levelId || '',
+            },
+            create: {
+              classroomId: data.classroomId,
+              name: retryName,
+              programId: data.programId,
+              departmentId: data.departmentId || '',
+              levelId: data.levelId || '',
+            },
+          });
+          results.push(result);
+          console.log(
+            `Successfully processed classroom on retry ${data.classroomId}: ${retryName}`,
+          );
+        } catch (secondError) {
+          console.log(
+            `Final error with classroom ${data?.classroomId} even after retry: ${secondError.message}`,
+          );
+        }
+      }
+    } catch (error) {
+      console.log(
+        `Unexpected error with classroom ${data?.classroomId}: ${error.message}`,
+      );
+    }
+  }
+
+  console.log(
+    `Updated/Created ${results.length} classrooms out of ${classroomData.length} entries`,
+  );
   return results;
 };

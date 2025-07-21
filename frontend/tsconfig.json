@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "target": "es6",
+    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -10,16 +9,15 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
       "apexcharts": [
         "./node_modules/apexcharts-clevision"
@@ -27,38 +25,50 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
+      "@/*": [
+        "./src/*"
+      ],
       "@/@core/*": [
-        "@core/*"
+        "./src/@core/*"
       ],
       "@/configs/*": [
-        "configs/*"
+        "./src/configs/*"
       ],
       "@/layouts/*": [
-        "layouts/*"
+        "./src/layouts/*"
       ],
       "@/pages/*": [
-        "pages/*"
+        "./src/pages/*"
       ],
       "@/hooks/*": [
-        "hooks/*"
+        "./src/hooks/*"
       ],
       "@/context/*": [
-        "context/*"
+        "./src/context/*"
       ],
       "@/navigation/*": [
-        "navigation/*"
+        "./src/navigation/*"
       ],
       "@/views/*": [
-        "views/*"
+        "./src/views/*"
       ],
       "@/store/*": [
-        "store/*"
+        "./src/store/*"
       ],
       "@/types/*": [
-        "types/*"
+        "./src/types/*"
       ],
       "@/services/*": [
-        "services/*"
+        "./src/services/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/styles/*": [
+        "./src/styles/*"
       ]
     },
     "plugins": [
@@ -68,10 +78,9 @@
     ]
   },
   "include": [
-    "src",
-    "declaration.d.ts",
-    "**/*.tsx",
+    "next-env.d.ts",
     "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [

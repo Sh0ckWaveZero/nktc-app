@@ -1,70 +1,73 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import {
   createByAdmin,
+  getLevelId,
   readWorkSheetFromFile,
 } from '../../utils/utils';
-import { getLevelId, ensureLevelsExist } from '../../utils/levelUtils';
 
 const prisma = new PrismaClient();
 export const programData = async () => {
-  // First ensure that levels exist in the database
-  await ensureLevelsExist();
-  
   const workSheetsFromFile = readWorkSheetFromFile('program');
   const admin = createByAdmin();
 
-  if (!workSheetsFromFile || workSheetsFromFile.length === 0) {
-    console.error("No worksheet data found for program");
-    return;
-  }
+  console.log(
+    `🚀 Processing ${workSheetsFromFile[0].data.length - 2} program records...`,
+  );
 
-  const validPrograms = [];
-  
-  // Process each row in the worksheet
-  for (const item of workSheetsFromFile[0].data.filter((data: any, id: number) => id > 1 && data)) {
+  // Use sequential processing instead of Promise.all to handle duplicates better
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (let i = 0; i < workSheetsFromFile[0].data.length; i++) {
+    const item = workSheetsFromFile[0].data[i];
+
+    // Skip header rows and empty rows
+    if (i <= 1 || !item || item.length < 4) {
+      continue;
+    }
+
     try {
-      if (!item[0] || !item[1] || !item[3]) {
-        console.log("Skipping incomplete row:", item);
+      const programId = item[0]?.toString().trim() || '';
+      const name = item[1]?.toString().trim() || '';
+      const description = item[2]?.toString().trim() || '';
+      const levelString = item[3]?.toString().trim() || '';
+
+      if (!programId) {
+        console.warn(`Skipping program with empty ID at row ${i + 1}`);
+        errorCount++;
         continue;
       }
-      
-      const programId = item[0].toString();
-      const name = item[1].toString();
-      const description = item[2] ? item[2].toString() : '';
-      const levelIdentifier = item[3].toString();
-      
-      console.log(`Processing program: ${name} with level: ${levelIdentifier}`);
-      
-      // Get level ID
-      const levelIds = await getLevelId(levelIdentifier);
-      const levelId = levelIds[levelIdentifier];
-      
-      if (!levelId) {
-        console.error(`Level ID not found for: ${levelIdentifier}`);
-        continue; // Skip this program if level is not found
-      }
-      
-      validPrograms.push({
-        programId,
-        name,
-        description,
-        levelId,
-        ...admin,
+
+      const level = await getLevelId(levelString);
+
+      // Use upsert to handle duplicates
+      await prisma.program.upsert({
+        where: { programId },
+        update: {
+          name: name,
+          description: description,
+          levelId: level?.id || null,
+          ...admin,
+        },
+        create: {
+          programId,
+          name: name,
+          description: description,
+          levelId: level?.id || null,
+          ...admin,
+        },
       });
+
+      successCount++;
+      console.log(`✅ Processed program: ${programId} - ${name}`);
     } catch (error) {
-      console.error(`Error processing program row:`, item, error);
+      errorCount++;
+      console.error(`❌ Error processing program at row ${i + 1}:`, error);
+      // Continue processing other items
     }
   }
 
-  if (validPrograms.length === 0) {
-    console.error("No valid programs to create");
-    return;
-  }
-
-  console.log(`Creating ${validPrograms.length} programs...`);
-  
-  await prisma.program.createMany({
-    data: validPrograms,
-    skipDuplicates: true,
-  });
+  console.log(
+    `✅ Program processing complete: ${successCount} successful, ${errorCount} errors`,
+  );
 };

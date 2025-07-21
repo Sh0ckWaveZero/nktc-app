@@ -176,7 +176,7 @@ export default function DialogClassroomGoodnessGroup({
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
             renderOption={(props, option) => (
-              <li key={option.classroomId} {...props}>
+              <li {...props}>
                 {option.name}
               </li>
             )}
@@ -196,19 +196,42 @@ export default function DialogClassroomGoodnessGroup({
         </FormControl>
         <DataGrid
           checkboxSelection
-          autoHeight
           columns={columns}
           rows={defaultClassroom ? studentsList : []}
           disableColumnMenu
           loading={studentLoading}
-          rowsPerPageOptions={[pageSize, 10, 20, 50, 100]}
-          onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-          onSelectionModelChange={onSelectionModelChange}
-          components={{
-            NoRowsOverlay: CustomNoRowsOverlay,
+          getRowHeight={() => 'auto'}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: pageSize, page: 0 },
+            },
+          }}
+          pageSizeOptions={[pageSize, 10, 20, 50, 100]}
+          onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+          onRowSelectionModelChange={onSelectionModelChange}
+          slots={{
+            noRowsOverlay: CustomNoRowsOverlay,
           }}
           sx={{
             my: 2,
+            '& .MuiDataGrid-row': {
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+              maxHeight: 'none !important',
+            },
+            '& .MuiDataGrid-cell': {
+              display: 'flex',
+              alignItems: 'center',
+              lineHeight: 'unset !important',
+              maxHeight: 'none !important',
+              overflow: 'visible',
+              whiteSpace: 'normal',
+              wordWrap: 'break-word',
+            },
+            '& .MuiDataGrid-renderingZone': {
+              maxHeight: 'none !important',
+            },
           }}
         />
       </DialogContent>

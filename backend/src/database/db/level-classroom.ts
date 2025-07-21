@@ -1,4 +1,4 @@
-import { PrismaClient } from '@Prisma/client';
+import { PrismaClient } from '@prisma/client';
 import {
   readWorkSheetFromFile,
   createByAdmin,
@@ -22,7 +22,7 @@ export const createLevelClassroom = async () => {
         return {
           levelClassroomId,
           name,
-          levelId: Object.values(level)[0] as string,
+          levelId: level?.id || '',
           ...admin,
         };
       }),

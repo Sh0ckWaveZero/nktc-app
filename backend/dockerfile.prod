@@ -1,8 +1,10 @@
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:22-alpine3.18 as build
+FROM node:18-alpine as build
 
+#RUN apk add --no-cache curl bash openssl1.1-compat \
+ # && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
 RUN apk add --no-cache curl bash openssl \
   && curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
 
@@ -38,10 +40,11 @@ RUN yarn cache clean --force \
 
 USER node
 
+
 ###################
 # PRODUCTION
 ###################
-FROM node:22-alpine3.18 AS deploy
+FROM node:18-alpine AS deploy
 
 ENV TZ Asia/Bangkok
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

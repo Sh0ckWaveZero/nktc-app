@@ -20,7 +20,6 @@ import { BoxProps } from '@mui/material/Box';
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close';
-import dayjs, { Dayjs } from 'dayjs';
 
 // ** Utils
 
@@ -29,7 +28,7 @@ interface SidebarAddClassroomType {
   toggle: () => void;
   onSubmitted: (event: any, value: any) => void;
   data: any;
-  selectedDate: Dayjs | null;
+  selectedDate: Date;
 }
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
@@ -68,7 +67,12 @@ const SidebarEditCheckInDrawer = (props: SidebarAddClassroomType) => {
       <form onSubmit={(event) => onSubmitted(event, { isCheckInStatus: values, data })}>
         <Stack sx={{ p: 5 }} spacing={5}>
           <Typography variant='subtitle1' component='h2'>
-            {dayjs(selectedDate).locale('th').format('dddd, D MMMM YYYY') || ''}
+            {new Date(selectedDate as Date).toLocaleDateString('th-TH', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }) || ''}
           </Typography>
           <TextField
             fullWidth

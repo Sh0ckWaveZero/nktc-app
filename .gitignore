@@ -1,53 +1,152 @@
+# NKTC App - Monorepo .gitignore
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
+# ===== DEPENDENCIES =====
+node_modules/
+.pnp
 .pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
-# testing
-/coverage
+# Package manager lockfiles (keep only bun.lock at root)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+frontend/bun.lock
+backend/bun.lock
+frontend/package-lock.json
+backend/package-lock.json
 
-# next.js
-/.next/
-/out/
+# ===== BUILD OUTPUTS =====
+# Next.js
+.next/
+out/
+build/
+dist/
 
-# production
-/build
+# NestJS
+backend/dist/
+backend/build/
 
-# misc
-.DS_Store
-*.pem
+# ===== CACHE & TEMP =====
+.turbo/
+.cache/
+.temp/
+.tmp/
+*.tsbuildinfo
+*.buildinfo
 
-# debug
+# ===== ENVIRONMENT & CONFIG =====
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# ===== LOGS =====
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+bun-debug.log*
 
-# local env files
-.env*.local
+# ===== TESTING =====
+coverage/
+.nyc_output/
+.coverage/
+*.lcov
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-
-.vscode
-.env
-
-web/node_modules/
-web/.next/
-web/.idea/
-backend/node_modules/
-old
-.vscode/
-frontend/node_modules/
-frontend/.next/
-frontend/.idea/
-web/
+# ===== DATABASE =====
+# Prisma
+backend/prisma/migrations/
+backend/src/database/db/
 backend/src/database/db/nktc-services
-.env*
-.flaskenv*
-.env.vault
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== UPLOADS & MEDIA =====
+uploads/
+public/uploads/
+backend/uploads/
+frontend/public/uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.svg
+!frontend/public/images/
+!backend/public/images/
+
+# ===== SYSTEM FILES =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ===== IDE & EDITORS =====
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.history/
+.vscode-test/
+
+# ===== DEPLOYMENT =====
+.vercel/
+.netlify/
+.firebase/
+
+# ===== CERTIFICATES & KEYS =====
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ===== MISC =====
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.next-env.d.ts
+
+# ===== LEGACY/OLD FILES =====
+web/
+old/
+backup/
+archive/
+
+# ===== DOCKER =====
+.dockerignore
+docker-compose.override.yml
+
+# ===== MACOS =====
+.AppleDouble
+.LSOverride
+Icon
+
+# ===== WINDOWS =====
+desktop.ini
+$RECYCLE.BIN/
+
+# ===== LINUX =====
+*~
+.fuse_hidden*
+.directory
+.Trash-*

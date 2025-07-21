@@ -3,7 +3,7 @@ import { ElementType, Fragment } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -38,8 +38,9 @@ interface Props {
   hasParent: boolean;
 }
 
-const ListItem = styled(MuiListItem)<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(
-  ({ theme }) => ({
+const ListItem = styled(MuiListItem, {
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'target',
+})<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(({ theme }) => ({
     width: 'auto',
     paddingTop: theme.spacing(2.25),
     color: theme.palette.text.primary,
@@ -62,22 +63,15 @@ const HorizontalNavLink = (props: Props) => {
 
   // ** Hook & Vars
   const router = useRouter();
+  const pathname = usePathname();
   const { navSubItemIcon, menuTextTruncate } = themeConfig;
 
   const IconTag = item.icon ? item.icon : navSubItemIcon;
 
   const Wrapper = !hasParent ? List : Fragment;
 
-  const handleURLQueries = () => {
-    if (Object.keys(router.query).length && item.path) {
-      const arr = Object.keys(router.query);
-
-      return router.asPath.includes(item.path) && router.asPath.includes(router.query[arr[0]] as string);
-    }
-  };
-
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries()) {
+    if (pathname === item.path) {
       return true;
     } else {
       return false;
@@ -97,7 +91,6 @@ const HorizontalNavLink = (props: Props) => {
         <Link href={`${item.path}`} passHref>
           <ListItem
             component={'p'}
-            disabled={item.disabled}
             className={clsx({ active: isNavLinkActive() })}
             target={item.openInNewTab ? '_blank' : undefined}
             onClick={(e) => {
@@ -107,7 +100,9 @@ const HorizontalNavLink = (props: Props) => {
               }
             }}
             sx={{
-              ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
+              pointerEvents: item.disabled ? 'none' : 'auto',
+              opacity: item.disabled ? 0.5 : 1,
+              ...(item.disabled ? {} : { cursor: 'pointer' }),
               ...(!hasParent
                 ? {
                     px: 5.5,

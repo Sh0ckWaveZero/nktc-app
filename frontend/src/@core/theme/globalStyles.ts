@@ -24,6 +24,34 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
   };
 
   return {
+    ':root': {
+      colorScheme: 'light dark',
+    },
+    html: {
+      height: '100%',
+      backgroundColor: theme.palette.background.default,
+      colorScheme: theme.palette.mode,
+    },
+    body: {
+      height: '100%',
+      margin: 0,
+      padding: 0,
+      backgroundColor: theme.palette.background.default,
+      '&, &.light': {
+        backgroundColor: theme.palette.mode === 'light' ? theme.palette.background.default : undefined,
+      },
+      '&.dark': {
+        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : undefined,
+      },
+    },
+    '#__next': {
+      height: '100%',
+      backgroundColor: theme.palette.background.default,
+    },
+    '.layout-wrapper': {
+      minHeight: '100vh',
+      backgroundColor: theme.palette.background.default,
+    },
     'body[style^="padding-right"] .layout-navbar-and-nav-container::after': {
       content: '""',
       position: 'absolute' as const,

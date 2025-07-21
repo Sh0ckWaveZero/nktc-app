@@ -3,7 +3,7 @@
 // ** Icons Imports
 import IconifyIcon from '@/@core/components/icon';
 import { Button, TextField, Box, Stack } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CsvDownloader from 'react-csv-downloader';
 
 interface TableHeaderProps {
@@ -54,19 +54,15 @@ const TableHeader = (props: TableHeaderProps) => {
   ];
 
   const mapDataToTable = (data: any[]): Data[] => {
-    if (Array.isArray(data)) {
-      return data?.map((item: any, index: number) => {
-        return {
-          id: index + 1,
-          username: item.username,
-          fullName: `${item.firstName} ${item.lastName}`,
-          logs: item.loginCountByUser?.map((log: any) => log.date).join('| '),
-          total: item.loginCountByUser.length,
-        };
-      });
-    } else {
-      return [];
-    }
+    return data.map((item: any, index: number) => {
+      return {
+        id: index + 1,
+        username: item.username,
+        fullName: `${item.firstName} ${item.lastName}`,
+        logs: item.loginCountByUser?.map((log: any) => log.date).join('| '),
+        total: item.loginCountByUser.length,
+      };
+    });
   };
 
   const date = new Date();
@@ -78,7 +74,13 @@ const TableHeader = (props: TableHeaderProps) => {
 
   return (
     <Grid container spacing={2} sx={{ px: 3, py: 2 }} display='flex' direction='row' justifyContent='space-between'>
-      <Grid size={{ xs: 12, md: 12, lg: 2 }}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 2
+        }}>
         <CsvDownloader
           prefix='System Access Report'
           filename={filename}
@@ -98,7 +100,12 @@ const TableHeader = (props: TableHeaderProps) => {
           </Button>
         </CsvDownloader>
       </Grid>
-      <Grid size={{ xs: 12, md: 12, lg: 2 }}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 12,
+          lg: 6
+        }}>
         <Stack direction='row' spacing={2} justifyContent='flex-end'>
           <TextField
             fullWidth

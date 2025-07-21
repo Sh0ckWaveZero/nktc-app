@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 
 import { BadnessIndividualService } from './badness-individual.service';
-import { JwtAuthGuard } from '../auth/common/guards';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('badness-individual')
 @Controller('badness-individual')

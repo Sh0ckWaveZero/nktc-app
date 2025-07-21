@@ -1,3 +1,5 @@
+'use client';
+
 // ** MUI Imports
 import { useTheme } from '@mui/material/styles';
 import MuiTimelineDot from '@mui/lab/TimelineDot';
@@ -10,7 +12,7 @@ import { CustomTimelineDotProps, ColorsType } from './types';
 
 const TimelineDot = (props: CustomTimelineDotProps) => {
   // ** Props
-  const { sx, skin, color = 'grey', variant = 'filled' } = props;
+  const { sx, skin, color, variant } = props;
 
   // ** Hook
   const theme = useTheme();
@@ -59,6 +61,11 @@ const TimelineDot = (props: CustomTimelineDotProps) => {
       sx={color && skin === 'light' && variant === 'filled' ? Object.assign(colors[color], sx) : sx}
     />
   );
+};
+
+TimelineDot.defaultProps = {
+  color: 'grey',
+  variant: 'filled',
 };
 
 export default TimelineDot;

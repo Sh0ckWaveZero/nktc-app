@@ -2,7 +2,7 @@
 import { ReactNode, ReactElement, useEffect } from 'react';
 
 // ** Next Imports
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // ** Hooks Import
 import { useAuth } from '@/hooks/useAuth';
@@ -18,14 +18,10 @@ const GuestGuard = (props: GuestGuardProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-
     if (window.localStorage.getItem('userData')) {
       router.replace('/');
     }
-  }, [router.route]);
+  }, [router]);
 
   if (auth.loading || (!auth.loading && auth.user !== null)) {
     return fallback;

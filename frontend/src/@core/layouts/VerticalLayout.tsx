@@ -25,18 +25,21 @@ import ScrollToTop from '@/@core/components/scroll-to-top';
 // ** Styled Component
 import DatePickerWrapper from '@/@core/styles/libs/react-datepicker';
 
-const VerticalLayoutWrapper = styled('div')({
+const VerticalLayoutWrapper = styled('div')(({ theme }) => ({
   height: '100%',
+  minHeight: '100vh',
   display: 'flex',
-});
+  backgroundColor: theme.palette.background.default,
+}));
 
-const MainContentWrapper = styled(Box)<BoxProps>({
+const MainContentWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   flexGrow: 1,
   minWidth: 0,
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column',
-});
+  backgroundColor: theme.palette.background.default,
+}));
 
 const ContentWrapper = styled('main')(({ theme }) => ({
   flexGrow: 1,

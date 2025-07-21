@@ -2,7 +2,7 @@
 import { ReactNode, useState } from 'react';
 
 // ** Next Imports
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 
 // ** Types
 import type { ACLObj, AppAbility } from '@/configs/acl';
@@ -14,7 +14,7 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import { buildAbilityFor } from '@/configs/acl';
 
 // ** Component Import
-import NotAuthorized from '@/pages/401';
+import NotAuthorized from '@/views/pages/misc/401';
 import BlankLayout from '@/@core/layouts/BlankLayout';
 
 // ** Hooks
@@ -35,9 +35,10 @@ const AclGuard = (props: AclGuardProps) => {
   // ** Hooks
   const auth = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
-  if (guestGuard || router.route === '/404' || router.route === '/500' || router.route === '/') {
+  if (guestGuard || pathname === '/404' || pathname === '/500' || pathname === '/') {
     return <>{children}</>;
   }
 

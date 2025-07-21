@@ -28,9 +28,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { useClassroomStore, useDepartmentStore, useProgramStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
+import { LocalStorageService } from '@/services/localStorageService';
 import { toast } from 'react-hot-toast';
 import { useLevelStore } from '@/store/apps/level';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 dayjs.extend(buddhistEra);
 
@@ -89,6 +89,9 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
+const localStorageService = new LocalStorageService();
+const accessToken = localStorageService.getToken() || '';
+
 const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   // ** Props
   const { open, toggle, onSubmitForm } = props;
@@ -107,17 +110,16 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
     shallow,
   );
 
-  const { fetchProgram }: any = useProgramStore(
+  const { fetchPrograms }: any = useProgramStore(
     (state) => ({
-      fetchProgram: state.fetchProgram,
+      fetchPrograms: state.fetchPrograms,
     }),
     shallow,
   );
 
   const { fetchLevels }: any = useLevelStore((state) => ({ fetchLevels: state.fetchLevels }), shallow);
   const { fetchDepartment }: any = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
-  const useLocal = useLocalStorage();
-  const accessToken = useLocal.getToken()!;
+
   const schema = yup.object().shape({
     classroomId: yup.string().required('กรุณากรอกรหัสห้องเรียน'),
     levelId: yup.string().required('กรุณาเลือกระดับชั้น'),
@@ -171,7 +173,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
 
   useEffect(() => {
     if (hideProgram) {
-      fetchProgram(accessToken).then((res: any) => {
+      fetchPrograms(accessToken).then((res: any) => {
         if (res.length > 0) {
           setProgramList(res.filter((item: any) => item.levelId === getValues('levelId')));
         }

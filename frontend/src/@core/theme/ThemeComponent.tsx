@@ -1,9 +1,11 @@
+'use client';
+
 // ** React Imports
 import { ReactNode } from 'react';
 
 // ** MUI Imports
 import { deepmerge } from '@mui/utils';
-import { Theme } from '@mui/system';
+import { Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
@@ -39,7 +41,17 @@ const ThemeComponent = (props: Props) => {
   const coreThemeConfig = themeOptions(settings);
 
   // ** Pass ThemeOptions to CreateTheme Function to create partial theme without component overrides
-  let theme = createTheme(coreThemeConfig);
+  let theme = createTheme({
+    cssVariables: {
+      colorSchemeSelector: 'class'
+    },
+    colorSchemes: {
+      light: themeOptions({ ...settings, mode: 'light' }),
+      dark: themeOptions({ ...settings, mode: 'dark' })
+    },
+    defaultColorScheme: settings.mode,
+    ...coreThemeConfig
+  });
 
   // ** Deep Merge Component overrides of core and user
   const mergeComponentOverrides = (theme: Theme, settings: Settings) =>
@@ -65,9 +77,9 @@ const ThemeComponent = (props: Props) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <GlobalStyles styles={() => GlobalStyling(theme, settings) as any} />
-      {children}
+        <CssBaseline />
+        <GlobalStyles styles={() => GlobalStyling(theme, settings) as any} />
+        {children}
     </ThemeProvider>
   );
 };

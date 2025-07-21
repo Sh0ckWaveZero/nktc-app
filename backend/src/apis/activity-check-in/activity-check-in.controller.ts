@@ -11,7 +11,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { ActivityCheckInService } from './activity-check-in.service';
-import { JwtAuthGuard } from '../auth/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 

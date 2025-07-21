@@ -1,3 +1,5 @@
+'use client';
+
 // ** React Imports
 import { forwardRef, Ref } from 'react';
 
@@ -17,7 +19,7 @@ import IconifyIcon from '../../icon';
 // eslint-disable-next-line react/display-name
 const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
   // ** Props
-  const { sx, src, skin = 'filled', color = 'primary', badge = '' } = props;
+  const { sx, src, skin, color, badge = '' } = props;
 
   // ** Hook
   const theme: any = useTheme();
@@ -72,5 +74,10 @@ const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
     return <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />;
   }
 });
+
+Avatar.defaultProps = {
+  skin: 'filled',
+  color: 'primary',
+};
 
 export default Avatar;

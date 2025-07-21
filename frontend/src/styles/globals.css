@@ -1,15 +1,26 @@
 html,
 body {
-  min-height: 100%;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: var(--font-prompt), 'Prompt', sans-serif;
+}
+
+html.dark,
+body.dark {
+  background-color: #1a1625 !important;
 }
 
 #__next {
-  height: 100%;
+  height: 100% !important;
+}
+
+.layout-wrapper {
+  min-height: 100vh !important;
 }
 
 code {
-  font-family: 'Prompt', 'Sarabun', 'Noto Sans Thai', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
+  font-family: var(--font-prompt), 'Prompt', monospace;
   padding: 0.1rem 0.4rem;
   font-size: 90%;
   color: #d400ff;
@@ -30,6 +41,5 @@ code[class*='language-'] {
 .swal2-confirm,
 .swal2-styled,
 .swal2-default-outline {
-  font-family: 'Prompt', 'Sarabun', 'Noto Sans Thai', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
+  font-family: var(--font-prompt), 'Prompt', sans-serif;
 }

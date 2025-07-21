@@ -1,0 +1,33 @@
+{
+  "name": "nktc-app-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NKTC Student Management System - Monorepo",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:stream": "turbo run dev --ui=stream",
+    "dev:tui": "turbo run dev --ui=tui",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean",
+    "dev:frontend": "turbo run dev --filter=nktc-app",
+    "dev:backend": "turbo run dev --filter=backend",
+    "build:frontend": "turbo run build --filter=nktc-app",
+    "build:backend": "turbo run build --filter=backend",
+    "dev:all": "turbo run dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.5"
+  },
+  "packageManager": "bun@1.2.18",
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

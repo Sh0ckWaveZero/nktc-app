@@ -1,7 +1,8 @@
 // ** MUI Imports
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
-import { Autocomplete, FormControl, Grid } from '@mui/material';
+import { Autocomplete, FormControl } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
@@ -57,7 +58,13 @@ const TableHeader = (props: TableHeaderProps) => {
         p: 5,
       }}
     >
-      <Grid item xs={12} sm={12} md={12} lg={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 2
+        }}>
         <FormControl fullWidth>
           <TextField
             fullWidth
@@ -71,7 +78,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 4
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
@@ -84,7 +97,7 @@ const TableHeader = (props: TableHeaderProps) => {
             getOptionLabel={(option: any) => option.fullName || ''}
             isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
             renderOption={(props, option) => (
-              <li key={option?.id} {...props}>
+              <li {...props}>
                 {`${option?.title}${option?.fullName} `}
               </li>
             )}
@@ -95,7 +108,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={4}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 4
+        }}>
         <FormControl fullWidth>
           <Autocomplete
             id='checkboxes-tags-classroom'
@@ -106,7 +125,7 @@ const TableHeader = (props: TableHeaderProps) => {
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
             renderOption={(props, option) => (
-              <li key={option.classroomId} {...props}>
+              <li {...props}>
                 {option.name}
               </li>
             )}
@@ -125,7 +144,13 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid item xs={12} sm={12} md={12} lg={2}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 12,
+          md: 12,
+          lg: 2
+        }}>
         <FormControl fullWidth>
           <LinkStyled href='/apps/student/add' passHref>
             <Button

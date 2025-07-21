@@ -3,7 +3,7 @@ import { ElementType } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip'
@@ -43,9 +43,9 @@ interface Props {
 }
 
 // ** Styled Components
-const MenuNavLink = styled(ListItemButton)<
-  ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }
->(({ theme }) => ({
+const MenuNavLink = styled(ListItemButton, {
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'href' && prop !== 'target',
+})<ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }>(({ theme }) => ({
   width: '100%',
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,
@@ -85,6 +85,7 @@ const VerticalNavLink = ({
 }: Props) => {
   // ** Hooks
   const router = useRouter()
+  const pathname = usePathname()
 
   // ** Vars
   const { navCollapsed } = settings
@@ -92,7 +93,7 @@ const VerticalNavLink = ({
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
 
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
+    if (pathname === item.path) {
       return true
     } else {
       return false
@@ -104,8 +105,12 @@ const VerticalNavLink = ({
       <ListItem
         disablePadding
         className='nav-link'
-        disabled={item.disabled || false}
-        sx={{ mt: 1.5, px: '0 !important' }}
+        sx={{ 
+          mt: 1.5, 
+          px: '0 !important',
+          pointerEvents: item.disabled ? 'none' : 'auto',
+          opacity: item.disabled ? 0.5 : 1
+        }}
       >
         <MenuNavLink
           component={Link}

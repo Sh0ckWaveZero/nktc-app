@@ -1,14 +1,14 @@
 // ** Type Imports
 import { PaletteMode } from '@mui/material';
 import { Skin, ThemeColor } from '@/@core/layouts/types';
-import { hexToRgb } from '@/@core/utils/utils';
 
 const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) => {
 
   // ** Vars
-  const lightHex = '#3a3541';
-  const darkHex = '#e7e3fc';
-  const mainRGB = mode === 'light' ? hexToRgb(lightHex) : hexToRgb(darkHex);
+  const lightColor = '58, 53, 65';
+  const darkColor = '231, 227, 252';
+  const mainColor = mode === 'light' ? lightColor : darkColor;
+
 
   const primaryGradient = () => {
     if (themeColor === 'primary') {
@@ -30,22 +30,22 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
     if (skin === 'bordered' && mode === 'light') {
       return '#FFF';
     } else if (skin === 'bordered' && mode === 'dark') {
-      return '#312D4B';
+      return '#2a1f3d';
     } else if (mode === 'light') {
       return '#F4F5FA';
-    } else return '#28243D';
+    } else return '#1a1625';
   };
 
   return {
     customColors: {
-      dark: darkHex,
-      main: mode === 'light' ? lightHex : darkHex,
-      light: mode === 'light' ? lightHex : darkHex,
-      darkBg: '#28243D',
+      dark: darkColor,
+      main: mainColor,
+      light: lightColor,
+      darkBg: '#1a1625',
       lightBg: '#F4F5FA',
       primaryGradient: primaryGradient(),
-      bodyBg: mode === 'light' ? '#F4F5FA' : '#28243D', // Same as palette.background.default but doesn't consider bordered skin
-      tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#3D3759',
+      bodyBg: mode === 'light' ? '#F4F5FA' : '#1a1625', // Same as palette.background.default but doesn't consider bordered skin
+      tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#2a1f3d',
     },
     common: {
       black: '#000',
@@ -111,22 +111,22 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       A700: '#303030',
     },
     text: {
-      primary: `rgba(${mainRGB}, 0.87)`,
-      secondary: `rgba(${mainRGB}, 0.68)`,
-      disabled: `rgba(${mainRGB}, 0.38)`,
+      primary: `rgba(${mainColor}, 0.98)`,
+      secondary: `rgba(${mainColor}, 0.85)`,
+      disabled: `rgba(${mainColor}, 0.50)`,
     },
-    divider: `rgba(${mainRGB}, 0.12)`,
+    divider: `rgba(${mainColor}, 0.12)`,
     background: {
-      paper: mode === 'light' ? '#FFF' : '#312D4B',
+      paper: mode === 'light' ? '#FFF' : '#2a1f3d',
       default: defaultBgColor(),
     },
     action: {
-      active: `rgba(${mainRGB}, 0.54)`,
-      hover: `rgba(${mainRGB}, 0.04)`,
-      selected: `rgba(${mainRGB}, 0.08)`,
-      disabled: `rgba(${mainRGB}, 0.3)`,
-      disabledBackground: `rgba(${mainRGB}, 0.18)`,
-      focus: `rgba(${mainRGB}, 0.12)`,
+      active: `rgba(${mainColor}, 0.65)`,
+      hover: `rgba(${mainColor}, 0.08)`,
+      selected: `rgba(${mainColor}, 0.12)`,
+      disabled: `rgba(${mainColor}, 0.35)`,
+      disabledBackground: `rgba(${mainColor}, 0.22)`,
+      focus: `rgba(${mainColor}, 0.15)`,
     },
   };
 };

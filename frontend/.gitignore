@@ -1,9 +1,37 @@
-.next
-node_modules
-.env
-.env.prod
-.VSCodeCounter
-analyze
+# Frontend specific ignores
 
-# Audit reports
-audit-reports/
+# Next.js
+.next/
+out/
+build/
+
+# Dependencies
+node_modules/
+bun.lock
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# Uploads
+public/uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# System
+.DS_Store

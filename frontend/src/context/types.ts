@@ -94,20 +94,13 @@ export interface Department {
 }
 
 export type AuthValuesType = {
-  isInitialized: boolean;
   loading: boolean;
-  login: (params: LoginParams, errorCallback?: ErrCallbackType) => void;
-  logout: () => void;
-  register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void;
-  setIsInitialized: (value: boolean) => void;
   setLoading: (value: boolean) => void;
-  setUser: (value: UserDataType | null) => void;
+  logout: () => void;
+  isInitialized: boolean;
   user: UserDataType | null;
-};
-
-
-export type LocalStorageValuesType = {
-  getToken: () => string | null | undefined,
-  removeToken: () => void,
-  setToken: (token: string) => void,
+  setUser: (value: UserDataType | null) => void;
+  setIsInitialized: (value: boolean) => void;
+  login: (params: LoginParams, errorCallback?: ErrCallbackType) => void;
+  register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void;
 };

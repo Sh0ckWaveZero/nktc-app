@@ -90,7 +90,7 @@ function DialogStudentGroup({
             getOptionLabel={(option: any) => `${option?.title}${option?.fullName} `}
             isOptionEqualToValue={(option: any, value: any) => option === value}
             renderOption={(props, option, { selected }) => (
-              <li key={option?.id} {...props}>
+              <li {...props}>
                 <Checkbox
                   icon={icon}
                   checkedIcon={checkedIcon}

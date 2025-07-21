@@ -1,43 +1,20 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Prisma } from '@prisma/client';
+import { createByAdmin } from '../../utils/utils';
 
 export const levelData = () => {
-  return [
+  const admin = createByAdmin();
+  return Prisma.validator<Prisma.LevelCreateInput[]>()([
     {
       levelId: 'L001',
       levelName: 'ปวช.',
-      levelFullName: 'ระดับประกาศนียบัตรวิชาชีพ',
+      levelFullName: 'ประกาศนียบัตรวิชาชีพ',
+      ...admin,
     },
     {
       levelId: 'L002',
       levelName: 'ปวส.',
-      levelFullName: 'ระดับประกาศนียบัตรวิชาชีพชั้นสูง',
+      levelFullName: 'ประกาศนียบัตรวิชาชีพชั้นสูง',
+      ...admin,
     },
-  ];
-};
-
-/**
- * Seed levels into the database
- */
-export const seedLevels = async () => {
-  try {
-    const levels = levelData();
-    
-    // Create each level
-    const results = await Promise.all(
-      levels.map(async (level) => {
-        return await prisma.level.upsert({
-          where: { levelId: level.levelId },
-          update: level,
-          create: level,
-        });
-      })
-    );
-    
-    return results;
-  } catch (error) {
-    console.error('Error seeding levels:', error);
-    throw error;
-  }
+  ]);
 };

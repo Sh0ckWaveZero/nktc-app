@@ -8,6 +8,7 @@ import {
   DialogContent,
   FormControl,
   FormHelperText,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -16,7 +17,6 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 import { MouseEvent, ReactElement, Ref, forwardRef, useCallback, useEffect, useState } from 'react';
@@ -26,19 +26,21 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Icon from '@/@core/components/icon';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
-import { generateErrorMessages } from 'utils/event';
+import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
+import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import newAdapter from 'utils/newAdapter';
-import { FcCalendar } from 'react-icons/fc';
 
 dayjs.extend(buddhistEra);
+
+const localStorageService = new LocalStorageService();
+const storedToken = localStorageService.getToken() || '';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -73,8 +75,7 @@ interface DialogAddCardProps {
 }
 const DialogAddCard = (props: DialogAddCardProps) => {
   const { show, data, handleClose, handleOnSearch, user } = props;
-  const useLocal = useLocalStorage();
-  const storedToken = useLocal.getToken()!;
+
   // hooks
   const { createGoodnessIndividual }: any = goodnessIndividualStore(
     (state: any) => ({ createGoodnessIndividual: state.createGoodnessIndividual }),
@@ -166,7 +167,6 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       maxWidth='sm'
       scroll='body'
       onClose={handleClose}
-      onBackdropClick={handleClose}
       TransitionComponent={Transition}
     >
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
@@ -180,13 +180,12 @@ const DialogAddCard = (props: DialogAddCardProps) => {
         </Box>
         <Grid container spacing={6}>
           <Grid
-            size={{ xs: 12 }}
             sx={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
             }}
-          >
+            size={12}>
             {isLoading ? (
               <CircularProgress size={100} />
             ) : image ? (
@@ -197,9 +196,13 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               </CustomAvatar>
             )}
           </Grid>
-          <Grid size={{ xs: 12 }}>
+          <Grid size={12}>
             <Grid container spacing={6}>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   name='fullName'
@@ -211,7 +214,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   name='classroom'
@@ -223,30 +230,38 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                   <DatePicker
                     label='เลือกวันที่'
-                    format='DD MMMM YYYY'
                     value={selectedDate}
-                    disableFuture
-                    onChange={(newDate) => handleSelectedDate(newDate)}
+                    format='DD MMMM BBBB'
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
+                    onChange={(newDate) => handleSelectedDate(newDate)}
+                    slots={{
+                      textField: TextField
+                    }}
                     slotProps={{
                       textField: {
+                        fullWidth: true,
                         inputProps: {
                           placeholder: 'วัน เดือน ปี',
-                        },
-                      },
-                    }}
-                    slots={{
-                      openPickerIcon: () => <FcCalendar />,
+                        }
+                      }
                     }}
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
                   <InputLabel id='goodTypeScore-label'>คะแนนความดี</InputLabel>
                   <Select
@@ -260,16 +275,16 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                     <MenuItem value=''>
                       <em>คะแนนความดี</em>
                     </MenuItem>
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
                     <MenuItem value={5}>5</MenuItem>
                   </Select>
                   {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   multiline
@@ -284,7 +299,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 />
               </Grid>
 
-              <Grid size={{ xs: 12 }} sx={{ mt: 4.8, mb: 3 }}>
+              <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>

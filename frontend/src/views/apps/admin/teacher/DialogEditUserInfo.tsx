@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   FormControl,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -15,20 +16,23 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { Controller, useForm } from 'react-hook-form';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
 import { Fragment, ReactElement, Ref, forwardRef } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
+import Select from '@mui/material/Select';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
-import Select from '@mui/material/Select';
-import newAdapter from 'utils/newAdapter';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs, { Dayjs } from 'dayjs';
+import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
+
+dayjs.extend(buddhistEra);
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -147,7 +151,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
           </Box>
 
           <Grid container spacing={6}>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -171,7 +179,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -195,7 +207,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12 }}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <Controller
                   name='username'
@@ -223,7 +235,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -248,28 +264,34 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={newAdapter} adapterLocale={'th'}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
                       <DatePicker
                         label='วันเกิด'
-                        format='D MMMM YYYY'
                         value={value}
-                        disableFuture
                         onChange={onChange}
+                        format='D MMMM BBBB'
+                        maxDate={dayjs(new Date())}
+                        slots={{
+                          textField: TextField,
+                          openPickerIcon: () => <FcCalendar />
+                        }}
                         slotProps={{
                           textField: {
+                            fullWidth: true,
                             inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            },
-                          },
-                        }}
-                        slots={{
-                          openPickerIcon: () => <FcCalendar />,
+                            }
+                          }
                         }}
                       />
                     </LocalizationProvider>
@@ -278,7 +300,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
               </FormControl>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -305,7 +331,11 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                 />
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid
+              size={{
+                sm: 6,
+                xs: 12
+              }}>
               <FormControl fullWidth>
                 <Controller
                   name='status'

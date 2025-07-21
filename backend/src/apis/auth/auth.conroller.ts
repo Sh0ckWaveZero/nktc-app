@@ -23,13 +23,13 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { Tokens } from './types/tokens.type';
-import { JwtAuthGuard, LocalAuthGuard, RefreshTokenGuard } from './common/guards';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   public async register(
@@ -55,7 +55,6 @@ export class AuthController {
     @Body() loginUserDto: any,
   ): Promise<any> {
     const loginResults = await this.authService.login(loginUserDto, userIp);
-    console.log('🚀 ~ AuthController ~ loginResults:', loginResults);
 
     if (!loginResults) {
       throw new UnauthorizedException(
@@ -94,14 +93,5 @@ export class AuthController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.FORBIDDEN);
     }
-  }
-
-  @UseGuards(RefreshTokenGuard)
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
-  refreshTokens(
-    @Request() req: any
-  ): Promise<Tokens> {
-    return this.authService.refreshTokens(req.user);
   }
 }

@@ -1,5 +1,5 @@
 import { Button, FormControl, TextField } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import Icon from '@/@core/components/icon';
 import { ChangeEvent } from 'react';
@@ -26,7 +26,11 @@ const TableHeader = (props: TableHeaderProps) => {
         justifyContent: 'flex-end',
       }}
     >
-      <Grid size={{ xs: 12, sm: 4 }}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 4
+        }}>
         <FormControl fullWidth>
           <TextField
             className='studentName'
@@ -44,7 +48,11 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 12, sm: 4 }}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 4
+        }}>
         <FormControl fullWidth>
           <TextField
             className='studentId'
@@ -62,7 +70,11 @@ const TableHeader = (props: TableHeaderProps) => {
           />
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 12, sm: 2 }}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 2
+        }}>
         <FormControl fullWidth>
           <Button
             size='large'
@@ -77,7 +89,11 @@ const TableHeader = (props: TableHeaderProps) => {
           </Button>
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 12, sm: 2 }}>
+      <Grid
+        size={{
+          xs: 12,
+          sm: 2
+        }}>
         <FormControl fullWidth>
           <Button
             size='large'

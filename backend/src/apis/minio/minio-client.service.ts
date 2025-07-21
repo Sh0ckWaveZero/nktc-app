@@ -1,5 +1,7 @@
 import * as crypto from 'crypto';
+
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+
 import configuration from '../../config/configuration';
 import { MinioService } from '../../lib';
 
@@ -41,14 +43,14 @@ export class MinioClientService {
         },
       ],
     };
-    this.client.setBucketPolicy(
-      configuration().minioBucket,
-      JSON.stringify(policy),
-    ).then(() => {
-      console.log('Bucket policy set');
-    }).catch((err: any) => {
-      throw err;
-    });
+    this.client
+      .setBucketPolicy(configuration().minioBucket, JSON.stringify(policy))
+      .then(() => {
+        this.logger.log('Bucket policy set');
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 
   private readonly bucketName = configuration().minioBucket;
@@ -57,107 +59,64 @@ export class MinioClientService {
     return this.minio.client;
   }
 
-  /**
-   * Process file data from base64 format
-   * @param fileData Base64 encoded file data
-   * @returns Buffer of the processed file
-   */
-  private processFileBuffer(fileData: string): Buffer {
+  public async upload(file: any, bucketName: string = this.bucketName) {
     try {
-      return Buffer.from(
-        fileData.replace(/^data:.*?;base64,/, ''),
+      const buffer = Buffer.from(
+        file?.data.replace(/^data:image\/\w+;base64,/, ''),
         'base64',
       );
-    } catch (error) {
-      this.logger.error(`Failed to process file buffer: ${error.message}`);
-      throw new HttpException('Invalid file format', HttpStatus.BAD_REQUEST);
-    }
-  }
+      const timestamp = Date.now().toString();
+      const hashedFileName = crypto
+        .createHash('md5')
+        .update(timestamp)
+        .digest('hex');
+      const extension = '.webp';
+      const metaData: any = {
+        'Content-Encoding': 'base64',
+        'Content-Type': 'image/webp',
+      };
+      const fileName = `${file.path}${hashedFileName}${extension}`;
 
-  /**
-   * Generate a unique file name using timestamp and hash
-   * @param path The file path
-   * @param extension File extension including the dot
-   * @returns Generated file name
-   */
-  private generateFileName(path: string, extension: string): string {
-    const timestamp = Date.now().toString();
-    const hashedFileName = crypto
-      .createHash('md5')
-      .update(timestamp)
-      .digest('hex');
-
-    return `${path}${hashedFileName}${extension}`;
-  }
-
-  /**
-   * Determine file metadata based on file type
-   * @param contentType MIME type of the file
-   * @returns Metadata object for MinIO
-   */
-  private getFileMetadata(contentType: string): Record<string, string> {
-    return {
-      'Content-Encoding': 'base64',
-      'Content-Type': contentType || 'application/octet-stream',
-    };
-  }
-
-  /**
-   * Upload a file to MinIO bucket
-   * @param file File object with data and metadata
-   * @param bucketName Target bucket name (optional)
-   * @returns Object with the URL of the uploaded file
-   */
-  public async upload(file: any, bucketName: string = this.bucketName) {
-    if (!file || !file.data) {
-      throw new HttpException('Missing file data', HttpStatus.BAD_REQUEST);
-    }
-
-    try {
-      const contentType = file.contentType || 'image/webp';
-      const extension = file.extension || '.webp';
-      const buffer = this.processFileBuffer(file.data);
-      const fileName = this.generateFileName(file.path || '', extension);
-      const metaData = this.getFileMetadata(contentType);
-
-      try {
-        // Upload the file to MinIO
-        const size = buffer.length;
-        await this.client.putObject(bucketName, fileName, buffer, size, metaData);
-        this.logger.log(`File ${fileName} uploaded successfully to bucket ${bucketName}`);
-
-        return {
-          url: `${configuration().hostUrl}/statics/${fileName}`,
+      await new Promise<void>((resolve, reject) => {
+        this.client.putObject(
+          bucketName,
           fileName,
-        };
-      } catch (uploadError) {
-        this.logger.error(`MinIO upload failed: ${uploadError.message}`);
-        throw new HttpException(
-          `Failed to upload file: ${uploadError.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR
+          buffer,
+          metaData,
+          (err: any) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+
+            resolve();
+          },
         );
-      }
+      });
+
+      return {
+        url: `${configuration().hostUrl}/statics/${fileName}`,
+      };
     } catch (err) {
-      if (err instanceof HttpException) {
-        throw err;
-      }
-      this.logger.error(`File upload error: ${err.message}`);
-      throw new HttpException(
-        'Error processing file for upload',
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST);
     }
   }
 
-  async delete(objectName: string, bucketName: string = this.bucketName) {
+  async delete(objetName: string, bucketName: string = this.bucketName) {
     try {
-      await this.client.removeObject(bucketName, objectName);
-      this.logger.log(`File ${objectName} deleted successfully from bucket ${bucketName}`);
-      return true;
+      await new Promise<void>((resolve, reject) => {
+        this.client.removeObject(bucketName, objetName, (err: any) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          this.logger.log('File deleted successfully');
+          resolve();
+        });
+      });
     } catch (error) {
-      this.logger.error(`Failed to delete file ${objectName}: ${error.message}`);
       throw new HttpException(
-        'An error occurred when deleting!',
+        'An error occured when deleting!',
         HttpStatus.BAD_REQUEST,
       );
     }

@@ -1,58 +1,61 @@
-declare const module: any;
-
-import * as bodyParser from 'body-parser';
-import * as requestIp from 'request-ip';
-
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
-import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
+import { AppModule } from './app.module';
 import configuration from './config/configuration';
-import helmet from 'helmet';
 
-const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule);
+// Configuration modules for modular setup
+import { setupValidation } from './config/validation.config';
+import { setupCors } from './config/cors.config';
+import { setupMiddlewares } from './config/middlewares.config';
+import { setupSecurity } from './config/security.config';
+import { setupSwagger } from './config/swagger.config';
+import { setupHotReload } from './config/hot-reload.config';
+import { SecurityMiddleware } from './middlewares/security.middleware';
 
-  // Request Validation
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
-  app.enableCors({
-    origin:
-      configuration().node_env === 'development'
-        ? '*'
-        : configuration().host.toString(),
-    allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, authorization',
-    methods: 'GET,PUT,POST,PATCH,DELETE,UPDATE,OPTIONS',
-    credentials: true,
+/**
+ * เริ่มต้นและตั้งค่าแอปพลิเคชัน NestJS พร้อมความปลอดภัยขั้นสูง
+ *
+ * @description ฟังก์ชันหลักสำหรับ bootstrap แอปพลิเคชัน โดยจะตั้งค่า:
+ * - Security headers และการป้องกัน
+ * - Input validation ที่เข้มงวด
+ * - CORS configuration ที่ปลอดภัย
+ * - Middlewares สำหรับการตรวจสอบ
+ * - Swagger documentation (development only)
+ * - Graceful shutdown handling
+ *
+ * @returns {Promise<void>} Promise ที่ resolve เมื่อแอปพลิเคชันเริ่มทำงานสำเร็จ
+ *
+ * @example
+ * ```typescript
+ * // Start the application
+ * bootstrap();
+ * ```
+ */
+const bootstrap = async (): Promise<void> => {
+  const logger = new Logger('Bootstrap');
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log'],
   });
+  const config = configuration();
 
-  app.use(requestIp.mw());
-  app.use(bodyParser.json({ limit: '5mb' }));
-  app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
+  setupSecurity(app);
+  setupValidation(app);
+  setupCors(app);
+  setupMiddlewares(app);
 
-  // Helmet Middleware against known security vulnerabilities
-  app.use(helmet());
-  app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
+  app.use(new SecurityMiddleware().use.bind(new SecurityMiddleware()));
 
-  // Enable OpenAPI documentation for the application
-  if (configuration().node_env === 'development') {
-    const config = new DocumentBuilder()
-      .setTitle('NKTC-API')
-      .setDescription('The NKTC API description')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
-  }
-  await app.listen(configuration().port);
+  setupSwagger(app);
+  app.enableShutdownHooks();
 
-  if (module.hot) {
-    module.hot.accept();
-    module.hot.dispose(() => app.close());
-  }
+  await app.listen(config.port);
+
+  logger.log(`🚀 Application is running on port ${config.port}`);
+  logger.log(
+    `🔒 Security features are enabled for environment: ${config.node_env}`,
+  );
+
+  setupHotReload(app);
 };
 
 bootstrap();

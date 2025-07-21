@@ -1,3 +1,5 @@
+'use client';
+
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
 import { Fragment, SyntheticEvent, useState } from 'react';
 
@@ -6,6 +8,7 @@ import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Divider from '@mui/material/Divider';
+import { LocalStorageService } from '@/services/localStorageService';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@/@core/context/settingsContext';
@@ -14,8 +17,7 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
-import { useRouter } from 'next/router';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   settings: Settings;
@@ -30,6 +32,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }));
 
+const localStorageService = new LocalStorageService();
+
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props;
@@ -39,12 +43,11 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const useLocal = useLocalStorage();
   const { user, logout } = useAuth();
 
   // ** Vars
   const { direction } = settings;
-  const storedToken = useLocal.getToken()!;
+  const storedToken = localStorageService.getToken()!;
 
   const { isLoading, image } = useGetImage(user?.account?.avatar as string, storedToken);
 
@@ -103,7 +106,7 @@ const UserDropdown = (props: Props) => {
 
   const avatarAccount = () => {
     return user?.role === 'Admin' ? (
-      <Avatar alt={user?.username} src=' /images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+      <Avatar alt={user?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
     ) : (
       customAvatar(user?.account)
     );
