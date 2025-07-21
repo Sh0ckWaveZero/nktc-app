@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@common/services/prisma.service';
 import { ProgramData } from './entities';
-import { 
-  XlsxImportConfig, 
+import {
+  XlsxImportConfig,
   createXlsxImportService,
   extractCellValue,
-  validateRequiredFields
+  validateRequiredFields,
 } from '@common/utils/xlsx-import.utils';
 
 /**
@@ -39,7 +39,7 @@ export class ProgramsService {
   /**
    * ดึงข้อมูลสาขาวิชาทั้งหมดจากฐานข้อมูล
    * จัดเรียงตามชื่อสาขาวิชาจาก A-Z
-   * 
+   *
    * @returns Promise ที่ resolve เป็น array ของสาขาวิชาทั้งหมด
    */
   async findAll() {
@@ -52,14 +52,14 @@ export class ProgramsService {
 
   /**
    * ดึงข้อมูลสาขาวิชาตาม ID
-   * 
+   *
    * @param id - ID ของสาขาวิชาที่ต้องการค้นหา
    * @returns ข้อมูลสาขาวิชาที่พบ
    */
   async findOne(id: string) {
     try {
       const program = await this.prisma.program.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!program) {
@@ -74,7 +74,7 @@ export class ProgramsService {
 
   /**
    * อัพเดทข้อมูลสาขาวิชาตาม ID
-   * 
+   *
    * @param id - ID ของสาขาวิชาที่ต้องการอัพเดท
    * @param updateData - ข้อมูลที่ต้องการอัพเดท
    * @param username - ชื่อผู้ใช้ที่ทำการอัพเดท
@@ -108,7 +108,7 @@ export class ProgramsService {
   /**
    * ลบสาขาวิชาตาม ID
    * ตรวจสอบว่าสาขาวิชามีความสัมพันธ์กับข้อมูลอื่นก่อนลบ
-   * 
+   *
    * @param id - ID ของสาขาวิชาที่ต้องการลบ
    * @returns ผลลัพธ์การลบ
    */
@@ -130,15 +130,21 @@ export class ProgramsService {
 
       // ตรวจสอบว่ามีข้อมูลที่เกี่ยวข้องหรือไม่
       if (program.student.length > 0) {
-        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีนักเรียนที่เชื่อมโยงกับสาขาวิชานี้');
+        throw new Error(
+          'ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีนักเรียนที่เชื่อมโยงกับสาขาวิชานี้',
+        );
       }
 
       if (program.classroom.length > 0) {
-        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีห้องเรียนที่เชื่อมโยงกับสาขาวิชานี้');
+        throw new Error(
+          'ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีห้องเรียนที่เชื่อมโยงกับสาขาวิชานี้',
+        );
       }
 
       if (program.teacher.length > 0) {
-        throw new Error('ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีครู/อาจารย์ที่เชื่อมโยงกับสาขาวิชานี้');
+        throw new Error(
+          'ไม่สามารถลบสาขาวิชาได้ เนื่องจากมีครู/อาจารย์ที่เชื่อมโยงกับสาขาวิชานี้',
+        );
       }
 
       // ลบสาขาวิชา
@@ -162,16 +168,21 @@ export class ProgramsService {
       this.xlsxImportService = createXlsxImportService<ProgramData>({
         getImportConfig: () => ({
           columnMapping: {
-            'id': 'รหัส',
-            'name': 'ชื่อ',
-            'description': 'รายละเอียด',
+            id: 'รหัส',
+            name: 'ชื่อ',
+            description: 'รายละเอียด',
           },
           requiredColumns: ['id', 'name'],
           entityName: 'สาขาวิชา',
         }),
 
         processRow: async (row, headerMap, config, user, rowNumber) => {
-          const result = await this.extractAndValidateProgramData(row, headerMap, config, user);
+          const result = await this.extractAndValidateProgramData(
+            row,
+            headerMap,
+            config,
+            user,
+          );
           if (typeof result === 'string') {
             return { error: result };
           }
@@ -180,7 +191,7 @@ export class ProgramsService {
 
         createEntity: (data: ProgramData) => this.createProgramEntity(data),
 
-        prisma: this.prisma
+        prisma: this.prisma,
       });
     }
     return this.xlsxImportService;
@@ -203,16 +214,23 @@ export class ProgramsService {
     row: any[],
     headerMap: Record<string, number>,
     config: XlsxImportConfig<ProgramData>,
-    user: any
+    user: any,
   ): Promise<ProgramData | string> {
-    const programId = extractCellValue(row, headerMap, config.columnMapping, 'id');
-    const name = extractCellValue(row, headerMap, config.columnMapping, 'name');
-    const description = extractCellValue(row, headerMap, config.columnMapping, 'description') || '';
-
-    const validationError = validateRequiredFields(
-      { programId, name },
-      ['programId', 'name']
+    const programId = extractCellValue(
+      row,
+      headerMap,
+      config.columnMapping,
+      'id',
     );
+    const name = extractCellValue(row, headerMap, config.columnMapping, 'name');
+    const description =
+      extractCellValue(row, headerMap, config.columnMapping, 'description') ||
+      '';
+
+    const validationError = validateRequiredFields({ programId, name }, [
+      'programId',
+      'name',
+    ]);
 
     if (validationError) {
       return validationError;

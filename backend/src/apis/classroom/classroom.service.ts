@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@common/services/prisma.service';
 import { sortClassroomsByNumberAndDepartment } from '@utils/utils';
 import { ClassroomData } from './entities';
-import { 
+import {
   createXlsxImportService,
   extractCellValue,
   validateRequiredFields,
-  XlsxImportConfig
+  XlsxImportConfig,
 } from '@common/utils/xlsx-import.utils';
 
 /**
@@ -31,7 +31,7 @@ export class ClassroomService {
   }
 
   // =============================================================================
-  // PUBLIC METHODS - CRUD OPERATIONS  
+  // PUBLIC METHODS - CRUD OPERATIONS
   // =============================================================================
 
   /**
@@ -205,20 +205,25 @@ export class ClassroomService {
       this.xlsxImportService = createXlsxImportService<ClassroomData>({
         getImportConfig: () => ({
           columnMapping: {
-            'id': 'รหัส',
-            'name': 'ชื่อระดับชั้นเรียนสาขาวิชา',
-            'level': 'ระดับชั้น',
-            'roomNumber': 'เลขที่ห้องเรียน',
-            'program': 'สาขาวิชา',
-            'department': 'แผนกวิชา',
-            'departmentId': 'รหัสแผนกวิชา'
+            id: 'รหัส',
+            name: 'ชื่อระดับชั้นเรียนสาขาวิชา',
+            level: 'ระดับชั้น',
+            roomNumber: 'เลขที่ห้องเรียน',
+            program: 'สาขาวิชา',
+            department: 'แผนกวิชา',
+            departmentId: 'รหัสแผนกวิชา',
           },
           requiredColumns: ['id', 'name', 'level', 'department'],
           entityName: 'ห้องเรียน',
         }),
 
         processRow: async (row, headerMap, config, user, rowNumber) => {
-          const result = await this.extractAndValidateClassroomData(row, headerMap, config, user);
+          const result = await this.extractAndValidateClassroomData(
+            row,
+            headerMap,
+            config,
+            user,
+          );
           if (typeof result === 'string') {
             return { error: result };
           }
@@ -227,7 +232,7 @@ export class ClassroomService {
 
         createEntity: (data: ClassroomData) => this.createClassroomEntity(data),
 
-        prisma: this.prisma
+        prisma: this.prisma,
       });
     }
     return this.xlsxImportService;
@@ -244,18 +249,18 @@ export class ClassroomService {
     row: any[],
     headerMap: Record<string, number>,
     config: XlsxImportConfig<ClassroomData>,
-    user: any
+    user: any,
   ): Promise<ClassroomData | string> {
     const extractedData = this.extractRowData(row, headerMap, config);
-    
+
     const validationError = validateRequiredFields(
-      { 
-        classroomId: extractedData.classroomId, 
-        name: extractedData.name, 
-        level: extractedData.level, 
-        department: extractedData.department 
+      {
+        classroomId: extractedData.classroomId,
+        name: extractedData.name,
+        level: extractedData.level,
+        department: extractedData.department,
       },
-      ['classroomId', 'name', 'level', 'department']
+      ['classroomId', 'name', 'level', 'department'],
     );
 
     if (validationError) {
@@ -273,17 +278,28 @@ export class ClassroomService {
         return `ไม่พบสาขาวิชา "${extractedData.program}" ในฐานข้อมูล`;
       }
 
-      const departmentRecord = await this.findDepartmentRecord(extractedData.department, extractedData.deptId);
+      const departmentRecord = await this.findDepartmentRecord(
+        extractedData.department,
+        extractedData.deptId,
+      );
       if (!departmentRecord) {
         return `ไม่พบแผนกวิชา "${extractedData.department}" ในฐานข้อมูล`;
       }
 
-      const existingClassroom = await this.checkClassroomExists(extractedData.classroomId);
+      const existingClassroom = await this.checkClassroomExists(
+        extractedData.classroomId,
+      );
       if (existingClassroom) {
         return `ห้องเรียนรหัส "${extractedData.classroomId}" มีอยู่ในระบบแล้ว`;
       }
 
-      return this.buildClassroomData(extractedData, levelRecord, programRecord, departmentRecord, user);
+      return this.buildClassroomData(
+        extractedData,
+        levelRecord,
+        programRecord,
+        departmentRecord,
+        user,
+      );
     } catch (error) {
       return error.message || 'เกิดข้อผิดพลาดในการประมวลผลข้อมูล';
     }
@@ -292,15 +308,39 @@ export class ClassroomService {
   /**
    * Extract ข้อมูลจากแถว XLSX
    */
-  private extractRowData(row: any[], headerMap: Record<string, number>, config: XlsxImportConfig<ClassroomData>) {
+  private extractRowData(
+    row: any[],
+    headerMap: Record<string, number>,
+    config: XlsxImportConfig<ClassroomData>,
+  ) {
     return {
       classroomId: extractCellValue(row, headerMap, config.columnMapping, 'id'),
       name: extractCellValue(row, headerMap, config.columnMapping, 'name'),
       level: extractCellValue(row, headerMap, config.columnMapping, 'level'),
-      classroomNumber: extractCellValue(row, headerMap, config.columnMapping, 'roomNumber'),
-      program: extractCellValue(row, headerMap, config.columnMapping, 'program'),
-      department: extractCellValue(row, headerMap, config.columnMapping, 'department'),
-      deptId: extractCellValue(row, headerMap, config.columnMapping, 'departmentId')
+      classroomNumber: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'roomNumber',
+      ),
+      program: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'program',
+      ),
+      department: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'department',
+      ),
+      deptId: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'departmentId',
+      ),
     };
   }
 
@@ -312,10 +352,12 @@ export class ClassroomService {
     levelRecord: any,
     programRecord: any,
     departmentRecord: any,
-    user: any
+    user: any,
   ): ClassroomData {
-    const description = `${extractedData.level} ${extractedData.classroomNumber || ''} ${extractedData.department}`.trim();
-    
+    const description = `${extractedData.level} ${
+      extractedData.classroomNumber || ''
+    } ${extractedData.department}`.trim();
+
     return {
       classroomId: extractedData.classroomId,
       name: extractedData.name,
@@ -341,8 +383,8 @@ export class ClassroomService {
         OR: [
           { levelName: level },
           { levelFullName: level },
-          { levelId: level }
-        ]
+          { levelId: level },
+        ],
       },
     });
   }
@@ -352,13 +394,10 @@ export class ClassroomService {
    */
   private async findProgramRecord(program: string) {
     if (!program) return null;
-    
+
     return this.prisma.program.findFirst({
       where: {
-        OR: [
-          { name: program },
-          { description: { contains: program } }
-        ]
+        OR: [{ name: program }, { description: { contains: program } }],
       },
     });
   }
@@ -369,10 +408,7 @@ export class ClassroomService {
   private async findDepartmentRecord(department: string, deptId?: string) {
     return this.prisma.department.findFirst({
       where: {
-        OR: [
-          { name: department },
-          { departmentId: deptId || department }
-        ]
+        OR: [{ name: department }, { departmentId: deptId || department }],
       },
     });
   }
@@ -391,7 +427,7 @@ export class ClassroomService {
    */
   private async createClassroomEntity(data: ClassroomData): Promise<any> {
     const dateTimeInit = new Date();
-    
+
     const createData: any = {
       classroomId: data.classroomId,
       name: data.name,

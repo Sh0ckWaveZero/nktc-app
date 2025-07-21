@@ -18,7 +18,7 @@ async function queryDatabase() {
     const levelClassroomCount = await prisma.levelClassroom.count();
     const classroomCount = await prisma.classroom.count();
     const studentCount = await prisma.student.count();
-    
+
     console.log(`Levels: ${levelCount}`);
     console.log(`Programs: ${programCount}`);
     console.log(`Departments: ${departmentCount}`);
@@ -34,11 +34,13 @@ async function queryDatabase() {
         levelId: true,
         levelName: true,
         levelFullName: true,
-      }
+      },
     });
-    
-    levels.forEach(level => {
-      console.log(`- ${level.levelName} (${level.levelFullName}), ID: ${level.id}, LevelID: ${level.levelId}`);
+
+    levels.forEach((level) => {
+      console.log(
+        `- ${level.levelName} (${level.levelFullName}), ID: ${level.id}, LevelID: ${level.levelId}`,
+      );
     });
 
     // Get Programs with relationships
@@ -52,23 +54,27 @@ async function queryDatabase() {
         level: {
           select: {
             levelName: true,
-          }
+          },
         },
         department: {
           select: {
             name: true,
-          }
-        }
+          },
+        },
       },
       take: 10, // Limit to 10 for readability
     });
-    
-    programs.forEach(program => {
-      console.log(`- ${program.name || "Unnamed"} (${program.programId || "No ID"})`);
+
+    programs.forEach((program) => {
+      console.log(
+        `- ${program.name || 'Unnamed'} (${program.programId || 'No ID'})`,
+      );
       console.log(`  ID: ${program.id}`);
-      console.log(`  Description: ${program.description || "None"}`);
-      console.log(`  Level: ${program.level?.levelName || "Not connected"}`);
-      console.log(`  Department: ${program.department?.name || "Not connected"}`);
+      console.log(`  Description: ${program.description || 'None'}`);
+      console.log(`  Level: ${program.level?.levelName || 'Not connected'}`);
+      console.log(
+        `  Department: ${program.department?.name || 'Not connected'}`,
+      );
       console.log('');
     });
 
@@ -83,11 +89,13 @@ async function queryDatabase() {
       },
       take: 10, // Limit to 10 for readability
     });
-    
-    departments.forEach(dept => {
-      console.log(`- ${dept.name || "Unnamed"} (${dept.departmentId || "No ID"})`);
+
+    departments.forEach((dept) => {
+      console.log(
+        `- ${dept.name || 'Unnamed'} (${dept.departmentId || 'No ID'})`,
+      );
       console.log(`  ID: ${dept.id}`);
-      console.log(`  Description: ${dept.description || "None"}`);
+      console.log(`  Description: ${dept.description || 'None'}`);
       console.log('');
     });
 
@@ -101,34 +109,40 @@ async function queryDatabase() {
         level: {
           select: {
             levelName: true,
-          }
+          },
         },
         program: {
           select: {
             name: true,
-          }
+          },
         },
         department: {
           select: {
             name: true,
-          }
+          },
         },
         student: {
           select: {
             id: true,
-          }
-        }
+          },
+        },
       },
       take: 10, // Limit to 10 for readability
     });
-    
-    classrooms.forEach(classroom => {
+
+    classrooms.forEach((classroom) => {
       const studentCount = classroom.student?.length || 0;
-      console.log(`- ${classroom.name || "Unnamed"} (${classroom.classroomId || "No ID"})`);
+      console.log(
+        `- ${classroom.name || 'Unnamed'} (${
+          classroom.classroomId || 'No ID'
+        })`,
+      );
       console.log(`  ID: ${classroom.id}`);
-      console.log(`  Level: ${classroom.level?.levelName || "Not connected"}`);
-      console.log(`  Program: ${classroom.program?.name || "Not connected"}`);
-      console.log(`  Department: ${classroom.department?.name || "Not connected"}`);
+      console.log(`  Level: ${classroom.level?.levelName || 'Not connected'}`);
+      console.log(`  Program: ${classroom.program?.name || 'Not connected'}`);
+      console.log(
+        `  Department: ${classroom.department?.name || 'Not connected'}`,
+      );
       console.log(`  Student Count: ${studentCount}`);
       console.log('');
     });
@@ -137,10 +151,7 @@ async function queryDatabase() {
     console.log('\n=== Students with Missing Relationships ===');
     const studentsWithIssues = await prisma.student.findMany({
       where: {
-        OR: [
-          { programId: null },
-          { classroomId: null }
-        ]
+        OR: [{ programId: null }, { classroomId: null }],
       },
       select: {
         id: true,
@@ -152,38 +163,46 @@ async function queryDatabase() {
               select: {
                 firstName: true,
                 lastName: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         program: {
           select: {
             name: true,
-          }
+          },
         },
         classroom: {
           select: {
             name: true,
-          }
+          },
         },
         level: {
           select: {
             levelName: true,
-          }
-        }
+          },
+        },
       },
       take: 20, // Limit to 20 for readability
     });
-    
+
     if (studentsWithIssues.length === 0) {
-      console.log('No students found with missing program or classroom relationships.');
+      console.log(
+        'No students found with missing program or classroom relationships.',
+      );
     } else {
-      console.log(`Found ${studentsWithIssues.length} students with missing relationships.`);
-      studentsWithIssues.forEach(student => {
-        console.log(`- ${student.studentId}: ${student.user?.account?.firstName || ""} ${student.user?.account?.lastName || ""}`);
-        console.log(`  Program: ${student.program?.name || "UNDEFINED"}`);
-        console.log(`  Classroom: ${student.classroom?.name || "UNDEFINED"}`);
-        console.log(`  Level: ${student.level?.levelName || "UNDEFINED"}`);
+      console.log(
+        `Found ${studentsWithIssues.length} students with missing relationships.`,
+      );
+      studentsWithIssues.forEach((student) => {
+        console.log(
+          `- ${student.studentId}: ${student.user?.account?.firstName || ''} ${
+            student.user?.account?.lastName || ''
+          }`,
+        );
+        console.log(`  Program: ${student.program?.name || 'UNDEFINED'}`);
+        console.log(`  Classroom: ${student.classroom?.name || 'UNDEFINED'}`);
+        console.log(`  Level: ${student.level?.levelName || 'UNDEFINED'}`);
         console.log('');
       });
     }
@@ -195,17 +214,19 @@ async function queryDatabase() {
         name: true,
         _count: {
           select: {
-            student: true
-          }
-        }
-      }
+            student: true,
+          },
+        },
+      },
     });
-    
+
     programsWithStudentCount
       .sort((a, b) => (b._count?.student || 0) - (a._count?.student || 0))
       .slice(0, 10)
-      .forEach(prog => {
-        console.log(`- ${prog.name || "Unnamed"}: ${prog._count?.student || 0} students`);
+      .forEach((prog) => {
+        console.log(
+          `- ${prog.name || 'Unnamed'}: ${prog._count?.student || 0} students`,
+        );
       });
 
     // Count students by classroom
@@ -215,41 +236,46 @@ async function queryDatabase() {
         name: true,
         _count: {
           select: {
-            student: true
-          }
-        }
-      }
+            student: true,
+          },
+        },
+      },
     });
-    
+
     classroomsWithStudentCount
       .sort((a, b) => (b._count?.student || 0) - (a._count?.student || 0))
       .slice(0, 10)
-      .forEach(cr => {
-        console.log(`- ${cr.name || "Unnamed"}: ${cr._count?.student || 0} students`);
+      .forEach((cr) => {
+        console.log(
+          `- ${cr.name || 'Unnamed'}: ${cr._count?.student || 0} students`,
+        );
       });
 
     // Check for orphaned data (no relationships)
     console.log('\n=== Orphaned Data Analysis ===');
-    
+
     const orphanedPrograms = await prisma.program.count({
       where: {
         student: {
-          none: {}
-        }
-      }
+          none: {},
+        },
+      },
     });
-    
+
     const orphanedClassrooms = await prisma.classroom.count({
       where: {
         student: {
-          none: {}
-        }
-      }
+          none: {},
+        },
+      },
     });
-    
-    console.log(`Programs with no students: ${orphanedPrograms} of ${programCount}`);
-    console.log(`Classrooms with no students: ${orphanedClassrooms} of ${classroomCount}`);
 
+    console.log(
+      `Programs with no students: ${orphanedPrograms} of ${programCount}`,
+    );
+    console.log(
+      `Classrooms with no students: ${orphanedClassrooms} of ${classroomCount}`,
+    );
   } catch (error) {
     console.error('Error querying database:', error);
   } finally {

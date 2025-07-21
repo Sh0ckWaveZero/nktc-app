@@ -14,7 +14,7 @@ import { SecurityMiddleware } from './middlewares/security.middleware';
 
 /**
  * เริ่มต้นและตั้งค่าแอปพลิเคชัน NestJS พร้อมความปลอดภัยขั้นสูง
- * 
+ *
  * @description ฟังก์ชันหลักสำหรับ bootstrap แอปพลิเคชัน โดยจะตั้งค่า:
  * - Security headers และการป้องกัน
  * - Input validation ที่เข้มงวด
@@ -22,9 +22,9 @@ import { SecurityMiddleware } from './middlewares/security.middleware';
  * - Middlewares สำหรับการตรวจสอบ
  * - Swagger documentation (development only)
  * - Graceful shutdown handling
- * 
+ *
  * @returns {Promise<void>} Promise ที่ resolve เมื่อแอปพลิเคชันเริ่มทำงานสำเร็จ
- * 
+ *
  * @example
  * ```typescript
  * // Start the application
@@ -42,17 +42,19 @@ const bootstrap = async (): Promise<void> => {
   setupValidation(app);
   setupCors(app);
   setupMiddlewares(app);
-  
+
   app.use(new SecurityMiddleware().use.bind(new SecurityMiddleware()));
-  
+
   setupSwagger(app);
   app.enableShutdownHooks();
 
   await app.listen(config.port);
-  
+
   logger.log(`🚀 Application is running on port ${config.port}`);
-  logger.log(`🔒 Security features are enabled for environment: ${config.node_env}`);
-  
+  logger.log(
+    `🔒 Security features are enabled for environment: ${config.node_env}`,
+  );
+
   setupHotReload(app);
 };
 

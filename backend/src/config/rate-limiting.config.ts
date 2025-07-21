@@ -13,6 +13,6 @@ export const createSimpleRateLimitingModule = () => {
     {
       ttl: 60000, // 1 นาที
       limit: isDevelopment ? 1000 : 100, // development: 1000 req/min, production: 100 req/min
-    }
+    },
   ]);
 };

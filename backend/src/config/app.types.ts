@@ -2,7 +2,13 @@
  * ประเภทข้อมูลสำหรับการตั้งค่า CORS
  */
 export interface CorsConfig {
-  readonly origin: string | string[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void);
+  readonly origin:
+    | string
+    | string[]
+    | ((
+        origin: string | undefined,
+        callback: (err: Error | null, allow?: boolean) => void,
+      ) => void);
   readonly allowedHeaders: string;
   readonly methods: string;
   readonly credentials: boolean;

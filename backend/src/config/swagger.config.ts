@@ -13,7 +13,7 @@ const createSwaggerConfig = (): SwaggerConfig => ({
   title: APP_CONSTANTS.API_TITLE,
   description: APP_CONSTANTS.API_DESCRIPTION,
   version: APP_CONSTANTS.API_VERSION,
-  bearerAuth: true
+  bearerAuth: true,
 });
 
 /**
@@ -36,7 +36,7 @@ const createDocumentBuilder = (swaggerConfig: SwaggerConfig) => {
  */
 export const setupSwagger = (app: INestApplication): void => {
   const config = configuration();
-  
+
   if (config.node_env !== 'development') {
     return;
   }

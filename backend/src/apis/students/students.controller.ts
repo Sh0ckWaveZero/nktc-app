@@ -17,7 +17,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StudentFileUploadDto } from './dto';
@@ -38,7 +44,9 @@ export class StudentsController {
   }
 
   @Get('download-template')
-  @ApiOperation({ summary: 'ดาวน์โหลดไฟล์ Excel แม่แบบสำหรับการอัพโหลดข้อมูลนักเรียน' })
+  @ApiOperation({
+    summary: 'ดาวน์โหลดไฟล์ Excel แม่แบบสำหรับการอัพโหลดข้อมูลนักเรียน',
+  })
   @HttpCode(200)
   async downloadTemplate(@Response() res) {
     return this.studentsService.downloadTemplate(res);
@@ -148,15 +156,15 @@ export class StudentsController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'ไฟล์ XLSX ที่มีข้อมูลนักเรียน (คอลัมน์ที่จำเป็น: เลขประจำตัวประชาชน, รหัสประจำตัว, กลุ่มเรียน, คำนำหน้าชื่อ, ชื่อ (ไทย), นามสกุล (ไทย), สาขาวิชา, แผนก, ประเภทนักเรียน)',
+    description:
+      'ไฟล์ XLSX ที่มีข้อมูลนักเรียน (คอลัมน์ที่จำเป็น: เลขประจำตัวประชาชน, รหัสประจำตัว, กลุ่มเรียน, คำนำหน้าชื่อ, ชื่อ (ไทย), นามสกุล (ไทย), สาขาวิชา, แผนก, ประเภทนักเรียน)',
     type: StudentFileUploadDto,
   })
-  @ApiOperation({ summary: 'นำเข้าข้อมูลนักเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
+  @ApiOperation({
+    summary: 'นำเข้าข้อมูลนักเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)',
+  })
   @HttpCode(HttpStatus.OK)
-  async uploadXlsx(
-    @UploadedFile() file: Express.Multer.File,
-    @Request() req,
-  ) {
+  async uploadXlsx(@UploadedFile() file: Express.Multer.File, @Request() req) {
     return await this.studentsService.importFromXlsx(file, req.user);
   }
 

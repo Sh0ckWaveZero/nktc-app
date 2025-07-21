@@ -8,7 +8,7 @@ import {
   createXlsxImportService,
   extractCellValue,
   validateRequiredFields,
-  XlsxImportConfig
+  XlsxImportConfig,
 } from '../../common/utils/xlsx-import.utils';
 import {
   createByAdmin,
@@ -26,14 +26,16 @@ export class StudentsService {
   constructor(
     private prisma: PrismaService,
     private readonly minioService: MinioClientService,
-  ) { }
+  ) {}
 
   async findBucket() {
     try {
-      const buckets = await this.minioService.client.listBuckets().catch((err) => {
-        console.log(err);
-        return [];
-      });
+      const buckets = await this.minioService.client
+        .listBuckets()
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
       console.log('buckets :', buckets);
 
       const data = [];
@@ -562,22 +564,27 @@ export class StudentsService {
       this.xlsxImportService = createXlsxImportService<StudentData>({
         getImportConfig: () => ({
           columnMapping: {
-            'idCard': 'เลขประจำตัวประชาชน',
-            'studentId': 'รหัสประจำตัว',
-            'levelClassroom': 'กลุ่มเรียน',
-            'title': 'คำนำหน้าชื่อ',
-            'firstName': 'ชื่อ (ไทย)',
-            'lastName': 'นามสกุล (ไทย)',
-            'departmentName': 'แผนก',
-            'programName': 'สาขาวิชา',
-            'studentType': 'ประเภทนักเรียน',
+            idCard: 'เลขประจำตัวประชาชน',
+            studentId: 'รหัสประจำตัว',
+            levelClassroom: 'กลุ่มเรียน',
+            title: 'คำนำหน้าชื่อ',
+            firstName: 'ชื่อ (ไทย)',
+            lastName: 'นามสกุล (ไทย)',
+            departmentName: 'แผนก',
+            programName: 'สาขาวิชา',
+            studentType: 'ประเภทนักเรียน',
           },
           requiredColumns: ['studentId', 'firstName', 'lastName'],
           entityName: 'นักเรียน',
         }),
 
         processRow: async (row, headerMap, config, user, rowNumber) => {
-          const result = await this.extractAndValidateStudentData(row, headerMap, config, user);
+          const result = await this.extractAndValidateStudentData(
+            row,
+            headerMap,
+            config,
+            user,
+          );
           if (typeof result === 'string') {
             return { error: result };
           }
@@ -586,7 +593,7 @@ export class StudentsService {
 
         createEntity: (data: StudentData) => this.createStudentEntity(data),
 
-        prisma: this.prisma
+        prisma: this.prisma,
       });
     }
     return this.xlsxImportService;
@@ -599,7 +606,7 @@ export class StudentsService {
     row: any[],
     headerMap: Record<string, number>,
     config: XlsxImportConfig<StudentData>,
-    user: any
+    user: any,
   ): Promise<StudentData | string> {
     const extractedData = this.extractRowData(row, headerMap, config);
 
@@ -607,9 +614,9 @@ export class StudentsService {
       {
         studentId: extractedData.studentId,
         firstName: extractedData.firstName,
-        lastName: extractedData.lastName
+        lastName: extractedData.lastName,
       },
-      ['studentId', 'firstName', 'lastName']
+      ['studentId', 'firstName', 'lastName'],
     );
 
     if (validationError) {
@@ -618,7 +625,9 @@ export class StudentsService {
 
     try {
       // ตรวจสอบว่านักเรียนมีอยู่ในระบบแล้วหรือไม่
-      const existingStudent = await this.checkStudentExists(extractedData.studentId);
+      const existingStudent = await this.checkStudentExists(
+        extractedData.studentId,
+      );
       if (existingStudent) {
         return `นักเรียนรหัส "${extractedData.studentId}" มีอยู่ในระบบแล้ว`;
       }
@@ -627,15 +636,22 @@ export class StudentsService {
       let levelClassroomId = null;
       if (extractedData.levelClassroom) {
         try {
-          levelClassroomId = await getLevelClassroomByName(extractedData.levelClassroom);
+          levelClassroomId = await getLevelClassroomByName(
+            extractedData.levelClassroom,
+          );
         } catch (error) {
-          console.log(`Cannot find levelClassroom: ${extractedData.levelClassroom}`);
+          console.log(
+            `Cannot find levelClassroom: ${extractedData.levelClassroom}`,
+          );
         }
       }
 
       // กำหนด levelName จาก levelClassroom
       let levelName: 'ปวช.' | 'ปวส.' = 'ปวช.';
-      if (extractedData.levelClassroom && extractedData.levelClassroom.includes('ปวส')) {
+      if (
+        extractedData.levelClassroom &&
+        extractedData.levelClassroom.includes('ปวส')
+      ) {
         levelName = 'ปวส.';
       }
 
@@ -648,16 +664,22 @@ export class StudentsService {
       }
 
       // ค้นหา department
-      const departmentRecord = await this.findDepartmentRecord(extractedData.departmentName);
+      const departmentRecord = await this.findDepartmentRecord(
+        extractedData.departmentName,
+      );
 
       // ค้นหา program
       let programId = null;
-      if (extractedData.programName && levelConnection?.level?.connect?.id && departmentRecord) {
+      if (
+        extractedData.programName &&
+        levelConnection?.level?.connect?.id &&
+        departmentRecord
+      ) {
         try {
           programId = await getProgramId(
             levelConnection.level.connect.id,
             extractedData.programName,
-            extractedData.studentType || 'ปกติ'
+            extractedData.studentType || 'ปกติ',
           );
         } catch (error) {
           console.log(`Cannot find program: ${extractedData.programName}`);
@@ -674,10 +696,10 @@ export class StudentsService {
             extractedData.studentType || '',
             extractedData.programName || '',
           );
-
-
         } catch (error) {
-          console.log(`Cannot find classroom for: ${extractedData.levelClassroom}`);
+          console.log(
+            `Cannot find classroom for: ${extractedData.levelClassroom}`,
+          );
         }
       }
 
@@ -688,9 +710,8 @@ export class StudentsService {
         departmentRecord?.id,
         programId,
         classroomId,
-        user
+        user,
       );
-
     } catch (error) {
       return error.message || 'เกิดข้อผิดพลาดในการประมวลผลข้อมูล';
     }
@@ -699,17 +720,56 @@ export class StudentsService {
   /**
    * Extract ข้อมูลจากแถว XLSX
    */
-  private extractRowData(row: any[], headerMap: Record<string, number>, config: XlsxImportConfig<StudentData>) {
+  private extractRowData(
+    row: any[],
+    headerMap: Record<string, number>,
+    config: XlsxImportConfig<StudentData>,
+  ) {
     return {
       idCard: extractCellValue(row, headerMap, config.columnMapping, 'idCard'),
-      studentId: extractCellValue(row, headerMap, config.columnMapping, 'studentId'),
-      levelClassroom: extractCellValue(row, headerMap, config.columnMapping, 'levelClassroom'),
+      studentId: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'studentId',
+      ),
+      levelClassroom: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'levelClassroom',
+      ),
       title: extractCellValue(row, headerMap, config.columnMapping, 'title'),
-      firstName: extractCellValue(row, headerMap, config.columnMapping, 'firstName'),
-      lastName: extractCellValue(row, headerMap, config.columnMapping, 'lastName'),
-      departmentName: extractCellValue(row, headerMap, config.columnMapping, 'departmentName'),
-      programName: extractCellValue(row, headerMap, config.columnMapping, 'programName'),
-      studentType: extractCellValue(row, headerMap, config.columnMapping, 'studentType')
+      firstName: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'firstName',
+      ),
+      lastName: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'lastName',
+      ),
+      departmentName: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'departmentName',
+      ),
+      programName: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'programName',
+      ),
+      studentType: extractCellValue(
+        row,
+        headerMap,
+        config.columnMapping,
+        'studentType',
+      ),
     };
   }
 
@@ -723,7 +783,7 @@ export class StudentsService {
     departmentId: string | null,
     programId: string | null,
     classroomId: string | null,
-    user: any
+    user: any,
   ): StudentData {
     return {
       idCard: extractedData.idCard || '',
@@ -753,10 +813,7 @@ export class StudentsService {
 
     return this.prisma.department.findFirst({
       where: {
-        OR: [
-          { name: departmentName },
-          { name: { contains: departmentName } }
-        ]
+        OR: [{ name: departmentName }, { name: { contains: departmentName } }],
       },
     });
   }
@@ -840,7 +897,14 @@ export class StudentsService {
         // Header row 1 - คำอธิบาย
         [
           'แม่แบบการนำเข้าข้อมูลนักเรียน - กรุณาใส่ข้อมูลในแถวที่ 3 เป็นต้นไป',
-          '', '', '', '', '', '', '', ''
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
         ],
         // Header row 2 - ชื่อฟิลด์
         [
@@ -852,7 +916,7 @@ export class StudentsService {
           'นามสกุล (ไทย)',
           'แผนก',
           'สาขาวิชา',
-          'ประเภทนักเรียน'
+          'ประเภทนักเรียน',
         ],
         // ข้อมูลตัวอย่าง
         [
@@ -864,7 +928,7 @@ export class StudentsService {
           'ใจดี',
           'วิทยาศาสตร์และเทคโนโลยี',
           'คอมพิวเตอร์ธุรกิจ',
-          'ปกติ'
+          'ปกติ',
         ],
         [
           '1234567890124',
@@ -875,27 +939,38 @@ export class StudentsService {
           'รักเรียน',
           'ศิลปศาสตร์',
           'การบัญชี',
-          'ปกติ'
-        ]
+          'ปกติ',
+        ],
       ];
 
       // สร้าง buffer สำหรับไฟล์ Excel
-      const buffer = xlsx.build([{
-        name: 'Students',
-        data: templateData,
-        options: {}
-      }]);
+      const buffer = xlsx.build([
+        {
+          name: 'Students',
+          data: templateData,
+          options: {},
+        },
+      ]);
 
       // ตั้งค่า response headers
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename=student-template.xlsx');
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=student-template.xlsx',
+      );
       res.setHeader('Content-Length', buffer.length);
 
       // ส่งไฟล์
       res.send(buffer);
     } catch (err) {
       console.error('Error generating template:', err);
-      throw new HttpException('ไม่สามารถสร้างไฟล์แม่แบบได้', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'ไม่สามารถสร้างไฟล์แม่แบบได้',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

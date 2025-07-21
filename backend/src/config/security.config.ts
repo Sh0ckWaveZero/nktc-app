@@ -16,8 +16,8 @@ const createCSPConfig = () => {
     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     imgSrc: ["'self'", 'data:', 'https:'],
-    scriptSrc: isDevelopment 
-      ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] 
+    scriptSrc: isDevelopment
+      ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"]
       : ["'self'"],
     objectSrc: ["'none'"],
     frameSrc: ["'none'"],
@@ -46,15 +46,22 @@ const createHelmetConfig = () => {
   return {
     contentSecurityPolicy: isDevelopment ? false : createCSPConfig(),
     crossOriginEmbedderPolicy: false, // สำหรับ API server
-    crossOriginResourcePolicy: { policy: APP_CONSTANTS.CORS_POLICY as 'cross-origin' | 'same-origin' | 'same-site' },
+    crossOriginResourcePolicy: {
+      policy: APP_CONSTANTS.CORS_POLICY as
+        | 'cross-origin'
+        | 'same-origin'
+        | 'same-site',
+    },
     dnsPrefetchControl: { allow: false },
     frameguard: { action: 'deny' as const },
     hidePoweredBy: true,
-    hsts: isDevelopment ? false : {
-      maxAge: 31536000, // 1 year
-      includeSubDomains: true,
-      preload: true
-    },
+    hsts: isDevelopment
+      ? false
+      : {
+          maxAge: 31536000, // 1 year
+          includeSubDomains: true,
+          preload: true,
+        },
     ieNoOpen: true,
     noSniff: true,
     originAgentCluster: true,
@@ -70,30 +77,31 @@ const createHelmetConfig = () => {
  */
 export const setupSecurity = (app: INestApplication): void => {
   const helmetConfig = createHelmetConfig();
-  
+
   // ตั้งค่า Helmet พร้อม configuration ที่กำหนดเอง
   app.use(helmet(helmetConfig));
-  
+
   // เพิ่ม custom security headers
   app.use((req, res, next) => {
     // ป้องกัน clickjacking
     res.setHeader('X-Frame-Options', 'DENY');
-    
+
     // ป้องกัน MIME type sniffing
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    
+
     // ป้องกัน XSS attacks
     res.setHeader('X-XSS-Protection', '1; mode=block');
-    
+
     // ซ่อนข้อมูล server
     res.removeHeader('X-Powered-By');
     res.removeHeader('Server');
-    
+
     // เพิ่ม Permissions Policy
-    res.setHeader('Permissions-Policy', 
-      'camera=(), microphone=(), geolocation=(), payment=()'
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(), payment=()',
     );
-    
+
     next();
   });
 };

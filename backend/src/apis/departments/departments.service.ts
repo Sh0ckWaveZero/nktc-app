@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { DepartmentData } from './entities';
-import { 
-  XlsxImportConfig, 
+import {
+  XlsxImportConfig,
   createXlsxImportService,
   extractCellValue,
-  validateRequiredFields
+  validateRequiredFields,
 } from '../../common/utils/xlsx-import.utils';
 
 /**
@@ -61,25 +61,31 @@ export class DepartmentsService {
       this.xlsxImportService = createXlsxImportService<DepartmentData>({
         getImportConfig: () => ({
           columnMapping: {
-            'id': 'รหัสแผนกวิชา',
-            'name': 'ชื่อแผนกวิชา',
-            'description': 'รายละเอียด',
+            id: 'รหัสแผนกวิชา',
+            name: 'ชื่อแผนกวิชา',
+            description: 'รายละเอียด',
           },
           requiredColumns: ['id', 'name'],
           entityName: 'แผนกวิชา',
         }),
 
         processRow: async (row, headerMap, config, user, rowNumber) => {
-          const result = await this.extractAndValidateDepartmentData(row, headerMap, config, user);
+          const result = await this.extractAndValidateDepartmentData(
+            row,
+            headerMap,
+            config,
+            user,
+          );
           if (typeof result === 'string') {
             return { error: result };
           }
           return { data: result };
         },
 
-        createEntity: (data: DepartmentData) => this.createDepartmentEntity(data),
+        createEntity: (data: DepartmentData) =>
+          this.createDepartmentEntity(data),
 
-        prisma: this.prisma
+        prisma: this.prisma,
       });
     }
     return this.xlsxImportService;
@@ -96,16 +102,23 @@ export class DepartmentsService {
     row: any[],
     headerMap: Record<string, number>,
     config: XlsxImportConfig<DepartmentData>,
-    user: any
+    user: any,
   ): Promise<DepartmentData | string> {
-    const departmentId = extractCellValue(row, headerMap, config.columnMapping, 'id');
-    const name = extractCellValue(row, headerMap, config.columnMapping, 'name');
-    const description = extractCellValue(row, headerMap, config.columnMapping, 'description') || '';
-
-    const validationError = validateRequiredFields(
-      { departmentId, name },
-      ['departmentId', 'name']
+    const departmentId = extractCellValue(
+      row,
+      headerMap,
+      config.columnMapping,
+      'id',
     );
+    const name = extractCellValue(row, headerMap, config.columnMapping, 'name');
+    const description =
+      extractCellValue(row, headerMap, config.columnMapping, 'description') ||
+      '';
+
+    const validationError = validateRequiredFields({ departmentId, name }, [
+      'departmentId',
+      'name',
+    ]);
 
     if (validationError) {
       return validationError;
@@ -138,11 +151,11 @@ export class DepartmentsService {
    */
   private async checkDepartmentExists(departmentId: string) {
     return this.prisma.department.findFirst({
-      where: { 
+      where: {
         OR: [
           { departmentId },
-          { name: departmentId } // กรณีที่ใช้ชื่อแผนกวิชาแทน
-        ]
+          { name: departmentId }, // กรณีที่ใช้ชื่อแผนกวิชาแทน
+        ],
       },
     });
   }

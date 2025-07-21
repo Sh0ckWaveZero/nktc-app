@@ -21,7 +21,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TeachersController {
-  constructor(private readonly teachersService: TeachersService) { }
+  constructor(private readonly teachersService: TeachersService) {}
 
   @Get()
   async findAll(@Query() { q }) {

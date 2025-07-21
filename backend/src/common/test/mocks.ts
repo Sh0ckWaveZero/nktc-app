@@ -102,9 +102,20 @@ export const mockJwtService = {
  */
 export const createMockPrismaService = () => {
   const models = [
-    'user', 'student', 'teacher', 'classroom', 'program', 'department',
-    'level', 'auditLog', 'appbar', 'account', 'goodness', 'badness',
-    'reportCheckIn', 'visit'
+    'user',
+    'student',
+    'teacher',
+    'classroom',
+    'program',
+    'department',
+    'level',
+    'auditLog',
+    'appbar',
+    'account',
+    'goodness',
+    'badness',
+    'reportCheckIn',
+    'visit',
   ];
 
   const mockService: any = {
@@ -112,7 +123,7 @@ export const createMockPrismaService = () => {
   };
 
   // สร้าง mock สำหรับแต่ละ model
-  models.forEach(model => {
+  models.forEach((model) => {
     mockService[model] = {
       findMany: jest.fn(),
       findUnique: jest.fn(),

@@ -16,7 +16,10 @@
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
       "Bash(grep:*)",
-      "WebFetch(domain:mui.com)"
+      "WebFetch(domain:mui.com)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": []
   }

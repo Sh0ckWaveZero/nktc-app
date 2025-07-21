@@ -56,7 +56,7 @@ export type ProcessRowFunction<T> = (
   headerMap: Record<string, number>,
   config: XlsxImportConfig<T>,
   user: any,
-  rowNumber: number
+  rowNumber: number,
 ) => Promise<ProcessRowResult<T>>;
 
 /**
@@ -89,13 +89,13 @@ export interface XlsxImportServiceConfig<T> {
 export const validateFileUpload = (file: Express.Multer.File): void => {
   if (!file) {
     throw new BadRequestException(
-      'ไม่พบไฟล์ที่อัปโหลด กรุณาตรวจสอบว่าคุณได้เลือกไฟล์และใช้ field name เป็น "file"'
+      'ไม่พบไฟล์ที่อัปโหลด กรุณาตรวจสอบว่าคุณได้เลือกไฟล์และใช้ field name เป็น "file"',
     );
   }
 
   if (!file.buffer) {
     throw new BadRequestException(
-      'ไฟล์ถูกอัปโหลดแต่ไม่มีข้อมูล buffer (ตรวจสอบการตั้งค่า memoryStorage)'
+      'ไฟล์ถูกอัปโหลดแต่ไม่มีข้อมูล buffer (ตรวจสอบการตั้งค่า memoryStorage)',
     );
   }
 };
@@ -111,7 +111,7 @@ export const parseXlsxFile = (file: Express.Multer.File): any[][] => {
 
   if (!workbook || workbook.length === 0) {
     throw new BadRequestException(
-      'ไม่สามารถอ่านข้อมูลจากไฟล์ Excel ได้ กรุณาตรวจสอบรูปแบบไฟล์'
+      'ไม่สามารถอ่านข้อมูลจากไฟล์ Excel ได้ กรุณาตรวจสอบรูปแบบไฟล์',
     );
   }
 
@@ -119,7 +119,7 @@ export const parseXlsxFile = (file: Express.Multer.File): any[][] => {
 
   if (!sheet || !sheet.data || !Array.isArray(sheet.data)) {
     throw new BadRequestException(
-      'ไฟล์ Excel ไม่มีข้อมูลหรือมีรูปแบบไม่ถูกต้อง'
+      'ไฟล์ Excel ไม่มีข้อมูลหรือมีรูปแบบไม่ถูกต้อง',
     );
   }
 
@@ -134,12 +134,12 @@ export const parseXlsxFile = (file: Express.Multer.File): any[][] => {
  */
 export const validateFileStructure = <T>(
   rows: any[][],
-  config: XlsxImportConfig<T>
+  config: XlsxImportConfig<T>,
 ): void => {
   const minRows = (config.skipHeaderRows || 2) + 1;
   if (rows.length < minRows) {
     throw new BadRequestException(
-      `ไฟล์ที่อัปโหลดว่างเปล่าหรือมีข้อมูลไม่เพียงพอ (ต้องการอย่างน้อย ${minRows} แถว รวมหัวตาราง)`
+      `ไฟล์ที่อัปโหลดว่างเปล่าหรือมีข้อมูลไม่เพียงพอ (ต้องการอย่างน้อย ${minRows} แถว รวมหัวตาราง)`,
     );
   }
 
@@ -156,19 +156,19 @@ export const validateFileStructure = <T>(
  */
 export const validateHeader = <T>(
   headerRow: string[],
-  config: XlsxImportConfig<T>
+  config: XlsxImportConfig<T>,
 ): void => {
   const requiredThaiColumns = config.requiredColumns.map(
-    col => config.columnMapping[col]
+    (col) => config.columnMapping[col],
   );
 
   const missingColumns = requiredThaiColumns.filter(
-    col => !headerRow.includes(col)
+    (col) => !headerRow.includes(col),
   );
 
   if (missingColumns.length > 0) {
     throw new BadRequestException(
-      `ไม่พบคอลัมน์ที่จำเป็น: ${missingColumns.join(', ')}`
+      `ไม่พบคอลัมน์ที่จำเป็น: ${missingColumns.join(', ')}`,
     );
   }
 };
@@ -178,7 +178,9 @@ export const validateHeader = <T>(
  * @param headerRow - แถว header
  * @returns object ที่ map ชื่อ column กับ index
  */
-export const createHeaderMap = (headerRow: string[]): Record<string, number> => {
+export const createHeaderMap = (
+  headerRow: string[],
+): Record<string, number> => {
   const headerMap: Record<string, number> = {};
   headerRow.forEach((header, index) => {
     if (header) {
@@ -194,7 +196,11 @@ export const createHeaderMap = (headerRow: string[]): Record<string, number> => 
  * @returns true หากแถวว่าง
  */
 export const isEmptyRow = (row: any[]): boolean => {
-  return !row || row.length === 0 || row.every(cell => cell === null || cell === '' || cell === undefined);
+  return (
+    !row ||
+    row.length === 0 ||
+    row.every((cell) => cell === null || cell === '' || cell === undefined)
+  );
 };
 
 /**
@@ -209,16 +215,18 @@ export const extractCellValue = (
   row: any[],
   headerMap: Record<string, number>,
   columnMapping: XlsxColumnMapping,
-  englishColumn: string
+  englishColumn: string,
 ): string | undefined => {
   const thaiColumn = columnMapping[englishColumn];
   if (!thaiColumn) return undefined;
-  
+
   const columnIndex = headerMap[thaiColumn];
   if (columnIndex === undefined) return undefined;
-  
+
   const cellValue = row[columnIndex];
-  return cellValue !== null && cellValue !== undefined ? cellValue.toString().trim() : undefined;
+  return cellValue !== null && cellValue !== undefined
+    ? cellValue.toString().trim()
+    : undefined;
 };
 
 /**
@@ -229,16 +237,18 @@ export const extractCellValue = (
  */
 export const validateRequiredFields = (
   data: Record<string, any>,
-  requiredFields: string[]
+  requiredFields: string[],
 ): string | null => {
-  const missingFields = requiredFields.filter(field => 
-    !data[field] || (typeof data[field] === 'string' && data[field].trim() === '')
+  const missingFields = requiredFields.filter(
+    (field) =>
+      !data[field] ||
+      (typeof data[field] === 'string' && data[field].trim() === ''),
   );
-  
+
   if (missingFields.length > 0) {
     return `ข้อมูลที่จำเป็นไม่ครบถ้วน (${missingFields.join(', ')})`;
   }
-  
+
   return null;
 };
 
@@ -252,7 +262,7 @@ export const validateRequiredFields = (
 export const buildResponse = (
   result: any[],
   errors: string[],
-  entityName: string
+  entityName: string,
 ): XlsxUploadResponse => {
   const messages: string[] = [];
 
@@ -294,7 +304,7 @@ export const processDataRows = async <T>(
   headerRow: string[],
   config: XlsxImportConfig<T>,
   user: any,
-  processRowFn: ProcessRowFunction<T>
+  processRowFn: ProcessRowFunction<T>,
 ): Promise<{ validData: T[]; errors: string[] }> => {
   const validData: T[] = [];
   const errors: string[] = [];
@@ -310,15 +320,23 @@ export const processDataRows = async <T>(
     }
 
     try {
-      const result = await processRowFn(row, headerMap, config, user, rowNumber);
-      
+      const result = await processRowFn(
+        row,
+        headerMap,
+        config,
+        user,
+        rowNumber,
+      );
+
       if (result.data) {
         validData.push(result.data);
       } else if (result.error) {
         errors.push(`Row ${rowNumber}: ${result.error}`);
       }
     } catch (error) {
-      errors.push(`Row ${rowNumber}: ${error.message || 'Unknown error processing row'}`);
+      errors.push(
+        `Row ${rowNumber}: ${error.message || 'Unknown error processing row'}`,
+      );
     }
   }
 
@@ -335,7 +353,7 @@ export const processDataRows = async <T>(
 export const createEntitiesInTransaction = async <T>(
   validData: T[],
   prisma: PrismaService,
-  createEntityFn: CreateEntityFunction<T>
+  createEntityFn: CreateEntityFunction<T>,
 ): Promise<any[]> => {
   if (validData.length === 0) {
     return [];
@@ -361,10 +379,10 @@ export const createEntitiesInTransaction = async <T>(
 export const importFromXlsx = async <T>(
   file: Express.Multer.File,
   user: any,
-  serviceConfig: XlsxImportServiceConfig<T>
+  serviceConfig: XlsxImportServiceConfig<T>,
 ): Promise<XlsxUploadResponse> => {
   const config = serviceConfig.getImportConfig();
-  
+
   try {
     // Step 1: Validate and parse file
     validateFileUpload(file);
@@ -382,21 +400,22 @@ export const importFromXlsx = async <T>(
       headerRow,
       config,
       user,
-      serviceConfig.processRow
+      serviceConfig.processRow,
     );
 
     // Step 4: Create entities in transaction
     const result = await createEntitiesInTransaction(
       validData,
       serviceConfig.prisma,
-      serviceConfig.createEntity
+      serviceConfig.createEntity,
     );
 
     // Step 5: Build response
     return buildResponse(result, errors, config.entityName);
   } catch (error) {
     throw new BadRequestException(
-      error.message || `เกิดข้อผิดพลาดในการประมวลผลไฟล์ XLSX สำหรับ ${config.entityName}`
+      error.message ||
+        `เกิดข้อผิดพลาดในการประมวลผลไฟล์ XLSX สำหรับ ${config.entityName}`,
     );
   }
 };
@@ -408,10 +427,10 @@ export const importFromXlsx = async <T>(
 /**
  * Factory function สำหรับสร้าง XLSX import service
  * ใช้ Higher-order function pattern แทน class inheritance
- * 
+ *
  * @param serviceConfig - configuration object ที่มีฟังก์ชันที่จำเป็น
  * @returns service object ที่มี import method และ utility functions
- * 
+ *
  * @example
  * ```typescript
  * const xlsxImportService = createXlsxImportService({
@@ -428,12 +447,14 @@ export const importFromXlsx = async <T>(
  *   },
  *   prisma
  * });
- * 
+ *
  * // ใช้งาน
  * const result = await xlsxImportService.importFromXlsx(file, user);
  * ```
  */
-export const createXlsxImportService = <T>(serviceConfig: XlsxImportServiceConfig<T>) => {
+export const createXlsxImportService = <T>(
+  serviceConfig: XlsxImportServiceConfig<T>,
+) => {
   return {
     /**
      * Import XLSX file และประมวลผลข้อมูล
@@ -441,7 +462,7 @@ export const createXlsxImportService = <T>(serviceConfig: XlsxImportServiceConfi
      * @param user - ผู้ใช้ที่ทำการ import
      * @returns ผลลัพธ์การ import
      */
-    importFromXlsx: (file: Express.Multer.File, user: any) => 
+    importFromXlsx: (file: Express.Multer.File, user: any) =>
       importFromXlsx(file, user, serviceConfig),
 
     /**
@@ -456,8 +477,8 @@ export const createXlsxImportService = <T>(serviceConfig: XlsxImportServiceConfi
       validateFileUpload,
       parseXlsxFile,
       validateFileStructure,
-      validateHeader
-    }
+      validateHeader,
+    },
   };
 };
 
@@ -472,17 +493,23 @@ export const createProcessRowFunction = <T>(
     headerMap: Record<string, number>,
     config: XlsxImportConfig<T>,
     user: any,
-    rowNumber: number
-  ) => T | string
+    rowNumber: number,
+  ) => T | string,
 ): ProcessRowFunction<T> => {
   return async (row, headerMap, config, user, rowNumber) => {
     try {
-      const result = extractAndValidateDataFn(row, headerMap, config, user, rowNumber);
-      
+      const result = extractAndValidateDataFn(
+        row,
+        headerMap,
+        config,
+        user,
+        rowNumber,
+      );
+
       if (typeof result === 'string') {
         return { error: result };
       }
-      
+
       return { data: result };
     } catch (error) {
       return { error: error.message || 'เกิดข้อผิดพลาดในการประมวลผลข้อมูล' };

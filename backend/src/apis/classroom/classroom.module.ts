@@ -6,7 +6,6 @@ import { MulterModule } from '@nestjs/platform-express';
 import { LoggerMiddleware } from './logger.middleware';
 import { memoryStorage } from 'multer';
 
-
 @Module({
   imports: [
     MulterModule.register({
@@ -29,8 +28,6 @@ export class ClassroomModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware)
-      .forRoutes(
-        { path: 'classrooms/upload', method: RequestMethod.POST },
-      );
+      .forRoutes({ path: 'classrooms/upload', method: RequestMethod.POST });
   }
 }

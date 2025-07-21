@@ -34,7 +34,9 @@ export const userStudentData = async (fileName: string) => {
   // Log duplicate student IDs
   uniqueStudentIds.forEach((count, id) => {
     if (count > 1) {
-      console.log(`Warning: Student ID ${id} appears ${count} times in the import file`);
+      console.log(
+        `Warning: Student ID ${id} appears ${count} times in the import file`,
+      );
     }
   });
 
@@ -46,19 +48,23 @@ export const userStudentData = async (fileName: string) => {
           // Map columns based on the actual Excel structure:
           // ID Card, Student ID, Class, Title, First Name, Last Name, Dept, Branch, Type
           const [
-            idCard,               // ID Card
-            studentId,            // Student ID
-            levelClassroom,       // Class
-            title,                // Title
-            firstName,            // First Name
-            lastName,             // Last Name
-            departmentName,       // Dept
-            programName,          // Branch
-            group,                // Type
+            idCard, // ID Card
+            studentId, // Student ID
+            levelClassroom, // Class
+            title, // Title
+            firstName, // First Name
+            lastName, // Last Name
+            departmentName, // Dept
+            programName, // Branch
+            group, // Type
           ] = item;
 
           // Log the row being processed for debugging
-          console.log(`Processing student row ${index + 2}: ID=${studentId}, Name=${title} ${firstName} ${lastName}`);
+          console.log(
+            `Processing student row ${
+              index + 2
+            }: ID=${studentId}, Name=${title} ${firstName} ${lastName}`,
+          );
 
           // Skip if no student ID
           if (!studentId) {
@@ -68,9 +74,14 @@ export const userStudentData = async (fileName: string) => {
 
           // Skip duplicates after the first occurrence
           if (uniqueStudentIds.get(studentId.toString()) > 1) {
-            uniqueStudentIds.set(studentId.toString(), uniqueStudentIds.get(studentId.toString()) - 1);
+            uniqueStudentIds.set(
+              studentId.toString(),
+              uniqueStudentIds.get(studentId.toString()) - 1,
+            );
             if (uniqueStudentIds.get(studentId.toString()) !== 0) {
-              console.log(`Skipping duplicate student ID ${studentId} to avoid unique constraint violation`);
+              console.log(
+                `Skipping duplicate student ID ${studentId} to avoid unique constraint violation`,
+              );
               return null;
             }
           }
@@ -78,14 +89,18 @@ export const userStudentData = async (fileName: string) => {
           // Convert studentId to string and validate
           const studentIdString = studentId.toString().trim();
           if (!studentIdString) {
-            console.log(`Skipping row ${index + 2} with empty student ID after conversion`);
+            console.log(
+              `Skipping row ${
+                index + 2
+              } with empty student ID after conversion`,
+            );
             return null;
           }
 
           const password = await hash(studentIdString, 12);
 
           // Determine level name with more robust checking
-          let levelName: 'ปวช.' | 'ปวส.' = 'ปวช.';  // Default to ปวช. if we can't determine
+          let levelName: 'ปวช.' | 'ปวส.' = 'ปวช.'; // Default to ปวช. if we can't determine
           if (levelClassroom) {
             const levelClassroomStr = levelClassroom.toString();
             if (levelClassroomStr.includes('ปวส')) {
@@ -93,10 +108,14 @@ export const userStudentData = async (fileName: string) => {
             } else if (levelClassroomStr.includes('ปวช')) {
               levelName = 'ปวช.';
             } else {
-              console.log(`Cannot determine level from ${levelClassroomStr}, using default: ปวช.`);
+              console.log(
+                `Cannot determine level from ${levelClassroomStr}, using default: ปวช.`,
+              );
             }
           } else {
-            console.log(`Level classroom is undefined for student ${studentIdString}, using default level: ปวช.`);
+            console.log(
+              `Level classroom is undefined for student ${studentIdString}, using default level: ปวช.`,
+            );
           }
 
           // Safely get levelClassroomId
@@ -104,31 +123,47 @@ export const userStudentData = async (fileName: string) => {
           try {
             if (levelClassroom) {
               levelClassroomId = await getLevelClassroomByName(levelClassroom);
-              console.log(`Level classroom ID for ${studentIdString}: ${levelClassroomId}`);
+              console.log(
+                `Level classroom ID for ${studentIdString}: ${levelClassroomId}`,
+              );
             } else {
-              console.log(`Level classroom is undefined for student ${studentIdString}`);
+              console.log(
+                `Level classroom is undefined for student ${studentIdString}`,
+              );
             }
           } catch (error) {
-            console.log(`Error getting level classroom ID for student ${studentIdString}: ${error.message}`);
+            console.log(
+              `Error getting level classroom ID for student ${studentIdString}: ${error.message}`,
+            );
           }
 
           // Safely get level
           let levelConnection = null;
           try {
             levelConnection = await getLevelByName(levelName);
-            if (levelConnection && levelConnection.level && levelConnection.level.connect.id) {
-              console.log(`Level ID for ${studentIdString}: ${levelConnection.level.connect.id}`);
+            if (
+              levelConnection &&
+              levelConnection.level &&
+              levelConnection.level.connect.id
+            ) {
+              console.log(
+                `Level ID for ${studentIdString}: ${levelConnection.level.connect.id}`,
+              );
             } else {
-              console.log(`Level ID not found for student ${studentIdString} with level ${levelName}`);
+              console.log(
+                `Level ID not found for student ${studentIdString} with level ${levelName}`,
+              );
               levelConnection = null;
             }
           } catch (error) {
-            console.log(`Error getting level for student ${studentIdString}: ${error.message}`);
+            console.log(
+              `Error getting level for student ${studentIdString}: ${error.message}`,
+            );
             levelConnection = null;
           }
 
           // Since there's no birthdate in Excel, set to null
-          let birthDate = null;
+          const birthDate = null;
 
           // Safely get programId
           let programId = null;
@@ -137,15 +172,19 @@ export const userStudentData = async (fileName: string) => {
               programId = await getProgramId(
                 levelConnection.level.connect.id,
                 programName.trim(),
-                group
+                group,
               );
 
               console.log(`Program ID for ${studentIdString}: ${programId}`);
             } else {
-              console.log(`Missing department or level for student ${studentIdString}`);
+              console.log(
+                `Missing department or level for student ${studentIdString}`,
+              );
             }
           } catch (error) {
-            console.log(`Error getting program ID for student ${studentIdString}: ${error.message}`);
+            console.log(
+              `Error getting program ID for student ${studentIdString}: ${error.message}`,
+            );
           }
 
           // Safely get classroomId
@@ -158,12 +197,18 @@ export const userStudentData = async (fileName: string) => {
                 group || '',
                 programName || '',
               );
-              console.log(`Classroom ID for ${studentIdString}: ${classroomId}`);
+              console.log(
+                `Classroom ID for ${studentIdString}: ${classroomId}`,
+              );
             } else {
-              console.log(`Missing levelClassroom or departmentName for student ${studentIdString}`);
+              console.log(
+                `Missing levelClassroom or departmentName for student ${studentIdString}`,
+              );
             }
           } catch (error) {
-            console.log(`Error getting classroom ID for student ${studentIdString}: ${error.message}`);
+            console.log(
+              `Error getting classroom ID for student ${studentIdString}: ${error.message}`,
+            );
           }
 
           // Create the student data object with only valid connections
@@ -211,15 +256,20 @@ export const userStudentData = async (fileName: string) => {
             ...admin,
           };
         } catch (error) {
-          console.log(`Error processing student data at row ${index + 2}:`, error);
+          console.log(
+            `Error processing student data at row ${index + 2}:`,
+            error,
+          );
           return null;
         }
       }),
   );
 
   // Filter out null values from processing errors
-  const validUserStudents = userStudent.filter(item => item !== null);
-  console.log(`Successfully processed ${validUserStudents.length} out of ${userStudent.length} student records`);
+  const validUserStudents = userStudent.filter((item) => item !== null);
+  console.log(
+    `Successfully processed ${validUserStudents.length} out of ${userStudent.length} student records`,
+  );
 
   return validUserStudents;
 };

@@ -7,7 +7,7 @@ export class TeachersService {
   constructor(
     private prisma: PrismaService,
     private readonly minioService: MinioClientService,
-  ) { }
+  ) {}
 
   async findAll(q = '') {
     const [firstName, lastName] = q.split(' ');
@@ -100,7 +100,10 @@ export class TeachersService {
         .map((cl: any) => cl.name);
 
       const loginCountByUserSummary = loginCount[teacher.username]
-        ? Object.entries(loginCount[teacher.username]).map(([date, count]) => ({ date, count }))
+        ? Object.entries(loginCount[teacher.username]).map(([date, count]) => ({
+            date,
+            count,
+          }))
         : [];
 
       return {

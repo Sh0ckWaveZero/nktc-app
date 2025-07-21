@@ -14,7 +14,13 @@ import {
   Request,
   HttpCode,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@apis/auth/jwt-auth.guard';
 import { RolesGuard } from '@common/guards/roles.guard';
@@ -52,15 +58,15 @@ export class ProgramsController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'ไฟล์ XLSX ที่มีข้อมูลสาขาวิชา (คอลัมน์ที่จำเป็น: รหัส, ชื่อ, รายละเอียด)',
+    description:
+      'ไฟล์ XLSX ที่มีข้อมูลสาขาวิชา (คอลัมน์ที่จำเป็น: รหัส, ชื่อ, รายละเอียด)',
     type: ProgramFileUploadDto,
   })
-  @ApiOperation({ summary: 'นำเข้าข้อมูลสาขาวิชาจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
+  @ApiOperation({
+    summary: 'นำเข้าข้อมูลสาขาวิชาจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)',
+  })
   @HttpCode(HttpStatus.OK)
-  async uploadXlsx(
-    @UploadedFile() file: Express.Multer.File,
-    @Request() req,
-  ) {
+  async uploadXlsx(@UploadedFile() file: Express.Multer.File, @Request() req) {
     return await this.programsService.importFromXlsx(file, req.user);
   }
 
@@ -94,12 +100,16 @@ export class ProgramsController {
   @ApiOperation({ summary: 'อัพเดทข้อมูลสาขาวิชา/หลักสูตร (เฉพาะผู้ดูแลระบบ)' })
   @HttpCode(HttpStatus.OK)
   async update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateProgramDto: UpdateProgramDto,
     @Request() req,
   ) {
     try {
-      const response = await this.programsService.update(id, updateProgramDto, req.user.username);
+      const response = await this.programsService.update(
+        id,
+        updateProgramDto,
+        req.user.username,
+      );
       return {
         status: HttpStatus.OK,
         message: 'อัพเดทสาขาวิชาสำเร็จ',

@@ -43,14 +43,14 @@ export class MinioClientService {
         },
       ],
     };
-    this.client.setBucketPolicy(
-      configuration().minioBucket,
-      JSON.stringify(policy)
-    ).then(() => {
-      this.logger.log('Bucket policy set');
-    }).catch(err => {
-      throw err;
-    });
+    this.client
+      .setBucketPolicy(configuration().minioBucket, JSON.stringify(policy))
+      .then(() => {
+        this.logger.log('Bucket policy set');
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 
   private readonly bucketName = configuration().minioBucket;

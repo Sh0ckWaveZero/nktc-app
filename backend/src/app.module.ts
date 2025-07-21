@@ -42,7 +42,7 @@ import validate from './config/validation';
       {
         ttl: 60000, // 1 นาที
         limit: 100, // 100 requests ต่อนาที
-      }
+      },
     ]),
     AccountsModule,
     ActivityCheckInModule,
@@ -81,7 +81,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // เพิ่ม SecurityMiddleware สำหรับทุก routes
     consumer.apply(SecurityMiddleware).forRoutes('*');
-    
+
     consumer.apply(LoggerMiddleware).forRoutes('auth/login');
     consumer
       .apply(ReportCheckInMiddleware)

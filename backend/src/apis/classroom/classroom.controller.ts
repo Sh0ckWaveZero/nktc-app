@@ -13,7 +13,13 @@ import {
   UploadedFile,
   Request,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '@apis/auth/jwt-auth.guard';
 import { ClassroomService } from './classroom.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -63,15 +69,15 @@ export class ClassroomController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'ไฟล์ XLSX ที่มีข้อมูลห้องเรียน (คอลัมน์ที่จำเป็น: รหัส, ชื่อระดับชั้นเรียนสาขาวิชา, ระดับชั้น, แผนกวิชา)',
+    description:
+      'ไฟล์ XLSX ที่มีข้อมูลห้องเรียน (คอลัมน์ที่จำเป็น: รหัส, ชื่อระดับชั้นเรียนสาขาวิชา, ระดับชั้น, แผนกวิชา)',
     type: ClassroomFileUploadDto,
   })
-  @ApiOperation({ summary: 'นำเข้าข้อมูลห้องเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)' })
+  @ApiOperation({
+    summary: 'นำเข้าข้อมูลห้องเรียนจากไฟล์ XLSX (เฉพาะผู้ดูแลระบบ)',
+  })
   @HttpCode(HttpStatus.OK)
-  async uploadXlsx(
-    @UploadedFile() file: Express.Multer.File,
-    @Request() req,
-  ) {
+  async uploadXlsx(@UploadedFile() file: Express.Multer.File, @Request() req) {
     return await this.classroomService.importFromXlsx(file, req.user);
   }
 }

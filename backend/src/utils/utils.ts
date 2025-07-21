@@ -47,13 +47,16 @@ export const getBirthday = async (date: string) => {
     // Check if string is completely numeric (likely not a Thai date)
     const isNumeric = /^\d+$/.test(date.replace(/\s/g, ''));
     if (isNumeric) {
-      console.log(`Date string contains only numbers, not a valid Thai date format: ${date}`);
+      console.log(
+        `Date string contains only numbers, not a valid Thai date format: ${date}`,
+      );
       return null;
     }
 
     // Check if the date contains any Thai month format
-    const hasThaiMonth = monthThai.some(month => date.includes(month)) ||
-      fullMonthThai.some(month => date.includes(month));
+    const hasThaiMonth =
+      monthThai.some((month) => date.includes(month)) ||
+      fullMonthThai.some((month) => date.includes(month));
 
     if (!hasThaiMonth) {
       console.log(`No Thai month found in date string: ${date}`);
@@ -70,13 +73,19 @@ export const getBirthday = async (date: string) => {
         if (!isNaN(dayNum) && dayNum >= 1 && dayNum <= 31) {
           _date = dayNum.toString().padStart(2, '0');
         } else {
-          console.log(`Invalid day in date string: ${date}, using default day (01)`);
+          console.log(
+            `Invalid day in date string: ${date}, using default day (01)`,
+          );
         }
       } else {
-        console.log(`Unable to extract day from date string: ${date}, using default day (01)`);
+        console.log(
+          `Unable to extract day from date string: ${date}, using default day (01)`,
+        );
       }
     } catch (error) {
-      console.log(`Error extracting day from date string: ${date}, using default day (01)`);
+      console.log(
+        `Error extracting day from date string: ${date}, using default day (01)`,
+      );
     }
 
     // Find month number safely - check both abbreviations and full names
@@ -94,7 +103,9 @@ export const getBirthday = async (date: string) => {
         const foundFullMonths = fullMonthThai
           .filter((item: string) => date.includes(item))
           .map((item: string) => {
-            return (fullMonthThai.indexOf(item) + 1).toString().padStart(2, '0');
+            return (fullMonthThai.indexOf(item) + 1)
+              .toString()
+              .padStart(2, '0');
           });
 
         if (foundFullMonths.length > 0) {
@@ -104,7 +115,9 @@ export const getBirthday = async (date: string) => {
         monthNum = foundMonths[0];
       }
     } catch (error) {
-      console.log(`Error extracting month from date string: ${date}, using default month (01)`);
+      console.log(
+        `Error extracting month from date string: ${date}, using default month (01)`,
+      );
     }
 
     // Get year safely
@@ -112,7 +125,9 @@ export const getBirthday = async (date: string) => {
     try {
       year = await getBuddhistYear(date);
     } catch (error) {
-      console.log(`Error extracting year from date string: ${date}, using current year`);
+      console.log(
+        `Error extracting year from date string: ${date}, using current year`,
+      );
     }
 
     // Construct date and validate
@@ -123,12 +138,16 @@ export const getBirthday = async (date: string) => {
       // Ensure the date is reasonable (not in the future, not too far in the past)
       const currentYear = new Date().getFullYear();
       if (dateObj.getFullYear() > currentYear) {
-        console.log(`Birthday year ${dateObj.getFullYear()} is in the future: ${date}`);
+        console.log(
+          `Birthday year ${dateObj.getFullYear()} is in the future: ${date}`,
+        );
         return null;
       }
 
       if (dateObj.getFullYear() < 1900) {
-        console.log(`Birthday year ${dateObj.getFullYear()} is too far in the past: ${date}`);
+        console.log(
+          `Birthday year ${dateObj.getFullYear()} is too far in the past: ${date}`,
+        );
         return null;
       }
 
@@ -160,7 +179,9 @@ const getBuddhistYear = async (date: string) => {
       // If it's a valid Buddhist year in a reasonable range
       if (possibleBuddhistYear >= 2500 && possibleBuddhistYear <= 2600) {
         const westernYear = possibleBuddhistYear - buddhistYearOffset;
-        console.log(`Found Buddhist year ${possibleBuddhistYear} in date string, converting to ${westernYear} CE`);
+        console.log(
+          `Found Buddhist year ${possibleBuddhistYear} in date string, converting to ${westernYear} CE`,
+        );
         return westernYear;
       }
     }
@@ -172,7 +193,9 @@ const getBuddhistYear = async (date: string) => {
       // If it's a valid Buddhist year in a reasonable range
       if (possibleBuddhistYear >= 2400 && possibleBuddhistYear <= 2599) {
         const westernYear = possibleBuddhistYear - buddhistYearOffset;
-        console.log(`Found Buddhist year ${possibleBuddhistYear} in date string, converting to ${westernYear} CE`);
+        console.log(
+          `Found Buddhist year ${possibleBuddhistYear} in date string, converting to ${westernYear} CE`,
+        );
         return westernYear;
       }
     }
@@ -193,16 +216,21 @@ const getBuddhistYear = async (date: string) => {
       const buddhistCenturyPrefix = '25';
 
       // Construct full year in Buddhist Era
-      const fullBuddhistYear = parseInt(`${buddhistCenturyPrefix}${twoDigitYear}`);
+      const fullBuddhistYear = parseInt(
+        `${buddhistCenturyPrefix}${twoDigitYear}`,
+      );
 
       // Convert to Western year
       const westernYear = fullBuddhistYear - buddhistYearOffset;
 
       // Validate result is a reasonable year
-      if (westernYear >= 1900 && westernYear <= (currentYear + 5)) { // Allow a small buffer for future dates
+      if (westernYear >= 1900 && westernYear <= currentYear + 5) {
+        // Allow a small buffer for future dates
         return westernYear;
       } else {
-        console.log(`Calculated unreasonable year (${westernYear}) from date string: ${date}, using current year`);
+        console.log(
+          `Calculated unreasonable year (${westernYear}) from date string: ${date}, using current year`,
+        );
       }
     }
 
@@ -314,10 +342,7 @@ export const getLevelId = async (level: string) => {
   try {
     const res = await prisma.level.findFirstOrThrow({
       where: {
-        OR: [
-          { levelId: level },
-          { levelName: level },
-        ]
+        OR: [{ levelId: level }, { levelName: level }],
       },
     });
 

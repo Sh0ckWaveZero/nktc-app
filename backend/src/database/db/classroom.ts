@@ -26,33 +26,43 @@ export const Classroom = async () => {
             department,
             departmentIds,
           ] = item;
-          
+
           // Generate a default classroom ID if missing
-          const processedClassroomId = classroomId || `CR${Date.now().toString().slice(-8)}`;
-          
+          const processedClassroomId =
+            classroomId || `CR${Date.now().toString().slice(-8)}`;
+
           // Try to get program, level and department IDs
           let programId, level, departmentId;
           try {
             programId = await getProgramId(program, levelName);
           } catch (error) {
-            console.log(`Error getting program ID for ${processedClassroomId}: ${error.message}`);
+            console.log(
+              `Error getting program ID for ${processedClassroomId}: ${error.message}`,
+            );
             programId = null;
           }
-          
+
           try {
             level = await getLevelId(levelName);
           } catch (error) {
-            console.log(`Error getting level ID for ${processedClassroomId}: ${error.message}`);
+            console.log(
+              `Error getting level ID for ${processedClassroomId}: ${error.message}`,
+            );
             level = { id: '' };
           }
-          
+
           try {
-            departmentId = await getDepartId(departmentIds, processedClassroomId);
+            departmentId = await getDepartId(
+              departmentIds,
+              processedClassroomId,
+            );
           } catch (error) {
-            console.log(`Error getting department ID for ${processedClassroomId}: ${error.message}`);
+            console.log(
+              `Error getting department ID for ${processedClassroomId}: ${error.message}`,
+            );
             departmentId = { id: '' };
           }
-          
+
           return {
             classroomId: processedClassroomId,
             name: name || `Classroom ${processedClassroomId}`,
@@ -80,8 +90,10 @@ export const Classroom = async () => {
   for (const data of classroomData) {
     try {
       // Ensure name is not null or undefined
-      const processedName = data.name || `Classroom ${data.classroomId || Date.now().toString().slice(-8)}`;
-      
+      const processedName =
+        data.name ||
+        `Classroom ${data.classroomId || Date.now().toString().slice(-8)}`;
+
       // For duplicate name issues, make the name unique by appending timestamp
       let uniqueName = processedName;
       try {
@@ -89,10 +101,15 @@ export const Classroom = async () => {
           where: { name: processedName },
         });
 
-        if (existingWithSameName && existingWithSameName.classroomId !== data.classroomId) {
+        if (
+          existingWithSameName &&
+          existingWithSameName.classroomId !== data.classroomId
+        ) {
           // If a record with the same name but different classroomId exists, make the name unique
           uniqueName = `${processedName} (${Date.now().toString().slice(-4)})`;
-          console.log(`Renamed duplicate classroom name ${processedName} to ${uniqueName}`);
+          console.log(
+            `Renamed duplicate classroom name ${processedName} to ${uniqueName}`,
+          );
         }
       } catch (error) {
         console.log(`Error checking for duplicate name: ${error.message}`);
@@ -117,13 +134,19 @@ export const Classroom = async () => {
           },
         });
         results.push(result);
-        console.log(`Successfully processed classroom ${data.classroomId}: ${uniqueName}`);
+        console.log(
+          `Successfully processed classroom ${data.classroomId}: ${uniqueName}`,
+        );
       } catch (error) {
-        console.log(`Error upserting classroom ${data?.classroomId}: ${error.message}`);
-        
+        console.log(
+          `Error upserting classroom ${data?.classroomId}: ${error.message}`,
+        );
+
         // Try one more time with a new name if upsert failed
         try {
-          const retryName = `${uniqueName} (retry-${Date.now().toString().slice(-6)})`;
+          const retryName = `${uniqueName} (retry-${Date.now()
+            .toString()
+            .slice(-6)})`;
           const result = await prisma.classroom.upsert({
             where: { classroomId: data.classroomId },
             update: {
@@ -141,16 +164,24 @@ export const Classroom = async () => {
             },
           });
           results.push(result);
-          console.log(`Successfully processed classroom on retry ${data.classroomId}: ${retryName}`);
+          console.log(
+            `Successfully processed classroom on retry ${data.classroomId}: ${retryName}`,
+          );
         } catch (secondError) {
-          console.log(`Final error with classroom ${data?.classroomId} even after retry: ${secondError.message}`);
+          console.log(
+            `Final error with classroom ${data?.classroomId} even after retry: ${secondError.message}`,
+          );
         }
       }
     } catch (error) {
-      console.log(`Unexpected error with classroom ${data?.classroomId}: ${error.message}`);
+      console.log(
+        `Unexpected error with classroom ${data?.classroomId}: ${error.message}`,
+      );
     }
   }
 
-  console.log(`Updated/Created ${results.length} classrooms out of ${classroomData.length} entries`);
+  console.log(
+    `Updated/Created ${results.length} classrooms out of ${classroomData.length} entries`,
+  );
   return results;
 };

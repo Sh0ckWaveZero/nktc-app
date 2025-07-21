@@ -8,7 +8,7 @@ import { PrismaService } from '../common/services/prisma.service';
 export class ReportCheckInMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ReportCheckInMiddleware.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async use(req: any, res: Response, next: NextFunction) {
     try {
@@ -68,14 +68,15 @@ export class ReportCheckInMiddleware implements NestMiddleware {
           fieldName: `present, absent, late, leave, internship`,
           oldValue: null,
           newValue: teacher.teacherId,
-          detail: `ห้องเรียน${classroom.name
-            } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
-              checkInDate,
-            ).toLocaleDateString('th-TH', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}`,
+          detail: `ห้องเรียน${
+            classroom.name
+          } จำนวนนักเรียน มาเรียน ${totalPresent} คน, ขาดเรียน ${totalAbsent} คน, สาย ${totalLate} คน, ลา ${totalLeave} คน, ฝึกงาน ${totalInternship} คน รวม ${totalStudent} คน วันที่ ${new Date(
+            checkInDate,
+          ).toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}`,
           ipAddr,
           browser: result.browser?.name || 'Unknown',
           device: result.device?.vendor || 'Unknown',
