@@ -1,6 +1,6 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
+import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, useMediaQuery, useTheme } from '@mui/material';
 
 // ** Icons Imports
 import { RiFileEditLine } from 'react-icons/ri';
@@ -26,9 +26,24 @@ const MenuProps = {
 const TableHeader = (props: TableHeaderProps) => {
   // ** Props
   const { value, defaultValue, handleChange, handleSubmit } = props;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
-    <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
-      <FormControl sx={{ mr: 4, mb: 2, width: 300 }}>
+    <Box sx={{
+      p: isMobile ? 3 : 5,
+      pb: 3,
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: isMobile ? 'center' : 'flex-end',
+      gap: isMobile ? 2 : 4
+    }}>
+      <FormControl sx={{
+        mb: 2,
+        width: isMobile ? '100%' : 300,
+        maxWidth: isMobile ? 'none' : 300
+      }}>
         <InputLabel id='demo-multiple-name-label'>ห้องเรียน</InputLabel>
         <Select
           labelId='demo-multiple-name-label'
@@ -42,6 +57,7 @@ const TableHeader = (props: TableHeaderProps) => {
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{selected && <Chip label={selected} />}</Box>
           )}
           MenuProps={MenuProps}
+          size={isMobile ? 'small' : 'medium'}
         >
           <MenuItem disabled value=''>
             <em>ห้องเรียน</em>
@@ -56,7 +72,19 @@ const TableHeader = (props: TableHeaderProps) => {
             : null}
         </Select>
       </FormControl>
-      <Button startIcon={<RiFileEditLine />} sx={{ mb: 2, height: 56 }} variant='contained' onClick={handleSubmit}>
+      <Button
+        startIcon={<RiFileEditLine />}
+        sx={{
+          mb: 2,
+          height: isMobile ? 48 : 56,
+          fontSize: isMobile ? '0.875rem' : '1rem',
+          minWidth: isMobile ? 'auto' : 200
+        }}
+        variant='contained'
+        onClick={handleSubmit}
+        size={isMobile ? 'small' : 'medium'}
+        fullWidth={isMobile}
+      >
         บันทึกการเช็คชื่อ
       </Button>
     </Box>

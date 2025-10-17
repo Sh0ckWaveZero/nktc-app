@@ -28,7 +28,6 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import { PatternFormat } from 'react-number-format';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 dayjs.extend(buddhistEra);
@@ -107,7 +106,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
         }
         return true;
       })
-      .matches( /^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
+      .matches(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
       .required(),
     password: yup
       .string()
@@ -279,24 +278,28 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               name='birthDate'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                   <DatePicker
                     label='วันเกิด'
                     value={value}
                     onChange={onChange}
-                    format='D MMMM BBBB'
+                    format='D MMMM YYYY'
                     maxDate={dayjs(new Date())}
                     slots={{
                       textField: CustomTextField,
-                      openPickerIcon: () => <FcCalendar />
+                      openPickerIcon: (props) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { ownerState, ...restProps } = props as any;
+                        return <FcCalendar {...restProps} />;
+                      },
                     }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         inputProps: {
                           placeholder: 'วัน/เดือน/ปี',
-                        }
-                      }
+                        },
+                      },
                     }}
                   />
                 </LocalizationProvider>

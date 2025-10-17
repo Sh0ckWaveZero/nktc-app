@@ -25,14 +25,12 @@ import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Icon from '@/@core/components/icon';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
-import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
@@ -235,11 +233,11 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   xs: 12,
                   sm: 6
                 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                   <DatePicker
                     label='เลือกวันที่'
                     value={selectedDate}
-                    format='DD MMMM BBBB'
+                    format='DD MMMM YYYY'
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
                     onChange={(newDate) => handleSelectedDate(newDate)}
@@ -303,9 +301,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>
-                    <LoadingButton
+                    <Button
                       loading={loadingImg}
-                      loadingPosition='start'
                       startIcon={<Icon icon={'uil:image-upload'} />}
                       variant='contained'
                       component='label'
@@ -320,7 +317,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                         accept='image/png, image/jpeg, image/webp'
                         id='account-settings-upload-image'
                       />
-                    </LoadingButton>
+                    </Button>
                     <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
                       รีเซ็ต
                     </ResetButtonStyled>

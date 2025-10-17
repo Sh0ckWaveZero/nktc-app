@@ -1,7 +1,5 @@
 'use client';
 
-import 'dayjs/locale/th';
-
 // ** Types Imports
 import { Avatar, Card, CardHeader } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
@@ -15,13 +13,10 @@ import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
 import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
-
-dayjs.locale('th');
-dayjs.extend(buddhistEra);
+import { getThaiMonthName, getBuddhistYear } from '@/utils/datetime';
 
 const localStorageService = new LocalStorageService();
 
@@ -66,8 +61,8 @@ const AdminActivityCheckInMonthlyReportPage = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำเดือน ${selectedDate.format('MMMM BBBB')}`}
+            title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            subheader={`ประจำเดือน ${getThaiMonthName(selectedDate.toDate())} ${getBuddhistYear(selectedDate.toDate())}`}
           />
         </Card>
       </Grid>

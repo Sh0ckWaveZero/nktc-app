@@ -21,7 +21,17 @@
       "Bash(git push:*)",
       "Bash(gh pr create:*)",
       "Bash(git branch:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(while read file)",
+      "Bash(do echo \"Fixing: $file\" sed -i '' \"s/import th from ''''dayjs\\/locale\\/th''''/import ''''dayjs\\/locale\\/th''''/g\" \"$file\" sed -i '' \"s/adapterLocale={th}/adapterLocale=''''th''''/g\" \"$file\" done)",
+      "Bash(do sed -i '' \"s/import th from ''''dayjs\\/locale\\/th''''/import ''''dayjs\\/locale\\/th''''/g\" \"$file\" sed -i '' \"s/adapterLocale={th}/adapterLocale=''''th''''/g\" \"$file\" echo \"Fixed: $file\" done)",
+      "Bash(bun add:*)",
+      "Bash(cat:*)",
+      "Bash(npm run lint:*)",
+      "Bash(/dev/null)"
     ],
     "deny": []
   }

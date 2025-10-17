@@ -32,14 +32,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { handleKeyDown } from '@/utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
@@ -275,9 +273,8 @@ const StudentAddPage = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <ImgStyled src={imgSrc} alt='Profile Pic' />
                       <Box>
-                        <LoadingButton
+                        <Button
                           loading={loadingImg}
-                          loadingPosition='start'
                           startIcon={<Icon icon={'uil:image-upload'} />}
                           variant='contained'
                           component='label'
@@ -292,7 +289,7 @@ const StudentAddPage = () => {
                             accept='image/png, image/jpeg, image/webp'
                             id='account-settings-upload-image'
                           />
-                        </LoadingButton>
+                        </Button>
                         <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
                           รีเซ็ต
                         </ResetButtonStyled>
@@ -505,17 +502,23 @@ const StudentAddPage = () => {
                         name='birthDate'
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                             <DatePicker
                               label='วันเกิด'
-                              format='DD MMMM BBBB'
+                              format='DD MMMM YYYY'
                               minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
                               maxDate={dayjs(new Date())}
-                              value={value}
-                              onChange={onChange}
+                              value={value ? dayjs(value).locale('th') : null}
+                              onChange={(newValue) => {
+                                onChange(newValue ? dayjs(newValue).locale('th') : null);
+                              }}
                               slots={{
                                 textField: TextField,
-                                openPickerIcon: FcCalendar
+                                openPickerIcon: (props) => {
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                  const { ownerState, ...restProps } = props as any;
+                                  return <FcCalendar {...restProps} />;
+                                }
                               }}
                               slotProps={{
                                 textField: {

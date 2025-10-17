@@ -1,19 +1,28 @@
 import * as React from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import isBetweenPlugin from 'dayjs/plugin/isBetween';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import th from 'dayjs/locale/th';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/th';
+import isBetween from 'dayjs/plugin/isBetween';
 
-dayjs.extend(isBetweenPlugin);
-dayjs.extend(weekOfYear);
-dayjs.extend(buddhistEra);
+dayjs.extend(isBetween);
+
+// Dayjs helper functions
+const isSameDay = (date1: Dayjs, date2: Dayjs): boolean => {
+  return date1.isSame(date2, 'day');
+};
+
+const getStartOfWeek = (date: Dayjs): Dayjs => {
+  return date.startOf('week').add(1, 'day'); // Monday as first day
+};
+
+const getEndOfWeek = (date: Dayjs): Dayjs => {
+  return date.endOf('week').subtract(1, 'day'); // Friday as last day
+};
 
 interface CustomPickerDayProps extends PickersDayProps<Dayjs> {
   dayIsBetween: boolean;
@@ -51,24 +60,23 @@ export default function CustomDay(props: TableHeaderProps) {
   // ** Props
   const { selectedDate, handleSelectedDate } = props;
 
-  const renderWeekPickerDay = (
-    date: Dayjs,
-    selectedDates: Array<Dayjs | null>,
-    pickersDayProps: PickersDayProps<Dayjs>,
-  ) => {
+  const renderWeekPickerDay = (pickersDayProps: PickersDayProps<Dayjs>) => {
+    const { day, ...other } = pickersDayProps;
+
     if (!selectedDate) {
       return <PickersDay {...pickersDayProps} />;
     }
 
-    const start = selectedDate.startOf('week').add(1, 'day');
-    const end = selectedDate.endOf('week').subtract(1, 'day');
-    const dayIsBetween = date.isBetween(start, end, null, '[]');
-    const isFirstDay = date.isSame(start, 'day');
-    const isLastDay = date.isSame(end, 'day');
+    const start = getStartOfWeek(selectedDate);
+    const end = getEndOfWeek(selectedDate);
+    const dayIsBetween = day.isBetween(start, end, 'day', '[]');
+    const isFirstDay = isSameDay(day, start);
+    const isLastDay = isSameDay(day, end);
 
     return (
       <CustomPickersDay
-        {...pickersDayProps}
+        {...other}
+        day={day}
         disableMargin
         dayIsBetween={dayIsBetween}
         isFirstDay={isFirstDay}
@@ -80,16 +88,23 @@ export default function CustomDay(props: TableHeaderProps) {
   return (
     <LocalizationProvider
       dateAdapter={AdapterDayjs}
-      adapterLocale={th}
+      adapterLocale='th'
     >
-      <DatePicker
-        disableMaskedInput
+      <DatePicker<Dayjs>
         label='เลือกสัปดาห์'
         value={selectedDate}
-        onChange={(newValue: any) => handleSelectedDate(newValue)}
-        renderDay={renderWeekPickerDay}
-        renderInput={(params) => <TextField {...params} />}
-        inputFormat='วันที่ d ของสัปดาห์ MMMM BBBB'
+        onChange={(newValue) => handleSelectedDate(newValue)}
+        slots={{
+          day: renderWeekPickerDay,
+          textField: TextField
+        }}
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            placeholder: 'วัน เดือน ปี',
+          }
+        }}
+        format='DD/MM/YYYY'
       />
     </LocalizationProvider>
   );

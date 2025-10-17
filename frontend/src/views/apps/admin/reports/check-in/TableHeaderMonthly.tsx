@@ -7,7 +7,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import dayjs, { Dayjs } from 'dayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
-import th from 'dayjs/locale/th';
+import 'dayjs/locale/th';
 dayjs.extend(buddhistEra);
 
 // ** Icons Imports
@@ -46,15 +46,15 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
-            <DatePicker
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
+            <DatePicker<Dayjs>
               openTo='month'
               views={['month', 'year']}
               label='เลือกเดือน'
               value={selectedDate}
-              format='MMMM BBBB'
-              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-              maxDate={dayjs(new Date())}
+              format='MMMM YYYY'
+              minDate={dayjs().subtract(1, 'year')}
+              maxDate={dayjs()}
               onChange={(newDate) => handleSelectedDate(newDate)}
               slots={{
                 textField: TextField

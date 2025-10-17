@@ -29,10 +29,10 @@ import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs, { Dayjs } from 'dayjs';
-import th from 'dayjs/locale/th';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 dayjs.extend(buddhistEra);
+dayjs.locale('th');
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -154,8 +154,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -182,8 +183,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -238,8 +240,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -267,31 +270,38 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                       <DatePicker
                         label='วันเกิด'
-                        value={value}
-                        onChange={onChange}
-                        format='D MMMM BBBB'
+                        value={value ? dayjs(value).locale('th') : null}
+                        onChange={(newValue) => {
+                          onChange(newValue ? dayjs(newValue).locale('th') : null);
+                        }}
+                        format='D MMMM YYYY'
                         maxDate={dayjs(new Date())}
                         slots={{
                           textField: TextField,
-                          openPickerIcon: () => <FcCalendar />
+                          openPickerIcon: (props) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { ownerState, ...restProps } = props as any;
+                            return <FcCalendar {...restProps} />;
+                          },
                         }}
                         slotProps={{
                           textField: {
                             fullWidth: true,
                             inputProps: {
-                              placeholder: 'วัน/เดือน/ปี',
-                            }
-                          }
+                              placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                            },
+                          },
                         }}
                       />
                     </LocalizationProvider>
@@ -303,8 +313,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -334,8 +345,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='status'

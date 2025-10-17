@@ -31,7 +31,7 @@ nktc-app/
 - **Next.js 15.4.2** with App Router (migrated from Pages Router)
 - **React 19.1.0** with functional components and hooks
 - **TypeScript 5.8.3** for type safety
-- **Material-UI 5.14.14** as primary UI framework
+- **Material-UI 7.x** as primary UI framework
 - **Zustand 4.4.4** for state management
 - **React Query (@tanstack/react-query)** for server state
 - **React Hook Form + Yup** for form handling and validation
@@ -286,6 +286,13 @@ MINIO_PORT=9000
 - **TypeScript**: Strict type checking across both projects
 - **SWC**: Fast TypeScript/JavaScript compiler
 - **Docker**: Containerization for deployment
+
+### MCP Servers
+- **MUI MCP**: Material-UI documentation and component reference via Model Context Protocol
+  - Provides AI assistants with direct access to official MUI v7 documentation
+  - Installation: `claude mcp add mui-mcp -- npx -y @mui/mcp@latest`
+  - Status: ✓ Connected (Project-scoped)
+  - Usage: Automatically available when working with MUI components
 
 ## API Endpoints Overview
 

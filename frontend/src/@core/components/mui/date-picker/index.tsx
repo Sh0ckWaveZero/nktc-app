@@ -3,34 +3,42 @@ import React from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
 import { DatePickerProps } from './types';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { FcCalendar } from 'react-icons/fc';
 import { TextField } from '@mui/material';
+import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/th';
 
-dayjs.extend(buddhistEra);
+// Date helpers using dayjs
+const getCurrentYear = (): number => dayjs().year();
+const getLastYear = (): number => getCurrentYear() - 1;
 
 const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
+  const minDate: Dayjs = dayjs().year(getLastYear()).month(0).date(1);
+  const maxDate: Dayjs = dayjs();
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
-      <DatePicker
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
+      <DatePicker<Dayjs>
         label={label}
         value={value}
-        format='DD MMMM BBBB'
-        minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-        maxDate={dayjs(new Date())}
+        format='DD/MM/YYYY'
+        minDate={minDate}
+        maxDate={maxDate}
         onChange={onChange}
         slots={{
           textField: TextField,
-          openPickerIcon: FcCalendar
+          openPickerIcon: (props) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { ownerState, ...restProps } = props as any;
+            return <FcCalendar {...restProps} />;
+          },
         }}
         slotProps={{
           textField: {
             fullWidth: true,
             placeholder: 'วัน เดือน ปี',
-          }
+          },
         }}
       />
     </LocalizationProvider>

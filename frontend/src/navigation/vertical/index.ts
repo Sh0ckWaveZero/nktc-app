@@ -291,6 +291,13 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
+      title: 'สถิติการใช้งานระบบ',
+      icon: 'carbon:analytics',
+      path: '/apps/admin/reports/statistics',
+      action: 'read',
+      subject: 'admin-statistics-page',
+    },
+    {
       title: 'ความดี',
       icon: HiStar,
       action: 'read',

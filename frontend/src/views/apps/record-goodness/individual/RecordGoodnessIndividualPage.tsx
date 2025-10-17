@@ -187,7 +187,7 @@ const RecordGoodnessIndividualPage = () => {
                 </Avatar>
               }
               sx={{ color: 'text.primary' }}
-              title={`บันทึกความดี ${students ? students.length : 0} คน`}
+              title={`บันทึกความดี ${students?.length ?? 0} คน`}
             />
             {students && (
               <TableHeader

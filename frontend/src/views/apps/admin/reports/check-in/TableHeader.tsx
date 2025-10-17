@@ -4,14 +4,11 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import th from 'dayjs/locale/th';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/th';
 // ** Icons Imports
 import { SiMicrosoftexcel } from 'react-icons/si';
-
-dayjs.extend(buddhistEra);
 
 interface TableHeaderProps {
   value: any;
@@ -45,13 +42,13 @@ const TableHeader = (props: TableHeaderProps) => {
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
-            <DatePicker
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
+            <DatePicker<Dayjs>
               label='เลือกวันที่'
               value={selectedDate}
-              format='DD MMMM BBBB'
-              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-              maxDate={dayjs(new Date())}
+              format='DD/MM/YYYY'
+              minDate={dayjs().subtract(1, 'year').startOf('year')}
+              maxDate={dayjs()}
               onChange={(newDate) => handleSelectedDate(newDate)}
               slots={{
                 textField: TextField

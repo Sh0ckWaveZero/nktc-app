@@ -13,12 +13,10 @@ import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 // ** Types Imports
 import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useReportCheckInStore } from '@/store/index';
-dayjs.locale('th');
-dayjs.extend(buddhistEra);
+import { formatFullDateThai } from '@/utils/datetime';
 
 const localStorageService = new LocalStorageService();
 
@@ -35,7 +33,7 @@ const AdminCheckInDailyReportPage = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState(dayjs(new Date()) || null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
 
   useEffect(() => {
     (async () => {
@@ -62,8 +60,8 @@ const AdminCheckInDailyReportPage = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำ${selectedDate.format('dddที่ DD MMMM BBBB')}`}
+            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            subheader={`ประจำ${formatFullDateThai(selectedDate.toDate())}`}
           />
         </Card>
       </Grid>

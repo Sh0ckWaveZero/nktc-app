@@ -64,7 +64,7 @@ export default function DialogClassroomGoodnessGroup({
   students,
   studentsList,
 }: Props) {
-  const [pageSize, setPageSize] = useState(students.length > 0 ? students.length : 10);
+  const [pageSize, setPageSize] = useState(students?.length ?? 10);
   const columns: GridColDef[] = [
     {
       flex: 0.13,

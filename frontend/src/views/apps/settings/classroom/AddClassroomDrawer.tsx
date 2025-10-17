@@ -25,7 +25,6 @@ import IconifyIcon from '@/@core/components/icon';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { LoadingButton } from '@mui/lab';
 import { useClassroomStore, useDepartmentStore, useProgramStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
@@ -267,17 +266,16 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                         {!value ? (
                           <Tooltip title='สร้างรหัสห้องเรียน' arrow>
                             <span>
-                              <LoadingButton
+                              <Button
                                 id='generate-classroomId'
                                 color='success'
                                 loading={loadingClassroomId}
-                                loadingPosition='start'
                                 startIcon={<IconifyIcon icon='fad:random-1dice' />}
                                 onClick={handleRandomClassroomId}
                                 variant='contained'
                               >
                                 <span>สุ่มรหัส</span>
-                              </LoadingButton>
+                              </Button>
                             </span>
                           </Tooltip>
                         ) : (

@@ -46,6 +46,7 @@ const CheckInSummaryReportPage = () => {
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [classroomName, setClassroomName] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
@@ -81,6 +82,7 @@ const CheckInSummaryReportPage = () => {
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
       setCurrentStudents(await data);
+      setCurrentPage(0); // Reset to first page when loading new data
       setLoading(false);
     });
   };
@@ -359,6 +361,7 @@ const CheckInSummaryReportPage = () => {
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
     setClassroomName(classroomName);
+    setCurrentPage(0); // Reset to first page when changing classroom
     await fetchDailyReport(classroomName.id);
   };
 
@@ -392,16 +395,20 @@ const CheckInSummaryReportPage = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                headerHeight={120}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 getRowHeight={() => 'auto'}
                 slots={{
                   noRowsOverlay: CustomNoRowsOverlay,
                 }}
+                paginationModel={{ page: currentPage, pageSize: pageSize }}
+                onPaginationModelChange={(model) => {
+                  setCurrentPage(model.page);
+                  setPageSize(model.pageSize);
+                }}
                 initialState={{
                   pagination: {
-                    paginationModel: { pageSize: pageSize, page: 0 },
+                    paginationModel: { page: currentPage, pageSize: pageSize },
                   },
                 }}
                 pageSizeOptions={[pageSize]}

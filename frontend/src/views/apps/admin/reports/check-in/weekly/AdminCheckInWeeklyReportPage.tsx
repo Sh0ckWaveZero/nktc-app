@@ -13,11 +13,10 @@ import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useReportCheckInStore } from '@/store/index';
-dayjs.extend(buddhistEra);
+import { formatLongDateThai } from '@/utils/datetime';
 
 const localStorageService = new LocalStorageService();
 
@@ -33,9 +32,9 @@ const AdminCheckInWeeklyReportPage = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
-  const [startOfWeek, setStartOfWeek] = useState<Dayjs>(dayjs(new Date()).startOf('week').add(1, 'day'));
-  const [endOfWeek, setEndOfWeek] = useState<Dayjs>(dayjs(new Date()).endOf('week').subtract(1, 'day'));
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
+  const [startOfWeek, setStartOfWeek] = useState<Dayjs>(dayjs().startOf('week').add(1, 'day'));
+  const [endOfWeek, setEndOfWeek] = useState<Dayjs>(dayjs().endOf('week').subtract(1, 'day'));
 
   useEffect(() => {
     const fetch = async () => {
@@ -60,13 +59,15 @@ const AdminCheckInWeeklyReportPage = () => {
         <Card>
           <CardHeader
             avatar={
-              <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+              <Avatar sx={{ color: 'second.main' }} aria-label='recipe'>
                 <BsCalendar2Date />
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำสัปดาห์ที่ ${startOfWeek.format('DD MMMM BBBB')} - ${endOfWeek.format('DD MMMM BBBB')}`}
+            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            subheader={`ประจำสัปดาห์ที่ ${formatLongDateThai(startOfWeek.toDate())} - ${formatLongDateThai(
+              endOfWeek.toDate(),
+            )}`}
           />
         </Card>
       </Grid>

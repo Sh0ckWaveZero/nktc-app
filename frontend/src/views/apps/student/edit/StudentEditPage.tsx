@@ -28,16 +28,6 @@ interface StudentEditPageProps {
   id: string;
 }
 
-interface FormData {
-  studentId: string;
-  title: string;
-  firstName: string;
-  lastName: string;
-  idCard: string;
-  phone: string;
-  status: string;
-}
-
 const showErrors = (field: string, valueLen: number, min: number) => {
   if (valueLen === 0) {
     return `กรุณากรอก ${field}`;
@@ -62,10 +52,20 @@ const schema = yup.object().shape({
     .string()
     .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
     .required(),
-  idCard: yup.string(),
-  phone: yup.string(),
+  idCard: yup.string().optional(),
+  phone: yup.string().optional(),
   status: yup.string().required('กรุณาเลือกสถานะ'),
 });
+
+interface FormData {
+  studentId: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  idCard?: string;
+  phone?: string;
+  status: string;
+}
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -94,7 +94,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
     formState: { errors },
     reset
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
     mode: 'onBlur',
     defaultValues: {
       studentId: id || '',

@@ -44,6 +44,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['manage'], 'settings-classroom-list-pages');
     can(['manage'], 'settings-program-list-pages');
     can(['read'], 'calendar-page');
+    can(['read'], 'admin-statistics-page');
   } else if (role === 'Teacher') {
     can(['create'], 'add-student-page');
     can(['read', 'update'], 'account-settings');

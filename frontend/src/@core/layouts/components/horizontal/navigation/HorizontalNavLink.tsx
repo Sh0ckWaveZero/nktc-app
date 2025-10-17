@@ -39,7 +39,7 @@ interface Props {
 }
 
 const ListItem = styled(MuiListItem, {
-  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'target',
+  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'target' && prop !== 'ownerState',
 })<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(({ theme }) => ({
     width: 'auto',
     paddingTop: theme.spacing(2.25),

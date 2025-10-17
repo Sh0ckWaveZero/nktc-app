@@ -51,7 +51,9 @@ interface Props {
 }
 
 // ** Styled Components
-const ListItem = styled(MuiListItem)<ListItemProps>(({ theme }) => ({
+const ListItem = styled(MuiListItem, {
+  shouldForwardProp: (prop) => prop !== 'ownerState',
+})<ListItemProps>(({ theme }) => ({
   cursor: 'pointer',
   paddingTop: theme.spacing(2.25),
   paddingBottom: theme.spacing(2.25),

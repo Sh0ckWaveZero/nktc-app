@@ -79,16 +79,24 @@ const StudentListPage = () => {
     (async () => {
       setLoadingClassroom(true);
       fetchClassroom(accessToken).then(async (res: any) => {
+        // Check if res is valid array
+        if (!res || !Array.isArray(res)) {
+          setClassrooms([]);
+          setLoadingClassroom(false);
+          return;
+        }
+
         if (user?.role?.toLowerCase() === 'admin') {
-          setClassrooms(await res);
+          setClassrooms(res);
           if (classroom) {
-            setInitClassroom(await res.filter((item: any) => item.id === classroom));
+            const filteredClassroom = res.filter((item: any) => item.id === classroom);
+            setInitClassroom(filteredClassroom[0] || null);
           }
         } else {
-          const teacherClassroom = await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
+          const teacherClassroom = res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
           setClassrooms(teacherClassroom);
           if (classroom) {
-            const currentQueryClassroom = await teacherClassroom.filter((item: any) => item.id === classroom);
+            const currentQueryClassroom = teacherClassroom.filter((item: any) => item.id === classroom);
             setInitClassroom(currentQueryClassroom[0] || null);
             setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
           }
@@ -291,7 +299,7 @@ const StudentListPage = () => {
                 </Avatar>
               }
               sx={{ color: 'text.primary' }}
-              title={`รายชื่อนักเรียนทั้งหมด ${students ? students.length : 0} คน`}
+              title={`รายชื่อนักเรียนทั้งหมด ${students?.length ?? 0} คน`}
             />
             {classrooms && (
               <TableHeader

@@ -1,4 +1,5 @@
-type AuthConfig = {
+export type AuthConfig = {
+  backEndUrl?: string;
   meEndpoint?: string;
   loginEndpoint?: string;
   changePasswordEndpoint?: string;
@@ -21,6 +22,7 @@ type AuthConfig = {
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const authConfig: AuthConfig = {
+  backEndUrl: apiUrl,
   meEndpoint: `${apiUrl}/auth/me`,
   loginEndpoint: `${apiUrl}/auth/login`,
   changePasswordEndpoint: `${apiUrl}/auth/update/password`,

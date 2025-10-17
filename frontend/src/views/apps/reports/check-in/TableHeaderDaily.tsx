@@ -6,7 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
 import dayjs from 'dayjs';
-import th from 'dayjs/locale/th';
 import { BsXCircle } from 'react-icons/bs';
 
 interface TableHeaderProps {
@@ -37,7 +36,7 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
       <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
           <DatePicker
             label='เลือกวันที่'
             value={selectedDate ? dayjs(selectedDate) : null}

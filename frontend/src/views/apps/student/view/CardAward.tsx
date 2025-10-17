@@ -97,7 +97,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
 
   const handleDownload = async () => {
     const modifiedPdf = await generateCertificatePdf(PDF, user);
-    const pdfBlob = new Blob([modifiedPdf], { type: 'application/pdf' });
+    const pdfBlob = new Blob([modifiedPdf as any], { type: 'application/pdf' });
     const pdfUrl = URL.createObjectURL(pdfBlob);
 
     if (window.innerWidth < 768) {

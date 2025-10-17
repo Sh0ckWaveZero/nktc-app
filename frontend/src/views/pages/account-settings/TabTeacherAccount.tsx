@@ -23,7 +23,6 @@ import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/ind
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import dayjs from 'dayjs';
@@ -31,7 +30,6 @@ import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
@@ -218,9 +216,8 @@ const TabTeacherAccount = () => {
                   <ImgStyled src={image as string} alt='Profile Pic' loading='lazy' />
                 )}
                 <Box>
-                  <LoadingButton
+                  <Button
                     loading={isCompressing}
-                    loadingPosition='start'
                     startIcon={<Icon icon={'uil:image-upload'} />}
                     variant='contained'
                     component='label'
@@ -234,7 +231,7 @@ const TabTeacherAccount = () => {
                       accept='image/png, image/jpeg, image/webp'
                       id='account-settings-upload-image'
                     />
-                  </LoadingButton>
+                  </Button>
                   <ResetButtonStyled
                     color='error'
                     variant='outlined'
@@ -253,8 +250,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 2
-              }}>
+                sm: 2,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='title'
@@ -283,8 +281,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 4
-              }}>
+                sm: 4,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -308,8 +307,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -333,8 +333,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
@@ -364,8 +365,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='academicStanding'
@@ -391,8 +393,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='department'
@@ -424,8 +427,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -447,8 +451,9 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Autocomplete
                 id='checkboxes-tags-teacher-classroom'
                 multiple={true}
@@ -459,11 +464,7 @@ const TabTeacherAccount = () => {
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
                 isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    {option.name}
-                  </li>
-                )}
+                renderOption={(props, option) => <li {...props}>{option.name}</li>}
                 renderInput={(params) => (
                   <TextField {...params} label='ครูที่ปรึกษาระดับชั้น' placeholder='เลือกห้องเรียน' />
                 )}
@@ -476,31 +477,36 @@ const TabTeacherAccount = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                       <DatePicker
                         label='วันเกิด'
                         value={value}
-                        format='dd/MM/BBBB'
+                        format='dd/MM/YYYY'
                         maxDate={dayjs(new Date())}
                         onChange={onChange}
                         slots={{
                           textField: TextField,
-                          openPickerIcon: () => <FcCalendar />
+                          openPickerIcon: (props) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { ownerState, ...restProps } = props as any;
+                            return <FcCalendar {...restProps} />;
+                          },
                         }}
                         slotProps={{
                           textField: {
                             fullWidth: true,
                             inputProps: {
                               placeholder: 'วัน/เดือน/ปี',
-                            }
-                          }
+                            },
+                          },
                         }}
                       />
                     </LocalizationProvider>

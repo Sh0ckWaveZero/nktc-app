@@ -129,7 +129,7 @@ const RegisterPage = () => {
               <Typography variant='body2' sx={{ marginRight: 2 }}>
                 มีบัญชีอยู่แล้ว?
               </Typography>
-              <Link href='/login'>
+              <Link href='/login' >
                 <LinkStyled>เข้าสู่ระบบ</LinkStyled>
               </Link>
             </Box>

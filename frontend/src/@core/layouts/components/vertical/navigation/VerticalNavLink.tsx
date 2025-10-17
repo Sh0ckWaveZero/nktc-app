@@ -3,7 +3,7 @@ import { ElementType } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip'
@@ -23,12 +23,8 @@ import { NavLink, NavGroup } from '@/@core/layouts/types'
 import { Settings } from '@/@core/context/settingsContext'
 
 // ** Custom Components Imports
-import UserIcon from '@/layouts/components/UserIcon'
 import Translations from '@/layouts/components/Translations'
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink'
-
-// ** Util Import
-import { handleURLQueries } from '@/@core/layouts/utils'
 
 interface Props {
   parent?: boolean
@@ -43,9 +39,12 @@ interface Props {
 }
 
 // ** Styled Components
-const MenuNavLink = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'href' && prop !== 'target',
-})<ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }>(({ theme }) => ({
+const MenuNavLink = styled(ListItemButton)<
+  ListItemButtonProps & {
+    component?: ElementType
+    href?: string
+  }
+>(({ theme }) => ({
   width: '100%',
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,
@@ -84,7 +83,6 @@ const VerticalNavLink = ({
   navigationBorderWidth
 }: Props) => {
   // ** Hooks
-  const router = useRouter()
   const pathname = usePathname()
 
   // ** Vars
@@ -105,8 +103,8 @@ const VerticalNavLink = ({
       <ListItem
         disablePadding
         className='nav-link'
-        sx={{ 
-          mt: 1.5, 
+        sx={{
+          mt: 1.5,
           px: '0 !important',
           pointerEvents: item.disabled ? 'none' : 'auto',
           opacity: item.disabled ? 0.5 : 1
@@ -114,10 +112,10 @@ const VerticalNavLink = ({
       >
         <MenuNavLink
           component={Link}
+          href={item.path === undefined ? '/' : item.path}
+          {...(item.openInNewTab ? { target: '_blank' } : {})}
           {...(item.disabled && { tabIndex: -1 })}
           className={isNavLinkActive() ? 'active' : ''}
-          href={item.path === undefined ? '/' : `${item.path}`}
-          {...(item.openInNewTab ? { target: '_blank' } : null)}
           onClick={e => {
             if (item.path === undefined) {
               e.preventDefault()

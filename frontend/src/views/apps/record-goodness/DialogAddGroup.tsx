@@ -20,7 +20,6 @@ import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCall
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from '@/utils/event';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
@@ -28,7 +27,6 @@ import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import th from 'dayjs/locale/th';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -180,11 +178,11 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                   xs: 12,
                   sm: 6
                 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
                   <DatePicker
                     label='เลือกวันที่'
                     value={selectedDate}
-                    format='DD MMMM BBBB'
+                    format='DD MMMM YYYY'
                     minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
                     maxDate={dayjs(new Date())}
                     onChange={(newDate) => handleSelectedDate(newDate)}
@@ -244,9 +242,8 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
                   <Box>
-                    <LoadingButton
+                    <Button
                       loading={loadingImg}
-                      loadingPosition='start'
                       startIcon={<Icon icon={'uil:image-upload'} />}
                       variant='contained'
                       component='label'
@@ -261,7 +258,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                         accept='image/png, image/jpeg, image/webp'
                         id='account-settings-upload-image'
                       />
-                    </LoadingButton>
+                    </Button>
                     <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
                       รีเซ็ต
                     </ResetButtonStyled>
