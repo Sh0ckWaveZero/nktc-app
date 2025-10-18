@@ -18,7 +18,7 @@ export type DateFormatOptions = Intl.DateTimeFormatOptions;
  */
 export function formatDateThai(
   date: Date | string | number,
-  options: DateFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+  options: DateFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' },
 ): string {
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   return new Intl.DateTimeFormat('th-TH-u-ca-buddhist', options).format(dateObj);
@@ -36,7 +36,7 @@ export function formatDateThai(
  */
 export function formatDateThaiGregorian(
   date: Date | string | number,
-  options: DateFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+  options: DateFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' },
 ): string {
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   return new Intl.DateTimeFormat('th-TH', options).format(dateObj);
@@ -50,7 +50,7 @@ export function formatShortDateThai(date: Date | string | number): string {
   return formatDateThai(date, {
     year: 'numeric',
     month: '2-digit',
-    day: '2-digit'
+    day: '2-digit',
   });
 }
 
@@ -62,7 +62,7 @@ export function formatLongDateThai(date: Date | string | number): string {
   return formatDateThai(date, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
@@ -72,7 +72,7 @@ export function formatLongDateThai(date: Date | string | number): string {
  */
 export function formatFullDateThai(date: Date | string | number): string {
   return formatDateThai(date, {
-    dateStyle: 'full'
+    dateStyle: 'full',
   });
 }
 
@@ -80,16 +80,13 @@ export function formatFullDateThai(date: Date | string | number): string {
  * Format time in Thai format
  * @example formatTimeThai(new Date()) // "14:30:45"
  */
-export function formatTimeThai(
-  date: Date | string | number,
-  includeSeconds: boolean = false
-): string {
+export function formatTimeThai(date: Date | string | number, includeSeconds: boolean = false): string {
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   return new Intl.DateTimeFormat('th-TH', {
     hour: '2-digit',
     minute: '2-digit',
     ...(includeSeconds && { second: '2-digit' }),
-    hour12: false
+    hour12: false,
   }).format(dateObj);
 }
 
@@ -97,10 +94,7 @@ export function formatTimeThai(
  * Format date and time together
  * @example formatDateTimeThai(new Date()) // "17 ตุลาคม 2568 เวลา 14:30"
  */
-export function formatDateTimeThai(
-  date: Date | string | number,
-  includeSeconds: boolean = false
-): string {
+export function formatDateTimeThai(date: Date | string | number, includeSeconds: boolean = false): string {
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   return new Intl.DateTimeFormat('th-TH-u-ca-buddhist', {
     year: 'numeric',
@@ -109,7 +103,7 @@ export function formatDateTimeThai(
     hour: '2-digit',
     minute: '2-digit',
     ...(includeSeconds && { second: '2-digit' }),
-    hour12: false
+    hour12: false,
   }).format(dateObj);
 }
 
@@ -152,7 +146,7 @@ export function calculateTimeAgo(date: Date): string {
   const diffDays = Math.round(diffHours / 24);
 
   if (diffSeconds < 60) {
-    return "เมื่อสักครู่นี้";
+    return 'เมื่อสักครู่นี้';
   } else if (diffMinutes < 60) {
     return `เมื่อ ${diffMinutes} นาทีที่แล้ว`;
   } else if (diffHours < 24) {

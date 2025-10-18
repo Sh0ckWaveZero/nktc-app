@@ -2,9 +2,9 @@
 
 // ** Types Imports
 import { Avatar, Card, CardHeader } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
 // ** React Imports
 import { useEffect, useState } from 'react';
+import { startOfWeek, addDays } from 'date-fns';
 
 import { BsCalendar2Date } from 'react-icons/bs';
 import Grid from '@mui/material/Grid';
@@ -32,16 +32,16 @@ const AdminActivityCheckInWeeklyReportPage = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-  const [startOfWeek, setStartOfWeek] = useState<Dayjs>(dayjs().startOf('week').add(1, 'day'));
-  const [endOfWeek, setEndOfWeek] = useState<Dayjs>(dayjs().endOf('week').subtract(1, 'day'));
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [startOfWeekDate, setStartOfWeekDate] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [endOfWeekDate, setEndOfWeekDate] = useState<Date>(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 4));
 
   useEffect(() => {
     const fetch = async () => {
-      const start = selectedDate.startOf('week').add(1, 'day');
-      setStartOfWeek(start);
-      const end = selectedDate.endOf('week').subtract(1, 'day');
-      setEndOfWeek(end);
+      const start = startOfWeek(selectedDate, { weekStartsOn: 1 });
+      setStartOfWeekDate(start);
+      const end = addDays(start, 4); // Friday
+      setEndOfWeekDate(end);
       await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
@@ -49,8 +49,10 @@ const AdminActivityCheckInWeeklyReportPage = () => {
     fetch();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Dayjs | null) => {
-    setSelectedDate(date as Dayjs);
+  const handleSelectedDate = (date: Date | null) => {
+    if (date) {
+      setSelectedDate(date);
+    }
   };
 
   return (
@@ -65,13 +67,13 @@ const AdminActivityCheckInWeeklyReportPage = () => {
             }
             sx={{ color: 'text.primary' }}
             title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
-            subheader={`ประจำสัปดาห์ที่ ${formatLongDateThai(startOfWeek.toDate())} - ${formatLongDateThai(endOfWeek.toDate())}`}
+            subheader={`ประจำสัปดาห์ที่ ${formatLongDateThai(startOfWeekDate)} - ${formatLongDateThai(endOfWeekDate)}`}
           />
         </Card>
       </Grid>
       <Grid size={12}>
         <Card>
-          <TableHeaderWeekly value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
+          <TableHeaderWeekly selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
           {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
         </Card>
       </Grid>

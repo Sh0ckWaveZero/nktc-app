@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
 import {
   Autocomplete,
@@ -16,16 +16,12 @@ import {
 } from '@mui/material';
 import Button, { ButtonProps } from '@mui/material/Button';
 import { Controller, useForm } from 'react-hook-form';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import dayjs from 'dayjs';
 import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
@@ -35,9 +31,8 @@ import { useAuth } from '../../../hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-dayjs.extend(buddhistEra);
+import { zodResolver } from '@hookform/resolvers/zod';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -56,17 +51,17 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-const schema = yup.object().shape({
-  title: yup.string().required('กรุณาเลือกคำนำหน้าชื่อ'),
-  firstName: yup.string().required('กรุณากรอกชื่อ'),
-  lastName: yup.string().required('กรุณากรอกนามสกุล'),
-  jobTitle: yup.string(),
-  academicStanding: yup.string(),
-  department: yup.string().required('กรุณาเลือกแผนกวิชา'),
-  teacherOnClassroom: yup.array(),
-  avatar: yup.string(),
-  birthDate: yup.date().nullable().default(null),
-  idCard: yup.string(),
+const schema = z.object({
+  title: z.string().min(1, 'กรุณาเลือกคำนำหน้าชื่อ'),
+  firstName: z.string().min(1, 'กรุณากรอกชื่อ'),
+  lastName: z.string().min(1, 'กรุณากรอกนามสกุล'),
+  jobTitle: z.string(),
+  academicStanding: z.string(),
+  department: z.string().min(1, 'กรุณาเลือกแผนกวิชา'),
+  teacherOnClassroom: z.array(z.any()),
+  avatar: z.string(),
+  birthDate: z.date().nullable(),
+  idCard: z.string(),
 });
 
 const localStorage = new LocalStorageService();
@@ -100,11 +95,53 @@ const TabTeacherAccount = () => {
   const { isLoading, image } = useGetImage(imgSrc, storedToken);
 
   useEffect(() => {
-    (async () => {
-      await fetchDepartment(storedToken).then(async (data: any) => {
-        setDepartmentValues(await data);
-      });
-    })();
+    const loadData = async () => {
+      try {
+        // Load departments
+        const departments = await fetchDepartment(storedToken);
+        setDepartmentValues(departments || []);
+
+        // Load classrooms
+        setLoading(true);
+        const classroomsData = await fetchClassroom(storedToken);
+
+        // Handle both null and empty array
+        if (!classroomsData) {
+          setClassrooms([]);
+          setClassroomSelected([]);
+          setLoading(false);
+          return;
+        }
+
+        setClassrooms(classroomsData);
+
+        // Filter selected classrooms
+        if (classroomsData.length > 0 && auth?.user?.teacherOnClassroom) {
+          const teacherClassrooms = auth.user.teacherOnClassroom;
+
+          // Support both array of IDs and array of objects
+          const teacherClassroomIds = teacherClassrooms.map((item: any) =>
+            typeof item === 'string' ? item : item?.id || item
+          );
+
+          const defaultClassroom = classroomsData.filter((item: any) =>
+            teacherClassroomIds.includes(item.id)
+          );
+
+          setClassroomSelected(defaultClassroom);
+        } else {
+          setClassroomSelected([]);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setClassrooms([]);
+        setClassroomSelected([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -113,19 +150,6 @@ const TabTeacherAccount = () => {
     }
   }, [imageCompressed]);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await fetchClassroom(storedToken).then(async (data: any) => {
-        setClassrooms(await data);
-        const defaultClassroom: any =
-          (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
-        setClassroomSelected(defaultClassroom);
-        setLoading(false);
-      });
-    })();
-  }, [departmentValues]);
-
   const defaultValues = {
     title: auth?.user?.account?.title ?? '',
     firstName: auth?.user?.account?.firstName ?? '',
@@ -133,8 +157,9 @@ const TabTeacherAccount = () => {
     jobTitle: auth?.user?.teacher?.jobTitle ?? '',
     academicStanding: auth?.user?.teacher?.academicStanding ?? '',
     department: auth?.user?.teacher?.department?.id ?? '',
+    teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
     avatar: auth?.user?.account?.avatar ?? '',
-    birthDate: auth?.user?.account?.birthDate ? dayjs(new Date(auth?.user?.account?.birthDate)) : null,
+    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
     idCard: auth?.user?.account?.idCard ?? '',
   };
 
@@ -142,11 +167,11 @@ const TabTeacherAccount = () => {
     reset,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty, isValid },
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const onHandleChange = (event: any, value: any) => {
@@ -173,7 +198,7 @@ const TabTeacherAccount = () => {
       academicStanding: data.academicStanding,
       department: data.department,
       avatar: image ? image : null,
-      birthDate: data.birthDate === '' ? null : data.birthDate ? dayjs(new Date(data.birthDate)) : null,
+      birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
       idCard: data.idCard,
       classrooms: classroomSelected.map((item: any) => item.id),
     };
@@ -199,8 +224,8 @@ const TabTeacherAccount = () => {
   };
 
   return (
-    <Fragment>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <CardContent>
           <Grid container spacing={5}>
             <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
@@ -253,14 +278,23 @@ const TabTeacherAccount = () => {
                 sm: 2,
               }}
             >
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!errors.title}>
                 <Controller
                   name='title'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
-                      <InputLabel>คำนำหน้า</InputLabel>
+                    <>
+                      <InputLabel
+                        required
+                        sx={{
+                          '& .MuiInputLabel-asterisk': {
+                            color: 'error.main',
+                          },
+                        }}
+                      >
+                        คำนำหน้า
+                      </InputLabel>
                       <Select label='คำนำหน้า' onChange={onChange} value={value}>
                         <MenuItem value=''>
                           <em>เลือกคำนำหน้า</em>
@@ -273,7 +307,8 @@ const TabTeacherAccount = () => {
                         <MenuItem value='ร.ศ.'>ร.ศ.</MenuItem>
                         <MenuItem value='ศ.'>ศ.</MenuItem>
                       </Select>
-                    </Fragment>
+                      {errors.title ? <FormHelperText>{errors.title.message as string}</FormHelperText> : null}
+                    </>
                   )}
                 />
               </FormControl>
@@ -284,7 +319,7 @@ const TabTeacherAccount = () => {
                 sm: 4,
               }}
             >
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!errors.firstName}>
                 <Controller
                   name='firstName'
                   control={control}
@@ -299,6 +334,16 @@ const TabTeacherAccount = () => {
                       onChange={onChange}
                       error={!!errors.firstName}
                       helperText={errors.firstName ? (errors.firstName.message as string) : ''}
+                      required
+                      slotProps={{
+                        inputLabel: {
+                          sx: {
+                            '& .MuiInputLabel-asterisk': {
+                              color: 'error.main',
+                            },
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -310,7 +355,7 @@ const TabTeacherAccount = () => {
                 sm: 6,
               }}
             >
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!errors.lastName}>
                 <Controller
                   name='lastName'
                   control={control}
@@ -325,6 +370,16 @@ const TabTeacherAccount = () => {
                       onChange={onChange}
                       error={!!errors.lastName}
                       helperText={errors.lastName ? (errors.lastName.message as string) : ''}
+                      required
+                      slotProps={{
+                        inputLabel: {
+                          sx: {
+                            '& .MuiInputLabel-asterisk': {
+                              color: 'error.main',
+                            },
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -341,7 +396,7 @@ const TabTeacherAccount = () => {
                   name='jobTitle'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <>
                       <InputLabel>ตำแหน่ง</InputLabel>
                       <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
                         <MenuItem value=''>
@@ -357,7 +412,7 @@ const TabTeacherAccount = () => {
                         <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
                         <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
                       </Select>
-                    </Fragment>
+                    </>
                   )}
                 />
               </FormControl>
@@ -373,7 +428,7 @@ const TabTeacherAccount = () => {
                   name='academicStanding'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <>
                       <InputLabel>วิทยฐานะ</InputLabel>
                       <Select label='วิทยฐานะ' value={value} onChange={onChange}>
                         <MenuItem value=''>
@@ -385,7 +440,7 @@ const TabTeacherAccount = () => {
                         <MenuItem value='เชี่ยวชาญ'>เชี่ยวชาญ</MenuItem>
                         <MenuItem value='เชี่ยวชาญพิเศษ'>เชี่ยวชาญพิเศษ</MenuItem>
                       </Select>
-                    </Fragment>
+                    </>
                   )}
                 />
               </FormControl>
@@ -402,9 +457,18 @@ const TabTeacherAccount = () => {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
-                    <FormControl error={!!errors.department}>
-                      <InputLabel>แผนกวิชา</InputLabel>
-                      <Select label='แผนกวิชา' value={value} onChange={onChange}>
+                    <FormControl fullWidth error={!!errors.department}>
+                      <InputLabel
+                        required
+                        sx={{
+                          '& .MuiInputLabel-asterisk': {
+                            color: 'error.main',
+                          },
+                        }}
+                      >
+                        แผนกวิชา
+                      </InputLabel>
+                      <Select label='แผนกวิชา' value={value} onChange={onChange} required>
                         <MenuItem value=''>
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
@@ -463,13 +527,40 @@ const TabTeacherAccount = () => {
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
-                isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props, option) => <li {...props}>{option.name}</li>}
-                renderInput={(params) => (
-                  <TextField {...params} label='ครูที่ปรึกษาระดับชั้น' placeholder='เลือกห้องเรียน' />
-                )}
-                disableCloseOnSelect
-                filterSelectedOptions
+                isOptionEqualToValue={(option: any, value: any) => option?.id === value?.id}
+                renderOption={(props: any, option: any, { selected }: any) => {
+                  const { key, onClick, className, ...otherProps } = props;
+                  return (
+                    <li key={option.id} onClick={onClick} className={className} {...(otherProps as any)}>
+                      {option.name}
+                    </li>
+                  );
+                }}
+                renderInput={(params) => {
+                  const { InputProps, InputLabelProps, ...otherParams } = params;
+                  return (
+                    <TextField
+                      {...otherParams}
+                      label='ครูที่ปรึกษาระดับชั้น'
+                      placeholder='เลือกห้องเรียน'
+                      slotProps={{
+                        input: {
+                          ...InputProps,
+                          ref: undefined,
+                        },
+                        inputLabel: {
+                          ...InputLabelProps,
+                          shrink: true,
+                        },
+                      }}
+                    />
+                  );
+                }}
+                slotProps={{
+                  paper: {
+                    sx: { maxHeight: 200 },
+                  },
+                }}
                 groupBy={(option: any) => option.department?.name}
                 noOptionsText='ไม่พบข้อมูล'
               />
@@ -485,37 +576,36 @@ const TabTeacherAccount = () => {
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-                      <DatePicker
-                        label='วันเกิด'
-                        value={value}
-                        format='dd/MM/YYYY'
-                        maxDate={dayjs(new Date())}
-                        onChange={onChange}
-                        slots={{
-                          textField: TextField,
-                          openPickerIcon: (props) => {
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { ownerState, ...restProps } = props as any;
-                            return <FcCalendar {...restProps} />;
+                    <ThaiDatePicker
+                      label='วันเกิด'
+                      value={value}
+                      onChange={onChange}
+                      format='dd/MM/yyyy'
+                      maxDate={new Date()}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          inputProps: {
+                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
                           },
-                        }}
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            inputProps: {
-                              placeholder: 'วัน/เดือน/ปี',
-                            },
+                          input: {
+                            endAdornment: <FcCalendar />,
                           },
-                        }}
-                      />
-                    </LocalizationProvider>
+                        },
+                      }}
+                    />
                   )}
                 />
               </FormControl>
             </Grid>
             <Grid size={12}>
-              <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
+              <Button
+                id={'submit-account'}
+                variant='contained'
+                sx={{ mr: 3.5 }}
+                type='submit'
+                disabled={!isDirty || !isValid}
+              >
                 บันทึกการเปลี่ยนแปลง
               </Button>
               <Button type='reset' variant='outlined' color='secondary' onClick={() => reset()}>
@@ -525,7 +615,7 @@ const TabTeacherAccount = () => {
           </Grid>
         </CardContent>
       </form>
-    </Fragment>
+    </>
   );
 };
 

@@ -24,7 +24,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
-import { Fragment, useContext, useRef, useState } from 'react';
+import React, { Fragment, useContext, useRef, useState } from 'react';
 import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -115,10 +115,10 @@ const ActivityCheckInReportPage = () => {
   const [openAlert, setOpenAlert] = useState<boolean>(true);
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  const timer: any = useRef(null);
+  const timer = useRef<NodeJS.Timeout | null>(null);
 
   // ** Popper
-  const popperRef: any = useRef();
+  const popperRef = useRef<HTMLDivElement>(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const openPopper = Boolean(anchorEl);
 
@@ -319,7 +319,7 @@ const ActivityCheckInReportPage = () => {
   };
 
   const handlePopperClose = (event: any) => {
-    if (anchorEl == null || popperRef.current.contains(event.nativeEvent.relatedTarget)) {
+    if (anchorEl == null || (popperRef.current && popperRef.current.contains(event.nativeEvent.relatedTarget))) {
       return;
     }
     setAnchorEl(null);
@@ -509,39 +509,60 @@ const ActivityCheckInReportPage = () => {
     onClearAll('');
   };
 
-  return (ability?.can('read', 'check-in-page') &&
+  return (
+    ability?.can('read', 'check-in-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
-    <Fragment>
-      <Grid container spacing={6}>
-        <Grid size={12}>
-          <Card>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                  <HiFlag />
-                </Avatar>
-              }
-              sx={{ color: 'text.primary' }}
-              title={`เช็คชื่อกิจกรรม`}
-              subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}`}
-            />
-            <CardContent>
-              {!isEmpty(currentStudents) && (
-                <>
-                  <Typography
-                    variant='subtitle1'
-                    sx={{ pb: 3 }}
-                  >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                  {isEmpty(reportCheckIn) ? (
-                    openAlert ? (
+      <React.Fragment>
+        <Grid container spacing={6}>
+          <Grid size={12}>
+            <Card>
+              <CardHeader
+                avatar={
+                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                    <HiFlag />
+                  </Avatar>
+                }
+                sx={{ color: 'text.primary' }}
+                title={`เช็คชื่อกิจกรรม`}
+                subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}`}
+              />
+              <CardContent>
+                {!isEmpty(currentStudents) && (
+                  <>
+                    <Typography
+                      variant='subtitle1'
+                      sx={{ pb: 3 }}
+                    >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                    {isEmpty(reportCheckIn) ? (
+                      openAlert ? (
+                        <Grid sx={{ mb: 3 }} size={12}>
+                          <Alert
+                            severity='error'
+                            sx={{ '& a': { fontWeight: 400 } }}
+                            action={
+                              <IconButton
+                                size='small'
+                                color='inherit'
+                                aria-label='close'
+                                onClick={() => setOpenAlert(false)}
+                              >
+                                <Close fontSize='inherit' />
+                              </IconButton>
+                            }
+                          >
+                            <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
+                          </Alert>
+                        </Grid>
+                      ) : null
+                    ) : openAlert ? (
                       <Grid sx={{ mb: 3 }} size={12}>
                         <Alert
-                          severity='error'
+                          severity='success'
                           sx={{ '& a': { fontWeight: 400 } }}
                           action={
                             <IconButton
@@ -554,112 +575,93 @@ const ActivityCheckInReportPage = () => {
                             </IconButton>
                           }
                         >
-                          <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
+                          <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
                         </Alert>
                       </Grid>
-                    ) : null
-                  ) : openAlert ? (
-                    <Grid sx={{ mb: 3 }} size={12}>
-                      <Alert
-                        severity='success'
-                        sx={{ '& a': { fontWeight: 400 } }}
-                        action={
-                          <IconButton
-                            size='small'
-                            color='inherit'
-                            aria-label='close'
-                            onClick={() => setOpenAlert(false)}
-                          >
-                            <Close fontSize='inherit' />
-                          </IconButton>
-                        }
-                      >
-                        <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
-                      </Alert>
-                    </Grid>
-                  ) : null}
-                </>
-              )}
-            </CardContent>
-            <TableHeader
-              value={classrooms}
-              handleChange={handleSelectChange}
-              defaultValue={defaultClassroom?.name ?? ''}
-              handleSubmit={onHandleSubmit}
-            />
-            <DataGridCustom
-              columns={columns}
-              rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-              disableColumnMenu
-              loading={loading}
-              rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-              initialState={{
-                pagination: {
-                  paginationModel: { pageSize: pageSize || 10, page: 0 },
-                },
-              }}
-              pageSizeOptions={[10, 25, 50, 100, pageSize]}
-              onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-              onCellClick={handleCellClick}
-              onColumnHeaderClick={handleColumnHeaderClick}
-              getRowClassName={(params) => {
-                return params.row.status === 'internship' ? 'internship' : 'normal';
-              }}
-              slots={{
-                noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
-              }}
-              slotProps={{
-                row: {
-                  onMouseEnter: handlePopperOpen,
-                  onMouseLeave: handlePopperClose,
-                },
-              }}
-              sx={{
-                '& .MuiDataGrid-row': {
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
+                    ) : null}
+                  </>
+                )}
+              </CardContent>
+              <TableHeader
+                value={classrooms}
+                handleChange={handleSelectChange}
+                defaultValue={defaultClassroom?.name ?? ''}
+                handleSubmit={onHandleSubmit}
+              />
+              <DataGridCustom
+                columns={columns}
+                rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
+                disableColumnMenu
+                loading={loading}
+                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: pageSize || 10, page: 0 },
                   },
-                  maxHeight: 'none !important',
-                },
-                '& .MuiDataGrid-cell': {
-                  display: 'flex',
-                  alignItems: 'center',
-                  lineHeight: 'unset !important',
-                  maxHeight: 'none !important',
-                  overflow: 'visible',
-                  whiteSpace: 'normal',
-                  wordWrap: 'break-word',
-                },
-                '& .MuiDataGrid-renderingZone': {
-                  maxHeight: 'none !important',
-                },
-              }}
-            />
-            <Popper
-              ref={popperRef}
-              open={openPopper}
-              anchorEl={anchorEl}
-              placement={'auto'}
-              onMouseLeave={() => setAnchorEl(null)}
-            >
-              {() => (
-                <Paper
-                  sx={{
-                    transform: 'translateX(-140px)',
-                    zIndex: 100,
-                  }}
-                >
-                  <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
-                    ฝึกงาน
-                  </Typography>
-                </Paper>
-              )}
-            </Popper>
-          </Card>
+                }}
+                pageSizeOptions={[10, 25, 50, 100, pageSize]}
+                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                onCellClick={handleCellClick}
+                onColumnHeaderClick={handleColumnHeaderClick}
+                getRowClassName={(params) => {
+                  return params.row.status === 'internship' ? 'internship' : 'normal';
+                }}
+                slots={{
+                  noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
+                }}
+                slotProps={{
+                  row: {
+                    onMouseEnter: handlePopperOpen,
+                    onMouseLeave: handlePopperClose,
+                  },
+                }}
+                sx={{
+                  '& .MuiDataGrid-row': {
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                    maxHeight: 'none !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    display: 'flex',
+                    alignItems: 'center',
+                    lineHeight: 'unset !important',
+                    maxHeight: 'none !important',
+                    overflow: 'visible',
+                    whiteSpace: 'normal',
+                    wordWrap: 'break-word',
+                  },
+                  '& .MuiDataGrid-renderingZone': {
+                    maxHeight: 'none !important',
+                  },
+                }}
+              />
+              <Popper
+                ref={popperRef}
+                open={openPopper}
+                anchorEl={anchorEl}
+                placement={'auto'}
+                onMouseLeave={() => setAnchorEl(null)}
+              >
+                {() => (
+                  <Paper
+                    sx={{
+                      transform: 'translateX(-140px)',
+                      zIndex: 100,
+                    }}
+                  >
+                    <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
+                      ฝึกงาน
+                    </Typography>
+                  </Paper>
+                )}
+              </Popper>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </Fragment>
-  ));
+      </React.Fragment>
+    )
+  );
 };
 
 export default ActivityCheckInReportPage;

@@ -1,4 +1,4 @@
-import { createWithEqualityFn } from 'zustand/traditional';;
+import { createWithEqualityFn } from 'zustand/traditional';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -9,22 +9,18 @@ interface UserState {
   fetchDepartment: (token: string) => any;
 }
 
-export const useDepartmentStore = createWithEqualityFn<UserState>()(
-  () => ({
-    department: null,
-    fetchDepartment: async (token: string) => {
-      try {
-        const { data } = await httpClient.get(
-          `${authConfig.departmentEndpoint}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        return await data;
-      } catch (err) {
-        return err;
-      }
-    },
-  }),
-);
+export const useDepartmentStore = createWithEqualityFn<UserState>()(() => ({
+  department: null,
+  fetchDepartment: async (token: string) => {
+    try {
+      const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return await data;
+    } catch (err) {
+      return err;
+    }
+  },
+}));

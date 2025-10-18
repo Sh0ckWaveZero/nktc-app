@@ -38,7 +38,7 @@ interface State {
 
 // ** Styled Components
 const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
-  [theme.breakpoints.up('sm')]: { width: '28rem' }
+  [theme.breakpoints.up('sm')]: { width: '28rem' },
 }));
 
 const LinkStyled = styled(Typography)(({ theme }) => ({
@@ -47,15 +47,15 @@ const LinkStyled = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
   cursor: 'pointer',
   '&:hover': {
-    textDecoration: 'underline'
-  }
+    textDecoration: 'underline',
+  },
 }));
 
 const RegisterPage = () => {
   // ** States
   const [values, setValues] = useState<State>({
     password: '',
-    showPassword: false
+    showPassword: false,
   });
 
   // ** Hook
@@ -76,7 +76,7 @@ const RegisterPage = () => {
   return (
     <Box className='content-center'>
       <Card sx={{ zIndex: 1 }}>
-        <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
+        <CardContent sx={{ padding: (theme) => `${theme.spacing(12, 9, 7)} !important` }}>
           <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography
               variant='h6'
@@ -85,7 +85,7 @@ const RegisterPage = () => {
                 lineHeight: 1,
                 fontWeight: 600,
                 textTransform: 'uppercase',
-                fontSize: '1.5rem !important'
+                fontSize: '1.5rem !important',
               }}
             >
               {themeConfig.templateName}
@@ -97,7 +97,7 @@ const RegisterPage = () => {
             </Typography>
             <Typography variant='body2'>สร้างบัญชีใหม่เพื่อเริ่มใช้งาน</Typography>
           </Box>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
+          <form noValidate autoComplete='off' onSubmit={(e) => e.preventDefault()}>
             <TextField autoFocus fullWidth id='username' label='ชื่อผู้ใช้' sx={{ marginBottom: 4 }} />
             <TextField fullWidth type='email' label='อีเมล' sx={{ marginBottom: 4 }} />
             <FormControl fullWidth>
@@ -129,7 +129,7 @@ const RegisterPage = () => {
               <Typography variant='body2' sx={{ marginRight: 2 }}>
                 มีบัญชีอยู่แล้ว?
               </Typography>
-              <Link href='/login' >
+              <Link href='/login'>
                 <LinkStyled>เข้าสู่ระบบ</LinkStyled>
               </Link>
             </Box>

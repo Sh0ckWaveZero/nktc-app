@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, Chip } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 interface CheckInControlsProps {
   isMobile: boolean;
@@ -9,7 +9,6 @@ interface CheckInControlsProps {
   classrooms: any[];
   defaultClassroom: any;
   currentStudentsCount: number;
-  selectedStudentsCount: number;
   isComplete: boolean;
   loading: boolean;
   formSize: 'small' | 'medium';
@@ -29,7 +28,6 @@ const CheckInControls = ({
   classrooms,
   defaultClassroom,
   currentStudentsCount,
-  selectedStudentsCount,
   isComplete,
   loading,
   formSize,
@@ -92,9 +90,13 @@ const CheckInControls = ({
               fontSize: responsiveConfig.isMobile ? '0.9rem' : '0.9rem',
               fontWeight: 500,
               color: 'text.primary',
-              transform: responsiveConfig.isMobile ? 'translate(16px, 16px) scale(1)' : 'translate(16px, 14px) scale(1)',
+              transform: responsiveConfig.isMobile
+                ? 'translate(16px, 16px) scale(1)'
+                : 'translate(16px, 14px) scale(1)',
               '&.MuiInputLabel-shrink': {
-                transform: responsiveConfig.isMobile ? 'translate(16px, -8px) scale(0.75)' : 'translate(16px, -9px) scale(0.75)',
+                transform: responsiveConfig.isMobile
+                  ? 'translate(16px, -8px) scale(0.75)'
+                  : 'translate(16px, -9px) scale(0.75)',
                 fontWeight: 600,
               },
             },
@@ -217,7 +219,9 @@ const CheckInControls = ({
           borderRadius: '8px',
           textTransform: 'none',
           letterSpacing: '0.3px',
-          boxShadow: responsiveConfig.isMobile ? '0 3px 10px rgba(25, 118, 210, 0.25)' : '0 4px 12px rgba(25, 118, 210, 0.3)',
+          boxShadow: responsiveConfig.isMobile
+            ? '0 3px 10px rgba(25, 118, 210, 0.25)'
+            : '0 4px 12px rgba(25, 118, 210, 0.3)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative',
           overflow: 'hidden',

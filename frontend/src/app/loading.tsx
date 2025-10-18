@@ -1,4 +1,4 @@
-'use client'
+'use client';
 // ** Spinner Import
 import Spinner from '@/@core/components/spinner';
 

@@ -13,17 +13,17 @@ const StatisticsCard = ({ title, value, subtitle, icon, color = 'primary' }: Sta
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flexGrow: 1 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
-          <Box display="flex" flexDirection="column" justifyContent="space-between" flexGrow={1}>
-            <Typography color="text.secondary" variant="body2" sx={{ mb: 1 }}>
+        <Box display='flex' justifyContent='space-between' alignItems='flex-start' height='100%'>
+          <Box display='flex' flexDirection='column' justifyContent='space-between' flexGrow={1}>
+            <Typography color='text.secondary' variant='body2' sx={{ mb: 1 }}>
               {title}
             </Typography>
             <Box>
-              <Typography variant="h4" sx={{ mb: subtitle ? 1 : 0 }}>
+              <Typography variant='h4' sx={{ mb: subtitle ? 1 : 0 }}>
                 {value}
               </Typography>
               {subtitle && (
-                <Typography variant="body2" color={`${color}.main`} fontWeight={500}>
+                <Typography variant='body2' color={`${color}.main`} fontWeight={500}>
                   {subtitle}
                 </Typography>
               )}

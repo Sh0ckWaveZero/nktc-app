@@ -1,6 +1,16 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, useMediaQuery, useTheme } from '@mui/material';
+import {
+  Button,
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 
 // ** Icons Imports
 import { RiFileEditLine } from 'react-icons/ri';
@@ -30,20 +40,24 @@ const TableHeader = (props: TableHeaderProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
-    <Box sx={{
-      p: isMobile ? 3 : 5,
-      pb: 3,
-      display: 'flex',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      justifyContent: isMobile ? 'center' : 'flex-end',
-      gap: isMobile ? 2 : 4
-    }}>
-      <FormControl sx={{
-        mb: 2,
-        width: isMobile ? '100%' : 300,
-        maxWidth: isMobile ? 'none' : 300
-      }}>
+    <Box
+      sx={{
+        p: isMobile ? 3 : 5,
+        pb: 3,
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: isMobile ? 'center' : 'flex-end',
+        gap: isMobile ? 2 : 4,
+      }}
+    >
+      <FormControl
+        sx={{
+          mb: 2,
+          width: isMobile ? '100%' : 300,
+          maxWidth: isMobile ? 'none' : 300,
+        }}
+      >
         <InputLabel id='demo-multiple-name-label'>ห้องเรียน</InputLabel>
         <Select
           labelId='demo-multiple-name-label'
@@ -78,7 +92,7 @@ const TableHeader = (props: TableHeaderProps) => {
           mb: 2,
           height: isMobile ? 48 : 56,
           fontSize: isMobile ? '0.875rem' : '1rem',
-          minWidth: isMobile ? 'auto' : 200
+          minWidth: isMobile ? 'auto' : 200,
         }}
         variant='contained'
         onClick={handleSubmit}

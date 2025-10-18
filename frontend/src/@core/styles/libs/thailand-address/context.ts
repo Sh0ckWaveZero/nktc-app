@@ -1,11 +1,11 @@
-import { createContext, useContext } from "react";
-import { DataSourceItem, useThailandAddressDataSource } from "./use-thailand-addr";
+import { createContext, useContext } from 'react';
+import { DataSourceItem, useThailandAddressDataSource } from './use-thailand-addr';
 
 /**
  * About Thailand address format
  * @see https://en.wikipedia.org/wiki/Thai_addressing_system#:~:text=With%20the%20exception%20of%20the,Road
  */
-export type ThailandAddressValue = {
+export type ThailandAddressValueType = {
   /**
    * @description tambon (ตำบล), khwaeng (แขวง)
    */
@@ -21,12 +21,14 @@ export type ThailandAddressValue = {
   province: string;
   postalCode: string;
 };
+
+export type ThailandAddressValue = ThailandAddressValueType;
 export const ThailandAddressValue = {
   empty: (): ThailandAddressValue => ({
-    district: "",
-    postalCode: "",
-    province: "",
-    subdistrict: "",
+    district: '',
+    postalCode: '',
+    province: '',
+    subdistrict: '',
   }),
   fromDataSourceItem: (ds: DataSourceItem): ThailandAddressValue => {
     return {
@@ -42,7 +44,7 @@ export type TypeaheadAddressContextData = {
   value: ThailandAddressValue;
   onValueChange?: (nextVal: ThailandAddressValue) => void;
   onInputFieldChange: (fieldName: keyof ThailandAddressValue, inputText: string) => void;
-  searchByField: ReturnType<typeof useThailandAddressDataSource>["searchByField"];
+  searchByField: ReturnType<typeof useThailandAddressDataSource>['searchByField'];
 
   suggestionContainerElem: Element | null;
   setSuggestionContainerElem: (e: Element | null) => void;
@@ -62,7 +64,7 @@ export const typeaheadAddressContext = createContext<TypeaheadAddressContextData
 export function useAddressTypeaheadContext() {
   const ctx = useContext(typeaheadAddressContext);
   if (!ctx) {
-    throw new Error("invalid context provider, make sure you place this component under ThailandAddressTypeahead");
+    throw new Error('invalid context provider, make sure you place this component under ThailandAddressTypeahead');
   }
   return ctx;
 }

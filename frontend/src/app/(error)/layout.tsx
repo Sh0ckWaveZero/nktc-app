@@ -1,10 +1,7 @@
-import { ReactNode } from 'react';
-
-// Force dynamic rendering for error pages
-export const dynamic = 'force-dynamic';
+'use client';
 
 interface ErrorLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function ErrorLayout({ children }: ErrorLayoutProps) {

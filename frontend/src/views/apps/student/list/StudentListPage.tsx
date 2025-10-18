@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
@@ -288,7 +288,7 @@ const StudentListPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -358,7 +358,7 @@ const StudentListPage = () => {
         </Grid>
       </Grid>
       {openDeletedConfirm && (
-        <Fragment>
+        <React.Fragment>
           <Dialog
             open={openDeletedConfirm}
             disableEscapeKeyDown
@@ -386,9 +386,9 @@ const StudentListPage = () => {
               </Button>
             </DialogActions>
           </Dialog>
-        </Fragment>
+        </React.Fragment>
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

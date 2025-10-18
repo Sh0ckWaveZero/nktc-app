@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -237,78 +237,77 @@ const RecordGoodnessGroupPage = () => {
   return (
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
-      <Grid container spacing={6}>
-        <Grid size={12}>
-          <Card>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                  <HiStar />
-                </Avatar>
-              }
-              sx={{ color: 'text.primary' }}
-              title={`บันทึกการทำความดีแบบกลุ่ม ${students ? students.length : 0} คน`}
-            />
-            <TableHeaderGroup
-              onOpenClassroom={onOpenSelectClassroom}
-              onOpenGoodnessDetail={onOpenGoodnessDetail}
-              onOpenSelectStudents={onOpenSelectStudents}
-              students={students}
-              tooltipName='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกความดี'
-            />
-            <DataGrid
-              autoHeight
-              columns={columns}
-              rows={students}
-              disableColumnMenu
-              initialState={{
-                pagination: {
-                  paginationModel: { pageSize: pageSize, page: 0 },
-                },
-              }}
-              pageSizeOptions={[10, 20, 50, 100]}
-              onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-              slots={{
-                noRowsOverlay: CustomNoRowsOverlay,
-              }}
-            />
-          </Card>
+      <React.Fragment>
+        <Grid container spacing={6}>
+          <Grid size={12}>
+            <Card>
+              <CardHeader
+                avatar={
+                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                    <HiStar />
+                  </Avatar>
+                }
+                sx={{ color: 'text.primary' }}
+                title={`บันทึกการทำความดีแบบกลุ่ม ${students ? students.length : 0} คน`}
+              />
+              <TableHeaderGroup
+                onOpenClassroom={onOpenSelectClassroom}
+                onOpenGoodnessDetail={onOpenGoodnessDetail}
+                onOpenSelectStudents={onOpenSelectStudents}
+                students={students}
+                tooltipName='เพิ่มรายละเอียดต่าง ๆ ในการบันทึกความดี'
+              />
+              <DataGrid
+                columns={columns}
+                rows={students}
+                disableColumnMenu
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: pageSize, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
+                }}
+              />
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <DialogStudentGroup
-        handleCloseSelectStudents={handleCloseSelectStudents}
-        onAddStudents={handleAddStudents}
-        onSearchStudents={onSearchStudents}
-        onSelectStudents={onSelectStudents}
-        openSelectStudents={openSelectStudents}
-        studentLoading={studentLoading}
-        studentsList={studentsList}
-      />
-      <DialogClassroomGoodnessGroup
-        classroomLoading={classroomLoading}
-        classrooms={classrooms}
-        defaultClassroom={defaultClassroom}
-        handleCloseSelectStudents={handleCloseSelectStudents}
-        onAddClassroom={onAddClassroom}
-        onCloseClassroom={handleCloseClassroom}
-        onHandleClassroomChange={onHandleClassroomChange}
-        onSelectionModelChange={onSelectionModelChange}
-        openSelectClassroom={openSelectClassroom}
-        selectClassrooms={selectClassrooms}
-        studentLoading={studentLoading}
-        students={students}
-        studentsList={studentsList}
-      />
-      <DialogAddGroup
-        onOpen={openGoodnessDetail}
-        data={students}
-        handleClose={handleCloseGoodnessDetail}
-        auth={auth}
-        handleSusses={handleSusses}
-      />
-      </Fragment>
+        <DialogStudentGroup
+          handleCloseSelectStudents={handleCloseSelectStudents}
+          onAddStudents={handleAddStudents}
+          onSearchStudents={onSearchStudents}
+          onSelectStudents={onSelectStudents}
+          openSelectStudents={openSelectStudents}
+          studentLoading={studentLoading}
+          studentsList={studentsList}
+        />
+        <DialogClassroomGoodnessGroup
+          classroomLoading={classroomLoading}
+          classrooms={classrooms}
+          defaultClassroom={defaultClassroom}
+          handleCloseSelectStudents={handleCloseSelectStudents}
+          onAddClassroom={onAddClassroom}
+          onCloseClassroom={handleCloseClassroom}
+          onHandleClassroomChange={onHandleClassroomChange}
+          onSelectionModelChange={onSelectionModelChange}
+          openSelectClassroom={openSelectClassroom}
+          selectClassrooms={selectClassrooms}
+          studentLoading={studentLoading}
+          students={students}
+          studentsList={studentsList}
+        />
+        <DialogAddGroup
+          onOpen={openGoodnessDetail}
+          data={students}
+          handleClose={handleCloseGoodnessDetail}
+          auth={auth}
+          handleSusses={handleSusses}
+        />
+      </React.Fragment>
     )
   );
 };

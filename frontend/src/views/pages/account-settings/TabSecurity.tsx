@@ -1,5 +1,7 @@
+'use client';
+
 // ** React Imports
-import { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -15,8 +17,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import PasswordStrengthBar from 'react-password-strength-bar';
 
 // ** Third Party Imports
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // ** Icons Imports
 import EyeOutline from 'mdi-material-ui/EyeOutline';
@@ -44,11 +46,11 @@ interface IFormInputs {
   confirmNewPassword: string;
 }
 
-const schema = yup.object().shape({
-  currentPassword: yup.string().required('กรุณากรอกรหัสผ่านปัจจุบัน'),
-  newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
-  confirmNewPassword: yup.string().required('กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
-});
+const schema = z.object({
+  currentPassword: z.string().min(1, 'กรุณากรอกรหัสผ่านปัจจุบัน'),
+  newPassword: z.string().min(1, 'กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
+  confirmNewPassword: z.string().min(1, 'กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
+}) satisfies z.ZodType<IFormInputs>;
 
 const localStorageService = new LocalStorageService();
 
@@ -68,7 +70,7 @@ const TabSecurity = () => {
       confirmNewPassword: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const auth = useAuth();
@@ -130,7 +132,7 @@ const TabSecurity = () => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent sx={{ pb: 0 }}>
           <Box sx={{ mb: 5.75, display: 'flex', alignItems: 'center' }}>
@@ -141,8 +143,9 @@ const TabSecurity = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Grid container spacing={5}>
                 <Grid sx={{ mt: 4.75 }} size={12}>
                   <FormControl fullWidth>
@@ -151,7 +154,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-current-password'>รหัสผ่านปัจจุบัน</InputLabel>
                           <OutlinedInput
                             label='รหัสผ่านปัจจุบัน'
@@ -173,7 +176,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.currentPassword && (
@@ -189,7 +192,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-new-password'>รหัสผ่านใหม่</InputLabel>
                           <OutlinedInput
                             label='รหัสผ่านใหม่'
@@ -211,7 +214,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.newPassword && (
@@ -231,7 +234,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-confirm-new-password'>ยืนยันรหัสผ่านใหม่</InputLabel>
                           <OutlinedInput
                             label='ยืนยันรหัสผ่านใหม่'
@@ -253,7 +256,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.confirmNewPassword && (
@@ -291,7 +294,7 @@ const TabSecurity = () => {
           </Box>
         </CardContent>
       </form>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

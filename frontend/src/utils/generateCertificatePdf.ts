@@ -1,5 +1,5 @@
 import { degrees, PDFDocument, rgb } from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit'
+import fontkit from '@pdf-lib/fontkit';
 import SarabunBase64 from './font-base64';
 
 interface UserData {

@@ -25,14 +25,9 @@ import { generateErrorMessages } from '@/utils/event';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import dayjs, { Dayjs } from 'dayjs';
-
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
-dayjs.extend(buddhistEra);
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken() || '';
@@ -84,7 +79,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [details, setDetails] = useState<string>('');
   const [onSubmit, setOnSubmit] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const { imageCompressed, handleInputImageChange } = useImageCompression();
 
@@ -153,7 +148,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   };
 
   const handleSelectedDate = useCallback(
-    (newDate: Dayjs | null) => {
+    (newDate: Date | null) => {
       setSelectedDate(newDate);
     },
     [setSelectedDate],
@@ -183,35 +178,25 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-                  <DatePicker
-                    label='เลือกวันที่'
-                    value={selectedDate}
-                    format='DD MMMM YYYY'
-                    minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-                    maxDate={dayjs(new Date())}
-                    onChange={(newDate) => handleSelectedDate(newDate)}
-                    slots={{
-                      textField: TextField
-                    }}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        inputProps: {
-                          placeholder: 'วัน เดือน ปี',
-                        }
-                      }
-                    }}
-                  />
-                </LocalizationProvider>
+                  sm: 6,
+                }}
+              >
+                <ThaiDatePicker
+                  label='เลือกวันที่'
+                  value={selectedDate}
+                  onChange={handleSelectedDate}
+                  format='dd MMMM yyyy'
+                  minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+                  maxDate={new Date()}
+                  placeholder='วัน เดือน ปี (พ.ศ.)'
+                />
               </Grid>
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <FormControl required fullWidth error={onSubmit && !badTypeScore}>
                   <InputLabel id='badTypeScore-label'>คะแนนพฤติกรรมที่ไม่เหมาะสม</InputLabel>
                   <Select

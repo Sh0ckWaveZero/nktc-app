@@ -17,7 +17,7 @@ import {
   tableCellClasses,
   useTheme,
 } from '@mui/material';
-import { Fragment, useId, useState } from 'react';
+import React, { Fragment, useId, useState } from 'react';
 
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
@@ -119,7 +119,7 @@ const RowDaily = (prop: any) => {
     ccyFormat(tableSubPercent(sumByProperty(values, level, 'absent'), level));
 
   return (
-    <Fragment key={levelRow}>
+    <React.Fragment key={levelRow}>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
           <IconButton aria-label='expand row' size='small' onClick={() => setOpen(!open)}>
@@ -196,7 +196,7 @@ const RowDaily = (prop: any) => {
           </Collapse>
         </TableCell>
       </TableRow>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

@@ -79,24 +79,30 @@ const SidebarEditCheckInDrawer = (props: SidebarAddClassroomType) => {
             id='รหัสนักเรียน'
             label='รหัสนักเรียน'
             value={data?.student?.studentId || ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: { readOnly: true },
+            }}
           />
           <TextField
             fullWidth
             id='ชื่อ-นามสกุล'
             label='ชื่อ-นามสกุล'
             value={data?.account?.title + data?.account?.firstName + ' ' + data?.account?.lastName || ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: { readOnly: true },
+            }}
           />
           <TextField
             fullWidth
             id='ชั้น'
             label='ชั้น'
             value={data?.classroomName?.name || ''}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{ readOnly: true }}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: { readOnly: true },
+            }}
           />
           <FormControl>
             <FormLabel id='demo-radio-buttons-group-label'>การเช็คชื่อ</FormLabel>

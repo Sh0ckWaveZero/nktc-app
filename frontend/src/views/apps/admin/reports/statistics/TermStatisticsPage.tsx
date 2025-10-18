@@ -20,16 +20,10 @@ import {
   Tab,
   Button,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
 import { FaChartPie, FaUserGraduate, FaChalkboardTeacher, FaFileExcel } from 'react-icons/fa';
 import { MdAssessment } from 'react-icons/md';
 import { shallow } from 'zustand/shallow';
 import * as XLSX from 'xlsx';
-
-import 'dayjs/locale/th';
 
 import { useStatisticsStore } from '@/store';
 import { LocalStorageService } from '@/services/localStorageService';
@@ -40,38 +34,15 @@ import TeacherUsageChart from './components/TeacherUsageChart';
 import DailyAttendanceChart from './components/DailyAttendanceChart';
 import DailyBreakdownTable from './components/DailyBreakdownTable';
 import TeacherActivityTable from './components/TeacherActivityTable';
-
-dayjs.locale('th');
+import {
+  formatDateForAPI,
+  formatThaiDate,
+  getEndOfMonth,
+  getStartOfMonth,
+} from '@/@core/components/mui/date-picker-thai/utils';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 const localStorageService = new LocalStorageService();
-
-// Helper functions for date handling using Intl.DateTimeFormat and dayjs
-const formatThaiDate = (date: Date | Dayjs): string => {
-  const jsDate = date instanceof Date ? date : date.toDate();
-  const thaiYear = jsDate.getFullYear() + 543;
-  const formattedDate = new Intl.DateTimeFormat('th-TH', {
-    day: 'numeric',
-    month: 'long',
-  }).format(jsDate);
-  return `${formattedDate} ${thaiYear}`;
-};
-
-const formatDateForAPI = (date: Date | Dayjs): string => {
-  const jsDate = date instanceof Date ? date : date.toDate();
-  return new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(jsDate).replace(/\//g, '-');
-};
-
-const getStartOfMonth = (): Dayjs => {
-  return dayjs().startOf('month');
-};
-
-const getEndOfMonth = (): Dayjs => {
-  return dayjs().endOf('month');
-};
 
 const TermStatisticsPage = () => {
   const { getTermStatistics }: any = useStatisticsStore(
@@ -83,8 +54,8 @@ const TermStatisticsPage = () => {
 
   const storedToken = localStorageService.getToken() || '';
 
-  const [termStartDate, setTermStartDate] = useState<Dayjs>(getStartOfMonth());
-  const [termEndDate, setTermEndDate] = useState<Dayjs>(getEndOfMonth());
+  const [termStartDate, setTermStartDate] = useState<Date | null>(getStartOfMonth());
+  const [termEndDate, setTermEndDate] = useState<Date | null>(getEndOfMonth());
   const [statistics, setStatistics] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -141,6 +112,8 @@ const TermStatisticsPage = () => {
   };
 
   const fetchStatistics = useCallback(async () => {
+    if (!termStartDate || !termEndDate) return;
+
     try {
       setError(null);
       setIsLoadingData(true);
@@ -174,7 +147,7 @@ const TermStatisticsPage = () => {
   }, [termStartDate, termEndDate, departmentFilter, programFilter, storedToken, getTermStatistics]);
 
   const handleExportExcel = () => {
-    if (!statistics) return;
+    if (!statistics || !termStartDate || !termEndDate) return;
 
     const workbook = XLSX.utils.book_new();
 
@@ -189,8 +162,16 @@ const TermStatisticsPage = () => {
       ['จำนวนวันที่เช็คชื่อ', statistics.studentCheckInStats.totalCheckInDays],
       [],
       ['สถิติการมาเข้าแถว'],
-      ['มาเข้าแถว', statistics.studentCheckInStats.studentsCheckedIn, `${statistics.studentCheckInStats.checkInPercentage.toFixed(2)}%`],
-      ['ไม่มาเข้าแถว', statistics.studentCheckInStats.studentsNotCheckedIn, `${statistics.studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`],
+      [
+        'มาเข้าแถว',
+        statistics.studentCheckInStats.studentsCheckedIn,
+        `${statistics.studentCheckInStats.checkInPercentage.toFixed(2)}%`,
+      ],
+      [
+        'ไม่มาเข้าแถว',
+        statistics.studentCheckInStats.studentsNotCheckedIn,
+        `${statistics.studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`,
+      ],
     ];
 
     const overviewSheet = XLSX.utils.aoa_to_sheet(overviewData);
@@ -230,18 +211,27 @@ const TermStatisticsPage = () => {
       ['สถิติการใช้งานของครู'],
       [],
       ['ครูทั้งหมด', statistics.teacherUsageStats.totalTeachers],
-      ['ครูที่ใช้งาน', statistics.teacherUsageStats.activeTeachers, `${statistics.teacherUsageStats.activePercentage.toFixed(2)}%`],
-      ['ครูที่ไม่ได้ใช้งาน', statistics.teacherUsageStats.inactiveTeachers, `${statistics.teacherUsageStats.inactivePercentage.toFixed(2)}%`],
+      [
+        'ครูที่ใช้งาน',
+        statistics.teacherUsageStats.activeTeachers,
+        `${statistics.teacherUsageStats.activePercentage.toFixed(2)}%`,
+      ],
+      [
+        'ครูที่ไม่ได้ใช้งาน',
+        statistics.teacherUsageStats.inactiveTeachers,
+        `${statistics.teacherUsageStats.inactivePercentage.toFixed(2)}%`,
+      ],
       [],
       ['รายละเอียดการใช้งานของครู'],
       ['รหัสครู', 'ชื่อ-นามสกุล', 'แผนก', 'สาขาวิชา', 'จำนวนครั้งที่เช็คชื่อ', 'เช็คชื่อล่าสุด', 'สถานะการใช้งาน'],
     ];
 
-    if (statistics.teacherUsageStats.teacherActivityDetails && statistics.teacherUsageStats.teacherActivityDetails.length > 0) {
+    if (
+      statistics.teacherUsageStats.teacherActivityDetails &&
+      statistics.teacherUsageStats.teacherActivityDetails.length > 0
+    ) {
       statistics.teacherUsageStats.teacherActivityDetails.forEach((teacher: any) => {
-        const lastCheckInDate = teacher.lastCheckInDate
-          ? formatThaiDate(new Date(teacher.lastCheckInDate))
-          : '-';
+        const lastCheckInDate = teacher.lastCheckInDate ? formatThaiDate(new Date(teacher.lastCheckInDate)) : '-';
 
         teacherOverviewData.push([
           teacher.teacherId || '-',
@@ -275,7 +265,11 @@ const TermStatisticsPage = () => {
               </Avatar>
             }
             title='สถิติการใช้งานระบบตามเทอม'
-            subheader={`ข้อมูลตั้งแต่ ${formatThaiDate(termStartDate)} ถึง ${formatThaiDate(termEndDate)}`}
+            subheader={
+              termStartDate && termEndDate
+                ? `ข้อมูลตั้งแต่ ${formatThaiDate(termStartDate)} ถึง ${formatThaiDate(termEndDate)}`
+                : 'เลือกช่วงวันที่'
+            }
             action={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pr: 2 }}>
                 {isLoadingData && (
@@ -309,72 +303,52 @@ const TermStatisticsPage = () => {
             }
           />
           <CardContent>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <DatePicker
-                    label='วันที่เริ่มต้น'
-                    value={termStartDate}
-                    onChange={(newValue) => newValue && setTermStartDate(newValue)}
-                    format='DD/MM/YYYY'
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        placeholder: 'วัน/เดือน/ปี',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <DatePicker
-                    label='วันที่สิ้นสุด'
-                    value={termEndDate}
-                    onChange={(newValue) => newValue && setTermEndDate(newValue)}
-                    format='DD/MM/YYYY'
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        placeholder: 'วัน/เดือน/ปี',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>แผนก</InputLabel>
-                    <Select
-                      value={departmentFilter}
-                      label='แผนก'
-                      onChange={(e) => setDepartmentFilter(e.target.value)}
-                    >
-                      <MenuItem value='all'>ทั้งหมด</MenuItem>
-                      {departments.map((dept) => (
-                        <MenuItem key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>สาขาวิชา</InputLabel>
-                    <Select
-                      value={programFilter}
-                      label='สาขาวิชา'
-                      onChange={(e) => setProgramFilter(e.target.value)}
-                    >
-                      <MenuItem value='all'>ทั้งหมด</MenuItem>
-                      {programs.map((prog) => (
-                        <MenuItem key={prog.id} value={prog.id}>
-                          {prog.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <ThaiDatePicker
+                  label='วันที่เริ่มต้น'
+                  value={termStartDate}
+                  onChange={(newValue: Date | null) => setTermStartDate(newValue)}
+                  format='dd/MM/yyyy'
+                  placeholder='วัน/เดือน/ปี (พ.ศ.)'
+                />
               </Grid>
-            </LocalizationProvider>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <ThaiDatePicker
+                  label='วันที่สิ้นสุด'
+                  value={termEndDate}
+                  onChange={(newValue: Date | null) => setTermEndDate(newValue)}
+                  format='dd/MM/yyyy'
+                  placeholder='วัน/เดือน/ปี (พ.ศ.)'
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <FormControl fullWidth>
+                  <InputLabel>แผนก</InputLabel>
+                  <Select value={departmentFilter} label='แผนก' onChange={(e) => setDepartmentFilter(e.target.value)}>
+                    <MenuItem value='all'>ทั้งหมด</MenuItem>
+                    {departments.map((dept) => (
+                      <MenuItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <FormControl fullWidth>
+                  <InputLabel>สาขาวิชา</InputLabel>
+                  <Select value={programFilter} label='สาขาวิชา' onChange={(e) => setProgramFilter(e.target.value)}>
+                    <MenuItem value='all'>ทั้งหมด</MenuItem>
+                    {programs.map((prog) => (
+                      <MenuItem key={prog.id} value={prog.id}>
+                        {prog.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
           </CardContent>
         </Card>
       </Grid>
@@ -426,10 +400,10 @@ const TermStatisticsPage = () => {
               <Tabs
                 value={activeTab}
                 onChange={(_e, newValue) => setActiveTab(newValue)}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
+                indicatorColor='primary'
+                textColor='primary'
+                variant='scrollable'
+                scrollButtons='auto'
                 allowScrollButtonsMobile
                 sx={{
                   '& .MuiTab-root': {
@@ -439,9 +413,9 @@ const TermStatisticsPage = () => {
                   },
                 }}
               >
-                <Tab label="ภาพรวม" />
-                <Tab label="สถิติการเข้าแถวของนักเรียน" />
-                <Tab label="สถิติการใช้งานของครู" />
+                <Tab label='ภาพรวม' />
+                <Tab label='สถิติการเข้าแถวของนักเรียน' />
+                <Tab label='สถิติการใช้งานของครู' />
               </Tabs>
             </Paper>
           </Grid>
@@ -633,20 +607,40 @@ const TermStatisticsPage = () => {
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 6 }}>
                         <Paper sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: 'success.lighter' }}>
-                          <Typography variant='h4' color='success.main' align='center' sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                          <Typography
+                            variant='h4'
+                            color='success.main'
+                            align='center'
+                            sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
+                          >
                             {statistics.teacherUsageStats.activeTeachers}
                           </Typography>
-                          <Typography variant='body2' align='center' color='text.secondary' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                          <Typography
+                            variant='body2'
+                            align='center'
+                            color='text.secondary'
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
                             ครูที่เข้าใช้งาน
                           </Typography>
                         </Paper>
                       </Grid>
                       <Grid size={{ xs: 6 }}>
                         <Paper sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: 'error.lighter' }}>
-                          <Typography variant='h4' color='error.main' align='center' sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                          <Typography
+                            variant='h4'
+                            color='error.main'
+                            align='center'
+                            sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
+                          >
                             {statistics.teacherUsageStats.inactiveTeachers}
                           </Typography>
-                          <Typography variant='body2' align='center' color='text.secondary' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                          <Typography
+                            variant='body2'
+                            align='center'
+                            color='text.secondary'
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
                             ครูที่ไม่ได้ใช้งาน
                           </Typography>
                         </Paper>

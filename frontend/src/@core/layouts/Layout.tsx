@@ -47,7 +47,7 @@ const Layout = (props: LayoutProps) => {
         saveSettings({ ...settings, layout: settings.lastLayout });
       }
     }
-    
+
     setHasInitialized(true);
   }, [hidden, mounted]);
 

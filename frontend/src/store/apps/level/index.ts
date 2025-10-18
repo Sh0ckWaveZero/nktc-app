@@ -1,4 +1,4 @@
-import { createWithEqualityFn } from 'zustand/traditional';;
+import { createWithEqualityFn } from 'zustand/traditional';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -8,21 +8,17 @@ interface UserState {
   fetchLevels: (token: string) => any;
 }
 
-export const useLevelStore = createWithEqualityFn<UserState>()(
-  () => ({
-    fetchLevels: async (token: string) => {
-      try {
-        const { data } = await httpClient.get(
-          `${authConfig.levelEndpoint}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        return await data;
-      } catch (err) {
-        return err;
-      }
-    },
-  }),
-);
+export const useLevelStore = createWithEqualityFn<UserState>()(() => ({
+  fetchLevels: async (token: string) => {
+    try {
+      const { data } = await httpClient.get(`${authConfig.levelEndpoint}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return await data;
+    } catch (err) {
+      return err;
+    }
+  },
+}));

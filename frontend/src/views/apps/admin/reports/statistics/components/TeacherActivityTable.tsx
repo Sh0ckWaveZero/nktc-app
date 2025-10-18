@@ -22,18 +22,8 @@ import {
   TextField,
   TablePagination,
 } from '@mui/material';
-// Date formatting helper using Intl.DateTimeFormat
-const formatThaiDate = (date: Date | string | null): string => {
-  if (!date) return '-';
-
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const thaiYear = dateObj.getFullYear() + 543;
-  return new Intl.DateTimeFormat('th-TH', {
-    day: 'numeric',
-    month: 'numeric',
-    year: 'numeric',
-  }).format(dateObj).replace(/(\d{4})$/, thaiYear.toString());
-};
+// Date formatting helper using date-fns
+import { formatThaiShortDate } from '@/@core/utils/thai-calendar';
 
 interface TeacherActivityTableProps {
   teachers: Array<{
@@ -75,8 +65,7 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
         teacher.teacherId.toLowerCase().includes(searchText.toLowerCase()) ||
         teacher.teacherName.toLowerCase().includes(searchText.toLowerCase());
 
-      const matchesDepartment =
-        departmentFilter === 'all' || teacher.department === departmentFilter;
+      const matchesDepartment = departmentFilter === 'all' || teacher.department === departmentFilter;
 
       const matchesProgram = programFilter === 'all' || teacher.program === programFilter;
 
@@ -107,7 +96,7 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
   return (
     <Card>
       <CardHeader
-        title="รายละเอียดการใช้งานของครู"
+        title='รายละเอียดการใช้งานของครู'
         subheader={`พบทั้งหมด ${filteredTeachers.length} จาก ${teachers.length} คน`}
       />
       <CardContent>
@@ -116,23 +105,19 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <TextField
               fullWidth
-              label="ค้นหา"
-              placeholder="รหัสหรือชื่อครู"
+              label='ค้นหา'
+              placeholder='รหัสหรือชื่อครู'
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              size="small"
+              size='small'
             />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size='small'>
               <InputLabel>แผนก</InputLabel>
-              <Select
-                value={departmentFilter}
-                label="แผนก"
-                onChange={(e) => setDepartmentFilter(e.target.value)}
-              >
-                <MenuItem value="all">ทั้งหมด</MenuItem>
+              <Select value={departmentFilter} label='แผนก' onChange={(e) => setDepartmentFilter(e.target.value)}>
+                <MenuItem value='all'>ทั้งหมด</MenuItem>
                 {departments.map((dept) => (
                   <MenuItem key={dept} value={dept}>
                     {dept}
@@ -143,14 +128,10 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size='small'>
               <InputLabel>สาขาวิชา</InputLabel>
-              <Select
-                value={programFilter}
-                label="สาขาวิชา"
-                onChange={(e) => setProgramFilter(e.target.value)}
-              >
-                <MenuItem value="all">ทั้งหมด</MenuItem>
+              <Select value={programFilter} label='สาขาวิชา' onChange={(e) => setProgramFilter(e.target.value)}>
+                <MenuItem value='all'>ทั้งหมด</MenuItem>
                 {programs.map((prog) => (
                   <MenuItem key={prog} value={prog}>
                     {prog}
@@ -161,16 +142,12 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size='small'>
               <InputLabel>สถานะ</InputLabel>
-              <Select
-                value={statusFilter}
-                label="สถานะ"
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <MenuItem value="all">ทั้งหมด</MenuItem>
-                <MenuItem value="active">ใช้งาน</MenuItem>
-                <MenuItem value="inactive">ไม่ได้ใช้งาน</MenuItem>
+              <Select value={statusFilter} label='สถานะ' onChange={(e) => setStatusFilter(e.target.value)}>
+                <MenuItem value='all'>ทั้งหมด</MenuItem>
+                <MenuItem value='active'>ใช้งาน</MenuItem>
+                <MenuItem value='inactive'>ไม่ได้ใช้งาน</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -181,8 +158,8 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
           sx={{
             overflowX: 'auto',
             '& .MuiTable-root': {
-              minWidth: { xs: 900, sm: 650 }
-            }
+              minWidth: { xs: 900, sm: 650 },
+            },
           }}
         >
           <Table>
@@ -192,16 +169,22 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
                 <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>ชื่อ-นามสกุล</TableCell>
                 <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>แผนก</TableCell>
                 <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>สาขาวิชา</TableCell>
-                <TableCell align="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>จำนวนครั้งที่เช็คชื่อ</TableCell>
-                <TableCell align="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>เช็คชื่อล่าสุด</TableCell>
-                <TableCell align="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>สถานะ</TableCell>
+                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  จำนวนครั้งที่เช็คชื่อ
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  เช็คชื่อล่าสุด
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  สถานะ
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {currentPageData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Typography variant="body2" color="text.secondary">
+                  <TableCell colSpan={7} align='center'>
+                    <Typography variant='body2' color='text.secondary'>
                       ไม่พบข้อมูล
                     </Typography>
                   </TableCell>
@@ -215,31 +198,49 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
                       '&:hover': { bgcolor: 'action.hover' },
                     }}
                   >
-                    <TableCell component="th" scope="row" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <TableCell component='th' scope='row' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       {teacher.teacherId}
                     </TableCell>
                     <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{teacher.teacherName}</TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{teacher.department || '-'}</Typography>
+                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {teacher.department || '-'}
+                      </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{teacher.program || '-'}</Typography>
+                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {teacher.program || '-'}
+                      </Typography>
                     </TableCell>
-                    <TableCell align="center">
-                      <Typography variant="body2" fontWeight="bold" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                    <TableCell align='center'>
+                      <Typography
+                        variant='body2'
+                        fontWeight='bold'
+                        sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                      >
                         {teacher.checkInCount}
                       </Typography>
                     </TableCell>
-                    <TableCell align="center">
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {formatThaiDate(teacher.lastCheckInDate)}
+                    <TableCell align='center'>
+                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {formatThaiShortDate(teacher.lastCheckInDate)}
                       </Typography>
                     </TableCell>
-                    <TableCell align="center">
+                    <TableCell align='center'>
                       {teacher.isActive ? (
-                        <Chip label="ใช้งาน" color="success" size="small" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }} />
+                        <Chip
+                          label='ใช้งาน'
+                          color='success'
+                          size='small'
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
+                        />
                       ) : (
-                        <Chip label="ไม่ได้ใช้งาน" color="error" size="small" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }} />
+                        <Chip
+                          label='ไม่ได้ใช้งาน'
+                          color='error'
+                          size='small'
+                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
+                        />
                       )}
                     </TableCell>
                   </TableRow>
@@ -252,13 +253,13 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
         {/* Pagination */}
         <TablePagination
           rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
+          component='div'
           count={filteredTeachers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="แสดง:"
+          labelRowsPerPage='แสดง:'
           labelDisplayedRows={({ from, to, count }) => {
             return `${from}-${to} จากทั้งหมด ${count}`;
           }}

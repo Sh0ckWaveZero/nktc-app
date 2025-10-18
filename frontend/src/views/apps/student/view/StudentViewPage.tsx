@@ -65,7 +65,7 @@ const StudentViewPage = ({ id }: StudentViewPageProps) => {
     classroom: 'ปวช.1/1',
     email: 'test@nktc.ac.th',
     phone: '08-xxxx-xxxx',
-    status: 'active'
+    status: 'active',
   };
 
   return (
@@ -81,7 +81,8 @@ const StudentViewPage = ({ id }: StudentViewPageProps) => {
               />
               <Box>
                 <Typography variant='h4' sx={{ mb: 2 }}>
-                  {mockStudentData.title}{mockStudentData.firstName} {mockStudentData.lastName}
+                  {mockStudentData.title}
+                  {mockStudentData.firstName} {mockStudentData.lastName}
                 </Typography>
                 <Typography variant='body1' sx={{ mb: 1 }}>
                   รหัสนักเรียน: {mockStudentData.studentId}
@@ -92,9 +93,7 @@ const StudentViewPage = ({ id }: StudentViewPageProps) => {
                 <Typography variant='body1' sx={{ mb: 1 }}>
                   อีเมล: {mockStudentData.email}
                 </Typography>
-                <Typography variant='body1'>
-                  เบอร์โทร: {mockStudentData.phone}
-                </Typography>
+                <Typography variant='body1'>เบอร์โทร: {mockStudentData.phone}</Typography>
               </Box>
             </Box>
           </CardContent>
@@ -148,20 +147,33 @@ const StudentViewPage = ({ id }: StudentViewPageProps) => {
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>ชื่อ-นามสกุล:</Typography>
-                        <Typography variant='body2'>{mockStudentData.title}{mockStudentData.firstName} {mockStudentData.lastName}</Typography>
+                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                          ชื่อ-นามสกุล:
+                        </Typography>
+                        <Typography variant='body2'>
+                          {mockStudentData.title}
+                          {mockStudentData.firstName} {mockStudentData.lastName}
+                        </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>รหัสนักเรียน:</Typography>
+                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                          รหัสนักเรียน:
+                        </Typography>
                         <Typography variant='body2'>{mockStudentData.studentId}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>ชั้นเรียน:</Typography>
+                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                          ชั้นเรียน:
+                        </Typography>
                         <Typography variant='body2'>{mockStudentData.classroom}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>สถานะ:</Typography>
-                        <Typography variant='body2' sx={{ color: 'success.main' }}>กำลังศึกษา</Typography>
+                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                          สถานะ:
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: 'success.main' }}>
+                          กำลังศึกษา
+                        </Typography>
                       </Box>
                     </Box>
                   </CardContent>

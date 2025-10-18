@@ -1,9 +1,9 @@
 import { Button, FormControl, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
-import { Fragment } from 'react';
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
+import React from 'react';
 
 interface TableHeaderProps {
   onOpenClassroom: () => void;
@@ -18,7 +18,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
   const { onOpenClassroom, onOpenGoodnessDetail, onOpenSelectStudents, students, tooltipName } = props;
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid
         container
         sx={{
@@ -29,8 +29,9 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <Grid
             container
             spacing={2}
@@ -43,8 +44,9 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
             <Grid
               size={{
                 xs: 12,
-                sm: 4
-              }}>
+                sm: 4,
+              }}
+            >
               <FormControl fullWidth>
                 <Tooltip title='เพิ่มรายชื่อนักเรียนมากกว่าหนึ่ง' arrow>
                   <span>
@@ -66,8 +68,9 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
             <Grid
               size={{
                 xs: 12,
-                sm: 4
-              }}>
+                sm: 4,
+              }}
+            >
               <FormControl fullWidth>
                 <Tooltip title='เพิ่มรายชื่อรายชั้นเรียน' arrow>
                   <span>
@@ -91,8 +94,9 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <Grid
             container
             sx={{
@@ -104,8 +108,9 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
             <Grid
               size={{
                 xs: 12,
-                sm: 5
-              }}>
+                sm: 5,
+              }}
+            >
               <FormControl fullWidth>
                 <Tooltip title={tooltipName} arrow>
                   <span>
@@ -128,7 +133,7 @@ const TableHeaderGroup = (props: TableHeaderProps) => {
           </Grid>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

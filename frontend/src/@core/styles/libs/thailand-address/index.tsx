@@ -21,8 +21,12 @@ type SuggestionPanelPropTypes = {
   ds: DataSourceItem[];
   shouldVisible: boolean;
   onDataSourceItemSelected?: (ds: ThailandAddressValue) => void;
-  containerProps?: JSX.IntrinsicElements['ul'];
-  optionItemProps?: JSX.IntrinsicElements['li'];
+  containerProps?: React.HTMLAttributes<HTMLUListElement> & {
+    ref?: React.Ref<HTMLUListElement>;
+  };
+  optionItemProps?: React.HTMLAttributes<HTMLLIElement> & {
+    ref?: React.Ref<HTMLLIElement>;
+  };
   highlightedItemIndex?: number;
   onOptionMouseEnter?: (i: number) => void;
 };
@@ -67,8 +71,10 @@ const SuggestionPanel = ({
 
 const AddressInputField = (fieldName: keyof ThailandAddressValue) => {
   const InputComponent = (
-    innerProps: Omit<JSX.IntrinsicElements['input'], 'value' | 'onChange'> & {
-      containerProps?: JSX.IntrinsicElements['div'];
+    innerProps: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & {
+      containerProps?: React.HTMLAttributes<HTMLDivElement> & {
+        ref?: React.Ref<HTMLDivElement>;
+      };
     },
   ) => {
     const {

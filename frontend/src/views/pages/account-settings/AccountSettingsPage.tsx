@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { Fragment, lazy, SyntheticEvent, useState } from 'react';
+import { lazy, SyntheticEvent, useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -25,6 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useAuth } from '@/hooks/useAuth';
 import FallbackSpinner from '@/@core/components/spinner';
 import { isEmpty } from '@/@core/utils/utils';
+import React from 'react';
 
 const TabTeacherAccount = lazy(() => import('@/views/pages/account-settings/TabTeacherAccount')); // Lazy-loaded
 
@@ -58,7 +59,7 @@ const AccountSettingsPage = () => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Card>
         <TabContext value={value}>
           <TabList
@@ -99,7 +100,7 @@ const AccountSettingsPage = () => {
           </TabPanel>
         </TabContext>
       </Card>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

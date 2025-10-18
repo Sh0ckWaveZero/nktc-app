@@ -17,26 +17,21 @@ import {
   Typography,
   styled,
 } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 import { MouseEvent, ReactElement, Ref, forwardRef, useCallback, useEffect, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Icon from '@/@core/components/icon';
 import { LocalStorageService } from '@/services/localStorageService';
 import { badnessIndividualStore } from '@/store/apps/badness-individual';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { deepOrange } from '@mui/material/colors';
 import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
-
-dayjs.extend(buddhistEra);
 
 const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken() || '';
@@ -88,7 +83,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [details, setDetails] = useState<string>('');
   const [onSubmit, setOnSubmit] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const avatar = data?.account?.avatar;
   const fullName = data.account.title + data.account.firstName + ' ' + data.account.lastName;
@@ -153,21 +148,14 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   };
 
   const handleSelectedDate = useCallback(
-    (newDate: Dayjs | null) => {
+    (newDate: Date | null) => {
       setSelectedDate(newDate);
     },
     [setSelectedDate],
   );
 
   return (
-    <Dialog
-      fullWidth
-      open={show}
-      maxWidth='sm'
-      scroll='body'
-      onClose={handleClose}
-      TransitionComponent={Transition}
-    >
+    <Dialog fullWidth open={show} maxWidth='sm' scroll='body' onClose={handleClose} TransitionComponent={Transition}>
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
         <IconButton size='small' onClick={handleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
           <Icon icon='mdi:close' />
@@ -184,7 +172,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               justifyContent: 'center',
               alignItems: 'center',
             }}
-            size={12}>
+            size={12}
+          >
             {isLoading ? (
               <CircularProgress size={100} />
             ) : image ? (
@@ -200,8 +189,9 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <TextField
                   fullWidth
                   name='fullName'
@@ -210,14 +200,17 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   label='ชื่อ-นามสกุล'
                   onChange={handleInputChange}
                   placeholder='ชื่อ-นามสกุล'
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: { readOnly: true },
+                  }}
                 />
               </Grid>
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <TextField
                   fullWidth
                   name='classroom'
@@ -225,42 +218,34 @@ const DialogAddCard = (props: DialogAddCardProps) => {
                   autoComplete='off'
                   label='ระดับชั้น'
                   placeholder='ระดับชั้น'
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: { readOnly: true },
+                  }}
                   onChange={handleInputChange}
                 />
               </Grid>
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-                  <DatePicker
-                    label='เลือกวันที่'
-                    value={selectedDate}
-                    format='DD MMMM YYYY'
-                    minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 1)))}
-                    maxDate={dayjs(new Date())}
-                    onChange={(newDate) => handleSelectedDate(newDate)}
-                    slots={{
-                      textField: TextField
-                    }}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        inputProps: {
-                          placeholder: 'วัน เดือน ปี',
-                        }
-                      }
-                    }}
-                  />
-                </LocalizationProvider>
+                  sm: 6,
+                }}
+              >
+                <ThaiDatePicker
+                  label='เลือกวันที่'
+                  value={selectedDate}
+                  onChange={handleSelectedDate}
+                  format='dd MMMM yyyy'
+                  minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+                  maxDate={new Date()}
+                  placeholder='วัน เดือน ปี (พ.ศ.)'
+                />
               </Grid>
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <FormControl required fullWidth error={onSubmit && !badTypeScore}>
                   <InputLabel id='badTypeScore-label'>คะแนนพฤติกรรมที่ไม่เหมาะสม</InputLabel>
                   <Select
@@ -287,8 +272,9 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <TextField
                   fullWidth
                   multiline

@@ -18,16 +18,8 @@ import {
   LinearProgress,
   TablePagination,
 } from '@mui/material';
-// Date formatting helpers using Intl.DateTimeFormat
-const formatThaiDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  const thaiYear = date.getFullYear() + 543;
-  return new Intl.DateTimeFormat('th-TH', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(date).replace(/(\d{4})$/, thaiYear.toString());
-};
+// Date formatting helpers using date-fns
+import { formatThaiShortDate } from '@/@core/utils/thai-calendar';
 
 const formatThaiDayOfWeek = (dateString: string): string => {
   const date = new Date(dateString);
@@ -83,10 +75,7 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
 
   return (
     <Card>
-      <CardHeader
-        title='ข้อมูลการมาเข้าแถวรายวัน'
-        subheader={`ทั้งหมด ${dailyData?.length || 0} วัน`}
-      />
+      <CardHeader title='ข้อมูลการมาเข้าแถวรายวัน' subheader={`ทั้งหมด ${dailyData?.length || 0} วัน`} />
       <CardContent>
         {!dailyData || dailyData.length === 0 ? (
           <Box display='flex' justifyContent='center' alignItems='center' py={4}>
@@ -102,110 +91,137 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
               sx={{
                 overflowX: 'auto',
                 '& .MuiTable-root': {
-                  minWidth: { xs: 800, sm: 650 }
-                }
+                  minWidth: { xs: 800, sm: 650 },
+                },
               }}
             >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>วันที่</strong>
-                  </TableCell>
-                  <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>มาเข้าแถว</strong>
-                  </TableCell>
-                  <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>ไม่มาเข้าแถว</strong>
-                  </TableCell>
-                  <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>รวมนักเรียน</strong>
-                  </TableCell>
-                  <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>อัตราเข้าเรียน</strong>
-                  </TableCell>
-                  <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <strong>สถานะ</strong>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentPageData.map((row, index) => {
-                  const checkedIn = row.checkedIn ?? 0;
-                  const notCheckedIn = row.notCheckedIn ?? 0;
-                  const totalStudents = row.totalStudents ?? 0;
-                  // คำนวณอัตราการเข้าเรียนจากข้อมูลจริงที่เช็คชื่อในวันนั้น
-                  const actualCheckedStudents = checkedIn + notCheckedIn;
-                  const attendanceRate = actualCheckedStudents > 0 ? (checkedIn / actualCheckedStudents) * 100 : 0;
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>วันที่</strong>
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>มาเข้าแถว</strong>
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>ไม่มาเข้าแถว</strong>
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>รวมนักเรียน</strong>
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>อัตราเข้าเรียน</strong>
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                      <strong>สถานะ</strong>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {currentPageData.map((row, index) => {
+                    const checkedIn = row.checkedIn ?? 0;
+                    const notCheckedIn = row.notCheckedIn ?? 0;
+                    const totalStudents = row.totalStudents ?? 0;
+                    // คำนวณอัตราการเข้าเรียนจากข้อมูลจริงที่เช็คชื่อในวันนั้น
+                    const actualCheckedStudents = checkedIn + notCheckedIn;
+                    const attendanceRate = actualCheckedStudents > 0 ? (checkedIn / actualCheckedStudents) * 100 : 0;
 
-                  return (
-                    <TableRow key={index} hover>
-                      <TableCell>
-                        <Typography variant='body2' fontWeight={500} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                          {formatThaiDate(row.date)}
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary' sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
-                          {formatThaiDayOfWeek(row.date)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Typography variant='body2' color='success.main' fontWeight={500} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                          {checkedIn.toLocaleString()}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Typography variant='body2' color='error.main' fontWeight={500} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                          {notCheckedIn.toLocaleString()}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Typography variant='body2' fontWeight={500} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                          {actualCheckedStudents.toLocaleString()}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Box sx={{ minWidth: { xs: 60, sm: 80 } }}>
-                          <Typography variant='body2' fontWeight={600} color={`${getAttendanceColor(attendanceRate)}.main`} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                            {attendanceRate.toFixed(2)}%
+                    return (
+                      <TableRow key={index} hover>
+                        <TableCell>
+                          <Typography
+                            variant='body2'
+                            fontWeight={500}
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
+                            {formatThaiShortDate(row.date)}
                           </Typography>
-                          <LinearProgress
-                            variant='determinate'
-                            value={attendanceRate}
+                          <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
+                          >
+                            {formatThaiDayOfWeek(row.date)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          <Typography
+                            variant='body2'
+                            color='success.main'
+                            fontWeight={500}
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
+                            {checkedIn.toLocaleString()}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          <Typography
+                            variant='body2'
+                            color='error.main'
+                            fontWeight={500}
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
+                            {notCheckedIn.toLocaleString()}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          <Typography
+                            variant='body2'
+                            fontWeight={500}
+                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                          >
+                            {actualCheckedStudents.toLocaleString()}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          <Box sx={{ minWidth: { xs: 60, sm: 80 } }}>
+                            <Typography
+                              variant='body2'
+                              fontWeight={600}
+                              color={`${getAttendanceColor(attendanceRate)}.main`}
+                              sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                            >
+                              {attendanceRate.toFixed(2)}%
+                            </Typography>
+                            <LinearProgress
+                              variant='determinate'
+                              value={attendanceRate}
+                              color={getAttendanceColor(attendanceRate)}
+                              sx={{ mt: 0.5, height: { xs: 4, sm: 6 }, borderRadius: 1 }}
+                            />
+                          </Box>
+                        </TableCell>
+                        <TableCell align='center'>
+                          <Chip
+                            label={getAttendanceLabel(attendanceRate)}
                             color={getAttendanceColor(attendanceRate)}
-                            sx={{ mt: 0.5, height: { xs: 4, sm: 6 }, borderRadius: 1 }}
+                            size='small'
+                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
                           />
-                        </Box>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Chip
-                          label={getAttendanceLabel(attendanceRate)}
-                          color={getAttendanceColor(attendanceRate)}
-                          size='small'
-                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-          {/* Pagination */}
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
-            count={dailyData?.length || 0}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="แสดง:"
-            labelDisplayedRows={({ from, to, count }) => {
-              return `${from}-${to} จากทั้งหมด ${count}`;
-            }}
-            sx={{ mt: 2 }}
-          />
+            {/* Pagination */}
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              component='div'
+              count={dailyData?.length || 0}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              labelRowsPerPage='แสดง:'
+              labelDisplayedRows={({ from, to, count }) => {
+                return `${from}-${to} จากทั้งหมด ${count}`;
+              }}
+              sx={{ mt: 2 }}
+            />
           </>
         )}
       </CardContent>

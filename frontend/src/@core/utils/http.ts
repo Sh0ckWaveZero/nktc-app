@@ -2,15 +2,15 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import Swal from "sweetalert2";
-import { useAuth } from "../../hooks/useAuth";
+import Swal from 'sweetalert2';
+import { useAuth } from '../../hooks/useAuth';
 
 const httpClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json; charset=UTF-8'
-  }
+    Accept: 'application/json',
+    'Content-Type': 'application/json; charset=UTF-8',
+  },
 });
 
 /**
@@ -44,7 +44,7 @@ const AxiosInterceptor = ({ children }: any) => {
     );
   }, [router]);
   return children;
-}
+};
 
 export default httpClient;
 export { AxiosInterceptor };

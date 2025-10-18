@@ -1,5 +1,5 @@
 // ** React Imports
-import { ElementType, Fragment } from 'react';
+import React, { ElementType } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
@@ -41,21 +41,20 @@ interface Props {
 const ListItem = styled(MuiListItem, {
   shouldForwardProp: (prop) => prop !== 'component' && prop !== 'target' && prop !== 'ownerState',
 })<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(({ theme }) => ({
-    width: 'auto',
-    paddingTop: theme.spacing(2.25),
-    color: theme.palette.text.primary,
-    paddingBottom: theme.spacing(2.25),
-    '&:hover': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    '&.active, &.active:hover': {
-      backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
-    },
-    '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': {
-      color: theme.palette.primary.main,
-    },
-  }),
-);
+  width: 'auto',
+  paddingTop: theme.spacing(2.25),
+  color: theme.palette.text.primary,
+  paddingBottom: theme.spacing(2.25),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  '&.active, &.active:hover': {
+    backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
+  },
+  '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': {
+    color: theme.palette.primary.main,
+  },
+}));
 
 const HorizontalNavLink = (props: Props) => {
   // ** Props
@@ -68,7 +67,7 @@ const HorizontalNavLink = (props: Props) => {
 
   const IconTag = item.icon ? item.icon : navSubItemIcon;
 
-  const Wrapper = !hasParent ? List : Fragment;
+  const Wrapper = !hasParent ? List : React.Fragment;
 
   const isNavLinkActive = () => {
     if (pathname === item.path) {

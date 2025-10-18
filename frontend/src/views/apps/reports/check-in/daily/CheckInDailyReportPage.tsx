@@ -25,7 +25,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { DataGrid, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
-import { Fragment, useContext, useRef, useState } from 'react';
+import React, { Fragment, useContext, useRef, useState } from 'react';
 import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -121,7 +121,7 @@ const CheckInDailyReportPage = () => {
   const timer: any = useRef(null);
 
   // ** Popper
-  const popperRef: any = useRef();
+  const popperRef = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const openPopper = Boolean(anchorEl);
 
@@ -320,47 +320,49 @@ const CheckInDailyReportPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <RenderAvatar row={student} storedToken={storedToken} />
             <Box sx={{ ml: isMobile ? 1.5 : 2, flex: 1 }}>
-              <Typography variant={isMobile ? "subtitle1" : "h6"} sx={{ fontWeight: 600 }}>
+              <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ fontWeight: 600 }}>
                 {student?.title} {student?.firstName} {student?.lastName}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant='body2' color='text.secondary'>
                 @{student?.studentId}
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{
-            display: 'flex',
-            gap: isMobile ? 0.5 : 1,
-            flexWrap: 'wrap',
-            flexDirection: isMobile ? 'column' : 'row'
-          }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: isMobile ? 0.5 : 1,
+              flexWrap: 'wrap',
+              flexDirection: isMobile ? 'column' : 'row',
+            }}
+          >
             <Button
               variant={isPresentCheck.includes(student.id) ? 'contained' : 'outlined'}
-              color="success"
-              size={isMobile ? "small" : "medium"}
+              color='success'
+              size={isMobile ? 'small' : 'medium'}
               onClick={() => onHandleToggle('present', student)}
               fullWidth
               disabled={student.status === 'internship'}
               sx={{
                 flex: isMobile ? 'none' : 1,
                 minWidth: isMobile ? 'auto' : '120px',
-                fontSize: isMobile ? '0.8rem' : '0.875rem'
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
               }}
             >
               เข้าร่วม
             </Button>
             <Button
               variant={isAbsentCheck.includes(student.id) ? 'contained' : 'outlined'}
-              color="error"
-              size={isMobile ? "small" : "medium"}
+              color='error'
+              size={isMobile ? 'small' : 'medium'}
               onClick={() => onHandleToggle('absent', student)}
               fullWidth
               disabled={student.status === 'internship'}
               sx={{
                 flex: isMobile ? 'none' : 1,
                 minWidth: isMobile ? 'auto' : '120px',
-                fontSize: isMobile ? '0.8rem' : '0.875rem'
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
               }}
             >
               ไม่เข้าร่วม
@@ -569,15 +571,16 @@ const CheckInDailyReportPage = () => {
   };
 
   const handlePopperClose = (event: any) => {
-    if (anchorEl == null || popperRef.current.contains(event.nativeEvent.relatedTarget)) {
+    if (anchorEl == null || popperRef.current?.contains(event.nativeEvent.relatedTarget)) {
       return;
     }
     setAnchorEl(null);
   };
 
-  return (ability?.can('read', 'report-check-in-daily-page') &&
+  return (
+    ability?.can('read', 'report-check-in-daily-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={isMobile ? 4 : 6}>
           <Grid size={12}>
             <Card>
@@ -595,12 +598,14 @@ const CheckInDailyReportPage = () => {
                   month: 'long',
                   day: 'numeric',
                 })}`}
-                titleTypographyProps={{
-                  variant: isMobile ? 'h6' : 'h5',
-                  fontSize: isMobile ? '1.1rem' : '1.25rem'
-                }}
-                subheaderTypographyProps={{
-                  variant: isMobile ? 'body2' : 'body1'
+                slotProps={{
+                  title: {
+                    variant: isMobile ? 'h6' : 'h5',
+                    fontSize: isMobile ? '1.1rem' : '1.25rem',
+                  },
+                  subheader: {
+                    variant: isMobile ? 'body2' : 'body1',
+                  },
                 }}
               />
               <CardContent sx={{ p: isMobile ? 3 : undefined }}>
@@ -611,7 +616,7 @@ const CheckInDailyReportPage = () => {
                       sx={{
                         pb: 3,
                         fontSize: isMobile ? '0.9rem' : '1rem',
-                        textAlign: isMobile ? 'center' : 'left'
+                        textAlign: isMobile ? 'center' : 'left',
                       }}
                     >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
@@ -621,7 +626,7 @@ const CheckInDailyReportPage = () => {
                             severity='error'
                             sx={{
                               '& a': { fontWeight: 400 },
-                              fontSize: isMobile ? '0.875rem' : '1rem'
+                              fontSize: isMobile ? '0.875rem' : '1rem',
                             }}
                             action={
                               <IconButton
@@ -646,7 +651,7 @@ const CheckInDailyReportPage = () => {
                           severity='success'
                           sx={{
                             '& a': { fontWeight: 400 },
-                            fontSize: isMobile ? '0.875rem' : '1rem'
+                            fontSize: isMobile ? '0.875rem' : '1rem',
                           }}
                           action={
                             <IconButton
@@ -679,16 +684,15 @@ const CheckInDailyReportPage = () => {
               {/* Mobile View */}
               {isMobile ? (
                 <Box sx={{ mt: 2 }}>
-                  {(isEmpty(reportCheckIn) ? currentStudents ?? [] : []).map((student: any) => (
+                  {(isEmpty(reportCheckIn) ? (currentStudents ?? []) : []).map((student: any) => (
                     <StudentCard key={student.id} student={student} />
                   ))}
                 </Box>
               ) : (
                 /* Desktop View */
                 <DataGridCustom
-                  autoHeight
                   columns={columns}
-                  rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
+                  rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
                   disableColumnMenu
                   loading={loading}
                   rowHeight={isTablet ? 70 : 80}
@@ -712,29 +716,29 @@ const CheckInDailyReportPage = () => {
                   getRowClassName={(params) => {
                     return params.row.status === 'internship' ? 'internship' : 'normal';
                   }}
-                sx={{
-                  p: isMobile ? 2 : 3,
-                  '& .MuiDataGrid-row': {
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
+                  sx={{
+                    p: isMobile ? 2 : 3,
+                    '& .MuiDataGrid-row': {
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                      },
+                      maxHeight: 'none !important',
                     },
-                    maxHeight: 'none !important',
-                  },
-                  '& .MuiDataGrid-cell': {
-                    display: 'flex',
-                    alignItems: 'center',
-                    lineHeight: 'unset !important',
-                    maxHeight: 'none !important',
-                    overflow: 'visible',
-                    whiteSpace: 'normal',
-                    wordWrap: 'break-word',
-                    fontSize: isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
-                    padding: isMobile ? '8px' : '16px',
-                  },
-                  '& .MuiDataGrid-renderingZone': {
-                    maxHeight: 'none !important',
-                  },
-                }}
+                    '& .MuiDataGrid-cell': {
+                      display: 'flex',
+                      alignItems: 'center',
+                      lineHeight: 'unset !important',
+                      maxHeight: 'none !important',
+                      overflow: 'visible',
+                      whiteSpace: 'normal',
+                      wordWrap: 'break-word',
+                      fontSize: isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
+                      padding: isMobile ? '8px' : '16px',
+                    },
+                    '& .MuiDataGrid-renderingZone': {
+                      maxHeight: 'none !important',
+                    },
+                  }}
                 />
               )}
               <Popper
@@ -760,7 +764,7 @@ const CheckInDailyReportPage = () => {
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

@@ -11,7 +11,6 @@ import ExportVariant from 'mdi-material-ui/ExportVariant';
 import Link from 'next/link';
 
 interface TableHeaderProps {
-
   classrooms: any;
   defaultClassroom: any;
   fullName: string;
@@ -63,8 +62,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 2
-        }}>
+          lg: 2,
+        }}
+      >
         <FormControl fullWidth>
           <TextField
             fullWidth
@@ -83,8 +83,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 4
-        }}>
+          lg: 4,
+        }}
+      >
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
@@ -96,14 +97,29 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
             getOptionLabel={(option: any) => option.fullName || ''}
             isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
-            renderOption={(props, option) => (
-              <li {...props}>
-                {`${option?.title}${option?.fullName} `}
-              </li>
+            renderOption={(props, option, { selected }: any) => (
+              <li {...props}>{`${option?.title}${option?.fullName} `}</li>
             )}
-            renderInput={(params) => (
-              <TextField {...params} label='ชื่อ-สกุล นักเรียน' placeholder='เลือกชื่อ-สกุล นักเรียน' />
-            )}
+            renderInput={(params) => {
+              const { InputProps, InputLabelProps, ...otherParams } = params;
+              return (
+                <TextField
+                  {...otherParams}
+                  label='ชื่อ-สกุล นักเรียน'
+                  placeholder='เลือกชื่อ-สกุล นักเรียน'
+                  slotProps={{
+                    input: {
+                      ...InputProps,
+                      ref: undefined,
+                    },
+                    inputLabel: {
+                      ...InputLabelProps,
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>
@@ -113,8 +129,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 4
-        }}>
+          lg: 4,
+        }}
+      >
         <FormControl fullWidth>
           <Autocomplete
             id='checkboxes-tags-classroom'
@@ -124,21 +141,29 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleChange(_, newValue)}
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-            renderOption={(props, option) => (
-              <li {...props}>
-                {option.name}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField
-                error={isEmpty(classrooms) && loading}
-                helperText={isEmpty(classrooms) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                {...params}
-                label='ห้องเรียน'
-                placeholder='เลือกห้องเรียน'
-              />
-            )}
-            filterSelectedOptions
+            renderOption={(props, option, { selected }: any) => <li {...props}>{option.name}</li>}
+            renderInput={(params) => {
+              const { InputProps, InputLabelProps, ...otherParams } = params;
+              return (
+                <TextField
+                  error={isEmpty(classrooms) && loading}
+                  helperText={isEmpty(classrooms) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
+                  {...otherParams}
+                  label='ห้องเรียน'
+                  placeholder='เลือกห้องเรียน'
+                  slotProps={{
+                    input: {
+                      ...InputProps,
+                      ref: undefined,
+                    },
+                    inputLabel: {
+                      ...InputLabelProps,
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             groupBy={(option: any) => option.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />
@@ -149,8 +174,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 2
-        }}>
+          lg: 2,
+        }}
+      >
         <FormControl fullWidth>
           <LinkStyled href='/apps/student/add' passHref>
             <Button

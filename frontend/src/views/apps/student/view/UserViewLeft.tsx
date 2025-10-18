@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment } from 'react';
+import React from 'react';
 
 // ** MUI Imports
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
@@ -40,7 +40,7 @@ const UserViewLeft = ({
 }: PropsTypes) => {
   if (user) {
     return (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -150,7 +150,7 @@ const UserViewLeft = ({
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     );
   } else {
     return null;

@@ -46,14 +46,16 @@ const MobilePaginationControls = ({
         },
       }}
     >
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0.5,
-        '@media (min-width: 400px)': {
-          gap: 1,
-        },
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5,
+          '@media (min-width: 400px)': {
+            gap: 1,
+          },
+        }}
+      >
         <Button
           id='mobile-pagination-first'
           variant='outlined'
@@ -159,14 +161,16 @@ const MobilePaginationControls = ({
         </Button>
       </Box>
 
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0.5,
-        '@media (min-width: 400px)': {
-          gap: 1,
-        },
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5,
+          '@media (min-width: 400px)': {
+            gap: 1,
+          },
+        }}
+      >
         <Typography
           variant='caption'
           sx={{

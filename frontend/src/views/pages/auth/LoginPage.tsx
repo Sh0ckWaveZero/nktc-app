@@ -26,8 +26,8 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
 // ** Form & Validation
 import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 // ** Hooks & Utils
 import { useAuth } from '@/hooks/useAuth';
@@ -43,9 +43,9 @@ interface LoginFormData {
 }
 
 // ** Constants
-const VALIDATION_SCHEMA = yup.object().shape({
-  username: yup.string().required('กรุณากรอกชื่อผู้ใช้'),
-  password: yup.string().required('กรุณากรอกรหัสผ่าน'),
+const VALIDATION_SCHEMA = z.object({
+  username: z.string().min(1, 'กรุณากรอกชื่อผู้ใช้'),
+  password: z.string().min(1, 'กรุณากรอกรหัสผ่าน'),
 });
 
 const DEFAULT_VALUES: LoginFormData = {
@@ -92,7 +92,7 @@ const LoginPage = () => {
   } = useForm<LoginFormData>({
     defaultValues: DEFAULT_VALUES,
     mode: 'onBlur',
-    resolver: yupResolver(VALIDATION_SCHEMA) as any,
+    resolver: zodResolver(VALIDATION_SCHEMA),
   });
 
   // ** Handlers
@@ -102,7 +102,7 @@ const LoginPage = () => {
     event.preventDefault();
   };
 
-  const handleLoginError = (toastId: string | number) => (error: any) => {
+  const handleLoginError = (toastId: string | number) => () => {
     toast.error(ERROR_MESSAGES.loginFailed, {
       id: toastId.toString(),
       duration: 4000,
@@ -113,14 +113,11 @@ const LoginPage = () => {
     const toastId = toast.loading(ERROR_MESSAGES.loading);
 
     try {
-      await auth.login(
-        { username: data.username, password: data.password },
-        handleLoginError(toastId)
-      );
+      await auth.login({ username: data.username, password: data.password }, handleLoginError(toastId));
 
       // ปิด loading toast เมื่อ login สำเร็จ (จะ redirect ทันที)
       toast.dismiss(toastId);
-    } catch (error) {
+    } catch {
       // Error จะถูกจัดการโดย handleLoginError callback
     }
   };

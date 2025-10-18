@@ -1,7 +1,7 @@
 'use client';
 
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
-import { Fragment, SyntheticEvent, useState } from 'react';
+import React, { Fragment, SyntheticEvent, useState } from 'react';
 
 import { Avatar, CircularProgress } from '@mui/material';
 import Badge from '@mui/material/Badge';
@@ -113,7 +113,7 @@ const UserDropdown = (props: Props) => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Badge
         overlap='circular'
         onClick={handleDropdownOpen}
@@ -200,7 +200,7 @@ const UserDropdown = (props: Props) => {
           ออกจากระบบ
         </MenuItem>
       </Menu>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

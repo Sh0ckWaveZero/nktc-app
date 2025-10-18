@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { ReactNode } from 'react';
+import React from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -16,13 +16,10 @@ import FooterContent from './FooterContent';
 interface Props {
   settings: Settings;
   saveSettings: (values: Settings) => void;
-  footerContent?: (props?: any) => ReactNode;
+  footerContent?: () => React.ReactNode;
 }
 
-const Footer = (props: Props) => {
-  // ** Props
-  const { settings, footerContent: userFooterContent } = props;
-
+const Footer: React.FC<Props> = ({ settings, footerContent: userFooterContent }) => {
   // ** Hook
   const theme = useTheme();
 
@@ -81,7 +78,7 @@ const Footer = (props: Props) => {
           }),
         }}
       >
-        {userFooterContent ? userFooterContent(props) : <FooterContent />}
+        {userFooterContent ? userFooterContent() : <FooterContent />}
       </Box>
     </Box>
   );

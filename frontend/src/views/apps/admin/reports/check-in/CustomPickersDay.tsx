@@ -1,33 +1,22 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/th';
-import isBetween from 'dayjs/plugin/isBetween';
-
-dayjs.extend(isBetween);
-
-// Dayjs helper functions
-const isSameDay = (date1: Dayjs, date2: Dayjs): boolean => {
-  return date1.isSame(date2, 'day');
+import { isSameDay, startOfWeek, addDays, isWithinInterval } from 'date-fns';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+// date-fns helper functions
+const getStartOfWeek = (date: Date): Date => {
+  return startOfWeek(date, { weekStartsOn: 1 }); // Monday as first day
 };
 
-const getStartOfWeek = (date: Dayjs): Dayjs => {
-  return date.startOf('week').add(1, 'day'); // Monday as first day
+const getEndOfWeek = (date: Date): Date => {
+  const start = getStartOfWeek(date);
+  return addDays(start, 4); // Friday (Monday + 4 days)
 };
 
-const getEndOfWeek = (date: Dayjs): Dayjs => {
-  return date.endOf('week').subtract(1, 'day'); // Friday as last day
-};
-
-interface CustomPickerDayProps extends PickersDayProps<Dayjs> {
-  dayIsBetween: boolean;
-  isFirstDay: boolean;
-  isLastDay: boolean;
+interface CustomPickerDayProps extends PickersDayProps {
+  dayIsBetween?: boolean;
+  isFirstDay?: boolean;
+  isLastDay?: boolean;
 }
 
 const CustomPickersDay = styled(PickersDay, {
@@ -49,63 +38,62 @@ const CustomPickersDay = styled(PickersDay, {
     borderTopRightRadius: '50%',
     borderBottomRightRadius: '50%',
   }),
-})) as React.ComponentType<CustomPickerDayProps>;
+}));
 
 interface TableHeaderProps {
-  selectedDate: Dayjs | null;
-  handleSelectedDate: (newDate: Dayjs | null) => any;
+  selectedDate: Date | null;
+  handleSelectedDate: (newDate: Date | null) => any;
 }
 
 export default function CustomDay(props: TableHeaderProps) {
-  // ** Props
   const { selectedDate, handleSelectedDate } = props;
 
-  const renderWeekPickerDay = (pickersDayProps: PickersDayProps<Dayjs>) => {
-    const { day, ...other } = pickersDayProps;
+  const renderWeekPickerDay = React.useCallback(
+    (pickersDayProps: PickersDayProps) => {
+      const { day } = pickersDayProps;
 
-    if (!selectedDate) {
-      return <PickersDay {...pickersDayProps} />;
-    }
+      if (!selectedDate || !day) {
+        return <PickersDay {...(pickersDayProps as any)} />;
+      }
 
-    const start = getStartOfWeek(selectedDate);
-    const end = getEndOfWeek(selectedDate);
-    const dayIsBetween = day.isBetween(start, end, 'day', '[]');
-    const isFirstDay = isSameDay(day, start);
-    const isLastDay = isSameDay(day, end);
+      // AdapterDateFns should provide Date objects
+      // Convert to Date if needed for compatibility
+      const dayAsDate = (day as any) instanceof Date ? (day as any as Date) : new Date((day as any).valueOf());
 
-    return (
-      <CustomPickersDay
-        {...other}
-        day={day}
-        disableMargin
-        dayIsBetween={dayIsBetween}
-        isFirstDay={isFirstDay}
-        isLastDay={isLastDay}
-      />
-    );
-  };
+      const start = getStartOfWeek(selectedDate);
+      const end = getEndOfWeek(selectedDate);
+      const dayIsBetween = isWithinInterval(dayAsDate, { start, end });
+      const isFirstDay = isSameDay(dayAsDate, start);
+      const isLastDay = isSameDay(dayAsDate, end);
+
+      return (
+        <CustomPickersDay
+          {...(pickersDayProps as any)}
+          disableMargin
+          dayIsBetween={dayIsBetween}
+          isFirstDay={isFirstDay}
+          isLastDay={isLastDay}
+        />
+      );
+    },
+    [selectedDate],
+  );
 
   return (
-    <LocalizationProvider
-      dateAdapter={AdapterDayjs}
-      adapterLocale='th'
-    >
-      <DatePicker<Dayjs>
-        label='เลือกสัปดาห์'
-        value={selectedDate}
-        onChange={(newValue) => handleSelectedDate(newValue)}
-        slots={{
-          day: renderWeekPickerDay,
-          textField: TextField
-        }}
-        slotProps={{
-          textField: {
-            fullWidth: true,
-            placeholder: 'วัน เดือน ปี',
-          }
-        }}
-        format='DD/MM/YYYY'
-      />
-    </LocalizationProvider>
+    <ThaiDatePicker
+      label='เลือกสัปดาห์'
+      value={selectedDate}
+      onChange={(newValue) => handleSelectedDate(newValue as Date | null)}
+      slots={{
+        day: renderWeekPickerDay as any,
+      }}
+      slotProps={{
+        textField: {
+          fullWidth: true,
+          placeholder: 'วัน เดือน ปี (พ.ศ.)',
+        },
+      }}
+      format='dd/MM/yyyy'
+    />
   );
 }

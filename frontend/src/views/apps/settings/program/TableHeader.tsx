@@ -1,7 +1,7 @@
 import { Box, Button, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Plus } from 'mdi-material-ui';
-import { SiMicrosoftexcel } from 'react-icons/si';
+import { FaFileExcel } from 'react-icons/fa';
 
 interface TableHeaderProps {
   value: string;
@@ -28,53 +28,39 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
   };
 
   return (
-    <Grid container spacing={3} alignItems="center" sx={{ pb: 2, px: 4 }}>
+    <Grid container spacing={3} alignItems='center' sx={{ pb: 2, px: 4 }}>
       <Grid
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <TextField
           fullWidth
           size='small'
           value={value}
           onChange={(e) => handleFilter(e.target.value)}
-          placeholder="ค้นหา..."
-          variant="outlined"
+          placeholder='ค้นหา...'
+          variant='outlined'
         />
       </Grid>
       <Grid
         container
-        justifyContent="flex-end"
+        justifyContent='flex-end'
         spacing={2}
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <Grid>
-          <Button
-            component="label"
-            variant="contained"
-            color="primary"
-            startIcon={<SiMicrosoftexcel />}
-          >
+          <Button component='label' variant='contained' color='primary' startIcon={<FaFileExcel />}>
             อัปโหลดไฟล์
-            <input
-              hidden
-              accept=".xlsx, .xls"
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
+            <input hidden accept='.xlsx, .xls' type='file' ref={fileInputRef} onChange={handleFileChange} />
           </Button>
         </Grid>
         <Grid>
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<Plus />}
-            onClick={handleUploadFile}
-          >
+          <Button variant='contained' color='secondary' startIcon={<Plus />} onClick={handleUploadFile}>
             เพิ่มสาขาวิชา
           </Button>
         </Grid>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useReportCheckInStore, useClassroomStore } from '@/store/index';
@@ -365,9 +365,10 @@ const CheckInSummaryReportPage = () => {
     await fetchDailyReport(classroomName.id);
   };
 
-  return (ability?.can('read', 'report-check-in-summary-page') &&
+  return (
+    ability?.can('read', 'report-check-in-summary-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -391,7 +392,6 @@ const CheckInSummaryReportPage = () => {
                 isDisabled={isEmpty(currentStudents)}
               />
               <DataGrid
-                autoHeight
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
@@ -437,7 +437,7 @@ const CheckInSummaryReportPage = () => {
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

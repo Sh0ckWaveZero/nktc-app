@@ -102,11 +102,26 @@ function DialogStudentGroup({
                 {`${option?.title}${option?.fullName} `}
               </li>
             )}
-            renderInput={(params) => (
-              <TextField {...params} label='รายชื่อนักเรียน' placeholder='เพิ่มรายชื่อนักเรียน' />
-            )}
-            disableCloseOnSelect
-            filterSelectedOptions
+            renderInput={(params) => {
+              const { InputProps, InputLabelProps, ...otherParams } = params;
+              return (
+                <TextField
+                  {...otherParams}
+                  label='รายชื่อนักเรียน'
+                  placeholder='เพิ่มรายชื่อนักเรียน'
+                  slotProps={{
+                    input: {
+                      ...InputProps,
+                      ref: undefined,
+                    },
+                    inputLabel: {
+                      ...InputLabelProps,
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             groupBy={(option: any) => option.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />

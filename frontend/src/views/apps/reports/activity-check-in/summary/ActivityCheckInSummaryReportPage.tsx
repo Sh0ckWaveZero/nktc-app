@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useActivityCheckInStore, useClassroomStore } from '@/store/index';
@@ -56,7 +56,7 @@ const ActivityCheckInSummaryReportPage = () => {
         await fetchDailyReport((await result) ? result[0].id : {});
       });
     };
-    
+
     if (ability?.can('read', 'summary-check-in-report-activity-page') && auth?.user?.role !== 'Admin') {
       if (isEmpty(auth?.user?.teacherOnClassroom)) {
         toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
@@ -245,9 +245,10 @@ const ActivityCheckInSummaryReportPage = () => {
     await fetchDailyReport(classroomName.id);
   };
 
-  return (ability?.can('read', 'summary-check-in-report-activity-page') &&
+  return (
+    ability?.can('read', 'summary-check-in-report-activity-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -273,7 +274,6 @@ const ActivityCheckInSummaryReportPage = () => {
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 initialState={{
@@ -291,7 +291,7 @@ const ActivityCheckInSummaryReportPage = () => {
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

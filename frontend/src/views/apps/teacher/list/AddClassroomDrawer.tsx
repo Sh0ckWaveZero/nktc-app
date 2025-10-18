@@ -84,17 +84,28 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
                   {option.name}
                 </li>
               )}
-              renderInput={(params) => (
-                <TextField
-                  error={isEmpty(values) && loading}
-                  helperText={isEmpty(values) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                  {...params}
-                  label='ระดับชั้น'
-                  placeholder='เลือกระดับชั้น'
-                />
-              )}
-              disableCloseOnSelect
-              filterSelectedOptions
+              renderInput={(params) => {
+                const { InputProps, InputLabelProps, ...otherParams } = params;
+                return (
+                  <TextField
+                    error={isEmpty(values) && loading}
+                    helperText={isEmpty(values) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
+                    {...otherParams}
+                    label='ระดับชั้น'
+                    placeholder='เลือกระดับชั้น'
+                    slotProps={{
+                      input: {
+                        ...InputProps,
+                        ref: undefined,
+                      },
+                      inputLabel: {
+                        ...InputLabelProps,
+                        shrink: true,
+                      },
+                    }}
+                  />
+                );
+              }}
               groupBy={(option: any) => option.department?.name}
               noOptionsText='ไม่พบข้อมูล'
             />

@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
 // ** MUI Imports
 import {
@@ -19,11 +19,11 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
-import { Fragment, ReactElement, Ref, forwardRef, useState } from 'react';
+import React, { Fragment, ReactElement, Ref, forwardRef, useState } from 'react';
 
 import IconifyIcon from '@/@core/components/icon';
 import PasswordStrengthBar from 'react-password-strength-bar';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -58,25 +58,11 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
     password: '',
   };
 
-  const showErrors = (field: string, valueLen: number, min: number) => {
-    if (valueLen === 0) {
-      return `กรุณากรอก${field}`;
-    } else if (valueLen > 0 && valueLen < min) {
-      return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-    } else {
-      return '';
-    }
-  };
-
-  const schema = yup.object().shape({
-    password: yup
+  const schema = z.object({
+    password: z
       .string()
-      .min(8, (obj) => showErrors('รหัสผ่าน', obj.value.length, obj.min))
-      .matches(
-        /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
-        'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
-      )
-      .required(),
+      .min(8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
+      .regex(/^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น'),
   });
 
   const scoreWords = ['สั้นเกินไป', 'ง่าย', 'พอใช้ได้', 'ดี', 'ยอดเยี่ยม'];
@@ -90,7 +76,7 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = (info: FormData) => {
@@ -132,7 +118,7 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <>
                       <CustomTextField
                         value={value}
                         type={showPassword ? 'text' : 'password'}
@@ -143,34 +129,36 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
                         error={Boolean(errors.password)}
                         helperText={errors.password?.message as string}
                         aria-describedby='validation-schema-first-name'
-                        InputLabelProps={{
-                          required: true,
-                        }}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment aria-label='สลับการแสดงรหัสผ่านปัจจุบัน' position='end'>
-                              <Tooltip title='สลับการแสดงรหัสผ่านปัจจุบัน' arrow>
-                                <span>
-                                  <IconButton
-                                    edge='end'
-                                    aria-label='สลับการแสดงรหัสผ่านปัจจุบัน'
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    onMouseDown={(event) => event.preventDefault()}
-                                  >
-                                    {showPassword ? (
-                                      <IconifyIcon icon='mdi:eye-remove' />
-                                    ) : (
-                                      <IconifyIcon icon='ic:round-remove-red-eye' />
-                                    )}
-                                  </IconButton>
-                                </span>
-                              </Tooltip>
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          inputLabel: {
+                            required: true,
+                          },
+                          input: {
+                            endAdornment: (
+                              <InputAdornment aria-label='สลับการแสดงรหัสผ่านปัจจุบัน' position='end'>
+                                <Tooltip title='สลับการแสดงรหัสผ่านปัจจุบัน' arrow>
+                                  <span>
+                                    <IconButton
+                                      edge='end'
+                                      aria-label='สลับการแสดงรหัสผ่านปัจจุบัน'
+                                      onClick={() => setShowPassword(!showPassword)}
+                                      onMouseDown={(event) => event.preventDefault()}
+                                    >
+                                      {showPassword ? (
+                                        <IconifyIcon icon='mdi:eye-remove' />
+                                      ) : (
+                                        <IconifyIcon icon='ic:round-remove-red-eye' />
+                                      )}
+                                    </IconButton>
+                                  </span>
+                                </Tooltip>
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                       <PasswordStrengthBar scoreWords={scoreWords} shortScoreWord={scoreWords[0]} password={value} />
-                    </Fragment>
+                    </>
                   )}
                 />
               </FormControl>

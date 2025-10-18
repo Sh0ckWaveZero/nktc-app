@@ -2,21 +2,19 @@
 import { FormControl, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { Dayjs } from 'dayjs';
 
 // ** Icons Imports
-import { SiMicrosoftexcel } from 'react-icons/si';
+import { FaFileExcel } from 'react-icons/fa';
 import CustomDay from './CustomPickersDay';
 
 interface TableHeaderProps {
-  value: any;
-  selectedDate: Dayjs | null;
-  handleSelectedDate: (newDate: Dayjs | null) => any;
+  selectedDate: Date | null;
+  handleSelectedDate: (newDate: Date | null) => any;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   // ** Props
-  const { value, selectedDate, handleSelectedDate } = props;
+  const { selectedDate, handleSelectedDate } = props;
 
   // ** Hooks
   const theme = useTheme();
@@ -34,7 +32,7 @@ const TableHeader = (props: TableHeaderProps) => {
         }}
         color='secondary'
         variant='outlined'
-        startIcon={<SiMicrosoftexcel fontSize='small' color={theme.palette.success.dark} />}
+        startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
       >
         ดาวน์โหลด
       </Button>

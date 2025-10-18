@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
@@ -454,7 +454,7 @@ const TeacherListPage = () => {
             divider={<Divider orientation='vertical' flexItem />}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Fragment>
+              <React.Fragment>
                 <Tooltip
                   title={
                     !isEmpty(teacherOnClassroom.length && !isEmpty(classrooms)) ? (
@@ -500,7 +500,7 @@ const TeacherListPage = () => {
                     </Badge>
                   </IconButton>
                 </Tooltip>
-              </Fragment>
+              </React.Fragment>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               <IconButton
@@ -611,7 +611,7 @@ const TeacherListPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -696,7 +696,7 @@ const TeacherListPage = () => {
           open={openDialogDelete}
         />
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

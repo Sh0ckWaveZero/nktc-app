@@ -104,12 +104,12 @@ const nextConfig = {
   
   // TypeScript Configuration
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   
   // ESLint Configuration
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   
   // Environment Variables

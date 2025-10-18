@@ -29,5 +29,8 @@
   "workspaces": [
     "frontend",
     "backend"
-  ]
+  ],
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
 }

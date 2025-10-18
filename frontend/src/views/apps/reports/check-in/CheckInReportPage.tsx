@@ -514,12 +514,14 @@ const CheckInReportPage = () => {
     return { status: 'ยังไม่เช็ค', color: 'default' as const };
   };
 
-
   return (
     <div id='checkin-page-fragment'>
       <Grid id='checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
-          <Card id='checkin-main-card' sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <Card
+            id='checkin-main-card'
+            sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+          >
             <CardHeader
               id='checkin-card-header'
               avatar={
@@ -533,11 +535,11 @@ const CheckInReportPage = () => {
                 top: 0,
                 zIndex: 1000,
                 backgroundColor: 'background.paper',
-                pb: 2
+                pb: 2,
               }}
               title={
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+                  <Typography variant='h6' component='div' sx={{ fontWeight: 600 }}>
                     {`เช็คชื่อตอนเข้า กิจกรรมหน้าเสาธง`}
                   </Typography>
                   <Typography
@@ -548,23 +550,21 @@ const CheckInReportPage = () => {
                       fontWeight: 500,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1
+                      gap: 1,
                     }}
                   >
-                    <Box component="span" sx={{ color: 'primary.main', fontWeight: 600 }}>
+                    <Box component='span' sx={{ color: 'primary.main', fontWeight: 600 }}>
                       ชั้น {defaultClassroom?.name || 'ไม่ระบุ'}
                     </Box>
-                    <Box component="span" sx={{ color: 'text.secondary' }}>
+                    <Box component='span' sx={{ color: 'text.secondary' }}>
                       •
                     </Box>
-                    <Box component="span">
-                      จำนวน {currentStudents?.length ?? 0} คน
-                    </Box>
+                    <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
                   </Typography>
                 </Box>
               }
               subheader={
-                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5 }}>
                   {new Date(Date.now()).toLocaleDateString('th-TH', {
                     weekday: 'long',
                     year: 'numeric',
@@ -574,14 +574,19 @@ const CheckInReportPage = () => {
                 </Typography>
               }
             />
-            <CardContent id='checkin-card-content' sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <CardContent
+              id='checkin-card-content'
+              sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}
+            >
               {/* Fixed Controls Section */}
               {(currentStudents?.length ?? 0) > 0 && (
-                <Box sx={{
-                  flexShrink: 0,
-                  p: responsiveConfig.cardPadding,
-                  pb: 2
-                }}>
+                <Box
+                  sx={{
+                    flexShrink: 0,
+                    p: responsiveConfig.cardPadding,
+                    pb: 2,
+                  }}
+                >
                   <CheckInControls
                     isMobile={responsiveConfig.isMobile}
                     isTablet={responsiveConfig.isTablet}
@@ -597,12 +602,12 @@ const CheckInReportPage = () => {
                       isInternshipCheck.length
                     }
                     isComplete={
-                      (isPresentCheck.length +
-                       isAbsentCheck.length +
-                       isLateCheck.length +
-                       isLeaveCheck.length +
-                       isInternshipCheck.length) === (currentStudents?.length ?? 0) &&
-                      (currentStudents?.length ?? 0) > 0
+                      isPresentCheck.length +
+                        isAbsentCheck.length +
+                        isLateCheck.length +
+                        isLeaveCheck.length +
+                        isInternshipCheck.length ===
+                        (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0
                     }
                     loading={loading}
                     formSize={responsiveConfig.formSize}
@@ -614,22 +619,32 @@ const CheckInReportPage = () => {
                     onClassroomChange={handleSelectChange}
                     onSaveCheckIn={handleSaveCheckIn}
                   />
-
                 </Box>
               )}
 
               {/* Floating Count Display for Mobile */}
               {responsiveConfig.isMobile && (
-                <Box sx={{
-                  position: 'absolute',
-                  bottom: 100,
-                  right: 16,
-                  zIndex: 1100
-                }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 100,
+                    right: 16,
+                    zIndex: 1100,
+                  }}
+                >
                   <Chip
                     label={`${isPresentCheck.length + isAbsentCheck.length + isLateCheck.length + isLeaveCheck.length + isInternshipCheck.length}`}
-                    color={((isPresentCheck.length + isAbsentCheck.length + isLateCheck.length + isLeaveCheck.length + isInternshipCheck.length) === (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0) ? "success" : "warning"}
-                    variant="filled"
+                    color={
+                      isPresentCheck.length +
+                        isAbsentCheck.length +
+                        isLateCheck.length +
+                        isLeaveCheck.length +
+                        isInternshipCheck.length ===
+                        (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0
+                        ? 'success'
+                        : 'warning'
+                    }
+                    variant='filled'
                     sx={{
                       fontSize: '1rem',
                       fontWeight: 700,
@@ -642,8 +657,8 @@ const CheckInReportPage = () => {
                       justifyContent: 'center',
                       '& .MuiChip-label': {
                         px: 0,
-                        py: 0
-                      }
+                        py: 0,
+                      },
                     }}
                   />
                 </Box>
@@ -671,43 +686,45 @@ const CheckInReportPage = () => {
                         gap: responsiveConfig.isSmallMobile ? 1 : 1.5,
                       }}
                     >
-                    {getPaginatedStudents().map((student: any) => {
-                      const { status, color } = getStudentStatus(student.id);
+                      {getPaginatedStudents().map((student: any) => {
+                        const { status, color } = getStudentStatus(student.id);
 
-                      return (
-                        <StudentCard
-                          key={student.id}
-                          student={student}
-                          storedToken={storedToken}
-                          status={status}
-                          color={color}
-                          isPresentCheck={isPresentCheck}
-                          isAbsentCheck={isAbsentCheck}
-                          isLateCheck={isLateCheck}
-                          isLeaveCheck={isLeaveCheck}
-                          isInternshipCheck={isInternshipCheck}
-                          onCheckboxChange={(studentId: string, status: string) => {
-                            const student = currentStudents.find((s: any) => s.id === studentId);
-                            if (student) {
-                              onHandleToggle(status, student);
-                            }
-                          }}
-                        />
-                      );
-                    })}
+                        return (
+                          <StudentCard
+                            key={student.id}
+                            student={student}
+                            storedToken={storedToken}
+                            status={status}
+                            color={color}
+                            isPresentCheck={isPresentCheck}
+                            isAbsentCheck={isAbsentCheck}
+                            isLateCheck={isLateCheck}
+                            isLeaveCheck={isLeaveCheck}
+                            isInternshipCheck={isInternshipCheck}
+                            onCheckboxChange={(studentId: string, status: string) => {
+                              const student = currentStudents.find((s: any) => s.id === studentId);
+                              if (student) {
+                                onHandleToggle(status, student);
+                              }
+                            }}
+                          />
+                        );
+                      })}
                     </Box>
                   </Box>
 
                   {/* Mobile Pagination - Fixed at bottom */}
-                  <Box sx={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    backgroundColor: 'background.paper',
-                    zIndex: 1000,
-                    p: 1.5
-                  }}>
+                  <Box
+                    sx={{
+                      position: 'fixed',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: 'background.paper',
+                      zIndex: 1000,
+                      p: 1.5,
+                    }}
+                  >
                     <MobilePaginationControls
                       currentPage={mobilePage}
                       totalPages={getTotalMobilePages()}
@@ -762,7 +779,8 @@ const CheckInReportPage = () => {
               )}
 
               {/* Show loading state or when no classrooms available */}
-              {(loading || ((currentStudents?.length ?? 0) === 0 && !loading && classrooms && (classrooms?.length ?? 0) > 0)) && (
+              {(loading ||
+                ((currentStudents?.length ?? 0) === 0 && !loading && classrooms && (classrooms?.length ?? 0) > 0)) && (
                 <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Box id='checkin-loading-state' sx={{ textAlign: 'center', py: 8 }}>
                     <Typography id='checkin-loading-title' variant='h6' color='text.secondary'>

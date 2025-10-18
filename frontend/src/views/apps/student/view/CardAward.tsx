@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
 import Button from '@mui/material/Button';
 // ** MUI Imports
@@ -123,7 +123,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Card
         sx={{
           position: 'relative',
@@ -178,7 +178,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
           )}
         </DialogContent>
       </BootstrapDialog>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

@@ -38,6 +38,7 @@ import VerticalNavItems from './VerticalNavItems';
 import UserIcon from '@/layouts/components/UserIcon';
 import Translations from '@/layouts/components/Translations';
 import CanViewNavGroup from '@/layouts/components/acl/CanViewNavGroup';
+import React from 'react';
 
 interface Props {
   item: NavGroup;
@@ -246,7 +247,7 @@ const VerticalNavGroup = (props: Props) => {
 
   return (
     <CanViewNavGroup navGroup={item}>
-      <Fragment>
+      <React.Fragment>
         <ListItem
           disablePadding
           className='nav-group'
@@ -354,7 +355,7 @@ const VerticalNavGroup = (props: Props) => {
             />
           </Collapse>
         </ListItem>
-      </Fragment>
+      </React.Fragment>
     </CanViewNavGroup>
   );
 };

@@ -1,49 +1,77 @@
 'use client';
 
-// ** React Imports
 import Link from 'next/link';
-
-// ** MUI Components
-import { Box, Button, Typography, Container } from '@mui/material';
 
 const ServerErrorPage = () => {
   return (
-    <Container maxWidth="sm" sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center' 
-    }}>
-      <Box
-        sx={{
-          p: 5,
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxWidth: '600px',
+        margin: '0 auto',
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          padding: '40px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
         }}
       >
-        <Box
-          sx={{
-            mb: 8,
+        <div
+          style={{
+            marginBottom: '64px',
             display: 'flex',
             alignItems: 'center',
             flexDirection: 'column',
           }}
         >
-          <Typography variant="h1" sx={{ mb: 2.5, fontSize: '8.75rem !important' }}>
+          <h1
+            style={{
+              marginBottom: '20px',
+              fontSize: '8rem',
+              fontWeight: 'bold',
+              color: '#333',
+              margin: '0 0 20px 0',
+            }}
+          >
             500
-          </Typography>
-          <Typography variant="h5" sx={{ mb: 2.5, letterSpacing: '0.18px', fontSize: '1.5rem !important' }}>
+          </h1>
+          <h2
+            style={{
+              marginBottom: '20px',
+              fontSize: '1.5rem',
+              color: '#555',
+              margin: '0 0 20px 0',
+            }}
+          >
             เกิดข้อผิดพลาดในเซิร์ฟเวอร์! 🤯
-          </Typography>
-          <Typography variant="body2">ขออภัย เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์</Typography>
-        </Box>
-        <Button href="/home" component={Link} variant="contained" sx={{ px: 5.5 }}>
+          </h2>
+          <p style={{ color: '#777', margin: 0 }}>ขออภัย เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์</p>
+        </div>
+        <Link
+          href='/home'
+          style={{
+            display: 'inline-block',
+            padding: '12px 44px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '4px',
+            fontSize: '14px',
+            fontWeight: 500,
+          }}
+        >
           กลับสู่หน้าหลัก
-        </Button>
-      </Box>
-    </Container>
+        </Link>
+      </div>
+    </div>
   );
 };
 

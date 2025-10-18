@@ -45,14 +45,17 @@ const StudentCard = ({
   };
 
   return (
-    <Card id={`checkin-student-card-${student.id}`} sx={{ mb: responsiveConfig.isSmallMobile ? 1 : 1.5, border: 1, borderColor: 'divider' }}>
+    <Card
+      id={`checkin-student-card-${student.id}`}
+      sx={{ mb: responsiveConfig.isSmallMobile ? 1 : 1.5, border: 1, borderColor: 'divider' }}
+    >
       <CardContent
         sx={{
           p: responsiveConfig.cardPadding,
           pb: responsiveConfig.isMobile ? 2 : 2.5,
           '&.MuiCardContent-root': {
             paddingBottom: responsiveConfig.isMobile ? '16px' : '20px',
-          }
+          },
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

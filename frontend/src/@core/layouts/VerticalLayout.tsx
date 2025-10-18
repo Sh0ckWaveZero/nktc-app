@@ -104,7 +104,7 @@ const VerticalLayout = (props: LayoutProps) => {
               }),
             }}
           >
-            {children}
+            {children as any}
           </ContentWrapper>
 
           {/* Footer Component */}

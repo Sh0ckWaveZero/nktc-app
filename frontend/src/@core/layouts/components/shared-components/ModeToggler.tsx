@@ -18,7 +18,7 @@ interface Props {
 const ModeToggler = (props: Props) => {
   // ** Props
   const { settings, saveSettings } = props;
-  
+
   // ** MUI v7 Color Scheme Hook
   const { mode, setMode } = useColorScheme();
 

@@ -1,28 +1,21 @@
 // ** MUI Imports
-import { FormControl, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-
-import dayjs, { Dayjs } from 'dayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import 'dayjs/locale/th';
-dayjs.extend(buddhistEra);
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 // ** Icons Imports
-import { SiMicrosoftexcel } from 'react-icons/si';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { FaFileExcel } from 'react-icons/fa';
 
 interface TableHeaderProps {
-  value: any;
-  selectedDate: Dayjs | null;
-  handleSelectedDate: (newDate: Dayjs | null) => any;
+  value?: any;
+  selectedDate: Date | null;
+  handleSelectedDate: (newDate: Date | null) => any;
 }
 
 const TableHeaderMonthly = (props: TableHeaderProps) => {
   // ** Props
-  const { value, selectedDate, handleSelectedDate } = props;
+  const { selectedDate, handleSelectedDate } = props;
 
   // ** Hooks
   const theme = useTheme();
@@ -40,33 +33,22 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
         }}
         color='secondary'
         variant='outlined'
-        startIcon={<SiMicrosoftexcel fontSize='small' color={theme.palette.success.dark} />}
+        startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
       >
         ดาวน์โหลด
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <FormControl sx={{ mr: 4, mb: 2, width: 250 }} size='medium'>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-            <DatePicker<Dayjs>
-              openTo='month'
-              views={['month', 'year']}
-              label='เลือกเดือน'
-              value={selectedDate}
-              format='MMMM YYYY'
-              minDate={dayjs().subtract(1, 'year')}
-              maxDate={dayjs()}
-              onChange={(newDate) => handleSelectedDate(newDate)}
-              slots={{
-                textField: TextField
-              }}
-              slotProps={{
-                textField: {
-                  fullWidth: true
-                }
-              }}
-            />
-          </LocalizationProvider>
-        </FormControl>
+        <ThaiDatePicker
+          label='เลือกเดือน'
+          value={selectedDate}
+          onChange={handleSelectedDate}
+          format='MMMM yyyy'
+          views={['month', 'year']}
+          minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+          maxDate={new Date()}
+          placeholder='เดือน ปี (พ.ศ.)'
+          sx={{ mr: 4, mb: 2, width: 250 }}
+        />
       </Box>
     </Box>
   );

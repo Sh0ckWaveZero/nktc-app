@@ -18,18 +18,15 @@ const AuthGuard = (props: AuthGuardProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(
-    () => {
-      if (auth.user === null && !window.localStorage.getItem('userData')) {
-        if (pathname !== '/') {
-          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
-        } else {
-          router.replace('/login');
-        }
+  useEffect(() => {
+    if (auth.user === null && !window.localStorage.getItem('userData')) {
+      if (pathname !== '/') {
+        router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
+      } else {
+        router.replace('/login');
       }
-    },
-    [pathname, auth.user, router],
-  );
+    }
+  }, [pathname, auth.user, router]);
 
   if (auth.loading || auth.user === null) {
     return fallback;

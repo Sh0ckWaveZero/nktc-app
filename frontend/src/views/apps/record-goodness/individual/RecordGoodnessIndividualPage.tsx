@@ -2,7 +2,7 @@
 
 import { Avatar, Box, Button, Card, CardHeader, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -176,7 +176,7 @@ const RecordGoodnessIndividualPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -200,7 +200,6 @@ const RecordGoodnessIndividualPage = () => {
               />
             )}
             <DataGrid
-              autoHeight
               rows={students}
               columns={defaultColumns}
               loading={loadingStudent}
@@ -250,7 +249,7 @@ const RecordGoodnessIndividualPage = () => {
           handleOnSearch={handleOnSearch}
         />
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

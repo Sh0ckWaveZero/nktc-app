@@ -1,11 +1,11 @@
 'use client';
 
 // ** React Imports
-import { ReactNode } from 'react';
+import React from 'react';
 
 // ** MUI Imports
 import { styled, useTheme } from '@mui/material/styles';
-import MuiSwipeableDrawer, { SwipeableDrawerProps } from '@mui/material/SwipeableDrawer';
+import MuiSwipeableDrawer from '@mui/material/SwipeableDrawer';
 
 // ** Type Import
 import { Settings } from '@/@core/context/settingsContext';
@@ -16,14 +16,15 @@ interface Props {
   navHover: boolean;
   settings: Settings;
   navVisible: boolean;
-  children: ReactNode;
+  children: React.ReactNode;
   collapsedNavWidth: number;
   navigationBorderWidth: number;
   setNavHover: (values: boolean) => void;
   setNavVisible: (value: boolean) => void;
 }
 
-const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
+// Create styled component with explicit typing
+const SwipeableDrawerStyled = styled(MuiSwipeableDrawer)(({ theme }: any) => ({
   overflowX: 'hidden',
   transition: 'width .25s ease-in-out',
   '& ul': {
@@ -39,7 +40,10 @@ const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
     overflowX: 'hidden',
     transition: 'width .25s ease-in-out, box-shadow .25s ease-in-out',
   },
-});
+}));
+
+// Type assertion to ensure proper typing
+const SwipeableDrawer = SwipeableDrawerStyled as React.ComponentType<React.ComponentProps<typeof MuiSwipeableDrawer>>;
 
 const Drawer = (props: Props) => {
   // ** Props

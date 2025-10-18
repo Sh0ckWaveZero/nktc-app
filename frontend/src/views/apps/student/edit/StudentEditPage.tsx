@@ -1,6 +1,6 @@
 'use client';
 
-import * as yup from 'yup';
+import { z } from 'zod';
 import {
   Box,
   Button,
@@ -19,42 +19,23 @@ import {
   styled,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { Fragment, useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 
 interface StudentEditPageProps {
   id: string;
 }
 
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `กรุณากรอก ${field}`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-  } else {
-    return '';
-  }
-};
-
-const schema = yup.object().shape({
-  studentId: yup
-    .string()
-    .required('กรุณากรอกรหัสนักศึกษา')
-    .min(10, (obj) => showErrors('รหัสนักเรียน', obj.value.length, obj.min)),
-  title: yup.string().required('กรุณาเลือกคำนำหน้า'),
-  firstName: yup
-    .string()
-    .min(3, (obj) => showErrors('ชื่อ', obj.value.length, obj.min))
-    .required(),
-  lastName: yup
-    .string()
-    .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
-    .required(),
-  idCard: yup.string().optional(),
-  phone: yup.string().optional(),
-  status: yup.string().required('กรุณาเลือกสถานะ'),
+const schema = z.object({
+  studentId: z.string().min(1, 'กรุณากรอกรหัสนักศึกษา').min(10, 'รหัสนักเรียนต้องมีอย่างน้อย 10 ตัวอักษร'),
+  title: z.string().min(1, 'กรุณาเลือกคำนำหน้า'),
+  firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร'),
+  lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร'),
+  idCard: z.string().optional(),
+  phone: z.string().optional(),
+  status: z.string().min(1, 'กรุณาเลือกสถานะ'),
 });
 
 interface FormData {
@@ -74,16 +55,6 @@ const ImgStyled = styled('img')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
-  marginLeft: theme.spacing(4.5),
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    marginLeft: 0,
-    textAlign: 'center',
-    marginTop: theme.spacing(4),
-  },
-}));
-
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const router = useRouter();
@@ -92,9 +63,8 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
     control,
     handleSubmit,
     formState: { errors },
-    reset
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
     mode: 'onBlur',
     defaultValues: {
       studentId: id || '',
@@ -103,8 +73,8 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       lastName: '',
       idCard: '',
       phone: '',
-      status: 'active'
-    }
+      status: 'active',
+    },
   });
 
   const onSubmit = (data: FormData) => {
@@ -180,11 +150,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 render={({ field: { value, onChange } }) => (
                   <FormControl fullWidth error={Boolean(errors.title)}>
                     <InputLabel>คำนำหน้า</InputLabel>
-                    <Select
-                      value={value}
-                      label='คำนำหน้า'
-                      onChange={onChange}
-                    >
+                    <Select value={value} label='คำนำหน้า' onChange={onChange}>
                       <MenuItem value='นาย'>นาย</MenuItem>
                       <MenuItem value='นางสาว'>นางสาว</MenuItem>
                       <MenuItem value='นาง'>นาง</MenuItem>
@@ -278,11 +244,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 render={({ field: { value, onChange } }) => (
                   <FormControl fullWidth error={Boolean(errors.status)}>
                     <InputLabel>สถานะ</InputLabel>
-                    <Select
-                      value={value}
-                      label='สถานะ'
-                      onChange={onChange}
-                    >
+                    <Select value={value} label='สถานะ' onChange={onChange}>
                       <MenuItem value='active'>เรียนอยู่</MenuItem>
                       <MenuItem value='inactive'>ไม่เรียนแล้ว</MenuItem>
                       <MenuItem value='graduated'>จบการศึกษา</MenuItem>
@@ -298,12 +260,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
                   บันทึกการเปลี่ยนแปลง
                 </Button>
-                <Button
-                  type='reset'
-                  variant='outlined'
-                  color='secondary'
-                  onClick={() => router.back()}
-                >
+                <Button type='reset' variant='outlined' color='secondary' onClick={() => router.back()}>
                   ยกเลิก
                 </Button>
               </Box>

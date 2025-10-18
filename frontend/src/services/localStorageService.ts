@@ -1,6 +1,5 @@
 // class localStorageService.ts
 export class LocalStorageService {
-
   // set token in local storage
   setToken(token: string) {
     localStorage.setItem('access_token', token);
@@ -23,5 +22,4 @@ export class LocalStorageService {
       localStorage.removeItem('access_token');
     }
   }
-
 }

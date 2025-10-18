@@ -1,13 +1,11 @@
 // ** Icon imports
-import {
-  HumanMaleBoard,
-} from 'mdi-material-ui';
+import { HumanMaleBoard } from 'mdi-material-ui';
 import { RiSurveyLine, RiTeamLine } from 'react-icons/ri';
 
 // ** Type import
 import type { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
-import { BsClipboardData } from "react-icons/bs";
+import { BsClipboardData } from 'react-icons/bs';
 import { TbChartBar } from 'react-icons/tb';
 import { FiSettings } from 'react-icons/fi';
 
@@ -137,7 +135,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'record-goodness-page',
           path: '/apps/record-goodness/group',
-        }
+        },
       ],
     },
     {
@@ -159,7 +157,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-badness-group-page',
           path: '/apps/record-badness/group',
-        }
+        },
       ],
     },
     {
@@ -201,7 +199,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-check-in-page',
           path: '/apps/reports/check-in/summary',
-        }
+        },
       ],
     },
     {
@@ -258,7 +256,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'activity-check-in-page',
           path: '/apps/reports/activity-check-in/summary',
-        }
+        },
       ],
     },
     {
@@ -309,7 +307,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-goodness-page',
           path: '/apps/reports/goodness/all',
-        }
+        },
       ],
     },
     {
@@ -324,7 +322,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-badness-page',
           path: '/apps/reports/badness/all',
-        }
+        },
       ],
     },
     {

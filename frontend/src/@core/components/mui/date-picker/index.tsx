@@ -2,27 +2,26 @@ import React from 'react';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePickerProps } from './types';
 import { FcCalendar } from 'react-icons/fc';
 import { TextField } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/th';
+import { th } from 'date-fns/locale';
 
-// Date helpers using dayjs
-const getCurrentYear = (): number => dayjs().year();
+// Date helpers using Date
+const getCurrentYear = (): number => new Date().getFullYear();
 const getLastYear = (): number => getCurrentYear() - 1;
 
 const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
-  const minDate: Dayjs = dayjs().year(getLastYear()).month(0).date(1);
-  const maxDate: Dayjs = dayjs();
+  const minDate: Date = new Date(getLastYear(), 0, 1);
+  const maxDate: Date = new Date();
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-      <DatePicker<Dayjs>
+    <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={th}>
+      <DatePicker
         label={label}
         value={value}
-        format='DD/MM/YYYY'
+        format='dd/MM/yyyy'
         minDate={minDate}
         maxDate={maxDate}
         onChange={onChange}

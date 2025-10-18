@@ -8,7 +8,7 @@ class ApiService {
   private getAuthHeaders() {
     const token = localStorageService.getToken();
     return {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
   }
@@ -32,7 +32,7 @@ class ApiService {
             `${authConfig.activityCheckInEndpoint}/teacher/1/classroom/${params.classroomId}/start-date/${params.date || new Date().toISOString().split('T')[0]}/daily-report`,
             {
               headers: this.getAuthHeaders(),
-            }
+            },
           );
 
           // If we have existing check-in data, merge it with students
@@ -46,8 +46,8 @@ class ApiService {
                 absent: checkInData.reportCheckIn?.absent || [],
                 late: checkInData.reportCheckIn?.late || [],
                 leave: checkInData.reportCheckIn?.leave || [],
-                internship: checkInData.reportCheckIn?.internship || []
-              }
+                internship: checkInData.reportCheckIn?.internship || [],
+              },
             }));
           }
         } catch (checkInError) {
@@ -127,7 +127,7 @@ class ApiService {
         `${authConfig.activityCheckInEndpoint}/teacher/${teacherId}/classroom/${classroomId}/start-date/${date}/daily-report`,
         {
           headers: this.getAuthHeaders(),
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -138,7 +138,7 @@ class ApiService {
 
   async get(endpoint: string, token?: string) {
     try {
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : this.getAuthHeaders();
+      const headers = token ? { Authorization: `Bearer ${token}` } : this.getAuthHeaders();
       const response = await axios.get(`${authConfig.backEndUrl}${endpoint}`, {
         headers,
       });

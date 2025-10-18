@@ -1,7 +1,6 @@
 'use client';
 
 import { Avatar, Card, CardHeader } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
 // ** React Imports
 import { useEffect, useState } from 'react';
 
@@ -33,9 +32,11 @@ const AdminCheckInDailyReportPage = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   useEffect(() => {
+    if (!selectedDate) return;
+
     (async () => {
       await findDailyReportAdmin(storedToken, { startDate: selectedDate, endDate: selectedDate }).then(
         async (res: any) => {
@@ -45,8 +46,8 @@ const AdminCheckInDailyReportPage = () => {
     })();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Dayjs | null) => {
-    setSelectedDate(date as Dayjs);
+  const handleSelectedDate = (date: Date | null) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -61,7 +62,7 @@ const AdminCheckInDailyReportPage = () => {
             }
             sx={{ color: 'text.primary' }}
             title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
-            subheader={`ประจำ${formatFullDateThai(selectedDate.toDate())}`}
+            subheader={selectedDate ? `ประจำ${formatFullDateThai(selectedDate)}` : ''}
           />
         </Card>
       </Grid>

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next/types';
-import { ReactNode } from 'react';
 import { Prompt } from 'next/font/google';
 
 // ** Config Imports
@@ -11,6 +10,9 @@ import Providers from './providers';
 // ** Global Styles
 import '@/styles/globals.css';
 
+// Force dynamic rendering to prevent static generation issues with React Context
+export const dynamic = 'force-dynamic';
+
 // ** Google Fonts
 const prompt = Prompt({
   subsets: ['latin', 'thai'],
@@ -19,52 +21,53 @@ const prompt = Prompt({
   variable: '--font-prompt',
 });
 
-export const metadata: Metadata = {
-  title: {
-    template: `%s - ${themeConfig.templateName}`,
-    default: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-  },
-  description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-  keywords: [themeConfig.templateName, 'NKTC', 'Student Management', 'Education'],
-  authors: [{ name: 'Midseelee' }],
-  creator: 'Midseelee',
-  publisher: 'NKTC',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-  openGraph: {
-    type: 'website',
-    locale: 'th_TH',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    title: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-    description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-    siteName: themeConfig.templateName,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-    description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-  },
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
-};
+// Metadata is commented out to prevent static generation issues
+// export const metadata: Metadata = {
+//   title: {
+//     template: `%s - ${themeConfig.templateName}`,
+//     default: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//   },
+//   description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//   keywords: [themeConfig.templateName, 'NKTC', 'Student Management', 'Education'],
+//   authors: [{ name: 'Midseelee' }],
+//   creator: 'Midseelee',
+//   publisher: 'NKTC',
+//   formatDetection: {
+//     email: false,
+//     address: false,
+//     telephone: false,
+//   },
+//   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+//   openGraph: {
+//     type: 'website',
+//     locale: 'th_TH',
+//     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+//     title: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//     description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//     siteName: themeConfig.templateName,
+//   },
+//   twitter: {
+//     card: 'summary_large_image',
+//     title: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//     description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
+//   },
+//   robots: {
+//     index: false,
+//     follow: false,
+//     googleBot: {
+//       index: false,
+//       follow: false,
+//     },
+//   },
+// };
 
 interface RootLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="th" suppressHydrationWarning>
+    <html lang='th' suppressHydrationWarning>
       <body className={`${prompt.variable} ${prompt.className}`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>

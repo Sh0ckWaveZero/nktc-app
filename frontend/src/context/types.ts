@@ -1,4 +1,4 @@
-import { Classroom, Level, Program } from "../types/apps/teacherTypes";
+import { Classroom, Level, Program } from '../types/apps/teacherTypes';
 export type ErrCallbackType = (err: { [key: string]: string }) => void;
 
 export type LoginParams = {
@@ -53,7 +53,6 @@ export interface Teacher {
 }
 
 export interface Student {
-
   id?: string;
   studentId?: string;
   isGraduation?: boolean;
@@ -78,7 +77,6 @@ export interface Student {
   updatedAt?: Date;
   updatedBy?: string;
   createdBy?: string;
-
 }
 
 export interface Department {

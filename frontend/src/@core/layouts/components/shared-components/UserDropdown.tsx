@@ -28,6 +28,7 @@ import {
 // ** Type Imports
 import { Settings } from '@/@core/context/settingsContext';
 import { useAuth } from '@/hooks/useAuth';
+import React from 'react';
 
 interface Props {
   settings: Settings;
@@ -87,7 +88,7 @@ const UserDropdown = (props: Props) => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Badge
         overlap='circular'
         onClick={handleDropdownOpen}
@@ -190,7 +191,7 @@ const UserDropdown = (props: Props) => {
           Logout
         </MenuItem>
       </Menu>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

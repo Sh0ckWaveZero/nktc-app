@@ -29,33 +29,32 @@ const AttendanceChart = ({ studentsCheckedIn, studentsNotCheckedIn }: Attendance
   return (
     <>
       <CardHeader
-        title="สัดส่วนการมาเข้าแถวของนักเรียน"
-        titleTypographyProps={{
-          variant: 'h6',
-          sx: { fontSize: { xs: '1rem', sm: '1.25rem' } }
+        title='สัดส่วนการมาเข้าแถวของนักเรียน'
+        slotProps={{
+          title: {
+            variant: 'h6',
+            sx: { fontSize: { xs: '1rem', sm: '1.25rem' } },
+          },
         }}
       />
-      <ResponsiveContainer width="100%" height="100%" minHeight={250}>
+      <ResponsiveContainer width='100%' height='100%' minHeight={250}>
         <PieChart>
           <Pie
             data={data}
-            cx="50%"
-            cy="50%"
+            cx='50%'
+            cy='50%'
             labelLine={false}
             label={renderLabel}
-            outerRadius="60%"
-            fill="#8884d8"
-            dataKey="value"
+            outerRadius='60%'
+            fill='#8884d8'
+            dataKey='value'
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={index === 0 ? COLORS.checkedIn : COLORS.notCheckedIn} />
             ))}
           </Pie>
           <Tooltip formatter={(value: number) => `${value} คน`} />
-          <Legend
-            wrapperStyle={{ fontSize: '0.875rem' }}
-            iconSize={12}
-          />
+          <Legend wrapperStyle={{ fontSize: '0.875rem' }} iconSize={12} />
         </PieChart>
       </ResponsiveContainer>
     </>

@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
 import {
   Box,
@@ -16,22 +16,18 @@ import {
   Typography,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { Fragment, useEffect, useState } from 'react';
-import dayjs from 'dayjs';
+import React, { Fragment, useEffect, useState } from 'react';
 
 import { BoxProps } from '@mui/material/Box';
 import Close from 'mdi-material-ui/Close';
 import IconifyIcon from '@/@core/components/icon';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useClassroomStore, useDepartmentStore, useProgramStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import { LocalStorageService } from '@/services/localStorageService';
 import { toast } from 'react-hot-toast';
 import { useLevelStore } from '@/store/apps/level';
-
-dayjs.extend(buddhistEra);
 
 interface SidebarAddTeacherType {
   open: boolean;
@@ -48,16 +44,6 @@ interface ClassroomInfo {
   programId: string;
   departmentId: string;
 }
-
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `กรุณากรอก${field}`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-  } else {
-    return '';
-  }
-};
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& label': {
@@ -119,28 +105,33 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   const { fetchLevels }: any = useLevelStore((state) => ({ fetchLevels: state.fetchLevels }), shallow);
   const { fetchDepartment }: any = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
 
-  const schema = yup.object().shape({
-    classroomId: yup.string().required('กรุณากรอกรหัสห้องเรียน'),
-    levelId: yup.string().required('กรุณาเลือกระดับชั้น'),
-    classroomNumber: yup
-      .string()
-      .required('กรุณากรอกหมายเลขห้องเรียน')
-      .matches(
-        /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
-        'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
-      ),
-    programId: yup.string().required('กรุณาเลือกสาชาวิชา'),
-    departmentId: yup.string().required('กรุณาเลือกแผนก'),
-    name: yup
-      .string()
-      .required('กรุณากรอกชื่อห้องเรียน')
-      .test('ready exist classroom', 'ชื่อห้องเรียนนี้มีอยู่แล้ว', async (value: any) => {
-        if (value) {
-          return classroomList.find((item: any) => item.name === value) ? false : true;
+  const schema = z
+    .object({
+      classroomId: z.string().min(1, 'กรุณากรอกรหัสห้องเรียน'),
+      levelId: z.string().min(1, 'กรุณาเลือกระดับชั้น'),
+      classroomNumber: z
+        .string()
+        .min(1, 'กรุณากรอกหมายเลขห้องเรียน')
+        .regex(
+          /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
+          'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
+        ),
+      programId: z.string().min(1, 'กรุณาเลือกสาชาวิชา'),
+      departmentId: z.string().min(1, 'กรุณาเลือกแผนก'),
+      name: z.string().min(1, 'กรุณากรอกชื่อห้องเรียน'),
+    })
+    .refine(
+      async (data) => {
+        if (data.name) {
+          return !classroomList.find((item: any) => item.name === data.name);
         }
         return true;
-      }),
-  });
+      },
+      {
+        message: 'ชื่อห้องเรียนนี้มีอยู่แล้ว',
+        path: ['name'],
+      },
+    );
 
   const defaultValues = {
     classroomId: '',
@@ -161,7 +152,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   } = useForm({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   useEffect(() => {
@@ -215,7 +206,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
       const lastClassroomId = parseInt(sortClassroomId[0]) + 1;
       const classroomId = `CR${lastClassroomId}`;
       setValue('classroomId', classroomId);
-    } catch (error) {
+    } catch {
       setLoadingClassroomId(false);
     } finally {
       setLoadingClassroomId(false);
@@ -260,39 +251,41 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                   required
                   error={Boolean(errors.classroomId)}
                   helperText={errors.classroomId ? errors.classroomId.message : ''}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        {!value ? (
-                          <Tooltip title='สร้างรหัสห้องเรียน' arrow>
-                            <span>
-                              <Button
-                                id='generate-classroomId'
-                                color='success'
-                                loading={loadingClassroomId}
-                                startIcon={<IconifyIcon icon='fad:random-1dice' />}
-                                onClick={handleRandomClassroomId}
-                                variant='contained'
-                              >
-                                <span>สุ่มรหัส</span>
-                              </Button>
-                            </span>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title='ล้างค่า' arrow>
-                            <span>
-                              <IconButton
-                                onClick={() => {
-                                  setValue('classroomId', '');
-                                }}
-                              >
-                                <IconifyIcon icon='uil:times' width={20} height={20} />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        )}
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          {!value ? (
+                            <Tooltip title='สร้างรหัสห้องเรียน' arrow>
+                              <span>
+                                <Button
+                                  id='generate-classroomId'
+                                  color='success'
+                                  loading={loadingClassroomId}
+                                  startIcon={<IconifyIcon icon='fad:random-1dice' />}
+                                  onClick={handleRandomClassroomId}
+                                  variant='contained'
+                                >
+                                  <span>สุ่มรหัส</span>
+                                </Button>
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title='ล้างค่า' arrow>
+                              <span>
+                                <IconButton
+                                  onClick={() => {
+                                    setValue('classroomId', '');
+                                  }}
+                                >
+                                  <IconifyIcon icon='uil:times' width={20} height={20} />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          )}
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
               )}
@@ -311,10 +304,12 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                   placeholder='ระดับชั้น-เลขที่ห้องเรียน-ชื่อสาขาวิชา'
                   error={Boolean(errors.name)}
                   helperText={errors.name ? errors.name.message : ''}
-                  InputProps={{
-                    readOnly: true,
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                    inputLabel: { shrink: true },
                   }}
-                  InputLabelProps={{ shrink: true }}
                 />
               )}
             />
@@ -332,7 +327,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <Fragment>
+                <>
                   <InputLabel htmlFor='levelId'>ระดับชั้น</InputLabel>
                   <Select
                     label='ระดับชั้น'
@@ -363,7 +358,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                       ))}
                   </Select>
                   {errors.levelId && <FormHelperText>{errors.levelId.message}</FormHelperText>}
-                </Fragment>
+                </>
               )}
             />
           </CustomFormControl>
@@ -384,25 +379,27 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                   placeholder='x/x'
                   error={Boolean(errors.classroomNumber)}
                   helperText={errors.classroomNumber ? errors.classroomNumber.message : ''}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        {value && (
-                          <Tooltip title='ล้างค่า' arrow>
-                            <span>
-                              <IconButton
-                                onClick={() => {
-                                  setValue('classroomNumber', '');
-                                  handleClassroomNameChange();
-                                }}
-                              >
-                                <IconifyIcon icon='uil:times' width={20} height={20} />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        )}
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          {value && (
+                            <Tooltip title='ล้างค่า' arrow>
+                              <span>
+                                <IconButton
+                                  onClick={() => {
+                                    setValue('classroomNumber', '');
+                                    handleClassroomNameChange();
+                                  }}
+                                >
+                                  <IconifyIcon icon='uil:times' width={20} height={20} />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          )}
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                   required
                 />
@@ -423,7 +420,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { value, onChange } }) => (
-                  <Fragment>
+                  <>
                     <InputLabel htmlFor='programId'>สาขาวิชา</InputLabel>
                     <Select
                       label='สาขาวิชา'
@@ -447,7 +444,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                         ))}
                     </Select>
                     {errors.programId && <FormHelperText>{errors.programId.message}</FormHelperText>}
-                  </Fragment>
+                  </>
                 )}
               />
             </CustomFormControl>
@@ -465,7 +462,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <Fragment>
+                <>
                   <InputLabel htmlFor='departmentId'>แผนก</InputLabel>
                   <Select
                     label='แผนก'
@@ -486,7 +483,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
                       ))}
                   </Select>
                   {errors.departmentId && <FormHelperText>{errors.departmentId.message}</FormHelperText>}
-                </Fragment>
+                </>
               )}
             />
           </CustomFormControl>

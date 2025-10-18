@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { SyntheticEvent, useState, useEffect, Fragment } from 'react';
+import React, { SyntheticEvent, useState, useEffect } from 'react';
 
 // ** Next Import
 import { useRouter, usePathname } from 'next/navigation';
@@ -162,8 +162,8 @@ const HorizontalNavGroup = (props: Props) => {
 
   const WrapperCondition = horizontalMenuToggle === 'click';
   const MainWrapper: any = WrapperCondition ? ClickAwayListener : 'div';
-  const ChildWrapper = WrapperCondition ? 'div' : Fragment;
-  const AnimationWrapper = horizontalMenuAnimation ? Fade : Fragment;
+  const ChildWrapper = WrapperCondition ? 'div' : React.Fragment;
+  const AnimationWrapper = horizontalMenuAnimation ? Fade : React.Fragment;
 
   const childMenuGroupStyles = () => {
     if (attributes && attributes.popper) {

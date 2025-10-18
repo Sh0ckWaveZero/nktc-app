@@ -2,7 +2,7 @@
 
 // ** Types Imports
 import { Avatar, Card, CardHeader } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
+import { startOfMonth, endOfMonth } from 'date-fns';
 // ** React Imports
 import { useEffect, useState } from 'react';
 
@@ -33,12 +33,14 @@ const AdminActivityCheckInMonthlyReportPage = () => {
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   useEffect(() => {
+    if (!selectedDate) return;
+
     const fetch = async () => {
-      const start = selectedDate.startOf('month');
-      const end = selectedDate.endOf('month');
+      const start = startOfMonth(selectedDate);
+      const end = endOfMonth(selectedDate);
       await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
@@ -46,8 +48,8 @@ const AdminActivityCheckInMonthlyReportPage = () => {
     fetch();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Dayjs | null) => {
-    setSelectedDate(date as Dayjs);
+  const handleSelectedDate = (date: Date | null) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -62,7 +64,9 @@ const AdminActivityCheckInMonthlyReportPage = () => {
             }
             sx={{ color: 'text.primary' }}
             title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
-            subheader={`ประจำเดือน ${getThaiMonthName(selectedDate.toDate())} ${getBuddhistYear(selectedDate.toDate())}`}
+            subheader={
+              selectedDate ? `ประจำเดือน ${getThaiMonthName(selectedDate)} ${getBuddhistYear(selectedDate)}` : ''
+            }
           />
         </Card>
       </Grid>

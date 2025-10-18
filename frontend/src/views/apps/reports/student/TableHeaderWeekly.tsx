@@ -1,11 +1,10 @@
 import { Box, FormControl } from '@mui/material';
 
 import CustomDay from '../../admin/reports/check-in/CustomPickersDay';
-import { Dayjs } from 'dayjs';
 
 interface TableHeaderProps {
-  selectedDate: Dayjs | null;
-  handleSelectedDate: (newDate: Dayjs | null) => any;
+  selectedDate: Date | null;
+  handleSelectedDate: (newDate: Date | null) => any;
 }
 
 const StudentTableHeader = ({ selectedDate, handleSelectedDate }: TableHeaderProps) => (

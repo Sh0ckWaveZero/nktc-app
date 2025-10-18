@@ -79,8 +79,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 2
-        }}>
+          lg: 2,
+        }}
+      >
         <CsvDownloader
           prefix='System Access Report'
           filename={filename}
@@ -104,8 +105,9 @@ const TableHeader = (props: TableHeaderProps) => {
         size={{
           xs: 12,
           md: 12,
-          lg: 6
-        }}>
+          lg: 6,
+        }}
+      >
         <Stack direction='row' spacing={2} justifyContent='flex-end'>
           <TextField
             fullWidth

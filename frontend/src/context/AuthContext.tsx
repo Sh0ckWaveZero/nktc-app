@@ -1,5 +1,8 @@
+'use client';
+
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import * as React from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 // ** Next Import
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -32,7 +35,7 @@ const AuthContext = createContext(defaultProvider);
 const localStorageService = new LocalStorageService();
 
 type Props = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 const AuthProvider = ({ children }: Props) => {
@@ -45,36 +48,48 @@ const AuthProvider = ({ children }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const storedToken = localStorageService.getToken()!;
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== 'undefined';
+
+  const storedToken = localStorageService.getToken();
   useEffect(() => {
-    const initAuth = async (): Promise<void> => {
+    // Only run auth initialization in browser environment
+    if (!isBrowser) {
       setIsInitialized(true);
-      if (storedToken) {
-        setLoading(true);
-        await axios
-          .get(authConfig.meEndpoint as string, {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          })
-          .then(async (response) => {
-            const { data } = response;
-            setLoading(false);
-            setUser({ ...(await data) });
-          })
-          .catch((_) => {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('refreshToken');
-            localStorageService.removeToken();
-            setUser(null);
-            setLoading(false);
-            router.replace('/login');
-          });
-      } else {
-        setLoading(false);
-      }
-    };
-    initAuth();
+      setLoading(false);
+      return;
+    }
+
+      const initAuth = async (): Promise<void> => {
+        setIsInitialized(true);
+        if (storedToken) {
+          setLoading(true);
+          await axios
+            .get(authConfig.meEndpoint as string, {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            })
+            .then(async (response) => {
+              const { data } = response;
+              setLoading(false);
+              setUser({ ...(await data) });
+            })
+            .catch((_) => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('userData');
+                localStorage.removeItem('refreshToken');
+              }
+              localStorageService.removeToken();
+              setUser(null);
+              setLoading(false);
+              router.replace('/login');
+            });
+        } else {
+          setLoading(false);
+        }
+      };
+      initAuth();
   }, []);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
@@ -82,11 +97,15 @@ const AuthProvider = ({ children }: Props) => {
       const response = await axios.post(authConfig.loginEndpoint as string, params);
       const { data } = response;
       localStorageService.setToken(data.token);
-      const returnUrl = searchParams.get('returnUrl');
+
+      if (isBrowser) {
+        const returnUrl = searchParams.get('returnUrl');
+        window.localStorage.setItem('userData', JSON.stringify(data));
+        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
+        router.replace(redirectURL as string);
+      }
+
       setUser(await data?.data);
-      window.localStorage.setItem('userData', JSON.stringify(data));
-      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
-      router.replace(redirectURL as string);
     } catch (err: any) {
       if (errorCallback) errorCallback(err);
     }
@@ -95,9 +114,11 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogout = () => {
     setUser(null);
     setIsInitialized(false);
-    window.localStorage.removeItem('userData');
+    if (isBrowser) {
+      window.localStorage.removeItem('userData');
+      router.push('/login');
+    }
     localStorageService.removeToken();
-    router.push('/login');
   };
 
   const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {

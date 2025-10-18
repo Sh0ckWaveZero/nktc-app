@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useState } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGroup';
@@ -231,9 +231,10 @@ const RecordBadnessGroupPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'report-badness-group-page') &&
+  return (
+    ability?.can('read', 'report-badness-group-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -306,7 +307,7 @@ const RecordBadnessGroupPage = () => {
           auth={auth}
           handleSusses={handleSusses}
         />
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

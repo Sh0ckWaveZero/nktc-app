@@ -13,7 +13,8 @@ import WindowWrapper from '@/@core/components/window-wrapper';
 
 // ** Contexts
 import { AuthProvider, AuthContext } from '@/context/AuthContext';
-import { SettingsProvider, SettingsConsumer } from '@/@core/context/settingsContext';
+import { SettingsProvider } from '@/@core/context/settingsContext';
+import { useSettings } from '@/@core/hooks/useSettings';
 
 // ** ACL Imports
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -41,21 +42,41 @@ interface ProvidersProps {
 
 // ** ACL Provider Component
 const ACLProvider = ({ children }: { children: ReactNode }) => {
-  const auth = useContext(AuthContext);
-  
-  const ability = auth.user?.role ? buildAbilityFor(auth.user.role, 'all') : buildAbilityFor('guest', 'all');
-  
+  let auth;
+
+  try {
+    auth = useContext(AuthContext);
+  } catch (error) {
+    // Context is not available during static generation
+    auth = null;
+  }
+
+  // Handle case where context might be null during static generation or client-side only
+  const ability = auth?.user?.role ? buildAbilityFor(auth.user.role, 'all') : buildAbilityFor('guest', 'all');
+
   return (
-    <AbilityContext.Provider value={ability}>
-      {children}
-    </AbilityContext.Provider>
+    // @ts-expect-error - React 19 compatibility issue with CASL
+    <AbilityContext.Provider value={ability}>{children}</AbilityContext.Provider>
   );
 };
 
-export default function Providers({ 
-  children, 
-  emotionCache = clientSideEmotionCache 
-}: ProvidersProps) {
+// ** Settings Inner Provider Component
+const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
+  const { settings } = useSettings();
+
+  return (
+    <ThemeComponent settings={settings}>
+      <WindowWrapper>
+        {children}
+        <ReactHotToast>
+          <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
+        </ReactHotToast>
+      </WindowWrapper>
+    </ThemeComponent>
+  );
+};
+
+export default function Providers({ children, emotionCache = clientSideEmotionCache }: ProvidersProps) {
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
       <CacheProvider value={emotionCache}>
@@ -63,21 +84,9 @@ export default function Providers({
           <ACLProvider>
             <AxiosInterceptor>
               <SettingsProvider>
-                <SettingsConsumer>
-                  {({ settings }) => (
-                    <ThemeComponent settings={settings}>
-                      <WindowWrapper>
-                        {children}
-                        <ReactHotToast>
-                          <Toaster 
-                            position={settings.toastPosition} 
-                            toastOptions={{ className: 'react-hot-toast' }} 
-                          />
-                        </ReactHotToast>
-                      </WindowWrapper>
-                    </ThemeComponent>
-                  )}
-                </SettingsConsumer>
+                <SettingsInnerProvider>
+                  {children}
+                </SettingsInnerProvider>
               </SettingsProvider>
             </AxiosInterceptor>
           </ACLProvider>

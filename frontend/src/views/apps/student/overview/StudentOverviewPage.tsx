@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CardAward from '@/views/apps/student/view/CardAward';
@@ -114,7 +114,7 @@ const StudentOverviewPage = () => {
         subject: 'student-check-in-report',
       },
     },
-     {
+    {
       title: 'Report',
       subtitle: 'ความดี',
       color: '#079233',
@@ -177,15 +177,16 @@ const StudentOverviewPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       {trophyOverview?.totalTrophy >= 1 && <ConfettiAnimation width={confettiWidth} height={confettiHeight} />}
       <Grid container spacing={6}>
         <Grid
           size={{
             xs: 12,
             md: 5,
-            lg: 4
-          }}>
+            lg: 4,
+          }}
+        >
           <UserViewLeft
             classroomName={classroomName}
             fullName={fullName}
@@ -200,8 +201,9 @@ const StudentOverviewPage = () => {
           size={{
             xs: 12,
             md: 7,
-            lg: 8
-          }}>
+            lg: 8,
+          }}
+        >
           <Grid container spacing={6}>
             {trophyOverview?.totalTrophy >= 1 && (
               <Grid size={12}>
@@ -217,8 +219,9 @@ const StudentOverviewPage = () => {
                   size={{
                     xs: 12,
                     sm: 6,
-                    md: 4
-                  }}>
+                    md: 4,
+                  }}
+                >
                   <CardMenu
                     key={`card-menu-${index}`}
                     title={item.title}
@@ -232,7 +235,7 @@ const StudentOverviewPage = () => {
           </Grid>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

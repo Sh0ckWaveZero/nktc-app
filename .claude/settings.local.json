@@ -31,7 +31,9 @@
       "Bash(bun add:*)",
       "Bash(cat:*)",
       "Bash(npm run lint:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(timeout 30 npm run dev:*)",
+      "Bash(npm ls:*)"
     ],
     "deny": []
   }

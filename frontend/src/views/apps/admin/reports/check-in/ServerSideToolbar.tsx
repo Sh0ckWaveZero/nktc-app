@@ -1,21 +1,21 @@
 // ** React Imports
-import { ChangeEvent } from 'react'
+import { ChangeEvent } from 'react';
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import { styled } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
-import IconButton from '@mui/material/IconButton'
-import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid'
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 
 // ** Icons Imports
-import Close from 'mdi-material-ui/Close'
-import Magnify from 'mdi-material-ui/Magnify'
+import Close from 'mdi-material-ui/Close';
+import Magnify from 'mdi-material-ui/Magnify';
 
 interface Props {
-  value: string
-  clearSearch: () => void
-  onChange: (e: ChangeEvent) => void
+  value: string;
+  clearSearch: () => void;
+  onChange: (e: ChangeEvent) => void;
 }
 
 const StyledGridToolbarContainer = styled(GridToolbarContainer)({
@@ -24,8 +24,8 @@ const StyledGridToolbarContainer = styled(GridToolbarContainer)({
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'flex-start',
-  justifyContent: 'space-between'
-})
+  justifyContent: 'space-between',
+});
 
 const ServerSideToolbar = (props: Props) => {
   return (
@@ -44,25 +44,25 @@ const ServerSideToolbar = (props: Props) => {
             <IconButton size='small' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
               <Close fontSize='small' />
             </IconButton>
-          )
+          ),
         }}
         sx={{
           width: {
             xs: 1,
-            sm: 'auto'
+            sm: 'auto',
           },
-          m: theme => theme.spacing(1, 0.5, 1.5),
+          m: (theme) => theme.spacing(1, 0.5, 1.5),
           '& .MuiSvgIcon-root': {
-            mr: 0.5
+            mr: 0.5,
           },
           '& .MuiInput-underline:before': {
             borderBottom: 1,
-            borderColor: 'divider'
-          }
+            borderColor: 'divider',
+          },
         }}
       />
     </StyledGridToolbarContainer>
-  )
-}
+  );
+};
 
-export default ServerSideToolbar
+export default ServerSideToolbar;

@@ -39,6 +39,7 @@ import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/Edi
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import { LocalStorageService } from '@/services/localStorageService';
+import React from 'react';
 
 interface CellType {
   row: any;
@@ -498,9 +499,10 @@ const ActivityCheckInDailyReportPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'daily-check-in-report-activity-page') &&
+  return (
+    ability?.can('read', 'daily-check-in-report-activity-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -567,7 +569,7 @@ const ActivityCheckInDailyReportPage = () => {
           />
         )}
         {openDeletedConfirm && (
-          <Fragment>
+          <React.Fragment>
             <Dialog
               open={openDeletedConfirm}
               disableEscapeKeyDown
@@ -601,9 +603,9 @@ const ActivityCheckInDailyReportPage = () => {
                 </Button>
               </DialogActions>
             </Dialog>
-          </Fragment>
+          </React.Fragment>
         )}
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

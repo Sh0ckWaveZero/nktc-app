@@ -1,6 +1,6 @@
 'use client';
 
-import * as yup from 'yup';
+import { z } from 'zod';
 
 import {
   Autocomplete,
@@ -15,6 +15,8 @@ import {
   FormHelperText,
   Grid,
   InputLabel,
+  ListItem,
+  ListItemText,
   MenuItem,
   Select,
   TextField,
@@ -22,18 +24,14 @@ import {
   useTheme,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
-import dayjs, { Dayjs } from 'dayjs';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import { LocalStorageService } from '@/services/localStorageService';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { handleKeyDown } from '@/utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import { shallow } from 'zustand/shallow';
@@ -43,9 +41,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/navigation';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-dayjs.extend(buddhistEra);
+import { zodResolver } from '@hookform/resolvers/zod';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 interface Data {
   studentId: string;
@@ -54,7 +51,7 @@ interface Data {
   lastName: string;
   classroom: object | null;
   idCard: number | string;
-  birthDate: Dayjs | null;
+  birthDate: Date | null;
   addressLine1: string;
   subdistrict: string;
   district: string;
@@ -79,38 +76,26 @@ const initialData: Data = {
   phone: '',
 };
 
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `กรุณากรอก ${field}`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-  } else {
-    return '';
-  }
-};
-
-const schema = yup.object().shape({
-  studentId: yup
-    .string()
-    .required('กรุณากรอกรหัสนักศึกษา')
-    .min(11, (obj) => showErrors('รหัสนักเรียน', obj.value.length, obj.min)),
-  title: yup.string().required('กรุณาเลือกคำนำหน้าชื่อ'),
-  firstName: yup
-    .string()
-    .min(3, (obj) => showErrors('ชื่อ', obj.value.length, obj.min))
-    .required(),
-  lastName: yup
-    .string()
-    .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
-    .required(),
-  classroom: yup.object().required('กรุณาเลือกชั้นเรียน').nullable(),
-  idCard: yup.string(),
-  birthDate: yup.date().nullable().default(null).max(new Date(), 'วันเกิดไม่ถูกต้อง'),
-  addressLine1: yup.string(),
-  subdistrict: yup.string(),
-  district: yup.string(),
-  province: yup.string(),
-  postalCode: yup.string(),
+const schema = z.object({
+  studentId: z.string().min(1, 'กรุณากรอกรหัสนักศึกษา').min(11, 'รหัสนักเรียนต้องมีอย่างน้อย 11 ตัวอักษร'),
+  title: z.string().min(1, 'กรุณาเลือกคำนำหน้าชื่อ'),
+  firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร'),
+  lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร'),
+  classroom: z
+    .object({})
+    .refine((obj) => obj && Object.keys(obj).length > 0, 'กรุณาเลือกชั้นเรียน')
+    .nullable(),
+  idCard: z.string().optional(),
+  birthDate: z
+    .date()
+    .nullable()
+    .refine((date) => !date || date <= new Date(), 'วันเกิดไม่ถูกต้อง'),
+  addressLine1: z.string().optional(),
+  subdistrict: z.string().optional(),
+  district: z.string().optional(),
+  province: z.string().optional(),
+  postalCode: z.string().optional(),
+  phone: z.string().optional(),
 });
 
 const ImgStyled = styled('img')(({ theme }) => ({
@@ -195,7 +180,7 @@ const StudentAddPage = () => {
   } = useForm({
     defaultValues: initialData,
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data: any, e: any) => {
@@ -245,7 +230,7 @@ const StudentAddPage = () => {
   };
 
   return (
-    <Fragment>
+    <>
       <Grid container spacing={4}>
         {/* Student Details */}
         <Grid size={12}>
@@ -302,8 +287,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 12
-                    }}>
+                      sm: 12,
+                    }}
+                  >
                     <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
                       <Grid>
                         <Icon icon='bxs:user-detail' />
@@ -318,8 +304,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='studentId'
@@ -350,15 +337,16 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth error={!!errors.title}>
                       <Controller
                         name='title'
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
-                          <Fragment>
+                          <>
                             <InputLabel required>คำนำหน้า</InputLabel>
                             <Select label='คำนำหน้า' value={value} onChange={onChange}>
                               <MenuItem value=''>
@@ -368,7 +356,7 @@ const StudentAddPage = () => {
                               <MenuItem value='น.ส.'>นางสาว</MenuItem>
                             </Select>
                             {!!errors.title && <FormHelperText>{errors.title.message}</FormHelperText>}
-                          </Fragment>
+                          </>
                         )}
                       />
                     </FormControl>
@@ -376,8 +364,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='firstName'
@@ -400,8 +389,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='lastName'
@@ -424,8 +414,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='classroom'
@@ -442,21 +433,33 @@ const StudentAddPage = () => {
                             onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
                             getOptionLabel={(option: any) => option.name || ''}
                             isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label='ชั้นเรียน *'
-                                placeholder='เลือกชั้นเรียน'
-                                error={!!errors.classroom}
-                                helperText={errors.classroom ? (errors.classroom.message as string) : ''}
-                              />
+                            renderInput={(params) => {
+                              const { InputProps, InputLabelProps, ...otherParams } = params;
+                              return (
+                                <TextField
+                                  {...otherParams}
+                                  label='ชั้นเรียน *'
+                                  placeholder='เลือกชั้นเรียน'
+                                  error={!!errors.classroom}
+                                  helperText={errors.classroom ? (errors.classroom.message as string) : ''}
+                                  slotProps={{
+                                    input: {
+                                      ...InputProps,
+                                      ref: undefined,
+                                    },
+                                    inputLabel: {
+                                      ...InputLabelProps,
+                                      shrink: true,
+                                    },
+                                  }}
+                                />
+                              );
+                            }}
+                            renderOption={(props, option, { selected }: any) => (
+                              <ListItem {...props}>
+                                <ListItemText primary={option.name} />
+                              </ListItem>
                             )}
-                            renderOption={(props, option) => (
-                              <li {...props}>
-                                {option.name}
-                              </li>
-                            )}
-                            filterSelectedOptions
                             groupBy={(option: any) => option.department?.name}
                             noOptionsText='ไม่พบข้อมูล'
                           />
@@ -467,8 +470,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='idCard'
@@ -495,41 +499,33 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='birthDate'
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='th'>
-                            <DatePicker
-                              label='วันเกิด'
-                              format='DD MMMM YYYY'
-                              minDate={dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 20)))}
-                              maxDate={dayjs(new Date())}
-                              value={value ? dayjs(value).locale('th') : null}
-                              onChange={(newValue) => {
-                                onChange(newValue ? dayjs(newValue).locale('th') : null);
-                              }}
-                              slots={{
-                                textField: TextField,
-                                openPickerIcon: (props) => {
-                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                  const { ownerState, ...restProps } = props as any;
-                                  return <FcCalendar {...restProps} />;
-                                }
-                              }}
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  placeholder: 'วัน/เดือน/ปี',
-                                  error: !!errors.birthDate,
-                                  helperText: errors.birthDate ? (errors.birthDate.message as string) : ''
-                                }
-                              }}
-                            />
-                          </LocalizationProvider>
+                          <ThaiDatePicker
+                            label='วันเกิด'
+                            format='dd MMMM yyyy'
+                            minDate={new Date(new Date().getFullYear() - 20, 0, 1)}
+                            maxDate={new Date()}
+                            value={value}
+                            onChange={onChange}
+                            error={!!errors.birthDate}
+                            helperText={errors.birthDate ? (errors.birthDate.message as string) : ''}
+                            placeholder='วัน/เดือน/ปี (พ.ศ.)'
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                input: {
+                                  endAdornment: <FcCalendar />,
+                                },
+                              },
+                            }}
+                          />
                         )}
                       />
                     </FormControl>
@@ -537,8 +533,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 6
-                    }}>
+                      sm: 6,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='phone'
@@ -565,8 +562,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 12
-                    }}>
+                      sm: 12,
+                    }}
+                  >
                     <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
                       <Grid>
                         <Icon icon='icon-park-outline:guide-board' />
@@ -581,8 +579,9 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 12
-                    }}>
+                      sm: 12,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <Controller
                         name='addressLine1'
@@ -604,16 +603,18 @@ const StudentAddPage = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 12
-                    }}>
+                      sm: 12,
+                    }}
+                  >
                     <FormControl fullWidth>
                       <ThailandAddressTypeahead value={currentAddress} onValueChange={(val) => setCurrentAddress(val)}>
                         <Grid container spacing={5}>
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 6
-                            }}>
+                              sm: 6,
+                            }}
+                          >
                             <ThailandAddressTypeahead.SubdistrictInput
                               className='sub-district-input'
                               style={addressInputStyle as any}
@@ -623,8 +624,9 @@ const StudentAddPage = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 6
-                            }}>
+                              sm: 6,
+                            }}
+                          >
                             <ThailandAddressTypeahead.DistrictInput
                               className='district-input'
                               style={addressInputStyle as any}
@@ -634,8 +636,9 @@ const StudentAddPage = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 6
-                            }}>
+                              sm: 6,
+                            }}
+                          >
                             <ThailandAddressTypeahead.ProvinceInput
                               className='province-input'
                               style={addressInputStyle as any}
@@ -645,8 +648,9 @@ const StudentAddPage = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 6
-                            }}>
+                              sm: 6,
+                            }}
+                          >
                             <ThailandAddressTypeahead.PostalCodeInput
                               className='postal-code-input'
                               style={addressInputStyle as any}
@@ -708,7 +712,7 @@ const StudentAddPage = () => {
           </Card>
         </Grid>
       </Grid>
-    </Fragment>
+    </>
   );
 };
 
