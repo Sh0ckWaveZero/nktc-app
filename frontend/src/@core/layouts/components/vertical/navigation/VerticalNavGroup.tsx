@@ -190,60 +190,52 @@ const VerticalNavGroup = (props: Props) => {
 
   const menuGroupCollapsedStyles = navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 };
 
-  const conditionalColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.68) !important`,
-      };
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        color: `rgba(${theme.palette.customColors.light}, 0.68) !important`,
-      };
-    } else {
-      return {
-        color: `${theme.palette.text.secondary} !important`,
-      };
-    }
-  };
+  const conditionalColorStyles =
+    skin === 'semi-dark'
+      ? {
+          color: `rgba(${theme.palette.customColors.dark}, 0.68) !important`,
+          ...theme.applyStyles('dark', {
+            color: `rgba(${theme.palette.customColors.light}, 0.68) !important`,
+          }),
+        }
+      : {
+          color: `${theme.palette.text.secondary} !important`,
+        };
 
-  const conditionalBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
-        '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.04)`,
-        },
-        '&.Mui-selected': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.08)`,
+  const conditionalBgColorStyles =
+    skin === 'semi-dark'
+      ? {
+          color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
           '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.12)`,
+            backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.04)`,
           },
-        },
-      };
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        color: `rgba(${theme.palette.customColors.light}, 0.87)`,
-        '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.light}, 0.04)`,
-        },
-        '&.Mui-selected': {
-          backgroundColor: `rgba(${theme.palette.customColors.light}, 0.08)`,
-          '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.light}, 0.12)`,
+          '&.Mui-selected': {
+            backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.08)`,
+            '&:hover': {
+              backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.12)`,
+            },
           },
-        },
-      };
-    } else {
-      return {
-        '&.Mui-selected': {
-          backgroundColor: theme.palette.action.hover,
+          ...theme.applyStyles('dark', {
+            color: `rgba(${theme.palette.customColors.light}, 0.87)`,
+            '&:hover': {
+              backgroundColor: `rgba(${theme.palette.customColors.light}, 0.04)`,
+            },
+            '&.Mui-selected': {
+              backgroundColor: `rgba(${theme.palette.customColors.light}, 0.08)`,
+              '&:hover': {
+                backgroundColor: `rgba(${theme.palette.customColors.light}, 0.12)`,
+              },
+            },
+          }),
+        }
+      : {
+          '&.Mui-selected': {
+            backgroundColor: theme.palette.action.hover,
           '&:hover': {
             backgroundColor: theme.palette.action.hover,
           },
         },
       };
-    }
-  };
 
   return (
     <CanViewNavGroup navGroup={item}>
@@ -261,7 +253,7 @@ const VerticalNavGroup = (props: Props) => {
             sx={{
               py: 2.25,
               width: '100%',
-              ...conditionalBgColor(),
+              ...conditionalBgColorStyles,
               borderTopRightRadius: 100,
               borderBottomRightRadius: 100,
               transition: 'padding-left .25s ease-in-out',
@@ -320,14 +312,14 @@ const VerticalNavGroup = (props: Props) => {
                 {direction === 'ltr' ? (
                   <MenuGroupToggleRightIcon
                     sx={{
-                      ...conditionalColor(),
+                      ...conditionalColorStyles,
                       ...(groupActive.includes(item.title) ? { transform: 'rotate(90deg)' } : {}),
                     }}
                   />
                 ) : (
                   <MenuGroupToggleLeftIcon
                     sx={{
-                      ...conditionalColor(),
+                      ...conditionalColorStyles,
                       ...(groupActive.includes(item.title) ? { transform: 'rotate(-90deg)' } : {}),
                     }}
                   />

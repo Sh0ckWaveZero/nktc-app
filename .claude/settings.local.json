@@ -33,7 +33,10 @@
       "Bash(npm run lint:*)",
       "Bash(/dev/null)",
       "Bash(timeout 30 npm run dev:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(bunx:*)",
+      "Bash(chmod:*)",
+      "Bash(git config:*)"
     ],
     "deny": []
   }

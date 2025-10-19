@@ -19,7 +19,7 @@ interface Props {
   footerContent?: () => React.ReactNode;
 }
 
-const Footer: React.FC<Props> = ({ settings, footerContent: userFooterContent }) => {
+const Footer = ({ settings, footerContent: userFooterContent }: Props) => {
   // ** Hook
   const theme = useTheme();
 
@@ -71,9 +71,10 @@ const Footer: React.FC<Props> = ({ settings, footerContent: userFooterContent })
                   borderBottomWidth: 0,
                 }
               : {
-                  boxShadow: `0 -4px 8px -2px rgba(${
-                    theme.palette.mode === 'light' ? theme.palette.customColors.main : '19, 17, 32'
-                  }, ${theme.palette.mode === 'light' ? 0.2 : 0.42})`,
+                  boxShadow: `0 -4px 8px -2px rgba(${theme.palette.customColors.main}, 0.2)`,
+                  ...theme.applyStyles('dark', {
+                    boxShadow: `0 -4px 8px -2px rgba(19, 17, 32, 0.42)`,
+                  }),
                 }),
           }),
         }}
@@ -83,5 +84,7 @@ const Footer: React.FC<Props> = ({ settings, footerContent: userFooterContent })
     </Box>
   );
 };
+
+Footer.displayName = 'Footer';
 
 export default Footer;

@@ -257,7 +257,10 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
           borderColor: theme.palette.divider,
           borderRadius: theme.shape.borderRadius,
           backgroundColor: theme.palette.background.paper,
-          boxShadow: theme.palette.mode === 'light' ? theme.shadows[8] : theme.shadows[9],
+          boxShadow: theme.shadows[8],
+          ...theme.applyStyles('dark', {
+            boxShadow: theme.shadows[9],
+          }),
         },
         '& .react-datepicker__month-option, & .react-datepicker__year-option': {
           paddingTop: theme.spacing(1),

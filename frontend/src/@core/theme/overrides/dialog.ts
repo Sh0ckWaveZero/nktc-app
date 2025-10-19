@@ -65,8 +65,10 @@ const Dialog = (theme: Theme, skin: Skin) => {
               marginTop: theme.spacing(6),
               marginBottom: theme.spacing(6),
               '& > div[class^="css-"]': {
-                backgroundColor:
-                  theme.palette.mode === 'light' ? theme.palette.grey[50] : theme.palette.background.default,
+                backgroundColor: theme.palette.grey[50],
+                ...theme.applyStyles('dark', {
+                  backgroundColor: theme.palette.background.default,
+                }),
                 '& ~ .MuiIconButton-root span.MuiTypography-caption': {
                   color: 'inherit',
                 },

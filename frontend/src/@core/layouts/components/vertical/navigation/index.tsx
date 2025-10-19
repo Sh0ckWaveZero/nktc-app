@@ -110,33 +110,35 @@ const Navigation = (props: Props) => {
     }
   };
 
-  const shadowBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return `linear-gradient(${theme.palette.customColors.darkBg} 5%,${hexToRGBA(
-        theme.palette.customColors.darkBg,
-        0.85,
-      )} 30%,${hexToRGBA(theme.palette.customColors.darkBg, 0.5)} 65%,${hexToRGBA(
-        theme.palette.customColors.darkBg,
-        0.3,
-      )} 75%,transparent)`;
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return `linear-gradient(${theme.palette.customColors.lightBg} 5%,${hexToRGBA(
-        theme.palette.customColors.lightBg,
-        0.85,
-      )} 30%,${hexToRGBA(theme.palette.customColors.lightBg, 0.5)} 65%,${hexToRGBA(
-        theme.palette.customColors.lightBg,
-        0.3,
-      )} 75%,transparent)`;
-    } else {
-      return `linear-gradient(${theme.palette.background.default} 5%,${hexToRGBA(
-        theme.palette.background.default,
-        0.85,
-      )} 30%,${hexToRGBA(theme.palette.background.default, 0.5)} 65%,${hexToRGBA(
-        theme.palette.background.default,
-        0.3,
-      )} 75%,transparent)`;
-    }
-  };
+  const shadowBgColorStyles =
+    skin === 'semi-dark'
+      ? {
+          background: `linear-gradient(${theme.palette.customColors.darkBg} 5%,${hexToRGBA(
+            theme.palette.customColors.darkBg,
+            0.85,
+          )} 30%,${hexToRGBA(theme.palette.customColors.darkBg, 0.5)} 65%,${hexToRGBA(
+            theme.palette.customColors.darkBg,
+            0.3,
+          )} 75%,transparent)`,
+          ...theme.applyStyles('dark', {
+            background: `linear-gradient(${theme.palette.customColors.lightBg} 5%,${hexToRGBA(
+              theme.palette.customColors.lightBg,
+              0.85,
+            )} 30%,${hexToRGBA(theme.palette.customColors.lightBg, 0.5)} 65%,${hexToRGBA(
+              theme.palette.customColors.lightBg,
+              0.3,
+            )} 75%,transparent)`,
+          }),
+        }
+      : {
+          background: `linear-gradient(${theme.palette.background.default} 5%,${hexToRGBA(
+            theme.palette.background.default,
+            0.85,
+          )} 30%,${hexToRGBA(theme.palette.background.default, 0.5)} 65%,${hexToRGBA(
+            theme.palette.background.default,
+            0.3,
+          )} 75%,transparent)`,
+        };
 
   const ScrollWrapper: any = hidden ? Box : PerfectScrollbar;
 
@@ -147,7 +149,7 @@ const Navigation = (props: Props) => {
         ? beforeVerticalNavMenuContent(props)
         : null}
       {(beforeVerticalNavMenuContentPosition === 'static' || !beforeVerticalNavMenuContent) && (
-        <StyledBoxForShadow ref={shadowRef} sx={{ background: shadowBgColor() }} />
+        <StyledBoxForShadow ref={shadowRef} sx={shadowBgColorStyles} />
       )}
       <Box sx={{ position: 'relative', overflow: 'hidden' }}>
         <ScrollWrapper

@@ -176,7 +176,7 @@ export default function DialogClassroomGoodnessGroup({
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
             renderOption={(props, option, { selected }: any) => <li {...props}>{option.name}</li>}
-            renderInput={(params) => {
+            renderInput={(params: any) => {
               const { InputProps, InputLabelProps, ...otherParams } = params;
               return (
                 <TextField

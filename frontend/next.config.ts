@@ -9,18 +9,18 @@ const nextConfig = {
   trailingSlash: true,
   reactStrictMode: false,
   output: 'standalone',
-  
+
   // Performance & Optimization
   poweredByHeader: false,
   compress: true,
-  
+
   // Image Optimization
   images: {
     domains: ['localhost', 'nktc-stu.com', 'cdn.nktc-stu.com'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
-  
+
   // Headers for Security & Performance
   async headers() {
     return [
@@ -43,7 +43,7 @@ const nextConfig = {
       },
     ];
   },
-  
+
   // Experimental Features for Next.js 15
   experimental: {
     // Optimize package imports for better performance
@@ -54,26 +54,26 @@ const nextConfig = {
       '@mui/lab',
       '@mui/x-data-grid',
       '@mui/x-date-pickers',
-      
+
       // Icon Libraries
       '@iconify/react',
       'mdi-material-ui',
       'react-icons',
-      
+
       // Form & State Management
       'react-hook-form',
       '@tanstack/react-query',
       'zustand',
-      
+
       // PDF & File Processing
       'pdf-lib',
       '@pdf-lib/fontkit',
-      
+
       // Animation & UI Enhancement
       'react-spring',
       'react-confetti',
       'sweetalert2',
-      
+
       // Utilities
       'clsx',
       'date-fns',
@@ -82,7 +82,7 @@ const nextConfig = {
       'react-password-strength-bar',
     ],
   },
-  
+
   // Turbopack Configuration
   turbopack: {
     resolveAlias: {
@@ -101,17 +101,17 @@ const nextConfig = {
     },
     resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
   },
-  
+
   // TypeScript Configuration
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   // ESLint Configuration
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+
   // Environment Variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,

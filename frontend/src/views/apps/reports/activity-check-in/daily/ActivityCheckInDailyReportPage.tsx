@@ -76,7 +76,10 @@ const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[200],
+    ...theme.applyStyles('dark', {
+      backgroundColor: theme.palette.grey[700],
+    }),
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
       '@media (hover: none)': {

@@ -8,20 +8,36 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
   justifyContent: 'center',
   height: '100%',
   '& .ant-empty-img-1': {
-    fill: theme.palette.mode === 'light' ? '#aeb8c2' : '#262626',
+    fill: '#aeb8c2',
+    ...theme.applyStyles('dark', {
+      fill: '#262626',
+    }),
   },
   '& .ant-empty-img-2': {
-    fill: theme.palette.mode === 'light' ? '#f5f5f7' : '#595959',
+    fill: '#f5f5f7',
+    ...theme.applyStyles('dark', {
+      fill: '#595959',
+    }),
   },
   '& .ant-empty-img-3': {
-    fill: theme.palette.mode === 'light' ? '#dce0e6' : '#434343',
+    fill: '#dce0e6',
+    ...theme.applyStyles('dark', {
+      fill: '#434343',
+    }),
   },
   '& .ant-empty-img-4': {
-    fill: theme.palette.mode === 'light' ? '#fff' : '#1c1c1c',
+    fill: '#fff',
+    ...theme.applyStyles('dark', {
+      fill: '#1c1c1c',
+    }),
   },
   '& .ant-empty-img-5': {
-    fillOpacity: theme.palette.mode === 'light' ? '0.8' : '0.08',
-    fill: theme.palette.mode === 'light' ? '#f5f5f5' : '#fff',
+    fillOpacity: '0.8',
+    fill: '#f5f5f5',
+    ...theme.applyStyles('dark', {
+      fillOpacity: '0.08',
+      fill: '#fff',
+    }),
   },
 }));
 

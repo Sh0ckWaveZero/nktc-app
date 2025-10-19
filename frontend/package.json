@@ -8,7 +8,8 @@
     "start": "next start",
     "export": "next export",
     "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aldabil/react-scheduler": "^3.1.2",
@@ -106,6 +107,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
+    "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
   },

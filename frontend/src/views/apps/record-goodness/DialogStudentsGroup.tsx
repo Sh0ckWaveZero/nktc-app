@@ -89,7 +89,7 @@ function DialogStudentGroup({
             loading={studentLoading}
             getOptionLabel={(option: any) => `${option?.title}${option?.fullName} `}
             isOptionEqualToValue={(option: any, value: any) => option === value}
-            renderOption={(props, option, { selected }) => (
+            renderOption={(props: any, option, { selected }) => (
               <li {...props}>
                 <Checkbox
                   icon={icon}
@@ -102,26 +102,21 @@ function DialogStudentGroup({
                 {`${option?.title}${option?.fullName} `}
               </li>
             )}
-            renderInput={(params) => {
-              const { InputProps, InputLabelProps, ...otherParams } = params;
-              return (
-                <TextField
-                  {...otherParams}
-                  label='รายชื่อนักเรียน'
-                  placeholder='เพิ่มรายชื่อนักเรียน'
-                  slotProps={{
-                    input: {
-                      ...InputProps,
-                      ref: undefined,
-                    },
-                    inputLabel: {
-                      ...InputLabelProps,
-                      shrink: true,
-                    },
-                  }}
-                />
-              );
-            }}
+            renderInput={(params: any) => (
+              <TextField
+                {...params}
+                label='รายชื่อนักเรียน'
+                placeholder='เพิ่มรายชื่อนักเรียน'
+                slotProps={{
+                  input: {
+                    ref: undefined,
+                  },
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            )}
             groupBy={(option: any) => option.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />

@@ -33,7 +33,10 @@ interface CheckInDataGridProps {
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[200],
+    ...theme.applyStyles('dark', {
+      backgroundColor: theme.palette.grey[700],
+    }),
     '&:hover, &.Mui-hovered': {
       backgroundColor: theme.palette.primary.main + '20',
       '@media (hover: none)': {

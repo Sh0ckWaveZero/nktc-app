@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Run ESLint in frontend before push
+cd frontend && npm run lint

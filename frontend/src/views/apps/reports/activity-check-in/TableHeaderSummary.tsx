@@ -33,7 +33,7 @@ const TableHeaderSummary = (props: TableHeaderProps) => {
   const componentRef = useRef(null);
 
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
+    contentRef: componentRef,
   });
 
   return (

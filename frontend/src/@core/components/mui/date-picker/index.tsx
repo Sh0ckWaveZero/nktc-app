@@ -28,7 +28,7 @@ const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
         slots={{
           textField: TextField,
           openPickerIcon: (props) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             const { ownerState, ...restProps } = props as any;
             return <FcCalendar {...restProps} />;
           },

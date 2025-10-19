@@ -11,18 +11,6 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
   // ** Vars
   const { skin } = settings;
 
-  const perfectScrollbarThumbBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return '#504B6D !important';
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return '#C2C4D1 !important';
-    } else if (theme.palette.mode === 'light') {
-      return '#C2C4D1 !important';
-    } else {
-      return '#504B6D !important';
-    }
-  };
-
   return {
     ':root': {
       colorScheme: 'light dark',
@@ -37,12 +25,6 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
       margin: 0,
       padding: 0,
       backgroundColor: theme.palette.background.default,
-      '&, &.light': {
-        backgroundColor: theme.palette.mode === 'light' ? theme.palette.background.default : undefined,
-      },
-      '&.dark': {
-        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : undefined,
-      },
     },
     '#__next': {
       height: '100%',
@@ -80,17 +62,26 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
       right: '0 !important',
       left: 'auto !important',
       '&:hover, &:focus, &.ps--clicking': {
-        backgroundColor: theme.palette.mode === 'light' ? '#E4E5EB !important' : '#423D5D !important',
+        backgroundColor: `${theme.palette.grey[200]} !important`,
+        ...theme.applyStyles('dark', {
+          backgroundColor: `${theme.palette.grey[800]} !important`,
+        }),
       },
       '& .ps__thumb-y': {
         right: '3px !important',
         left: 'auto !important',
-        backgroundColor: theme.palette.mode === 'light' ? '#C2C4D1 !important' : '#504B6D !important',
+        backgroundColor: `${theme.palette.grey[400]} !important`,
+        ...theme.applyStyles('dark', {
+          backgroundColor: `${theme.palette.grey[700]} !important`,
+        }),
       },
       '.layout-vertical-nav &': {
         '& .ps__thumb-y': {
           width: 4,
-          backgroundColor: perfectScrollbarThumbBgColor(),
+          backgroundColor: skin === 'semi-dark' ? `${theme.palette.grey[700]} !important` : `${theme.palette.grey[400]} !important`,
+          ...theme.applyStyles('dark', {
+            backgroundColor: skin === 'semi-dark' ? `${theme.palette.grey[400]} !important` : `${theme.palette.grey[700]} !important`,
+          }),
         },
         '&:hover, &:focus, &.ps--clicking': {
           backgroundColor: 'transparent !important',

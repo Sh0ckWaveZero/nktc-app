@@ -25,10 +25,10 @@ const ReactHotToast = styled(Box)<BoxProps>(({ theme }) => {
       letterSpacing: '0.14px',
       color: theme.palette.text.primary,
       background: theme.palette.background.paper,
-      boxShadow:
-        theme.palette.mode === 'light'
-          ? '0px 4px 10px -4px rgba(58, 53, 65, 0.6)'
-          : '0px 8px 16px -4px rgba(19, 17, 32, 0.65)',
+      boxShadow: '0px 4px 10px -4px rgba(58, 53, 65, 0.6)',
+      ...theme.applyStyles('dark', {
+        boxShadow: '0px 8px 16px -4px rgba(19, 17, 32, 0.65)',
+      }),
       '&>:first-of-type:not([role])>:first-of-type': {
         width: 14,
         height: 14,

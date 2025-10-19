@@ -78,28 +78,25 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
               onChange={(_, newValue: any) => onHandleChange(_, newValue)}
               getOptionLabel={(option: any) => option?.name ?? ''}
               isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-              renderOption={(props, option, { selected }) => (
+              renderOption={(props: any, option, { selected }) => (
                 <li {...props}>
                   <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
                   {option.name}
                 </li>
               )}
-              renderInput={(params) => {
-                const { InputProps, InputLabelProps, ...otherParams } = params;
+              renderInput={(params: any) => {
                 return (
                   <TextField
                     error={isEmpty(values) && loading}
                     helperText={isEmpty(values) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                    {...otherParams}
+                    {...params}
                     label='ระดับชั้น'
                     placeholder='เลือกระดับชั้น'
                     slotProps={{
                       input: {
-                        ...InputProps,
                         ref: undefined,
                       },
                       inputLabel: {
-                        ...InputLabelProps,
                         shrink: true,
                       },
                     }}

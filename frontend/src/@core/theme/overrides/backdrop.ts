@@ -9,10 +9,10 @@ const Backdrop = (theme: Theme) => {
     MuiBackdrop: {
       styleOverrides: {
         root: {
-          backgroundColor:
-            theme.palette.mode === 'light'
-              ? `rgba(${theme.palette.customColors.main}, 0.7)`
-              : hexToRGBA(theme.palette.background.default, 0.7),
+          backgroundColor: `rgba(${theme.palette.customColors.main}, 0.7)`,
+          ...theme.applyStyles('dark', {
+            backgroundColor: hexToRGBA(theme.palette.background.default, 0.7),
+          }),
         },
         invisible: {
           backgroundColor: 'transparent',

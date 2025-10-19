@@ -347,7 +347,14 @@ const TabAccount = () => {
                   render={({ field: { value, onChange } }) => (
                     <>
                       <InputLabel id='jobTitle-label'>ตำแหน่ง</InputLabel>
-                      <Select id='jobTitle' labelId='jobTitle-label' label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
+                      <Select
+                        id='jobTitle'
+                        labelId='jobTitle-label'
+                        label='ตำแหน่ง'
+                        defaultValue={value}
+                        value={value}
+                        onChange={onChange}
+                      >
                         <MenuItem value=''>
                           <em>เลือกตำแหน่ง</em>
                         </MenuItem>
@@ -379,7 +386,13 @@ const TabAccount = () => {
                   render={({ field: { value, onChange } }) => (
                     <>
                       <InputLabel id='academicStanding-label'>วิทยฐานะ</InputLabel>
-                      <Select id='academicStanding' labelId='academicStanding-label' label='วิทยฐานะ' value={value} onChange={onChange}>
+                      <Select
+                        id='academicStanding'
+                        labelId='academicStanding-label'
+                        label='วิทยฐานะ'
+                        value={value}
+                        onChange={onChange}
+                      >
                         <MenuItem value=''>
                           <em>เลือกวิทยฐานะ</em>
                         </MenuItem>
@@ -408,7 +421,13 @@ const TabAccount = () => {
                   render={({ field: { value, onChange } }) => (
                     <FormControl error={!!errors.department}>
                       <InputLabel id='department-label'>แผนกวิชา *</InputLabel>
-                      <Select id='department' labelId='department-label' label='แผนกวิชา *' value={value} onChange={onChange}>
+                      <Select
+                        id='department'
+                        labelId='department-label'
+                        label='แผนกวิชา *'
+                        value={value}
+                        onChange={onChange}
+                      >
                         <MenuItem value=''>
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
@@ -476,21 +495,18 @@ const TabAccount = () => {
                     </li>
                   );
                 }}
-                renderInput={(params) => {
-                  const { InputProps, InputLabelProps, ...otherParams } = params;
+                renderInput={(params: any) => {
                   return (
                     <TextField
-                      {...otherParams}
+                      {...params}
                       id='teacherOnClassroom-input'
                       label='ครูที่ปรึกษาระดับชั้น'
                       placeholder='เลือกห้องเรียน'
                       slotProps={{
                         input: {
-                          ...InputProps,
                           ref: undefined,
                         },
                         inputLabel: {
-                          ...InputLabelProps,
                           shrink: true,
                         },
                       }}

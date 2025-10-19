@@ -68,29 +68,24 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
             getOptionLabel={(option: any) => option.fullName || ''}
             isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
-            renderOption={(props, option, { selected }: any) => (
+            renderOption={(props: any, option, { selected }: any) => (
               <li {...props}>{`${option?.title}${option?.fullName} `}</li>
             )}
-            renderInput={(params) => {
-              const { InputProps, InputLabelProps, ...otherParams } = params;
-              return (
-                <TextField
-                  {...otherParams}
-                  label='ชื่อ-สกุล นักเรียน'
-                  placeholder='เลือกชื่อ-สกุล นักเรียน'
-                  slotProps={{
-                    input: {
-                      ...InputProps,
-                      ref: undefined,
-                    },
-                    inputLabel: {
-                      ...InputLabelProps,
-                      shrink: true,
-                    },
-                  }}
-                />
-              );
-            }}
+            renderInput={(params: any) => (
+              <TextField
+                {...params}
+                label='ชื่อ-สกุล นักเรียน'
+                placeholder='เลือกชื่อ-สกุล นักเรียน'
+                slotProps={{
+                  input: {
+                    ref: undefined,
+                  },
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            )}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>
@@ -110,23 +105,20 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleClassroomChange(_, newValue)}
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-            renderOption={(props, option, { selected }: any) => <li {...props}>{option.name}</li>}
-            renderInput={(params) => {
-              const { InputProps, InputLabelProps, ...otherParams } = params;
+            renderOption={(props: any, option, { selected }: any) => <li {...props}>{option.name}</li>}
+            renderInput={(params: any) => {
               return (
                 <TextField
                   error={isEmpty(classrooms) && classroomLoading}
                   helperText={isEmpty(classrooms) && classroomLoading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                  {...otherParams}
+                  {...params}
                   label='ห้องเรียน'
                   placeholder='เลือกห้องเรียน'
                   slotProps={{
                     input: {
-                      ...InputProps,
                       ref: undefined,
                     },
                     inputLabel: {
-                      ...InputLabelProps,
                       shrink: true,
                     },
                   }}

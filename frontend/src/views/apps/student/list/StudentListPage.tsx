@@ -91,6 +91,11 @@ const StudentListPage = () => {
           if (classroom) {
             const filteredClassroom = res.filter((item: any) => item.id === classroom);
             setInitClassroom(filteredClassroom[0] || null);
+            setCurrentClassroomId(filteredClassroom[0]?.id || null);
+          } else {
+            // Set first classroom as default
+            setInitClassroom(res[0] || null);
+            setCurrentClassroomId(res[0]?.id || null);
           }
         } else {
           const teacherClassroom = res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
@@ -99,6 +104,10 @@ const StudentListPage = () => {
             const currentQueryClassroom = teacherClassroom.filter((item: any) => item.id === classroom);
             setInitClassroom(currentQueryClassroom[0] || null);
             setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
+          } else {
+            // Set first classroom as default
+            setInitClassroom(teacherClassroom[0] || null);
+            setCurrentClassroomId(teacherClassroom[0]?.id || null);
           }
         }
         setLoadingClassroom(false);
@@ -301,21 +310,19 @@ const StudentListPage = () => {
               sx={{ color: 'text.primary' }}
               title={`รายชื่อนักเรียนทั้งหมด ${students?.length ?? 0} คน`}
             />
-            {classrooms && (
-              <TableHeader
-                classrooms={classrooms}
-                defaultClassroom={initClassroom}
-                fullName={currentStudent}
-                loading={loadingClassroom}
-                loadingStudents={loadingStudents}
-                onHandleChange={onHandleChangeClassroom}
-                onHandleChangeStudent={onHandleChangeFullName}
-                onHandleStudentId={onHandleStudentId}
-                onSearchChange={onSearchChange}
-                studentId={searchValue.studentId}
-                students={studentsListData}
-              />
-            )}
+            <TableHeader
+              classrooms={classrooms}
+              defaultClassroom={initClassroom}
+              fullName={currentStudent}
+              loading={loadingClassroom}
+              loadingStudents={loadingStudents}
+              onHandleChange={onHandleChangeClassroom}
+              onHandleChangeStudent={onHandleChangeFullName}
+              onHandleStudentId={onHandleStudentId}
+              onSearchChange={onSearchChange}
+              studentId={searchValue.studentId}
+              students={studentsListData}
+            />
             <DataGrid
               rows={students}
               columns={defaultColumns}

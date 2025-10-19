@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
@@ -66,7 +66,6 @@ const BadnessAllReportPage = () => {
   const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [open, setOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState<any>(null);
   const [info, setInfo] = useState<any>(null);
 
   const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);

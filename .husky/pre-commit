@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Run build in frontend before commit
+echo "🔨 Building frontend..."
+cd frontend && npm run build
+
+if [ $? -eq 0 ]; then
+  echo "✅ Build successful!"
+else
+  echo "❌ Build failed! Please fix the errors before committing."
+  exit 1
+fi

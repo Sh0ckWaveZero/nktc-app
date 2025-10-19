@@ -75,7 +75,10 @@ const NavigationMenu = styled(Paper)(({ theme }) => ({
   },
   '&::-webkit-scrollbar-thumb': {
     borderRadius: 20,
-    background: hexToRGBA(theme.palette.mode === 'light' ? '#B0ACB5' : '#575468', 0.6),
+    background: hexToRGBA('#B0ACB5', 0.6),
+    ...theme.applyStyles('dark', {
+      background: hexToRGBA('#575468', 0.6),
+    }),
   },
   '&::-webkit-scrollbar-track': {
     borderRadius: 20,

@@ -121,12 +121,10 @@ const TabTeacherAccount = () => {
 
           // Support both array of IDs and array of objects
           const teacherClassroomIds = teacherClassrooms.map((item: any) =>
-            typeof item === 'string' ? item : item?.id || item
+            typeof item === 'string' ? item : item?.id || item,
           );
 
-          const defaultClassroom = classroomsData.filter((item: any) =>
-            teacherClassroomIds.includes(item.id)
-          );
+          const defaultClassroom = classroomsData.filter((item: any) => teacherClassroomIds.includes(item.id));
 
           setClassroomSelected(defaultClassroom);
         } else {
@@ -536,20 +534,17 @@ const TabTeacherAccount = () => {
                     </li>
                   );
                 }}
-                renderInput={(params) => {
-                  const { InputProps, InputLabelProps, ...otherParams } = params;
+                renderInput={(params: any) => {
                   return (
                     <TextField
-                      {...otherParams}
+                      {...params}
                       label='ครูที่ปรึกษาระดับชั้น'
                       placeholder='เลือกห้องเรียน'
                       slotProps={{
                         input: {
-                          ...InputProps,
                           ref: undefined,
                         },
                         inputLabel: {
-                          ...InputLabelProps,
                           shrink: true,
                         },
                       }}

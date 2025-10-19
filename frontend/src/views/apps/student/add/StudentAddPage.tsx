@@ -49,15 +49,15 @@ interface Data {
   title: string;
   firstName: string;
   lastName: string;
-  classroom: object | null;
-  idCard: number | string;
+  classroom: Record<string, any> | null;
+  idCard?: string;
   birthDate: Date | null;
-  addressLine1: string;
-  subdistrict: string;
-  district: string;
-  province: string;
-  postalCode: number | string;
-  phone: number | string;
+  addressLine1?: string;
+  subdistrict?: string;
+  district?: string;
+  province?: string;
+  postalCode?: string;
+  phone?: string;
 }
 
 const initialData: Data = {
@@ -82,7 +82,7 @@ const schema = z.object({
   firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร'),
   lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร'),
   classroom: z
-    .object({})
+    .record(z.string(), z.any())
     .refine((obj) => obj && Object.keys(obj).length > 0, 'กรุณาเลือกชั้นเรียน')
     .nullable(),
   idCard: z.string().optional(),
@@ -118,6 +118,12 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
+}));
+
+const RequiredTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputLabel-asterisk': {
+    color: theme.palette.error.main,
+  },
 }));
 
 const localStorageService = new LocalStorageService();
@@ -176,8 +182,8 @@ const StudentAddPage = () => {
     reset,
     control,
     handleSubmit,
-    formState: { errors },
-  } = useForm({
+    formState: { errors, isDirty, isValid },
+  } = useForm<Data>({
     defaultValues: initialData,
     mode: 'onChange',
     resolver: zodResolver(schema),
@@ -219,9 +225,10 @@ const StudentAddPage = () => {
     borderRadius: '8px',
     lineHeight: '1.4375em',
     color: theme.palette.text.primary,
-    border: `1px solid ${
-      theme.palette.mode === 'dark' ? hexToRGBA(theme.palette.secondary.main, 0.55) : 'rgba(58, 53, 65, 0.24)'
-    }`,
+    border: `1px solid rgba(58, 53, 65, 0.24)`,
+    ...theme.applyStyles('dark', {
+      border: `1px solid ${hexToRGBA(theme.palette.secondary.main, 0.55)}`,
+    }),
   };
 
   const handleInputImageReset = () => {
@@ -231,11 +238,16 @@ const StudentAddPage = () => {
 
   return (
     <>
-      <Grid container spacing={4}>
+      <Grid id='student-add-page' container spacing={4}>
         {/* Student Details */}
         <Grid size={12}>
           <LinkStyled href={`/apps/student/list`} passHref>
-            <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
+            <Button
+              id='back-button'
+              variant='contained'
+              color='secondary'
+              startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
+            >
               ย้อนกลับ
             </Button>
           </LinkStyled>
@@ -252,13 +264,14 @@ const StudentAddPage = () => {
               title={`เพิ่มข้อมูลนักเรียน`}
             />
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form id='student-add-form' onSubmit={handleSubmit(onSubmit)} noValidate>
                 <Grid container spacing={5}>
                   <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <ImgStyled src={imgSrc} alt='Profile Pic' />
                       <Box>
                         <Button
+                          id='upload-image-button'
                           loading={loadingImg}
                           startIcon={<Icon icon={'uil:image-upload'} />}
                           variant='contained'
@@ -275,7 +288,12 @@ const StudentAddPage = () => {
                             id='account-settings-upload-image'
                           />
                         </Button>
-                        <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
+                        <ResetButtonStyled
+                          id='reset-image-button'
+                          color='error'
+                          variant='outlined'
+                          onClick={handleInputImageReset}
+                        >
                           รีเซ็ต
                         </ResetButtonStyled>
                         <Typography variant='body2' sx={{ mt: 5 }}>
@@ -313,22 +331,25 @@ const StudentAddPage = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
-                          <TextField
+                          <RequiredTextField
                             fullWidth
+                            required
                             type='tel'
-                            id='รหัสนักเรียน'
-                            label='รหัสนักเรียน *'
+                            id='studentId'
+                            label='รหัสนักเรียน'
                             placeholder='รหัสนักเรียน'
                             value={value}
                             onChange={onChange}
-                            inputProps={{
-                              maxLength: 11,
-                              onKeyDown(e: any) {
-                                handleKeyDown(e);
-                              },
-                            }}
                             error={!!errors.studentId}
                             helperText={errors.studentId ? (errors.studentId.message as string) : ''}
+                            slotProps={{
+                              htmlInput: {
+                                maxLength: 11,
+                                onKeyDown(e: any) {
+                                  handleKeyDown(e);
+                                },
+                              },
+                            }}
                           />
                         )}
                       />
@@ -347,8 +368,18 @@ const StudentAddPage = () => {
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
                           <>
-                            <InputLabel required>คำนำหน้า</InputLabel>
-                            <Select label='คำนำหน้า' value={value} onChange={onChange}>
+                            <InputLabel
+                              id='title-label'
+                              required
+                              sx={{
+                                '& .MuiInputLabel-asterisk': {
+                                  color: 'error.main',
+                                },
+                              }}
+                            >
+                              คำนำหน้า
+                            </InputLabel>
+                            <Select id='title' labelId='title-label' label='คำนำหน้า' value={value} onChange={onChange}>
                               <MenuItem value=''>
                                 <em>เลือกคำนำหน้า</em>
                               </MenuItem>
@@ -373,9 +404,11 @@ const StudentAddPage = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
-                          <TextField
+                          <RequiredTextField
                             fullWidth
-                            label='ชื่อ *'
+                            required
+                            id='firstName'
+                            label='ชื่อ'
                             placeholder='ชื่อ'
                             value={value}
                             onChange={onChange}
@@ -398,9 +431,11 @@ const StudentAddPage = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
-                          <TextField
+                          <RequiredTextField
                             fullWidth
-                            label='นามสกุล *'
+                            required
+                            id='lastName'
+                            label='นามสกุล'
                             placeholder='นามสกุล'
                             value={value}
                             onChange={onChange}
@@ -425,30 +460,29 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <Autocomplete
                             disablePortal
-                            id='checkboxes-tags-teacher-classroom'
+                            id='classroom-autocomplete'
                             limitTags={15}
                             value={value}
                             options={classroom}
                             loading={loading}
-                            onChange={(_, newValue: any) => onChange({ target: { value: newValue } })}
+                            onChange={(_, newValue: any) => onChange(newValue)}
                             getOptionLabel={(option: any) => option.name || ''}
                             isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                            renderInput={(params) => {
-                              const { InputProps, InputLabelProps, ...otherParams } = params;
+                            renderInput={(params: any) => {
                               return (
-                                <TextField
-                                  {...otherParams}
-                                  label='ชั้นเรียน *'
+                                <RequiredTextField
+                                  {...params}
+                                  required
+                                  id='classroom'
+                                  label='ชั้นเรียน'
                                   placeholder='เลือกชั้นเรียน'
                                   error={!!errors.classroom}
-                                  helperText={errors.classroom ? (errors.classroom.message as string) : ''}
+                                  helperText={errors.classroom?.message ? String(errors.classroom.message) : ''}
                                   slotProps={{
                                     input: {
-                                      ...InputProps,
                                       ref: undefined,
                                     },
                                     inputLabel: {
-                                      ...InputLabelProps,
                                       shrink: true,
                                     },
                                   }}
@@ -480,15 +514,18 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            id='idCard'
                             type={'tel'}
                             label='เลขประจำตัวประชาชน'
                             placeholder='เลขประจำตัวประชาชน'
                             value={value}
                             onChange={onChange}
-                            inputProps={{
-                              maxLength: 13,
-                              onKeyDown(e: any) {
-                                handleKeyDown(e);
+                            slotProps={{
+                              htmlInput: {
+                                maxLength: 13,
+                                onKeyDown(e: any) {
+                                  handleKeyDown(e);
+                                },
                               },
                             }}
                           />
@@ -519,6 +556,7 @@ const StudentAddPage = () => {
                             placeholder='วัน/เดือน/ปี (พ.ศ.)'
                             slotProps={{
                               textField: {
+                                id: 'birthDate',
                                 fullWidth: true,
                                 input: {
                                   endAdornment: <FcCalendar />,
@@ -543,15 +581,18 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            id='phone'
                             type={'tel'}
                             label='เบอร์โทรศัพท์'
                             placeholder='เบอร์โทรศัพท์'
                             value={value}
                             onChange={onChange}
-                            inputProps={{
-                              maxLength: 10,
-                              onKeyDown(e: any) {
-                                handleKeyDown(e);
+                            slotProps={{
+                              htmlInput: {
+                                maxLength: 10,
+                                onKeyDown(e: any) {
+                                  handleKeyDown(e);
+                                },
                               },
                             }}
                           />
@@ -589,6 +630,7 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            id='addressLine1'
                             label='ที่อยู่'
                             placeholder='ที่อยู่'
                             value={value}
@@ -691,10 +733,17 @@ const StudentAddPage = () => {
                     </FormControl>
                   </Grid>
                   <Grid size={12}>
-                    <Button type='submit' variant='contained' sx={{ mr: 4 }}>
+                    <Button
+                      id='submit-button'
+                      type='submit'
+                      variant='contained'
+                      sx={{ mr: 4 }}
+                      disabled={!isDirty || !isValid}
+                    >
                       บันทึกการเพิ่มข้อมูล
                     </Button>
                     <Button
+                      id='reset-button'
                       type='reset'
                       variant='outlined'
                       color='secondary'
