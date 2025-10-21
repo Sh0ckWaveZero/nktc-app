@@ -10,7 +10,6 @@ import DialogAddCard from '@/views/apps/record-badness/DialogAddCard';
 import Grid from '@mui/material/Grid';
 import { HiOutlineThumbDown } from 'react-icons/hi';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/record-goodness/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -28,8 +27,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
 
 const RecordBadnessIndividualPage = () => {
   // ** Hooks
@@ -55,7 +52,7 @@ const RecordBadnessIndividualPage = () => {
     setLoadingStudent(true);
     const query = { fullName: fullName, studentId: studentId };
     (async () => {
-      await fetchStudents(accessToken, query).then(async (res: any) => {
+      await fetchStudents( query).then(async (res: any) => {
         setStudents((await res) || []);
         setLoadingStudent(false);
       });
@@ -83,7 +80,7 @@ const RecordBadnessIndividualPage = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={accessToken} />
+            <RenderAvatar row={row}  />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <LinkStyled href={`/apps/student/view/${id}`} passHref>
                 <Typography

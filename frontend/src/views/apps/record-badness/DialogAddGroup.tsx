@@ -20,7 +20,6 @@ import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCall
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from '@/utils/event';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
@@ -29,8 +28,6 @@ import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken() || '';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },

@@ -22,7 +22,6 @@ import { MouseEvent, ReactElement, Ref, forwardRef, useCallback, useEffect, useS
 
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
@@ -31,9 +30,6 @@ import toast from 'react-hot-toast';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken() || '';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -134,7 +130,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await createGoodnessIndividual(storedToken, body).then((res: any) => {
+    await createGoodnessIndividual(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         handleOnSearch();

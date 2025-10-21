@@ -11,22 +11,22 @@ interface StudentState {
   students: any;
   loading: boolean;
   hasErrors: boolean;
-  fetchStudents: (token: string, params: StudentQuery) => any;
-  studentsList: (token: string, params: StudentQuery) => any;
-  fetchStudentsWithParams: (token: string, params: any) => any;
-  updateStudentProfile: (token: string, studentId: string, data: any) => any;
-  createStudentProfile: (token: string, userId: string, data: any) => any;
-  removeStudents: (token: string, studentId: string) => any;
-  getAvatar: (token: string, url: string) => any;
-  getTrophyOverview: (token: string, studentId: string) => any;
-  getTeacherClassroom: (token: string, classroomId: string) => any;
+  fetchStudents: (params: StudentQuery) => any;
+  studentsList: (params: StudentQuery) => any;
+  fetchStudentsWithParams: (params: any) => any;
+  updateStudentProfile: (studentId: string, data: any) => any;
+  createStudentProfile: (userId: string, data: any) => any;
+  removeStudents: (studentId: string) => any;
+  getAvatar: (url: string) => any;
+  getTrophyOverview: (studentId: string) => any;
+  getTeacherClassroom: (classroomId: string) => any;
 }
 
 export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   students: [],
   loading: false,
   hasErrors: false,
-  fetchStudents: async (token: string, params: StudentQuery) => {
+  fetchStudents: async (params: StudentQuery) => {
     set({ loading: true });
     try {
       const { data } = await httpClient.get(authConfig.studentEndpoint + '/search', {
@@ -37,7 +37,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return err;
     }
   },
-  studentsList: async (token: string, params: StudentQuery) => {
+  studentsList: async (params: StudentQuery) => {
     try {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/list`, {
         params: params,
@@ -47,7 +47,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return err;
     }
   },
-  fetchStudentsWithParams: async (token: string, params: any) => {
+  fetchStudentsWithParams: async (params: any) => {
     try {
       const { data } = await httpClient.post(
         `${authConfig.studentEndpoint}/search-with-params`,
@@ -61,14 +61,14 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return null;
     }
   },
-  removeStudents: async (token: string, studentId: string) => {
+  removeStudents: async (studentId: string) => {
     try {
       return await httpClient.delete(`${authConfig.studentEndpoint}/profile/${studentId}`);
     } catch (err) {
       return err;
     }
   },
-  updateStudentProfile: async (token: string, studentId: string, params: any) => {
+  updateStudentProfile: async (studentId: string, params: any) => {
     set({ loading: true });
     try {
       const { data } = await httpClient.put(`${authConfig.studentEndpoint}/profile/${studentId}`, params);
@@ -79,14 +79,14 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return err;
     }
   },
-  createStudentProfile: async (token: string, userId: string, params: any) => {
+  createStudentProfile: async (userId: string, params: any) => {
     try {
       return await httpClient.post(`${authConfig.studentEndpoint}/profile/${userId}`, params);
     } catch (err) {
       return err;
     }
   },
-  getAvatar: async (token: string, url: string) => {
+  getAvatar: async (url: string) => {
     try {
       const { data } = await httpClient.get(url);
       return await data;
@@ -94,7 +94,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return err;
     }
   },
-  getTrophyOverview: async (token: string, studentId: string) => {
+  getTrophyOverview: async (studentId: string) => {
     try {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/trophy-overview/${studentId}`);
       return await data;
@@ -102,7 +102,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       return err;
     }
   },
-  getTeacherClassroom: async (token: string, classroomId: string) => {
+  getTeacherClassroom: async (classroomId: string) => {
     try {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}/teacher`);
       return await data;

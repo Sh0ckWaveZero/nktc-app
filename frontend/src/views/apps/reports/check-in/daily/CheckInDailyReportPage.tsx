@@ -34,7 +34,6 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-in/checkedIn';
 import { HiFlag } from 'react-icons/hi';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/reports/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -48,7 +47,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
@@ -87,7 +85,6 @@ const CheckInDailyReportPage = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
-  const storedToken = localStorageService.getToken()!;
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
 
@@ -321,7 +318,7 @@ const CheckInDailyReportPage = () => {
       <Card sx={{ mb: 2, border: 1, borderColor: 'divider' }}>
         <CardContent sx={{ p: isMobile ? 2 : 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <RenderAvatar row={student} storedToken={storedToken} />
+            <RenderAvatar row={student}  />
             <Box sx={{ ml: isMobile ? 1.5 : 2, flex: 1 }}>
               <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ fontWeight: 600 }}>
                 {student?.title} {student?.firstName} {student?.lastName}
@@ -388,7 +385,7 @@ const CheckInDailyReportPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={storedToken} />
+            <RenderAvatar row={row}  />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap

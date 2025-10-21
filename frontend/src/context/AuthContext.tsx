@@ -13,7 +13,6 @@ import { authConfig } from '@/configs/auth';
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 
-import { LocalStorageService } from '@/services/localStorageService';
 import httpClient from '@/@core/utils/http';
 
 // ** Defaults
@@ -30,7 +29,6 @@ const defaultProvider: AuthValuesType = {
 };
 
 const AuthContext = createContext(defaultProvider);
-const localStorageService = new LocalStorageService();
 
 type Props = {
   children: React.ReactNode;
@@ -49,8 +47,8 @@ const AuthProvider = ({ children }: Props) => {
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
 
-  const storedToken = localStorageService.getToken();
   useEffect(() => {
+    const storedToken = isBrowser ? localStorage.getItem('accessToken') : null;
     // Only run auth initialization in browser environment
     if (!isBrowser) {
       setIsInitialized(true);
@@ -73,8 +71,8 @@ const AuthProvider = ({ children }: Props) => {
               if (typeof window !== 'undefined') {
                 localStorage.removeItem('userData');
                 localStorage.removeItem('refreshToken');
+                localStorage.removeItem('accessToken');
               }
-              localStorageService.removeToken();
               setUser(null);
               setLoading(false);
               router.replace('/login');
@@ -92,10 +90,9 @@ const AuthProvider = ({ children }: Props) => {
       const { data } = response;
 
       // Save token
-      localStorageService.setToken(data.token);
-
-      // Save user data
       if (isBrowser) {
+        window.localStorage.setItem('accessToken', data.token);
+        // Save user data
         window.localStorage.setItem('userData', JSON.stringify(data));
       }
 
@@ -118,9 +115,9 @@ const AuthProvider = ({ children }: Props) => {
     setIsInitialized(false);
     if (isBrowser) {
       window.localStorage.removeItem('userData');
+      window.localStorage.removeItem('accessToken');
       router.push('/login');
     }
-    localStorageService.removeToken();
   };
 
   const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {

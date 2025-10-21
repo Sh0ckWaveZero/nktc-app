@@ -8,7 +8,6 @@ import { startOfWeek, addDays } from 'date-fns';
 
 import { BsCalendar2Date } from 'react-icons/bs';
 import Grid from '@mui/material/Grid';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
@@ -18,7 +17,6 @@ import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { formatLongDateThai } from '@/utils/datetime';
 
-const localStorageService = new LocalStorageService();
 
 const AdminActivityCheckInWeeklyReportPage = () => {
   // ** Store Vars
@@ -28,7 +26,6 @@ const AdminActivityCheckInWeeklyReportPage = () => {
     }),
     shallow,
   );
-  const storedToken = localStorageService.getToken() || '';
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);

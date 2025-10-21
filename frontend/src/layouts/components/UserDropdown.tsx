@@ -8,7 +8,6 @@ import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Divider from '@mui/material/Divider';
-import { LocalStorageService } from '@/services/localStorageService';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@/@core/context/settingsContext';
@@ -31,8 +30,6 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   backgroundColor: theme.palette.success.main,
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }));
-
-const localStorageService = new LocalStorageService();
 
 const UserDropdown = (props: Props) => {
   // ** Props

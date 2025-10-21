@@ -4,7 +4,6 @@ import Timeline from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
 import { CircularProgress } from '@mui/material';
-import { LocalStorageService } from '@/services/localStorageService';
 import { calculateTimeAgo } from '@/utils/datetime';
 import useGetImage from '@/hooks/useGetImage';
 import IconifyIcon from '@/@core/components/icon';
@@ -14,8 +13,6 @@ interface Props {
   user: any;
   onDeleted?: (id: string) => void;
 }
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken() || '';
 
 const getImage = (image: string) => {
   const { isLoading, image: badnessImage } = useGetImage(image);

@@ -11,11 +11,11 @@ interface classroomState {
   classroomLoading: boolean;
   classroomHasErrors: boolean;
   teacherClassroom: Array<[]>;
-  fetchClassroom: (token: string) => any;
-  fetchTeachClassroom: (token: string, teacherId: string) => any;
-  removeClassrooms: (token: string, id: string) => void;
-  fetchClassrooms: (token: string, body: any) => any;
-  createClassroom: (token: string, data: any) => any;
+  fetchClassroom: () => any;
+  fetchTeachClassroom: (teacherId: string) => any;
+  removeClassrooms: (id: string) => void;
+  fetchClassrooms: (body: any) => any;
+  createClassroom: (data: any) => any;
 }
 
 export const useClassroomStore = createWithEqualityFn<classroomState>()((set) => ({
@@ -23,13 +23,9 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
   teacherClassroom: [],
   classroomLoading: false,
   classroomHasErrors: false,
-  fetchClassroom: async (token: string) => {
+  fetchClassroom: async () => {
     try {
-      const { data } = await httpClient.get(authConfig.classroomEndpoint as string, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(authConfig.classroomEndpoint as string);
       set({ classroom: await data, classroomLoading: false, classroomHasErrors: false });
       return await data;
     } catch (err) {
@@ -37,7 +33,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
       return null;
     }
   },
-  fetchClassrooms: async (token: string, body: any) => {
+  fetchClassrooms: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.classroomEndpoint}/search`, body);
       return response?.data;
@@ -46,7 +42,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
       return err;
     }
   },
-  fetchTeachClassroom: async (token: string, teacherId: string) => {
+  fetchTeachClassroom: async (teacherId: string) => {
     try {
       set({ classroomLoading: true });
       const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`);
@@ -56,7 +52,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
       set({ teacherClassroom: [], classroomLoading: false, classroomHasErrors: true });
     }
   },
-  removeClassrooms: async (token: string, id: string) => {
+  removeClassrooms: async (id: string) => {
     try {
       const { data } = await httpClient.delete(`${authConfig.classroomEndpoint}/${id}`);
       return await data;
@@ -64,7 +60,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
       return err;
     }
   },
-  createClassroom: async (token: string, data: any) => {
+  createClassroom: async (data: any) => {
     try {
       const response = await httpClient.post(`${authConfig.classroomEndpoint}`, data);
       return response?.data;

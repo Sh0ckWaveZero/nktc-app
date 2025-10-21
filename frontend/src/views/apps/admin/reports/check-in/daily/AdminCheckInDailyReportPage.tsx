@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
 import Grid from '@mui/material/Grid';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
@@ -17,7 +16,6 @@ import { shallow } from 'zustand/shallow';
 import { useReportCheckInStore } from '@/store/index';
 import { formatFullDateThai } from '@/utils/datetime';
 
-const localStorageService = new LocalStorageService();
 
 const AdminCheckInDailyReportPage = () => {
   // ** Store Vars
@@ -28,7 +26,6 @@ const AdminCheckInDailyReportPage = () => {
     shallow,
   );
 
-  const storedToken = localStorageService.getToken() || '';
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);

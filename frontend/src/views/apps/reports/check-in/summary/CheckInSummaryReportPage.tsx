@@ -13,19 +13,16 @@ import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const CheckInSummaryReportPage = () => {
   // ** Hooks
   const auth = useAuth();
-  const accessToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -55,7 +52,7 @@ const CheckInSummaryReportPage = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(accessToken, auth?.user?.teacher?.id as string).then(async (result: any) => {
+      fetchTeachClassroom(auth?.user?.teacher?.id as string).then(async (result: any) => {
         setClassroomName((await result) ? result[0] : []);
         setClassrooms((await result) ? result : []);
         await fetchDailyReport((await result) ? result[0].id : {});
@@ -77,7 +74,7 @@ const CheckInSummaryReportPage = () => {
 
   const fetchDailyReport = async (classroom: any = '') => {
     setLoading(true);
-    await findSummaryReport(accessToken, {
+    await findSummaryReport({
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {

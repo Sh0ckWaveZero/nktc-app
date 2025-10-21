@@ -17,6 +17,7 @@ export * from './useDepartments';
 
 // Users hooks
 export * from './useUsers';
+export * from './useUser';
 
 // User Projects hooks
 export * from './useUserProjects';

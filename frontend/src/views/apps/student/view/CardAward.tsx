@@ -8,7 +8,6 @@ import CardContent from '@mui/material/CardContent';
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from '@/@core/components/icon';
 import IconButton from '@mui/material/IconButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import Typography from '@mui/material/Typography';
 import generateCertificatePdf from '@/utils/generateCertificatePdf';
 import { styled } from '@mui/material/styles';
@@ -17,8 +16,6 @@ import useGetPDF from '@/hooks/useGetPDF';
 // ** Hook
 import { useSettings } from '@/@core/hooks/useSettings';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')(({ theme }) => ({
   right: 0,

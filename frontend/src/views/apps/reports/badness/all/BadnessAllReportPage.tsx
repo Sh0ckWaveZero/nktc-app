@@ -9,7 +9,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiThumbDown } from 'react-icons/hi';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
@@ -26,7 +25,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -46,7 +44,6 @@ export interface DialogTitleProps {
 const BadnessAllReportPage = () => {
   // ** Hooks
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { search }: any = badnessIndividualStore(

@@ -16,7 +16,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { LocalStorageService } from '@/services/localStorageService';
 import { shallow } from 'zustand/shallow';
 import { useLevelStore } from '@/store/apps/level';
 import { useDepartmentStore } from '@/store/apps/department';
@@ -60,9 +59,6 @@ const schema = z.object({
   status: z.enum(['active', 'inactive']),
 });
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
-
 const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawerProps) => {
   const [levelList, setLevelList] = useState<any[]>([]);
   const [departmentList, setDepartmentList] = useState<any[]>([]);
@@ -89,14 +85,14 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
 
   useEffect(() => {
     // ดึงข้อมูลระดับชั้น
-    fetchLevels(accessToken).then((res: any) => {
+    fetchLevels().then((res: any) => {
       if (res && Array.isArray(res)) {
         setLevelList(res || []);
       }
     });
 
     // ดึงข้อมูลแผนก
-    fetchDepartment(accessToken).then((res: any) => {
+    fetchDepartment().then((res: any) => {
       if (res && Array.isArray(res)) {
         setDepartmentList(res || []);
       }

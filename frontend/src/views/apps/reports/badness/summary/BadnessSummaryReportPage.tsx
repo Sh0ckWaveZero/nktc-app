@@ -23,7 +23,6 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
@@ -34,7 +33,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -48,7 +46,6 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const BadnessSummaryReportPage = () => {
   // ** Hooks
   const { user }: any = useAuth();
-  const storedToken = localStorageService.getToken() || '';
   const ability = useContext(AbilityContext);
 
   const { deleteBadnessIndividualById, summary }: any = badnessIndividualStore(

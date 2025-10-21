@@ -21,7 +21,6 @@ import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/ind
 
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
@@ -64,9 +63,6 @@ const schema = z.object({
   idCard: z.string(),
 });
 
-const localStorage = new LocalStorageService();
-const storedToken = localStorage.getToken() || '';
-
 const TabTeacherAccount = () => {
   // Hooks
   const { getMe }: any = useUserStore(
@@ -98,12 +94,12 @@ const TabTeacherAccount = () => {
     const loadData = async () => {
       try {
         // Load departments
-        const departments = await fetchDepartment(storedToken);
+        const departments = await fetchDepartment();
         setDepartmentValues(departments || []);
 
         // Load classrooms
         setLoading(true);
-        const classroomsData = await fetchClassroom(storedToken);
+        const classroomsData = await fetchClassroom();
 
         // Handle both null and empty array
         if (!classroomsData) {
@@ -202,11 +198,11 @@ const TabTeacherAccount = () => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await updateProfile(storedToken, profile).then(async (res: any) => {
+    await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
 
-        await getMe(storedToken).then(async (data: any) => {
+        await getMe().then(async (data: any) => {
           auth?.setUser({ ...(await data) });
           window.localStorage.setItem('userData', JSON.stringify(data));
           setTimeout(() => {

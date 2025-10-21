@@ -9,7 +9,6 @@ import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import Confetti from 'react-confetti';
 import Grid from '@mui/material/Grid';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import UserViewLeft from '@/views/apps/student/view/UserViewLeft';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,8 +17,6 @@ import { useStudentStore } from '@/store/index';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { useSpring, animated } from 'react-spring';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 
 const ConfettiAnimation = ({ width, height }: any) => {
   const [showConfetti, setShowConfetti] = useState(true);
@@ -82,12 +79,12 @@ const StudentOverviewPage = () => {
   const { isLoading, image } = useGetImage(user?.account?.avatar as string);
 
   const getTrophyOverviewData = async () => {
-    const data = await getTrophyOverview(accessToken, user?.student?.id);
+    const data = await getTrophyOverview(user?.student?.id);
     setTrophyOverview(data);
   };
 
   const getTeacherClassroomData = async () => {
-    const data = await getTeacherClassroom(accessToken, user?.student?.classroom?.id);
+    const data = await getTeacherClassroom(user?.student?.classroom?.id);
     setTeacherClassroom(data);
   };
 

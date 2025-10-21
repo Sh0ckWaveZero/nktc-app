@@ -23,7 +23,6 @@ import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import { SelectChangeEvent } from '@mui/material/Select';
 import TableHeader from '@/views/apps/student/list/TableHeader';
@@ -49,10 +48,6 @@ const StudentListPage = () => {
   const searchParams = useSearchParams();
   const classroom = searchParams.get('classroom');
 
-  // ** LocalStorage
-  const localStorage = new LocalStorageService();
-  const accessToken = localStorage.getToken() || '';
-
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentClassroomId, setCurrentClassroomId] = useState<any>(null);
@@ -75,12 +70,12 @@ const StudentListPage = () => {
   );
   const { fetchClassroom }: any = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
   const { removeStudents }: any = useStudentStore((state) => ({ removeStudents: state.removeStudents }), shallow);
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(accessToken, debouncedValue);
+  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
 
   useEffectOnce(() => {
     (async () => {
       setLoadingClassroom(true);
-      fetchClassroom(accessToken).then(async (res: any) => {
+      fetchClassroom().then(async (res: any) => {
         // Check if res is valid array
         if (!res || !Array.isArray(res)) {
           setClassrooms([]);
@@ -143,7 +138,7 @@ const StudentListPage = () => {
         search: debouncedValue,
       };
 
-      await fetchStudentsWithParams(accessToken, query).then(async (res: any) => {
+      await fetchStudentsWithParams(query).then(async (res: any) => {
         setStudents((await res) || []);
         setLoadingStudent(false);
       });
@@ -162,7 +157,7 @@ const StudentListPage = () => {
     setStudents([]);
     setLoadingStudent(true);
     const toastId = toast.loading('กำลังลบข้อมูล...');
-    await removeStudents(accessToken, deletedStudent.id).then((res: any) => {
+    await removeStudents(deletedStudent.id).then((res: any) => {
       if (res?.status === 204) {
         toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
       } else {
@@ -170,7 +165,7 @@ const StudentListPage = () => {
       }
     });
 
-    await fetchStudentsWithParams(accessToken, currentClassroomId).then(async (res: any) => {
+    await fetchStudentsWithParams(currentClassroomId).then(async (res: any) => {
       setStudents(await res);
       setLoadingStudent(false);
     });
@@ -212,7 +207,7 @@ const StudentListPage = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={account} storedToken={accessToken} />
+            <RenderAvatar row={account} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap

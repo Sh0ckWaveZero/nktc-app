@@ -34,9 +34,9 @@ import Icon from '@/@core/components/icon';
 import { useAuth } from '@/hooks/useAuth';
 import useGetImage from '@/hooks/useGetImage';
 import useImageCompression from '@/hooks/useImageCompression';
-import { LocalStorageService } from '@/services/localStorageService';
-import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
+import { useClassroomStore, useDepartmentStore } from '@/store/index';
 import { useTeacherStore } from '@/store/apps/teacher';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { shallow } from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
 import { generateErrorMessages } from '@/utils/event';
@@ -72,18 +72,10 @@ const schema = z.object({
   idCard: z.string(),
 });
 
-const localStorage = new LocalStorageService();
-const storedToken = localStorage.getToken() || '';
-
 const TabAccount = () => {
   // Hooks
-  const { getMe }: any = useUserStore(
-    (state) => ({
-      getMe: state.getMe,
-    }),
-    shallow,
-  );
   const auth = useAuth();
+  const { refetch: refetchCurrentUser } = useCurrentUser();
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -104,7 +96,7 @@ const TabAccount = () => {
 
   useEffect(() => {
     (async () => {
-      await fetchDepartment(storedToken).then(async (data: any) => {
+      await fetchDepartment().then(async (data: any) => {
         setDepartmentValues(await data);
       });
     })();
@@ -119,7 +111,7 @@ const TabAccount = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await fetchClassroom(storedToken).then(async (data: any) => {
+      await fetchClassroom().then(async (data: any) => {
         setClassrooms(await data);
         const defaultClassroom: any =
           (await data.filter((item: any) => auth?.user?.teacherOnClassroom?.includes(item.id))) ?? [];
@@ -183,17 +175,19 @@ const TabAccount = () => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await updateProfile(storedToken, profile).then(async (res: any) => {
+    await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
 
-        await getMe(storedToken).then(async (data: any) => {
-          auth?.setUser({ ...(await data) });
-          window.localStorage.setItem('userData', JSON.stringify(data));
+        // Refetch current user data
+        const { data: updatedUser } = await refetchCurrentUser();
+        if (updatedUser) {
+          auth?.setUser(updatedUser);
+          window.localStorage.setItem('userData', JSON.stringify(updatedUser));
           setTimeout(() => {
             location.reload();
           }, 1000);
-        });
+        }
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
@@ -487,7 +481,7 @@ const TabAccount = () => {
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
                 isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-                renderOption={(props: any, option: any, { selected }: any) => {
+                renderOption={(props: any, option: any) => {
                   const { key, onClick, className, ...otherProps } = props;
                   return (
                     <li key={option.id} onClick={onClick} className={className} {...(otherProps as any)}>

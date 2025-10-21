@@ -4,17 +4,17 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 
-interface UserState {
+interface DepartmentState {
   department: any;
-  fetchDepartment: (token: string) => any;
+  fetchDepartment: (_token?: string) => Promise<any>;
 }
 
-export const useDepartmentStore = createWithEqualityFn<UserState>()(() => ({
+export const useDepartmentStore = createWithEqualityFn<DepartmentState>()(() => ({
   department: null,
-  fetchDepartment: async (token: string) => {
+  fetchDepartment: async (_token?: string) => {
     try {
       const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/`);
-      return await data;
+      return data;
     } catch (err) {
       return err;
     }

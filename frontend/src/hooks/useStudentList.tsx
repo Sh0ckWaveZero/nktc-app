@@ -4,7 +4,7 @@ import { shallow } from 'zustand/shallow';
 import { useStudentStore } from '@/store/index';
 import toast from 'react-hot-toast';
 
-const useStudentList = (storedToken: string, debouncedValue: string) => {
+const useStudentList = (debouncedValue: string) => {
   const { studentsList }: any = useStudentStore((state: any) => ({ studentsList: state.studentsList }), shallow);
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
@@ -13,7 +13,7 @@ const useStudentList = (storedToken: string, debouncedValue: string) => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const result = await studentsList(storedToken, debouncedValue);
+        const result = await studentsList(debouncedValue);
         setStudents(result || []);
         setLoading(false);
       } catch (error: any) {
@@ -23,7 +23,7 @@ const useStudentList = (storedToken: string, debouncedValue: string) => {
       }
     };
     fetchStudents();
-  }, [storedToken, debouncedValue]);
+  }, [debouncedValue]);
 
   return { loading, students };
 };

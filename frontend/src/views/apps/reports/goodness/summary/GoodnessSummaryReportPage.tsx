@@ -23,7 +23,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Grid from '@mui/material/Grid';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
@@ -34,7 +33,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -48,7 +46,6 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const GoodnessSummaryReportPage = () => {
   // ** Hooks
   const { user }: any = useAuth();
-  const storedToken = localStorageService.getToken() || '';
   const ability = useContext(AbilityContext);
 
   const { deleteGoodnessIndividualById, summary }: any = goodnessIndividualStore(

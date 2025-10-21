@@ -31,7 +31,6 @@ import { useClassroomStore, useStudentStore } from '@/store/index';
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import { handleKeyDown } from '@/utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import { shallow } from 'zustand/shallow';
@@ -126,8 +125,6 @@ const RequiredTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const localStorageService = new LocalStorageService();
-
 const StudentAddPage = () => {
   // hooks
   const theme = useTheme();
@@ -141,7 +138,6 @@ const StudentAddPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValueHelper.empty());
-  const accessToken = localStorageService.getToken();
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -155,7 +151,7 @@ const StudentAddPage = () => {
   useEffectOnce(() => {
     (async () => {
       setLoading(true);
-      fetchClassroom(accessToken).then(async (res: any) => {
+      fetchClassroom().then(async (res: any) => {
         if (user?.role?.toLowerCase() === 'admin') {
           setClassroom(await res);
         } else {
@@ -202,7 +198,7 @@ const StudentAddPage = () => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    createStudentProfile(accessToken, user?.id, student).then((res: any) => {
+    createStudentProfile(user?.id, student).then((res: any) => {
       if (res?.status === 201) {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
       } else {

@@ -2,9 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
-import { LocalStorageService } from '@/services/localStorageService';
-
-const localStorageService = new LocalStorageService();
 
 interface LoginParams {
   username: string;
@@ -22,7 +19,7 @@ interface RegisterParams {
  * Auto-fetches on mount if token exists
  */
 export const useCurrentUser = () => {
-  const storedToken = localStorageService.getToken();
+  const storedToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   return useQuery({
     queryKey: queryKeys.users.current(),
@@ -66,11 +63,9 @@ export const useLogin = () => {
       return data;
     },
     onSuccess: (data) => {
-      // Save token
-      localStorageService.setToken(data.token);
-
-      // Save user data to localStorage
+      // Save token and user data to localStorage
       if (typeof window !== 'undefined') {
+        window.localStorage.setItem('accessToken', data.token);
         window.localStorage.setItem('userData', JSON.stringify(data));
       }
 
@@ -106,16 +101,15 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
       // Call logout endpoint if exists
-      if (authConfig.logoutEndpoint) {
-        await httpClient.post(authConfig.logoutEndpoint);
+      const logoutEndpoint = (authConfig as any).logoutEndpoint;
+      if (logoutEndpoint) {
+        await httpClient.post(logoutEndpoint);
       }
     },
     onSuccess: () => {
-      // Clear token
-      localStorageService.removeToken();
-
       // Clear localStorage
       if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('accessToken');
         window.localStorage.removeItem('userData');
         window.localStorage.removeItem('refreshToken');
       }

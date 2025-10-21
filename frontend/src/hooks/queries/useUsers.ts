@@ -14,14 +14,7 @@ export const useUser = (id: string) => {
   });
 };
 
-// Fetch current user
-export const useCurrentUser = () => {
-  return useQuery({
-    queryKey: queryKeys.users.current(),
-    queryFn: () => apiService.get('/users/me'),
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
-};
+// Note: useCurrentUser is exported from useAuth.ts to keep auth-related hooks together
 
 // Update user password
 export const useUpdatePassword = () => {

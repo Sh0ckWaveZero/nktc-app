@@ -34,7 +34,6 @@ import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-i
 import { HiFlag } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/reports/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -48,7 +47,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
@@ -87,7 +85,6 @@ const ActivityCheckInReportPage = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
-  const storedToken = localStorageService.getToken() || '';
 
   const { getActivityCheckIn, addActivityCheckIn }: any = useActivityCheckInStore(
     (state) => ({
@@ -348,7 +345,7 @@ const ActivityCheckInReportPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={storedToken} />
+            <RenderAvatar row={row}  />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap

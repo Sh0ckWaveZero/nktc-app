@@ -14,7 +14,6 @@ import { HiFlag } from 'react-icons/hi';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useAuth } from '@/hooks/useAuth';
 import { apiService } from '@/services/apiService';
-import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
 import StudentCard from './components/StudentCard';
 import MobilePaginationControls from './components/MobilePaginationControls';
@@ -24,9 +23,6 @@ import CheckInDataGrid from './components/CheckInDataGrid';
 interface CellType {
   row: any;
 }
-
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken()!;
 
 const CheckInReportPage = () => {
   // ** Hooks

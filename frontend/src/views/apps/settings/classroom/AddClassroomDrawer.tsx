@@ -25,7 +25,6 @@ import { styled } from '@mui/material/styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useClassroomStore, useDepartmentStore, useProgramStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
 import { toast } from 'react-hot-toast';
 import { useLevelStore } from '@/store/apps/level';
 
@@ -74,8 +73,6 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
 
 const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   // ** Props
@@ -156,14 +153,14 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   });
 
   useEffect(() => {
-    fetchLevels(accessToken).then((res: any) => {
+    fetchLevels().then((res: any) => {
       setLevelList(res || []);
     });
   }, []);
 
   useEffect(() => {
     if (hideProgram) {
-      fetchPrograms(accessToken).then((res: any) => {
+      fetchPrograms().then((res: any) => {
         if (res.length > 0) {
           setProgramList(res.filter((item: any) => item.levelId === getValues('levelId')));
         }
@@ -172,7 +169,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   }, [levelChange]);
 
   useEffect(() => {
-    fetchDepartment(accessToken).then((res: any) => {
+    fetchDepartment().then((res: any) => {
       if (res.length > 0) {
         setDepartmentList(res);
       }
@@ -193,7 +190,7 @@ const AddClassroomDrawer = (props: SidebarAddTeacherType) => {
   const handleRandomClassroomId = async () => {
     setLoadingClassroomId(true);
     try {
-      const res = await fetchClassroom(accessToken);
+      const res = await fetchClassroom();
       setClassroomList(res);
       const splitClassroomId = res.map((item: any) => {
         const splitNumber = item.classroomId.split(/(\d+)/);
