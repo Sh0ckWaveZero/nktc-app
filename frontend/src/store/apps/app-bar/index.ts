@@ -13,10 +13,7 @@ export const useAppbarStore = createWithEqualityFn<any>()(
         fetchAppbar: async (params: string, token: string) => {
           try {
             const response = await httpClient.get(authConfig.appbarEndpoint as string, {
-              params: { q: params },
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              params: { q: params }
             });
 
             if (response?.data) {
@@ -32,7 +29,4 @@ export const useAppbarStore = createWithEqualityFn<any>()(
       }),
       {
         name: 'appbar-store',
-      },
-    ),
-  ),
-);
+      })));

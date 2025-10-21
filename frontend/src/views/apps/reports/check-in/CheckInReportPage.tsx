@@ -4,9 +4,6 @@ import { useContext, useState, useEffect, useMemo } from 'react';
 import {
   Avatar,
   Box,
-  Card,
-  CardContent,
-  CardHeader,
   Chip,
   Grid,
   Typography,
@@ -518,32 +515,30 @@ const CheckInReportPage = () => {
     <div id='checkin-page-fragment'>
       <Grid id='checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
-          <Card
-            id='checkin-main-card'
+          <Box
+            id='checkin-main-container-box'
             sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
           >
-            <CardHeader
-              id='checkin-card-header'
-              avatar={
-                <Avatar id='checkin-header-avatar' sx={{ bgcolor: 'info.main' }} aria-label='recipe'>
+            {/* Header Section */}
+            <Box
+              id='checkin-header'
+              sx={{
+                p: 3,
+                pb: 2,
+                backgroundColor: 'background.paper',
+                borderBottom: 1,
+                borderColor: 'divider',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Avatar sx={{ bgcolor: 'info.main', mt: 0.5 }}>
                   <HiFlag />
                 </Avatar>
-              }
-              sx={{
-                color: 'text.primary',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1000,
-                backgroundColor: 'background.paper',
-                pb: 2,
-              }}
-              title={
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography variant='h6' component='div' sx={{ fontWeight: 600 }}>
-                    {`เช็คชื่อตอนเข้า กิจกรรมหน้าเสาธง`}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant='h6' component='div' sx={{ fontWeight: 600, mb: 0.5 }}>
+                    เช็คชื่อตอนเข้า กิจกรรมหน้าเสาธง
                   </Typography>
                   <Typography
-                    id='checkin-classroom-info'
                     variant='body2'
                     sx={{
                       color: 'text.secondary',
@@ -551,6 +546,7 @@ const CheckInReportPage = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 1,
+                      mb: 0.5,
                     }}
                   >
                     <Box component='span' sx={{ color: 'primary.main', fontWeight: 600 }}>
@@ -561,22 +557,27 @@ const CheckInReportPage = () => {
                     </Box>
                     <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
                   </Typography>
+                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                    {new Date(Date.now()).toLocaleDateString('th-TH', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </Typography>
                 </Box>
-              }
-              subheader={
-                <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5 }}>
-                  {new Date(Date.now()).toLocaleDateString('th-TH', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </Typography>
-              }
-            />
-            <CardContent
-              id='checkin-card-content'
-              sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}
+              </Box>
+            </Box>
+
+            {/* Content Section */}
+            <Box
+              id='checkin-content'
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                overflow: 'hidden',
+              }}
             >
               {/* Fixed Controls Section */}
               {(currentStudents?.length ?? 0) > 0 && (
@@ -594,13 +595,6 @@ const CheckInReportPage = () => {
                     classrooms={classrooms}
                     defaultClassroom={defaultClassroom}
                     currentStudentsCount={currentStudents?.length ?? 0}
-                    selectedStudentsCount={
-                      isPresentCheck.length +
-                      isAbsentCheck.length +
-                      isLateCheck.length +
-                      isLeaveCheck.length +
-                      isInternshipCheck.length
-                    }
                     isComplete={
                       isPresentCheck.length +
                         isAbsentCheck.length +
@@ -763,39 +757,8 @@ const CheckInReportPage = () => {
                   />
                 </Box>
               )}
-
-              {/* Show empty state when no students and not loading */}
-              {(currentStudents?.length ?? 0) === 0 && !loading && (
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Box id='checkin-empty-state' sx={{ textAlign: 'center', py: 8 }}>
-                    <Typography id='checkin-empty-title' variant='h6' color='text.secondary'>
-                      ไม่มีข้อมูลนักเรียนในห้องเรียนนี้
-                    </Typography>
-                    <Typography id='checkin-empty-message' variant='body2' color='text.secondary'>
-                      กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มนักเรียนในห้องเรียน
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
-
-              {/* Show loading state or when no classrooms available */}
-              {(loading ||
-                ((currentStudents?.length ?? 0) === 0 && !loading && classrooms && (classrooms?.length ?? 0) > 0)) && (
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Box id='checkin-loading-state' sx={{ textAlign: 'center', py: 8 }}>
-                    <Typography id='checkin-loading-title' variant='h6' color='text.secondary'>
-                      {loading ? 'กำลังโหลดข้อมูล...' : 'ไม่มีข้อมูลนักเรียนในห้องเรียนนี้'}
-                    </Typography>
-                    {!loading && (
-                      <Typography id='checkin-loading-message' variant='body2' color='text.secondary'>
-                        กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มนักเรียนในห้องเรียน
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
     </div>

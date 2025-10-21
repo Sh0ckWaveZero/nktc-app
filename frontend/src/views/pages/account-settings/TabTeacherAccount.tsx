@@ -92,7 +92,7 @@ const TabTeacherAccount = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
-  const { isLoading, image } = useGetImage(imgSrc, storedToken);
+  const { isLoading, image } = useGetImage(imgSrc);
 
   useEffect(() => {
     const loadData = async () => {

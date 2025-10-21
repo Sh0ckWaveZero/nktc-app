@@ -16,11 +16,6 @@ export const useVisitStore = createWithEqualityFn<VisitState>()((set) => ({
     try {
       const { data } = await httpClient.get(
         `${authConfig.visitEndpoint}/get-visit/all?classroomId=${params.classroomId}&academicYear=${params.academicYear}&visitNo=${params.visitNo}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {

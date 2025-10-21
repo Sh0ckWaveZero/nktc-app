@@ -13,15 +13,33 @@ const httpClient = axios.create({
   },
 });
 
+// Request interceptor for adding auth token
+httpClient.interceptors.request.use(
+  (config) => {
+    // Only access localStorage in browser environment
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem('access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 /**
- * Catch the AunAuthorized Request
+ * Catch the Unauthorized Request
  */
 const AxiosInterceptor = ({ children }: any) => {
   // ** Hooks
   const { logout } = useAuth();
   const router = useRouter();
+
   useEffect(() => {
-    httpClient.interceptors.response.use(
+    const interceptor = httpClient.interceptors.response.use(
       (response) => response,
       async (error) => {
         if (error?.response?.status === 401) {
@@ -42,7 +60,13 @@ const AxiosInterceptor = ({ children }: any) => {
         }
       },
     );
-  }, [router]);
+
+    // Cleanup interceptor on unmount
+    return () => {
+      httpClient.interceptors.response.eject(interceptor);
+    };
+  }, [logout, router]);
+
   return children;
 };
 

@@ -13,11 +13,7 @@ export const useDepartmentStore = createWithEqualityFn<UserState>()(() => ({
   department: null,
   fetchDepartment: async (token: string) => {
     try {
-      const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/`);
       return await data;
     } catch (err) {
       return err;

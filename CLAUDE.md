@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 NKTC Student Management System - ระบบจัดการและดูแลช่วยเหลือนักเรียนของวิทยาลัยเทคนิค ระบบครบวงจรสำหรับการบริหารจัดการข้อมูlนักเรียน การเช็คชื่อ การประเมินพฤติกรรม และการเยี่ยมบ้าน
 
 ### Key Features
+
 - **การจัดการผู้ใช้งาน** - นักเรียน, ครู/บุคลากร, ผู้ดูแลระบบ
 - **ระบบเช็คชื่อ** - เช็คชื่อหน้าเสาธง และเช็คชื่อกิจกรรม
 - **ระบบประเมินพฤติกรรม** - บันทึกความดี และพฤติกรรมไม่เหมาะสม
@@ -17,6 +18,7 @@ NKTC Student Management System - ระบบจัดการและดู�
 ## Architecture
 
 ### Monorepo Structure
+
 ```
 nktc-app/
 ├── frontend/           # Next.js 15.4.2 + React 19.1.0 + TypeScript + Material-UI
@@ -28,6 +30,7 @@ nktc-app/
 ### Technology Stack
 
 #### Frontend
+
 - **Next.js 15.4.2** with App Router (migrated from Pages Router)
 - **React 19.1.0** with functional components and hooks
 - **TypeScript 5.8.3** for type safety
@@ -38,6 +41,7 @@ nktc-app/
 - **Emotion** for CSS-in-JS styling
 
 #### Backend
+
 - **NestJS 11.x** with TypeScript
 - **Prisma ORM** with PostgreSQL (primary) and MongoDB (secondary)
 - **JWT authentication** with Passport.js
@@ -48,6 +52,7 @@ nktc-app/
 ## Core Development Commands
 
 ### Project Setup
+
 ```bash
 # Install all dependencies
 bun install
@@ -58,6 +63,7 @@ bun install --cwd backend
 ```
 
 ### Development
+
 ```bash
 # Run both frontend and backend (TUI mode)
 bun run dev
@@ -71,6 +77,7 @@ bun run dev:backend     # NestJS on http://localhost:3001
 ```
 
 ### Build & Production
+
 ```bash
 # Build everything
 bun run build
@@ -84,6 +91,7 @@ bun run start
 ```
 
 ### Code Quality
+
 ```bash
 # Lint all code
 bun run lint
@@ -100,6 +108,7 @@ cd backend && npm run format
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 bun run test
@@ -111,6 +120,7 @@ cd backend && npm run test:cov
 ```
 
 ### Database Operations
+
 ```bash
 # Generate Prisma client
 cd backend && npm run prisma:generate
@@ -128,7 +138,9 @@ cd backend && npm run seed
 ## Frontend Architecture
 
 ### App Router Structure
+
 The project uses Next.js 15 App Router with the following key directories:
+
 - `src/app/` - App Router pages and layouts
 - `src/@core/` - Core framework components and utilities
 - `src/views/` - Page-specific view components
@@ -138,6 +150,7 @@ The project uses Next.js 15 App Router with the following key directories:
 - `src/hooks/` - Custom React hooks
 
 ### Import Aliases
+
 ```typescript
 // Configured in next.config.mjs
 '@/' - src/
@@ -155,6 +168,7 @@ The project uses Next.js 15 App Router with the following key directories:
 ```
 
 ### Core Components
+
 - **Layout System**: Vertical/Horizontal layouts with Material-UI
 - **Auth Guards**: ACL-based access control components
 - **Theme System**: Material-UI theming with light/dark mode
@@ -163,6 +177,7 @@ The project uses Next.js 15 App Router with the following key directories:
 ## Backend Architecture
 
 ### Module Structure
+
 ```
 src/
 ├── apis/               # Feature modules (one per domain)
@@ -178,6 +193,7 @@ src/
 ```
 
 ### Import Aliases (Backend)
+
 ```typescript
 // Configured in tsconfig.json and jest.config
 '@/' - src/
@@ -190,7 +206,24 @@ src/
 '@middlewares/' - src/middlewares/
 ```
 
+##### **Decision Matrix:**
+
+```typescript
+// ✅ Server State → React Query
+import { useStudents } from '@/hooks/queries';
+import { queryKeys } from '@/libs/react-query/queryKeys';
+
+// ✅ UI State → Zustand  
+const useAppStore = create((set) => ({ ... }));
+
+// ✅ Simple Actions → apiService
+await apiService.logout();
+
+// ❌ Never: axios โดยตรง
+```
+
 ### Key Features
+
 - **Multi-database support**: PostgreSQL + MongoDB via Prisma
 - **File upload**: MinIO integration for file storage
 - **Security**: Helmet, rate limiting, audit logging
@@ -200,6 +233,7 @@ src/
 ## Development Guidelines
 
 ### Code Standards
+
 - Follow existing Copilot instructions in `.github/copilot-instructions.md`
 - Use TypeScript strictly (no `any` types)
 - Functional components with hooks for React
@@ -208,18 +242,21 @@ src/
 - File naming: kebab-case for files and directories
 
 ### State Management
+
 - **Local state**: React useState/useReducer
 - **Global state**: Zustand stores in `src/store/`
 - **Server state**: React Query for API data
 - **Form state**: React Hook Form with Yup validation
 
 ### Styling Approach
+
 - Material-UI `sx` prop for component styling
 - Theme-based design system
 - Responsive design using MUI breakpoints
 - Avoid custom CSS files, use MUI theming
 
 ### Testing Strategy
+
 - Jest for unit testing (backend)
 - React Testing Library for component testing
 - E2E tests for critical user flows
@@ -237,6 +274,7 @@ src/
 ## Common Development Tasks
 
 ### Adding a New Feature Module
+
 1. Create API module in `backend/src/apis/[feature]/`
 2. Add corresponding frontend views in `frontend/src/views/[feature]/`
 3. Create Zustand store if needed in `frontend/src/store/apps/[feature]/`
@@ -244,12 +282,14 @@ src/
 5. Implement proper type definitions
 
 ### Database Schema Changes
+
 1. Modify `backend/src/database/prisma/schema.prisma`
 2. Run `npm run prisma:migrate` to create migration
 3. Update DTOs and entities accordingly
 4. Run `npm run prisma:generate` to update Prisma client
 
 ### Adding New UI Components
+
 1. Create component in `frontend/src/components/` or `frontend/src/@core/components/`
 2. Use Material-UI base components
 3. Export proper TypeScript interfaces for props
@@ -260,12 +300,14 @@ src/
 ### Required Environment Variables
 
 **Frontend (.env):**
+
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3001
 NEXT_PUBLIC_EDUCATION_YEARS=2566
 ```
 
 **Backend (.env):**
+
 ```
 NODE_ENV=development
 PORT=3001
@@ -277,10 +319,12 @@ MINIO_PORT=9000
 ```
 
 ### Package Manager
+
 - Primary: **Bun** (specified in package.json: `"packageManager": "bun@1.2.18"`)
 - Node.js: >= 18.0.0
 
 ### Development Tools
+
 - **Turbo Repo**: Monorepo management with caching
 - **ESLint + Prettier**: Code formatting and linting
 - **TypeScript**: Strict type checking across both projects
@@ -288,6 +332,7 @@ MINIO_PORT=9000
 - **Docker**: Containerization for deployment
 
 ### MCP Servers
+
 - **MUI MCP**: Material-UI documentation and component reference via Model Context Protocol
   - Provides AI assistants with direct access to official MUI v7 documentation
   - Installation: `claude mcp add mui-mcp -- npx -y @mui/mcp@latest`
@@ -297,11 +342,13 @@ MINIO_PORT=9000
 ## API Endpoints Overview
 
 ### Authentication
+
 - `POST /auth/login` - User login
 - `POST /auth/logout` - User logout
 - `POST /auth/refresh` - Refresh JWT token
 
 ### User Management
+
 - `GET /users` - Get all users
 - `GET /users/:id` - Get user by ID
 - `POST /users` - Create new user
@@ -309,34 +356,40 @@ MINIO_PORT=9000
 - `DELETE /users/:id` - Delete user
 
 ### Students
+
 - `GET /students` - Get all students
 - `GET /students/:id` - Get student by ID
 - `POST /students` - Create new student
 - `PUT /students/:id` - Update student
 
 ### Teachers
+
 - `GET /teachers` - Get all teachers
 - `GET /teachers/:id` - Get teacher by ID
 - `POST /teachers` - Create new teacher
 - `PUT /teachers/:id` - Update teacher
 
 ### Check-in Reports
+
 - `GET /report-check-in` - Get check-in reports
 - `POST /report-check-in` - Create check-in report
 - `GET /activity-check-in` - Get activity check-in reports
 
 ### Behavior Records
+
 - `GET /goodness-individual` - Get goodness records
 - `POST /goodness-individual` - Create goodness record
 - `GET /badness-individual` - Get badness records
 - `POST /badness-individual` - Create badness record
 
 ### Home Visits
+
 - `GET /visits` - Get visit records
 - `POST /visits` - Create visit record
 - `PUT /visits/:id` - Update visit record
 
 ### Settings
+
 - `GET /classroom` - Get classrooms
 - `POST /classroom` - Create classroom
 - `GET /programs` - Get programs
@@ -346,6 +399,7 @@ MINIO_PORT=9000
 ## Database Models Overview
 
 ### Core Models
+
 - **User** - Base user authentication
 - **Account** - Personal information
 - **Student** - Student-specific data
@@ -357,6 +411,7 @@ MINIO_PORT=9000
 - **LevelClassroom** - Level-specific classrooms
 
 ### Activity Models
+
 - **ReportCheckIn** - Daily attendance records
 - **ActivityCheckInReport** - Activity attendance
 - **GoodnessIndividual** - Good behavior records
@@ -364,6 +419,7 @@ MINIO_PORT=9000
 - **VisitStudent** - Home visit records
 
 ### System Models
+
 - **Session** - User sessions
 - **VerificationToken** - Email verification
 - **RolePermission** - Role-based permissions

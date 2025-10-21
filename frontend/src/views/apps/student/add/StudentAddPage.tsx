@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { ThailandAddressTypeahead, ThailandAddressValue } from '@/@core/styles/libs/thailand-address';
+import { ThailandAddressTypeahead, ThailandAddressValue, ThailandAddressValueHelper } from '@/@core/styles/libs/thailand-address';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 
 import { FcCalendar } from 'react-icons/fc';
@@ -140,7 +140,7 @@ const StudentAddPage = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
-  const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValue.empty());
+  const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValueHelper.empty());
   const accessToken = localStorageService.getToken();
 
   const { fetchClassroom }: any = useClassroomStore(
@@ -749,11 +749,22 @@ const StudentAddPage = () => {
                       color='secondary'
                       onClick={() => {
                         reset();
-                        setCurrentAddress(ThailandAddressValue.empty());
+                        setCurrentAddress(ThailandAddressValueHelper.empty());
                       }}
+                      sx={{ mr: 4 }}
                     >
                       ล้างข้อมูล
                     </Button>
+                    <LinkStyled href={`/apps/student/list`} passHref>
+                      <Button
+                        id='back-button-bottom'
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
+                      >
+                        ย้อนกลับ
+                      </Button>
+                    </LinkStyled>
                   </Grid>
                 </Grid>
               </form>

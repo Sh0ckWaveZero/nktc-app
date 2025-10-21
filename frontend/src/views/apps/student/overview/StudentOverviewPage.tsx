@@ -79,7 +79,7 @@ const StudentOverviewPage = () => {
   const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
   const classroomName = user?.student?.classroom?.name;
 
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string, accessToken as string);
+  const { isLoading, image } = useGetImage(user?.account?.avatar as string);
 
   const getTrophyOverviewData = async () => {
     const data = await getTrophyOverview(accessToken, user?.student?.id);

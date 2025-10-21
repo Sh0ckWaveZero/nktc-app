@@ -55,11 +55,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
 
       const url = `${authConfig.programEndpoint}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
-      const { data } = await httpClient.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(url);
 
       set({ programs: data, loading: false });
       return data;
@@ -77,11 +73,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
     try {
       set({ loading: true, error: null });
 
-      const { data: newProgram } = await httpClient.post(authConfig.programEndpoint!, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data: newProgram } = await httpClient.post(authConfig.programEndpoint!, data);
 
       const currentPrograms = get().programs;
       set({
@@ -104,11 +96,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
     try {
       set({ loading: true, error: null });
 
-      const { data: updatedProgram } = await httpClient.patch(`${authConfig.programEndpoint}/${id}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data: updatedProgram } = await httpClient.patch(`${authConfig.programEndpoint}/${id}`, data);
 
       const currentPrograms = get().programs;
       const updatedPrograms = currentPrograms.map((program) => (program.id === id ? updatedProgram : program));
@@ -133,11 +121,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
     try {
       set({ loading: true, error: null });
 
-      await httpClient.delete(`${authConfig.programEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await httpClient.delete(`${authConfig.programEndpoint}/${id}`);
 
       const currentPrograms = get().programs;
       const filteredPrograms = currentPrograms.filter((program) => program.id !== id);
@@ -168,17 +152,12 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
 
       await httpClient.post(`${authConfig.programEndpoint}/upload`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
 
       // โหลดข้อมูลใหม่หลังจากอัพโหลด
-      const { data: updatedPrograms } = await httpClient.get(authConfig.programEndpoint!, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data: updatedPrograms } = await httpClient.get(authConfig.programEndpoint!);
 
       set({
         programs: updatedPrograms,

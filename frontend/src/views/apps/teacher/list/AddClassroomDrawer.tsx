@@ -12,13 +12,14 @@ import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 
 // ** Utils
 import { isEmpty } from '@/@core/utils/utils';
+import { Classroom } from '@/types/apps/teacherTypes';
 
 interface SidebarAddClassroomType {
   open: boolean;
   toggle: () => void;
   onSubmitted: (event: any, value: any) => void;
-  defaultValues: any;
-  data: any;
+  defaultValues: Classroom[];
+  data: Classroom[];
   onLoad: boolean;
 }
 
@@ -36,6 +37,8 @@ const checkedIcon = <MdCheckBox />;
 const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
   // ** Props
   const { open, toggle, onSubmitted, defaultValues, data, onLoad } = props;
+  // Keep only essential debugging for now
+  // console.log('🚀 ~ SidebarAddClassroom ~ data length:', data?.length);
 
   // ** State
   const [values, setValues] = useState([]);
@@ -67,52 +70,64 @@ const SidebarAddClassroom = (props: SidebarAddClassroomType) => {
         <Close fontSize='small' onClick={handleClose} sx={{ cursor: 'pointer' }} />
       </Header>
       <Box sx={{ p: 5 }}>
-        <form onSubmit={(event) => onSubmitted(event, values)}>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Autocomplete
-              id='checkboxes-tags-classroom'
-              multiple
-              limitTags={15}
-              defaultValue={defaultValues}
-              options={data}
-              onChange={(_, newValue: any) => onHandleChange(_, newValue)}
-              getOptionLabel={(option: any) => option?.name ?? ''}
-              isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-              renderOption={(props: any, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
-                  {option.name}
-                </li>
-              )}
-              renderInput={(params: any) => {
-                return (
+        {loading ? (
+          <Typography>กำลังโหลดข้อมูล...</Typography>
+        ) : (
+          <form onSubmit={(event) => onSubmitted(event, values)}>
+            <FormControl fullWidth sx={{ mb: 6 }}>
+              <Autocomplete
+                id='checkboxes-tags-classroom'
+                multiple
+                limitTags={15}
+                defaultValue={defaultValues}
+                options={data}
+                onChange={(_, newValue: Classroom[]) => onHandleChange(_, newValue)}
+                getOptionLabel={(option: any) => {
+                  if (!option) return '';
+                  const name = option?.name || 'ไม่มีชื่อ';
+                  const department = option.department?.name || 'ไม่ระบุแผนก';
+                  return `${name} (${department})`;
+                }}
+                isOptionEqualToValue={(option: Classroom, value: Classroom) => option.id === value.id}
+                renderOption={(props: any, option: any, { selected }: any) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {option.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.department?.name || 'ไม่ระบุแผนก'}
+                      </Typography>
+                    </Box>
+                  </li>
+                )}
+                renderInput={(params: any) => (
                   <TextField
+                    {...params}
                     error={isEmpty(values) && loading}
                     helperText={isEmpty(values) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                    {...params}
                     label='ระดับชั้น'
                     placeholder='เลือกระดับชั้น'
-                    slotProps={{
-                      input: {
-                        ref: undefined,
-                      },
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
                   />
-                );
-              }}
-              groupBy={(option: any) => option.department?.name}
-              noOptionsText='ไม่พบข้อมูล'
-            />
-          </FormControl>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button disabled={!enable} size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
-              บันทึกข้อมูล
-            </Button>
-          </Box>
-        </form>
+                )}
+                forcePopupIcon={true}
+                // groupBy={(option: Classroom) => option.department?.name || 'ไม่ระบุแผนก'}
+                noOptionsText='ไม่พบข้อมูล'
+              />
+            </FormControl>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Button disabled={!enable} size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
+                บันทึกข้อมูล
+              </Button>
+            </Box>
+          </form>
+        )}
       </Box>
     </Drawer>
   );

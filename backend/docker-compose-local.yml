@@ -61,23 +61,6 @@ services:
     volumes:
       - minio-data:/data
 
-  minio-init:
-    image: minio/mc:latest
-    container_name: minio-init
-    depends_on:
-      minio:
-        condition: service_healthy
-    env_file:
-      - .env
-    entrypoint: >
-      /bin/sh -c "
-      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-      mc mb --ignore-existing local/${MINIO_BUCKET_NAME:-nktc-uploads};
-      mc anonymous set download local/${MINIO_BUCKET_NAME:-nktc-uploads};
-      mc admin user svcacct add --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY} local ${MINIO_ROOT_USER} || true;
-      exit 0;
-      "
-
 volumes:
   postgres-data: {}
   minio-data: {}

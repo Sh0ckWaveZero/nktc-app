@@ -23,11 +23,7 @@ interface GoodnessIndividualState {
 export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualState>()(() => ({
   createGoodnessIndividual: async (token: string, body: Body) => {
     try {
-      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}`, body);
       return response;
     } catch (err) {
       console.error('Error creating goodness individual:', err);
@@ -36,11 +32,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
   },
   createGoodnessGroup: async (token: string, body: Body) => {
     try {
-      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/group`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/group`, body);
       return response;
     } catch (err) {
       console.error('Error creating goodness individual:', err);
@@ -49,11 +41,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
   },
   search: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, body);
       return response?.data;
     } catch (err) {
       console.error('Error creating goodness individual:', err);
@@ -62,11 +50,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
   },
   summary: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/summary`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/summary`, body);
       return response?.data;
     } catch (err) {
       console.error('Error get summary:', err);
@@ -75,11 +59,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
   },
   deleteGoodnessIndividualById: async (token: string, id: string) => {
     try {
-      const response = await httpClient.delete(`${authConfig.goodnessIndividualEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.delete(`${authConfig.goodnessIndividualEndpoint}/${id}`);
       return response;
     } catch (err) {
       console.error('Error delete goodness individual:', err);
@@ -90,11 +70,6 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
     try {
       const response = await httpClient.get(
         `${authConfig.goodnessIndividualEndpoint}/${body.studentId}?skip=${body.skip}&take=${body.take}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return response?.data;
     } catch (err) {

@@ -24,11 +24,6 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {
@@ -38,11 +33,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   addActivityCheckIn: async (token: string, data: any) => {
     set({ activityCheckInLoading: true });
     try {
-      const response = await httpClient.post(authConfig.activityCheckInEndpoint as string, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(authConfig.activityCheckInEndpoint as string, data);
       set({ activityCheckIn: await response.data });
     } catch (err) {
       set({ activityCheckInLoading: false, activityCheckInErrors: true });
@@ -51,11 +42,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   updateActivityCheckIn: async (token: string, data: any) => {
     set({ activityCheckInLoading: true });
     try {
-      const response = await httpClient.patch(`${authConfig.activityCheckInEndpoint}/${data.id}/daily-report`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.patch(`${authConfig.activityCheckInEndpoint}/${data.id}/daily-report`, data);
       return await response.data;
     } catch (err) {
       return err;
@@ -65,11 +52,6 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {
@@ -80,11 +62,6 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {
@@ -93,11 +70,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   },
   removeActivityCheckIn: async (token: string, id: string) => {
     try {
-      const { data } = await httpClient.delete(`${authConfig.activityCheckInEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.delete(`${authConfig.activityCheckInEndpoint}/${id}`);
       return await data;
     } catch (err) {
       return err;
@@ -107,11 +80,6 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {

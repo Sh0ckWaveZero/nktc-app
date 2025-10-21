@@ -43,11 +43,6 @@ export const useStatisticsStore = createWithEqualityFn<StatisticsState>()((set) 
 
       const { data } = await httpClient.get(
         `${process.env.NEXT_PUBLIC_API_URL}/statistics/term?${queryParams.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       set({ termStatistics: data, statisticsLoading: false });

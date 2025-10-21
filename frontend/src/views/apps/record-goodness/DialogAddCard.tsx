@@ -98,7 +98,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     }
   }, [imageCompressed]);
 
-  const { isLoading, image } = useGetImage(avatar, storedToken);
+  const { isLoading, image } = useGetImage(avatar);
 
   const handleInputChange = ({ target }: any) => {
     if (target.name === 'details') {

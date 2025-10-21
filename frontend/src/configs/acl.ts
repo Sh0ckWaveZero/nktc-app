@@ -36,6 +36,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'teacher-list-pages');
     can(['read'], 'teacher-page');
     can(['read'], 'view-student-page');
+    can(['read'], 'view-user-page');
     can(['update'], 'student-edit-page');
     can(['manage'], 'student-goodness-summary-report');
     can(['manage'], 'student-badness-summary-report');
@@ -68,6 +69,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'student-page');
     can(['read'], 'summary-check-in-report-activity-page');
     can(['read'], 'view-student-page');
+    can(['read'], 'view-user-page');
     can(['update'], 'student-edit-page');
     can(['read'], 'student-goodness-summary-report');
     can(['read'], 'student-badness-summary-report');

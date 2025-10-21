@@ -5,14 +5,13 @@ import useGetImage from '@/hooks/useGetImage';
 
 interface RenderAvatarProps {
   row: any;
-  storedToken: string;
+  storedToken?: string; // Keep for backward compatibility but mark as optional
   customStyle?: any;
 }
 
 const RenderAvatar = (props: RenderAvatarProps) => {
   const {
     row,
-    storedToken,
     customStyle = {
       mr: 3,
       width: 40,
@@ -21,7 +20,7 @@ const RenderAvatar = (props: RenderAvatarProps) => {
   } = props;
 
   if (row?.avatar) {
-    const { isLoading, image } = useGetImage(row.avatar, storedToken);
+    const { isLoading, image } = useGetImage(row.avatar);
     return isLoading ? <CircularProgress /> : <CustomAvatar src={image as string} sx={customStyle} />;
   } else {
     return (

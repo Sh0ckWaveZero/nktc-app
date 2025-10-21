@@ -208,10 +208,11 @@ const TeacherListPage = () => {
     }),
     shallow,
   );
-  const { classroom, fetchClassroom }: any = useClassroomStore(
+  const { classroom, fetchClassroom, classroomLoading }: any = useClassroomStore(
     (state) => ({
       classroom: state.classroom,
       fetchClassroom: state.fetchClassroom,
+      classroomLoading: state.classroomLoading,
     }),
     shallow,
   );
@@ -668,7 +669,7 @@ const TeacherListPage = () => {
             onSubmitted={onSubmittedClassroom}
             defaultValues={defaultValue}
             data={classroom}
-            onLoad={teacherLoading}
+            onLoad={classroomLoading}
           />
         )}
       </Grid>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -11,9 +11,11 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import LinearProgress from '@mui/material/LinearProgress';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
-// ** Third Party Imports
-import axios from 'axios';
+// ** Custom Hooks
+import { useUserProjects } from '@/hooks/queries';
 
 interface CellType {
   row: any;
@@ -90,17 +92,9 @@ const InvoiceListTable = () => {
   // ** State
   const [value, setValue] = useState<string>('');
   const [pageSize, setPageSize] = useState<number>(7);
-  const [data, setData] = useState<any>([]);
 
-  useEffect(() => {
-    axios
-      .get('/apps/users/project-list', {
-        params: {
-          q: value,
-        },
-      })
-      .then((res) => setData(res.data));
-  }, [value]);
+  // ** Fetch projects with React Query
+  const { data = [], isLoading, error } = useUserProjects(value);
 
   return (
     <Card>
@@ -118,39 +112,54 @@ const InvoiceListTable = () => {
           />
         </Box>
       </CardContent>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        disableRowSelectionOnClick
-        getRowHeight={() => 'auto'}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: pageSize, page: 0 },
-          },
-        }}
-        pageSizeOptions={[7, 10, 25, 50]}
-        onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-        sx={{
-          '& .MuiDataGrid-row': {
-            '&:hover': {
-              backgroundColor: 'action.hover',
+
+      {/* Error Alert */}
+      {error && (
+        <Box sx={{ px: 2, pb: 2 }}>
+          <Alert severity='error'>Error loading projects</Alert>
+        </Box>
+      )}
+
+      {/* Loading State */}
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <DataGrid
+          rows={data}
+          columns={columns}
+          disableRowSelectionOnClick
+          getRowHeight={() => 'auto'}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: pageSize, page: 0 },
             },
-            maxHeight: 'none !important',
-          },
-          '& .MuiDataGrid-cell': {
-            display: 'flex',
-            alignItems: 'center',
-            lineHeight: 'unset !important',
-            maxHeight: 'none !important',
-            overflow: 'visible',
-            whiteSpace: 'normal',
-            wordWrap: 'break-word',
-          },
-          '& .MuiDataGrid-renderingZone': {
-            maxHeight: 'none !important',
-          },
-        }}
-      />
+          }}
+          pageSizeOptions={[7, 10, 25, 50]}
+          onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+          sx={{
+            '& .MuiDataGrid-row': {
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+              maxHeight: 'none !important',
+            },
+            '& .MuiDataGrid-cell': {
+              display: 'flex',
+              alignItems: 'center',
+              lineHeight: 'unset !important',
+              maxHeight: 'none !important',
+              overflow: 'visible',
+              whiteSpace: 'normal',
+              wordWrap: 'break-word',
+            },
+            '& .MuiDataGrid-renderingZone': {
+              maxHeight: 'none !important',
+            },
+          }}
+        />
+      )}
     </Card>
   );
 };

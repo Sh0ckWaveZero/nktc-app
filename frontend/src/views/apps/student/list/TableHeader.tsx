@@ -1,6 +1,6 @@
 // ** MUI Imports
 import Icon from '@/@core/components/icon';
-import { isEmpty } from '@/@core/utils/utils';
+// import { isEmpty } from '@/@core/utils/utils';
 import { Autocomplete, FormControl } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -144,20 +144,22 @@ const TableHeader = (props: TableHeaderProps) => {
               return option.id === value.id;
             }}
             groupBy={(option: any) => option.department?.name}
-            renderInput={(params: any) => (
-              <TextField
-                {...params}
-                label='ห้องเรียน'
-                placeholder='เลือกห้องเรียน'
-                error={isEmpty(classrooms) && loading}
-                helperText={isEmpty(classrooms) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-              />
-            )}
+            renderInput={(params: any) => {
+              return (
+                <TextField
+                  {...params}
+                  label='ห้องเรียน'
+                  placeholder='เลือกห้องเรียน'
+                  error={(!classrooms || classrooms.length === 0) && !loading}
+                  helperText={(!classrooms || classrooms.length === 0) && !loading ? 'ไม่พบข้อมูลห้องเรียน' : ''}
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>

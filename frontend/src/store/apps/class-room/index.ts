@@ -39,11 +39,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
   },
   fetchClassrooms: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.classroomEndpoint}/search`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.classroomEndpoint}/search`, body);
       return response?.data;
     } catch (err) {
       console.log(err);
@@ -53,11 +49,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
   fetchTeachClassroom: async (token: string, teacherId: string) => {
     try {
       set({ classroomLoading: true });
-      const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/teacher/${teacherId}`);
       set({ teacherClassroom: await data, classroomLoading: false, classroomHasErrors: false });
       return await data;
     } catch (err) {
@@ -66,11 +58,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
   },
   removeClassrooms: async (token: string, id: string) => {
     try {
-      const { data } = await httpClient.delete(`${authConfig.classroomEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.delete(`${authConfig.classroomEndpoint}/${id}`);
       return await data;
     } catch (err) {
       return err;
@@ -78,11 +66,7 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
   },
   createClassroom: async (token: string, data: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.classroomEndpoint}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.classroomEndpoint}`, data);
       return response?.data;
     } catch (err) {
       console.log(err);

@@ -23,7 +23,8 @@ export type ThailandAddressValueType = {
 };
 
 export type ThailandAddressValue = ThailandAddressValueType;
-export const ThailandAddressValue = {
+
+export const ThailandAddressValueHelper = {
   empty: (): ThailandAddressValue => ({
     district: '',
     postalCode: '',

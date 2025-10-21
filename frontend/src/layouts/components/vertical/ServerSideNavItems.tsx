@@ -1,8 +1,8 @@
 // ** React Imports
 import { useEffect, useState } from 'react';
 
-// ** Axios Import
-import axios from 'axios';
+// ** HTTP Client Import
+import httpClient from '@/@core/utils/http';
 
 // ** Type Import
 import { VerticalNavItemsType } from '@/@core/layouts/types';
@@ -12,7 +12,7 @@ const ServerSideNavItems = () => {
   const [menuItems, setMenuItems] = useState<VerticalNavItemsType>([]);
 
   useEffect(() => {
-    axios.get('/api/vertical-nav/data').then((response) => {
+    httpClient.get('/api/vertical-nav/data').then((response) => {
       const menuArray = response.data;
 
       /**

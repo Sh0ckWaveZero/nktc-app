@@ -34,8 +34,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'next/navigation';
 import useStudentList from '@/hooks/useStudentList';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 interface CellType {
   row: any;
 }
@@ -50,6 +48,10 @@ const StudentListPage = () => {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const classroom = searchParams.get('classroom');
+
+  // ** LocalStorage
+  const localStorage = new LocalStorageService();
+  const accessToken = localStorage.getToken() || '';
 
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);
@@ -98,18 +100,36 @@ const StudentListPage = () => {
             setCurrentClassroomId(res[0]?.id || null);
           }
         } else {
-          const teacherClassroom = res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
-          setClassrooms(teacherClassroom);
+          // Handle case where teacherOnClassroom might be empty or undefined
+          if (!user?.teacherOnClassroom || user.teacherOnClassroom.length === 0) {
+            // For now, show all classrooms if teacher has no assigned classrooms
+            // This is a temporary solution - in production you might want to show a message
+            setClassrooms(res);
+          } else {
+            const teacherClassroom = res.filter((item: any) =>
+              user.teacherOnClassroom.includes(item.id)
+            );
+            setClassrooms(teacherClassroom);
+          }
           if (classroom) {
-            const currentQueryClassroom = teacherClassroom.filter((item: any) => item.id === classroom);
+            const currentQueryClassroom = classrooms.filter((item: any) => item.id === classroom);
             setInitClassroom(currentQueryClassroom[0] || null);
             setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
           } else {
-            // Set first classroom as default
-            setInitClassroom(teacherClassroom[0] || null);
-            setCurrentClassroomId(teacherClassroom[0]?.id || null);
+            // Set first classroom as default (only if teacher has classrooms)
+            if (classrooms.length > 0) {
+              setInitClassroom(classrooms[0] || null);
+              setCurrentClassroomId(classrooms[0]?.id || null);
+            } else {
+              setInitClassroom(null);
+              setCurrentClassroomId(null);
+            }
           }
         }
+        setLoadingClassroom(false);
+      }).catch((error: any) => {
+        console.error('Error fetching classrooms:', error);
+        setClassrooms([]);
         setLoadingClassroom(false);
       });
     })();
@@ -241,7 +261,7 @@ const StudentListPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <LinkStyled
-            href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`}
+            href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`}
             passHref
           >
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
@@ -323,6 +343,7 @@ const StudentListPage = () => {
               studentId={searchValue.studentId}
               students={studentsListData}
             />
+
             <DataGrid
               rows={students}
               columns={defaultColumns}

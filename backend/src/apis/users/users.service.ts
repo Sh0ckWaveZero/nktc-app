@@ -31,6 +31,53 @@ export class UsersService {
             district: true,
             province: true,
             postcode: true,
+            phone: true,
+          },
+        },
+        teacher: {
+          select: {
+            id: true,
+            teacherId: true,
+            jobTitle: true,
+            academicStanding: true,
+            classrooms: true,
+            department: true,
+            status: true,
+          },
+        },
+        student: {
+          include: {
+            classroom: true,
+            department: true,
+            program: true,
+          },
+        },
+      },
+    });
+    return rest;
+  }
+
+  async findByUsername(username: string) {
+    const { password: p, ...rest } = await this.prisma.user.findUnique({
+      where: {
+        username,
+      },
+      include: {
+        account: {
+          select: {
+            id: true,
+            title: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            birthDate: true,
+            idCard: true,
+            addressLine1: true,
+            subdistrict: true,
+            district: true,
+            province: true,
+            postcode: true,
+            phone: true,
           },
         },
         teacher: {

@@ -1,7 +1,7 @@
 import httpClient from '@/@core/utils/http';
 import { useState, useEffect } from 'react';
 
-const useGetPDF = (url: string, token: string | null) => {
+const useGetPDF = (url: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [PDF, setPDF] = useState<ArrayBuffer | null>(null);
@@ -10,10 +10,7 @@ const useGetPDF = (url: string, token: string | null) => {
     const fetchPDF = async () => {
       try {
         const existingPdfBytes = await httpClient.get(url, {
-          responseType: 'arraybuffer',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          responseType: 'arraybuffer'
         });
 
         setPDF(existingPdfBytes.data);
@@ -29,7 +26,7 @@ const useGetPDF = (url: string, token: string | null) => {
     } else {
       setIsLoading(false);
     }
-  }, [url, token]);
+  }, [url]);
 
   return { isLoading, PDF, error };
 };

@@ -50,11 +50,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   getMe: async (token: string) => {
     set({ userInfo: null, userLoading: true });
     try {
-      const { data } = await httpClient.get(authConfig.meEndpoint as string, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(authConfig.meEndpoint as string);
       set({ userInfo: { ...userInfo, data }, userLoading: false, hasErrors: false });
       return await data;
     } catch (err) {
@@ -64,11 +60,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   },
   async fetchUserById(token, userId) {
     try {
-      const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
       return await data;
     } catch (err) {
       return null;
@@ -91,11 +83,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
     set({ userLoading: true });
     try {
       await httpClient
-        .put(`${authConfig.changePasswordEndpoint}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        .put(`${authConfig.changePasswordEndpoint}`, data)
         .then(async (response: any) => {
           const { data } = await response.data;
           set({ userInfo: await data, userLoading: false, hasErrors: false });
@@ -106,11 +94,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   },
   resetPasswordByAdmin: async (token: string, body: any) => {
     try {
-      const { data } = await httpClient.put(`${authConfig.userEndpoint}/update/password/${body?.teacher?.id}`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.put(`${authConfig.userEndpoint}/update/password/${body?.teacher?.id}`, body);
       return await data;
     } catch (err) {
       return err;
@@ -120,11 +104,6 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
     try {
       const { data } = await httpClient.get(
         `${authConfig.userEndpoint}/audit-logs/${params.userName}?skip=${params.skip}&take=${params.take}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return await data;
     } catch (err) {

@@ -22,11 +22,7 @@ interface BadnessIndividualState {
 export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualState>()(() => ({
   createBadnessIndividual: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}`, body);
       return response;
     } catch (err) {
       console.error('Error creating badness individual:', err);
@@ -35,11 +31,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
   },
   createBadnessGroup: async (token: string, body: Body) => {
     try {
-      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/group`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/group`, body);
       return response;
     } catch (err) {
       console.error('Error creating goodness individual:', err);
@@ -48,11 +40,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
   },
   search: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/search`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/search`, body);
       return response?.data;
     } catch (err) {
       console.error('Error creating badness individual:', err);
@@ -61,11 +49,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
   },
   summary: async (token: string, body: any) => {
     try {
-      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/summary`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/summary`, body);
       return response?.data;
     } catch (err) {
       console.error('Error get summary:', err);
@@ -74,11 +58,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
   },
   deleteBadnessIndividualById: async (token: string, id: string) => {
     try {
-      const response = await httpClient.delete(`${authConfig.badnessIndividualEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await httpClient.delete(`${authConfig.badnessIndividualEndpoint}/${id}`);
       return response;
     } catch (err) {
       console.error('Error deleting badness individual:', err);
@@ -89,11 +69,6 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
     try {
       const response = await httpClient.get(
         `${authConfig.badnessIndividualEndpoint}/${body.studentId}?skip=${body.skip}&take=${body.take}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       return response?.data;
     } catch (err) {

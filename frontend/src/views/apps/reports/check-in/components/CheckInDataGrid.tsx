@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, styled, Container, Checkbox, Typography, Chip, CheckboxProps } from '@mui/material';
+import { Box, styled, Checkbox, Typography, Chip, CheckboxProps } from '@mui/material';
 import { DataGrid, GridColDef, GridCellParams, GridEventListener, gridClasses } from '@mui/x-data-grid';
 import Icon from '@/@core/components/icon';
 import RenderAvatar from '@/@core/components/avatar';
@@ -32,6 +32,9 @@ interface CheckInDataGridProps {
 }
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
+  '& .MuiDataGrid-virtualScroller': {
+    backgroundColor: 'transparent !important',
+  },
   [`& .${gridClasses.row}.internship`]: {
     backgroundColor: theme.palette.grey[200],
     ...theme.applyStyles('dark', {
@@ -90,10 +93,20 @@ const CheckInDataGrid = ({
       flex: 0.25,
       minWidth: 220,
       field: 'fullName',
-      headerName: 'ชื่อ-สกุล',
       editable: false,
       sortable: false,
       hideSortIcons: true,
+      renderHeader: () => (
+        <Typography
+          sx={{
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            color: 'text.primary',
+          }}
+        >
+          ชื่อ-สกุล
+        </Typography>
+      ),
       renderCell: ({ row }: any) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -129,12 +142,19 @@ const CheckInDataGrid = ({
       hideSortIcons: true,
       align: 'center' as any,
       renderHeader: () => (
-        <Container
+        <Box
           id='checkin-present-header'
-          className='MuiDataGrid-columnHeaderTitle'
-          sx={{ display: 'flex', textAlign: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {'เข้าร่วม'}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: 'text.primary',
+            }}
+          >
+            เข้าร่วม
+          </Typography>
           <CheckboxStyled
             id='checkin-present-select-all'
             color='success'
@@ -151,7 +171,7 @@ const CheckInDataGrid = ({
               />
             }
           />
-        </Container>
+        </Box>
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
@@ -172,12 +192,19 @@ const CheckInDataGrid = ({
       hideSortIcons: true,
       align: 'center' as any,
       renderHeader: () => (
-        <Container
+        <Box
           id='checkin-absent-header'
-          className='MuiDataGrid-columnHeaderTitle'
-          sx={{ display: 'flex', textAlign: 'start' }}
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {'ไม่เข้าร่วม'}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: 'text.primary',
+            }}
+          >
+            ไม่เข้าร่วม
+          </Typography>
           <CheckboxStyled
             id='checkin-absent-select-all'
             color='error'
@@ -194,7 +221,7 @@ const CheckInDataGrid = ({
               />
             }
           />
-        </Container>
+        </Box>
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
@@ -215,12 +242,19 @@ const CheckInDataGrid = ({
       hideSortIcons: true,
       align: 'center' as any,
       renderHeader: () => (
-        <Container
+        <Box
           id='checkin-leave-header'
-          className='MuiDataGrid-columnHeaderTitle'
-          sx={{ display: 'flex', textAlign: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {'ลา'}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: 'text.primary',
+            }}
+          >
+            ลา
+          </Typography>
           <CheckboxStyled
             id='checkin-leave-select-all'
             color='info'
@@ -237,7 +271,7 @@ const CheckInDataGrid = ({
               />
             }
           />
-        </Container>
+        </Box>
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
@@ -258,12 +292,19 @@ const CheckInDataGrid = ({
       hideSortIcons: true,
       align: 'center' as any,
       renderHeader: () => (
-        <Container
+        <Box
           id='checkin-late-header'
-          className='MuiDataGrid-columnHeaderTitle'
-          sx={{ display: 'flex', textAlign: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {'สาย'}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: 'text.primary',
+            }}
+          >
+            สาย
+          </Typography>
           <CheckboxStyled
             id='checkin-late-select-all'
             color='warning'
@@ -280,7 +321,7 @@ const CheckInDataGrid = ({
               />
             }
           />
-        </Container>
+        </Box>
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
@@ -301,12 +342,19 @@ const CheckInDataGrid = ({
       hideSortIcons: true,
       align: 'center' as any,
       renderHeader: () => (
-        <Container
+        <Box
           id='checkin-internship-header'
-          className='MuiDataGrid-columnHeaderTitle'
-          sx={{ display: 'flex', textAlign: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
         >
-          {'ฝึกงาน'}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: 'text.primary',
+            }}
+          >
+            ฝึกงาน
+          </Typography>
           <CheckboxStyled
             id='checkin-internship-select-all'
             color='secondary'
@@ -323,7 +371,7 @@ const CheckInDataGrid = ({
               />
             }
           />
-        </Container>
+        </Box>
       ),
       renderCell: (params: GridCellParams) => (
         <Checkbox
@@ -339,10 +387,20 @@ const CheckInDataGrid = ({
       flex: 0.2,
       minWidth: 110,
       field: 'status',
-      headerName: 'สถานะ',
       editable: false,
       sortable: false,
       hideSortIcons: true,
+      renderHeader: () => (
+        <Typography
+          sx={{
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            color: 'text.primary',
+          }}
+        >
+          สถานะ
+        </Typography>
+      ),
       renderCell: ({ row }: any) => {
         const { status, color } = getStudentStatus(row.id);
         return (
@@ -383,6 +441,41 @@ const CheckInDataGrid = ({
           noRowsOverlay: CustomNoRowsOverlay,
         }}
         sx={{
+          borderRadius: 0,
+          backgroundColor: 'background.paper',
+          '& .MuiDataGrid-main': {
+            borderRadius: 0,
+            backgroundColor: 'transparent',
+          },
+          '& .MuiDataGrid-mainContent': {
+            borderRadius: 0,
+            backgroundColor: 'transparent',
+          },
+          '& .MuiDataGrid-virtualScroller': {
+            backgroundColor: 'transparent !important',
+            background: 'none !important',
+          },
+          '& .MuiDataGrid-virtualScrollerContent': {
+            backgroundColor: 'transparent !important',
+          },
+          '& .MuiDataGrid-virtualScrollerRenderZone': {
+            backgroundColor: 'transparent !important',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            borderRadius: 0,
+            minHeight: '65px !important',
+            maxHeight: '65px !important',
+            height: '65px !important',
+            lineHeight: '65px !important',
+          },
+          '& .MuiDataGrid-columnHeader': {
+            height: '65px !important',
+            minHeight: '65px !important',
+            maxHeight: '65px !important',
+          },
+          '& .MuiDataGrid-footerContainer': {
+            borderRadius: 0,
+          },
           '& .MuiDataGrid-row': {
             '&:hover': {
               backgroundColor: 'action.hover',

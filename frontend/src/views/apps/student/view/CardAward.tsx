@@ -87,7 +87,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   const [open, setOpen] = useState(false);
   const [pdfData, setPdfData] = useState<any | null>(null);
   const certsUrl = `${process.env.NEXT_PUBLIC_API_URL}/statics/goodness-individual/certs/${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`;
-  const { PDF, isLoading } = useGetPDF(certsUrl, accessToken);
+  const { PDF, isLoading } = useGetPDF(certsUrl);
 
   const handleClose = () => {
     setOpen(false);

@@ -17,12 +17,14 @@ import {
   TextField,
   Typography,
   styled,
+  CircularProgress,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
+import httpClient from '@/@core/utils/http';
 
 interface StudentEditPageProps {
   id: string;
@@ -57,29 +59,68 @@ const ImgStyled = styled('img')(({ theme }) => ({
 
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: 'onBlur',
     defaultValues: {
-      studentId: id || '',
+      studentId: '',
       title: '',
       firstName: '',
       lastName: '',
       idCard: '',
       phone: '',
-      status: 'active',
+      status: 'normal',
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log('Student Edit Data:', data);
-    toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
+        const response = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`);
+
+        const data = response.data;
+        reset({
+          studentId: data.studentId || '',
+          title: data.title || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          idCard: data.idCard || '',
+          phone: data.phone || '',
+          status: data.status || 'normal',
+        });
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+        toast.error('ไม่สามารถโหลดข้อมูลนักเรียนได้');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchStudentData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await httpClient.put(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`, data);
+
+      toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
+      router.back();
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast.error('ไม่สามารถแก้ไขข้อมูลนักเรียนได้');
+    }
   };
 
   const onChange = (file: ChangeEvent) => {
@@ -90,6 +131,16 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       reader.readAsDataURL(files[0]);
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+          <CircularProgress />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -245,8 +296,8 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                   <FormControl fullWidth error={Boolean(errors.status)}>
                     <InputLabel>สถานะ</InputLabel>
                     <Select value={value} label='สถานะ' onChange={onChange}>
-                      <MenuItem value='active'>เรียนอยู่</MenuItem>
-                      <MenuItem value='inactive'>ไม่เรียนแล้ว</MenuItem>
+                      <MenuItem value='normal'>เรียนอยู่</MenuItem>
+                      <MenuItem value='dropout'>ไม่เรียนแล้ว</MenuItem>
                       <MenuItem value='graduated'>จบการศึกษา</MenuItem>
                     </Select>
                     {errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}

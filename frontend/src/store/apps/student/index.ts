@@ -31,9 +31,6 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
     try {
       const { data } = await httpClient.get(authConfig.studentEndpoint + '/search', {
         params: params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       return await data;
     } catch (err) {
@@ -44,9 +41,6 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
     try {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/list`, {
         params: params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       return await data;
     } catch (err) {
@@ -60,12 +54,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
         {
           classroomId: params?.classroomId || null,
           search: params?.search || null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        }
       );
       return await data;
     } catch (err) {
@@ -74,11 +63,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   },
   removeStudents: async (token: string, studentId: string) => {
     try {
-      return await httpClient.delete(`${authConfig.studentEndpoint}/profile/${studentId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      return await httpClient.delete(`${authConfig.studentEndpoint}/profile/${studentId}`);
     } catch (err) {
       return err;
     }
@@ -86,11 +71,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   updateStudentProfile: async (token: string, studentId: string, params: any) => {
     set({ loading: true });
     try {
-      const { data } = await httpClient.put(`${authConfig.studentEndpoint}/profile/${studentId}`, params, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.put(`${authConfig.studentEndpoint}/profile/${studentId}`, params);
       set({ loading: false, hasErrors: false });
       return await data;
     } catch (err) {
@@ -100,22 +81,14 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   },
   createStudentProfile: async (token: string, userId: string, params: any) => {
     try {
-      return await httpClient.post(`${authConfig.studentEndpoint}/profile/${userId}`, params, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      return await httpClient.post(`${authConfig.studentEndpoint}/profile/${userId}`, params);
     } catch (err) {
       return err;
     }
   },
   getAvatar: async (token: string, url: string) => {
     try {
-      const { data } = await httpClient.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(url);
       return await data;
     } catch (err) {
       return err;
@@ -123,11 +96,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   },
   getTrophyOverview: async (token: string, studentId: string) => {
     try {
-      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/trophy-overview/${studentId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/trophy-overview/${studentId}`);
       return await data;
     } catch (err) {
       return err;
@@ -135,11 +104,7 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   },
   getTeacherClassroom: async (token: string, classroomId: string) => {
     try {
-      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}/teacher`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}/teacher`);
       return await data;
     } catch (err) {
       return err;

@@ -168,6 +168,22 @@ export class StudentsController {
     return await this.studentsService.importFromXlsx(file, req.user);
   }
 
+  @Get('profile/:id')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@Param('id') id: string) {
+    try {
+      return await this.studentsService.getProfile(id);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: error?.message || 'Student not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
   @Get('classroom/:id/teacher')
   async getTeacherClassroom(@Param('id') id: string) {
     try {

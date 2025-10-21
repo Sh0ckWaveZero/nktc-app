@@ -1,7 +1,7 @@
 import httpClient from '@/@core/utils/http';
 import { useState, useEffect } from 'react';
 
-const useGetImage = (url: string, token: string | null) => {
+const useGetImage = (url: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -12,9 +12,6 @@ const useGetImage = (url: string, token: string | null) => {
       try {
         if (!url.startsWith('data:') && url !== '/images/avatars/1.png') {
           const response = await httpClient.get(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
             responseType: 'blob',
           });
           const newObjectUrl = URL.createObjectURL(response.data);
@@ -42,7 +39,7 @@ const useGetImage = (url: string, token: string | null) => {
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [url, token]);
+  }, [url]);
 
   return { isLoading, image, error };
 };

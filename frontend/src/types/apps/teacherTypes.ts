@@ -1,5 +1,6 @@
 // ** Types
 import { ThemeColor } from '@/@core/layouts/types';
+import { Department } from '@/context/types';
 
 export type TeacherLayoutType = {
   id: string | undefined;
@@ -27,6 +28,7 @@ export type Classroom = {
   description?: string;
   levelId?: string;
   programId?: string;
+  departmentId?: string;
   status?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -34,6 +36,9 @@ export type Classroom = {
   createdBy?: string;
   level?: Level;
   program?: Program;
+  department?: Department;
+  teacherIds?: string[];
+  levelClassroomIds?: string[];
 };
 
 export type Level = {

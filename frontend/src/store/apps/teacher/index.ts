@@ -30,10 +30,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
     set({ teacherLoading: true });
     try {
       const { data } = await httpClient.get(authConfig.teacherEndpoint as string, {
-        params: params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        params: params
       });
       return await data;
     } catch (err) {
@@ -42,11 +39,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   },
   fetchStudentsByTeacherId: async (token: string, teacherId: string) => {
     try {
-      const { data } = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/students`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/students`);
       return await data;
     } catch (err) {
       return err;
@@ -55,11 +48,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   updateClassroom: async (token: string, teacher: any) => {
     set({ teacherLoading: true });
     try {
-      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/classrooms`, teacher, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/classrooms`, teacher);
       set({ teacherLoading: false, hasErrors: false });
       return await data;
     } catch (err) {
@@ -69,11 +58,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   updateProfile: async (token: string, teacher: any) => {
     set({ teacherLoading: true });
     try {
-      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/profile`, teacher, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/profile`, teacher);
       set({ teacherLoading: false, hasErrors: false });
       return await data;
     } catch (err) {
@@ -83,11 +68,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   update: async (token: string, body: any) => {
     set({ teacherLoading: true });
     try {
-      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${body?.teacher?.id}`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${body?.teacher?.id}`, body);
       return await data;
     } catch (err) {
       return err;
@@ -95,11 +76,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   },
   addTeacher: async (token: string, body: any) => {
     try {
-      const { data } = await httpClient.post(`${authConfig.teacherEndpoint}`, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.post(`${authConfig.teacherEndpoint}`, body);
       return await data;
     } catch (err) {
       return err;
@@ -107,11 +84,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   },
   removeTeacher: async (token: string, id: string) => {
     try {
-      const { data } = await httpClient.delete(`${authConfig.teacherEndpoint}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await httpClient.delete(`${authConfig.teacherEndpoint}/${id}`);
       return await data;
     } catch (err) {
       return err;

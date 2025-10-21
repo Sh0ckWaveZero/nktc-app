@@ -36,7 +36,11 @@
       "Bash(npm ls:*)",
       "Bash(bunx:*)",
       "Bash(chmod:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(timeout:*)",
+      "Bash(lsof:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(xargs kill:*)"
     ],
     "deny": []
   }

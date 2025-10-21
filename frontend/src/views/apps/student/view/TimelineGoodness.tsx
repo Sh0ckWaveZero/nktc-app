@@ -1,6 +1,6 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Button, Tooltip } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Typography, Button, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
+import Timeline from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
 import { CircularProgress } from '@mui/material';
@@ -18,7 +18,7 @@ const localStorageService = new LocalStorageService();
 const storedToken = localStorageService.getToken() || '';
 
 const getImage = (image: string) => {
-  const { isLoading, image: badnessImage } = useGetImage(image, storedToken);
+  const { isLoading, image: badnessImage } = useGetImage(image);
 
   return isLoading ? (
     <CircularProgress />
@@ -40,21 +40,6 @@ const getImage = (image: string) => {
   );
 };
 
-// Styled Timeline component
-const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
-  margin: 0,
-  padding: 0,
-  marginLeft: theme.spacing(0.75),
-  '& .MuiTimelineItem-root': {
-    '&:before': {
-      display: 'none',
-    },
-    '&:last-child': {
-      minHeight: 60,
-    },
-  },
-}));
-
 const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
@@ -62,9 +47,21 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
         <Card>
           <CardHeader title='รายละเอียคความดี' />
           <CardContent>
+            {/* @ts-ignore - React 19 type compatibility issue with MUI Lab */}
             <Timeline
               sx={{
+                margin: 0,
+                padding: 0,
+                marginLeft: 0.75,
                 paddingBottom: 3,
+                '& .MuiTimelineItem-root': {
+                  '&:before': {
+                    display: 'none',
+                  },
+                  '&:last-child': {
+                    minHeight: 60,
+                  },
+                },
               }}
             >
               {info.map((item, index) => (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -22,12 +22,9 @@ import {
 } from '@mui/material';
 import { FaChartPie, FaUserGraduate, FaChalkboardTeacher, FaFileExcel } from 'react-icons/fa';
 import { MdAssessment } from 'react-icons/md';
-import { shallow } from 'zustand/shallow';
 import * as XLSX from 'xlsx';
 
-import { useStatisticsStore } from '@/store';
-import { LocalStorageService } from '@/services/localStorageService';
-import { apiService } from '@/services/apiService';
+import { useTermStatistics, useDepartments, usePrograms } from '@/hooks/queries';
 import StatisticsCard from './components/StatisticsCard';
 import AttendanceChart from './components/AttendanceChart';
 import TeacherUsageChart from './components/TeacherUsageChart';
@@ -42,109 +39,37 @@ import {
 } from '@/@core/components/mui/date-picker-thai/utils';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
-const localStorageService = new LocalStorageService();
-
 const TermStatisticsPage = () => {
-  const { getTermStatistics }: any = useStatisticsStore(
-    (state) => ({
-      getTermStatistics: state.getTermStatistics,
-    }),
-    shallow,
-  );
-
-  const storedToken = localStorageService.getToken() || '';
-
   const [termStartDate, setTermStartDate] = useState<Date | null>(getStartOfMonth());
   const [termEndDate, setTermEndDate] = useState<Date | null>(getEndOfMonth());
-  const [statistics, setStatistics] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [programFilter, setProgramFilter] = useState<string>('all');
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
-  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Memoize query params to prevent unnecessary refetches
+  const queryParams = useMemo(
+    () => ({
+      startDate: termStartDate ? formatDateForAPI(termStartDate) : '',
+      endDate: termEndDate ? formatDateForAPI(termEndDate) : '',
+      departmentId: departmentFilter,
+      programId: programFilter,
+    }),
+    [termStartDate, termEndDate, departmentFilter, programFilter]
+  );
 
-  useEffect(() => {
-    fetchDepartments();
-    fetchPrograms();
-  }, []);
+  // Fetch statistics with React Query
+  const {
+    data: statistics,
+    isLoading: isLoadingData,
+    error: statisticsError,
+  } = useTermStatistics(queryParams);
 
-  // Debounced fetch with 800ms delay
-  useEffect(() => {
-    if (fetchTimeoutRef.current) {
-      clearTimeout(fetchTimeoutRef.current);
-    }
+  // Fetch departments and programs
+  const { data: departments = [] } = useDepartments();
+  const { data: programs = [] } = usePrograms();
 
-    fetchTimeoutRef.current = setTimeout(() => {
-      fetchStatistics();
-    }, 800);
-
-    return () => {
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
-    };
-  }, [termStartDate, termEndDate, departmentFilter, programFilter]);
-
-  const fetchDepartments = async () => {
-    try {
-      const response = await apiService.get('/departments', storedToken);
-      if (response?.data) {
-        setDepartments(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching departments:', err);
-    }
-  };
-
-  const fetchPrograms = async () => {
-    try {
-      const response = await apiService.get('/programs', storedToken);
-      if (response?.data) {
-        setPrograms(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching programs:', err);
-    }
-  };
-
-  const fetchStatistics = useCallback(async () => {
-    if (!termStartDate || !termEndDate) return;
-
-    try {
-      setError(null);
-      setIsLoadingData(true);
-
-      const params: any = {
-        startDate: formatDateForAPI(termStartDate),
-        endDate: formatDateForAPI(termEndDate),
-      };
-
-      if (departmentFilter !== 'all') {
-        params.departmentId = departmentFilter;
-      }
-
-      if (programFilter !== 'all') {
-        params.programId = programFilter;
-      }
-
-      const result = await getTermStatistics(storedToken, params);
-
-      if (result) {
-        setStatistics(result);
-      } else {
-        console.warn('⚠️ No statistics data received');
-      }
-    } catch (err: any) {
-      setError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
-      console.error('Error fetching statistics:', err);
-    } finally {
-      setIsLoadingData(false);
-    }
-  }, [termStartDate, termEndDate, departmentFilter, programFilter, storedToken, getTermStatistics]);
+  // Convert error to string
+  const error = statisticsError ? 'เกิดข้อผิดพลาดในการโหลดข้อมูล' : null;
 
   const handleExportExcel = () => {
     if (!statistics || !termStartDate || !termEndDate) return;

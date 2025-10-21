@@ -1,23 +1,12 @@
-import axios from 'axios';
 import { authConfig } from '@/configs/auth';
-import { LocalStorageService } from './localStorageService';
-
-const localStorageService = new LocalStorageService();
+import httpClient from '@/@core/utils/http';
 
 class ApiService {
-  private getAuthHeaders() {
-    const token = localStorageService.getToken();
-    return {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-  }
 
   async getStudentsWithCheckInStatus(params?: any) {
     try {
       // First get students
-      const response = await axios.get(`${authConfig.studentEndpoint}/list`, {
-        headers: this.getAuthHeaders(),
+      const response = await httpClient.get(`${authConfig.studentEndpoint}/list`, {
         params,
       });
 
@@ -28,11 +17,8 @@ class ApiService {
         try {
           // We'll need teacherId for this - for now we'll use a placeholder or get it from auth
           // This should be enhanced to get the actual teacher ID
-          const checkInResponse = await axios.get(
-            `${authConfig.activityCheckInEndpoint}/teacher/1/classroom/${params.classroomId}/start-date/${params.date || new Date().toISOString().split('T')[0]}/daily-report`,
-            {
-              headers: this.getAuthHeaders(),
-            },
+          const checkInResponse = await httpClient.get(
+            `${authConfig.activityCheckInEndpoint}/teacher/1/classroom/${params.classroomId}/start-date/${params.date || new Date().toISOString().split('T')[0]}/daily-report`
           );
 
           // If we have existing check-in data, merge it with students
@@ -65,8 +51,7 @@ class ApiService {
 
   async getStudents(params?: any) {
     try {
-      const response = await axios.get(`${authConfig.studentEndpoint}/list`, {
-        headers: this.getAuthHeaders(),
+      const response = await httpClient.get(`${authConfig.studentEndpoint}/list`, {
         params,
       });
       return response.data;
@@ -78,9 +63,7 @@ class ApiService {
 
   async getClassrooms() {
     try {
-      const response = await axios.get(`${authConfig.classroomEndpoint}`, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await httpClient.get(`${authConfig.classroomEndpoint}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching classrooms:', error);
@@ -90,9 +73,7 @@ class ApiService {
 
   async getTeacherClassroomsAndStudents(teacherId: string) {
     try {
-      const response = await axios.get(`${authConfig.teacherEndpoint}/${teacherId}/students`, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/students`);
       return response.data;
     } catch (error) {
       console.error('Error fetching teacher classrooms and students:', error);
@@ -111,9 +92,7 @@ class ApiService {
     internship: string[];
   }) {
     try {
-      const response = await axios.post(`${authConfig.activityCheckInEndpoint}`, checkInData, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await httpClient.post(`${authConfig.activityCheckInEndpoint}`, checkInData);
       return response.data;
     } catch (error) {
       console.error('Error saving check-in data:', error);
@@ -123,11 +102,8 @@ class ApiService {
 
   async getCheckInData(teacherId: string, classroomId: string, date: string) {
     try {
-      const response = await axios.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${teacherId}/classroom/${classroomId}/start-date/${date}/daily-report`,
-        {
-          headers: this.getAuthHeaders(),
-        },
+      const response = await httpClient.get(
+        `${authConfig.activityCheckInEndpoint}/teacher/${teacherId}/classroom/${classroomId}/start-date/${date}/daily-report`
       );
       return response.data;
     } catch (error) {
@@ -136,15 +112,52 @@ class ApiService {
     }
   }
 
-  async get(endpoint: string, token?: string) {
+  async get(endpoint: string, config?: any) {
     try {
-      const headers = token ? { Authorization: `Bearer ${token}` } : this.getAuthHeaders();
-      const response = await axios.get(`${authConfig.backEndUrl}${endpoint}`, {
-        headers,
-      });
+      const response = await httpClient.get(`${authConfig.backEndUrl}${endpoint}`, config);
       return response;
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  async post(endpoint: string, data?: any, config?: any) {
+    try {
+      const response = await httpClient.post(`${authConfig.backEndUrl}${endpoint}`, data, config);
+      return response;
+    } catch (error) {
+      console.error(`Error posting to ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  async put(endpoint: string, data?: any, config?: any) {
+    try {
+      const response = await httpClient.put(`${authConfig.backEndUrl}${endpoint}`, data, config);
+      return response;
+    } catch (error) {
+      console.error(`Error updating ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  async patch(endpoint: string, data?: any, config?: any) {
+    try {
+      const response = await httpClient.patch(`${authConfig.backEndUrl}${endpoint}`, data, config);
+      return response;
+    } catch (error) {
+      console.error(`Error patching ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  async delete(endpoint: string, config?: any) {
+    try {
+      const response = await httpClient.delete(`${authConfig.backEndUrl}${endpoint}`, config);
+      return response;
+    } catch (error) {
+      console.error(`Error deleting ${endpoint}:`, error);
       throw error;
     }
   }
