@@ -44,7 +44,7 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
         <Card>
           <CardHeader title='รายละเอียคความดี' />
           <CardContent>
-            {/* @ts-ignore - React 19 type compatibility issue with MUI Lab */}
+            {/* @ts-expect-error - React 19 type compatibility issue with MUI Lab */}
             <Timeline
               sx={{
                 margin: 0,

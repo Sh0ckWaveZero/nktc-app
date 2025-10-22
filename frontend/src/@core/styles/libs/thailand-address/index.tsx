@@ -22,11 +22,11 @@ type SuggestionPanelPropTypes = {
   ds: DataSourceItem[];
   shouldVisible: boolean;
   onDataSourceItemSelected?: (ds: ThailandAddressValue) => void;
-  containerProps?: React.HTMLAttributes<HTMLUListElement> & {
-    ref?: React.Ref<HTMLUListElement>;
+  containerProps?: React.HTMLAttributes<HTMLElement> & {
+    ref?: React.Ref<HTMLElement>;
   };
-  optionItemProps?: React.LiHTMLAttributes<HTMLLIElement> & {
-    ref?: React.Ref<HTMLLIElement>;
+  optionItemProps?: React.LiHTMLAttributes<HTMLElement> & {
+    ref?: React.Ref<HTMLElement>;
   };
   highlightedItemIndex?: number;
   onOptionMouseEnter?: (i: number) => void;

@@ -142,6 +142,13 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
     }
   }, [pageSettings]);
 
+  const saveSettings = (updatedSettings: Settings) => {
+    if (typeof window !== 'undefined') {
+      storeSettings(updatedSettings);
+    }
+    setSettings(updatedSettings);
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (settings.layout === 'horizontal' && settings.skin === 'semi-dark') {
@@ -151,14 +158,7 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
         saveSettings({ ...settings, appBar: 'fixed' });
       }
     }
-  }, [settings.layout]);
-
-  const saveSettings = (updatedSettings: Settings) => {
-    if (typeof window !== 'undefined') {
-      storeSettings(updatedSettings);
-    }
-    setSettings(updatedSettings);
-  };
+  }, [settings.layout, saveSettings]);
 
   return <SettingsContext.Provider value={{ settings, saveSettings }}>{children}</SettingsContext.Provider>;
 };

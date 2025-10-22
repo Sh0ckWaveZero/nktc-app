@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 
@@ -71,11 +72,13 @@ export default [
     },
     plugins: {
       react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
       '@typescript-eslint': tsPlugin,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/ban-ts-ignore': 'off',
@@ -100,6 +103,11 @@ export default [
       'no-unused-expressions': 'off',
       '@typescript-eslint/no-unused-expressions': 'warn',
       'no-redeclare': 'error',
+      'react-hooks/rules-of-hooks': 'warn',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/preserve-manual-memoization': 'warn',
     },
     settings: {
       react: {
