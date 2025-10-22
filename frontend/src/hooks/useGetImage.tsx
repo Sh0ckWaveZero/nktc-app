@@ -1,5 +1,5 @@
 import httpClient from '@/@core/utils/http';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface UseGetImageReturn {
   isLoading: boolean;
@@ -13,7 +13,7 @@ const useGetImage = (url: string): UseGetImageReturn => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [image, setImage] = useState<string | null>(null);
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -41,7 +41,7 @@ const useGetImage = (url: string): UseGetImageReturn => {
         });
 
         const newObjectUrl = URL.createObjectURL(response.data);
-        setObjectUrl(newObjectUrl);
+        objectUrlRef.current = newObjectUrl;
         setImage(newObjectUrl);
         setIsLoading(false);
       } catch (err: any) {
@@ -56,8 +56,9 @@ const useGetImage = (url: string): UseGetImageReturn => {
     fetchImage();
 
     return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
       }
     };
   }, [url]);
