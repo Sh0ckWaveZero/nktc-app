@@ -127,7 +127,7 @@ const ActivityCheckInReportPage = () => {
     const fetchData = async () => {
       const teacherId = auth?.user?.teacher?.id as string;
       setLoading(true);
-      const { data: classroomData } = await fetchStudentsByTeacherId(storedToken, teacherId);
+      const { data: classroomData } = await fetchStudentsByTeacherId(teacherId);
       if (!classroomData.classrooms || !classroomData.classrooms.length) {
         setLoading(false);
         return;
@@ -327,7 +327,7 @@ const ActivityCheckInReportPage = () => {
 
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
-    await getActivityCheckIn(storedToken, { teacher, classroom }).then(async (data: any) => {
+    await getActivityCheckIn({ teacher, classroom }).then(async (data: any) => {
       setReportCheckIn(await data);
       setLoading(false);
     });
@@ -345,7 +345,7 @@ const ActivityCheckInReportPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row}  />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap
@@ -484,7 +484,7 @@ const ActivityCheckInReportPage = () => {
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
     if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addActivityCheckIn(storedToken, data), {
+      toast.promise(addActivityCheckIn(data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',

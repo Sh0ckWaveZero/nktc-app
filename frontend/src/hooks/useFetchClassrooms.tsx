@@ -4,7 +4,7 @@ import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useClassroomStore } from '@/store/index';
 
-const useFetchClassrooms = (storedToken: string) => {
+const useFetchClassrooms = () => {
   const { fetchClassroom }: any = useClassroomStore(
     (state: any) => ({
       fetchClassroom: state.fetchClassroom,
@@ -19,7 +19,7 @@ const useFetchClassrooms = (storedToken: string) => {
     const fetch = async () => {
       try {
         setClassroomLoading(true);
-        const response = await fetchClassroom(storedToken);
+        const response = await fetchClassroom();
         setClassrooms(response);
         setClassroomLoading(false);
       } catch (error) {
@@ -28,7 +28,7 @@ const useFetchClassrooms = (storedToken: string) => {
       }
     };
     fetch();
-  }, [storedToken]);
+  }, []);
 
   return [classrooms, classroomLoading];
 };

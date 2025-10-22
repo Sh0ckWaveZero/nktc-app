@@ -130,7 +130,7 @@ const CheckInDailyReportPage = () => {
     const fetchData = async () => {
       const teacherId = auth?.user?.teacher?.id as string;
       setLoading(true);
-      const { data: classroomData } = await fetchStudentsByTeacherId(storedToken, teacherId);
+      const { data: classroomData } = await fetchStudentsByTeacherId(teacherId);
       if (!classroomData.classrooms || !classroomData.classrooms.length) {
         setLoading(false);
         return;
@@ -318,7 +318,7 @@ const CheckInDailyReportPage = () => {
       <Card sx={{ mb: 2, border: 1, borderColor: 'divider' }}>
         <CardContent sx={{ p: isMobile ? 2 : 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <RenderAvatar row={student}  />
+            <RenderAvatar row={student} />
             <Box sx={{ ml: isMobile ? 1.5 : 2, flex: 1 }}>
               <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ fontWeight: 600 }}>
                 {student?.title} {student?.firstName} {student?.lastName}
@@ -385,7 +385,7 @@ const CheckInDailyReportPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row}  />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap
@@ -526,7 +526,7 @@ const CheckInDailyReportPage = () => {
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
     if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addActivityCheckIn(storedToken, data), {
+      toast.promise(addActivityCheckIn(data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
@@ -554,7 +554,7 @@ const CheckInDailyReportPage = () => {
 
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
-    await getActivityCheckIn(storedToken, { teacher, classroom }).then(async (data: any) => {
+    await getActivityCheckIn({ teacher, classroom }).then(async (data: any) => {
       setReportCheckIn(await data);
       setLoading(false);
     });

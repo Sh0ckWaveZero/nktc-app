@@ -12,16 +12,16 @@ type Body = {
 };
 
 interface GoodnessIndividualState {
-  createGoodnessIndividual: (token: string, body: any) => any;
-  createGoodnessGroup: (token: string, body: any) => any;
-  search: (token: string, body: Body) => any;
-  summary: (token: string, body: any) => any;
-  deleteGoodnessIndividualById: (token: string, id: string) => any;
-  fetchGoodnessIndividualById: (token: string, body: Body) => any;
+  createGoodnessIndividual: (body: any) => any;
+  createGoodnessGroup: (body: any) => any;
+  search: (body: Body) => any;
+  summary: (body: any) => any;
+  deleteGoodnessIndividualById: (id: string) => any;
+  fetchGoodnessIndividualById: (body: Body) => any;
 }
 
 export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualState>()(() => ({
-  createGoodnessIndividual: async (token: string, body: Body) => {
+  createGoodnessIndividual: async (body: Body) => {
     try {
       const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}`, body);
       return response;
@@ -30,7 +30,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return err;
     }
   },
-  createGoodnessGroup: async (token: string, body: Body) => {
+  createGoodnessGroup: async (body: Body) => {
     try {
       const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/group`, body);
       return response;
@@ -39,7 +39,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return err;
     }
   },
-  search: async (token: string, body: any) => {
+  search: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, body);
       return response?.data;
@@ -48,7 +48,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return err;
     }
   },
-  summary: async (token: string, body: any) => {
+  summary: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/summary`, body);
       return response?.data;
@@ -57,7 +57,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return err;
     }
   },
-  deleteGoodnessIndividualById: async (token: string, id: string) => {
+  deleteGoodnessIndividualById: async (id: string) => {
     try {
       const response = await httpClient.delete(`${authConfig.goodnessIndividualEndpoint}/${id}`);
       return response;
@@ -66,7 +66,7 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return err;
     }
   },
-  fetchGoodnessIndividualById: async (token: string, body: Body) => {
+  fetchGoodnessIndividualById: async (body: Body) => {
     try {
       const response = await httpClient.get(
         `${authConfig.goodnessIndividualEndpoint}/${body.studentId}?skip=${body.skip}&take=${body.take}`,

@@ -17,7 +17,6 @@ import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { getThaiMonthName, getBuddhistYear } from '@/utils/datetime';
 
-
 const AdminActivityCheckInMonthlyReportPage = () => {
   // ** Store Vars
   const { findDailyReportAdmin }: any = useActivityCheckInStore(
@@ -26,7 +25,6 @@ const AdminActivityCheckInMonthlyReportPage = () => {
     }),
     shallow,
   );
-
 
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
@@ -38,7 +36,7 @@ const AdminActivityCheckInMonthlyReportPage = () => {
     const fetch = async () => {
       const start = startOfMonth(selectedDate);
       const end = endOfMonth(selectedDate);
-      await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
+      await findDailyReportAdmin({ startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
     };

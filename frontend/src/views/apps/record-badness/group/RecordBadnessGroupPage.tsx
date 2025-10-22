@@ -42,8 +42,8 @@ const RecordBadnessGroupPage = () => {
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
   const [selectClassrooms, setSelectClassrooms] = useState<any>([]);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
-  const { loading: studentLoading, students: studentsList } = useStudentList(storedToken, debouncedValue);
+  const [classrooms, classroomLoading] = useFetchClassrooms();
+  const { loading: studentLoading, students: studentsList } = useStudentList(debouncedValue);
 
   const onSelectStudents = useCallback(
     (e: any, newValue: any) => {

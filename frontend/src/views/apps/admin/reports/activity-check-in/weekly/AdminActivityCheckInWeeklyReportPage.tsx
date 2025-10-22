@@ -17,7 +17,6 @@ import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { formatLongDateThai } from '@/utils/datetime';
 
-
 const AdminActivityCheckInWeeklyReportPage = () => {
   // ** Store Vars
   const { findDailyReportAdmin }: any = useActivityCheckInStore(
@@ -39,7 +38,7 @@ const AdminActivityCheckInWeeklyReportPage = () => {
       setStartOfWeekDate(start);
       const end = addDays(start, 4); // Friday
       setEndOfWeekDate(end);
-      await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
+      await findDailyReportAdmin({ startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
     };

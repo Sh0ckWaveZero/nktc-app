@@ -28,7 +28,6 @@ interface CheckInDataGridProps {
   onPaginationModelChange: (model: any) => void;
   onCellClick: GridEventListener<'cellClick'>;
   onColumnHeaderClick: GridEventListener<'columnHeaderClick'>;
-  storedToken: string;
 }
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
@@ -77,7 +76,6 @@ const CheckInDataGrid = ({
   onPaginationModelChange,
   onCellClick,
   onColumnHeaderClick,
-  storedToken,
 }: CheckInDataGridProps) => {
   const getStudentStatus = (studentId: any) => {
     if (isPresentCheck.includes(studentId)) return { status: 'มาเรียน', color: 'success' as const };
@@ -110,7 +108,7 @@ const CheckInDataGrid = ({
       renderCell: ({ row }: any) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={storedToken} />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap

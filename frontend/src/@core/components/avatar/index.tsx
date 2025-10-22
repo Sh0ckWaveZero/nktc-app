@@ -5,7 +5,6 @@ import useGetImage from '@/hooks/useGetImage';
 
 interface RenderAvatarProps {
   row: any;
-  storedToken?: string; // Keep for backward compatibility but mark as optional
   customStyle?: any;
 }
 

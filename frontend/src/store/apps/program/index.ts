@@ -22,11 +22,11 @@ interface ProgramStoreState {
   programs: ProgramType[];
   loading: boolean;
   error: string | null;
-  fetchPrograms: (token: string, params?: { search?: string }) => Promise<ProgramType[]>;
-  createProgram: (token: string, data: Partial<ProgramType>) => Promise<ProgramType>;
-  updateProgram: (token: string, id: string, data: Partial<ProgramType>) => Promise<ProgramType>;
-  deleteProgram: (token: string, id: string) => Promise<void>;
-  uploadPrograms: (token: string, file: File) => Promise<void>;
+  fetchPrograms: (params?: { search?: string }) => Promise<ProgramType[]>;
+  createProgram: (data: Partial<ProgramType>) => Promise<ProgramType>;
+  updateProgram: (id: string, data: Partial<ProgramType>) => Promise<ProgramType>;
+  deleteProgram: (id: string) => Promise<void>;
+  uploadPrograms: (file: File) => Promise<void>;
   setPrograms: (programs: ProgramType[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -44,7 +44,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
   /**
    * ดึงข้อมูลโปรแกรมทั้งหมด
    */
-  fetchPrograms: async (token: string, params?: { search?: string }) => {
+  fetchPrograms: async (params?: { search?: string }) => {
     try {
       set({ loading: true, error: null });
 
@@ -69,7 +69,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
   /**
    * สร้างโปรแกรมใหม่
    */
-  createProgram: async (token: string, data: Partial<ProgramType>) => {
+  createProgram: async (data: Partial<ProgramType>) => {
     try {
       set({ loading: true, error: null });
 
@@ -92,7 +92,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
   /**
    * อัปเดตโปรแกรม
    */
-  updateProgram: async (token: string, id: string, data: Partial<ProgramType>) => {
+  updateProgram: async (id: string, data: Partial<ProgramType>) => {
     try {
       set({ loading: true, error: null });
 
@@ -117,7 +117,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
   /**
    * ลบโปรแกรม
    */
-  deleteProgram: async (token: string, id: string) => {
+  deleteProgram: async (id: string) => {
     try {
       set({ loading: true, error: null });
 
@@ -143,7 +143,7 @@ export const useProgramStore = createWithEqualityFn<ProgramStoreState>()((set, g
   /**
    * อัพโหลดไฟล์ Excel เพื่อนำเข้าข้อมูลสาขาวิชา
    */
-  uploadPrograms: async (token: string, file: File) => {
+  uploadPrograms: async (file: File) => {
     try {
       set({ loading: true, error: null });
 

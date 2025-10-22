@@ -14,7 +14,6 @@ import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { formatFullDateThai } from '@/utils/datetime';
 
-
 const AdminActivityCheckInDailyReportPage = () => {
   // ** Store Vars
   const { findDailyReportAdmin }: any = useActivityCheckInStore(
@@ -24,7 +23,6 @@ const AdminActivityCheckInDailyReportPage = () => {
     shallow,
   );
 
-
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -33,11 +31,9 @@ const AdminActivityCheckInDailyReportPage = () => {
     if (!selectedDate) return;
 
     (async () => {
-      await findDailyReportAdmin(storedToken, { startDate: selectedDate, endDate: selectedDate }).then(
-        async (res: any) => {
-          setValue(await res);
-        },
-      );
+      await findDailyReportAdmin({ startDate: selectedDate, endDate: selectedDate }).then(async (res: any) => {
+        setValue(await res);
+      });
     })();
   }, [selectedDate]);
 

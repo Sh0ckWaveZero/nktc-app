@@ -3,24 +3,25 @@ import { createWithEqualityFn } from 'zustand/traditional';
 // ** Config
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
+
 interface UserState {
   activityCheckIn: any;
   activityCheckInLoading: boolean;
   activityCheckInErrors: boolean;
-  getActivityCheckIn: (token: string, param: any) => any;
-  addActivityCheckIn: (token: string, data: any) => any;
-  updateActivityCheckIn: (token: string, data: string) => any;
-  findDailyReport: (token: string, param: any) => any;
-  findSummaryReport: (token: string, param: any) => any;
-  removeActivityCheckIn: (token: string, id: string) => any;
-  findDailyReportAdmin: (token: string, param: any) => any;
+  getActivityCheckIn: (param: any) => any;
+  addActivityCheckIn: (data: any) => any;
+  updateActivityCheckIn: (data: string) => any;
+  findDailyReport: (param: any) => any;
+  findSummaryReport: (param: any) => any;
+  removeActivityCheckIn: (id: string) => any;
+  findDailyReportAdmin: (param: any) => any;
 }
 
 export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) => ({
   activityCheckIn: null,
   activityCheckInLoading: false,
   activityCheckInErrors: false,
-  getActivityCheckIn: async (token: string, param: any) => {
+  getActivityCheckIn: async (param: any) => {
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
@@ -30,7 +31,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       return err;
     }
   },
-  addActivityCheckIn: async (token: string, data: any) => {
+  addActivityCheckIn: async (data: any) => {
     set({ activityCheckInLoading: true });
     try {
       const response = await httpClient.post(authConfig.activityCheckInEndpoint as string, data);
@@ -39,7 +40,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       set({ activityCheckInLoading: false, activityCheckInErrors: true });
     }
   },
-  updateActivityCheckIn: async (token: string, data: any) => {
+  updateActivityCheckIn: async (data: any) => {
     set({ activityCheckInLoading: true });
     try {
       const response = await httpClient.patch(`${authConfig.activityCheckInEndpoint}/${data.id}/daily-report`, data);
@@ -48,7 +49,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       return err;
     }
   },
-  findDailyReport: async (token: string, param: any) => {
+  findDailyReport: async (param: any) => {
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report`,
@@ -58,7 +59,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       return err;
     }
   },
-  findSummaryReport: async (token: string, param: any) => {
+  findSummaryReport: async (param: any) => {
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report`,
@@ -68,7 +69,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       return err;
     }
   },
-  removeActivityCheckIn: async (token: string, id: string) => {
+  removeActivityCheckIn: async (id: string) => {
     try {
       const { data } = await httpClient.delete(`${authConfig.activityCheckInEndpoint}/${id}`);
       return await data;
@@ -76,7 +77,7 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
       return err;
     }
   },
-  findDailyReportAdmin: async (token: string, param: any) => {
+  findDailyReportAdmin: async (param: any) => {
     try {
       const { data } = await httpClient.get(
         `${authConfig.activityCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,

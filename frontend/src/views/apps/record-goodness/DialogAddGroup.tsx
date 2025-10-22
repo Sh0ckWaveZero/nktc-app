@@ -27,7 +27,6 @@ import toast from 'react-hot-toast';
 import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
-
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>,
@@ -127,7 +126,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await createGoodnessGroup(storedToken, body).then((res: any) => {
+    await createGoodnessGroup(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         // clear form

@@ -33,7 +33,6 @@ interface CellType {
   row: any;
 }
 
-
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
@@ -71,7 +70,7 @@ const BadnessSummaryReportPage = () => {
     try {
       setLoading(true);
 
-      const response = await summary(storedToken, {
+      const response = await summary({
         ...params,
       });
 
@@ -114,7 +113,7 @@ const BadnessSummaryReportPage = () => {
 
   const handleConfirm = () => {
     const toastId = toast.loading('กำลังบันทึกลบข้อมูลความประพฤติ...');
-    deleteBadnessIndividualById(storedToken, badnessId).then((res: any) => {
+    deleteBadnessIndividualById(badnessId).then((res: any) => {
       if (res?.status === 204) {
         setIsDeleted(true);
         toast.success('ลบข้อมูลความประพฤติสำเร็จ', { id: toastId });

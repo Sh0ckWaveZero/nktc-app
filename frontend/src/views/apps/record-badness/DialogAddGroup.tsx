@@ -28,7 +28,6 @@ import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
-
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>,
@@ -127,7 +126,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await createBadnessGroup(storedToken, body).then((res: any) => {
+    await createBadnessGroup(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         // clear form

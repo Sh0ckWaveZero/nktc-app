@@ -18,7 +18,7 @@ httpClient.interceptors.request.use(
   (config) => {
     // Only access localStorage in browser environment
     if (typeof window !== 'undefined') {
-      const token = window.localStorage.getItem('access_token');
+      const token = window.localStorage.getItem('accessToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

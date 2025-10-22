@@ -6,7 +6,6 @@ import RenderAvatar from '@/@core/components/avatar';
 
 interface StudentCardProps {
   student: any;
-  storedToken: string;
   status: string;
   color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
   isPresentCheck: any[];
@@ -19,7 +18,6 @@ interface StudentCardProps {
 
 const StudentCard = ({
   student,
-  storedToken,
   status,
   color,
   isPresentCheck,
@@ -59,7 +57,7 @@ const StudentCard = ({
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <RenderAvatar row={student} storedToken={storedToken} />
+          <RenderAvatar row={student} />
           <Box sx={{ ml: responsiveConfig.isMobile ? 1.5 : 2, flex: 1 }}>
             <Typography
               id={`checkin-student-name-${student.id}`}

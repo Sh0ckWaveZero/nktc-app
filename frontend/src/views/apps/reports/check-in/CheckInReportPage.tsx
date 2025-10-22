@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Avatar,
   Box,
@@ -11,7 +11,6 @@ import {
   useTheme,
 } from '@mui/material';
 import { HiFlag } from 'react-icons/hi';
-import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useAuth } from '@/hooks/useAuth';
 import { apiService } from '@/services/apiService';
 import toast from 'react-hot-toast';
@@ -20,15 +19,10 @@ import MobilePaginationControls from './components/MobilePaginationControls';
 import CheckInControls from './components/CheckInControls';
 import CheckInDataGrid from './components/CheckInDataGrid';
 
-interface CellType {
-  row: any;
-}
-
 const CheckInReportPage = () => {
   // ** Hooks
   const auth = useAuth();
   const theme = useTheme();
-  const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const isTablet = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -71,7 +65,6 @@ const CheckInReportPage = () => {
   const [mobilePageSize, setMobilePageSize] = useState<number>(5);
   const [checkInDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [classroomDropdownOpen, setClassroomDropdownOpen] = useState<boolean>(false);
-  const [hasData, setHasData] = useState<boolean>(false);
 
   // Check-in status states
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
@@ -96,7 +89,6 @@ const CheckInReportPage = () => {
 
         // Handle both direct data and nested data structure
         const actualData = classroomData.data || classroomData;
-        setHasData(!!actualData);
 
         if (!actualData || !actualData.classrooms || !actualData.classrooms.length) {
           setLoading(false);
@@ -683,7 +675,6 @@ const CheckInReportPage = () => {
                           <StudentCard
                             key={student.id}
                             student={student}
-                            storedToken={storedToken}
                             status={status}
                             color={color}
                             isPresentCheck={isPresentCheck}
@@ -749,7 +740,6 @@ const CheckInReportPage = () => {
                     }}
                     onCellClick={handleCellClick}
                     onColumnHeaderClick={handleColumnHeaderClick}
-                    storedToken={storedToken}
                   />
                 </Box>
               )}

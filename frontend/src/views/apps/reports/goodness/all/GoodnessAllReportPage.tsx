@@ -24,7 +24,6 @@ interface CellType {
   row: any;
 }
 
-
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
@@ -64,8 +63,8 @@ const GoodnessAllReportPage = () => {
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState<any>(null);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(storedToken, debouncedValue);
+  const [classrooms, classroomLoading] = useFetchClassrooms();
+  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
 
   const onChangeDate = useCallback((value: any) => {
     setDateSelected(value);
@@ -75,7 +74,7 @@ const GoodnessAllReportPage = () => {
     try {
       setLoadingStudent(true);
 
-      const response = await search(storedToken, {
+      const response = await search({
         fullName: currentStudent?.fullName || '',
         classroomId: defaultClassroom?.id || '',
         goodDate: selectedDate,

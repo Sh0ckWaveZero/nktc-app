@@ -70,7 +70,6 @@ const checkInStatueName: any = {
   internship: 'นักศึกษาฝึกงาน',
 };
 
-
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
@@ -152,7 +151,7 @@ const ActivityCheckInDailyReportPage = () => {
             return;
           }
 
-          classroomsInfo = await fetchTeachClassroom(storedToken, auth?.user?.teacher?.id);
+          classroomsInfo = await fetchTeachClassroom(auth?.user?.teacher?.id);
 
           if (isEmpty(classroomsInfo)) {
             toast.error(errorMessage);
@@ -182,7 +181,7 @@ const ActivityCheckInDailyReportPage = () => {
     const dateInfo = date || selectedDate;
 
     try {
-      const data = await findDailyReport(storedToken, {
+      const data = await findDailyReport({
         teacherId: auth?.user?.teacher?.id,
         classroomId: classroomInfo,
         startDate: dateInfo,
@@ -192,7 +191,7 @@ const ActivityCheckInDailyReportPage = () => {
       const students = reportCheckInData?.students ?? [];
       setCurrentStudents(students);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
-      getActivityCheckIn(storedToken, {
+      getActivityCheckIn({
         teacher: auth?.user?.teacher?.id,
         classroom: classroomInfo,
       });
@@ -341,9 +340,9 @@ const ActivityCheckInDailyReportPage = () => {
     };
 
     if (reportCheckInData) {
-      toast.promise(updateActivityCheckIn(storedToken, updated), options);
+      toast.promise(updateActivityCheckIn(updated), options);
     } else {
-      toast.promise(addActivityCheckIn(storedToken, created), options);
+      toast.promise(addActivityCheckIn(created), options);
     }
     setTimeout(() => {
       fetchDailyReport(selectedDate, classroomId);
@@ -375,7 +374,7 @@ const ActivityCheckInDailyReportPage = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeActivityCheckIn(storedToken, reportCheckInData?.id), {
+    toast.promise(removeActivityCheckIn(reportCheckInData?.id), {
       loading: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',

@@ -11,16 +11,16 @@ type Body = {
   take?: number;
 };
 interface BadnessIndividualState {
-  createBadnessIndividual: (token: string, body: any) => any;
-  createBadnessGroup: (token: string, body: any) => any;
-  search: (token: string, body: Body) => any;
-  summary: (token: string, body: any) => any;
-  deleteBadnessIndividualById: (token: string, id: string) => any;
-  fetchBadnessIndividualById: (token: string, body: Body) => any;
+  createBadnessIndividual: (body: any) => any;
+  createBadnessGroup: (body: any) => any;
+  search: (body: Body) => any;
+  summary: (body: any) => any;
+  deleteBadnessIndividualById: (id: string) => any;
+  fetchBadnessIndividualById: (body: Body) => any;
 }
 
 export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualState>()(() => ({
-  createBadnessIndividual: async (token: string, body: any) => {
+  createBadnessIndividual: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}`, body);
       return response;
@@ -29,7 +29,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return err;
     }
   },
-  createBadnessGroup: async (token: string, body: Body) => {
+  createBadnessGroup: async (body: Body) => {
     try {
       const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/group`, body);
       return response;
@@ -38,7 +38,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return err;
     }
   },
-  search: async (token: string, body: any) => {
+  search: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/search`, body);
       return response?.data;
@@ -47,7 +47,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return err;
     }
   },
-  summary: async (token: string, body: any) => {
+  summary: async (body: any) => {
     try {
       const response = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/summary`, body);
       return response?.data;
@@ -56,7 +56,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return err;
     }
   },
-  deleteBadnessIndividualById: async (token: string, id: string) => {
+  deleteBadnessIndividualById: async (id: string) => {
     try {
       const response = await httpClient.delete(`${authConfig.badnessIndividualEndpoint}/${id}`);
       return response;
@@ -65,7 +65,7 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return err;
     }
   },
-  fetchBadnessIndividualById: async (token: string, body: Body) => {
+  fetchBadnessIndividualById: async (body: Body) => {
     try {
       const response = await httpClient.get(
         `${authConfig.badnessIndividualEndpoint}/${body.studentId}?skip=${body.skip}&take=${body.take}`,

@@ -5,11 +5,11 @@ import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 
 interface UserState {
-  fetchLevels: (token: string) => any;
+  fetchLevels: () => any;
 }
 
 export const useLevelStore = createWithEqualityFn<UserState>()(() => ({
-  fetchLevels: async (token: string) => {
+  fetchLevels: async () => {
     try {
       const { data } = await httpClient.get(`${authConfig.levelEndpoint}/`);
       return await data;
