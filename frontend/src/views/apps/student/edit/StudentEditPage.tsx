@@ -4,7 +4,6 @@ import { z } from 'zod';
 import {
   Box,
   Button,
-  ButtonProps,
   Card,
   CardContent,
   CardHeader,
@@ -97,9 +96,19 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
           phone: data.phone || '',
           status: data.status || 'normal',
         });
+
+        // Load existing profile picture if available
+        if (data.avatar) {
+          setImgSrc(data.avatar);
+        } else {
+          // Use default avatar if no avatar is set
+          setImgSrc('/images/avatars/1.png');
+        }
       } catch (error) {
         console.error('Error fetching student data:', error);
         toast.error('ไม่สามารถโหลดข้อมูลนักเรียนได้');
+        // Set default avatar on error
+        setImgSrc('/images/avatars/1.png');
       } finally {
         setLoading(false);
       }
