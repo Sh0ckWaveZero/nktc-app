@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import { getInitials } from '@/@core/utils/get-initials';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -45,7 +45,7 @@ const UserDropdown = (props: Props) => {
   // ** Vars
   const { direction } = settings;
 
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string);
+  const { isLoading, image } = useImageQuery(user?.account?.avatar as string);
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget);

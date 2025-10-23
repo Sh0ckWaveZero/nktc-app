@@ -29,7 +29,7 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
 
 const Transition = forwardRef(function Transition(
@@ -95,7 +95,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     }
   }, [imageCompressed]);
 
-  const { isLoading, image } = useGetImage(avatar);
+  const { isLoading, image } = useImageQuery(avatar);
 
   const handleInputChange = ({ target }: any) => {
     if (target.name === 'details') {

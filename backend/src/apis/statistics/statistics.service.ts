@@ -182,12 +182,19 @@ export class StatisticsService {
     });
 
     console.log('📊 Total teachers found:', allTeachers.length);
-    console.log('🔍 Teachers without teacherId:', allTeachers.filter(t => !t.teacherId).map(t => ({
-      id: t.id,
-      teacherId: t.teacherId,
-      name: t.user?.account ? `${t.user.account.title}${t.user.account.firstName} ${t.user.account.lastName}` : 'No user',
-      departmentId: t.departmentId,
-    })));
+    console.log(
+      '🔍 Teachers without teacherId:',
+      allTeachers
+        .filter((t) => !t.teacherId)
+        .map((t) => ({
+          id: t.id,
+          teacherId: t.teacherId,
+          name: t.user?.account
+            ? `${t.user.account.title}${t.user.account.firstName} ${t.user.account.lastName}`
+            : 'No user',
+          departmentId: t.departmentId,
+        })),
+    );
 
     // Calculate teacher usage statistics
     const teacherCheckInMap = new Map<
@@ -282,13 +289,15 @@ export class StatisticsService {
       };
 
       const checkedIn = record.present.length + record.late.length;
-      const notCheckedIn = record.absent.length + record.leave.length + record.internship.length;
+      const notCheckedIn =
+        record.absent.length + record.leave.length + record.internship.length;
 
       breakdownExisting.checkedIn += checkedIn;
       breakdownExisting.notCheckedIn += notCheckedIn;
 
       if (breakdownExisting.checkedIn > 0) {
-        breakdownExisting.attendanceRate = (breakdownExisting.checkedIn / totalStudents) * 100;
+        breakdownExisting.attendanceRate =
+          (breakdownExisting.checkedIn / totalStudents) * 100;
       }
 
       dailyBreakdownMap.set(dateKey, breakdownExisting);
@@ -319,7 +328,6 @@ export class StatisticsService {
     const dailyChartData = Array.from(dailyChartMap.values()).sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
-
 
     // Classroom statistics
     const classroomMap = new Map<
@@ -353,7 +361,10 @@ export class StatisticsService {
           record.internship.length;
 
         // Keep the maximum record count for this classroom, but don't exceed overall total
-        if (totalInRecord > existing.totalStudents && totalInRecord <= totalStudents) {
+        if (
+          totalInRecord > existing.totalStudents &&
+          totalInRecord <= totalStudents
+        ) {
           existing.totalStudents = totalInRecord;
         }
 
@@ -401,5 +412,4 @@ export class StatisticsService {
       ),
     };
   }
-
 }

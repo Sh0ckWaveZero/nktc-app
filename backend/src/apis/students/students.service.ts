@@ -80,7 +80,7 @@ export class StudentsService {
 
       if (body?.search?.studentId) {
         filter['username'] = {
-            contains: body.search.studentId,
+          contains: body.search.studentId,
         };
       }
 

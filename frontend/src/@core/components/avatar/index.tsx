@@ -1,7 +1,7 @@
 import { CircularProgress, Box } from '@mui/material';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import { getInitials } from '@/@core/utils/get-initials';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 
 interface RenderAvatarProps {
   row: any;
@@ -19,7 +19,7 @@ const RenderAvatar = (props: RenderAvatarProps) => {
   } = props;
 
   // Always call the hook (don't call conditionally)
-  const { isLoading, image } = useGetImage(row?.avatar || '');
+  const { isLoading, image } = useImageQuery(row?.avatar || '');
 
   // Show loading spinner only briefly
   if (row?.avatar && isLoading) {

@@ -12,7 +12,7 @@ import Icon from '@/@core/components/icon';
 import UserViewLeft from '@/views/apps/student/view/UserViewLeft';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import { useStudentStore } from '@/store/index';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { useSpring, animated } from 'react-spring';
@@ -76,7 +76,7 @@ const StudentOverviewPage = () => {
   const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
   const classroomName = user?.student?.classroom?.name;
 
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string);
+  const { isLoading, image } = useImageQuery(user?.account?.avatar as string);
 
   const getTrophyOverviewData = async () => {
     const data = await getTrophyOverview(user?.student?.id);

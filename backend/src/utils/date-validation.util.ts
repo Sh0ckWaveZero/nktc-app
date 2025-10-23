@@ -46,9 +46,7 @@ export function validateAndParseDate(
  */
 export function validateDateRange(startDate: Date, endDate: Date): void {
   if (startDate > endDate) {
-    throw new BadRequestException(
-      'วันที่เริ่มต้นต้องมาก่อนวันที่สิ้นสุด',
-    );
+    throw new BadRequestException('วันที่เริ่มต้นต้องมาก่อนวันที่สิ้นสุด');
   }
 }
 

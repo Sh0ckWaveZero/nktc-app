@@ -32,7 +32,7 @@ import Icon from '@/@core/components/icon';
 
 // ** Hooks & Services
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useClassroomStore, useDepartmentStore } from '@/store/index';
 import { useTeacherStore } from '@/store/apps/teacher';
@@ -92,7 +92,7 @@ const TabAccount = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
-  const { isLoading, image } = useGetImage(imgSrc);
+  const { isLoading, image } = useImageQuery(imgSrc);
 
   useEffect(() => {
     (async () => {

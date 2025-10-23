@@ -17,7 +17,7 @@ import Link from 'next/link';
 import Icon from '@/@core/components/icon';
 import { useUser } from '@/hooks/queries';
 import UserViewLeft from './UserViewLeft';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
@@ -60,7 +60,7 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
   const user = userData?.data;
 
   // Get user image - MUST be called before any conditional returns
-  const { image, isLoading: imageLoading } = useGetImage(user?.account?.avatar || '');
+  const { image, isLoading: imageLoading } = useImageQuery(user?.account?.avatar || '');
 
   const handleChange = (_event: SyntheticEvent, value: string) => {
     setActiveTab(value);

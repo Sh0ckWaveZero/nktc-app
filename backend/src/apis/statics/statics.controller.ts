@@ -94,11 +94,27 @@ export class StaticsController {
         bucketName,
         `${prefix}/${id}`,
       );
+
+      // Validate stream before piping
+      if (!dataStream || typeof dataStream.pipe !== 'function') {
+        throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+      }
+
       response.contentType(contentType);
       response.attachment(`${id}${fileTypes}`);
       dataStream.pipe(response);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error: any) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      // Handle MinIO errors properly
+      if (error.code === 'NoSuchKey') {
+        throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        error.message || 'Failed to retrieve image',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

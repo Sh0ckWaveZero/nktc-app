@@ -34,7 +34,7 @@ export class UsersController {
   public async findById(@Param('id') id: string) {
     try {
       // Try to find by ID first, if not found, try by username
-      let user = await this.usersService.findById(id);
+      const user = await this.usersService.findById(id);
       return user;
     } catch (error) {
       try {

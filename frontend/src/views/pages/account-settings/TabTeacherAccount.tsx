@@ -27,7 +27,7 @@ import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useTeacherStore } from '../../../store/apps/teacher/index';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -88,7 +88,7 @@ const TabTeacherAccount = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
-  const { isLoading, image } = useGetImage(imgSrc);
+  const { isLoading, image } = useImageQuery(imgSrc);
 
   useEffect(() => {
     const loadData = async () => {

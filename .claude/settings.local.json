@@ -42,7 +42,8 @@
       "Bash(npm run start:dev:*)",
       "Bash(xargs kill:*)",
       "Bash(npx eslint:*)",
-      "Bash(cut:*)"
+      "Bash(cut:*)",
+      "Bash(awk:*)"
     ],
     "deny": []
   }

@@ -27,5 +27,4 @@ export class StatisticsController {
   async getTermStatistics(@Query() query: TermStatisticsQueryDto) {
     return await this.statisticsService.getTermStatistics(query);
   }
-
 }

@@ -27,7 +27,7 @@ import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
@@ -94,7 +94,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     }
   }, [imageCompressed]);
 
-  const { isLoading, image } = useGetImage(avatar);
+  const { isLoading, image } = useImageQuery(avatar);
 
   const handleInputChange = ({ target }: any) => {
     if (target.name === 'details') {

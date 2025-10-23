@@ -118,22 +118,6 @@ export const userProjectKeys = {
 };
 
 /**
- * Images Query Keys
- */
-export const imageKeys = {
-  all: ['images'] as const,
-  image: (url: string, token?: string | null) => [...imageKeys.all, url, token] as const,
-};
-
-/**
- * PDFs Query Keys
- */
-export const pdfKeys = {
-  all: ['pdfs'] as const,
-  pdf: (url: string) => [...pdfKeys.all, url] as const,
-};
-
-/**
  * Goodness Records Query Keys
  */
 export const goodnessKeys = {
@@ -196,8 +180,6 @@ export const queryKeys = {
   classrooms: classroomKeys,
   checkIn: checkInKeys,
   userProjects: userProjectKeys,
-  images: imageKeys,
-  pdfs: pdfKeys,
   goodness: goodnessKeys,
   badness: badnessKeys,
   visits: visitKeys,

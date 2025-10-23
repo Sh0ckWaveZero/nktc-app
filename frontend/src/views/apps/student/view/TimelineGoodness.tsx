@@ -5,7 +5,7 @@ import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, Timeline
 
 import { CircularProgress } from '@mui/material';
 import { calculateTimeAgo } from '@/utils/datetime';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import IconifyIcon from '@/@core/components/icon';
 
 interface Props {
@@ -14,8 +14,12 @@ interface Props {
   onDeleted?: (id: string) => void;
 }
 
-const getImage = (image: string) => {
-  const { isLoading, image: badnessImage } = useGetImage(image);
+interface ImageDisplayProps {
+  image: string;
+}
+
+const ImageDisplay = ({ image }: ImageDisplayProps) => {
+  const { isLoading, image: badnessImage } = useImageQuery(image);
 
   return isLoading ? (
     <CircularProgress />
@@ -61,7 +65,7 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
                 },
               }}
             >
-              {info.map((item, index) => (
+              {info.map((item) => (
                 <TimelineItem key={item?.id}>
                   <TimelineSeparator>
                     <TimelineDot color='success' />
@@ -103,7 +107,9 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <Box sx={{ width: 200, height: 'auto' }}>{getImage(item?.image)}</Box>
+                      <Box sx={{ width: 200, height: 'auto' }}>
+                        <ImageDisplay image={item?.image} />
+                      </Box>
                       {user?.role === 'Admin' && (
                         <Box sx={{ ml: 2 }}>
                           <Tooltip title='ลบการบันทึกความดี'>
