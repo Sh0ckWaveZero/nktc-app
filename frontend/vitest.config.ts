@@ -25,10 +25,12 @@ export default defineConfig({
         '**/*.test.ts',
         '**/types/**',
       ],
-      lines: 80,
-      functions: 80,
-      branches: 80,
-      statements: 80,
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
     },
 
     // Include patterns
