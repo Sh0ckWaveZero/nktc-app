@@ -29,7 +29,7 @@ export * from './useCheckIn';
 export * from './useClassrooms';
 
 // Teachers hooks
-export * from './useTeachers';
+export { useTeachers } from './useTeachers';
 
 // Goodness Records hooks
 export * from './useGoodness';

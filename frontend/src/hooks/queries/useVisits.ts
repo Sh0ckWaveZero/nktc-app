@@ -86,7 +86,7 @@ export const useCreateVisit = () => {
 
   return useMutation({
     mutationFn: async (params: any) => {
-      const { data } = await httpClient.post(authConfig.visitEndpoint, params);
+      const { data } = await httpClient.post(authConfig.visitEndpoint!, params);
       return data;
     },
     onSuccess: () => {
