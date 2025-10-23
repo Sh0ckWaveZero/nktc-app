@@ -23,6 +23,9 @@ const CardMenu = (props: CardMenuProps) => {
       <LinkStyled href={`${navLink?.path}`} passHref>
         <Card
           sx={{
+            minHeight: '180px',
+            display: 'flex',
+            flexDirection: 'column',
             ':hover': {
               backgroundColor: '#f5f5f5',
               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
@@ -33,7 +36,16 @@ const CardMenu = (props: CardMenuProps) => {
             },
           }}
         >
-          <CardContent>
+          <CardContent
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}
+          >
             <Box
               sx={{
                 height: '100%',
@@ -42,15 +54,16 @@ const CardMenu = (props: CardMenuProps) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexDirection: 'column',
+                gap: 1,
               }}
             >
               <CustomAvatar
                 badge={badge}
                 sx={{
                   boxShadow: 2,
-                  m: 2,
                   height: '4rem',
                   width: '4rem',
+                  flexShrink: 0,
                   '& svg': {
                     fontSize: '3rem',
                     padding: '0.2rem',
@@ -59,8 +72,33 @@ const CardMenu = (props: CardMenuProps) => {
               >
                 {icon}
               </CustomAvatar>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</Typography>
-              <Typography variant='subtitle2'>{subtitle}</Typography>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                  minHeight: '2.4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {title}
+              </Typography>
+              <Typography
+                variant='subtitle2'
+                sx={{
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                  minHeight: '2.4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {subtitle}
+              </Typography>
             </Box>
           </CardContent>
         </Card>

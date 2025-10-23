@@ -1,5 +1,7 @@
+'use client';
+
 // ** React Imports
-import { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -15,8 +17,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import PasswordStrengthBar from 'react-password-strength-bar';
 
 // ** Third Party Imports
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // ** Icons Imports
 import EyeOutline from 'mdi-material-ui/EyeOutline';
@@ -26,11 +28,10 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 // ** Custom Components Imports
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormHelperText } from '@mui/material';
-import { useUserStore } from '@/store/index';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
+import { useChangePassword } from '@/hooks/queries/useUser';
+import { useLogin } from '@/hooks/queries/useAuth';
 
 interface State {
   showNewPassword: boolean;
@@ -44,13 +45,11 @@ interface IFormInputs {
   confirmNewPassword: string;
 }
 
-const schema = yup.object().shape({
-  currentPassword: yup.string().required('กรุณากรอกรหัสผ่านปัจจุบัน'),
-  newPassword: yup.string().required('กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
-  confirmNewPassword: yup.string().required('กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
-});
-
-const localStorageService = new LocalStorageService();
+const schema = z.object({
+  currentPassword: z.string().min(1, 'กรุณากรอกรหัสผ่านปัจจุบัน'),
+  newPassword: z.string().min(1, 'กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
+  confirmNewPassword: z.string().min(1, 'กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
+}) satisfies z.ZodType<IFormInputs>;
 
 const TabSecurity = () => {
   // hooks
@@ -68,15 +67,12 @@ const TabSecurity = () => {
       confirmNewPassword: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const auth = useAuth();
-  const { changePassword, login }: any = useUserStore(
-    (state) => ({ changePassword: state.changePassword, login: state.login }),
-    shallow,
-  );
-  const storedToken = localStorageService.getToken() || '';
+  const { mutate: changePassword, isPending } = useChangePassword();
+  const { mutate: login } = useLogin();
 
   // ** States
   const [values, setValues] = useState<State>({
@@ -107,30 +103,50 @@ const TabSecurity = () => {
 
   const onSubmit: SubmitHandler<IFormInputs> = async (data: IFormInputs, e: any) => {
     e.preventDefault();
+
     if (watchNewPassword !== watchConfirmNewPassword) {
       setError('confirmNewPassword', { type: 'string', message: 'รหัสผ่านไม่ตรงกัน' });
       return;
     }
 
-    await toast.promise(
-      changePassword(storedToken, { old_password: data.currentPassword, new_password: data.newPassword }),
+    changePassword(
       {
-        loading: 'กำลังเปลี่ยนรหัสผ่าน...',
-        success: 'เปลี่ยนรหัสผ่านสำเร็จ',
-        error: 'เกิดข้อผิดพลาด',
+        old_password: data.currentPassword,
+        new_password: data.newPassword,
+      },
+      {
+        onSuccess: () => {
+          toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
+          reset();
+
+          // Re-login with new password
+          login(
+            {
+              username: auth?.user?.username as string,
+              password: data.newPassword,
+            },
+            {
+              onSuccess: (loginData) => {
+                auth?.setUser(loginData);
+                setTimeout(() => {
+                  location.reload();
+                }, 500);
+              },
+              onError: () => {
+                toast.error('กรุณาเข้าสู่ระบบอีกครั้ง');
+              },
+            },
+          );
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน');
+        },
       },
     );
-    reset();
-    await login({ username: auth?.user?.username as string, password: data.newPassword }).then(async (data: any) => {
-      auth?.setUser({ ...(await data) });
-      localStorage.setItem('userData', JSON.stringify(data));
-      location.reload();
-    });
-    // await login({ username: userInfo.username, password: data.newPassword });
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent sx={{ pb: 0 }}>
           <Box sx={{ mb: 5.75, display: 'flex', alignItems: 'center' }}>
@@ -141,8 +157,9 @@ const TabSecurity = () => {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Grid container spacing={5}>
                 <Grid sx={{ mt: 4.75 }} size={12}>
                   <FormControl fullWidth>
@@ -151,7 +168,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-current-password'>รหัสผ่านปัจจุบัน</InputLabel>
                           <OutlinedInput
                             label='รหัสผ่านปัจจุบัน'
@@ -173,7 +190,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.currentPassword && (
@@ -189,7 +206,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-new-password'>รหัสผ่านใหม่</InputLabel>
                           <OutlinedInput
                             label='รหัสผ่านใหม่'
@@ -211,7 +228,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.newPassword && (
@@ -231,7 +248,7 @@ const TabSecurity = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <Fragment>
+                        <React.Fragment>
                           <InputLabel htmlFor='account-settings-confirm-new-password'>ยืนยันรหัสผ่านใหม่</InputLabel>
                           <OutlinedInput
                             label='ยืนยันรหัสผ่านใหม่'
@@ -253,7 +270,7 @@ const TabSecurity = () => {
                               </InputAdornment>
                             }
                           />
-                        </Fragment>
+                        </React.Fragment>
                       )}
                     />
                     {errors.confirmNewPassword && (
@@ -272,8 +289,8 @@ const TabSecurity = () => {
         </CardContent>
         <CardContent>
           <Box>
-            <Button variant='contained' sx={{ mr: 3.5 }} type='submit'>
-              บันทึกการเปลี่ยนแปลง
+            <Button variant='contained' sx={{ mr: 3.5 }} type='submit' disabled={isPending}>
+              {isPending ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
             </Button>
             <Button
               type='reset'
@@ -291,7 +308,7 @@ const TabSecurity = () => {
           </Box>
         </CardContent>
       </form>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

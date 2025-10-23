@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
 import Button from '@mui/material/Button';
 // ** MUI Imports
@@ -8,7 +8,6 @@ import CardContent from '@mui/material/CardContent';
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from '@/@core/components/icon';
 import IconButton from '@mui/material/IconButton';
-import { LocalStorageService } from '@/services/localStorageService';
 import Typography from '@mui/material/Typography';
 import generateCertificatePdf from '@/utils/generateCertificatePdf';
 import { styled } from '@mui/material/styles';
@@ -17,8 +16,6 @@ import useGetPDF from '@/hooks/useGetPDF';
 // ** Hook
 import { useSettings } from '@/@core/hooks/useSettings';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')(({ theme }) => ({
   right: 0,
@@ -87,7 +84,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   const [open, setOpen] = useState(false);
   const [pdfData, setPdfData] = useState<any | null>(null);
   const certsUrl = `${process.env.NEXT_PUBLIC_API_URL}/statics/goodness-individual/certs/${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`;
-  const { PDF, isLoading } = useGetPDF(certsUrl, accessToken);
+  const { PDF, isLoading } = useGetPDF(certsUrl);
 
   const handleClose = () => {
     setOpen(false);
@@ -97,7 +94,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
 
   const handleDownload = async () => {
     const modifiedPdf = await generateCertificatePdf(PDF, user);
-    const pdfBlob = new Blob([modifiedPdf], { type: 'application/pdf' });
+    const pdfBlob = new Blob([modifiedPdf as any], { type: 'application/pdf' });
     const pdfUrl = URL.createObjectURL(pdfBlob);
 
     if (window.innerWidth < 768) {
@@ -123,7 +120,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Card
         sx={{
           position: 'relative',
@@ -178,7 +175,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
           )}
         </DialogContent>
       </BootstrapDialog>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

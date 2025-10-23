@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Typography, CardHeader, Card, Grid, Avatar } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useReportCheckInStore, useClassroomStore } from '@/store/index';
@@ -13,19 +13,16 @@ import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import { LocalStorageService } from '@/services/localStorageService';
 import toast from 'react-hot-toast';
 
 interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 
 const CheckInSummaryReportPage = () => {
   // ** Hooks
   const auth = useAuth();
-  const accessToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -46,6 +43,7 @@ const CheckInSummaryReportPage = () => {
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [classroomName, setClassroomName] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
@@ -54,7 +52,7 @@ const CheckInSummaryReportPage = () => {
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
-      fetchTeachClassroom(accessToken, auth?.user?.teacher?.id as string).then(async (result: any) => {
+      fetchTeachClassroom(auth?.user?.teacher?.id as string).then(async (result: any) => {
         setClassroomName((await result) ? result[0] : []);
         setClassrooms((await result) ? result : []);
         await fetchDailyReport((await result) ? result[0].id : {});
@@ -76,11 +74,12 @@ const CheckInSummaryReportPage = () => {
 
   const fetchDailyReport = async (classroom: any = '') => {
     setLoading(true);
-    await findSummaryReport(accessToken, {
+    await findSummaryReport({
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
       setCurrentStudents(await data);
+      setCurrentPage(0); // Reset to first page when loading new data
       setLoading(false);
     });
   };
@@ -359,12 +358,14 @@ const CheckInSummaryReportPage = () => {
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
     setClassroomName(classroomName);
+    setCurrentPage(0); // Reset to first page when changing classroom
     await fetchDailyReport(classroomName.id);
   };
 
-  return (ability?.can('read', 'report-check-in-summary-page') &&
+  return (
+    ability?.can('read', 'report-check-in-summary-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -388,20 +389,23 @@ const CheckInSummaryReportPage = () => {
                 isDisabled={isEmpty(currentStudents)}
               />
               <DataGrid
-                autoHeight
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
-                headerHeight={120}
                 loading={loading}
                 rowHeight={isEmpty(currentStudents) ? 100 : 50}
                 getRowHeight={() => 'auto'}
                 slots={{
                   noRowsOverlay: CustomNoRowsOverlay,
                 }}
+                paginationModel={{ page: currentPage, pageSize: pageSize }}
+                onPaginationModelChange={(model) => {
+                  setCurrentPage(model.page);
+                  setPageSize(model.pageSize);
+                }}
                 initialState={{
                   pagination: {
-                    paginationModel: { pageSize: pageSize, page: 0 },
+                    paginationModel: { page: currentPage, pageSize: pageSize },
                   },
                 }}
                 pageSizeOptions={[pageSize]}
@@ -430,7 +434,7 @@ const CheckInSummaryReportPage = () => {
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

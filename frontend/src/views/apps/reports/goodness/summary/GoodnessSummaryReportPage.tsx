@@ -16,14 +16,13 @@ import {
   DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Grid from '@mui/material/Grid';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
@@ -33,8 +32,6 @@ import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 interface CellType {
   row: any;
 }
-
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -48,7 +45,6 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const GoodnessSummaryReportPage = () => {
   // ** Hooks
   const { user }: any = useAuth();
-  const storedToken = localStorageService.getToken() || '';
   const ability = useContext(AbilityContext);
 
   const { deleteGoodnessIndividualById, summary }: any = goodnessIndividualStore(
@@ -74,7 +70,7 @@ const GoodnessSummaryReportPage = () => {
   const searchWithParams = async (params: any) => {
     try {
       setLoading(true);
-      const response = await summary(storedToken, { ...params });
+      const response = await summary({ ...params });
       setData(response?.data);
       setTotal(response?.total);
       setLoading(false);
@@ -114,7 +110,7 @@ const GoodnessSummaryReportPage = () => {
 
   const handleConfirm = () => {
     const toastId = toast.loading('กำลังบันทึกลบข้อมูลความดี...');
-    deleteGoodnessIndividualById(storedToken, goodnessId).then((res: any) => {
+    deleteGoodnessIndividualById(goodnessId).then((res: any) => {
       if (res?.status === 204) {
         setIsDeleted(true);
         toast.success('ลบข้อมูลความดีสำเร็จ', { id: toastId });
@@ -270,118 +266,119 @@ const GoodnessSummaryReportPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'student-goodness-summary-report') && (
-    <Fragment>
-      <Grid container spacing={6}>
-        <Grid size={12}>
-          <Card>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                  <IconifyIcon icon={'game-icons:trophy'} />
-                </Avatar>
-              }
-              sx={{ color: 'text.primary' }}
-              title={`เรียงลำดับ คะแนนตามความดี`}
-            />
-            <DataGrid
-              autoHeight
-              columns={columns}
-              rows={data ?? []}
-              disableColumnMenu
-              loading={loading}
-              slots={{
-                noRowsOverlay: CustomNoRowsOverlay,
-              }}
-              paginationMode='server'
-              initialState={{
-                pagination: {
-                  paginationModel: paginationModel,
-                },
-              }}
-              pageSizeOptions={[10, 20, 50, 100]}
-              onPaginationModelChange={setPaginationModel}
-              rowCount={total}
-              getRowHeight={() => 'auto'}
-              sx={{
-                '& .MuiDataGrid-row': {
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
+  return (
+    ability?.can('read', 'student-goodness-summary-report') && (
+      <React.Fragment>
+        <Grid container spacing={6}>
+          <Grid size={12}>
+            <Card>
+              <CardHeader
+                avatar={
+                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                    <IconifyIcon icon={'game-icons:trophy'} />
+                  </Avatar>
+                }
+                sx={{ color: 'text.primary' }}
+                title={`เรียงลำดับ คะแนนตามความดี`}
+              />
+              <DataGrid
+                columns={columns}
+                rows={data ?? []}
+                disableColumnMenu
+                loading={loading}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
+                }}
+                paginationMode='server'
+                initialState={{
+                  pagination: {
+                    paginationModel: paginationModel,
                   },
-                  maxHeight: 'none !important',
-                },
-                '& .MuiDataGrid-cell': {
-                  display: 'flex',
-                  alignItems: 'center',
-                  lineHeight: 'unset !important',
-                  maxHeight: 'none !important',
-                  overflow: 'visible',
-                  whiteSpace: 'normal',
-                  wordWrap: 'break-word',
-                },
-                '& .MuiDataGrid-renderingZone': {
-                  maxHeight: 'none !important',
-                },
-              }}
-            />
-          </Card>
+                }}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPaginationModelChange={setPaginationModel}
+                rowCount={total}
+                getRowHeight={() => 'auto'}
+                sx={{
+                  '& .MuiDataGrid-row': {
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                    maxHeight: 'none !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    display: 'flex',
+                    alignItems: 'center',
+                    lineHeight: 'unset !important',
+                    maxHeight: 'none !important',
+                    overflow: 'visible',
+                    whiteSpace: 'normal',
+                    wordWrap: 'break-word',
+                  },
+                  '& .MuiDataGrid-renderingZone': {
+                    maxHeight: 'none !important',
+                  },
+                }}
+              />
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-      <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
-        {handleClose ? (
-          <IconButton
-            aria-label='close'
-            onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        ) : null}
-        <TimelineGoodness info={info} user={user} onDeleted={onDeletedGoodness} />
-      </BootstrapDialog>
-      <BootstrapDialog
-        fullWidth
-        maxWidth='xs'
-        onClose={handleCloseConfirm}
-        aria-labelledby='บรรทึกความดี'
-        open={openConfirm}
-      >
-        {handleCloseConfirm ? (
-          <IconButton
-            aria-label='close'
-            onClick={handleCloseConfirm}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        ) : null}
-        <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความดี</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='alert-delete-goodness' p={5}>
-            {`คุณต้องการลบข้อมูลการการบันทึกความดีนี้ ใช่หรือไม่?`}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions className='dialog-goodness-dense'>
-          <Button color='secondary' onClick={handleCloseConfirm}>
-            ยกเลิก
-          </Button>
-          <Button variant='contained' color='error' onClick={handleConfirm}>
-            ยืนยัน
-          </Button>
-        </DialogActions>
-      </BootstrapDialog>
-    </Fragment>
-  ));
+        <BootstrapDialog fullWidth maxWidth='xs' onClose={handleClose} aria-labelledby='บรรทึกความดี' open={open}>
+          {handleClose ? (
+            <IconButton
+              aria-label='close'
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : null}
+          <TimelineGoodness info={info} user={user} onDeleted={onDeletedGoodness} />
+        </BootstrapDialog>
+        <BootstrapDialog
+          fullWidth
+          maxWidth='xs'
+          onClose={handleCloseConfirm}
+          aria-labelledby='บรรทึกความดี'
+          open={openConfirm}
+        >
+          {handleCloseConfirm ? (
+            <IconButton
+              aria-label='close'
+              onClick={handleCloseConfirm}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : null}
+          <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบบันทึกความดี</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-delete-goodness' p={5}>
+              {`คุณต้องการลบข้อมูลการการบันทึกความดีนี้ ใช่หรือไม่?`}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className='dialog-goodness-dense'>
+            <Button color='secondary' onClick={handleCloseConfirm}>
+              ยกเลิก
+            </Button>
+            <Button variant='contained' color='error' onClick={handleConfirm}>
+              ยืนยัน
+            </Button>
+          </DialogActions>
+        </BootstrapDialog>
+      </React.Fragment>
+    )
+  );
 };
 
 export default GoodnessSummaryReportPage;

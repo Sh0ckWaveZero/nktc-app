@@ -51,7 +51,7 @@ const DataGrid = (theme: Theme) => {
           color: theme.palette.divider,
         },
         virtualScroller: {
-          marginTop: '54px !important',
+          marginTop: '0px !important',
         },
         virtualScrollerRenderZone: {
           '& .MuiDataGrid-row': {

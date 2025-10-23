@@ -1,20 +1,20 @@
 'use client';
 
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardContent,
-  IconButton, 
-  Menu, 
-  MenuItem, 
+  IconButton,
+  Menu,
+  MenuItem,
   Typography,
   Button,
   Box,
-  Chip
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DeleteOutline, DotsVertical, Plus } from 'mdi-material-ui';
-import { Fragment, MouseEvent, useState } from 'react';
+import React, { Fragment, MouseEvent, useState } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import toast from 'react-hot-toast';
@@ -27,11 +27,11 @@ interface RowOptionsType {
 const RowOptions = ({ row, handleDelete }: RowOptionsType) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const rowOptionsOpen = Boolean(anchorEl);
-  
+
   const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleRowOptionsClose = () => {
     setAnchorEl(null);
   };
@@ -74,34 +74,34 @@ const RowOptions = ({ row, handleDelete }: RowOptionsType) => {
 
 const ProgramSettingsPage = () => {
   const [programs, setPrograms] = useState([
-    { 
-      id: 1, 
-      name: 'ประกาศนียบัตรวิชาชีพ (ปวช.)', 
+    {
+      id: 1,
+      name: 'ประกาศนียบัตรวิชาชีพ (ปวช.)',
       shortName: 'ปวช.',
       duration: '3 ปี',
       totalStudents: 180,
-      status: 'active' 
+      status: 'active',
     },
-    { 
-      id: 2, 
-      name: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)', 
+    {
+      id: 2,
+      name: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)',
       shortName: 'ปวส.',
       duration: '2 ปี',
       totalStudents: 85,
-      status: 'active' 
+      status: 'active',
     },
-    { 
-      id: 3, 
-      name: 'ประกาศนียบัตรวิชาชีพเทคนิค (ปวท.)', 
+    {
+      id: 3,
+      name: 'ประกาศนียบัตรวิชาชีพเทคนิค (ปวท.)',
       shortName: 'ปวท.',
       duration: '3 ปี',
       totalStudents: 0,
-      status: 'inactive' 
+      status: 'inactive',
     },
   ]);
 
   const handleDelete = (data: any) => {
-    setPrograms(programs.filter(program => program.id !== data.id));
+    setPrograms(programs.filter((program) => program.id !== data.id));
     toast.success(`ลบหลักสูตร ${data.name} เรียบร้อยแล้ว`);
   };
 
@@ -137,11 +137,7 @@ const ProgramSettingsPage = () => {
       headerName: 'จำนวนนักเรียนทั้งหมด',
       flex: 0.2,
       minWidth: 150,
-      renderCell: ({ row }) => (
-        <Typography variant='body2'>
-          {row.totalStudents} คน
-        </Typography>
-      ),
+      renderCell: ({ row }) => <Typography variant='body2'>{row.totalStudents} คน</Typography>,
     },
     {
       field: 'status',
@@ -149,7 +145,7 @@ const ProgramSettingsPage = () => {
       flex: 0.15,
       minWidth: 100,
       renderCell: ({ row }) => (
-        <Chip 
+        <Chip
           label={row.status === 'active' ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
           color={row.status === 'active' ? 'success' : 'default'}
           size='small'
@@ -167,19 +163,15 @@ const ProgramSettingsPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
-            <CardHeader 
+            <CardHeader
               title='การจัดการหลักสูตร'
               subheader='จัดการหลักสูตรการศึกษาในสถานศึกษา'
               action={
-                <Button
-                  variant='contained'
-                  startIcon={<Plus />}
-                  onClick={handleAddProgram}
-                >
+                <Button variant='contained' startIcon={<Plus />} onClick={handleAddProgram}>
                   เพิ่มหลักสูตร
                 </Button>
               }
@@ -214,7 +206,7 @@ const ProgramSettingsPage = () => {
           </Card>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

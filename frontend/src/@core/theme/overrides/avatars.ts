@@ -7,7 +7,10 @@ const Avatar = (theme: Theme) => {
       styleOverrides: {
         colorDefault: {
           color: theme.palette.text.secondary,
-          backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+          backgroundColor: theme.palette.grey[200],
+          ...theme.applyStyles('dark', {
+            backgroundColor: theme.palette.grey[700],
+          }),
         },
         rounded: {
           borderRadius: 5,

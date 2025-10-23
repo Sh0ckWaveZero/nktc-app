@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import staticAddrSource from "./static-addr-source";
+import { useCallback } from 'react';
+import staticAddrSource from './static-addr-source';
 
 type CompressedDataSourceItem = [string, [string, [string, number[]][]][]];
 type CompressedDataSource = CompressedDataSourceItem[];
@@ -37,7 +37,7 @@ export const extractDataSource = (cds: CompressedDataSource): DataSourceItem[] =
           ds.push({
             d: districtName,
             p: provinceName,
-            po: postcode + "",
+            po: postcode + '',
             s: subdistrictName,
           });
         });
@@ -47,7 +47,12 @@ export const extractDataSource = (cds: CompressedDataSource): DataSourceItem[] =
   return ds;
 };
 
-export const searchDataSourceByField = (ds: DataSourceItem[], field: "po" | "p" | "d" | "s", input: string, max = 10) => {
+export const searchDataSourceByField = (
+  ds: DataSourceItem[],
+  field: 'po' | 'p' | 'd' | 's',
+  input: string,
+  max = 10,
+) => {
   const result: DataSourceItem[] = [];
   for (const item of ds) {
     if (item[field].toLowerCase().includes(input.toLocaleLowerCase())) {
@@ -62,10 +67,10 @@ export const searchDataSourceByField = (ds: DataSourceItem[], field: "po" | "p" 
 
 export function useThailandAddressDataSource(ds = extractDataSource(staticAddrSource)) {
   const searchByField = useCallback(
-    (field: "po" | "p" | "d" | "s", input: string) => {
+    (field: 'po' | 'p' | 'd' | 's', input: string) => {
       return searchDataSourceByField(ds, field, input);
     },
-    [ds]
+    [ds],
   );
   return {
     searchByField,

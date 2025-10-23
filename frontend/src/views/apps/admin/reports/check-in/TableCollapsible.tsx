@@ -19,7 +19,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { isEmpty } from '@/@core/utils/utils';
-import { Fragment, useId, useState } from 'react';
+import React, { Fragment, useId, useState } from 'react';
 import Icon from '@/@core/components/icon';
 
 interface Row {
@@ -139,7 +139,7 @@ const RowDaily = (prop: any) => {
     ccyFormat(tableSubPercent(sumByProperty(values, level, 'internship'), level));
 
   return (
-    <Fragment key={levelRow}>
+    <React.Fragment key={levelRow}>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
           <IconButton aria-label='expand row' size='small' onClick={() => setOpen(!open)}>
@@ -244,7 +244,7 @@ const RowDaily = (prop: any) => {
           </Collapse>
         </TableCell>
       </TableRow>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

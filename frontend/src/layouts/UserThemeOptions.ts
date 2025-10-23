@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { ThemeOptions } from '@mui/material'
+import { ThemeOptions } from '@mui/material';
 
 // ** To use core palette, uncomment the below import
 // import corePalette from '@/@core/theme/palette'
@@ -38,59 +38,59 @@ const UserThemeOptions = (): ThemeOptions => {
         sm: 768,
         md: 992,
         lg: 1200,
-        xl: 1920
-      }
+        xl: 1920,
+      },
     },
     components: {
       MuiButton: {
         defaultProps: {
-          disableElevation: true
+          disableElevation: true,
         },
         styleOverrides: {
           root: {
-            textTransform: 'none'
+            textTransform: 'none',
           },
           sizeSmall: {
-            padding: '6px 16px'
+            padding: '6px 16px',
           },
           sizeMedium: {
-            padding: '8px 20px'
+            padding: '8px 20px',
           },
           sizeLarge: {
-            padding: '11px 24px'
+            padding: '11px 24px',
           },
           textSizeSmall: {
-            padding: '7px 12px'
+            padding: '7px 12px',
           },
           textSizeMedium: {
-            padding: '9px 16px'
+            padding: '9px 16px',
           },
           textSizeLarge: {
-            padding: '12px 16px'
-          }
-        }
+            padding: '12px 16px',
+          },
+        },
       },
       MuiCardActions: {
         styleOverrides: {
           root: {
-            padding: '16px 24px'
-          }
-        }
+            padding: '16px 24px',
+          },
+        },
       },
       MuiCardContent: {
         styleOverrides: {
           root: {
             padding: '32px 24px',
             '&:last-child': {
-              paddingBottom: '32px'
-            }
-          }
-        }
+              paddingBottom: '32px',
+            },
+          },
+        },
       },
       MuiCssBaseline: {
         styleOverrides: {
           '*': {
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
           },
           html: {
             MozOsxFontSmoothing: 'grayscale',
@@ -98,27 +98,27 @@ const UserThemeOptions = (): ThemeOptions => {
             display: 'flex',
             flexDirection: 'column',
             minHeight: '100%',
-            width: '100%'
+            width: '100%',
           },
           body: {
             display: 'flex',
             flex: '1 1 auto',
             flexDirection: 'column',
             minHeight: '100%',
-            width: '100%'
+            width: '100%',
           },
           '#__next': {
             display: 'flex',
             flex: '1 1 auto',
             flexDirection: 'column',
             height: '100%',
-            width: '100%'
-          }
-        }
-      }
+            width: '100%',
+          },
+        },
+      },
     },
     shape: {
-      borderRadius: 8
+      borderRadius: 8,
     },
     typography: {
       fontFamily: 'var(--font-prompt), "Prompt", sans-serif',
@@ -148,13 +148,13 @@ const UserThemeOptions = (): ThemeOptions => {
       '0px 10px 13px -6px rgba(58, 53, 65, 0.2), 0px 21px 33px 3px rgba(58, 53, 65, 0.14), 0px 8px 40px 7px rgba(58, 53, 65, 0.12)',
       '0px 10px 14px -6px rgba(58, 53, 65, 0.2), 0px 22px 35px 3px rgba(58, 53, 65, 0.14), 0px 8px 42px 7px rgba(58, 53, 65, 0.12)',
       '0px 11px 14px -7px rgba(58, 53, 65, 0.2), 0px 23px 36px 3px rgba(58, 53, 65, 0.14), 0px 9px 44px 8px rgba(58, 53, 65, 0.12)',
-      '0px 11px 15px -7px rgba(58, 53, 65, 0.2), 0px 24px 38px 3px rgba(58, 53, 65, 0.14), 0px 9px 46px 8px rgba(58, 53, 65, 0.12)'
+      '0px 11px 15px -7px rgba(58, 53, 65, 0.2), 0px 24px 38px 3px rgba(58, 53, 65, 0.14), 0px 9px 46px 8px rgba(58, 53, 65, 0.12)',
     ],
     // zIndex: {
     //   appBar: 1250,
     //   drawer: 1100
     // }
-  }
-}
+  };
+};
 
-export default UserThemeOptions
+export default UserThemeOptions;

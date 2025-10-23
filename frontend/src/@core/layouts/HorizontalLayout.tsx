@@ -155,7 +155,7 @@ const HorizontalLayout = (props: LayoutProps) => {
           }),
         }}
       >
-        {children}
+        {children as any}
       </ContentWrapper>
 
       {/* Footer */}

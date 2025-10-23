@@ -29,8 +29,9 @@ const TableHeader = (props: TableHeaderProps) => {
       <Grid
         size={{
           xs: 12,
-          sm: 4
-        }}>
+          sm: 4,
+        }}
+      >
         <FormControl fullWidth>
           <TextField
             className='studentName'
@@ -51,8 +52,9 @@ const TableHeader = (props: TableHeaderProps) => {
       <Grid
         size={{
           xs: 12,
-          sm: 4
-        }}>
+          sm: 4,
+        }}
+      >
         <FormControl fullWidth>
           <TextField
             className='studentId'
@@ -73,8 +75,9 @@ const TableHeader = (props: TableHeaderProps) => {
       <Grid
         size={{
           xs: 12,
-          sm: 2
-        }}>
+          sm: 2,
+        }}
+      >
         <FormControl fullWidth>
           <Button
             size='large'
@@ -92,8 +95,9 @@ const TableHeader = (props: TableHeaderProps) => {
       <Grid
         size={{
           xs: 12,
-          sm: 2
-        }}>
+          sm: 2,
+        }}
+      >
         <FormControl fullWidth>
           <Button
             size='large'

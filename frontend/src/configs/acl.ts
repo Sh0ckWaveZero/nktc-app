@@ -1,15 +1,15 @@
 import { AbilityBuilder, Ability } from '@casl/ability';
 
-export type Subjects = string
-export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects = string;
+export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
 
-export type AppAbility = Ability<[Actions, Subjects]>
+export type AppAbility = Ability<[Actions, Subjects]>;
 
-export const AppAbility = Ability as any
+export const AppAbilityClass = Ability as any;
 export type ACLObj = {
-  action: Actions
-  subject: string
-}
+  action: Actions;
+  subject: string;
+};
 
 /**
  * Please define your own Ability rules according to your app requirements.
@@ -17,8 +17,7 @@ export type ACLObj = {
  * admin can manage everything and client can just visit ACL page
  */
 const defineRulesFor = (role: string, subject: string) => {
-  const { can, rules } = new AbilityBuilder(AppAbility);
-
+  const { can, rules } = new AbilityBuilder(AppAbilityClass);
 
   if (role === 'Admin') {
     can(['create'], 'add-student-page');
@@ -37,6 +36,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'teacher-list-pages');
     can(['read'], 'teacher-page');
     can(['read'], 'view-student-page');
+    can(['read'], 'view-user-page');
     can(['update'], 'student-edit-page');
     can(['manage'], 'student-goodness-summary-report');
     can(['manage'], 'student-badness-summary-report');
@@ -44,6 +44,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['manage'], 'settings-classroom-list-pages');
     can(['manage'], 'settings-program-list-pages');
     can(['read'], 'calendar-page');
+    can(['read'], 'admin-statistics-page');
   } else if (role === 'Teacher') {
     can(['create'], 'add-student-page');
     can(['read', 'update'], 'account-settings');
@@ -68,6 +69,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'student-page');
     can(['read'], 'summary-check-in-report-activity-page');
     can(['read'], 'view-student-page');
+    can(['read'], 'view-user-page');
     can(['update'], 'student-edit-page');
     can(['read'], 'student-goodness-summary-report');
     can(['read'], 'student-badness-summary-report');
@@ -84,7 +86,6 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'student-sorting-goodness-report');
     can(['read'], 'student-goodness-summary-report');
     can(['read'], 'student-badness-summary-report');
-
   } else if (role === 'Parent') {
     can(['read'], 'home-page');
   } else {
@@ -96,11 +97,11 @@ const defineRulesFor = (role: string, subject: string) => {
 };
 
 export const buildAbilityFor = (role: string, subject: string): AppAbility => {
-  return new AppAbility(defineRulesFor(role, subject), {
+  return new AppAbilityClass(defineRulesFor(role, subject), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
-    detectSubjectType: (object: any) => object!.type
-  })
-}
+    detectSubjectType: (object: any) => object!.type,
+  });
+};
 
 export const defaultACLObj: ACLObj = {
   action: 'manage',

@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { createContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 // ** MUI Imports
 import { PaletteMode, Direction } from '@mui/material';
@@ -51,7 +51,7 @@ export type SettingsContextValue = {
 };
 
 interface SettingsProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
   pageSettings?: PageSpecificSettings | void;
 }
 
@@ -84,16 +84,20 @@ const staticSettings = {
 const restoreSettings = (): Settings | null => {
   let settings = null;
 
-  try {
-    const storedData: string | null = window.localStorage.getItem('settings');
+  if (typeof window !== 'undefined') {
+    try {
+      const storedData: string | null = window.localStorage.getItem('settings');
 
-    if (storedData) {
-      settings = { ...JSON.parse(storedData), ...staticSettings };
-    } else {
-      settings = initialSettings;
+      if (storedData) {
+        settings = { ...JSON.parse(storedData), ...staticSettings };
+      } else {
+        settings = initialSettings;
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
+  } else {
+    settings = initialSettings;
   }
 
   return settings;
@@ -101,15 +105,17 @@ const restoreSettings = (): Settings | null => {
 
 // set settings in localStorage
 const storeSettings = (settings: Settings) => {
-  const initSettings = Object.assign({}, settings);
+  if (typeof window !== 'undefined') {
+    const initSettings = Object.assign({}, settings);
 
-  delete initSettings.appBar;
-  delete initSettings.footer;
-  delete initSettings.layout;
-  delete initSettings.navHidden;
-  delete initSettings.lastLayout;
-  delete initSettings.toastPosition;
-  window.localStorage.setItem('settings', JSON.stringify(initSettings));
+    delete initSettings.appBar;
+    delete initSettings.footer;
+    delete initSettings.layout;
+    delete initSettings.navHidden;
+    delete initSettings.lastLayout;
+    delete initSettings.toastPosition;
+    window.localStorage.setItem('settings', JSON.stringify(initSettings));
+  }
 };
 
 // ** Create Context
@@ -123,29 +129,36 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
   const [settings, setSettings] = useState<Settings>({ ...initialSettings });
 
   useEffect(() => {
-    const restoredSettings = restoreSettings();
+    // Only restore settings in browser environment
+    if (typeof window !== 'undefined') {
+      const restoredSettings = restoreSettings();
 
-    if (restoredSettings) {
-      setSettings({ ...restoredSettings });
+      if (restoredSettings) {
+        setSettings({ ...restoredSettings });
+      }
     }
     if (pageSettings) {
       setSettings({ ...settings, ...pageSettings });
     }
   }, [pageSettings]);
 
-  useEffect(() => {
-    if (settings.layout === 'horizontal' && settings.skin === 'semi-dark') {
-      saveSettings({ ...settings, skin: 'default' });
-    }
-    if (settings.layout === 'horizontal' && settings.appBar === 'hidden') {
-      saveSettings({ ...settings, appBar: 'fixed' });
-    }
-  }, [settings.layout]);
-
   const saveSettings = (updatedSettings: Settings) => {
-    storeSettings(updatedSettings);
+    if (typeof window !== 'undefined') {
+      storeSettings(updatedSettings);
+    }
     setSettings(updatedSettings);
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (settings.layout === 'horizontal' && settings.skin === 'semi-dark') {
+        saveSettings({ ...settings, skin: 'default' });
+      }
+      if (settings.layout === 'horizontal' && settings.appBar === 'hidden') {
+        saveSettings({ ...settings, appBar: 'fixed' });
+      }
+    }
+  }, [settings.layout, saveSettings]);
 
   return <SettingsContext.Provider value={{ settings, saveSettings }}>{children}</SettingsContext.Provider>;
 };

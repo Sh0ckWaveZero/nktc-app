@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
 import {
   Box,
@@ -15,23 +15,17 @@ import {
   Typography,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { Fragment, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
+import React, { Fragment, useState } from 'react';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { BoxProps } from '@mui/material/Box';
 import Close from 'mdi-material-ui/Close';
 import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import PasswordStrengthBar from 'react-password-strength-bar';
 import { PatternFormat } from 'react-number-format';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { styled } from '@mui/material/styles';
-import th from 'dayjs/locale/th';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-dayjs.extend(buddhistEra);
+import { zodResolver } from '@hookform/resolvers/zod';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 interface SidebarAddTeacherType {
   open: boolean;
@@ -45,19 +39,9 @@ interface UserData {
   username: string;
   password: string;
   idCard: string;
-  birthDate: Dayjs | null;
+  birthDate: Date | null;
   jobTitle: string;
 }
-
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `กรุณากรอก${field}`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-  } else {
-    return '';
-  }
-};
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& label': {
@@ -84,41 +68,42 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
 
 const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
   // ** Props
-  const { open, toggle, data, onSubmitForm } = props;
+  const { open, toggle, onSubmitForm } = props;
 
-  const schema = yup.object().shape({
-    fullName: yup
-      .string()
-      .min(3, (obj) => showErrors('ชื่อ-นามสกุล', obj.value.length, obj.min))
-      .test('fullName', 'ต้องมีเว้นวรรคระหว่าง ชื่อและนามสกุล', async (value: any) => {
-        if (value) {
-          return value.split(' ').length > 1 ? true : false;
+  const schema = z
+    .object({
+      fullName: z
+        .string()
+        .min(3, 'ชื่อ-นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร')
+        .refine((value) => value.split(' ').length > 1, 'ต้องมีเว้นวรรคระหว่าง ชื่อและนามสกุล')
+        .regex(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกเฉพาะภาษาไทยเท่านั้น'),
+      username: z
+        .string()
+        .min(3, 'ชื่อผู้ใช้งานระบบต้องมีอย่างน้อย 3 ตัวอักษร')
+        .regex(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น'),
+      password: z
+        .string()
+        .min(8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
+        .regex(
+          /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
+          'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
+        ),
+      birthDate: z.date().nullable(),
+      idCard: z.string().optional(),
+      jobTitle: z.string().optional(),
+    })
+    .refine(
+      async (data) => {
+        if (data.username) {
+          return !props.data.find((item: any) => item.username === data.username);
         }
         return true;
-      })
-      .matches(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกเฉพาะภาษาไทยเท่านั้น')
-      .required(),
-    username: yup
-      .string()
-      .min(3, (obj) => showErrors('ชื่อผู้ใช้งานระบบ', obj.value.length, obj.min))
-      .test('username', 'ชื่อผู้ใช้งานนี้มีอยู่แล้ว', async (value: any) => {
-        if (value) {
-          return data.find((item: any) => item.username === value) ? false : true;
-        }
-        return true;
-      })
-      .matches( /^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น')
-      .required(),
-    password: yup
-      .string()
-      .min(8, (obj) => showErrors('รหัสผ่าน', obj.value.length, obj.min))
-      .matches(
-        /^[A-Za-z0-9!@#\$%\^&\*\(\)-_+=\[\]\{\}\\\|;:'",<.>\/?`~]+$/,
-        'กรุณากรอกเฉพาะภาษาอังกฤษและตัวเลขเท่านั้น',
-      )
-      .required(),
-    birthDate: yup.date().nullable(),
-  });
+      },
+      {
+        message: 'ชื่อผู้ใช้งานนี้มีอยู่แล้ว',
+        path: ['username'],
+      },
+    );
 
   const defaultValues = {
     fullName: '',
@@ -137,7 +122,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
   } = useForm({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const onSubmit: any = (info: UserData) => {
@@ -211,7 +196,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <Fragment>
+                <React.Fragment>
                   <CustomTextField
                     value={value}
                     type={showPassword ? 'text' : 'password'}
@@ -223,31 +208,33 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
                     helperText={errors.password?.message as string}
                     aria-describedby='validation-schema-first-name'
                     required
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment aria-label='สลับการแสดงรหัสผ่านปัจจุบัน' position='end'>
-                          <Tooltip title='สลับการแสดงรหัสผ่านปัจจุบัน' arrow>
-                            <span>
-                              <IconButton
-                                edge='end'
-                                aria-label='สลับการแสดงรหัสผ่านปัจจุบัน'
-                                onClick={() => setShowPassword(!showPassword)}
-                                onMouseDown={(event) => event.preventDefault()}
-                              >
-                                {showPassword ? (
-                                  <IconifyIcon icon='mdi:eye-remove' />
-                                ) : (
-                                  <IconifyIcon icon='ic:round-remove-red-eye' />
-                                )}
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment aria-label='สลับการแสดงรหัสผ่านปัจจุบัน' position='end'>
+                            <Tooltip title='สลับการแสดงรหัสผ่านปัจจุบัน' arrow>
+                              <span>
+                                <IconButton
+                                  edge='end'
+                                  aria-label='สลับการแสดงรหัสผ่านปัจจุบัน'
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  onMouseDown={(event) => event.preventDefault()}
+                                >
+                                  {showPassword ? (
+                                    <IconifyIcon icon='mdi:eye-remove' />
+                                  ) : (
+                                    <IconifyIcon icon='ic:round-remove-red-eye' />
+                                  )}
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                   <PasswordStrengthBar scoreWords={scoreWords} shortScoreWord={scoreWords[0]} password={value} />
-                </Fragment>
+                </React.Fragment>
               )}
             />
           </FormControl>
@@ -279,27 +266,24 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               name='birthDate'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
-                  <DatePicker
-                    label='วันเกิด'
-                    value={value}
-                    onChange={onChange}
-                    format='D MMMM BBBB'
-                    maxDate={dayjs(new Date())}
-                    slots={{
-                      textField: CustomTextField,
-                      openPickerIcon: () => <FcCalendar />
-                    }}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        inputProps: {
-                          placeholder: 'วัน/เดือน/ปี',
-                        }
-                      }
-                    }}
-                  />
-                </LocalizationProvider>
+                <ThaiDatePicker
+                  label='วันเกิด'
+                  value={value ? new Date(value) : null}
+                  onChange={onChange}
+                  format='d MMMM yyyy'
+                  maxDate={new Date()}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      inputProps: {
+                        placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                      },
+                      InputProps: {
+                        endAdornment: <FcCalendar />,
+                      },
+                    },
+                  }}
+                />
               )}
             />
           </FormControl>
@@ -308,7 +292,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               name='jobTitle'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <Fragment>
+                <React.Fragment>
                   <InputLabel>ตำแหน่ง</InputLabel>
                   <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
                     <MenuItem value=''>
@@ -324,7 +308,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
                     <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
                     <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
                   </Select>
-                </Fragment>
+                </React.Fragment>
               )}
             />
           </FormControl>

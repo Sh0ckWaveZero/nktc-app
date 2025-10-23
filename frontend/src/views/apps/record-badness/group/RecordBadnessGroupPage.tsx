@@ -2,14 +2,13 @@
 
 import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useState } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGroup';
 import DialogStudentGroup from '@/views/apps/record-goodness/DialogStudentsGroup';
 import { HiThumbDown } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/userCommon';
@@ -22,7 +21,6 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 export interface DialogTitleProps {
   id: string;
   children?: React.ReactNode;
@@ -31,7 +29,6 @@ export interface DialogTitleProps {
 
 const RecordBadnessGroupPage = () => {
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
   const [students, setStudents] = useState<any>([]);
@@ -45,8 +42,8 @@ const RecordBadnessGroupPage = () => {
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
   const [selectClassrooms, setSelectClassrooms] = useState<any>([]);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
-  const { loading: studentLoading, students: studentsList } = useStudentList(storedToken, debouncedValue);
+  const [classrooms, classroomLoading] = useFetchClassrooms();
+  const { loading: studentLoading, students: studentsList } = useStudentList(debouncedValue);
 
   const onSelectStudents = useCallback(
     (e: any, newValue: any) => {
@@ -231,9 +228,10 @@ const RecordBadnessGroupPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'report-badness-group-page') &&
+  return (
+    ability?.can('read', 'report-badness-group-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -306,7 +304,7 @@ const RecordBadnessGroupPage = () => {
           auth={auth}
           handleSusses={handleSusses}
         />
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

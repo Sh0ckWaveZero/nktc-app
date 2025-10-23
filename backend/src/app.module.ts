@@ -27,6 +27,7 @@ import { ReportCheckInMiddleware } from './middlewares/report-check-in.middlewar
 import { ReportCheckInModule } from './apis/report-check-in/report-check-in.module';
 import { SecurityMiddleware } from './middlewares/security.middleware';
 import { StaticsModule } from './apis/statics/statics.module';
+import { StatisticsModule } from './apis/statistics/statistics.module';
 import { StudentsModule } from './apis/students/students.module';
 import { TeachersModule } from './apis/teachers/teachers.module';
 import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
@@ -56,6 +57,7 @@ import validate from './config/validation';
     ProgramsModule,
     ReportCheckInModule,
     StaticsModule,
+    StatisticsModule,
     StudentsModule,
     TeachersModule,
     UsersModule,

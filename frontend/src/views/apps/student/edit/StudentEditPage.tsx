@@ -1,10 +1,9 @@
 'use client';
 
-import * as yup from 'yup';
+import { z } from 'zod';
 import {
   Box,
   Button,
-  ButtonProps,
   Card,
   CardContent,
   CardHeader,
@@ -17,55 +16,38 @@ import {
   TextField,
   Typography,
   styled,
+  CircularProgress,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { Fragment, useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
+import httpClient from '@/@core/utils/http';
 
 interface StudentEditPageProps {
   id: string;
 }
+
+const schema = z.object({
+  studentId: z.string().min(1, 'กรุณากรอกรหัสนักศึกษา').min(10, 'รหัสนักเรียนต้องมีอย่างน้อย 10 ตัวอักษร'),
+  title: z.string().min(1, 'กรุณาเลือกคำนำหน้า'),
+  firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร'),
+  lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร'),
+  idCard: z.string().optional(),
+  phone: z.string().optional(),
+  status: z.string().min(1, 'กรุณาเลือกสถานะ'),
+});
 
 interface FormData {
   studentId: string;
   title: string;
   firstName: string;
   lastName: string;
-  idCard: string;
-  phone: string;
+  idCard?: string;
+  phone?: string;
   status: string;
 }
-
-const showErrors = (field: string, valueLen: number, min: number) => {
-  if (valueLen === 0) {
-    return `กรุณากรอก ${field}`;
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-  } else {
-    return '';
-  }
-};
-
-const schema = yup.object().shape({
-  studentId: yup
-    .string()
-    .required('กรุณากรอกรหัสนักศึกษา')
-    .min(10, (obj) => showErrors('รหัสนักเรียน', obj.value.length, obj.min)),
-  title: yup.string().required('กรุณาเลือกคำนำหน้า'),
-  firstName: yup
-    .string()
-    .min(3, (obj) => showErrors('ชื่อ', obj.value.length, obj.min))
-    .required(),
-  lastName: yup
-    .string()
-    .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
-    .required(),
-  idCard: yup.string(),
-  phone: yup.string(),
-  status: yup.string().required('กรุณาเลือกสถานะ'),
-});
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -74,42 +56,80 @@ const ImgStyled = styled('img')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
-  marginLeft: theme.spacing(4.5),
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    marginLeft: 0,
-    textAlign: 'center',
-    marginTop: theme.spacing(4),
-  },
-}));
-
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
-    reset
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
     mode: 'onBlur',
     defaultValues: {
-      studentId: id || '',
+      studentId: '',
       title: '',
       firstName: '',
       lastName: '',
       idCard: '',
       phone: '',
-      status: 'active'
-    }
+      status: 'normal',
+    },
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log('Student Edit Data:', data);
-    toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
+        const response = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`);
+
+        const data = response.data;
+        reset({
+          studentId: data.studentId || '',
+          title: data.title || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          idCard: data.idCard || '',
+          phone: data.phone || '',
+          status: data.status || 'normal',
+        });
+
+        // Load existing profile picture if available
+        if (data.avatar) {
+          setImgSrc(data.avatar);
+        } else {
+          // Use default avatar if no avatar is set
+          setImgSrc('/images/avatars/1.png');
+        }
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+        toast.error('ไม่สามารถโหลดข้อมูลนักเรียนได้');
+        // Set default avatar on error
+        setImgSrc('/images/avatars/1.png');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchStudentData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await httpClient.put(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`, data);
+
+      toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
+      router.back();
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast.error('ไม่สามารถแก้ไขข้อมูลนักเรียนได้');
+    }
   };
 
   const onChange = (file: ChangeEvent) => {
@@ -120,6 +140,16 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       reader.readAsDataURL(files[0]);
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+          <CircularProgress />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -180,11 +210,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 render={({ field: { value, onChange } }) => (
                   <FormControl fullWidth error={Boolean(errors.title)}>
                     <InputLabel>คำนำหน้า</InputLabel>
-                    <Select
-                      value={value}
-                      label='คำนำหน้า'
-                      onChange={onChange}
-                    >
+                    <Select value={value} label='คำนำหน้า' onChange={onChange}>
                       <MenuItem value='นาย'>นาย</MenuItem>
                       <MenuItem value='นางสาว'>นางสาว</MenuItem>
                       <MenuItem value='นาง'>นาง</MenuItem>
@@ -278,13 +304,9 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 render={({ field: { value, onChange } }) => (
                   <FormControl fullWidth error={Boolean(errors.status)}>
                     <InputLabel>สถานะ</InputLabel>
-                    <Select
-                      value={value}
-                      label='สถานะ'
-                      onChange={onChange}
-                    >
-                      <MenuItem value='active'>เรียนอยู่</MenuItem>
-                      <MenuItem value='inactive'>ไม่เรียนแล้ว</MenuItem>
+                    <Select value={value} label='สถานะ' onChange={onChange}>
+                      <MenuItem value='normal'>เรียนอยู่</MenuItem>
+                      <MenuItem value='dropout'>ไม่เรียนแล้ว</MenuItem>
                       <MenuItem value='graduated'>จบการศึกษา</MenuItem>
                     </Select>
                     {errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
@@ -298,12 +320,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
                   บันทึกการเปลี่ยนแปลง
                 </Button>
-                <Button
-                  type='reset'
-                  variant='outlined'
-                  color='secondary'
-                  onClick={() => router.back()}
-                >
+                <Button type='reset' variant='outlined' color='secondary' onClick={() => router.back()}>
                   ยกเลิก
                 </Button>
               </Box>

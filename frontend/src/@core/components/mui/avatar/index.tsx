@@ -16,10 +16,10 @@ import useBgColor, { UseBgColorType } from '@/@core/hooks/useBgColor';
 import { Badge } from '@mui/material';
 import IconifyIcon from '../../icon';
 
-// eslint-disable-next-line react/display-name
-const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
+ 
+const Avatar = forwardRef<HTMLDivElement, CustomAvatarProps>((props, ref) => {
   // ** Props
-  const { sx, src, skin, color, badge = '' } = props;
+  const { sx, src, skin = 'filled', color = 'primary', badge = '' } = props;
 
   // ** Hook
   const theme: any = useTheme();
@@ -51,6 +51,10 @@ const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
     info: getAvatarStyles(skin, 'info'),
   };
 
+  const avatarElement = (
+    <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />
+  );
+
   if (badge) {
     return (
       <Badge
@@ -67,17 +71,12 @@ const Avatar = forwardRef((props: CustomAvatarProps, ref: Ref<any>) => {
           },
         }}
       >
-        <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />
+        {avatarElement}
       </Badge>
     );
   } else {
-    return <MuiAvatar ref={ref} {...props} sx={!src && skin && color ? Object.assign(colors[color], sx) : sx} />;
+    return avatarElement;
   }
-});
-
-Avatar.defaultProps = {
-  skin: 'filled',
-  color: 'primary',
-};
+}) as React.ForwardRefExoticComponent<CustomAvatarProps & React.RefAttributes<HTMLDivElement>>;
 
 export default Avatar;

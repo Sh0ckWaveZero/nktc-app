@@ -1,5 +1,4 @@
 import type { Metadata } from 'next/types';
-import { ReactNode } from 'react';
 import { Prompt } from 'next/font/google';
 
 // ** Config Imports
@@ -10,6 +9,9 @@ import Providers from './providers';
 
 // ** Global Styles
 import '@/styles/globals.css';
+
+// Force dynamic rendering to prevent static generation issues with React Context
+export const dynamic = 'force-dynamic';
 
 // ** Google Fonts
 const prompt = Prompt({
@@ -29,6 +31,14 @@ export const metadata: Metadata = {
   authors: [{ name: 'Midseelee' }],
   creator: 'Midseelee',
   publisher: 'NKTC',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.ico', type: 'image/x-icon' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -59,12 +69,12 @@ export const metadata: Metadata = {
 };
 
 interface RootLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="th" suppressHydrationWarning>
+    <html lang='th' suppressHydrationWarning>
       <body className={`${prompt.variable} ${prompt.className}`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>

@@ -27,13 +27,13 @@ const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
   transition: 'none',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: theme.spacing(0, 6),
+  padding: theme.spacing(0, 2),
   backgroundColor: 'transparent',
   color: theme.palette.text.primary,
   minHeight: theme.mixins.toolbar.minHeight,
   [theme.breakpoints.down('sm')]: {
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
 }));
 
@@ -62,7 +62,7 @@ const LayoutAppBar = (props: Props) => {
 
   const appBarFixedStyles = () => {
     return {
-      px: `${theme.spacing(5)} !important`,
+      px: `${theme.spacing(2)} !important`,
       ...(appBarBlur && { backdropFilter: 'blur(8px)' }),
       boxShadow: theme.shadows[skin === 'bordered' ? 0 : 3],
       backgroundColor: hexToRGBA(theme.palette.background.paper, appBarBlur ? 0.85 : 1),

@@ -5,13 +5,10 @@ import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
-import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserStore } from '@/store/index';
-import { shallow } from 'zustand/shallow';
+import { useAuditLogs } from '@/hooks/queries/useUser';
 
 interface CellType {
   row: any;
@@ -24,48 +21,27 @@ const ACTIONS: Record<Action, string> = {
   Login: 'เข้าสู่ระบบ',
 };
 
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
 
 const HistoryPage = () => {
   const { user } = useAuth();
-  const { fetchAuditLogs } = useUserStore(
-    (state: any) => ({
-      fetchAuditLogs: state.fetchAuditLogs,
-    }),
-    shallow,
-  );
-
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [auditLogs, setAuditLogs] = useState([]);
+
+  // Fetch audit logs using React Query
+  const { data, isLoading } = useAuditLogs({
+    userName: user?.username || '',
+    skip: page * pageSize,
+    take: pageSize,
+  });
+
+  const auditLogs = data?.data || [];
+  const total = data?.total || 0;
 
   const fullName = `${user?.account?.title && user.account.title + user?.account?.firstName} ${
     user?.account?.lastName
   }`;
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      const { data, total } = await fetchAuditLogs(accessToken, {
-        skip: page === 0 ? 0 : page * pageSize,
-        take: pageSize,
-        userName: user?.username,
-      });
-      setAuditLogs(data || []);
-      setTotal(total || 0);
-      setLoading(false);
-    };
-    fetch();
-
-    return () => {
-      setAuditLogs([]);
-    };
-  }, [page, pageSize]);
-
-  const onHandleChangePage = useCallback((newPage: any) => {
+  const onHandleChangePage = useCallback((newPage: number) => {
     setPageSize(newPage);
   }, []);
 
@@ -190,7 +166,7 @@ const HistoryPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -207,7 +183,7 @@ const HistoryPage = () => {
             <DataGrid
               columns={defaultColumns}
               rows={auditLogs}
-              loading={loading}
+              loading={isLoading}
               disableColumnMenu
               paginationMode='server'
               rowCount={total}
@@ -235,7 +211,7 @@ const HistoryPage = () => {
           </Card>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 
 // ** MUI Imports
 import Backdrop from '@mui/material/Backdrop';
@@ -28,7 +28,7 @@ const Sidebar = (props: BoxProps & SidebarType) => {
   }, [onClose, onOpen, show]);
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Box
         {...props}
         sx={{
@@ -58,7 +58,7 @@ const Sidebar = (props: BoxProps & SidebarType) => {
           }}
         />
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

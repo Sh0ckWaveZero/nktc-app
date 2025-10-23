@@ -1,17 +1,14 @@
 // ** MUI Imports
 import Icon from '@/@core/components/icon';
-import { isEmpty } from '@/@core/utils/utils';
+// import { isEmpty } from '@/@core/utils/utils';
 import { Autocomplete, FormControl } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
-// ** Icons Imports
-import ExportVariant from 'mdi-material-ui/ExportVariant';
 import Link from 'next/link';
 
 interface TableHeaderProps {
-
   classrooms: any;
   defaultClassroom: any;
   fullName: string;
@@ -63,10 +60,12 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 2
-        }}>
+          lg: 2,
+        }}
+      >
         <FormControl fullWidth>
           <TextField
+            id='studentId'
             fullWidth
             label='รหัสนักเรียน'
             placeholder='รหัสนักเรียน'
@@ -83,27 +82,41 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 4
-        }}>
+          lg: 4,
+        }}
+      >
         <FormControl fullWidth>
           <Autocomplete
             id='studentName'
-            limitTags={20}
-            value={fullName}
+            fullWidth
+            disablePortal={false}
+            value={fullName || null}
             options={students}
             loading={loadingStudents}
             onInputChange={onSearchChange}
             onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
-            getOptionLabel={(option: any) => option.fullName || ''}
-            isOptionEqualToValue={(option: any, value: any) => option.fullName === value?.fullName}
-            renderOption={(props, option) => (
-              <li {...props}>
-                {`${option?.title}${option?.fullName} `}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label='ชื่อ-สกุล นักเรียน' placeholder='เลือกชื่อ-สกุล นักเรียน' />
-            )}
+            getOptionLabel={(option: any) => {
+              if (typeof option === 'string') return option;
+              return option?.fullName ? `${option?.title || ''}${option.fullName}` : '';
+            }}
+            isOptionEqualToValue={(option: any, value: any) => {
+              if (!option || !value) return false;
+              return option.id === value.id;
+            }}
+            renderInput={(params: any) => {
+              return (
+                <TextField
+                  {...params}
+                  label='ชื่อ-สกุล นักเรียน'
+                  placeholder='เลือกชื่อ-สกุล นักเรียน'
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>
@@ -113,33 +126,40 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 4
-        }}>
+          lg: 4,
+        }}
+      >
         <FormControl fullWidth>
           <Autocomplete
-            id='checkboxes-tags-classroom'
-            limitTags={15}
-            value={defaultClassroom}
+            id='classroom'
+            fullWidth
+            disablePortal={false}
+            value={defaultClassroom || null}
             options={classrooms}
+            loading={loading}
             onChange={(_, newValue: any) => onHandleChange(_, newValue)}
             getOptionLabel={(option: any) => option?.name ?? ''}
-            isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-            renderOption={(props, option) => (
-              <li {...props}>
-                {option.name}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField
-                error={isEmpty(classrooms) && loading}
-                helperText={isEmpty(classrooms) && loading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                {...params}
-                label='ห้องเรียน'
-                placeholder='เลือกห้องเรียน'
-              />
-            )}
-            filterSelectedOptions
+            isOptionEqualToValue={(option: any, value: any) => {
+              if (!option || !value) return false;
+              return option.id === value.id;
+            }}
             groupBy={(option: any) => option.department?.name}
+            renderInput={(params: any) => {
+              return (
+                <TextField
+                  {...params}
+                  label='ห้องเรียน'
+                  placeholder='เลือกห้องเรียน'
+                  error={(!classrooms || classrooms.length === 0) && !loading}
+                  helperText={(!classrooms || classrooms.length === 0) && !loading ? 'ไม่พบข้อมูลห้องเรียน' : ''}
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>
@@ -149,8 +169,9 @@ const TableHeader = (props: TableHeaderProps) => {
           xs: 12,
           sm: 12,
           md: 12,
-          lg: 2
-        }}>
+          lg: 2,
+        }}
+      >
         <FormControl fullWidth>
           <LinkStyled href='/apps/student/add' passHref>
             <Button

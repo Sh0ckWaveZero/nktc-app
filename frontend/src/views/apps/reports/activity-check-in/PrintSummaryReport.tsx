@@ -10,18 +10,18 @@ import {
   TableHead,
   Typography,
 } from '@mui/material';
-import { forwardRef } from 'react';
 
 // ** Icons Imports
 
 interface Props {
   value: any;
   classroom: any;
+  ref?: React.RefObject<HTMLDivElement>;
 }
 
-const PrintSummaryReport = forwardRef((props: Props, ref: any) => {
+const PrintSummaryReport = (props: Props) => {
   // ** Props
-  const { value, classroom } = props;
+  const { value, classroom, ref } = props;
   return (
     <Container ref={ref} sx={{ pt: 8, fontFamily: 'Sarabun', pb: 8 }}>
       <Typography
@@ -107,6 +107,6 @@ const PrintSummaryReport = forwardRef((props: Props, ref: any) => {
       </TableContainer>
     </Container>
   );
-});
+};
 
 export default PrintSummaryReport;

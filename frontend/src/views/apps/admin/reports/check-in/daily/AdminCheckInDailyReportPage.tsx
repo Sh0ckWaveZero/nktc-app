@@ -1,26 +1,20 @@
 'use client';
 
 import { Avatar, Card, CardHeader } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
 // ** React Imports
 import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
 import Grid from '@mui/material/Grid';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/check-in/TableCollapsible';
 // ** Types Imports
 import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useReportCheckInStore } from '@/store/index';
-dayjs.locale('th');
-dayjs.extend(buddhistEra);
-
-const localStorageService = new LocalStorageService();
+import { formatFullDateThai } from '@/utils/datetime';
 
 const AdminCheckInDailyReportPage = () => {
   // ** Store Vars
@@ -31,24 +25,22 @@ const AdminCheckInDailyReportPage = () => {
     shallow,
   );
 
-  const storedToken = localStorageService.getToken() || '';
-
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState(dayjs(new Date()) || null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   useEffect(() => {
+    if (!selectedDate) return;
+
     (async () => {
-      await findDailyReportAdmin(storedToken, { startDate: selectedDate, endDate: selectedDate }).then(
-        async (res: any) => {
-          setValue(await res);
-        },
-      );
+      await findDailyReportAdmin({ startDate: selectedDate, endDate: selectedDate }).then(async (res: any) => {
+        setValue(await res);
+      });
     })();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Dayjs | null) => {
-    setSelectedDate(date as Dayjs);
+  const handleSelectedDate = (date: Date | null) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -62,8 +54,8 @@ const AdminCheckInDailyReportPage = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำ${selectedDate.format('dddที่ DD MMMM BBBB')}`}
+            title={`รายงานสถิติการมาเรียนของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            subheader={selectedDate ? `ประจำ${formatFullDateThai(selectedDate)}` : ''}
           />
         </Card>
       </Grid>

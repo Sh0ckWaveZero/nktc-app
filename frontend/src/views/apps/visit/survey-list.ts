@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 export interface Survey {
   type: string;
   name: string;
@@ -287,7 +287,7 @@ export const surveyList: Survey[] = [
       'อยู่ในสภาพแวดดล้อมที่ใช้สารเสพติด',
       'ปัจจุบันเกี่ยวข้องกับสารเสพติด',
       'เป็นผู้ติดบุหรี่สุรา หรือการใช้สารเสพติดอื่นๆ',
-    ]
+    ],
   },
   {
     type: 'radiogroup-allow-other',
@@ -303,7 +303,7 @@ export const surveyList: Survey[] = [
       'ทะเลาะวิวาทเป็นประจำ',
       'ทำร้ายร่างกายผู้อื่น',
       'ทำร้ายร่างกายตนเอง',
-    ]
+    ],
   },
   {
     type: 'radiogroup-allow-other',
@@ -319,7 +319,7 @@ export const surveyList: Survey[] = [
       'มีการมั่วสุมทางเพศ',
       'ตั้งครรภ์',
       'หมกมุ่นในการใช้เครื่องมือสื่อสารที่เกี่ยวข้องทางเพศ',
-    ]
+    ],
   },
   {
     type: 'radiogroup-allow-other',
@@ -335,7 +335,7 @@ export const surveyList: Survey[] = [
       'ร้านเกมส์อยู่ใกล้บ้าน',
       'ใช้จ่ายเงินผิดปกติ',
       'หมกมุ่น จริงจังในการเล่นเกมส์',
-    ]
+    ],
   },
   {
     type: 'radiogroup',
@@ -360,13 +360,13 @@ export const surveyList: Survey[] = [
 ];
 
 export const defaultValues = {
-  'address': '',
+  address: '',
   'address-type': '',
-  'environment': '',
+  environment: '',
   'parents-status': '',
   'parents-living-condition': '',
   'parents-workplace': '',
-  'parents': '',
+  parents: '',
   'parents-occupation': '',
   'family-income': '',
   'family-income-and-expenses': '',
@@ -390,39 +390,39 @@ export const defaultValues = {
   'sexual-behavior': '',
   'addict-game': '',
   'internet-access': '',
-  'mobile-phone': ''
+  'mobile-phone': '',
 };
 
-export const schema = yup.object().shape({
-  address: yup.string().required(),
-  'address-type': yup.string().required(),
-  environment: yup.string().required(),
-  'parents-status': yup.string().required(),
-  'parents-living-condition': yup.string().required(),
-  'parents-workplace': yup.string().required(),
-  parents: yup.string().required(),
-  'parents-occupation': yup.string().required(),
-  'family-income': yup.string().required(),
-  'family-income-and-expenses': yup.string().required(),
-  'extra-income': yup.string().required(),
-  'family-relationship': yup.string().required(),
-  'parents-feeling': yup.string().required(),
-  'parents-raising': yup.string().required(),
-  'student-behavior': yup.array().of(yup.string()).required(),
-  'student-responsibility': yup.string().required(),
-  'friend-type': yup.string().required(),
-  'friend-close': yup.string().required(),
-  'travel-to-school': yup.string().required(),
-  'travel-to-school-money': yup.string().required(),
-  'parents-need-when-student-graduate': yup.string().required(),
-  'parents-opinion-next-year': yup.string().required(),
-  'parents-satisfaction': yup.string().required(),
-  'family-close': yup.string().required(),
-  'problem-who': yup.string().required(),
-  'behavior-drug': yup.string().required(),
-  'behavior-violence': yup.string().required(),
-  'sexual-behavior': yup.string().required(),
-  'addict-game': yup.string().required(),
-  'internet-access': yup.string().required(),
-  'mobile-phone': yup.string().required(),
+export const schema = z.object({
+  address: z.string(),
+  'address-type': z.string(),
+  environment: z.string(),
+  'parents-status': z.string(),
+  'parents-living-condition': z.string(),
+  'parents-workplace': z.string(),
+  parents: z.string(),
+  'parents-occupation': z.string(),
+  'family-income': z.string(),
+  'family-income-and-expenses': z.string(),
+  'extra-income': z.string(),
+  'family-relationship': z.string(),
+  'parents-feeling': z.string(),
+  'parents-raising': z.string(),
+  'student-behavior': z.array(z.string()),
+  'student-responsibility': z.string(),
+  'friend-type': z.string(),
+  'friend-close': z.string(),
+  'travel-to-school': z.string(),
+  'travel-to-school-money': z.string(),
+  'parents-need-when-student-graduate': z.string(),
+  'parents-opinion-next-year': z.string(),
+  'parents-satisfaction': z.string(),
+  'family-close': z.string(),
+  'problem-who': z.string(),
+  'behavior-drug': z.string(),
+  'behavior-violence': z.string(),
+  'sexual-behavior': z.string(),
+  'addict-game': z.string(),
+  'internet-access': z.string(),
+  'mobile-phone': z.string(),
 });

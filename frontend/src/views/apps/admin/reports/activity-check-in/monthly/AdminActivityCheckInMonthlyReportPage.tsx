@@ -1,29 +1,21 @@
 'use client';
 
-import 'dayjs/locale/th';
-
 // ** Types Imports
 import { Avatar, Card, CardHeader } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
+import { startOfMonth, endOfMonth } from 'date-fns';
 // ** React Imports
 import { useEffect, useState } from 'react';
 
 import { BsCalendar2Date } from 'react-icons/bs';
 import Grid from '@mui/material/Grid';
-import { LocalStorageService } from '@/services/localStorageService';
 import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
 import TableHeaderMonthly from '@/views/apps/admin/reports/check-in/TableHeaderMonthly';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
-
-dayjs.locale('th');
-dayjs.extend(buddhistEra);
-
-const localStorageService = new LocalStorageService();
+import { getThaiMonthName, getBuddhistYear } from '@/utils/datetime';
 
 const AdminActivityCheckInMonthlyReportPage = () => {
   // ** Store Vars
@@ -34,25 +26,25 @@ const AdminActivityCheckInMonthlyReportPage = () => {
     shallow,
   );
 
-  const storedToken = localStorageService.getToken() || '';
-
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   useEffect(() => {
+    if (!selectedDate) return;
+
     const fetch = async () => {
-      const start = selectedDate.startOf('month');
-      const end = selectedDate.endOf('month');
-      await findDailyReportAdmin(storedToken, { startDate: start, endDate: end }).then(async (res: any) => {
+      const start = startOfMonth(selectedDate);
+      const end = endOfMonth(selectedDate);
+      await findDailyReportAdmin({ startDate: start, endDate: end }).then(async (res: any) => {
         setValue(await res);
       });
     };
     fetch();
   }, [selectedDate]);
 
-  const handleSelectedDate = (date: Dayjs | null) => {
-    setSelectedDate(date as Dayjs);
+  const handleSelectedDate = (date: Date | null) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -66,8 +58,10 @@ const AdminActivityCheckInMonthlyReportPage = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value.students} คน`}
-            subheader={`ประจำเดือน ${selectedDate.format('MMMM BBBB')}`}
+            title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            subheader={
+              selectedDate ? `ประจำเดือน ${getThaiMonthName(selectedDate)} ${getBuddhistYear(selectedDate)}` : ''
+            }
           />
         </Card>
       </Grid>

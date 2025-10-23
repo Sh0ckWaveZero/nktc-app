@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
 import { Box, Typography } from '@mui/material';
+import React from 'react';
 import { Fragment } from 'react';
 
 interface ListItem {
@@ -14,16 +15,8 @@ interface ListProps {
   list: ListItem[];
 }
 
-interface ListItem {
-  icon: string;
-  value: string;
-  property: string;
-  key: string;
-  color: string;
-}
-
 const SurveyList = ({ list }: ListProps) => (
-  <Fragment>
+  <React.Fragment>
     {list.length
       ? list.map((item: ListItem, index: number) => (
           <Box
@@ -50,7 +43,7 @@ const SurveyList = ({ list }: ListProps) => (
           </Box>
         ))
       : null}
-  </Fragment>
+  </React.Fragment>
 );
 
 export default SurveyList;

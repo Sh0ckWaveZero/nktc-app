@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { SyntheticEvent, useState, useEffect, Fragment } from 'react';
+import React, { SyntheticEvent, useState, useEffect } from 'react';
 
 // ** Next Import
 import { useRouter, usePathname } from 'next/navigation';
@@ -51,7 +51,9 @@ interface Props {
 }
 
 // ** Styled Components
-const ListItem = styled(MuiListItem)<ListItemProps>(({ theme }) => ({
+const ListItem = styled(MuiListItem, {
+  shouldForwardProp: (prop) => prop !== 'ownerState',
+})<ListItemProps>(({ theme }) => ({
   cursor: 'pointer',
   paddingTop: theme.spacing(2.25),
   paddingBottom: theme.spacing(2.25),
@@ -73,7 +75,10 @@ const NavigationMenu = styled(Paper)(({ theme }) => ({
   },
   '&::-webkit-scrollbar-thumb': {
     borderRadius: 20,
-    background: hexToRGBA(theme.palette.mode === 'light' ? '#B0ACB5' : '#575468', 0.6),
+    background: hexToRGBA('#B0ACB5', 0.6),
+    ...theme.applyStyles('dark', {
+      background: hexToRGBA('#575468', 0.6),
+    }),
   },
   '&::-webkit-scrollbar-track': {
     borderRadius: 20,
@@ -160,8 +165,8 @@ const HorizontalNavGroup = (props: Props) => {
 
   const WrapperCondition = horizontalMenuToggle === 'click';
   const MainWrapper: any = WrapperCondition ? ClickAwayListener : 'div';
-  const ChildWrapper = WrapperCondition ? 'div' : Fragment;
-  const AnimationWrapper = horizontalMenuAnimation ? Fade : Fragment;
+  const ChildWrapper = WrapperCondition ? 'div' : React.Fragment;
+  const AnimationWrapper = horizontalMenuAnimation ? Fade : React.Fragment;
 
   const childMenuGroupStyles = () => {
     if (attributes && attributes.popper) {

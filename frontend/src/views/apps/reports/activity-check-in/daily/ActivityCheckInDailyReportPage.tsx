@@ -38,7 +38,7 @@ import {
 import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
-import { LocalStorageService } from '@/services/localStorageService';
+import React from 'react';
 
 interface CellType {
   row: any;
@@ -70,12 +70,13 @@ const checkInStatueName: any = {
   internship: 'นักศึกษาฝึกงาน',
 };
 
-const localStorageService = new LocalStorageService();
-
 const NORMAL_OPACITY = 0.2;
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[200],
+    ...theme.applyStyles('dark', {
+      backgroundColor: theme.palette.grey[700],
+    }),
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
       '@media (hover: none)': {
@@ -103,7 +104,6 @@ const ActivityCheckInDailyReportPage = () => {
   let isInternshipCheck: any[] = [];
 
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
 
   const { fetchTeachClassroom }: any = useClassroomStore(
     (state) => ({
@@ -151,7 +151,7 @@ const ActivityCheckInDailyReportPage = () => {
             return;
           }
 
-          classroomsInfo = await fetchTeachClassroom(storedToken, auth?.user?.teacher?.id);
+          classroomsInfo = await fetchTeachClassroom(auth?.user?.teacher?.id);
 
           if (isEmpty(classroomsInfo)) {
             toast.error(errorMessage);
@@ -181,7 +181,7 @@ const ActivityCheckInDailyReportPage = () => {
     const dateInfo = date || selectedDate;
 
     try {
-      const data = await findDailyReport(storedToken, {
+      const data = await findDailyReport({
         teacherId: auth?.user?.teacher?.id,
         classroomId: classroomInfo,
         startDate: dateInfo,
@@ -191,7 +191,7 @@ const ActivityCheckInDailyReportPage = () => {
       const students = reportCheckInData?.students ?? [];
       setCurrentStudents(students);
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
-      getActivityCheckIn(storedToken, {
+      getActivityCheckIn({
         teacher: auth?.user?.teacher?.id,
         classroom: classroomInfo,
       });
@@ -340,9 +340,9 @@ const ActivityCheckInDailyReportPage = () => {
     };
 
     if (reportCheckInData) {
-      toast.promise(updateActivityCheckIn(storedToken, updated), options);
+      toast.promise(updateActivityCheckIn(updated), options);
     } else {
-      toast.promise(addActivityCheckIn(storedToken, created), options);
+      toast.promise(addActivityCheckIn(created), options);
     }
     setTimeout(() => {
       fetchDailyReport(selectedDate, classroomId);
@@ -374,7 +374,7 @@ const ActivityCheckInDailyReportPage = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeActivityCheckIn(storedToken, reportCheckInData?.id), {
+    toast.promise(removeActivityCheckIn(reportCheckInData?.id), {
       loading: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
@@ -498,9 +498,10 @@ const ActivityCheckInDailyReportPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'daily-check-in-report-activity-page') &&
+  return (
+    ability?.can('read', 'daily-check-in-report-activity-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -567,7 +568,7 @@ const ActivityCheckInDailyReportPage = () => {
           />
         )}
         {openDeletedConfirm && (
-          <Fragment>
+          <React.Fragment>
             <Dialog
               open={openDeletedConfirm}
               disableEscapeKeyDown
@@ -601,9 +602,9 @@ const ActivityCheckInDailyReportPage = () => {
                 </Button>
               </DialogActions>
             </Dialog>
-          </Fragment>
+          </React.Fragment>
         )}
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

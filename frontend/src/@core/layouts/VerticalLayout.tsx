@@ -32,14 +32,13 @@ const VerticalLayoutWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-const MainContentWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const MainContentWrapper = styled(Box)<BoxProps>({
   flexGrow: 1,
   minWidth: 0,
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column',
-  backgroundColor: theme.palette.background.default,
-}));
+});
 
 const ContentWrapper = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -89,7 +88,12 @@ const VerticalLayout = (props: LayoutProps) => {
             {...props}
           />
         )}
-        <MainContentWrapper className='layout-content-wrapper'>
+        <MainContentWrapper
+          className='layout-content-wrapper'
+          sx={{
+            backgroundColor: (theme) => theme.palette.background.default,
+          }}
+        >
           {/* AppBar Component */}
           <AppBar toggleNavVisibility={toggleNavVisibility} {...props} />
 
@@ -104,7 +108,7 @@ const VerticalLayout = (props: LayoutProps) => {
               }),
             }}
           >
-            {children}
+            {children as any}
           </ContentWrapper>
 
           {/* Footer Component */}

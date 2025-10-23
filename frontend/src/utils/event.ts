@@ -1,5 +1,17 @@
 export const handleKeyDown = (e: KeyboardEvent) => {
-  const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Control', 'c', 'v', 'x'];
+  const allowedKeys = [
+    'Backspace',
+    'Tab',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Delete',
+    'Control',
+    'c',
+    'v',
+    'x',
+  ];
   const regex = new RegExp('^[0-9]+$');
 
   if (!regex.test(e.key) && !allowedKeys.includes(e.key)) {
@@ -7,11 +19,10 @@ export const handleKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-
 interface Errors {
   [key: string]: string;
 }
 
 export const generateErrorMessages: Errors = {
   'request entity too large': 'ขนาดไฟล์ใหญ่เกินไป',
-}
+};

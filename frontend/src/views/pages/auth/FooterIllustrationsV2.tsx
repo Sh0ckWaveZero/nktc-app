@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { Fragment, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 // ** MUI Components
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -41,10 +41,10 @@ const FooterIllustrationsV2 = (props: FooterIllustrationsV2Prop) => {
 
   if (!hidden) {
     return (
-      <Fragment>
+      <>
         {image || <TreeImg alt='tree' src='/images/pages/tree.png' />}
         <MaskImg alt='mask' src={`/images/pages/auth-v2-mask-${theme.palette.mode}.png`} />
-      </Fragment>
+      </>
     );
   } else {
     return null;

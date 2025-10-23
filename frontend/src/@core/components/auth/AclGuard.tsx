@@ -1,3 +1,5 @@
+'use client';
+
 // ** React Imports
 import { ReactNode, useState } from 'react';
 
@@ -49,6 +51,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   // Check the access of current user and render pages
   if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
+    // @ts-expect-error - React 19 compatibility issue with CASL
     return <AbilityContext.Provider value={ability}>{children}</AbilityContext.Provider>;
   }
 

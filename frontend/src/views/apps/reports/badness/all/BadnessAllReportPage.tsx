@@ -1,27 +1,14 @@
 'use client';
 
-import {
-  Avatar,
-  Button,
-  Card,
-  CardHeader,
-  Dialog,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-  styled,
-} from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useContext, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
+import React, { useCallback, useContext, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { HiThumbDown } from 'react-icons/hi';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
@@ -37,8 +24,6 @@ import useStudentList from '@/hooks/useStudentList';
 interface CellType {
   row: any;
 }
-
-const localStorageService = new LocalStorageService();
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -58,7 +43,6 @@ export interface DialogTitleProps {
 const BadnessAllReportPage = () => {
   // ** Hooks
   const auth = useAuth();
-  const storedToken = localStorageService.getToken()!;
   const ability = useContext(AbilityContext);
 
   const { search }: any = badnessIndividualStore(
@@ -73,16 +57,15 @@ const BadnessAllReportPage = () => {
   const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [selectedDate, setDateSelected] = useState<Dayjs | null>(dayjs(new Date()));
+  const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [currentStudent, setCurrentStudent] = useState<any>(null);
   const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
   const debouncedValue = useDebounce<string>(searchValue, 500);
   const [open, setOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState<any>(null);
   const [info, setInfo] = useState<any>(null);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms(storedToken);
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(storedToken, debouncedValue);
+  const [classrooms, classroomLoading] = useFetchClassrooms();
+  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
 
   const onChangeDate = useCallback((value: any) => {
     setDateSelected(value);
@@ -91,7 +74,7 @@ const BadnessAllReportPage = () => {
   const onSearch = async () => {
     try {
       setLoadingStudent(true);
-      const response = await search(storedToken, {
+      const response = await search({
         fullName: currentStudent?.fullName || '',
         classroomId: defaultClassroom?.id || '',
         badDate: selectedDate,
@@ -260,9 +243,10 @@ const BadnessAllReportPage = () => {
     },
   ];
 
-  return (ability?.can('read', 'report-badness-page') &&
+  return (
+    ability?.can('read', 'report-badness-page') &&
     auth?.user?.role !== 'Admin' && (
-      <Fragment>
+      <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>
             <Card>
@@ -296,7 +280,6 @@ const BadnessAllReportPage = () => {
                 students={studentsListData}
               />
               <DataGrid
-                autoHeight
                 columns={columns}
                 rows={currentStudents ?? []}
                 disableColumnMenu
@@ -353,7 +336,7 @@ const BadnessAllReportPage = () => {
           ) : null}
           <TimelineBadness info={info} user={auth} />
         </BootstrapDialog>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

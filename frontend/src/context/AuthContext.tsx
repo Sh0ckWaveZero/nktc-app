@@ -1,11 +1,11 @@
+'use client';
+
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import * as React from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 // ** Next Import
 import { useRouter, useSearchParams } from 'next/navigation';
-
-// ** Axios
-import axios from 'axios';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -13,7 +13,7 @@ import { authConfig } from '@/configs/auth';
 // ** Types
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 
-import { LocalStorageService } from '@/services/localStorageService';
+import httpClient from '@/@core/utils/http';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -29,10 +29,9 @@ const defaultProvider: AuthValuesType = {
 };
 
 const AuthContext = createContext(defaultProvider);
-const localStorageService = new LocalStorageService();
 
 type Props = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 const AuthProvider = ({ children }: Props) => {
@@ -45,48 +44,67 @@ const AuthProvider = ({ children }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const storedToken = localStorageService.getToken()!;
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== 'undefined';
+
   useEffect(() => {
-    const initAuth = async (): Promise<void> => {
+    const storedToken = isBrowser ? localStorage.getItem('accessToken') : null;
+    // Only run auth initialization in browser environment
+    if (!isBrowser) {
       setIsInitialized(true);
-      if (storedToken) {
-        setLoading(true);
-        await axios
-          .get(authConfig.meEndpoint as string, {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          })
-          .then(async (response) => {
-            const { data } = response;
-            setLoading(false);
-            setUser({ ...(await data) });
-          })
-          .catch((_) => {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('refreshToken');
-            localStorageService.removeToken();
-            setUser(null);
-            setLoading(false);
-            router.replace('/login');
-          });
-      } else {
-        setLoading(false);
-      }
-    };
-    initAuth();
+      setLoading(false);
+      return;
+    }
+
+      const initAuth = async (): Promise<void> => {
+        setIsInitialized(true);
+        if (storedToken) {
+          setLoading(true);
+          await httpClient
+            .get(authConfig.meEndpoint as string)
+            .then(async (response) => {
+              const { data } = response;
+              setLoading(false);
+              setUser({ ...(await data) });
+            })
+            .catch((_) => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('userData');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('accessToken');
+              }
+              setUser(null);
+              setLoading(false);
+              router.replace('/login');
+            });
+        } else {
+          setLoading(false);
+        }
+      };
+      initAuth();
   }, []);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
     try {
-      const response = await axios.post(authConfig.loginEndpoint as string, params);
+      const response = await httpClient.post(authConfig.loginEndpoint as string, params);
       const { data } = response;
-      localStorageService.setToken(data.token);
-      const returnUrl = searchParams.get('returnUrl');
-      setUser(await data?.data);
-      window.localStorage.setItem('userData', JSON.stringify(data));
-      const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
-      router.replace(redirectURL as string);
+
+      // Save token
+      if (isBrowser) {
+        window.localStorage.setItem('accessToken', data.token);
+        // Save user data
+        window.localStorage.setItem('userData', JSON.stringify(data));
+      }
+
+      // Set user state
+      setUser(data?.data);
+
+      // Redirect after setting user
+      if (isBrowser) {
+        const returnUrl = searchParams.get('returnUrl');
+        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
+        router.replace(redirectURL as string);
+      }
     } catch (err: any) {
       if (errorCallback) errorCallback(err);
     }
@@ -95,13 +113,15 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogout = () => {
     setUser(null);
     setIsInitialized(false);
-    window.localStorage.removeItem('userData');
-    localStorageService.removeToken();
-    router.push('/login');
+    if (isBrowser) {
+      window.localStorage.removeItem('userData');
+      window.localStorage.removeItem('accessToken');
+      router.push('/login');
+    }
   };
 
   const handleRegister = (params: RegisterParams, errorCallback?: ErrCallbackType) => {
-    axios
+    httpClient
       .post(authConfig.registerEndpoint as string, params)
       .then((res) => {
         if (res.data.error) {

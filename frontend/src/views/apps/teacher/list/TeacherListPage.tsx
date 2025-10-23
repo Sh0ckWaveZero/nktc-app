@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
@@ -36,7 +36,6 @@ import { DataGrid } from '@mui/x-data-grid';
 import DialogEditUserInfo from '@/views/apps/admin/teacher/DialogEditUserInfo';
 import IconifyIcon from '@/@core/components/icon';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import ResetPasswordDialog from '@/views/apps/admin/teacher/ResetPasswordDialog';
 import SidebarAddClassroom from '@/views/apps/teacher/list/AddClassroomDrawer';
 import TableHeader from '@/views/apps/teacher/list/TableHeader';
@@ -94,10 +93,6 @@ const StyledLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   marginRight: theme.spacing(8),
 }));
-
-const localStorageService = new LocalStorageService();
-
-const accessToken = localStorageService.getToken() || '';
 
 const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsType) => {
   // ** Hooks
@@ -208,21 +203,22 @@ const TeacherListPage = () => {
     }),
     shallow,
   );
-  const { classroom, fetchClassroom }: any = useClassroomStore(
+  const { classroom, fetchClassroom, classroomLoading }: any = useClassroomStore(
     (state) => ({
       classroom: state.classroom,
       fetchClassroom: state.fetchClassroom,
+      classroomLoading: state.classroomLoading,
     }),
     shallow,
   );
 
   useEffectOnce(() => {
-    fetchClassroom(accessToken);
+    fetchClassroom();
   });
 
   // ** fetch data on page load && when value changes
   useEffect(() => {
-    fetchTeacher(accessToken, {
+    fetchTeacher({
       q: value,
     }).then((res: any) => {
       setTeachers(res || []);
@@ -252,13 +248,13 @@ const TeacherListPage = () => {
     event.preventDefault();
     const classrooms = data.map((item: any) => item.id);
     const info = { id: currentData.id, classrooms, teacherInfo: currentData.teacherId };
-    toast.promise(updateClassroom(accessToken, info), {
+    toast.promise(updateClassroom(info), {
       loading: 'กำลังบันทึก...',
       success: 'บันทึกสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
     });
 
-    fetchTeacher(accessToken, {
+    fetchTeacher({
       q: '',
     });
     toggleAddClassroomDrawer();
@@ -302,7 +298,7 @@ const TeacherListPage = () => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await update(accessToken, body).then((res: any) => {
+    await update(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
         setIsEdit(true);
@@ -329,7 +325,7 @@ const TeacherListPage = () => {
       },
     };
     const toastId = toast.loading('กำลังเปลี่ยนรหัสผ่าน...');
-    await resetPasswordByAdmin(accessToken, body).then((res: any) => {
+    await resetPasswordByAdmin(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('เปลี่ยนรหัสผ่านสำเร็จ', { id: toastId });
         setIsAddUser(true);
@@ -367,7 +363,7 @@ const TeacherListPage = () => {
     };
 
     const toastId = toast.loading('กำลังเพิ่มข้อมูลของครู/อาจารย์...');
-    await addTeacher(accessToken, body).then((res: any) => {
+    await addTeacher(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('เพิ่มข้อมูลสำเร็จ', { id: toastId });
         setIsEdit(true);
@@ -387,7 +383,7 @@ const TeacherListPage = () => {
     setOpenDialogDelete(false);
 
     const toastId = toast.loading('กำลังลบข้อมูลของครู/อาจารย์...');
-    await removeTeacher(accessToken, currentTeacher?.id).then((res: any) => {
+    await removeTeacher(currentTeacher?.id).then((res: any) => {
       if (res?.name !== 'AxiosError') {
         toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
         setIsDelete(true);
@@ -412,7 +408,7 @@ const TeacherListPage = () => {
         const { id, title, firstName, lastName, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={accessToken} />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <StyledLink href={`/apps/user/view/${id}`} passHref>
                 <Typography
@@ -454,7 +450,7 @@ const TeacherListPage = () => {
             divider={<Divider orientation='vertical' flexItem />}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Fragment>
+              <React.Fragment>
                 <Tooltip
                   title={
                     !isEmpty(teacherOnClassroom.length && !isEmpty(classrooms)) ? (
@@ -500,7 +496,7 @@ const TeacherListPage = () => {
                     </Badge>
                   </IconButton>
                 </Tooltip>
-              </Fragment>
+              </React.Fragment>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               <IconButton
@@ -611,7 +607,7 @@ const TeacherListPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -668,7 +664,7 @@ const TeacherListPage = () => {
             onSubmitted={onSubmittedClassroom}
             defaultValues={defaultValue}
             data={classroom}
-            onLoad={teacherLoading}
+            onLoad={classroomLoading}
           />
         )}
       </Grid>
@@ -696,7 +692,7 @@ const TeacherListPage = () => {
           open={openDialogDelete}
         />
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

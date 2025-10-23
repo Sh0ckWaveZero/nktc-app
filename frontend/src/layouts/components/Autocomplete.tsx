@@ -61,15 +61,13 @@ import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 import { useAppbarStore } from '@/store/index';
 import { useDebounce } from '@/hooks/userCommon';
-import { LocalStorageService } from '@/services/localStorageService';
-
 
 const LinkStyled = styled(Box)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
   cursor: 'pointer',
-  width: '100%'
-}))
+  width: '100%',
+}));
 
 interface Props {
   hidden: boolean;
@@ -94,7 +92,6 @@ interface DefaultSuggestionsType {
   }[];
 }
 
-const localStorageService = new LocalStorageService();
 
 const defaultSuggestionsData: DefaultSuggestionsType[] = [
   {
@@ -372,8 +369,9 @@ const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
           key={index}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
             {item.category}
           </Typography>
@@ -424,8 +422,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   // Get all data using API
   useEffect(() => {
-    const storedToken = localStorageService.getToken()!;
-    fetch(debouncedValue, storedToken);
+    fetch(debouncedValue);
   }, [debouncedValue]);
 
   useEffect(() => {
@@ -515,9 +512,10 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
                 },
               }}
               renderInput={(params: AutocompleteRenderInputParams) => {
+                const { InputProps, InputLabelProps, ...otherParams } = params;
                 return (
                   <TextField
-                    {...params}
+                    {...otherParams}
                     value={searchValue}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchValue(event.target.value)}
                     inputRef={(input) => {
@@ -529,35 +527,38 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
                         }
                       }
                     }}
-                    InputProps={{
-                      ...params.InputProps,
-                      sx: { p: `${theme.spacing(3.75, 6)} !important` },
-                      startAdornment: (
-                        <InputAdornment position='start' sx={{ color: 'text.primary' }}>
-                          <Magnify />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment
-                          position='end'
-                          onClick={() => setOpenDialog(false)}
-                          sx={{
-                            display: 'flex',
-                            cursor: 'pointer',
-                            alignItems: 'center',
-                          }}
-                        >
-                          {!hidden ? <Typography sx={{ mr: 2.5, color: 'text.disabled' }}>[esc]</Typography> : null}
-                          <IconButton size='small' sx={{ p: 1 }}>
-                            <Close fontSize='small' />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        ...InputProps,
+                        ref: undefined,
+                        sx: { p: `${theme.spacing(3.75, 6)} !important` },
+                        startAdornment: (
+                          <InputAdornment position='start' sx={{ color: 'text.primary' }}>
+                            <Magnify />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment
+                            position='end'
+                            onClick={() => setOpenDialog(false)}
+                            sx={{
+                              display: 'flex',
+                              cursor: 'pointer',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {!hidden ? <Typography sx={{ mr: 2.5, color: 'text.disabled' }}>[esc]</Typography> : null}
+                            <IconButton size='small' sx={{ p: 1 }}>
+                              <Close fontSize='small' />
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 );
               }}
-              renderOption={(props: any, option: AppBarSearchType | unknown) => {
+              renderOption={(props: any, option: AppBarSearchType | unknown, { selected }: any) => {
                 const IconTag =
                   autocompleteIconObj[(option as AppBarSearchType).icon as keyof typeof autocompleteIconObj] ||
                   themeConfig.navSubItemIcon;

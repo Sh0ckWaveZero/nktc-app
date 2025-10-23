@@ -2,181 +2,267 @@
 
 // ** React Imports
 import { useState, MouseEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 // ** MUI Components
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import CardContent from '@mui/material/CardContent';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import { styled, useTheme } from '@mui/material/styles';
+import {
+  Box,
+  Button,
+  TextField,
+  InputLabel,
+  Typography,
+  IconButton,
+  CardContent,
+  FormControl,
+  FormHelperText,
+  OutlinedInput,
+  InputAdornment,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 import MuiCard, { CardProps } from '@mui/material/Card';
-import InputAdornment from '@mui/material/InputAdornment';
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 
 // ** Icons Imports
 import EyeOutline from 'mdi-material-ui/EyeOutline';
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
-// ** Configs
-import themeConfig from '@/configs/themeConfig';
-// ** Hooks
-import { useAuth } from '@/hooks/useAuth';
+// ** Form & Validation
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
-// ** Demo Imports
+// ** Hooks & Utils
+import { useAuth } from '@/hooks/useAuth';
+import toast from 'react-hot-toast';
+
+// ** Components
 import FooterIllustrationsV1 from '@/views/pages/auth/FooterIllustration';
 
-interface State {
+// ** Types
+interface LoginFormData {
+  username: string;
   password: string;
-  showPassword: boolean;
 }
+
+// ** Constants
+const VALIDATION_SCHEMA = z.object({
+  username: z.string().min(1, 'กรุณากรอกชื่อผู้ใช้'),
+  password: z.string().min(1, 'กรุณากรอกรหัสผ่าน'),
+});
+
+const DEFAULT_VALUES: LoginFormData = {
+  username: '',
+  password: '',
+};
+
+const LOGO_CONFIG = {
+  src: '/images/pages/nktc-student-light.png',
+  alt: 'NKTC Logo',
+  size: { xs: 160, sm: 160, md: 180 },
+};
+
+const ERROR_MESSAGES = {
+  loginFailed: 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+  loading: 'กำลังเข้าสู่ระบบ...',
+};
 
 // ** Styled Components
 const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
-  [theme.breakpoints.up('sm')]: { width: '28rem' }
-}));
-
-const LinkStyled = styled(Typography)(({ theme }) => ({
-  fontSize: '0.875rem',
-  textDecoration: 'none',
-  color: theme.palette.primary.main,
-  cursor: 'pointer',
-  '&:hover': {
-    textDecoration: 'underline'
-  }
-}));
-
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
-  '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary
-  }
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    height: '100vh',
+    boxShadow: 'none',
+    borderRadius: 0,
+  },
+  [theme.breakpoints.up('sm')]: {
+    width: '28rem',
+  },
 }));
 
 const LoginPage = () => {
   // ** State
-  const [values, setValues] = useState<State>({
-    password: '',
-    showPassword: false
-  });
-  const [username, setUsername] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  // ** Hook
+  // ** Hooks
   const auth = useAuth();
-  const theme = useTheme();
-  const router = useRouter();
 
-  const handleChange = (prop: keyof State) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({ ...values, [prop]: event.target.value });
-  };
+  // ** Form
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    defaultValues: DEFAULT_VALUES,
+    mode: 'onBlur',
+    resolver: zodResolver(VALIDATION_SCHEMA),
+  });
 
-  const handleClickShowPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-  };
+  // ** Handlers
+  const handleClickShowPassword = () => setShowPassword((prev) => !prev);
 
   const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    auth.login({ username, password: values.password });
+  const handleLoginError = (toastId: string | number) => () => {
+    toast.error(ERROR_MESSAGES.loginFailed, {
+      id: toastId.toString(),
+      duration: 4000,
+    });
+  };
+
+  const onSubmit = async (data: LoginFormData) => {
+    const toastId = toast.loading(ERROR_MESSAGES.loading);
+
+    try {
+      await auth.login({ username: data.username, password: data.password }, handleLoginError(toastId));
+
+      // ปิด loading toast เมื่อ login สำเร็จ (จะ redirect ทันที)
+      toast.dismiss(toastId);
+    } catch {
+      // Error จะถูกจัดการโดย handleLoginError callback
+    }
   };
 
   return (
-    <Box className='content-center'>
+    <Box
+      className='content-center'
+      sx={{
+        minHeight: { xs: '100vh', sm: 'auto' },
+        height: { xs: '100vh', sm: 'auto' },
+        overflow: { xs: 'hidden', sm: 'visible' },
+      }}
+    >
       <Card sx={{ zIndex: 1 }}>
-        <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
-          <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CardContent
+          sx={{
+            padding: {
+              xs: (theme) => `${theme.spacing(3, 4, 3)} !important`,
+              sm: (theme) => `${theme.spacing(12, 9, 7)} !important`,
+            },
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            height: { xs: '100vh', sm: 'auto' },
+            overflow: { xs: 'auto', sm: 'visible' },
+          }}
+        >
+          {/* Logo */}
+          <Box
+            sx={{
+              mb: { xs: 2, sm: 6 },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Box
+              component='img'
+              src={LOGO_CONFIG.src}
+              alt={LOGO_CONFIG.alt}
+              sx={{
+                width: LOGO_CONFIG.size,
+                height: LOGO_CONFIG.size,
+                objectFit: 'contain',
+              }}
+            />
+          </Box>
+
+          {/* Welcome Text */}
+          <Box sx={{ mb: { xs: 2, sm: 6 }, textAlign: 'center' }}>
             <Typography
               variant='h6'
               sx={{
-                ml: 3,
-                lineHeight: 1,
                 fontWeight: 600,
-                textTransform: 'uppercase',
-                fontSize: '1.5rem !important'
+                marginBottom: 1.5,
+                color: 'text.primary',
+                fontSize: { xs: '1.125rem', sm: '1.25rem' },
               }}
             >
-              {themeConfig.templateName}
+              ยินดีต้อนรับสู่ ระบบช่วยเหลือผู้เรียน
             </Typography>
-          </Box>
-          <Box sx={{ mb: 6 }}>
-            <Typography variant='h5' sx={{ fontWeight: 600, marginBottom: 1.5 }}>
-              ยินดีต้อนรับสู่ {themeConfig.templateName}! 👋🏻
-            </Typography>
-            <Typography variant='body2'>กรุณาเข้าสู่ระบบเพื่อเริ่มต้นการใช้งาน</Typography>
-          </Box>
-          <form noValidate autoComplete='off' onSubmit={handleSubmit}>
-            <TextField
-              autoFocus
-              fullWidth
-              id='username'
-              label='ชื่อผู้ใช้'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              sx={{ marginBottom: 4 }}
-            />
-            <FormControl fullWidth>
-              <InputLabel htmlFor='auth-login-password'>รหัสผ่าน</InputLabel>
-              <OutlinedInput
-                label='รหัสผ่าน'
-                value={values.password}
-                id='auth-login-password'
-                onChange={handleChange('password')}
-                type={values.showPassword ? 'text' : 'password'}
-                endAdornment={
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      aria-label='toggle password visibility'
-                    >
-                      {values.showPassword ? <EyeOutline /> : <EyeOffOutline />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-            <Box
-              sx={{ mb: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
+            <Typography
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+                fontSize: { xs: '0.8125rem', sm: '0.875rem' },
+              }}
             >
-              <FormControlLabel control={<Checkbox />} label='จดจำการเข้าสู่ระบบ' />
-              <Link href='/forgot-password'>
-                <LinkStyled>ลืมรหัสผ่าน?</LinkStyled>
-              </Link>
-            </Box>
+              กรุณาลงชื่อเข้าใช้บัญชีของคุณและเริ่มการใช้งาน
+            </Typography>
+          </Box>
+
+          {/* Login Form */}
+          <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
+            {/* Username Field */}
+            <Controller
+              name='username'
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  autoFocus
+                  fullWidth
+                  label='ชื่อผู้ใช้งาน'
+                  sx={{ mb: { xs: 2, sm: 4 } }}
+                  error={Boolean(errors.username)}
+                  helperText={errors.username?.message}
+                />
+              )}
+            />
+
+            {/* Password Field */}
+            <Controller
+              name='password'
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth sx={{ mb: { xs: 2, sm: 4 } }} error={Boolean(errors.password)}>
+                  <InputLabel htmlFor='auth-login-password'>รหัสผ่าน</InputLabel>
+                  <OutlinedInput
+                    {...field}
+                    label='รหัสผ่าน'
+                    id='auth-login-password'
+                    type={showPassword ? 'text' : 'password'}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          edge='end'
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          aria-label='toggle password visibility'
+                        >
+                          {showPassword ? <EyeOutline /> : <EyeOffOutline />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                  {errors.password && <FormHelperText>{errors.password.message}</FormHelperText>}
+                </FormControl>
+              )}
+            />
+
+            {/* Submit Button */}
             <Button
               fullWidth
               size='large'
               variant='contained'
-              sx={{ marginBottom: 7 }}
               type='submit'
+              sx={{
+                marginTop: { xs: 2, sm: 0 },
+                height: '48px',
+                fontSize: '1rem',
+              }}
             >
-              เข้าสู่ระบบ
+              ลงชื่อเข้าใช้
             </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Typography variant='body2' sx={{ marginRight: 2 }}>
-                ยังไม่มีบัญชี?
-              </Typography>
-              <Link href='/register'>
-                <LinkStyled>สร้างบัญชีใหม่</LinkStyled>
-              </Link>
-            </Box>
           </form>
         </CardContent>
       </Card>
-      <FooterIllustrationsV1 />
+
+      {/* Footer Illustration (Desktop Only) */}
+      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+        <FooterIllustrationsV1 />
+      </Box>
     </Box>
   );
 };
+
 export default LoginPage;

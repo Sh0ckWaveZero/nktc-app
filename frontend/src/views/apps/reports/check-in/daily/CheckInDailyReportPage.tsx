@@ -5,6 +5,7 @@ import {
   AlertTitle,
   Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -24,7 +25,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { DataGrid, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
-import { Fragment, useContext, useRef, useState } from 'react';
+import React, { Fragment, useContext, useRef, useState } from 'react';
 import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -33,7 +34,6 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-in/checkedIn';
 import { HiFlag } from 'react-icons/hi';
 import IconifyIcon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/reports/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -47,12 +47,14 @@ interface CellType {
   row: any;
 }
 
-const localStorageService = new LocalStorageService();
 const NORMAL_OPACITY = 0.2;
 
 const DataGridCustom = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.internship`]: {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[200],
+    ...theme.applyStyles('dark', {
+      backgroundColor: theme.palette.grey[700],
+    }),
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
       '@media (hover: none)': {
@@ -83,7 +85,8 @@ const CheckInDailyReportPage = () => {
   const auth = useAuth();
   const theme = useTheme();
   const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
-  const storedToken = localStorageService.getToken()!;
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
 
   const { getActivityCheckIn, addActivityCheckIn }: any = useActivityCheckInStore(
     (state) => ({
@@ -103,6 +106,7 @@ const CheckInDailyReportPage = () => {
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [normalStudents, setNormalStudents] = useState<any>([]);
   const [pageSize, setPageSize] = useState<number>(currentStudents.length || 0);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
@@ -117,7 +121,7 @@ const CheckInDailyReportPage = () => {
   const timer: any = useRef(null);
 
   // ** Popper
-  const popperRef: any = useRef();
+  const popperRef = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const openPopper = Boolean(anchorEl);
 
@@ -126,7 +130,7 @@ const CheckInDailyReportPage = () => {
     const fetchData = async () => {
       const teacherId = auth?.user?.teacher?.id as string;
       setLoading(true);
-      const { data: classroomData } = await fetchStudentsByTeacherId(storedToken, teacherId);
+      const { data: classroomData } = await fetchStudentsByTeacherId(teacherId);
       if (!classroomData.classrooms || !classroomData.classrooms.length) {
         setLoading(false);
         return;
@@ -151,6 +155,7 @@ const CheckInDailyReportPage = () => {
       setCurrentStudents(students);
       setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
       setPageSize(students.length);
+      setCurrentPage(0); // Reset to first page when loading new data
       setLoading(false);
     };
 
@@ -307,10 +312,71 @@ const CheckInDailyReportPage = () => {
     }, 2000);
   };
 
+  // Mobile Card Component
+  const StudentCard = ({ student }: { student: any }) => {
+    return (
+      <Card sx={{ mb: 2, border: 1, borderColor: 'divider' }}>
+        <CardContent sx={{ p: isMobile ? 2 : 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <RenderAvatar row={student} />
+            <Box sx={{ ml: isMobile ? 1.5 : 2, flex: 1 }}>
+              <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ fontWeight: 600 }}>
+                {student?.title} {student?.firstName} {student?.lastName}
+              </Typography>
+              <Typography variant='body2' color='text.secondary'>
+                @{student?.studentId}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              gap: isMobile ? 0.5 : 1,
+              flexWrap: 'wrap',
+              flexDirection: isMobile ? 'column' : 'row',
+            }}
+          >
+            <Button
+              variant={isPresentCheck.includes(student.id) ? 'contained' : 'outlined'}
+              color='success'
+              size={isMobile ? 'small' : 'medium'}
+              onClick={() => onHandleToggle('present', student)}
+              fullWidth
+              disabled={student.status === 'internship'}
+              sx={{
+                flex: isMobile ? 'none' : 1,
+                minWidth: isMobile ? 'auto' : '120px',
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
+              }}
+            >
+              เข้าร่วม
+            </Button>
+            <Button
+              variant={isAbsentCheck.includes(student.id) ? 'contained' : 'outlined'}
+              color='error'
+              size={isMobile ? 'small' : 'medium'}
+              onClick={() => onHandleToggle('absent', student)}
+              fullWidth
+              disabled={student.status === 'internship'}
+              sx={{
+                flex: isMobile ? 'none' : 1,
+                minWidth: isMobile ? 'auto' : '120px',
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
+              }}
+            >
+              ไม่เข้าร่วม
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const columns: GridColDef[] = [
     {
-      flex: 0.25,
-      minWidth: 220,
+      flex: isTablet ? 0.3 : 0.25,
+      minWidth: isMobile ? 200 : 220,
       field: 'fullName',
       headerName: 'ชื่อ-สกุล',
       editable: false,
@@ -319,7 +385,7 @@ const CheckInDailyReportPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={storedToken} />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap
@@ -368,8 +434,8 @@ const CheckInDailyReportPage = () => {
       },
     },
     {
-      flex: 0.2,
-      minWidth: 110,
+      flex: isTablet ? 0.25 : 0.2,
+      minWidth: isMobile ? 100 : 110,
       field: 'present',
       editable: false,
       sortable: false,
@@ -407,8 +473,8 @@ const CheckInDailyReportPage = () => {
       ),
     },
     {
-      flex: 0.2,
-      minWidth: 110,
+      flex: isTablet ? 0.25 : 0.2,
+      minWidth: isMobile ? 100 : 110,
       field: 'absent',
       editable: false,
       sortable: false,
@@ -460,7 +526,7 @@ const CheckInDailyReportPage = () => {
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
     if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addActivityCheckIn(storedToken, data), {
+      toast.promise(addActivityCheckIn(data), {
         loading: 'กำลังบันทึกเช็คชื่อ...',
         success: 'บันทึกเช็คชื่อสำเร็จ',
         error: 'เกิดข้อผิดพลาด',
@@ -481,13 +547,14 @@ const CheckInDailyReportPage = () => {
     await getCheckInStatus(auth?.user?.teacher?.id as string, classroomObj?.id);
     setCurrentStudents(classroomObj.students);
     setDefaultClassroom(classroomObj);
+    setCurrentPage(0); // Reset to first page when changing classroom
     setOpenAlert(true);
     onClearAll('');
   };
 
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
-    await getActivityCheckIn(storedToken, { teacher, classroom }).then(async (data: any) => {
+    await getActivityCheckIn({ teacher, classroom }).then(async (data: any) => {
       setReportCheckIn(await data);
       setLoading(false);
     });
@@ -504,16 +571,17 @@ const CheckInDailyReportPage = () => {
   };
 
   const handlePopperClose = (event: any) => {
-    if (anchorEl == null || popperRef.current.contains(event.nativeEvent.relatedTarget)) {
+    if (anchorEl == null || popperRef.current?.contains(event.nativeEvent.relatedTarget)) {
       return;
     }
     setAnchorEl(null);
   };
 
-  return (ability?.can('read', 'report-check-in-daily-page') &&
+  return (
+    ability?.can('read', 'report-check-in-daily-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
-      <Fragment>
-        <Grid container spacing={6}>
+      <React.Fragment>
+        <Grid container spacing={isMobile ? 4 : 6}>
           <Grid size={12}>
             <Card>
               <CardHeader
@@ -530,20 +598,36 @@ const CheckInDailyReportPage = () => {
                   month: 'long',
                   day: 'numeric',
                 })}`}
+                slotProps={{
+                  title: {
+                    variant: isMobile ? 'h6' : 'h5',
+                    fontSize: isMobile ? '1.1rem' : '1.25rem',
+                  },
+                  subheader: {
+                    variant: isMobile ? 'body2' : 'body1',
+                  },
+                }}
               />
-              <CardContent>
+              <CardContent sx={{ p: isMobile ? 3 : undefined }}>
                 {!isEmpty(currentStudents) && (
                   <>
                     <Typography
-                      variant='subtitle1'
-                      sx={{ pb: 3 }}
+                      variant={isMobile ? 'subtitle2' : 'subtitle1'}
+                      sx={{
+                        pb: 3,
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        textAlign: isMobile ? 'center' : 'left',
+                      }}
                     >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
                     {isEmpty(reportCheckIn) ? (
                       openAlert ? (
-                        <Grid sx={{ mb: 3 }} size={12}>
+                        <Grid sx={{ mb: isMobile ? 2 : 3 }} size={12}>
                           <Alert
                             severity='error'
-                            sx={{ '& a': { fontWeight: 400 } }}
+                            sx={{
+                              '& a': { fontWeight: 400 },
+                              fontSize: isMobile ? '0.875rem' : '1rem',
+                            }}
                             action={
                               <IconButton
                                 size='small'
@@ -555,15 +639,20 @@ const CheckInDailyReportPage = () => {
                               </IconButton>
                             }
                           >
-                            <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
+                            <AlertTitle sx={{ fontSize: isMobile ? '1rem' : '1.1rem' }}>
+                              ยังไม่มีการเช็คชื่อร่วมกิจกรรม
+                            </AlertTitle>
                           </Alert>
                         </Grid>
                       ) : null
                     ) : openAlert ? (
-                      <Grid sx={{ mb: 3 }} size={12}>
+                      <Grid sx={{ mb: isMobile ? 2 : 3 }} size={12}>
                         <Alert
                           severity='success'
-                          sx={{ '& a': { fontWeight: 400 } }}
+                          sx={{
+                            '& a': { fontWeight: 400 },
+                            fontSize: isMobile ? '0.875rem' : '1rem',
+                          }}
                           action={
                             <IconButton
                               size='small'
@@ -575,63 +664,83 @@ const CheckInDailyReportPage = () => {
                             </IconButton>
                           }
                         >
-                          <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
+                          <AlertTitle sx={{ fontSize: isMobile ? '1rem' : '1.1rem' }}>
+                            เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว
+                          </AlertTitle>
                         </Alert>
                       </Grid>
                     ) : null}
                   </>
                 )}
               </CardContent>
-              <TableHeader
-                value={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name ?? ''}
-                handleSubmit={onHandleSubmit}
-              />
-              <DataGridCustom
-                autoHeight
-                columns={columns}
-                rows={isEmpty(reportCheckIn) ? currentStudents ?? [] : []}
-                disableColumnMenu
-                headerHeight={120}
-                loading={loading}
-                rowHeight={80}
-                getRowHeight={() => 'auto'}
-                slots={{
-                  noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
-                }}
-                onCellClick={handleCellClick}
-                onColumnHeaderClick={handleColumnHeaderClick}
-                initialState={{
-                  pagination: {
-                    paginationModel: { pageSize: pageSize, page: 0 },
-                  },
-                }}
-                pageSizeOptions={[10, 25, 50, 100, pageSize]}
-                getRowClassName={(params) => {
-                  return params.row.status === 'internship' ? 'internship' : 'normal';
-                }}
-                sx={{
-                  '& .MuiDataGrid-row': {
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
+              <Box sx={{ p: isMobile ? 2 : 3 }}>
+                <TableHeader
+                  value={classrooms}
+                  handleChange={handleSelectChange}
+                  defaultValue={defaultClassroom?.name ?? ''}
+                  handleSubmit={onHandleSubmit}
+                />
+              </Box>
+              {/* Mobile View */}
+              {isMobile ? (
+                <Box sx={{ mt: 2 }}>
+                  {(isEmpty(reportCheckIn) ? (currentStudents ?? []) : []).map((student: any) => (
+                    <StudentCard key={student.id} student={student} />
+                  ))}
+                </Box>
+              ) : (
+                /* Desktop View */
+                <DataGridCustom
+                  columns={columns}
+                  rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
+                  disableColumnMenu
+                  loading={loading}
+                  rowHeight={isTablet ? 70 : 80}
+                  getRowHeight={() => 'auto'}
+                  slots={{
+                    noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
+                  }}
+                  onCellClick={handleCellClick}
+                  onColumnHeaderClick={handleColumnHeaderClick}
+                  paginationModel={{ page: currentPage, pageSize: pageSize }}
+                  onPaginationModelChange={(model) => {
+                    setCurrentPage(model.page);
+                    setPageSize(model.pageSize);
+                  }}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { page: currentPage, pageSize: pageSize },
                     },
-                    maxHeight: 'none !important',
-                  },
-                  '& .MuiDataGrid-cell': {
-                    display: 'flex',
-                    alignItems: 'center',
-                    lineHeight: 'unset !important',
-                    maxHeight: 'none !important',
-                    overflow: 'visible',
-                    whiteSpace: 'normal',
-                    wordWrap: 'break-word',
-                  },
-                  '& .MuiDataGrid-renderingZone': {
-                    maxHeight: 'none !important',
-                  },
-                }}
-              />
+                  }}
+                  pageSizeOptions={[10, 25, 50, 100, pageSize]}
+                  getRowClassName={(params) => {
+                    return params.row.status === 'internship' ? 'internship' : 'normal';
+                  }}
+                  sx={{
+                    p: isMobile ? 2 : 3,
+                    '& .MuiDataGrid-row': {
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                      },
+                      maxHeight: 'none !important',
+                    },
+                    '& .MuiDataGrid-cell': {
+                      display: 'flex',
+                      alignItems: 'center',
+                      lineHeight: 'unset !important',
+                      maxHeight: 'none !important',
+                      overflow: 'visible',
+                      whiteSpace: 'normal',
+                      wordWrap: 'break-word',
+                      fontSize: isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
+                      padding: isMobile ? '8px' : '16px',
+                    },
+                    '& .MuiDataGrid-renderingZone': {
+                      maxHeight: 'none !important',
+                    },
+                  }}
+                />
+              )}
               <Popper
                 ref={popperRef}
                 open={openPopper}
@@ -655,7 +764,7 @@ const CheckInDailyReportPage = () => {
             </Card>
           </Grid>
         </Grid>
-      </Fragment>
+      </React.Fragment>
     )
   );
 };

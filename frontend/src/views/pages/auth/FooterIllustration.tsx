@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { Fragment, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 // ** MUI Components
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -16,19 +16,19 @@ const MaskImg = styled('img')(() => ({
   bottom: 0,
   zIndex: -1,
   width: '100%',
-  position: 'absolute'
+  position: 'absolute',
 }));
 
 const Tree1Img = styled('img')(() => ({
   left: 0,
   bottom: 0,
-  position: 'absolute'
+  position: 'absolute',
 }));
 
 const Tree2Img = styled('img')(() => ({
   right: 0,
   bottom: 0,
-  position: 'absolute'
+  position: 'absolute',
 }));
 
 const FooterIllustrationsV1 = (props: FooterIllustrationsV1Props) => {
@@ -43,17 +43,17 @@ const FooterIllustrationsV1 = (props: FooterIllustrationsV1Props) => {
 
   if (!hidden) {
     return (
-      <Fragment>
+      <>
         {!image ? (
-          <Fragment>
+          <>
             <MaskImg alt='mask' src={`/images/pages/misc-mask-${theme.palette.mode}.png`} />
             <Tree1Img alt='tree' src='/images/pages/tree.png' />
             <Tree2Img alt='tree-2' src='/images/pages/tree-2.png' />
-          </Fragment>
+          </>
         ) : (
           image
         )}
-      </Fragment>
+      </>
     );
   } else {
     return null;

@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 // ** Layout Import
 import UserLayout from '@/layouts/UserLayout';
 
@@ -7,7 +5,7 @@ import UserLayout from '@/layouts/UserLayout';
 export const dynamic = 'force-dynamic';
 
 interface DynamicLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function DynamicLayout({ children }: DynamicLayoutProps) {

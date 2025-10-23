@@ -12,7 +12,7 @@ export const getHomeRoute = (role: string): string => {
  */
 export const isProtectedRoute = (pathname: string): boolean => {
   const publicRoutes = ['/login', '/register', '/forgot-password', '/404', '/500'];
-  return !publicRoutes.some(route => pathname.startsWith(route));
+  return !publicRoutes.some((route) => pathname.startsWith(route));
 };
 
 /**
@@ -20,5 +20,5 @@ export const isProtectedRoute = (pathname: string): boolean => {
  */
 export const isGuestOnlyRoute = (pathname: string): boolean => {
   const guestRoutes = ['/login', '/register', '/forgot-password'];
-  return guestRoutes.some(route => pathname.startsWith(route));
+  return guestRoutes.some((route) => pathname.startsWith(route));
 };

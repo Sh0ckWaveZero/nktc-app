@@ -1,11 +1,11 @@
 'use client';
 
 // ** React Imports
-import { ReactNode } from 'react';
+import React from 'react';
 
 // ** MUI Imports
-import { styled, useTheme } from '@mui/material/styles';
-import MuiSwipeableDrawer, { SwipeableDrawerProps } from '@mui/material/SwipeableDrawer';
+import { useTheme } from '@mui/material/styles';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 
 // ** Type Import
 import { Settings } from '@/@core/context/settingsContext';
@@ -16,30 +16,12 @@ interface Props {
   navHover: boolean;
   settings: Settings;
   navVisible: boolean;
-  children: ReactNode;
+  children: React.ReactNode;
   collapsedNavWidth: number;
   navigationBorderWidth: number;
   setNavHover: (values: boolean) => void;
   setNavVisible: (value: boolean) => void;
 }
-
-const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
-  overflowX: 'hidden',
-  transition: 'width .25s ease-in-out',
-  '& ul': {
-    listStyle: 'none',
-  },
-  '& .MuiListItem-gutters': {
-    paddingLeft: 4,
-    paddingRight: 4,
-  },
-  '& .MuiDrawer-paper': {
-    left: 'unset',
-    right: 'unset',
-    overflowX: 'hidden',
-    transition: 'width .25s ease-in-out, box-shadow .25s ease-in-out',
-  },
-});
 
 const Drawer = (props: Props) => {
   // ** Props
@@ -62,44 +44,6 @@ const Drawer = (props: Props) => {
   // ** Vars
   const { skin, navCollapsed } = settings;
 
-  const drawerColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
-        },
-      };
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.light}, 0.87)`,
-        },
-      };
-    } else {
-      return {
-        '& .MuiListItemIcon-root': {
-          fontSize: '1.3rem',
-        },
-      };
-    }
-  };
-
-  const drawerBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        backgroundColor: theme.palette.customColors.darkBg,
-      };
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        backgroundColor: theme.palette.customColors.lightBg,
-      };
-    } else {
-      return {
-        backgroundColor: theme.palette.background.default,
-      };
-    }
-  };
-
   // Drawer Props for Mobile & Tablet screens
   const MobileDrawerProps = {
     open: navVisible,
@@ -116,10 +60,15 @@ const Drawer = (props: Props) => {
     onOpen: () => null,
     onClose: () => null,
     onMouseEnter: () => {
-      setNavHover(true);
+      // Only expand on hover when collapsed
+      if (navCollapsed) {
+        setNavHover(true);
+      }
     },
     onMouseLeave: () => {
-      setNavHover(false);
+      if (navCollapsed) {
+        setNavHover(false);
+      }
     },
   };
 
@@ -128,14 +77,28 @@ const Drawer = (props: Props) => {
       className='layout-vertical-nav'
       variant={hidden ? 'temporary' : 'permanent'}
       {...(hidden ? { ...MobileDrawerProps } : { ...DesktopDrawerProps })}
-      PaperProps={{
-        sx: { width: navCollapsed && !navHover ? collapsedNavWidth : navWidth },
-      }}
       sx={{
-        width: navCollapsed ? collapsedNavWidth : navWidth,
+        overflowX: 'hidden',
+        transition: 'width .25s ease-in-out',
+        width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
+        flexShrink: 0,
+        '& ul': {
+          listStyle: 'none',
+        },
+        '& .MuiListItem-gutters': {
+          paddingLeft: theme.spacing(1),
+          paddingRight: theme.spacing(1),
+        },
         '& .MuiDrawer-paper': {
-          ...drawerColor(),
-          ...drawerBgColor(),
+          left: 'unset',
+          right: 'unset',
+          overflowX: 'hidden',
+          transition: 'width .25s ease-in-out, box-shadow .25s ease-in-out',
+          width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
+          '& .MuiListItemIcon-root': {
+            fontSize: '1.3rem',
+          },
+          backgroundColor: theme.palette.background.paper,
           ...(!hidden && navCollapsed && navHover ? { boxShadow: 9 } : {}),
           borderRight: navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`,
         },

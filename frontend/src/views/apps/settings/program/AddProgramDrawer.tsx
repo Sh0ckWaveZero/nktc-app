@@ -13,10 +13,9 @@ import {
 } from '@mui/material';
 import { Close } from 'mdi-material-ui';
 import { Controller, useForm } from 'react-hook-form';
-import { Fragment, useEffect, useState } from 'react';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { LocalStorageService } from '@/services/localStorageService';
+import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { shallow } from 'zustand/shallow';
 import { useLevelStore } from '@/store/apps/level';
 import { useDepartmentStore } from '@/store/apps/department';
@@ -51,30 +50,27 @@ interface AddProgramDrawerProps {
   editData?: ProgramType | null;
 }
 
-const schema = yup.object().shape({
-  programId: yup.string().required('กรุณากรอกรหัสโปรแกรม'),
-  name: yup.string().required('กรุณากรอกชื่อโปรแกรม'),
-  description: yup.string(),
-  levelId: yup.string().required('กรุณาเลือกระดับชั้น'),
-  departmentId: yup.string().required('กรุณาเลือกแผนก'),
-  status: yup.string().oneOf(['active', 'inactive']),
+const schema = z.object({
+  programId: z.string().min(1, 'กรุณากรอกรหัสโปรแกรม'),
+  name: z.string().min(1, 'กรุณากรอกชื่อโปรแกรม'),
+  description: z.string().optional(),
+  levelId: z.string().min(1, 'กรุณาเลือกระดับชั้น'),
+  departmentId: z.string().min(1, 'กรุณาเลือกแผนก'),
+  status: z.enum(['active', 'inactive']),
 });
-
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
 
 const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawerProps) => {
   const [levelList, setLevelList] = useState<any[]>([]);
   const [departmentList, setDepartmentList] = useState<any[]>([]);
-  
+
   const { fetchLevels } = useLevelStore((state) => ({ fetchLevels: state.fetchLevels }), shallow);
   const { fetchDepartment } = useDepartmentStore((state) => ({ fetchDepartment: state.fetchDepartment }), shallow);
-  
+
   const {
     reset,
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm<ProgramFormData>({
     defaultValues: {
       programId: '',
@@ -84,25 +80,25 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
       departmentId: '',
       status: 'active',
     },
-    resolver: yupResolver(schema) as any
+    resolver: zodResolver(schema),
   });
 
   useEffect(() => {
     // ดึงข้อมูลระดับชั้น
-    fetchLevels(accessToken).then((res:any) => {
+    fetchLevels().then((res: any) => {
       if (res && Array.isArray(res)) {
         setLevelList(res || []);
       }
     });
-    
+
     // ดึงข้อมูลแผนก
-    fetchDepartment(accessToken).then((res:any) => {
+    fetchDepartment().then((res: any) => {
       if (res && Array.isArray(res)) {
         setDepartmentList(res || []);
       }
     });
   }, [fetchLevels, fetchDepartment]);
-  
+
   useEffect(() => {
     if (editData) {
       reset({
@@ -146,9 +142,7 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
     >
       <Box sx={{ p: 6, height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 6 }}>
-          <Typography variant='h6'>
-            {editData ? 'แก้ไขโปรแกรม' : 'เพิ่มโปรแกรม'}
-          </Typography>
+          <Typography variant='h6'>{editData ? 'แก้ไขโปรแกรม' : 'เพิ่มโปรแกรม'}</Typography>
           <IconButton size='small' onClick={handleClose}>
             <Close />
           </IconButton>
@@ -171,9 +165,7 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
             )}
           />
           {errors.programId && (
-            <FormHelperText sx={{ color: 'error.main', mt: -4, mb: 4 }}>
-              {errors.programId.message}
-            </FormHelperText>
+            <FormHelperText sx={{ color: 'error.main', mt: -4, mb: 4 }}>{errors.programId.message}</FormHelperText>
           )}
 
           <Controller
@@ -192,9 +184,7 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
             )}
           />
           {errors.name && (
-            <FormHelperText sx={{ color: 'error.main', mt: -4, mb: 4 }}>
-              {errors.name.message}
-            </FormHelperText>
+            <FormHelperText sx={{ color: 'error.main', mt: -4, mb: 4 }}>{errors.name.message}</FormHelperText>
           )}
 
           <Controller
@@ -237,14 +227,12 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
                   ))}
                 </Select>
                 {errors.levelId && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.levelId.message}
-                  </FormHelperText>
+                  <FormHelperText sx={{ color: 'error.main' }}>{errors.levelId.message}</FormHelperText>
                 )}
               </FormControl>
             )}
           />
-          
+
           <Controller
             name='departmentId'
             control={control}
@@ -268,9 +256,7 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
                   ))}
                 </Select>
                 {errors.departmentId && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.departmentId.message}
-                  </FormHelperText>
+                  <FormHelperText sx={{ color: 'error.main' }}>{errors.departmentId.message}</FormHelperText>
                 )}
               </FormControl>
             )}
@@ -282,20 +268,11 @@ const AddProgramDrawer = ({ open, toggle, onSubmit, editData }: AddProgramDrawer
             render={({ field: { value, onChange } }) => (
               <FormControl fullWidth sx={{ mb: 5 }}>
                 <InputLabel id='status-select'>สถานะ</InputLabel>
-                <Select
-                  value={value}
-                  label='สถานะ'
-                  onChange={onChange}
-                  labelId='status-select'
-                >
+                <Select value={value} label='สถานะ' onChange={onChange} labelId='status-select'>
                   <MenuItem value='active'>ใช้งาน</MenuItem>
                   <MenuItem value='inactive'>ไม่ใช้งาน</MenuItem>
                 </Select>
-                {errors.status && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.status.message}
-                  </FormHelperText>
-                )}
+                {errors.status && <FormHelperText sx={{ color: 'error.main' }}>{errors.status.message}</FormHelperText>}
               </FormControl>
             )}
           />

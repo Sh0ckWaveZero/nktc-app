@@ -470,8 +470,10 @@ const Home = () => {
             size={{
               xs: 12,
               sm: 6,
-              md: 2
-            }}>
+              md: 4,
+              lg: 3,
+            }}
+          >
             <CardMenu
               key={`card-menu-${index}`}
               title={item.title}

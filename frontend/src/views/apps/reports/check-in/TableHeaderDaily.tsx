@@ -1,13 +1,8 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import TextField from '@mui/material/TextField';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
-import dayjs from 'dayjs';
-import th from 'dayjs/locale/th';
 import { BsXCircle } from 'react-icons/bs';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 interface TableHeaderProps {
   value: any;
@@ -36,38 +31,27 @@ const TableHeaderDaily = (props: TableHeaderProps) => {
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
-      <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
-          <DatePicker
-            label='เลือกวันที่'
-            value={selectedDate ? dayjs(selectedDate) : null}
-            format='DD-MM-YYYY'
-            minDate={dayjs().subtract(1, 'year')}
-            maxDate={dayjs()}
-            onChange={(newDate) => handleDateChange(newDate ? newDate.toDate() : null)}
-            slots={{
-              textField: TextField
-            }}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                inputProps: {
-                  placeholder: 'วัน/เดือน/ปี',
-                },
-                sx: {
-                  '& .MuiInputBase-input': {
-                    fontSize: '0.813rem',
-                    height: '2rem',
-                  },
-                  '& .MuiInputLabel-root': {
-                    padding: '0.4rem 0 0 0',
-                  },
-                }
-              }
-            }}
-          />
-        </LocalizationProvider>
-      </FormControl>
+      <ThaiDatePicker
+        label='เลือกวันที่'
+        value={selectedDate}
+        onChange={handleDateChange}
+        format='dd-MM-yyyy'
+        minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+        maxDate={new Date()}
+        placeholder='วัน/เดือน/ปี (พ.ศ.)'
+        sx={{
+          mr: 4,
+          mb: 2,
+          width: 300,
+          '& .MuiInputBase-input': {
+            fontSize: '0.813rem',
+            height: '2rem',
+          },
+          '& .MuiInputLabel-root': {
+            padding: '0.4rem 0 0 0',
+          },
+        }}
+      />
       <FormControl sx={{ mr: 4, mb: 2, width: 300 }}>
         <InputLabel id='demo-multiple-name-label'>ห้องเรียน</InputLabel>
         <Select

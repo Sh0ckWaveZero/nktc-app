@@ -2,7 +2,7 @@
 
 import { Avatar, Box, Button, Card, CardHeader, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -10,7 +10,6 @@ import DialogAddCard from '@/views/apps/record-goodness/DialogAddCard';
 import Grid from '@mui/material/Grid';
 import { HiOutlineStar } from 'react-icons/hi';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/record-goodness/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
@@ -27,9 +26,6 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main,
 }));
-
-const localStorageService = new LocalStorageService();
-const accessToken = localStorageService.getToken() || '';
 
 const RecordGoodnessIndividualPage = () => {
   // ** Hooks
@@ -55,7 +51,7 @@ const RecordGoodnessIndividualPage = () => {
     setLoadingStudent(true);
     const query = { fullName: fullName, studentId: studentId };
     (async () => {
-      await fetchStudents(accessToken, query).then(async (res: any) => {
+      await fetchStudents(query).then(async (res: any) => {
         setStudents((await res) || []);
         setLoadingStudent(false);
       });
@@ -83,7 +79,7 @@ const RecordGoodnessIndividualPage = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} storedToken={accessToken} />
+            <RenderAvatar row={row} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <LinkStyled href={`/apps/student/view/${id}`} passHref>
                 <Typography
@@ -176,7 +172,7 @@ const RecordGoodnessIndividualPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -187,7 +183,7 @@ const RecordGoodnessIndividualPage = () => {
                 </Avatar>
               }
               sx={{ color: 'text.primary' }}
-              title={`บันทึกความดี ${students ? students.length : 0} คน`}
+              title={`บันทึกความดี ${students?.length ?? 0} คน`}
             />
             {students && (
               <TableHeader
@@ -200,7 +196,6 @@ const RecordGoodnessIndividualPage = () => {
               />
             )}
             <DataGrid
-              autoHeight
               rows={students}
               columns={defaultColumns}
               loading={loadingStudent}
@@ -250,7 +245,7 @@ const RecordGoodnessIndividualPage = () => {
           handleOnSearch={handleOnSearch}
         />
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

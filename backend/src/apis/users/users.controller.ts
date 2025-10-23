@@ -33,15 +33,22 @@ export class UsersController {
   @Get(':id')
   public async findById(@Param('id') id: string) {
     try {
-      return await this.usersService.findById(id);
+      // Try to find by ID first, if not found, try by username
+      const user = await this.usersService.findById(id);
+      return user;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Cannot get user',
-        },
-        HttpStatus.FORBIDDEN,
-      );
+      try {
+        // If not found by ID, try to find by username
+        return await this.usersService.findByUsername(id);
+      } catch (usernameError) {
+        throw new HttpException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: 'Cannot get user by ID or username',
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
     }
   }
 

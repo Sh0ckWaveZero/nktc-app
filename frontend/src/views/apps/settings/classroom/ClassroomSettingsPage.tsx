@@ -1,20 +1,20 @@
 'use client';
 
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardContent,
-  IconButton, 
-  Menu, 
-  MenuItem, 
+  IconButton,
+  Menu,
+  MenuItem,
   Typography,
   Button,
   Box,
-  Chip
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DeleteOutline, DotsVertical, Plus } from 'mdi-material-ui';
-import { Fragment, MouseEvent, useState } from 'react';
+import React, { Fragment, MouseEvent, useState } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import toast from 'react-hot-toast';
@@ -27,11 +27,11 @@ interface RowOptionsType {
 const RowOptions = ({ row, handleDelete }: RowOptionsType) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const rowOptionsOpen = Boolean(anchorEl);
-  
+
   const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleRowOptionsClose = () => {
     setAnchorEl(null);
   };
@@ -81,7 +81,7 @@ const ClassroomSettingsPage = () => {
   ]);
 
   const handleDelete = (data: any) => {
-    setClassrooms(classrooms.filter(classroom => classroom.id !== data.id));
+    setClassrooms(classrooms.filter((classroom) => classroom.id !== data.id));
     toast.success(`ลบชั้นเรียน ${data.name} เรียบร้อยแล้ว`);
   };
 
@@ -124,11 +124,7 @@ const ClassroomSettingsPage = () => {
       headerName: 'จำนวนนักเรียน',
       flex: 0.15,
       minWidth: 120,
-      renderCell: ({ row }) => (
-        <Typography variant='body2'>
-          {row.studentCount} คน
-        </Typography>
-      ),
+      renderCell: ({ row }) => <Typography variant='body2'>{row.studentCount} คน</Typography>,
     },
     {
       field: 'status',
@@ -136,7 +132,7 @@ const ClassroomSettingsPage = () => {
       flex: 0.15,
       minWidth: 100,
       renderCell: ({ row }) => (
-        <Chip 
+        <Chip
           label={row.status === 'active' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
           color={row.status === 'active' ? 'success' : 'default'}
           size='small'
@@ -154,18 +150,14 @@ const ClassroomSettingsPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
-            <CardHeader 
+            <CardHeader
               title='การจัดการชั้นเรียน'
               action={
-                <Button
-                  variant='contained'
-                  startIcon={<Plus />}
-                  onClick={handleAddClassroom}
-                >
+                <Button variant='contained' startIcon={<Plus />} onClick={handleAddClassroom}>
                   เพิ่มชั้นเรียน
                 </Button>
               }
@@ -200,7 +192,7 @@ const ClassroomSettingsPage = () => {
           </Card>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ThailandAddressValue,
+  type ThailandAddressValue,
+  ThailandAddressValueHelper,
   typeaheadAddressContext,
-  TypeaheadAddressContextData,
+  type TypeaheadAddressContextData,
   useAddressTypeaheadContext,
 } from './context';
 import { DataSourceItem, useThailandAddressDataSource } from './use-thailand-addr';
@@ -21,8 +22,12 @@ type SuggestionPanelPropTypes = {
   ds: DataSourceItem[];
   shouldVisible: boolean;
   onDataSourceItemSelected?: (ds: ThailandAddressValue) => void;
-  containerProps?: JSX.IntrinsicElements['ul'];
-  optionItemProps?: JSX.IntrinsicElements['li'];
+  containerProps?: React.HTMLAttributes<HTMLElement> & {
+    ref?: React.Ref<HTMLElement>;
+  };
+  optionItemProps?: React.LiHTMLAttributes<HTMLElement> & {
+    ref?: React.Ref<HTMLElement>;
+  };
   highlightedItemIndex?: number;
   onOptionMouseEnter?: (i: number) => void;
 };
@@ -37,7 +42,7 @@ const SuggestionPanel = ({
 }: SuggestionPanelPropTypes) => {
   const onClick = (i: number) => (evt: React.MouseEvent) => {
     evt.stopPropagation();
-    onDataSourceItemSelected?.(ThailandAddressValue.fromDataSourceItem(ds[i]));
+    onDataSourceItemSelected?.(ThailandAddressValueHelper.fromDataSourceItem(ds[i]));
   };
   const onOptionMouseEnterCallback = (i: number) => () => {
     onOptionMouseEnter?.(i);
@@ -67,8 +72,10 @@ const SuggestionPanel = ({
 
 const AddressInputField = (fieldName: keyof ThailandAddressValue) => {
   const InputComponent = (
-    innerProps: Omit<JSX.IntrinsicElements['input'], 'value' | 'onChange'> & {
-      containerProps?: JSX.IntrinsicElements['div'];
+    innerProps: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & {
+      containerProps?: React.HTMLAttributes<HTMLDivElement> & {
+        ref?: React.Ref<HTMLDivElement>;
+      };
     },
   ) => {
     const {
@@ -109,7 +116,7 @@ const AddressInputField = (fieldName: keyof ThailandAddressValue) => {
             highlightedItemIndex < suggestions.length - 1 ? highlightedItemIndex + 1 : suggestions.length - 1,
           );
         } else if (evt.key === 'Enter') {
-          onValueChange?.(ThailandAddressValue.fromDataSourceItem(suggestions[highlightedItemIndex]));
+          onValueChange?.(ThailandAddressValueHelper.fromDataSourceItem(suggestions[highlightedItemIndex]));
           return setShouldDisplaySuggestion(false);
         }
       },
@@ -171,7 +178,7 @@ export const ThailandAddressTypeahead = ({
 
   const onInputFieldChange = useCallback(
     (fieldName: keyof ThailandAddressValue, inputValue: string) => {
-      const nextVal = value ? { ...value } : ThailandAddressValue.empty();
+      const nextVal = value ? { ...value } : ThailandAddressValueHelper.empty();
       nextVal[fieldName] = inputValue;
       onValueChange?.(nextVal);
     },
@@ -261,7 +268,7 @@ export const CustomSuggestionPanel = ({ children }: CustomSuggestionPanelPropTyp
   );
 
   const ds = useMemo(() => {
-    return suggestions.map(ThailandAddressValue.fromDataSourceItem);
+    return suggestions.map(ThailandAddressValueHelper.fromDataSourceItem);
   }, [suggestions]);
 
   if (!suggestionContainerElem) {
@@ -287,4 +294,4 @@ ThailandAddressTypeahead.SubdistrictInput = SubdistrictInput;
 ThailandAddressTypeahead.Suggestion = DefaultSuggestionPanel as any;
 ThailandAddressTypeahead.CustomSuggestion = CustomSuggestionPanel;
 
-export { ThailandAddressValue };
+export { type ThailandAddressValue, ThailandAddressValueHelper };

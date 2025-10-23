@@ -973,4 +973,52 @@ export class StudentsService {
       );
     }
   }
+
+  /**
+   * ดึงข้อมูลนักเรียนรายคนสำหรับหน้าแก้ไข
+   */
+  async getProfile(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        include: {
+          account: true,
+          student: {
+            include: {
+              level: true,
+              levelClassroom: true,
+              classroom: true,
+              program: true,
+              department: true,
+            },
+          },
+        },
+      });
+
+      if (!user || !user.student) {
+        throw new HttpException('Student not found', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        id: user.id,
+        studentId: user.username,
+        title: user.account?.title || '',
+        firstName: user.account?.firstName || '',
+        lastName: user.account?.lastName || '',
+        idCard: user.account?.idCard || '',
+        phone: user.account?.phone || '',
+        status: user.student?.status || 'normal',
+        level: user.student?.level,
+        levelClassroom: user.student?.levelClassroom,
+        classroom: user.student?.classroom,
+        program: user.student?.program,
+        department: user.student?.department,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.message || 'Cannot get student profile',
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

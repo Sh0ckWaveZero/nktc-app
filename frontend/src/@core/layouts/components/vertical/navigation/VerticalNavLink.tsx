@@ -1,51 +1,50 @@
 // ** React Imports
-import { ElementType } from 'react'
+import { ElementType } from 'react';
 
 // ** Next Imports
-import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 // ** MUI Imports
-import Chip from '@mui/material/Chip'
-import ListItem from '@mui/material/ListItem'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import Box, { BoxProps } from '@mui/material/Box'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'
+import Chip from '@mui/material/Chip';
+import ListItem from '@mui/material/ListItem';
+import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import Box, { BoxProps } from '@mui/material/Box';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
 import Icon from '@/@core/components/icon';
 
 // ** Configs Import
-import themeConfig from '@/configs/themeConfig'
+import themeConfig from '@/configs/themeConfig';
 
 // ** Types
-import { NavLink, NavGroup } from '@/@core/layouts/types'
-import { Settings } from '@/@core/context/settingsContext'
+import { NavLink, NavGroup } from '@/@core/layouts/types';
+import { Settings } from '@/@core/context/settingsContext';
 
 // ** Custom Components Imports
-import UserIcon from '@/layouts/components/UserIcon'
-import Translations from '@/layouts/components/Translations'
-import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink'
-
-// ** Util Import
-import { handleURLQueries } from '@/@core/layouts/utils'
+import Translations from '@/layouts/components/Translations';
+import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 
 interface Props {
-  parent?: boolean
-  item: NavLink
-  navHover?: boolean
-  settings: Settings
-  navVisible?: boolean
-  collapsedNavWidth: number
-  navigationBorderWidth: number
-  toggleNavVisibility: () => void
-  isSubToSub?: NavGroup | undefined
+  parent?: boolean;
+  item: NavLink;
+  navHover?: boolean;
+  settings: Settings;
+  navVisible?: boolean;
+  collapsedNavWidth: number;
+  navigationBorderWidth: number;
+  toggleNavVisibility: () => void;
+  isSubToSub?: NavGroup | undefined;
 }
 
 // ** Styled Components
-const MenuNavLink = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'component' && prop !== 'href' && prop !== 'target',
-})<ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }>(({ theme }) => ({
+const MenuNavLink = styled(ListItemButton)<
+  ListItemButtonProps & {
+    component?: ElementType;
+    href?: string;
+  }
+>(({ theme }) => ({
   width: '100%',
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,
@@ -54,13 +53,13 @@ const MenuNavLink = styled(ListItemButton, {
   '&.active': {
     '&, &:hover': {
       boxShadow: theme.shadows[3],
-      backgroundImage: `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`
+      backgroundImage: `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`,
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
-      color: `${theme.palette.common.white} !important`
-    }
-  }
-}))
+      color: `${theme.palette.common.white} !important`,
+    },
+  },
+}));
 
 const MenuItemTextMetaWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -69,8 +68,8 @@ const MenuItemTextMetaWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   gap: theme.spacing(2),
   justifyContent: 'space-between',
   transition: 'opacity .25s ease-in-out',
-  ...(themeConfig.menuTextTruncate && { overflow: 'hidden' })
-}))
+  ...(themeConfig.menuTextTruncate && { overflow: 'hidden' }),
+}));
 
 const VerticalNavLink = ({
   item,
@@ -81,57 +80,56 @@ const VerticalNavLink = ({
   isSubToSub,
   collapsedNavWidth,
   toggleNavVisibility,
-  navigationBorderWidth
+  navigationBorderWidth,
 }: Props) => {
   // ** Hooks
-  const router = useRouter()
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   // ** Vars
-  const { navCollapsed } = settings
+  const { navCollapsed } = settings;
 
-  const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
+  const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon;
 
   const isNavLinkActive = () => {
     if (pathname === item.path) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
-  }
+  };
 
   return (
     <CanViewNavLink navLink={item}>
       <ListItem
         disablePadding
         className='nav-link'
-        sx={{ 
-          mt: 1.5, 
+        sx={{
+          mt: 1.5,
           px: '0 !important',
           pointerEvents: item.disabled ? 'none' : 'auto',
-          opacity: item.disabled ? 0.5 : 1
+          opacity: item.disabled ? 0.5 : 1,
         }}
       >
         <MenuNavLink
           component={Link}
+          href={item.path === undefined ? '/' : item.path}
+          {...(item.openInNewTab ? { target: '_blank' } : {})}
           {...(item.disabled && { tabIndex: -1 })}
           className={isNavLinkActive() ? 'active' : ''}
-          href={item.path === undefined ? '/' : `${item.path}`}
-          {...(item.openInNewTab ? { target: '_blank' } : null)}
-          onClick={e => {
+          onClick={(e) => {
             if (item.path === undefined) {
-              e.preventDefault()
-              e.stopPropagation()
+              e.preventDefault();
+              e.stopPropagation();
             }
             if (navVisible) {
-              toggleNavVisibility()
+              toggleNavVisibility();
             }
           }}
           sx={{
             py: 2.25,
             ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
             pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,
-            pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5
+            pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5,
           }}
         >
           {isSubToSub ? null : (
@@ -144,8 +142,8 @@ const VerticalNavLink = ({
                 '& svg': {
                   fontSize: '0.875rem',
                   ...(!parent ? { fontSize: '1.5rem' } : {}),
-                  ...(parent && item.icon ? { fontSize: '0.875rem' } : {})
-                }
+                  ...(parent && item.icon ? { fontSize: '0.875rem' } : {}),
+                },
               }}
             >
               <Icon icon={icon as string} />
@@ -155,12 +153,12 @@ const VerticalNavLink = ({
           <MenuItemTextMetaWrapper
             sx={{
               ...(isSubToSub ? { ml: 9 } : {}),
-              ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 })
+              ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }),
             }}
           >
             <Typography
               {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
-                noWrap: true
+                noWrap: true,
               })}
             >
               <Translations text={item.title} />
@@ -172,7 +170,7 @@ const VerticalNavLink = ({
                 sx={{
                   height: 20,
                   fontWeight: 500,
-                  '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
+                  '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' },
                 }}
               />
             ) : null}
@@ -180,7 +178,7 @@ const VerticalNavLink = ({
         </MenuNavLink>
       </ListItem>
     </CanViewNavLink>
-  )
-}
+  );
+};
 
-export default VerticalNavLink
+export default VerticalNavLink;

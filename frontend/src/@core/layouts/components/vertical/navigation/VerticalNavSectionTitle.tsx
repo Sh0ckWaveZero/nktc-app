@@ -53,37 +53,33 @@ const VerticalNavSectionTitle = (props: Props) => {
   // ** Vars
   const { skin, navCollapsed } = settings;
 
-  const conditionalStyling = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.38)`,
-        '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
-          borderColor: `rgba(${theme.palette.customColors.dark}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
-        },
-      };
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        color: `rgba(${theme.palette.customColors.light}, 0.38)`,
-        '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
-          borderColor: `rgba(${theme.palette.customColors.light}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
-        },
-      };
-    } else {
-      return {
-        color: theme.palette.text.disabled,
-        '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
-          borderColor: `rgba(${theme.palette.customColors.main}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
-        },
-      };
-    }
-  };
+  const conditionalStylingStyles =
+    skin === 'semi-dark'
+      ? {
+          color: `rgba(${theme.palette.customColors.dark}, 0.38)`,
+          '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
+            borderColor: `rgba(${theme.palette.customColors.dark}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
+          },
+          ...theme.applyStyles('dark', {
+            color: `rgba(${theme.palette.customColors.light}, 0.38)`,
+            '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
+              borderColor: `rgba(${theme.palette.customColors.light}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
+            },
+          }),
+        }
+      : {
+          color: theme.palette.text.disabled,
+          '& .MuiDivider-root:before, & .MuiDivider-root:after, & hr': {
+            borderColor: `rgba(${theme.palette.customColors.main}, ${navCollapsed && !navHover ? 0.3 : 0.12})`,
+          },
+        };
 
   return (
     <CanViewNavSectionTitle navTitle={item}>
       <ListSubheader
         className='nav-section-title'
         sx={{
-          ...conditionalStyling(),
+          ...conditionalStylingStyles,
           ...(navCollapsed && !navHover
             ? {
                 py: 3.5,

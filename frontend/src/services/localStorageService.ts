@@ -1,9 +1,8 @@
 // class localStorageService.ts
 export class LocalStorageService {
-
   // set token in local storage
   setToken(token: string) {
-    localStorage.setItem('access_token', token);
+    localStorage.setItem('accessToken', token);
   }
 
   // get token from local storage
@@ -13,15 +12,14 @@ export class LocalStorageService {
     // so we need to check if window is defined or not
     // if window is not defined, we will return null
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('access_token');
+      return localStorage.getItem('accessToken');
     }
   }
 
   // remove token from local storage
   removeToken() {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('accessToken');
     }
   }
-
 }

@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
 import { useClassroomStore, useStudentStore } from '@/store/index';
 import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
@@ -23,7 +23,6 @@ import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Link from 'next/link';
-import { LocalStorageService } from '@/services/localStorageService';
 import RenderAvatar from '@/@core/components/avatar';
 import { SelectChangeEvent } from '@mui/material/Select';
 import TableHeader from '@/views/apps/student/list/TableHeader';
@@ -34,8 +33,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'next/navigation';
 import useStudentList from '@/hooks/useStudentList';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 interface CellType {
   row: any;
 }
@@ -73,26 +70,61 @@ const StudentListPage = () => {
   );
   const { fetchClassroom }: any = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
   const { removeStudents }: any = useStudentStore((state) => ({ removeStudents: state.removeStudents }), shallow);
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(accessToken, debouncedValue);
+  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
 
   useEffectOnce(() => {
     (async () => {
       setLoadingClassroom(true);
-      fetchClassroom(accessToken).then(async (res: any) => {
+      fetchClassroom().then(async (res: any) => {
+        // Check if res is valid array
+        if (!res || !Array.isArray(res)) {
+          setClassrooms([]);
+          setLoadingClassroom(false);
+          return;
+        }
+
         if (user?.role?.toLowerCase() === 'admin') {
-          setClassrooms(await res);
+          setClassrooms(res);
           if (classroom) {
-            setInitClassroom(await res.filter((item: any) => item.id === classroom));
+            const filteredClassroom = res.filter((item: any) => item.id === classroom);
+            setInitClassroom(filteredClassroom[0] || null);
+            setCurrentClassroomId(filteredClassroom[0]?.id || null);
+          } else {
+            // Set first classroom as default
+            setInitClassroom(res[0] || null);
+            setCurrentClassroomId(res[0]?.id || null);
           }
         } else {
-          const teacherClassroom = await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
-          setClassrooms(teacherClassroom);
+          // Handle case where teacherOnClassroom might be empty or undefined
+          if (!user?.teacherOnClassroom || user.teacherOnClassroom.length === 0) {
+            // For now, show all classrooms if teacher has no assigned classrooms
+            // This is a temporary solution - in production you might want to show a message
+            setClassrooms(res);
+          } else {
+            const teacherClassroom = res.filter((item: any) =>
+              user.teacherOnClassroom.includes(item.id)
+            );
+            setClassrooms(teacherClassroom);
+          }
           if (classroom) {
-            const currentQueryClassroom = await teacherClassroom.filter((item: any) => item.id === classroom);
+            const currentQueryClassroom = classrooms.filter((item: any) => item.id === classroom);
             setInitClassroom(currentQueryClassroom[0] || null);
             setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
+          } else {
+            // Set first classroom as default (only if teacher has classrooms)
+            if (classrooms.length > 0) {
+              setInitClassroom(classrooms[0] || null);
+              setCurrentClassroomId(classrooms[0]?.id || null);
+            } else {
+              setInitClassroom(null);
+              setCurrentClassroomId(null);
+            }
           }
         }
+        setLoadingClassroom(false);
+      }).catch((error: any) => {
+        console.error('Error fetching classrooms:', error);
+        setClassrooms([]);
         setLoadingClassroom(false);
       });
     })();
@@ -106,7 +138,7 @@ const StudentListPage = () => {
         search: debouncedValue,
       };
 
-      await fetchStudentsWithParams(accessToken, query).then(async (res: any) => {
+      await fetchStudentsWithParams(query).then(async (res: any) => {
         setStudents((await res) || []);
         setLoadingStudent(false);
       });
@@ -125,7 +157,7 @@ const StudentListPage = () => {
     setStudents([]);
     setLoadingStudent(true);
     const toastId = toast.loading('กำลังลบข้อมูล...');
-    await removeStudents(accessToken, deletedStudent.id).then((res: any) => {
+    await removeStudents(deletedStudent.id).then((res: any) => {
       if (res?.status === 204) {
         toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
       } else {
@@ -133,7 +165,7 @@ const StudentListPage = () => {
       }
     });
 
-    await fetchStudentsWithParams(accessToken, currentClassroomId).then(async (res: any) => {
+    await fetchStudentsWithParams(currentClassroomId).then(async (res: any) => {
       setStudents(await res);
       setLoadingStudent(false);
     });
@@ -175,7 +207,7 @@ const StudentListPage = () => {
         const { id, account, username } = row;
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={account} storedToken={accessToken} />
+            <RenderAvatar row={account} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                 noWrap
@@ -224,7 +256,7 @@ const StudentListPage = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <LinkStyled
-            href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}&token=${accessToken}`}
+            href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`}
             passHref
           >
             <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
@@ -280,7 +312,7 @@ const StudentListPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Grid container spacing={6}>
         <Grid size={12}>
           <Card>
@@ -291,23 +323,22 @@ const StudentListPage = () => {
                 </Avatar>
               }
               sx={{ color: 'text.primary' }}
-              title={`รายชื่อนักเรียนทั้งหมด ${students ? students.length : 0} คน`}
+              title={`รายชื่อนักเรียนทั้งหมด ${students?.length ?? 0} คน`}
             />
-            {classrooms && (
-              <TableHeader
-                classrooms={classrooms}
-                defaultClassroom={initClassroom}
-                fullName={currentStudent}
-                loading={loadingClassroom}
-                loadingStudents={loadingStudents}
-                onHandleChange={onHandleChangeClassroom}
-                onHandleChangeStudent={onHandleChangeFullName}
-                onHandleStudentId={onHandleStudentId}
-                onSearchChange={onSearchChange}
-                studentId={searchValue.studentId}
-                students={studentsListData}
-              />
-            )}
+            <TableHeader
+              classrooms={classrooms}
+              defaultClassroom={initClassroom}
+              fullName={currentStudent}
+              loading={loadingClassroom}
+              loadingStudents={loadingStudents}
+              onHandleChange={onHandleChangeClassroom}
+              onHandleChangeStudent={onHandleChangeFullName}
+              onHandleStudentId={onHandleStudentId}
+              onSearchChange={onSearchChange}
+              studentId={searchValue.studentId}
+              students={studentsListData}
+            />
+
             <DataGrid
               rows={students}
               columns={defaultColumns}
@@ -350,7 +381,7 @@ const StudentListPage = () => {
         </Grid>
       </Grid>
       {openDeletedConfirm && (
-        <Fragment>
+        <React.Fragment>
           <Dialog
             open={openDeletedConfirm}
             disableEscapeKeyDown
@@ -378,9 +409,9 @@ const StudentListPage = () => {
               </Button>
             </DialogActions>
           </Dialog>
-        </Fragment>
+        </React.Fragment>
       )}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

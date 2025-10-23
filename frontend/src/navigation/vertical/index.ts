@@ -1,13 +1,11 @@
 // ** Icon imports
-import {
-  HumanMaleBoard,
-} from 'mdi-material-ui';
+import { HumanMaleBoard } from 'mdi-material-ui';
 import { RiSurveyLine, RiTeamLine } from 'react-icons/ri';
 
 // ** Type import
 import type { VerticalNavItemsType } from '@/@core/layouts/types';
 import { HiOutlineStar, HiOutlineThumbDown, HiStar, HiThumbDown } from 'react-icons/hi';
-import { BsClipboardData } from "react-icons/bs";
+import { BsClipboardData } from 'react-icons/bs';
 import { TbChartBar } from 'react-icons/tb';
 import { FiSettings } from 'react-icons/fi';
 
@@ -57,10 +55,12 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'student-page',
         },
-        // {
-        // title: 'View',
-        // path: '/apps/user/view',
-        // },
+        {
+          title: 'ดูข้อมูล',
+          path: '/apps/user/view',
+          action: 'read',
+          subject: 'view-user-page',
+        },
       ],
     },
     {
@@ -137,7 +137,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'record-goodness-page',
           path: '/apps/record-goodness/group',
-        }
+        },
       ],
     },
     {
@@ -159,7 +159,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-badness-group-page',
           path: '/apps/record-badness/group',
-        }
+        },
       ],
     },
     {
@@ -201,7 +201,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-check-in-page',
           path: '/apps/reports/check-in/summary',
-        }
+        },
       ],
     },
     {
@@ -258,7 +258,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'activity-check-in-page',
           path: '/apps/reports/activity-check-in/summary',
-        }
+        },
       ],
     },
     {
@@ -291,6 +291,13 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
+      title: 'สถิติการใช้งานระบบ',
+      icon: 'carbon:analytics',
+      path: '/apps/admin/reports/statistics',
+      action: 'read',
+      subject: 'admin-statistics-page',
+    },
+    {
       title: 'ความดี',
       icon: HiStar,
       action: 'read',
@@ -302,7 +309,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-goodness-page',
           path: '/apps/reports/goodness/all',
-        }
+        },
       ],
     },
     {
@@ -317,7 +324,7 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'report-badness-page',
           path: '/apps/reports/badness/all',
-        }
+        },
       ],
     },
     {

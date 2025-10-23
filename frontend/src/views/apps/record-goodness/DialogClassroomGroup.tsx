@@ -64,7 +64,7 @@ export default function DialogClassroomGoodnessGroup({
   students,
   studentsList,
 }: Props) {
-  const [pageSize, setPageSize] = useState(students.length > 0 ? students.length : 10);
+  const [pageSize, setPageSize] = useState(students?.length ?? 10);
   const columns: GridColDef[] = [
     {
       flex: 0.13,
@@ -175,21 +175,29 @@ export default function DialogClassroomGoodnessGroup({
             onChange={(_, newValue: any) => onHandleClassroomChange(_, newValue)}
             getOptionLabel={(option: any) => option?.name ?? ''}
             isOptionEqualToValue={(option: any, value: any) => option.name === value.name}
-            renderOption={(props, option) => (
-              <li {...props}>
-                {option.name}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField
-                error={isEmpty(classrooms) && classroomLoading}
-                helperText={isEmpty(classrooms) && classroomLoading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
-                {...params}
-                label='ห้องเรียน'
-                placeholder='เลือกห้องเรียน'
-              />
-            )}
-            filterSelectedOptions
+            renderOption={(props, option, { selected }: any) => <li {...props}>{option.name}</li>}
+            renderInput={(params: any) => {
+              const { InputProps, InputLabelProps, ...otherParams } = params;
+              return (
+                <TextField
+                  error={isEmpty(classrooms) && classroomLoading}
+                  helperText={isEmpty(classrooms) && classroomLoading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
+                  {...otherParams}
+                  label='ห้องเรียน'
+                  placeholder='เลือกห้องเรียน'
+                  slotProps={{
+                    input: {
+                      ...InputProps,
+                      ref: undefined,
+                    },
+                    inputLabel: {
+                      ...InputLabelProps,
+                      shrink: true,
+                    },
+                  }}
+                />
+              );
+            }}
             groupBy={(option: any) => option.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />

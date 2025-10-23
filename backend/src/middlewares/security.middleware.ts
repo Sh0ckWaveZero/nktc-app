@@ -20,12 +20,12 @@ export class SecurityMiddleware implements NestMiddleware {
       const timeoutPromise = new Promise<void>((_, reject) => {
         setTimeout(() => reject(new Error('Pattern check timeout')), 100);
       });
-      
+
       const patternCheckPromise = new Promise<void>((resolve) => {
         this.checkSuspiciousPatterns(req);
         resolve();
       });
-      
+
       Promise.race([patternCheckPromise, timeoutPromise]).catch(() => {
         this.logger.error(`Pattern check timeout for request from ${req.ip}`);
         req['suspicious'] = true;
@@ -75,14 +75,18 @@ export class SecurityMiddleware implements NestMiddleware {
 
     // Early return if data is too large to prevent ReDoS
     if (requestData.length > 10000) {
-      this.logger.warn(`Large request data detected from ${req.ip}: ${originalUrl} (${requestData.length} chars)`);
+      this.logger.warn(
+        `Large request data detected from ${req.ip}: ${originalUrl} (${requestData.length} chars)`,
+      );
       req['suspicious'] = true;
       return;
     }
 
     // Use safe string matching instead of complex regex
     if (this.checkSqlInjection(requestData)) {
-      this.logger.error(`SQL injection attempt detected from ${req.ip}: ${originalUrl}`);
+      this.logger.error(
+        `SQL injection attempt detected from ${req.ip}: ${originalUrl}`,
+      );
       req['suspicious'] = true;
       return;
     }
@@ -94,7 +98,9 @@ export class SecurityMiddleware implements NestMiddleware {
     }
 
     if (this.checkPathTraversal(requestData)) {
-      this.logger.error(`Path traversal attempt detected from ${req.ip}: ${originalUrl}`);
+      this.logger.error(
+        `Path traversal attempt detected from ${req.ip}: ${originalUrl}`,
+      );
       req['suspicious'] = true;
       return;
     }
@@ -108,11 +114,27 @@ export class SecurityMiddleware implements NestMiddleware {
    */
   private checkSqlInjection(data: string): boolean {
     const lowerData = data.toLowerCase();
-    const sqlKeywords = ['select ', 'insert ', 'update ', 'delete ', 'drop ', 'create ', 'alter '];
-    const sqlPatterns = ['union select', 'or 1=1', 'and 1=1', "' or '", '" or "'];
-    
-    return sqlKeywords.some(keyword => lowerData.includes(keyword)) &&
-           sqlPatterns.some(pattern => lowerData.includes(pattern));
+    const sqlKeywords = [
+      'select ',
+      'insert ',
+      'update ',
+      'delete ',
+      'drop ',
+      'create ',
+      'alter ',
+    ];
+    const sqlPatterns = [
+      'union select',
+      'or 1=1',
+      'and 1=1',
+      "' or '",
+      '" or "',
+    ];
+
+    return (
+      sqlKeywords.some((keyword) => lowerData.includes(keyword)) &&
+      sqlPatterns.some((pattern) => lowerData.includes(pattern))
+    );
   }
 
   /**
@@ -132,10 +154,10 @@ export class SecurityMiddleware implements NestMiddleware {
       'vbscript:',
       '%3cscript',
       '&lt;script',
-      '\\x3cscript'
+      '\\x3cscript',
     ];
-    
-    return xssPatterns.some(pattern => lowerData.includes(pattern));
+
+    return xssPatterns.some((pattern) => lowerData.includes(pattern));
   }
 
   /**
@@ -144,8 +166,8 @@ export class SecurityMiddleware implements NestMiddleware {
   private checkPathTraversal(data: string): boolean {
     const lowerData = data.toLowerCase();
     const pathPatterns = ['../', '..\\', '%2e%2e%2f', '%2e%2e%5c'];
-    
-    return pathPatterns.some(pattern => lowerData.includes(pattern));
+
+    return pathPatterns.some((pattern) => lowerData.includes(pattern));
   }
 
   /**
@@ -159,9 +181,11 @@ export class SecurityMiddleware implements NestMiddleware {
 
     const lowerAgent = userAgent.toLowerCase();
     const botKeywords = ['bot', 'crawler', 'spider', 'scraper', 'curl', 'wget'];
-    
-    if (botKeywords.some(keyword => lowerAgent.includes(keyword))) {
-      this.logger.warn(`Bot/Crawler detected: ${userAgent.substring(0, 100)} from ${ip}`);
+
+    if (botKeywords.some((keyword) => lowerAgent.includes(keyword))) {
+      this.logger.warn(
+        `Bot/Crawler detected: ${userAgent.substring(0, 100)} from ${ip}`,
+      );
     }
   }
 
@@ -212,42 +236,48 @@ export class SecurityMiddleware implements NestMiddleware {
   private sanitizeForLogging(data: any): string {
     try {
       // Limit the depth and size of data to prevent DoS
-      const sanitized = JSON.stringify(data, (key, value) => {
-        if (typeof value === 'string') {
-          // Truncate very long strings early
-          if (value.length > 500) {
-            return `[TRUNCATED:${value.length}chars]`;
-          }
-          // Remove potential sensitive data patterns using safe string methods
-          let cleaned = value;
-          const sensitivePatterns = {
-            password: '[REDACTED]',
-            token: '[REDACTED]',
-            secret: '[REDACTED]',
-            key: '[REDACTED]',
-            authorization: '[REDACTED]',
-            cookie: '[REDACTED]'
-          };
-          
-          const lowerKey = key.toLowerCase();
-          const lowerValue = value.toLowerCase();
-          
-          for (const [pattern, replacement] of Object.entries(sensitivePatterns)) {
-            if (lowerKey.includes(pattern) || lowerValue.includes(pattern)) {
-              return replacement;
+      const sanitized = JSON.stringify(
+        data,
+        (key, value) => {
+          if (typeof value === 'string') {
+            // Truncate very long strings early
+            if (value.length > 500) {
+              return `[TRUNCATED:${value.length}chars]`;
             }
+            // Remove potential sensitive data patterns using safe string methods
+            const cleaned = value;
+            const sensitivePatterns = {
+              password: '[REDACTED]',
+              token: '[REDACTED]',
+              secret: '[REDACTED]',
+              key: '[REDACTED]',
+              authorization: '[REDACTED]',
+              cookie: '[REDACTED]',
+            };
+
+            const lowerKey = key.toLowerCase();
+            const lowerValue = value.toLowerCase();
+
+            for (const [pattern, replacement] of Object.entries(
+              sensitivePatterns,
+            )) {
+              if (lowerKey.includes(pattern) || lowerValue.includes(pattern)) {
+                return replacement;
+              }
+            }
+
+            return cleaned.substring(0, 200); // Strict length limit
           }
-          
-          return cleaned.substring(0, 200); // Strict length limit
-        }
-        return value;
-      }, 2); // Limit depth to 2 levels
-      
+          return value;
+        },
+        2,
+      ); // Limit depth to 2 levels
+
       // Final safety check on total length
       if (sanitized && sanitized.length > 2000) {
         return `{"truncated": "data_too_large_${sanitized.length}_chars"}`;
       }
-      
+
       return sanitized || '{}';
     } catch {
       return '{"error": "failed_to_serialize"}';

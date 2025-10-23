@@ -10,7 +10,7 @@ import {
   TextField,
 } from '@mui/material';
 
-import { Fragment, SyntheticEvent } from 'react';
+import React, { Fragment, SyntheticEvent } from 'react';
 
 import { Controller } from 'react-hook-form';
 
@@ -22,7 +22,7 @@ interface SurveyFormProps {
 const SurveyForm = ({ list, control }: SurveyFormProps) => {
   console.log('🚀 ~ file: SurveyForm.tsx:19 ~ SurveyForm ~ list:', list);
   return (
-    <Fragment>
+    <React.Fragment>
       {list.map((item: Survey) => {
         switch (item.type) {
           case 'radiogroup':
@@ -47,7 +47,7 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
                       value === item?.choices?.[item?.choices.length - 1];
 
                     return (
-                      <Fragment>
+                      <React.Fragment>
                         <FormLabel id={item.name} sx={{ fontWeight: 'bold' }}>
                           {item.title}
                         </FormLabel>
@@ -78,7 +78,7 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
                             />
                           )}
                         </RadioGroup>
-                      </Fragment>
+                      </React.Fragment>
                     );
                   }}
                 />
@@ -112,7 +112,7 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
                       return <FormControlLabel key={choice} value={choice} control={<Checkbox />} label={choice} />;
                     })}
                   {item?.showOtherItem && (
-                    <Fragment>
+                    <React.Fragment>
                       <FormControlLabel value={item?.otherText} control={<Checkbox />} label={item?.otherText} />
                       <TextField
                         size='small'
@@ -120,7 +120,7 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
                         variant='outlined'
                         placeholder={item?.otherPlaceholder}
                       />
-                    </Fragment>
+                    </React.Fragment>
                   )}
                 </FormGroup>
               </FormControl>
@@ -143,9 +143,9 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
                       return <FormControlLabel key={choice} value={choice} control={<Radio />} label={choice} />;
                     })}
                   {item?.showOtherItem && (
-                    <Fragment>
+                    <React.Fragment>
                       <FormControlLabel value={item?.otherText} control={<Radio />} label={item?.otherText} />
-                    </Fragment>
+                    </React.Fragment>
                   )}
                 </RadioGroup>
                 {item?.otherOptions && (
@@ -161,7 +161,7 @@ const SurveyForm = ({ list, control }: SurveyFormProps) => {
             return null;
         }
       })}
-    </Fragment>
+    </React.Fragment>
   );
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CardAward from '@/views/apps/student/view/CardAward';
@@ -9,17 +9,14 @@ import { CardMenuProps } from '@/@core/components/card-statistics/types';
 import Confetti from 'react-confetti';
 import Grid from '@mui/material/Grid';
 import Icon from '@/@core/components/icon';
-import { LocalStorageService } from '@/services/localStorageService';
 import UserViewLeft from '@/views/apps/student/view/UserViewLeft';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import { useStudentStore } from '@/store/index';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { useSpring, animated } from 'react-spring';
 
-const localStorage = new LocalStorageService();
-const accessToken = localStorage.getToken() || '';
 
 const ConfettiAnimation = ({ width, height }: any) => {
   const [showConfetti, setShowConfetti] = useState(true);
@@ -79,15 +76,15 @@ const StudentOverviewPage = () => {
   const fullName = user?.account?.title + '' + user?.account?.firstName + ' ' + user?.account?.lastName;
   const classroomName = user?.student?.classroom?.name;
 
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string, accessToken as string);
+  const { isLoading, image } = useImageQuery(user?.account?.avatar as string);
 
   const getTrophyOverviewData = async () => {
-    const data = await getTrophyOverview(accessToken, user?.student?.id);
+    const data = await getTrophyOverview(user?.student?.id);
     setTrophyOverview(data);
   };
 
   const getTeacherClassroomData = async () => {
-    const data = await getTeacherClassroom(accessToken, user?.student?.classroom?.id);
+    const data = await getTeacherClassroom(user?.student?.classroom?.id);
     setTeacherClassroom(data);
   };
 
@@ -114,7 +111,7 @@ const StudentOverviewPage = () => {
         subject: 'student-check-in-report',
       },
     },
-     {
+    {
       title: 'Report',
       subtitle: 'ความดี',
       color: '#079233',
@@ -177,15 +174,16 @@ const StudentOverviewPage = () => {
   ];
 
   return (
-    <Fragment>
+    <React.Fragment>
       {trophyOverview?.totalTrophy >= 1 && <ConfettiAnimation width={confettiWidth} height={confettiHeight} />}
       <Grid container spacing={6}>
         <Grid
           size={{
             xs: 12,
             md: 5,
-            lg: 4
-          }}>
+            lg: 4,
+          }}
+        >
           <UserViewLeft
             classroomName={classroomName}
             fullName={fullName}
@@ -200,8 +198,9 @@ const StudentOverviewPage = () => {
           size={{
             xs: 12,
             md: 7,
-            lg: 8
-          }}>
+            lg: 8,
+          }}
+        >
           <Grid container spacing={6}>
             {trophyOverview?.totalTrophy >= 1 && (
               <Grid size={12}>
@@ -217,8 +216,9 @@ const StudentOverviewPage = () => {
                   size={{
                     xs: 12,
                     sm: 6,
-                    md: 4
-                  }}>
+                    md: 4,
+                  }}
+                >
                   <CardMenu
                     key={`card-menu-${index}`}
                     title={item.title}
@@ -232,7 +232,7 @@ const StudentOverviewPage = () => {
           </Grid>
         </Grid>
       </Grid>
-    </Fragment>
+    </React.Fragment>
   );
 };
 

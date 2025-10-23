@@ -22,8 +22,9 @@ const ACLPage = () => {
       <Grid
         size={{
           md: 6,
-          xs: 12
-        }}>
+          xs: 12,
+        }}
+      >
         <Card>
           <CardHeader title='Common' />
           <CardContent>
@@ -36,8 +37,9 @@ const ACLPage = () => {
         <Grid
           size={{
             md: 6,
-            xs: 12
-          }}>
+            xs: 12,
+          }}
+        >
           <Card>
             <CardHeader title='Analytics' />
             <CardContent>

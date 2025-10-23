@@ -20,8 +20,7 @@ const DialogDeleteProgram = ({ open, onClose, onConfirm, programName }: DialogDe
       <DialogTitle>ยืนยันการลบสาขาวิชา</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          คุณแน่ใจหรือไม่ที่จะลบสาขาวิชา "{programName}"? 
-          การกระทำนี้ไม่สามารถย้อนกลับได้
+          คุณแน่ใจหรือไม่ที่จะลบสาขาวิชา "{programName}"? การกระทำนี้ไม่สามารถย้อนกลับได้
         </DialogContentText>
       </DialogContent>
       <DialogActions>

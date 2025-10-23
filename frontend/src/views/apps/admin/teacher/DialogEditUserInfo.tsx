@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
 // ** MUI Imports
 import {
@@ -17,22 +17,16 @@ import {
   styled,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import Fade, { FadeProps } from '@mui/material/Fade';
 // ** React Imports
-import { Fragment, ReactElement, Ref, forwardRef } from 'react';
+import { ReactElement, Ref, forwardRef } from 'react';
 import Select from '@mui/material/Select';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FcCalendar } from 'react-icons/fc';
 import IconifyIcon from '@/@core/components/icon';
 import { PatternFormat } from 'react-number-format';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import dayjs, { Dayjs } from 'dayjs';
-import th from 'dayjs/locale/th';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-dayjs.extend(buddhistEra);
+import { zodResolver } from '@hookform/resolvers/zod';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -54,7 +48,7 @@ interface FormData {
   username: string;
   jobTitle: string;
   idCard: string;
-  birthDate: Dayjs | null;
+  birthDate: Date | null;
   status: string;
 }
 
@@ -75,41 +69,31 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
     username: data?.username,
     jobTitle: data?.jobTitle,
     idCard: data?.idCard,
-    birthDate: data?.birthDate ? dayjs(new Date(data?.birthDate)) : null,
+    birthDate: data?.birthDate ? new Date(data?.birthDate) : null,
     status: data?.status,
   };
 
-  const showErrors = (field: string, valueLen: number, min: number) => {
-    if (valueLen === 0) {
-      return `กรุณากรอก${field}`;
-    } else if (valueLen > 0 && valueLen < min) {
-      return `${field} ต้องมีอย่างน้อย ${min} ตัวอักษร`;
-    } else {
-      return '';
-    }
-  };
-
-  const schema = yup.object().shape({
-    lastName: yup
+  const schema = z.object({
+    lastName: z
       .string()
-      .min(3, (obj) => showErrors('นามสกุล', obj.value.length, obj.min))
-      .matches(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น')
-      .required(),
-    firstName: yup
+      .min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร')
+      .regex(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น'),
+    firstName: z
       .string()
-      .min(3, (obj) => showErrors('ชื่อ', obj.value.length, obj.min))
-      .matches(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น')
-      .required(),
-    username: yup
+      .min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร')
+      .regex(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น'),
+    username: z
       .string()
-      .min(3, (obj) => showErrors('ชื่อผู้ใช้งาน', obj.value.length, obj.min))
-      .matches(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษเท่านั้น')
-      .required(),
-    jobTitle: yup.string(),
-    idCard: yup.string().matches(/^[0-9]+$/, 'กรุณากรอกเฉพาะตัวเลขเท่านั้น'),
-    birthDate: yup.date().nullable(),
-    status: yup.string(),
-  });
+      .min(3, 'ชื่อผู้ใช้งานต้องมีอย่างน้อย 3 ตัวอักษร')
+      .regex(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษเท่านั้น'),
+    jobTitle: z.string(),
+    idCard: z
+      .string()
+      .regex(/^[0-9]+$/, 'กรุณากรอกเฉพาะตัวเลขเท่านั้น')
+      .or(z.literal('')),
+    birthDate: z.date().nullable(),
+    status: z.string(),
+  }) satisfies z.ZodType<FormData>;
 
   // ** Hook
   const {
@@ -119,7 +103,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(schema) as any,
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = (info: FormData) => {
@@ -154,8 +138,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='firstName'
@@ -171,8 +156,10 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                       error={Boolean(errors.firstName)}
                       helperText={errors.firstName?.message as string}
                       aria-describedby='validation-schema-first-name'
-                      InputLabelProps={{
-                        required: true,
+                      slotProps={{
+                        inputLabel: {
+                          required: true,
+                        },
                       }}
                     />
                   )}
@@ -182,8 +169,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='lastName'
@@ -196,8 +184,10 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                       id='lastName'
                       label='นามสกุล'
                       placeholder='ป้อนนามสกุล'
-                      InputLabelProps={{
-                        required: true,
+                      slotProps={{
+                        inputLabel: {
+                          required: true,
+                        },
                       }}
                       error={Boolean(errors.lastName)}
                       helperText={errors.lastName?.message as string}
@@ -220,11 +210,13 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                       id='lastName'
                       label='ขื่อผู้ใช้งาน'
                       placeholder='ป้อนชื่อผู้ใช้งาน'
-                      InputLabelProps={{
-                        required: true,
-                      }}
-                      InputProps={{
-                        readOnly: true,
+                      slotProps={{
+                        inputLabel: {
+                          required: true,
+                        },
+                        input: {
+                          readOnly: true,
+                        },
                       }}
                       disabled
                       error={Boolean(errors.username)}
@@ -238,8 +230,9 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='idCard'
@@ -267,34 +260,34 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='birthDate'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={th}>
-                      <DatePicker
-                        label='วันเกิด'
-                        value={value}
-                        onChange={onChange}
-                        format='D MMMM BBBB'
-                        maxDate={dayjs(new Date())}
-                        slots={{
-                          textField: TextField,
-                          openPickerIcon: () => <FcCalendar />
-                        }}
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            inputProps: {
-                              placeholder: 'วัน/เดือน/ปี',
-                            }
-                          }
-                        }}
-                      />
-                    </LocalizationProvider>
+                    <ThaiDatePicker
+                      label='วันเกิด'
+                      value={value ? new Date(value) : null}
+                      onChange={(newValue) => {
+                        onChange(newValue);
+                      }}
+                      format='d MMMM yyyy'
+                      maxDate={new Date()}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          inputProps: {
+                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                          },
+                          input: {
+                            endAdornment: <FcCalendar />,
+                          },
+                        },
+                      }}
+                    />
                   )}
                 />
               </FormControl>
@@ -303,14 +296,15 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='jobTitle'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <>
                       <InputLabel>ตำแหน่ง</InputLabel>
                       <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
                         <MenuItem value=''>
@@ -326,7 +320,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                         <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
                         <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
                       </Select>
-                    </Fragment>
+                    </>
                   )}
                 />
               </FormControl>
@@ -334,14 +328,15 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
             <Grid
               size={{
                 sm: 6,
-                xs: 12
-              }}>
+                xs: 12,
+              }}
+            >
               <FormControl fullWidth>
                 <Controller
                   name='status'
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <Fragment>
+                    <>
                       <InputLabel>สถานะบัญชีใช้งาน</InputLabel>
                       <Select label='สถานะบัญชีใช้งาน' defaultValue={value} value={value} onChange={onChange}>
                         <MenuItem value=''>
@@ -350,7 +345,7 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                         <MenuItem value='true'>เปิดใช้งาน</MenuItem>
                         <MenuItem value='false'>ปิดใช้งาน</MenuItem>
                       </Select>
-                    </Fragment>
+                    </>
                   )}
                 />
               </FormControl>

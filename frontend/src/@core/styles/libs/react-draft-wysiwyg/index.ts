@@ -44,13 +44,11 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
           right: '10%',
           borderBottomColor: theme.palette.text.disabled,
         },
-        ...(theme.palette.mode === 'dark'
-          ? {
-              '& img': {
-                filter: 'invert(1)',
-              },
-            }
-          : {}),
+        ...theme.applyStyles('dark', {
+          '& img': {
+            filter: 'invert(1)',
+          },
+        }),
       },
       '& .rdw-embedded-modal-size-input, & .rdw-image-modal-size-input': {
         width: '60%',

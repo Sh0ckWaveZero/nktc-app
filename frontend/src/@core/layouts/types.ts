@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React from 'react';
 import { Settings } from '@/@core/context/settingsContext';
 
 export type Layout = 'vertical' | 'horizontal' | 'blank' | 'blankWithAppBar';
@@ -52,30 +52,30 @@ export type HorizontalNavItemsType = (NavLink | NavGroup)[];
 export type LayoutProps = {
   hidden: boolean;
   settings: Settings;
-  children: ReactNode;
-  menuLockedIcon?: ReactNode;
-  menuUnlockedIcon?: ReactNode;
+  children: React.ReactNode;
+  menuLockedIcon?: React.ReactNode;
+  menuUnlockedIcon?: React.ReactNode;
   verticalNavItems?: VerticalNavItemsType;
-  scrollToTop?: (props?: any) => ReactNode;
+  scrollToTop?: (props?: any) => React.ReactNode;
   saveSettings: (values: Settings) => void;
-  footerContent?: (props?: any) => ReactNode;
+  footerContent?: (props?: any) => React.ReactNode;
   horizontalNavItems?: HorizontalNavItemsType;
-  verticalAppBarContent?: (props?: any) => ReactNode;
-  verticalNavMenuContent?: (props?: any) => ReactNode;
-  verticalNavMenuBranding?: (props?: any) => ReactNode;
-  horizontalAppBarContent?: (props?: any) => ReactNode;
-  horizontalAppBarBranding?: (props?: any) => ReactNode;
-  horizontalNavMenuContent?: (props?: any) => ReactNode;
-  afterVerticalNavMenuContent?: (props?: any) => ReactNode;
-  beforeVerticalNavMenuContent?: (props?: any) => ReactNode;
+  verticalAppBarContent?: (props?: any) => React.ReactNode;
+  verticalNavMenuContent?: (props?: any) => React.ReactNode;
+  verticalNavMenuBranding?: (props?: any) => React.ReactNode;
+  horizontalAppBarContent?: (props?: any) => React.ReactNode;
+  horizontalAppBarBranding?: (props?: any) => React.ReactNode;
+  horizontalNavMenuContent?: (props?: any) => React.ReactNode;
+  afterVerticalNavMenuContent?: (props?: any) => React.ReactNode;
+  beforeVerticalNavMenuContent?: (props?: any) => React.ReactNode;
 };
 
 export type BlankLayoutProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 export type BlankLayoutWithAppBarProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 export type AppBarSearchType = {

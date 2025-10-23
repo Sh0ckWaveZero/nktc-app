@@ -1,12 +1,11 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Typography, styled, Tooltip, Button } from '@mui/material';
+import { Avatar, Box, Card, CardContent, CardHeader, Typography, Tooltip, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline';
+import Timeline from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
 import { CircularProgress } from '@mui/material';
-import { LocalStorageService } from '@/services/localStorageService';
 import { calculateTimeAgo } from '@/utils/datetime';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import IconifyIcon from '@/@core/components/icon';
 
 interface Props {
@@ -14,11 +13,13 @@ interface Props {
   user: any;
   onDeleted?: (id: string) => void;
 }
-const localStorageService = new LocalStorageService();
-const storedToken = localStorageService.getToken() || '';
 
-const getImage = (image: string) => {
-  const { isLoading, image: badnessImage } = useGetImage(image, storedToken);
+interface ImageDisplayProps {
+  image: string;
+}
+
+const ImageDisplay = ({ image }: ImageDisplayProps) => {
+  const { isLoading, image: badnessImage } = useImageQuery(image);
 
   return isLoading ? (
     <CircularProgress />
@@ -40,21 +41,6 @@ const getImage = (image: string) => {
   );
 };
 
-// Styled Timeline component
-const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
-  margin: 0,
-  padding: 0,
-  marginLeft: theme.spacing(0.75),
-  '& .MuiTimelineItem-root': {
-    '&:before': {
-      display: 'none',
-    },
-    '&:last-child': {
-      minHeight: 60,
-    },
-  },
-}));
-
 const TimelineBadness = ({ info, user, onDeleted }: Props) => {
   return (
     <Grid container spacing={6}>
@@ -62,12 +48,24 @@ const TimelineBadness = ({ info, user, onDeleted }: Props) => {
         <Card>
           <CardHeader title='รายละเอียคความประพฤติ' />
           <CardContent>
+            {/* @ts-expect-error - React 19 type compatibility issue with MUI Lab */}
             <Timeline
               sx={{
+                margin: 0,
+                padding: 0,
+                marginLeft: 0.75,
                 paddingBottom: 3,
+                '& .MuiTimelineItem-root': {
+                  '&:before': {
+                    display: 'none',
+                  },
+                  '&:last-child': {
+                    minHeight: 60,
+                  },
+                },
               }}
             >
-              {info.map((item, index) => (
+              {info.map((item) => (
                 <TimelineItem key={item?.id}>
                   <TimelineSeparator>
                     <TimelineDot color='error' />
@@ -109,7 +107,9 @@ const TimelineBadness = ({ info, user, onDeleted }: Props) => {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <Box sx={{ width: 200, height: 'auto' }}>{getImage(item?.image)}</Box>
+                      <Box sx={{ width: 200, height: 'auto' }}>
+                        <ImageDisplay image={item?.image} />
+                      </Box>
                       {user?.role === 'Admin' && (
                         <Box sx={{ ml: 2 }}>
                           <Tooltip title='ลบการบันทึกความประพฤติ'>

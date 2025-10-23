@@ -1,14 +1,13 @@
 'use client';
 
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
-import { Fragment, SyntheticEvent, useState } from 'react';
+import React, { Fragment, SyntheticEvent, useState } from 'react';
 
 import { Avatar, CircularProgress } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import CustomAvatar from '@/@core/components/mui/avatar';
 import Divider from '@mui/material/Divider';
-import { LocalStorageService } from '@/services/localStorageService';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@/@core/context/settingsContext';
@@ -16,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import { getInitials } from '@/@core/utils/get-initials';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
-import useGetImage from '@/hooks/useGetImage';
+import useImageQuery from '@/hooks/useImageQuery';
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -32,8 +31,6 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }));
 
-const localStorageService = new LocalStorageService();
-
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props;
@@ -47,9 +44,8 @@ const UserDropdown = (props: Props) => {
 
   // ** Vars
   const { direction } = settings;
-  const storedToken = localStorageService.getToken()!;
 
-  const { isLoading, image } = useGetImage(user?.account?.avatar as string, storedToken);
+  const { isLoading, image } = useImageQuery(user?.account?.avatar as string);
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget);
@@ -113,11 +109,11 @@ const UserDropdown = (props: Props) => {
   };
 
   return (
-    <Fragment>
+    <React.Fragment>
       <Badge
         overlap='circular'
         onClick={handleDropdownOpen}
-        sx={{ ml: 2, cursor: 'pointer' }}
+        sx={{ ml: 2, mr: 3, cursor: 'pointer' }}
         badgeContent={<BadgeContentSpan />}
         anchorOrigin={{
           vertical: 'bottom',
@@ -200,7 +196,7 @@ const UserDropdown = (props: Props) => {
           ออกจากระบบ
         </MenuItem>
       </Menu>
-    </Fragment>
+    </React.Fragment>
   );
 };
 
