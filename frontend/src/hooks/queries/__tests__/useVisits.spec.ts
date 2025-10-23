@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   useVisits,
   useVisit,
@@ -10,7 +11,7 @@ import {
 } from '../useVisits';
 import httpClient from '@/@core/utils/http';
 
-jest.mock('@/@core/utils/http');
+vi.mock('@/@core/utils/http');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,14 +27,14 @@ const wrapper = (props: any) => {
 
 describe('useVisits', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     queryClient.clear();
   });
 
   describe('useVisits', () => {
     it('should fetch visits list', async () => {
       const mockData = [{ id: '1', studentId: 'S1', visitDate: new Date() }];
-      (httpClient.get as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useVisits(), { wrapper });
 
@@ -48,7 +49,7 @@ describe('useVisits', () => {
   describe('useVisit', () => {
     it('should fetch visit by ID', async () => {
       const mockData = { id: '1', studentId: 'S1', visitDate: new Date() };
-      (httpClient.get as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useVisit('1'), { wrapper });
 
@@ -69,7 +70,7 @@ describe('useVisits', () => {
   describe('useStudentVisits', () => {
     it('should fetch visits for student', async () => {
       const mockData = [{ id: '1', studentId: 'S1', visitDate: new Date() }];
-      (httpClient.get as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useStudentVisits('S1'), { wrapper });
 
@@ -90,7 +91,7 @@ describe('useVisits', () => {
   describe('useCreateVisit', () => {
     it('should create visit record', async () => {
       const mockData = { id: '1', studentId: 'S1' };
-      (httpClient.post as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useCreateVisit(), { wrapper });
 
@@ -107,7 +108,7 @@ describe('useVisits', () => {
   describe('useUpdateVisit', () => {
     it('should update visit record', async () => {
       const mockData = { id: '1', studentId: 'S1' };
-      (httpClient.put as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.put).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useUpdateVisit(), { wrapper });
 
@@ -121,7 +122,7 @@ describe('useVisits', () => {
 
   describe('useDeleteVisit', () => {
     it('should delete visit record', async () => {
-      (httpClient.delete as jest.Mock).mockResolvedValue({ data: { success: true } });
+      vi.mocked(httpClient.delete).mockResolvedValue({ data: { success: true } });
 
       const { result } = renderHook(() => useDeleteVisit(), { wrapper });
 

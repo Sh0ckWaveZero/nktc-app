@@ -91,7 +91,7 @@ export const useCreateGoodnessRecord = () => {
 
   return useMutation({
     mutationFn: async (params: any) => {
-      const { data } = await httpClient.post(authConfig.goodnessIndividualEndpoint, params);
+      const { data } = await httpClient.post(authConfig.goodnessIndividualEndpoint!, params);
       return data;
     },
     onSuccess: () => {

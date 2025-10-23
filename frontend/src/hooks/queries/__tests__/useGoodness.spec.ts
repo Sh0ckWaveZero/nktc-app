@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   useGoodnessRecords,
   useStudentGoodnessRecords,
@@ -9,7 +10,7 @@ import {
 } from '../useGoodness';
 import httpClient from '@/@core/utils/http';
 
-jest.mock('@/@core/utils/http');
+vi.mock('@/@core/utils/http');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,14 +26,14 @@ const wrapper = (props: any) => {
 
 describe('useGoodness', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     queryClient.clear();
   });
 
   describe('useGoodnessRecords', () => {
     it('should fetch goodness records', async () => {
       const mockData = [{ id: '1', studentId: 'S1', goodDate: new Date() }];
-      (httpClient.post as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useGoodnessRecords(), { wrapper });
 
@@ -47,7 +48,7 @@ describe('useGoodness', () => {
   describe('useStudentGoodnessRecords', () => {
     it('should fetch goodness records for student', async () => {
       const mockData = [{ id: '1', studentId: 'S1', goodDate: new Date() }];
-      (httpClient.get as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useStudentGoodnessRecords('S1'), { wrapper });
 
@@ -68,7 +69,7 @@ describe('useGoodness', () => {
   describe('useGoodnessSummary', () => {
     it('should fetch goodness summary', async () => {
       const mockData = { totalRecords: 10, average: 8.5 };
-      (httpClient.post as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useGoodnessSummary({ classroomId: 'C1' }), { wrapper });
 
@@ -83,7 +84,7 @@ describe('useGoodness', () => {
   describe('useCreateGoodnessRecord', () => {
     it('should create goodness record', async () => {
       const mockData = { id: '1', studentId: 'S1' };
-      (httpClient.post as jest.Mock).mockResolvedValue({ data: mockData });
+      vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useCreateGoodnessRecord(), { wrapper });
 
@@ -99,7 +100,7 @@ describe('useGoodness', () => {
 
   describe('useDeleteGoodnessRecord', () => {
     it('should delete goodness record', async () => {
-      (httpClient.delete as jest.Mock).mockResolvedValue({ data: { success: true } });
+      vi.mocked(httpClient.delete).mockResolvedValue({ data: { success: true } });
 
       const { result } = renderHook(() => useDeleteGoodnessRecord(), { wrapper });
 

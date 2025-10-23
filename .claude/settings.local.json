@@ -9,7 +9,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(bun run test:*)",
-      "Bash(tsc:*)"
+      "Bash(tsc:*)",
+      "Bash(bun install:*)",
+      "Bash(npm run test:*)"
     ],
     "deny": []
   }
