@@ -40,12 +40,22 @@ backend/build/
 *.buildinfo
 
 # ===== ENVIRONMENT & CONFIG =====
+# Never commit any .env files - always use .env.example as template
 .env
 .env.local
+.env.development
 .env.development.local
-.env.test.local
+.env.production
 .env.production.local
+.env.test
+.env.test.local
 .env*.local
+# Workspace specific env files
+backend/.env
+backend/.env.dev
+backend/.env.prod
+frontend/.env
+frontend/.env.local
 
 # ===== LOGS =====
 logs/
