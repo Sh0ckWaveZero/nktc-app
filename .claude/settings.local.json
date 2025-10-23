@@ -3,7 +3,10 @@
     "allow": [
       "Bash(git diff-index:*)",
       "Bash(git rm:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(bun run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
