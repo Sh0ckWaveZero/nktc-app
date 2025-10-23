@@ -595,7 +595,6 @@ const TabTeacherAccount = () => {
                 variant='contained'
                 sx={{ mr: 3.5 }}
                 type='submit'
-                disabled={!isDirty || !isValid}
               >
                 บันทึกการเปลี่ยนแปลง
               </Button>
