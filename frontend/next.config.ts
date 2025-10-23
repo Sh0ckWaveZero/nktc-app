@@ -16,7 +16,20 @@ const nextConfig = {
 
   // Image Optimization
   images: {
-    domains: ['localhost', 'nktc-stu.com', 'cdn.nktc-stu.com'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'nktc-stu.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.nktc-stu.com',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
@@ -44,7 +57,7 @@ const nextConfig = {
     ];
   },
 
-  // Experimental Features for Next.js 15
+  // Experimental Features for Next.js 16
   experimental: {
     // Optimize package imports for better performance
     optimizePackageImports: [
@@ -83,7 +96,9 @@ const nextConfig = {
     ],
   },
 
-  // Turbopack Configuration
+  // Turbopack Configuration (Next.js 16+)
+  // Turbopack is now the default bundler
+  // Provides 2-5x faster production builds, 10x faster Fast Refresh
   turbopack: {
     resolveAlias: {
       '@': './src',
@@ -105,11 +120,6 @@ const nextConfig = {
   // TypeScript Configuration
   typescript: {
     ignoreBuildErrors: true,
-  },
-
-  // ESLint Configuration
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 
   // Environment Variables

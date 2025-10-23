@@ -43,7 +43,10 @@
       "Bash(xargs kill:*)",
       "Bash(npx eslint:*)",
       "Bash(cut:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(git add:*)",
+      "Bash(node:*)",
+      "Bash(bun install:*)"
     ],
     "deny": []
   }
