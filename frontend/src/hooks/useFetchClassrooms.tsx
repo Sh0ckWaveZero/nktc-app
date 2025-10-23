@@ -1,34 +1,17 @@
-import { useEffect, useState } from 'react';
-
-import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
-import { useClassroomStore } from '@/store/index';
+import { useClassrooms } from '@/hooks/queries';
 
+/**
+ * Legacy hook wrapper - uses React Query under the hood
+ * @deprecated Use useClassrooms() directly from @/hooks/queries
+ */
 const useFetchClassrooms = () => {
-  const { fetchClassroom }: any = useClassroomStore(
-    (state: any) => ({
-      fetchClassroom: state.fetchClassroom,
-    }),
-    shallow,
-  );
+  const { data: classrooms = [], isLoading: classroomLoading, error } = useClassrooms();
 
-  const [classrooms, setClassrooms] = useState<any>([]);
-  const [classroomLoading, setClassroomLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        setClassroomLoading(true);
-        const response = await fetchClassroom();
-        setClassrooms(response);
-        setClassroomLoading(false);
-      } catch (error) {
-        toast.error('เกิดข้อผิดพลาด');
-        setClassroomLoading(false);
-      }
-    };
-    fetch();
-  }, []);
+  // Show error toast if query fails
+  if (error) {
+    toast.error('เกิดข้อผิดพลาด');
+  }
 
   return [classrooms, classroomLoading];
 };

@@ -27,3 +27,18 @@ export * from './useCheckIn';
 
 // Classrooms hooks
 export * from './useClassrooms';
+
+// Teachers hooks
+export * from './useTeachers';
+
+// Goodness Records hooks
+export * from './useGoodness';
+
+// Badness Records hooks
+export * from './useBadness';
+
+// Visits hooks
+export * from './useVisits';
+
+// Reports hooks
+export * from './useReports';

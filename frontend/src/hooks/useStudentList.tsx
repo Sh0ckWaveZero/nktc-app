@@ -1,29 +1,19 @@
-import { useEffect, useState } from 'react';
-
-import { shallow } from 'zustand/shallow';
-import { useStudentStore } from '@/store/index';
 import toast from 'react-hot-toast';
+import { useStudentsSearch } from '@/hooks/queries';
 
+/**
+ * Legacy hook wrapper - uses React Query under the hood
+ * @deprecated Use useStudentsSearch() directly from @/hooks/queries
+ */
 const useStudentList = (debouncedValue: string) => {
-  const { studentsList }: any = useStudentStore((state: any) => ({ studentsList: state.studentsList }), shallow);
-  const [loading, setLoading] = useState(false);
-  const [students, setStudents] = useState([]);
+  const { data: students = [], isLoading: loading, error } = useStudentsSearch({
+    q: debouncedValue,
+  });
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoading(true);
-        const result = await studentsList(debouncedValue);
-        setStudents(result || []);
-        setLoading(false);
-      } catch (error: any) {
-        toast.error(error?.message || 'เกิดข้อผิดพลาด');
-        setStudents([]);
-        setLoading(false);
-      }
-    };
-    fetchStudents();
-  }, [debouncedValue]);
+  // Show error toast if query fails
+  if (error) {
+    toast.error((error as any)?.message || 'เกิดข้อผิดพลาด');
+  }
 
   return { loading, students };
 };
