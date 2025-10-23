@@ -26,18 +26,17 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { ThailandAddressTypeahead, ThailandAddressValue, ThailandAddressValueHelper } from '@/@core/styles/libs/thailand-address';
-import { useClassroomStore, useStudentStore } from '@/store/index';
+import { useCreateStudent } from '@/hooks/queries/useStudents';
+import { useClassrooms } from '@/hooks/queries/useClassrooms';
 
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
 import Link from 'next/link';
 import { handleKeyDown } from '@/utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
-import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffectOnce } from '@/hooks/userCommon';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -131,37 +130,30 @@ const StudentAddPage = () => {
   const router = useRouter();
   const { user } = useAuth();
 
+  // React Query hooks
+  const { data: classroomsData = [], isLoading: isClassroomLoading } = useClassrooms();
+  const { mutate: createStudent, isPending: isCreating } = useCreateStudent();
+
   // ** State
   const [classroom, setClassroom] = useState([initialData.classroom]);
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [inputValue, setInputValue] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValueHelper.empty());
 
-  const { fetchClassroom }: any = useClassroomStore(
-    (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
-    shallow,
-  );
-  const { createStudentProfile }: any = useStudentStore(
-    (state) => ({ createStudentProfile: state.createStudentProfile }),
-    shallow,
-  );
+  // Filter classrooms based on user role
+  useEffect(() => {
+    if (!classroomsData) return;
 
-  useEffectOnce(() => {
-    (async () => {
-      setLoading(true);
-      fetchClassroom().then(async (res: any) => {
-        if (user?.role?.toLowerCase() === 'admin') {
-          setClassroom(await res);
-        } else {
-          const teacherClassroom = await res.filter((item: any) => user?.teacherOnClassroom?.includes(item.id));
-          setClassroom(teacherClassroom);
-        }
-        setLoading(false);
-      });
-    })();
-  });
+    if (user?.role?.toLowerCase() === 'admin') {
+      setClassroom(classroomsData);
+    } else {
+      const teacherClassroom = classroomsData.filter((item: any) =>
+        user?.teacherOnClassroom?.includes(item.id)
+      );
+      setClassroom(teacherClassroom);
+    }
+  }, [classroomsData, user]);
 
   const { imageCompressed, handleInputImageChange } = useImageCompression();
 
@@ -185,7 +177,7 @@ const StudentAddPage = () => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: any, e: any) => {
+  const onSubmit = (data: any, e: any) => {
     e.preventDefault();
 
     const { classroom: c, ...rest } = data;
@@ -198,15 +190,19 @@ const StudentAddPage = () => {
     };
 
     const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    createStudentProfile(user?.id, student).then((res: any) => {
-      if (res?.status === 201) {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
-      } else {
-        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
-      }
-    });
 
-    router.push(`/apps/student/list?classroom=${c.id}`);
+    createStudent(
+      { userId: user?.id || '', params: student },
+      {
+        onSuccess: () => {
+          toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+          router.push(`/apps/student/list?classroom=${c.id}`);
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.error || 'เกิดข้อผิดพลาด', { id: toastId });
+        },
+      }
+    );
   };
 
   const addressInputStyle = {
@@ -460,7 +456,7 @@ const StudentAddPage = () => {
                             limitTags={15}
                             value={value}
                             options={classroom}
-                            loading={loading}
+                            loading={isClassroomLoading}
                             onChange={(_, newValue: any) => onChange(newValue)}
                             getOptionLabel={(option: any) => option.name || ''}
                             isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
@@ -696,7 +692,7 @@ const StudentAddPage = () => {
                             />
                           </Grid>
                         </Grid>
-                        <style jsx global>{`
+                        <style>{`
                           .province-input:focus:not(:focus-visible) {
                             outline: none;
                           }

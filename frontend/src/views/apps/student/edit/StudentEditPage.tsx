@@ -23,7 +23,7 @@ import { useState, ChangeEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
-import httpClient from '@/@core/utils/http';
+import { useStudent, useUpdateStudent } from '@/hooks/queries/useStudents';
 
 interface StudentEditPageProps {
   id: string;
@@ -58,8 +58,11 @@ const ImgStyled = styled('img')(({ theme }) => ({
 
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
-  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+
+  // React Query hooks
+  const { data: studentData, isLoading } = useStudent(id);
+  const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent();
 
   const {
     control,
@@ -80,56 +83,42 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
     },
   });
 
+  // Populate form when student data loads
   useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        setLoading(true);
-        const response = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`);
+    if (!studentData) return;
 
-        const data = response.data;
-        reset({
-          studentId: data.studentId || '',
-          title: data.title || '',
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          idCard: data.idCard || '',
-          phone: data.phone || '',
-          status: data.status || 'normal',
-        });
+    reset({
+      studentId: studentData.studentId || '',
+      title: studentData.title || '',
+      firstName: studentData.firstName || '',
+      lastName: studentData.lastName || '',
+      idCard: studentData.idCard || '',
+      phone: studentData.phone || '',
+      status: studentData.status || 'normal',
+    });
 
-        // Load existing profile picture if available
-        if (data.avatar) {
-          setImgSrc(data.avatar);
-        } else {
-          // Use default avatar if no avatar is set
-          setImgSrc('/images/avatars/1.png');
-        }
-      } catch (error) {
-        console.error('Error fetching student data:', error);
-        toast.error('ไม่สามารถโหลดข้อมูลนักเรียนได้');
-        // Set default avatar on error
-        setImgSrc('/images/avatars/1.png');
-      } finally {
-        setLoading(false);
+    // Load existing profile picture if available
+    if (studentData.avatar) {
+      setImgSrc(studentData.avatar);
+    } else {
+      setImgSrc('/images/avatars/1.png');
+    }
+  }, [studentData, reset]);
+
+  const onSubmit = (data: FormData) => {
+    updateStudent(
+      { studentId: id, params: data },
+      {
+        onSuccess: () => {
+          toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
+          router.back();
+        },
+        onError: (error) => {
+          console.error('Error updating student:', error);
+          toast.error('ไม่สามารถแก้ไขข้อมูลนักเรียนได้');
+        },
       }
-    };
-
-    if (id) {
-      fetchStudentData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      await httpClient.put(`${process.env.NEXT_PUBLIC_API_URL}/students/profile/${id}`, data);
-
-      toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
-      router.back();
-    } catch (error) {
-      console.error('Error updating student:', error);
-      toast.error('ไม่สามารถแก้ไขข้อมูลนักเรียนได้');
-    }
+    );
   };
 
   const onChange = (file: ChangeEvent) => {
@@ -141,7 +130,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>

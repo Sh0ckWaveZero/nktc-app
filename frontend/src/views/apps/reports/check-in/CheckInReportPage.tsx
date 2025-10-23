@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { HiFlag } from 'react-icons/hi';
 import { useAuth } from '@/hooks/useAuth';
-import { apiService } from '@/services/apiService';
+import { useTeacherClassroomsAndStudents, useSaveCheckIn } from '@/hooks/queries/useCheckIn';
 import toast from 'react-hot-toast';
 import StudentCard from './components/StudentCard';
 import MobilePaginationControls from './components/MobilePaginationControls';
@@ -26,6 +26,12 @@ const CheckInReportPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const isTablet = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // React Query hooks
+  const { data: classroomData, isLoading: classroomLoading } = useTeacherClassroomsAndStudents(
+    auth.user?.teacher?.id || ''
+  );
+  const { mutate: saveCheckIn, isPending: isSaving } = useSaveCheckIn();
 
   // Memoize responsive values to prevent unnecessary re-renders
   const responsiveConfig = useMemo(
@@ -58,7 +64,6 @@ const CheckInReportPage = () => {
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [mobilePage, setMobilePage] = useState<number>(0);
@@ -78,56 +83,39 @@ const CheckInReportPage = () => {
   const [isInternshipCheck, setIsInternshipCheck] = useState<any>([]);
   const [isInternshipCheckAll, setIsInternshipCheckAll] = useState(false);
 
-  // ดึงข้อมูลห้องเรียนของครู
+  // Initialize classroom data from query
   useEffect(() => {
-    const fetchData = async () => {
-      if (!auth.user?.teacher?.id) return;
+    if (!classroomData) return;
 
-      try {
-        setLoading(true);
-        const classroomData = await apiService.getTeacherClassroomsAndStudents(auth.user.teacher.id);
+    const actualData = classroomData.data || classroomData;
 
-        // Handle both direct data and nested data structure
-        const actualData = classroomData.data || classroomData;
+    if (!actualData || !actualData.classrooms || !actualData.classrooms.length) {
+      return;
+    }
 
-        if (!actualData || !actualData.classrooms || !actualData.classrooms.length) {
-          setLoading(false);
-          return;
-        }
+    const [classroom] = actualData.classrooms;
 
-        const [classroom] = actualData.classrooms;
+    if (!classroom) {
+      return;
+    }
 
-        if (!classroom) {
-          setLoading(false);
-          return;
-        }
-
-        if (!classroom.students || classroom.students.length === 0) {
-          setDefaultClassroom(classroom);
-          setClassrooms(actualData.classrooms);
-          setCurrentStudents([]);
-          setPageSize(10); // Default page size when no students
-          setCurrentPage(0); // Reset to first page
-          setMobilePage(0); // Reset mobile page
-        } else {
-          const studentCount = classroom.students?.length || 0;
-          setDefaultClassroom(classroom);
-          setClassrooms(actualData.classrooms);
-          setCurrentStudents(classroom.students || []);
-          setPageSize(studentCount > 0 ? Math.min(studentCount, 10) : 10);
-          setCurrentPage(0); // Reset to first page when loading new data
-          setMobilePage(0); // Reset mobile page when loading new data
-        }
-      } catch (error) {
-        console.error('Error fetching teacher classrooms:', error);
-        toast.error('ไม่สามารถโหลดข้อมูลห้องเรียนได้');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [auth.user?.teacher?.id]);
+    if (!classroom.students || classroom.students.length === 0) {
+      setDefaultClassroom(classroom);
+      setClassrooms(actualData.classrooms);
+      setCurrentStudents([]);
+      setPageSize(10);
+      setCurrentPage(0);
+      setMobilePage(0);
+    } else {
+      const studentCount = classroom.students?.length || 0;
+      setDefaultClassroom(classroom);
+      setClassrooms(actualData.classrooms);
+      setCurrentStudents(classroom.students || []);
+      setPageSize(studentCount > 0 ? Math.min(studentCount, 10) : 10);
+      setCurrentPage(0);
+      setMobilePage(0);
+    }
+  }, [classroomData]);
 
   // Handle classroom selection change
   const handleSelectChange = async (event: any) => {
@@ -420,49 +408,46 @@ const CheckInReportPage = () => {
     }
   };
 
-  const handleSaveCheckIn = async () => {
+  const handleSaveCheckIn = () => {
     if (!auth.user?.teacher?.id || !defaultClassroom?.id) {
       toast.error('กรุณาเลือกห้องเรียนและเข้าสู่ระบบ');
       return;
     }
 
-    try {
-      setLoading(true);
+    const checkInData = {
+      teacherId: auth.user.teacher.id,
+      classroomId: defaultClassroom.id,
+      checkInDate: checkInDate,
+      present: isPresentCheck,
+      absent: isAbsentCheck,
+      late: isLateCheck,
+      leave: isLeaveCheck,
+      internship: isInternshipCheck,
+    };
 
-      const checkInData = {
-        teacherId: auth.user.teacher.id,
-        classroomId: defaultClassroom.id,
-        checkInDate: checkInDate,
-        present: isPresentCheck,
-        absent: isAbsentCheck,
-        late: isLateCheck,
-        leave: isLeaveCheck,
-        internship: isInternshipCheck,
-      };
+    console.log('Check-in Data:', checkInData);
 
-      console.log('Check-in Data:', checkInData);
+    saveCheckIn(checkInData, {
+      onSuccess: () => {
+        // Clear all selections after saving
+        setIsPresentCheck([]);
+        setIsPresentCheckAll(false);
+        setIsAbsentCheck([]);
+        setIsAbsentCheckAll(false);
+        setIsLateCheck([]);
+        setIsLateCheckAll(false);
+        setIsLeaveCheck([]);
+        setIsLeaveCheckAll(false);
+        setIsInternshipCheck([]);
+        setIsInternshipCheckAll(false);
 
-      await apiService.saveCheckInData(checkInData);
-
-      // Clear all selections after saving
-      setIsPresentCheck([]);
-      setIsPresentCheckAll(false);
-      setIsAbsentCheck([]);
-      setIsAbsentCheckAll(false);
-      setIsLateCheck([]);
-      setIsLateCheckAll(false);
-      setIsLeaveCheck([]);
-      setIsLeaveCheckAll(false);
-      setIsInternshipCheck([]);
-      setIsInternshipCheckAll(false);
-
-      toast.success('บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว');
-    } catch (error) {
-      console.error('Error saving check-in data:', error);
-      toast.error('ไม่สามารถบันทึกข้อมูลการเช็คชื่อได้');
-    } finally {
-      setLoading(false);
-    }
+        toast.success('บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว');
+      },
+      onError: (error) => {
+        console.error('Error saving check-in data:', error);
+        toast.error('ไม่สามารถบันทึกข้อมูลการเช็คชื่อได้');
+      },
+    });
   };
 
   // Mobile pagination functions
@@ -591,7 +576,7 @@ const CheckInReportPage = () => {
                         isInternshipCheck.length ===
                         (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0
                     }
-                    loading={loading}
+                    loading={isSaving}
                     formSize={responsiveConfig.formSize}
                     inputFontSize={responsiveConfig.inputFontSize}
                     inputPadding={responsiveConfig.inputPadding}
@@ -721,7 +706,7 @@ const CheckInReportPage = () => {
                 <Box sx={{ flex: 1, overflow: 'auto' }}>
                   <CheckInDataGrid
                     students={currentStudents}
-                    loading={loading}
+                    loading={classroomLoading}
                     pageSize={pageSize}
                     currentPage={currentPage}
                     isPresentCheckAll={isPresentCheckAll}

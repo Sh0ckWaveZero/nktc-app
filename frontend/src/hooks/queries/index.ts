@@ -21,3 +21,9 @@ export * from './useUser';
 
 // User Projects hooks
 export * from './useUserProjects';
+
+// Check-in hooks
+export * from './useCheckIn';
+
+// Classrooms hooks
+export * from './useClassrooms';
