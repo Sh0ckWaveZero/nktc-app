@@ -135,6 +135,10 @@
   "prisma": {
     "schema": "./src/database/prisma/schema.prisma"
   },
+  "resolutions": {
+    "tmp": "^0.2.5",
+    "validator": "^13.15.15"
+  },
   "importSort": {
     ".js, .jsx, .es6, .es": {
       "parser": "babylon",
