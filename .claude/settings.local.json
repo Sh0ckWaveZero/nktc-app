@@ -19,7 +19,15 @@
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
       "Bash(awk:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(npx eslint --no-fix \"src/**/*.{js,jsx,ts,tsx}\")",
+      "Bash(npx eslint:*)",
+      "Bash(bun audit:*)",
+      "Bash(npm audit:*)",
+      "Bash(bun update:*)",
+      "Bash(bun pm:*)",
+      "Bash(npm view:*)",
+      "Bash(bun add:*)"
     ],
     "deny": []
   }
