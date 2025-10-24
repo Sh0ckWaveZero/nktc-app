@@ -25,9 +25,9 @@ import {
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import React, { Fragment, MouseEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, MouseEvent, ReactElement, useCallback, useDeferredValue, useEffect, useState } from 'react';
 import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index';
-import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
+import { useEffectOnce } from '@/hooks/userCommon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 
 import AddTeacherDrawer from '@/views/apps/teacher/list/AddUserDrawer';
@@ -173,7 +173,7 @@ const TeacherListPage = () => {
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
   const [addClassroomOpen, setAddClassroomOpen] = useState<boolean>(false);
   const [currentData, setCurrentData] = useState<any>(null);
-  const debouncedValue = useDebounce<string>(value, 500);
+  const deferredValue = useDeferredValue(value);
   const [openDialogEdit, setOpenDialogEdit] = useState(false);
   const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
@@ -231,7 +231,7 @@ const TeacherListPage = () => {
       setIsEdit(false);
       setTeachers([]);
     };
-  }, [debouncedValue, isEdit, isAddUser, isDelete]);
+  }, [deferredValue, isEdit, isAddUser, isDelete]);
 
   const defaultValue: any = currentData
     ? classroom.filter((item: any) => currentData.teacherOnClassroom.includes(item.id))

@@ -55,12 +55,6 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'student-page',
         },
-        {
-          title: 'ดูข้อมูล',
-          path: '/apps/user/view',
-          action: 'read',
-          subject: 'view-user-page',
-        },
       ],
     },
     {

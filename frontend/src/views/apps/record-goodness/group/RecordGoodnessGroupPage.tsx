@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useDeferredValue, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -14,9 +14,8 @@ import { HiStar } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
-import { useDebounce } from '@/hooks/userCommon';
-import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import useStudentList from '@/hooks/useStudentList';
+import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
+import toast from 'react-hot-toast';
 
 interface CellType {
   row: any;
@@ -39,14 +38,25 @@ const RecordGoodnessGroupPage = () => {
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [selectStudents, setSelectStudents] = useState<any>([]);
   const [searchValue, setSearchValue] = useState<any>({});
-  const debouncedValue = useDebounce<string>(searchValue, 500);
+  const deferredValue = useDeferredValue(searchValue);
   const [openSelectStudents, setOpenSelectStudents] = useState(false);
   const [openGoodnessDetail, setOpenGoodnessDetail] = useState(false);
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
   const [selectClassrooms, setSelectClassrooms] = useState<any>([]);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms();
-  const { loading: studentLoading, students: studentsList } = useStudentList(debouncedValue);
+  // React Query hooks
+  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
+  const { data: studentsList = [], isLoading: studentLoading, error: studentsError } = useStudentsSearch({
+    q: deferredValue,
+  });
+
+  // Show error toast if queries fail
+  if (classroomError) {
+    toast.error('เกิดข้อผิดพลาดในการโหลดห้องเรียน');
+  }
+  if (studentsError) {
+    toast.error((studentsError as any)?.message || 'เกิดข้อผิดพลาดในการค้นหานักเรียน');
+  }
 
   const onSelectStudents = useCallback(
     (e: any, newValue: any) => {

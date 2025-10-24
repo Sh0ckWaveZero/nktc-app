@@ -15,23 +15,16 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
-import { useClassroomStore, useStudentStore } from '@/store/index';
-import { useDebounce, useEffectOnce } from '@/hooks/userCommon';
 
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Link from 'next/link';
 import RenderAvatar from '@/@core/components/avatar';
-import { SelectChangeEvent } from '@mui/material/Select';
 import TableHeader from '@/views/apps/student/list/TableHeader';
-import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import toast from 'react-hot-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { useSearchParams } from 'next/navigation';
-import useStudentList from '@/hooks/useStudentList';
+import { useStudentList } from '@/hooks/features/student';
 
 interface CellType {
   row: any;
@@ -43,155 +36,37 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 }));
 
 const StudentListPage = () => {
-  // ** Hooks
-  const { user } = useAuth();
-  const searchParams = useSearchParams();
-  const classroom = searchParams.get('classroom');
+  // Custom hook containing all business logic
+  const {
+    // Classroom state
+    classrooms,
+    initClassroom,
+    currentClassroomId,
+    loadingClassroom,
 
-  // ** State
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentClassroomId, setCurrentClassroomId] = useState<any>(null);
-  const [initClassroom, setInitClassroom] = useState<any>(null);
-  const [classrooms, setClassrooms] = useState<any>([]);
-  const [loadingClassroom, setLoadingClassroom] = useState<boolean>(false);
-  const [students, setStudents] = useState<any>([]);
-  const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
-  const [openDeletedConfirm, setOpenDeletedConfirm] = useState<boolean>(false);
-  const [deletedStudent, setDeletedStudent] = useState<any>(null);
-  const [currentStudent, setCurrentStudent] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState<any>({ fullName: '', studentId: '' });
-  const debouncedValue = useDebounce<string>(searchValue, 500);
+    // Student state
+    students,
+    loadingStudent,
+    currentStudent,
+    searchValue,
 
-  const { fetchStudentsWithParams }: any = useStudentStore(
-    (state: any) => ({
-      fetchStudentsWithParams: state.fetchStudentsWithParams,
-    }),
-    shallow,
-  );
-  const { fetchClassroom }: any = useClassroomStore((state) => ({ fetchClassroom: state.fetchClassroom }), shallow);
-  const { removeStudents }: any = useStudentStore((state) => ({ removeStudents: state.removeStudents }), shallow);
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
+    // Delete dialog state
+    openDeletedConfirm,
+    deletedStudent,
 
-  useEffectOnce(() => {
-    (async () => {
-      setLoadingClassroom(true);
-      fetchClassroom().then(async (res: any) => {
-        // Check if res is valid array
-        if (!res || !Array.isArray(res)) {
-          setClassrooms([]);
-          setLoadingClassroom(false);
-          return;
-        }
+    // Pagination
+    pageSize,
+    setPageSize,
 
-        if (user?.role?.toLowerCase() === 'admin') {
-          setClassrooms(res);
-          if (classroom) {
-            const filteredClassroom = res.filter((item: any) => item.id === classroom);
-            setInitClassroom(filteredClassroom[0] || null);
-            setCurrentClassroomId(filteredClassroom[0]?.id || null);
-          } else {
-            // Set first classroom as default
-            setInitClassroom(res[0] || null);
-            setCurrentClassroomId(res[0]?.id || null);
-          }
-        } else {
-          // Handle case where teacherOnClassroom might be empty or undefined
-          if (!user?.teacherOnClassroom || user.teacherOnClassroom.length === 0) {
-            // For now, show all classrooms if teacher has no assigned classrooms
-            // This is a temporary solution - in production you might want to show a message
-            setClassrooms(res);
-          } else {
-            const teacherClassroom = res.filter((item: any) =>
-              user.teacherOnClassroom.includes(item.id)
-            );
-            setClassrooms(teacherClassroom);
-          }
-          if (classroom) {
-            const currentQueryClassroom = classrooms.filter((item: any) => item.id === classroom);
-            setInitClassroom(currentQueryClassroom[0] || null);
-            setCurrentClassroomId(currentQueryClassroom[0]?.id || null);
-          } else {
-            // Set first classroom as default (only if teacher has classrooms)
-            if (classrooms.length > 0) {
-              setInitClassroom(classrooms[0] || null);
-              setCurrentClassroomId(classrooms[0]?.id || null);
-            } else {
-              setInitClassroom(null);
-              setCurrentClassroomId(null);
-            }
-          }
-        }
-        setLoadingClassroom(false);
-      }).catch((error: any) => {
-        console.error('Error fetching classrooms:', error);
-        setClassrooms([]);
-        setLoadingClassroom(false);
-      });
-    })();
-  });
-
-  useEffect(() => {
-    setLoadingStudent(true);
-    (async () => {
-      const query = {
-        classroomId: currentClassroomId,
-        search: debouncedValue,
-      };
-
-      await fetchStudentsWithParams(query).then(async (res: any) => {
-        setStudents((await res) || []);
-        setLoadingStudent(false);
-      });
-    })();
-  }, [currentClassroomId, debouncedValue]);
-
-  const onHandleChangeClassroom = (e: SelectChangeEvent, value: any) => {
-    e.preventDefault();
-    setCurrentClassroomId(value?.id);
-    setInitClassroom(value);
-  };
-
-  const handDeletedConfirm = async (event: any) => {
-    event.stopPropagation();
-    setOpenDeletedConfirm(false);
-    setStudents([]);
-    setLoadingStudent(true);
-    const toastId = toast.loading('กำลังลบข้อมูล...');
-    await removeStudents(deletedStudent.id).then((res: any) => {
-      if (res?.status === 204) {
-        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
-      } else {
-        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
-      }
-    });
-
-    await fetchStudentsWithParams(currentClassroomId).then(async (res: any) => {
-      setStudents(await res);
-      setLoadingStudent(false);
-    });
-  };
-
-  const onHandleChangeFullName = useCallback(
-    (e: any, newValue: any) => {
-      e.preventDefault();
-      setCurrentStudent(newValue || null);
-    },
-    [setCurrentStudent],
-  );
-
-  const onSearchChange = useCallback(
-    (event: any, value: any, reason: any) => {
-      setSearchValue({ ...searchValue, fullName: value });
-    },
-    [setSearchValue, searchValue],
-  );
-
-  const onHandleStudentId = useCallback(
-    (value: any) => {
-      setSearchValue({ ...searchValue, studentId: value });
-    },
-    [setSearchValue, searchValue],
-  );
+    // Handlers
+    handleChangeClassroom,
+    handleChangeFullName,
+    handleSearchChange,
+    handleStudentId,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    handleDeleteCancel,
+  } = useStudentList();
 
   const defaultColumns: GridColDef[] = [
     {
@@ -279,8 +154,7 @@ const StudentListPage = () => {
       renderCell: ({ row }: CellType) => {
         const onHandleDelete = (event: any): void => {
           event.stopPropagation();
-          setOpenDeletedConfirm(true);
-          setDeletedStudent(row);
+          handleDeleteClick(row);
         };
         return (
           <Button
@@ -330,13 +204,13 @@ const StudentListPage = () => {
               defaultClassroom={initClassroom}
               fullName={currentStudent}
               loading={loadingClassroom}
-              loadingStudents={loadingStudents}
-              onHandleChange={onHandleChangeClassroom}
-              onHandleChangeStudent={onHandleChangeFullName}
-              onHandleStudentId={onHandleStudentId}
-              onSearchChange={onSearchChange}
+              loadingStudents={loadingStudent}
+              onHandleChange={handleChangeClassroom}
+              onHandleChangeStudent={handleChangeFullName}
+              onHandleStudentId={handleStudentId}
+              onSearchChange={handleSearchChange}
               studentId={searchValue.studentId}
-              students={studentsListData}
+              students={students}
             />
 
             <DataGrid
@@ -389,22 +263,22 @@ const StudentListPage = () => {
             aria-describedby='alert-dialog-description'
             onClose={(event: any, reason: any) => {
               if (reason !== 'backdropClick') {
-                setOpenDeletedConfirm(false);
+                handleDeleteCancel();
               }
             }}
           >
             <DialogTitle id='alert-dialog-title'>ยืนยันการลบข้อมูล</DialogTitle>
             <DialogContent>
               <DialogContentText id='alert-dialog-description'>
-                {`คุณต้องการลบข้อมูลของ ${deletedStudent?.account?.title}${deletedStudent?.account?.firstName} ${deletedStudent?.account?.lastName} 
+                {`คุณต้องการลบข้อมูลของ ${deletedStudent?.account?.title}${deletedStudent?.account?.firstName} ${deletedStudent?.account?.lastName}
             ใช่หรือไม่?`}
               </DialogContentText>
             </DialogContent>
             <DialogActions className='dialog-actions-dense'>
-              <Button color='secondary' onClick={() => setOpenDeletedConfirm(false)}>
+              <Button color='secondary' onClick={handleDeleteCancel}>
                 ยกเลิก
               </Button>
-              <Button variant='outlined' color='error' onClick={handDeletedConfirm}>
+              <Button variant='outlined' color='error' onClick={handleDeleteConfirm}>
                 ยืนยัน
               </Button>
             </DialogActions>

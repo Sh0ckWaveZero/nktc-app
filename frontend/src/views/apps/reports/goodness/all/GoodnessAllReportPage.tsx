@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Dialog, Grid, IconButton, Tooltip, Typography, styled } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useDeferredValue, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,9 +14,7 @@ import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useDebounce } from '@/hooks/userCommon';
-import useFetchClassrooms from '@/hooks/useFetchClassrooms';
-import useStudentList from '@/hooks/useStudentList';
+import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
 import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 import IconifyIcon from '@/@core/components/icon';
 
@@ -59,12 +57,23 @@ const GoodnessAllReportPage = () => {
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [currentStudent, setCurrentStudent] = useState<any>(null);
   const [searchValue, setSearchValue] = useState<any>({ fullName: '' });
-  const debouncedValue = useDebounce<string>(searchValue, 500);
+  const deferredValue = useDeferredValue(searchValue);
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState<any>(null);
 
-  const [classrooms, classroomLoading] = useFetchClassrooms();
-  const { loading: loadingStudents, students: studentsListData } = useStudentList(debouncedValue);
+  // React Query hooks
+  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
+  const { data: studentsListData = [], isLoading: loadingStudents, error: studentsError } = useStudentsSearch({
+    q: deferredValue,
+  });
+
+  // Show error toast if queries fail
+  if (classroomError) {
+    toast.error('เกิดข้อผิดพลาดในการโหลดห้องเรียน');
+  }
+  if (studentsError) {
+    toast.error((studentsError as any)?.message || 'เกิดข้อผิดพลาดในการค้นหานักเรียน');
+  }
 
   const onChangeDate = useCallback((value: any) => {
     setDateSelected(value);

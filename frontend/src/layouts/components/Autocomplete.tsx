@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { useEffect, useCallback, useRef, useState, ChangeEvent, ReactNode } from 'react';
+import { useEffect, useCallback, useRef, useState, ChangeEvent, ReactNode, useDeferredValue } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
@@ -60,7 +60,6 @@ import UserIcon from '@/layouts/components/UserIcon';
 import { autocompleteIconObj } from './autocompleteIconObj';
 import { AppBarSearchType } from '@/@core/layouts/types';
 import { useAppbarStore } from '@/store/index';
-import { useDebounce } from '@/hooks/userCommon';
 
 const LinkStyled = styled(Box)(({ theme }) => ({
   textDecoration: 'none',
@@ -418,12 +417,12 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
 
   const fetch = useAppbarStore((state) => state.fetchAppbar);
   const options = useAppbarStore((state) => state.appbar);
-  const debouncedValue = useDebounce<string>(searchValue, 500);
+  const deferredValue = useDeferredValue(searchValue);
 
   // Get all data using API
   useEffect(() => {
-    fetch(debouncedValue);
-  }, [debouncedValue]);
+    fetch(deferredValue);
+  }, [deferredValue]);
 
   useEffect(() => {
     setIsMounted(true);

@@ -11,7 +11,15 @@
       "Bash(bun run test:*)",
       "Bash(tsc:*)",
       "Bash(bun install:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(awk:*)",
+      "Bash(xargs:*)"
     ],
     "deny": []
   }

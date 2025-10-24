@@ -60,22 +60,45 @@ export class StudentsService {
       const filter = {};
 
       if (body?.search?.fullName) {
-        const [firstName, lastName] = body.search.fullName.split(' ');
+        const searchTerm = body.search.fullName.trim();
+        const parts = searchTerm.split(/\s+/); // Split by whitespace
 
-        filter['account'] = {
-          AND: [
-            {
-              firstName: {
-                contains: firstName,
+        if (parts.length === 1) {
+          // Single word - search in firstName OR lastName
+          filter['account'] = {
+            OR: [
+              {
+                firstName: {
+                  contains: parts[0],
+                },
               },
-            },
-            {
-              lastName: {
-                contains: lastName ? lastName : firstName,
+              {
+                lastName: {
+                  contains: parts[0],
+                },
               },
-            },
-          ],
-        };
+            ],
+          };
+        } else {
+          // Multiple words - assume "firstName lastName" format
+          const [firstName, ...lastNameParts] = parts;
+          const lastName = lastNameParts.join(' ');
+
+          filter['account'] = {
+            AND: [
+              {
+                firstName: {
+                  contains: firstName,
+                },
+              },
+              {
+                lastName: {
+                  contains: lastName,
+                },
+              },
+            ],
+          };
+        }
       }
 
       if (body?.search?.studentId) {

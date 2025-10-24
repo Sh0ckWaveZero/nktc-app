@@ -1,12 +1,13 @@
 // ** MUI Imports
 import Icon from '@/@core/components/icon';
 // import { isEmpty } from '@/@core/utils/utils';
-import { Autocomplete, FormControl } from '@mui/material';
+import { Autocomplete, FormControl, IconButton, InputAdornment } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Link from 'next/link';
+import { Close } from '@mui/icons-material';
 
 interface TableHeaderProps {
   classrooms: any;
@@ -71,6 +72,22 @@ const TableHeader = (props: TableHeaderProps) => {
             placeholder='รหัสนักเรียน'
             value={studentId}
             onChange={(e) => onHandleStudentId(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: studentId && (
+                  <InputAdornment position='end'>
+                    <IconButton
+                      size='small'
+                      edge='end'
+                      onClick={() => onHandleStudentId('')}
+                      aria-label='clear student id'
+                    >
+                      <Close fontSize='small' />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
             sx={{
               height: 56,
             }}
@@ -97,7 +114,16 @@ const TableHeader = (props: TableHeaderProps) => {
             onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
             getOptionLabel={(option: any) => {
               if (typeof option === 'string') return option;
-              return option?.fullName ? `${option?.title || ''}${option.fullName}` : '';
+              // Handle different data structures
+              if (option?.fullName) {
+                return `${option?.title || ''}${option.fullName}`;
+              }
+              // Handle API response structure: account.title + account.firstName + account.lastName
+              if (option?.account) {
+                const { title = '', firstName = '', lastName = '' } = option.account;
+                return `${title}${firstName} ${lastName}`.trim();
+              }
+              return '';
             }}
             isOptionEqualToValue={(option: any, value: any) => {
               if (!option || !value) return false;

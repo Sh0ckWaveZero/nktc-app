@@ -13,7 +13,7 @@ interface StudentQuery {
 /**
  * Hook to fetch students list
  */
-export const useStudents = (params?: StudentQuery) => {
+export const useStudents = (params?: StudentQuery, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.students.list(params),
     queryFn: async () => {
@@ -22,6 +22,7 @@ export const useStudents = (params?: StudentQuery) => {
       });
       return data;
     },
+    enabled: options?.enabled ?? true, // Allow conditional fetching
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
@@ -30,6 +31,9 @@ export const useStudents = (params?: StudentQuery) => {
  * Hook to search students
  */
 export const useStudentsSearch = (params?: StudentQuery) => {
+  // Only enable query when there's actual search input
+  const hasSearchQuery = !!(params?.q || params?.fullName || params?.studentId);
+
   return useQuery({
     queryKey: queryKeys.students.search(params),
     queryFn: async () => {
@@ -38,7 +42,7 @@ export const useStudentsSearch = (params?: StudentQuery) => {
       });
       return data;
     },
-    enabled: !!(params?.q || params?.fullName || params?.studentId), // Only search when query exists
+    enabled: hasSearchQuery,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
