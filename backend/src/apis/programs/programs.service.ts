@@ -176,7 +176,7 @@ export class ProgramsService {
           entityName: 'สาขาวิชา',
         }),
 
-        processRow: async (row, headerMap, config, user, rowNumber) => {
+        processRow: async (row, headerMap, config, user, _rowNumber) => {
           const result = await this.extractAndValidateProgramData(
             row,
             headerMap,

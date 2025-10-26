@@ -6,11 +6,11 @@ import {
 
 /**
  * สร้าง custom validation error message
- * @param errors - รายการ validation errors
+ * @param _errors - รายการ validation errors
  * @returns ข้อความแสดงข้อผิดพลาดที่ปลอดภัย
  */
-const createValidationErrorMessage = (errors: any[]): string => {
-  // ไม่เปิดเผยรายละเอียด internal ของ validation errors
+const createValidationErrorMessage = (_errors: any[]): string => {
+  // ไม่เปิดเผยรายละเอียด internal ของ validation _errors
   return 'ข้อมูลที่ส่งมาไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง';
 };
 
@@ -37,12 +37,12 @@ export const setupValidation = (app: INestApplication): void => {
       disableErrorMessages: false,
 
       // ตั้งค่า error handling ที่ปลอดภัย
-      exceptionFactory: (errors) => {
-        // Log errors สำหรับ debugging (แต่ไม่ส่งรายละเอียดให้ client)
-        console.error('Validation errors:', errors);
+      exceptionFactory: (_errors) => {
+        // Log _errors สำหรับ debugging (แต่ไม่ส่งรายละเอียดให้ client)
+        console.error('Validation errors:', _errors);
 
         return new BadRequestException({
-          message: createValidationErrorMessage(errors),
+          message: createValidationErrorMessage(_errors),
           error: 'Bad Request',
           statusCode: 400,
         });

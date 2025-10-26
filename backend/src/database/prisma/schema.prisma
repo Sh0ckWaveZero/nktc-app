@@ -1,6 +1,6 @@
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "darwin-arm64"]
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
 }
 
 datasource db {
@@ -13,14 +13,14 @@ model User {
   id                 String             @id @default(cuid())
   username           String             @unique
   password           String
-  email              String?
+  email              String?            @unique
   role               Role               @default(User)
   account            Account?
   student            Student?
   teacher            Teacher?
   sessions           Session[]
   userRole           UserRole[]
-  status             String?
+  status             String?            @default("active")
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
   updatedBy          String?
@@ -32,7 +32,11 @@ model User {
   expiresAt          Int?
 
   @@unique([username, verificationToken], name: "users_key_verificationToken")
-  @@index([username, verificationToken], name: "users_index_verificationToken")
+  @@index([username], name: "users_index_username")
+  @@index([email], name: "users_index_email")
+  @@index([role], name: "users_index_role")
+  @@index([status], name: "users_index_status")
+  @@index([createdAt], name: "users_index_created_at")
   @@map("user")
 }
 
@@ -122,10 +126,10 @@ model Account {
 model Student {
   id                 String               @id @default(cuid())
   studentId          String?              @unique
-  isGraduation       Boolean?
+  isGraduation       Boolean?             @default(false)
   graduationYear     Int?
   graduationDate     DateTime?
-  studentStatus      String? // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
+  studentStatus      String?              @default("กำลังศึกษา") // กำลังศึกษา, ออกก่อนกำหนด, จบการศึกษา,
   group              String?
   status             String?              @default("normal") // normal = ปกติ, intern = ฝึกงาน
   user               User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -149,6 +153,15 @@ model Student {
   VisitStudent       VisitStudent[]
 
   @@unique([userId, studentId], name: "student_users")
+  @@index([studentId], name: "students_index_studentId")
+  @@index([classroomId], name: "students_index_classroom")
+  @@index([departmentId], name: "students_index_department")
+  @@index([programId], name: "students_index_program")
+  @@index([levelId], name: "students_index_level")
+  @@index([studentStatus], name: "students_index_student_status")
+  @@index([status], name: "students_index_status")
+  @@index([isGraduation], name: "students_index_graduation")
+  @@index([graduationYear], name: "students_index_graduation_year")
   @@map("student")
 }
 

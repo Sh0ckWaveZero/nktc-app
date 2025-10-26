@@ -19,7 +19,7 @@ export interface XlsxColumnMapping {
  * @interface XlsxImportConfig
  * @template T - ประเภทของ entity ที่กำลัง import
  */
-export interface XlsxImportConfig<T> {
+export interface XlsxImportConfig<_T> {
   readonly columnMapping: XlsxColumnMapping;
   readonly requiredColumns: readonly string[];
   readonly entityName: string;
@@ -42,7 +42,7 @@ export interface XlsxUploadResponse {
  * @interface ProcessRowResult
  * @template T - ประเภทของ entity ที่กำลังประมวลผล
  */
-export interface ProcessRowResult<T> {
+export interface ProcessRowResult<_T> {
   readonly data?: T;
   readonly error?: string;
 }
@@ -51,29 +51,29 @@ export interface ProcessRowResult<T> {
  * Type สำหรับฟังก์ชันประมวลผลแถว
  * @template T - ประเภทของข้อมูลที่ประมวลผล
  */
-export type ProcessRowFunction<T> = (
+export type ProcessRowFunction<_T> = (
   row: any[],
   headerMap: Record<string, number>,
-  config: XlsxImportConfig<T>,
+  config: XlsxImportConfig<_T>,
   user: any,
-  rowNumber: number,
-) => Promise<ProcessRowResult<T>>;
+  _rowNumber: number,
+) => Promise<ProcessRowResult<_T>>;
 
 /**
  * Type สำหรับฟังก์ชันสร้าง entity
  * @template T - ประเภทของข้อมูลที่จะสร้าง
  */
-export type CreateEntityFunction<T> = (data: T) => Promise<any>;
+export type CreateEntityFunction<_T> = (data: T) => Promise<any>;
 
 /**
  * Interface สำหรับ configuration ของ XLSX import service
  * @interface XlsxImportServiceConfig
  * @template T - ประเภทของ entity ที่กำลัง import
  */
-export interface XlsxImportServiceConfig<T> {
-  readonly getImportConfig: () => XlsxImportConfig<T>;
-  readonly processRow: ProcessRowFunction<T>;
-  readonly createEntity: CreateEntityFunction<T>;
+export interface XlsxImportServiceConfig<_T> {
+  readonly getImportConfig: () => XlsxImportConfig<_T>;
+  readonly processRow: ProcessRowFunction<_T>;
+  readonly createEntity: CreateEntityFunction<_T>;
   readonly prisma: PrismaService;
 }
 
@@ -132,9 +132,9 @@ export const parseXlsxFile = (file: Express.Multer.File): any[][] => {
  * @param config - การกำหนดค่าการ import
  * @throws {BadRequestException} เมื่อโครงสร้างไฟล์ไม่ถูกต้อง
  */
-export const validateFileStructure = <T>(
+export const validateFileStructure = <_T>(
   rows: any[][],
-  config: XlsxImportConfig<T>,
+  config: XlsxImportConfig<_T>,
 ): void => {
   const minRows = (config.skipHeaderRows || 2) + 1;
   if (rows.length < minRows) {
@@ -154,9 +154,9 @@ export const validateFileStructure = <T>(
  * @param config - การกำหนดค่าการ import
  * @throws {BadRequestException} เมื่อขาดคอลัมน์ที่จำเป็น
  */
-export const validateHeader = <T>(
+export const validateHeader = <_T>(
   headerRow: string[],
-  config: XlsxImportConfig<T>,
+  config: XlsxImportConfig<_T>,
 ): void => {
   const requiredThaiColumns = config.requiredColumns.map(
     (col) => config.columnMapping[col],
@@ -299,12 +299,12 @@ export const buildResponse = (
  * @param processRowFn - ฟังก์ชันสำหรับประมวลผลแถวเดียว
  * @returns object ที่มีข้อมูลที่ถูกต้องและข้อผิดพลาด
  */
-export const processDataRows = async <T>(
+export const processDataRows = async <_T>(
   dataRows: any[][],
   headerRow: string[],
-  config: XlsxImportConfig<T>,
+  config: XlsxImportConfig<_T>,
   user: any,
-  processRowFn: ProcessRowFunction<T>,
+  processRowFn: ProcessRowFunction<_T>,
 ): Promise<{ validData: T[]; errors: string[] }> => {
   const validData: T[] = [];
   const errors: string[] = [];
@@ -312,7 +312,7 @@ export const processDataRows = async <T>(
 
   for (let i = 0; i < dataRows.length; i++) {
     const row = dataRows[i] as any[];
-    const rowNumber = i + (config.skipHeaderRows || 2) + 1;
+    const _rowNumber = i + (config.skipHeaderRows || 2) + 1;
 
     // Skip empty rows
     if (isEmptyRow(row)) {
@@ -325,17 +325,17 @@ export const processDataRows = async <T>(
         headerMap,
         config,
         user,
-        rowNumber,
+        _rowNumber,
       );
 
       if (result.data) {
         validData.push(result.data);
       } else if (result.error) {
-        errors.push(`Row ${rowNumber}: ${result.error}`);
+        errors.push(`Row ${_rowNumber}: ${result.error}`);
       }
     } catch (error) {
       errors.push(
-        `Row ${rowNumber}: ${error.message || 'Unknown error processing row'}`,
+        `Row ${_rowNumber}: ${error.message || 'Unknown error processing row'}`,
       );
     }
   }
@@ -350,16 +350,16 @@ export const processDataRows = async <T>(
  * @param createEntityFn - ฟังก์ชันสำหรับสร้าง entity
  * @returns array ของ entity ที่สร้างแล้ว
  */
-export const createEntitiesInTransaction = async <T>(
+export const createEntitiesInTransaction = async <_T>(
   validData: T[],
   prisma: PrismaService,
-  createEntityFn: CreateEntityFunction<T>,
+  createEntityFn: CreateEntityFunction<_T>,
 ): Promise<any[]> => {
   if (validData.length === 0) {
     return [];
   }
 
-  return await prisma.$transaction(async (prismaClient) => {
+  return await prisma.$transaction(async (_prismaClient) => {
     const results: any[] = [];
     for (const data of validData) {
       const result = await createEntityFn(data);
@@ -376,10 +376,10 @@ export const createEntitiesInTransaction = async <T>(
  * @param serviceConfig - configuration สำหรับ service
  * @returns response object ที่มีผลลัพธ์การ import
  */
-export const importFromXlsx = async <T>(
+export const importFromXlsx = async <_T>(
   file: Express.Multer.File,
   user: any,
-  serviceConfig: XlsxImportServiceConfig<T>,
+  serviceConfig: XlsxImportServiceConfig<_T>,
 ): Promise<XlsxUploadResponse> => {
   const config = serviceConfig.getImportConfig();
 
@@ -439,7 +439,7 @@ export const importFromXlsx = async <T>(
  *     requiredColumns: ['id', 'name'],
  *     entityName: 'โปรแกรม'
  *   }),
- *   processRow: async (row, headerMap, config, user, rowNumber) => {
+ *   processRow: async (row, headerMap, config, user, _rowNumber) => {
  *     // process row logic
  *   },
  *   createEntity: async (data) => {
@@ -452,8 +452,8 @@ export const importFromXlsx = async <T>(
  * const result = await xlsxImportService.importFromXlsx(file, user);
  * ```
  */
-export const createXlsxImportService = <T>(
-  serviceConfig: XlsxImportServiceConfig<T>,
+export const createXlsxImportService = <_T>(
+  serviceConfig: XlsxImportServiceConfig<_T>,
 ) => {
   return {
     /**
@@ -487,23 +487,23 @@ export const createXlsxImportService = <T>(
  * @param extractAndValidateDataFn - ฟังก์ชันสำหรับดึงและ validate ข้อมูล
  * @returns process row function ที่สามารถใช้กับ createXlsxImportService ได้
  */
-export const createProcessRowFunction = <T>(
+export const createProcessRowFunction = <_T>(
   extractAndValidateDataFn: (
     row: any[],
     headerMap: Record<string, number>,
-    config: XlsxImportConfig<T>,
+    config: XlsxImportConfig<_T>,
     user: any,
-    rowNumber: number,
+    _rowNumber: number,
   ) => T | string,
-): ProcessRowFunction<T> => {
-  return async (row, headerMap, config, user, rowNumber) => {
+): ProcessRowFunction<_T> => {
+  return async (row, headerMap, config, user, _rowNumber) => {
     try {
       const result = extractAndValidateDataFn(
         row,
         headerMap,
         config,
         user,
-        rowNumber,
+        _rowNumber,
       );
 
       if (typeof result === 'string') {

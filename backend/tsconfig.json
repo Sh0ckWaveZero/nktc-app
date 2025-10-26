@@ -25,7 +25,8 @@
       "@database/*": ["src/database/*"],
       "@utils/*": ["src/utils/*"],
       "@lib/*": ["src/lib/*"],
-      "@middlewares/*": ["src/middlewares/*"]
+      "@middlewares/*": ["src/middlewares/*"],
+      "@prisma/client": ["src/database/generated/prisma/client"]
     }
   }
 }

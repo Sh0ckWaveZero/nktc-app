@@ -19,16 +19,24 @@ const AuthGuard = (props: AuthGuardProps) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (auth.user === null && !window.localStorage.getItem('userData')) {
-      if (pathname !== '/') {
-        router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
-      } else {
-        router.replace('/login');
+    // Only redirect if initialization is complete and still no user
+    if (!auth.loading && auth.isInitialized) {
+      const hasToken = window.localStorage.getItem('accessToken');
+      const hasUserData = window.localStorage.getItem('userData');
+
+      // If no token and no user data, redirect to login
+      if (!hasToken && !hasUserData && auth.user === null) {
+        if (pathname !== '/') {
+          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
+        } else {
+          router.replace('/login');
+        }
       }
     }
-  }, [pathname, auth.user, router]);
+  }, [pathname, auth.user, auth.loading, auth.isInitialized, router]);
 
-  if (auth.loading || auth.user === null) {
+  // Show fallback while loading or initializing
+  if (auth.loading || !auth.isInitialized || auth.user === null) {
     return fallback;
   }
 

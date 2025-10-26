@@ -95,7 +95,20 @@ const TabTeacherAccount = () => {
       try {
         // Load departments
         const departments = await fetchDepartment();
-        setDepartmentValues(departments || []);
+        setDepartmentValues(Array.isArray(departments) ? departments : []);
+
+        // Validate and reset department value if it doesn't exist in the loaded options
+        if (auth?.user?.teacher?.department?.id) {
+          const currentDeptId = auth.user.teacher.department.id;
+          const deptExists = Array.isArray(departments) && departments.some((dept: any) => dept.id === currentDeptId);
+          if (!deptExists) {
+            // Reset department field to empty if current department not found in options
+            reset({
+              ...defaultValues,
+              department: '',
+            });
+          }
+        }
 
         // Load classrooms
         setLoading(true);
@@ -466,7 +479,7 @@ const TabTeacherAccount = () => {
                         <MenuItem value=''>
                           <em>เลือกแผนกวิชา</em>
                         </MenuItem>
-                        {!isEmpty(departmentValues)
+                        {!isEmpty(departmentValues) && Array.isArray(departmentValues)
                           ? departmentValues.map((department: any) => (
                               <MenuItem key={department.id} value={department.id}>
                                 {department.name}

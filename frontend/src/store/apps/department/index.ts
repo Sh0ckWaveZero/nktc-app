@@ -13,9 +13,10 @@ export const useDepartmentStore = createWithEqualityFn<DepartmentState>()(() => 
   department: null,
   fetchDepartment: async (_token?: string) => {
     try {
-      const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/`);
-      return data;
+      const { data } = await httpClient.get(authConfig.departmentEndpoint);
+      return data.data || data; // Handle both wrapped and unwrapped responses
     } catch (err) {
+      console.error('Departments API error:', err);
       return err;
     }
   },

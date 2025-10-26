@@ -4,7 +4,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 
 @Injectable()
 export class AccountsService {
-  create(createAccountDto: CreateAccountDto) {
+  create(_createAccountDto: CreateAccountDto) {
     return 'This action adds a new account';
   }
 
@@ -16,7 +16,7 @@ export class AccountsService {
     return `This action returns a #${id} account`;
   }
 
-  update(id: number, updateAccountDto: UpdateAccountDto) {
+  update(id: number, _updateAccountDto: UpdateAccountDto) {
     return `This action updates a #${id} account`;
   }
 

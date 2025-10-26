@@ -16,7 +16,6 @@ import configuration from '../../config/configuration';
 
 @ApiTags('statics')
 @Controller('statics')
-@UseGuards(JwtAuthGuard)
 export class StaticsController {
   constructor(private readonly staticsService: StaticsService) {}
 
@@ -101,7 +100,7 @@ export class StaticsController {
       }
 
       response.contentType(contentType);
-      response.attachment(`${id}${fileTypes}`);
+      // Don't add fileTypes since id already includes the extension
       dataStream.pipe(response);
     } catch (error: any) {
       if (error instanceof HttpException) {

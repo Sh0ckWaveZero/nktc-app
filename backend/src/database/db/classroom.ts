@@ -1,8 +1,6 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client';
 import {
   getDepartId,
-  getDepartIdByName,
-  getLevelByName,
   getLevelId,
   getProgramId,
   readWorkSheetFromFile,

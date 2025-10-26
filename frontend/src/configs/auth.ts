@@ -6,6 +6,7 @@ export type AuthConfig = {
   teacherEndpoint?: string;
   studentEndpoint?: string;
   appbarEndpoint?: string;
+  appbarDefaultSuggestionsEndpoint?: string;
   classroomEndpoint?: string;
   reportCheckInEndpoint?: string;
   activityCheckInEndpoint?: string;
@@ -29,6 +30,7 @@ export const authConfig: AuthConfig = {
   teacherEndpoint: `${apiUrl}/teachers`,
   studentEndpoint: `${apiUrl}/students`,
   appbarEndpoint: `${apiUrl}/app-bar/search`,
+  appbarDefaultSuggestionsEndpoint: `${apiUrl}/app-bar/default-suggestions`,
   classroomEndpoint: `${apiUrl}/classrooms`,
   reportCheckInEndpoint: `${apiUrl}/reportCheckIn`,
   activityCheckInEndpoint: `${apiUrl}/activity-check-in`,

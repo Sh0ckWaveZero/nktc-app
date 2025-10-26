@@ -141,7 +141,7 @@ export class ClassroomService {
       classroomId,
       name,
       levelId,
-      classroomNumber,
+      _classroomNumber,
       programId,
       departmentId,
       createdBy,
@@ -217,7 +217,7 @@ export class ClassroomService {
           entityName: 'ห้องเรียน',
         }),
 
-        processRow: async (row, headerMap, config, user, rowNumber) => {
+        processRow: async (row, headerMap, config, user, _rowNumber) => {
           const result = await this.extractAndValidateClassroomData(
             row,
             headerMap,
@@ -317,7 +317,7 @@ export class ClassroomService {
       classroomId: extractCellValue(row, headerMap, config.columnMapping, 'id'),
       name: extractCellValue(row, headerMap, config.columnMapping, 'name'),
       level: extractCellValue(row, headerMap, config.columnMapping, 'level'),
-      classroomNumber: extractCellValue(
+      _classroomNumber: extractCellValue(
         row,
         headerMap,
         config.columnMapping,
@@ -355,7 +355,7 @@ export class ClassroomService {
     user: any,
   ): ClassroomData {
     const description = `${extractedData.level} ${
-      extractedData.classroomNumber || ''
+      extractedData._classroomNumber || ''
     } ${extractedData.department}`.trim();
 
     return {

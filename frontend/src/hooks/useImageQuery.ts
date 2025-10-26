@@ -15,17 +15,27 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 /**
  * Validates that the URL is safe to load
- * Only allows relative URLs (from our API) or the default avatar
+ * Only allows relative URLs (from our API), URLs from our own server, data URLs (from user uploads), or the default avatar
  */
 const isValidImageUrl = (url: string): boolean => {
   if (!url) return false;
 
-  // Only allow relative URLs (starting with /) or URLs from our own API
+  // Allow relative URLs (starting with /)
   if (url.startsWith('/')) return true;
+
+  // Allow URLs from our own API server
   if (url.startsWith(API_URL)) return true;
+
+  // Allow URLs from the same base server (for static assets)
+  const baseUrl = API_URL.replace('/api', '');
+  if (url.startsWith(baseUrl)) return true;
+
   if (url === DEFAULT_AVATAR) return true;
 
-  // Block everything else (external URLs, data: URLs, javascript: URLs, etc)
+  // Allow data URLs (safe for user-uploaded images)
+  if (url.startsWith('data:image/')) return true;
+
+  // Block everything else (external URLs, javascript: URLs, etc)
   return false;
 };
 
@@ -74,6 +84,13 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
         // Use default avatar directly (no fetch needed)
         if (url === DEFAULT_AVATAR) {
           setImage(DEFAULT_AVATAR);
+          setIsLoading(false);
+          return;
+        }
+
+        // Handle data URLs directly (no fetch needed)
+        if (url.startsWith('data:image/')) {
+          setImage(url);
           setIsLoading(false);
           return;
         }
