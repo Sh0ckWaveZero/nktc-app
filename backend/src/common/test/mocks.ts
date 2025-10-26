@@ -49,24 +49,6 @@ export const mockPrismaService = {
   goodnessIndividual: createMockPrismaModel(),
   badnessIndividual: createMockPrismaModel(),
   account: createMockPrismaModel(),
-};
-
-export const mockPrismaMongoDbService = {
-  $connect: jest.fn(),
-  $disconnect: jest.fn(),
-  $transaction: jest.fn(),
-  // Generic mock สำหรับ Prisma MongoDB operations
-  findMany: jest.fn(),
-  findUnique: jest.fn(),
-  findFirst: jest.fn(),
-  create: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-  upsert: jest.fn(),
-  count: jest.fn(),
-  aggregate: jest.fn(),
-  groupBy: jest.fn(),
-  // MongoDB specific models
   appbar: createMockPrismaModel(),
 };
 

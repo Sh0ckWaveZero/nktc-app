@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client';
 import { Classroom } from '../db/classroom';
 import { departmentData } from '../db/department';
 import { levelData } from '../db/level';
@@ -13,19 +13,14 @@ const prisma = new PrismaClient();
 const main = async () => {
   console.log('Seeding...');
   // await seedLevels()
-  await seedProgram()
-    // await seedDepartment()
-    // await seedLevelClassroom()
-    // await seedClassroom()
-    // await seedStudents()
-    // await seedTeacher()
-    // await seedAdmin()
-    .then(() => {
-      console.log('Seeding complete 🎉');
-    })
-    .catch((err) => {
-      console.log('Seeding failed 😭', err);
-    });
+  // await seedProgram()
+  // await seedDepartment()
+  // await seedLevelClassroom()
+  // await seedClassroom()
+  // await seedStudents()
+  // await seedTeacher()
+  // await seedAdmin()
+  console.log('Seeding complete 🎉');
 };
 
 const seedLevels = async () => {
@@ -153,6 +148,8 @@ const seedAdmin = async () => {
     data: admin,
   });
 };
+
+// Removed seedAppbar function
 
 main()
   .catch((err: any) => console.log(err))

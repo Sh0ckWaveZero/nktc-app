@@ -12,7 +12,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findById(id: string) {
-    const { password: p, ...rest } = await this.prisma.user.findUnique({
+    const { password: _p, ...rest } = await this.prisma.user.findUnique({
       where: {
         id,
       },
@@ -58,7 +58,7 @@ export class UsersService {
   }
 
   async findByUsername(username: string) {
-    const { password: p, ...rest } = await this.prisma.user.findUnique({
+    const { password: _p, ...rest } = await this.prisma.user.findUnique({
       where: {
         username,
       },
@@ -244,7 +244,7 @@ export class UsersService {
     }
 
     // remove password from user object
-    const { password: p, ...rest } = { ...user, teacherOnClassroom };
+    const { password: _p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
 
@@ -295,7 +295,7 @@ export class UsersService {
     }
 
     // remove password from user object
-    const { password: p, ...rest } = { ...user, teacherOnClassroom };
+    const { password: _p, ...rest } = { ...user, teacherOnClassroom };
     return rest;
   }
 

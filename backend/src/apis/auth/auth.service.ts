@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UsersService } from '../../apis/users/users.service';
@@ -39,7 +39,7 @@ export class AuthService {
     }
   }
 
-  async login(loginUserDto: any, ipAddress: string): Promise<any> {
+  async login(loginUserDto: any, _ipAddress: string): Promise<any> {
     // find user in db
     const loginResults = await this.usersService.login(loginUserDto);
 
@@ -63,7 +63,7 @@ export class AuthService {
     const user = await this.usersService.updatePassword(updatePasswordDto, id);
 
     // remove password from user object
-    const { password: p, ...rest } = user;
+    const { password: _p, ...rest } = user;
 
     // generate and sign token
     const token = this.createAccessToken(rest);

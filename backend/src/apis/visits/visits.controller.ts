@@ -1,17 +1,15 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  HttpCode,
+  // Post,
+  // Body,
+  // Patch,
+  // Param,
+  // Delete,
+  // HttpCode,
   Query,
 } from '@nestjs/common';
 import { VisitsService } from './visits.service';
-import { CreateVisitDto } from './dto/create-visit.dto';
-import { UpdateVisitDto } from './dto/update-visit.dto';
 
 @Controller('visits')
 export class VisitsController {

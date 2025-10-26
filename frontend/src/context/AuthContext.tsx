@@ -48,7 +48,6 @@ const AuthProvider = ({ children }: Props) => {
   const isBrowser = typeof window !== 'undefined';
 
   useEffect(() => {
-    const storedToken = isBrowser ? localStorage.getItem('accessToken') : null;
     // Only run auth initialization in browser environment
     if (!isBrowser) {
       setIsInitialized(true);
@@ -56,33 +55,53 @@ const AuthProvider = ({ children }: Props) => {
       return;
     }
 
-      const initAuth = async (): Promise<void> => {
-        setIsInitialized(true);
-        if (storedToken) {
-          setLoading(true);
-          await httpClient
-            .get(authConfig.meEndpoint as string)
-            .then(async (response) => {
-              const { data } = response;
-              setLoading(false);
-              setUser({ ...(await data) });
-            })
-            .catch((_) => {
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('userData');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('accessToken');
-              }
-              setUser(null);
-              setLoading(false);
-              router.replace('/login');
-            });
-        } else {
-          setLoading(false);
+    const storedToken = localStorage.getItem('accessToken');
+    const storedUserData = localStorage.getItem('userData');
+
+    const initAuth = async (): Promise<void> => {
+      setIsInitialized(true);
+
+      if (storedToken) {
+        setLoading(true);
+
+        // First, restore user from localStorage if available
+        if (storedUserData) {
+          try {
+            const userData = JSON.parse(storedUserData);
+            const restoredUser = userData?.data || userData;
+            console.log('🔄 Restoring user from localStorage:', restoredUser);
+            setUser(restoredUser);
+          } catch (e) {
+            console.error('❌ Failed to parse stored user data:', e);
+          }
         }
-      };
-      initAuth();
-  }, []);
+
+        // Then verify token with backend
+        await httpClient
+          .get(authConfig.meEndpoint as string)
+          .then(async (response) => {
+            setLoading(false);
+            // Update user with fresh data from backend
+            setUser(response.data?.data || response.data);
+            // Also update localStorage with fresh data
+            window.localStorage.setItem('userData', JSON.stringify(response.data));
+          })
+          .catch((_) => {
+            // Token is invalid, clear everything
+            localStorage.removeItem('userData');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('accessToken');
+            setUser(null);
+            setLoading(false);
+            router.replace('/login');
+          });
+      } else {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, [isBrowser, router]);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
     try {

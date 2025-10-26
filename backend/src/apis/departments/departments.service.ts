@@ -69,7 +69,7 @@ export class DepartmentsService {
           entityName: 'แผนกวิชา',
         }),
 
-        processRow: async (row, headerMap, config, user, rowNumber) => {
+        processRow: async (row, headerMap, config, user, _rowNumber) => {
           const result = await this.extractAndValidateDepartmentData(
             row,
             headerMap,

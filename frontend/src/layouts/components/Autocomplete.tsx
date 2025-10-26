@@ -1,16 +1,13 @@
 'use client';
 
 // ** React Imports
-import { useEffect, useCallback, useRef, useState, ChangeEvent, ReactNode, useDeferredValue } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 
 // ** Next Imports
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
 import MuiDialog from '@mui/material/Dialog';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
@@ -24,27 +21,10 @@ import MuiAutocomplete, { AutocompleteRenderInputParams } from '@mui/material/Au
 
 // ** Icons Imports
 import {
-  AccountCogOutline,
-  AccountGroup,
-  AccountOutline,
-  CalendarBlank,
-  CalendarRange,
-  CardBulletedSettingsOutline,
-  CartOutline,
-  ChartDonut,
-  ChartTimelineVariant,
   Close,
-  CurrencyUsd,
   FileRemoveOutline,
-  FormatListCheckbox,
-  FormatListNumbered,
-  FormatTextVariantOutline,
-  GestureTapButton,
-  Lastpass,
   Magnify,
   SubdirectoryArrowLeft,
-  Tab,
-  ViewGridOutline,
 } from 'mdi-material-ui';
 
 // ** Types Imports
@@ -73,134 +53,31 @@ interface Props {
   settings: Settings;
 }
 
-interface DefaultSuggestionsProps {
-  setOpenDialog: (val: boolean) => void;
-}
-
 interface NoResultProps {
   value: string;
-  setOpenDialog: (val: boolean) => void;
 }
 
-interface DefaultSuggestionsType {
-  category: string;
-  suggestions: {
-    link: string;
-    icon: ReactNode;
-    suggestion: string;
-  }[];
-}
-
-
-const defaultSuggestionsData: DefaultSuggestionsType[] = [
-  {
-    category: 'Popular Searches',
-    suggestions: [
-      {
-        suggestion: 'CRM',
-        link: '/dashboards/crm/',
-        icon: <ChartDonut fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Analytics',
-        link: '/dashboards/analytics/',
-        icon: <ChartTimelineVariant fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'eCommerce',
-        link: '/dashboards/ecommerce/',
-        icon: <CartOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'User List',
-        link: '/apps/user/list/',
-        icon: <AccountGroup fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-    ],
-  },
-  {
-    category: 'Apps & Pages',
-    suggestions: [
-      {
-        suggestion: 'Calendar',
-        link: '/apps/calendar/',
-        icon: <CalendarBlank fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Invoice List',
-        link: '/apps/invoice/list/',
-        icon: <FormatListNumbered fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Pricing',
-        link: '/pages/pricing/',
-        icon: <CurrencyUsd fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Account Settings',
-        link: '/pages/account-settings/',
-        icon: <AccountCogOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-    ],
-  },
-  {
-    category: 'User Interface',
-    suggestions: [
-      {
-        suggestion: 'Typography',
-        link: '/ui/typography/',
-        icon: <FormatTextVariantOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Tabs',
-        link: '/components/tabs/',
-        icon: <Tab fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Buttons',
-        link: '/components/buttons/',
-        icon: <GestureTapButton fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Advanced Cards',
-        link: '/ui/cards/advanced/',
-        icon: <CardBulletedSettingsOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-    ],
-  },
-  {
-    category: 'Forms & Tables',
-    suggestions: [
-      {
-        suggestion: 'Select',
-        link: '/forms/form-elements/select/',
-        icon: <FormatListCheckbox fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Autocomplete',
-        link: '/forms/form-elements/autocomplete/',
-        icon: <Lastpass fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Table',
-        link: '/tables/mui/',
-        icon: <ViewGridOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-      {
-        suggestion: 'Date Pickers',
-        link: '/forms/form-elements/pickers/',
-        icon: <CalendarRange fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />,
-      },
-    ],
-  },
-];
+// Removed hardcoded defaultSuggestionsData - now using API data
 
 const categoryTitle: { [k: string]: string } = {
+  // Original categories
   dashboards: 'Dashboards',
   appsPages: 'Apps & Pages',
   userInterface: 'User Interface',
   formsTables: 'Forms & Tables',
   chartsMisc: 'Charts & Misc',
+
+  // Thai system categories
+  main: 'หน้าหลัก',
+  'manage-data': 'จัดการข้อมูล',
+  settings: 'การตั้งค่าระบบ',
+  'check-in': 'เช็คชื่อ',
+  goodness: 'บันทึกความดี',
+  badness: 'บันทึกพฤติกรรมที่ไม่เหมาะสม',
+  visit: 'บันทึกเยี่ยมบ้าน',
+  reports: 'รายงาน',
+  'admin-reports': 'รายงาน - ผู้ดูแลระบบ',
+  student: 'นักเรียน',
 };
 
 // ** Styled Autocomplete component
@@ -282,7 +159,7 @@ const Dialog = styled(MuiDialog)({
   },
 });
 
-const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
+const NoResult = ({ value }: NoResultProps) => {
   return (
     <Box
       sx={{
@@ -294,321 +171,18 @@ const NoResult = ({ value, setOpenDialog }: NoResultProps) => {
     >
       <FileRemoveOutline sx={{ mb: 2.5, fontSize: '5rem', color: 'text.primary' }} />
       <Typography variant='h6' sx={{ mb: 11.5, wordWrap: 'break-word' }}>
-        No results for{' '}
+        ไม่พบผลลัพธ์สำหรับ{' '}
         <Typography variant='h6' component='span' sx={{ wordWrap: 'break-word' }}>
           {`"${value}"`}
         </Typography>
       </Typography>
-
-      <Typography variant='body2' sx={{ mb: 2.5, color: 'text.disabled' }}>
-        Try searching for
-      </Typography>
-      <List sx={{ py: 0 }}>
-        <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link href='/dashboards/ecommerce/'>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                '&:hover > *': { color: 'primary.main' },
-              }}
-            >
-              <ChartDonut fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />
-              <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                CRM Dashboard
-              </Typography>
-            </Box>
-          </Link>
-        </ListItem>
-        <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link href='/apps/user/view/2/'>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                '&:hover > *': { color: 'primary.main' },
-              }}
-            >
-              <AccountOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />
-              <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                User View
-              </Typography>
-            </Box>
-          </Link>
-        </ListItem>
-        <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-          <Link href='/pages/account-settings/'>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                '&:hover > *': { color: 'primary.main' },
-              }}
-            >
-              <AccountCogOutline fontSize='small' sx={{ mr: 2.5, color: 'text.primary' }} />
-              <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                Account Settings
-              </Typography>
-            </Box>
-          </Link>
-        </ListItem>
-      </List>
     </Box>
   );
 };
 
-const DefaultSuggestions = ({ setOpenDialog }: DefaultSuggestionsProps) => {
-  return (
-    <Grid container spacing={6} sx={{ ml: 0 }}>
-      {defaultSuggestionsData.map((item, index) => (
-        <Grid
-          key={index}
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
-            {item.category}
-          </Typography>
-          <List sx={{ py: 2.5 }}>
-            {item.suggestions.map((suggestionItem, index2) => (
-              <ListItem key={index2} sx={{ py: 2 }} disablePadding>
-                <Link href={suggestionItem.link}>
-                  <LinkStyled
-                    onClick={() => setOpenDialog(false)}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      textDecoration: 'none',
-                      '&:hover > *': { color: 'primary.main' },
-                    }}
-                  >
-                    {suggestionItem.icon}
-                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                      {suggestionItem.suggestion}
-                    </Typography>
-                  </LinkStyled>
-                </Link>
-              </ListItem>
-            ))}
-          </List>
-        </Grid>
-      ))}
-    </Grid>
-  );
-};
-
 const AutocompleteComponent = ({ hidden, settings }: Props) => {
-  // ** States
-  const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-
-  // ** Hooks & Vars
-  const theme = useTheme();
-  const router = useRouter();
-  const { layout } = settings;
-  const wrapper = useRef<HTMLDivElement>(null);
-  const fullScreenDialog = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const fetch = useAppbarStore((state) => state.fetchAppbar);
-  const options = useAppbarStore((state) => state.appbar);
-  const deferredValue = useDeferredValue(searchValue);
-
-  // Get all data using API
-  useEffect(() => {
-    fetch(deferredValue);
-  }, [deferredValue]);
-
-  useEffect(() => {
-    setIsMounted(true);
-
-    return () => setIsMounted(false);
-  }, []);
-
-  // Handle click event on a list item in search result
-  const handleOptionClick = (obj: AppBarSearchType) => {
-    setSearchValue('');
-    setOpenDialog(false);
-    if (obj.url) {
-      router.push(obj.url);
-    }
-  };
-
-  // Handle ESC & shortcut keys keydown events
-  const handleKeydown = useCallback(
-    (event: KeyboardEvent) => {
-      // ** Shortcut keys to open searchbox (Ctrl + /)
-      if (!openDialog && event.ctrlKey && event.key === '/') {
-        setOpenDialog(true);
-      }
-    },
-    [openDialog],
-  );
-
-  // Handle shortcut keys keyup events
-  const handleKeyUp = useCallback(
-    (event: KeyboardEvent) => {
-      // ** ESC key to close searchbox
-      if (openDialog && event.key === 'Escape') {
-        setOpenDialog(false);
-      }
-    },
-    [openDialog],
-  );
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeydown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [handleKeyUp, handleKeydown]);
-
-  if (!isMounted) {
-    return null;
-  } else {
-    return (
-      <Box
-        ref={wrapper}
-        onClick={() => !openDialog && setOpenDialog(true)}
-        sx={{ display: 'flex', cursor: 'pointer', alignItems: 'center' }}
-      >
-        <IconButton color='inherit' sx={!hidden && layout === 'vertical' ? { mr: 1, ml: -2.75 } : {}}>
-          <Magnify />
-        </IconButton>
-        {!hidden && layout === 'vertical' ? (
-          <Typography sx={{ color: 'text.disabled' }}>ค้นหา (Ctrl+/)</Typography>
-        ) : null}
-        <Dialog fullWidth open={openDialog} fullScreen={fullScreenDialog} onClose={() => setOpenDialog(false)}>
-          <Box sx={{ top: 0, width: '100%', position: 'sticky' }}>
-            <Autocomplete
-              autoHighlight
-              disablePortal
-              options={options}
-              id='appBar-search'
-              isOptionEqualToValue={() => true}
-              onInputChange={(event, value: string) => setSearchValue(value)}
-              onChange={(event, obj) => handleOptionClick(obj as AppBarSearchType)}
-              noOptionsText={<NoResult value={searchValue} setOpenDialog={setOpenDialog} />}
-              getOptionLabel={(option: AppBarSearchType | unknown) => (option as AppBarSearchType).title}
-              groupBy={(option: AppBarSearchType | unknown) =>
-                searchValue.length ? categoryTitle[(option as AppBarSearchType).category] : ''
-              }
-              sx={{
-                '& + .MuiAutocomplete-popper': {
-                  ...(searchValue.length && {
-                    overflow: 'auto',
-                    maxHeight: 'calc(100vh - 69px)',
-                    height: fullScreenDialog ? 'calc(100vh - 69px)' : 481,
-                  }),
-                },
-              }}
-              renderInput={(params: AutocompleteRenderInputParams) => {
-                const { InputProps, InputLabelProps, ...otherParams } = params;
-                return (
-                  <TextField
-                    {...otherParams}
-                    value={searchValue}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchValue(event.target.value)}
-                    inputRef={(input) => {
-                      if (input) {
-                        if (openDialog) {
-                          input.focus();
-                        } else {
-                          input.blur();
-                        }
-                      }
-                    }}
-                    slotProps={{
-                      input: {
-                        ...InputProps,
-                        ref: undefined,
-                        sx: { p: `${theme.spacing(3.75, 6)} !important` },
-                        startAdornment: (
-                          <InputAdornment position='start' sx={{ color: 'text.primary' }}>
-                            <Magnify />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment
-                            position='end'
-                            onClick={() => setOpenDialog(false)}
-                            sx={{
-                              display: 'flex',
-                              cursor: 'pointer',
-                              alignItems: 'center',
-                            }}
-                          >
-                            {!hidden ? <Typography sx={{ mr: 2.5, color: 'text.disabled' }}>[esc]</Typography> : null}
-                            <IconButton size='small' sx={{ p: 1 }}>
-                              <Close fontSize='small' />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                  />
-                );
-              }}
-              renderOption={(props: any, option: AppBarSearchType | unknown, { selected }: any) => {
-                const IconTag =
-                  autocompleteIconObj[(option as AppBarSearchType).icon as keyof typeof autocompleteIconObj] ||
-                  themeConfig.navSubItemIcon;
-
-                return searchValue.length ? (
-                  <ListItem
-                    {...props}
-                    key={(option as AppBarSearchType).title}
-                    className={`suggestion ${props.className}`}
-                    onClick={() => handleOptionClick(option as AppBarSearchType)}
-                    secondaryAction={
-                      <SubdirectoryArrowLeft fontSize='small' sx={{ cursor: 'pointer', color: 'text.disabled' }} />
-                    }
-                  >
-                    <ListItemButton sx={{ py: 2.5, px: ` ${theme.spacing(6)} !important` }}>
-                      <UserIcon
-                        icon={IconTag as any}
-                        componentType='search'
-                        iconProps={{
-                          fontSize: 'small',
-                          sx: { mr: 2.5, color: 'text.primary' },
-                        }}
-                      />
-                      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                        {(option as AppBarSearchType).title}
-                      </Typography>
-                    </ListItemButton>
-                  </ListItem>
-                ) : null;
-              }}
-            />
-          </Box>
-          {searchValue.length === 0 ? (
-            <Box
-              sx={{
-                p: 10,
-                display: 'grid',
-                overflow: 'auto',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderTop: `1px solid ${theme.palette.divider}`,
-                height: fullScreenDialog ? 'calc(100vh - 69px)' : '100%',
-              }}
-            >
-              <DefaultSuggestions setOpenDialog={setOpenDialog} />
-            </Box>
-          ) : null}
-        </Dialog>
-      </Box>
-    );
-  }
+  // UI removed as requested
+  return null;
 };
 
 export default AutocompleteComponent;

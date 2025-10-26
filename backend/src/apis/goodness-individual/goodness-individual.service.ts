@@ -31,7 +31,7 @@ export class GoodnessIndividualService {
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
           student: {
-            connect: { id: body.studentKey },
+            connect: { id: body._studentKey },
           },
           classroom: {
             connect: { id: body.classroomId },
@@ -63,7 +63,7 @@ export class GoodnessIndividualService {
           goodDate: body.goodDate || null,
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
-          studentKey: student.id,
+          _studentKey: student.id,
           classroomId: student.classroom?.id,
         })),
       });
@@ -123,7 +123,7 @@ export class GoodnessIndividualService {
     }
 
     if (query.studentId) {
-      filter['studentKey'] = query.studentId;
+      filter['_studentKey'] = query.studentId;
     }
 
     const selectedStudents = await this.prisma.goodnessIndividual.findMany({
@@ -131,9 +131,9 @@ export class GoodnessIndividualService {
       skip: query.skip || 0,
       take: query.take || 1000,
       select: {
-        studentKey: true,
+        _studentKey: true,
       },
-      distinct: ['studentKey'],
+      distinct: ['_studentKey'],
     });
 
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
@@ -147,8 +147,8 @@ export class GoodnessIndividualService {
         where: {
           OR: [
             {
-              studentKey: {
-                in: selectedStudents.map((item: any) => item.studentKey),
+              _studentKey: {
+                in: selectedStudents.map((item: any) => item._studentKey),
               },
             },
           ],
@@ -176,7 +176,7 @@ export class GoodnessIndividualService {
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(
       filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
-        const { studentId, goodnessScore, studentKey } = cur;
+        const { studentId, goodnessScore, _studentKey } = cur;
         const { title, firstName, lastName } = cur.student.user.account;
         const { name } = cur.classroom;
         const key = studentId;
@@ -184,7 +184,7 @@ export class GoodnessIndividualService {
           acc[key].goodnessScore += goodnessScore;
         } else {
           acc[key] = {
-            id: studentKey,
+            id: _studentKey,
             studentId,
             goodnessScore,
             firstName: title + firstName + ' ' + lastName,
@@ -214,9 +214,9 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         select: {
-          studentKey: true,
+          _studentKey: true,
         },
-        distinct: ['studentKey'],
+        distinct: ['_studentKey'],
       },
     );
 
@@ -280,7 +280,7 @@ export class GoodnessIndividualService {
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(
       filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
-        const { id, studentId, goodnessScore, studentKey } = cur;
+        const { id, studentId, goodnessScore, _studentKey } = cur;
         const { title, firstName, lastName } = cur.student.user.account;
         const { name } = cur.classroom;
         const key = studentId;
@@ -325,9 +325,9 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         select: {
-          studentKey: true,
+          _studentKey: true,
         },
-        distinct: ['studentKey'],
+        distinct: ['_studentKey'],
       },
     );
 
@@ -389,7 +389,7 @@ export class GoodnessIndividualService {
   ): Promise<{ data: any; total: number }> {
     const selectedStudents = await this.prisma.goodnessIndividual.findMany({
       where: {
-        studentKey: id,
+        _studentKey: id,
       },
       skip: skip || 0,
       take: take || 100,
@@ -402,7 +402,7 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         where: {
-          studentKey: id,
+          _studentKey: id,
         },
       },
     );

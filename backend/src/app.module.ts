@@ -8,7 +8,6 @@ import {
 import { APP_GUARD } from '@nestjs/core';
 import { AccountsModule } from './apis/accounts/accounts.module';
 import { ActivityCheckInModule } from './apis/activity-check-in/activity-check-in.module';
-import { AppBarModule } from './apis/app-bar/app-bar.module';
 import { AppController } from './app.controller';
 import { AuditLogModule } from './apis/audit-log/audit-log.module';
 import { AuthModule } from './apis/auth/auth.module';
@@ -20,7 +19,6 @@ import { GoodnessIndividualModule } from './apis/goodness-individual/goodness-in
 import { LevelModule } from './apis/level/level.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { MinioClientModule } from './apis/minio/minio-client.module';
-import { PrismaService as PrismaMongoDbService } from './common/services/prisma-mongodb.service';
 import { PrismaService } from './common/services/prisma.service';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { ReportCheckInMiddleware } from './middlewares/report-check-in.middleware';
@@ -47,7 +45,6 @@ import validate from './config/validation';
     ]),
     AccountsModule,
     ActivityCheckInModule,
-    AppBarModule,
     AuditLogModule,
     AuthModule,
     BadnessIndividualModule,
@@ -72,7 +69,6 @@ import validate from './config/validation';
   controllers: [AppController],
   providers: [
     PrismaService,
-    PrismaMongoDbService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,

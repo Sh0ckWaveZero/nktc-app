@@ -15,7 +15,6 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "seed": "ts-node ./src/database/prisma/seed.ts",
-    "seed2": "ts-node prisma-mongodb/seed.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -30,12 +29,10 @@
     "db:fix-remaining": "ts-node ./src/scripts/fix-remaining-programs.ts",
     "db:connect-classrooms": "ts-node ./src/scripts/connect-classrooms-programs.ts",
     "db:enhanced-import": "ts-node ./src/scripts/enhanced-student-import.ts",
-    "prisma:generate": "bun prisma generate",
+    "prisma:generate": "bun prisma generate --schema ./src/database/prisma/schema.prisma",
     "prisma:migrate": "bun prisma migrate dev --name nktc-app-db",
     "prisma:push": "bun prisma db push",
-    "prisma:generate-mongo": "bun prisma generate --schema ./src/database/prisma-mongodb/schema.prisma",
-    "db:push2": "bun prisma db push --schema ./src/database/prisma-mongodb/schema.prisma",
-    "postinstall": "bun run prisma:generate && bun run prisma:generate-mongo"
+    "postinstall": "bun run prisma:generate"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -65,6 +62,7 @@
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^4.6.3",
     "ua-parser-js": "^2.0.6",
+    "uuid": "^13.0.0",
     "webpack": "^5.102.1"
   },
   "devDependencies": {
@@ -73,6 +71,7 @@
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.6",
+    "@swc-node/register": "^1.11.1",
     "@swc/cli": "^0.7.8",
     "@swc/core": "^1.13.5",
     "@swc/jest": "^0.2.39",
@@ -90,6 +89,7 @@
     "@types/request-ip": "^0.0.37",
     "@types/supertest": "^2.0.16",
     "@types/ua-parser-js": "^0.7.39",
+    "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.1",

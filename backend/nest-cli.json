@@ -3,6 +3,23 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "builder": "swc"
+    "builder": "swc",
+    "typeCheck": false,
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": false,
+          "introspectComments": true
+        }
+      }
+    ],
+    "assets": [
+      {
+        "include": "database/generated/**/*",
+        "outDir": "dist",
+        "watchAssets": true
+      }
+    ]
   }
 }

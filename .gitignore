@@ -160,3 +160,4 @@ $RECYCLE.BIN/
 .fuse_hidden*
 .directory
 .Trash-*
+backend/src/database/generated/*

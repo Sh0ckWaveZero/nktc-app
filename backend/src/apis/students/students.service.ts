@@ -601,7 +601,7 @@ export class StudentsService {
           entityName: 'นักเรียน',
         }),
 
-        processRow: async (row, headerMap, config, user, rowNumber) => {
+        processRow: async (row, headerMap, config, user, _rowNumber) => {
           const result = await this.extractAndValidateStudentData(
             row,
             headerMap,

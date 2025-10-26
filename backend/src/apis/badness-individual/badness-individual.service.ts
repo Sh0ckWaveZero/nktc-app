@@ -30,7 +30,7 @@ export class BadnessIndividualService {
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
           student: {
-            connect: { id: body.studentKey },
+            connect: { id: body._studentKey },
           },
           classroom: {
             connect: { id: body.classroomId },
@@ -62,7 +62,7 @@ export class BadnessIndividualService {
           badDate: body.badDate || null,
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
-          studentKey: student.id,
+          _studentKey: student.id,
           classroomId: student.classroom?.id,
         })),
       });
@@ -122,7 +122,7 @@ export class BadnessIndividualService {
     }
 
     if (query.studentId) {
-      filter['studentKey'] = query.studentId;
+      filter['_studentKey'] = query.studentId;
     }
 
     const selectedStudents = await this.prisma.badnessIndividual.findMany({
@@ -130,9 +130,9 @@ export class BadnessIndividualService {
       skip: query.skip || 0,
       take: query.take || 1000,
       select: {
-        studentKey: true,
+        _studentKey: true,
       },
-      distinct: ['studentKey'],
+      distinct: ['_studentKey'],
     });
 
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
@@ -146,8 +146,8 @@ export class BadnessIndividualService {
         where: {
           OR: [
             {
-              studentKey: {
-                in: selectedStudents.map((item: any) => item.studentKey),
+              _studentKey: {
+                in: selectedStudents.map((item: any) => item._studentKey),
               },
             },
           ],
@@ -176,7 +176,7 @@ export class BadnessIndividualService {
     // สรุปคะแนนความประพฤติของนักเรียน
     const summarizedStudents = Object.values(
       filteredBadnessIndividual.reduce((acc: any, cur: any) => {
-        const { studentId, badnessScore, studentKey } = cur;
+        const { studentId, badnessScore, _studentKey } = cur;
         const { title, firstName, lastName } = cur.student.user.account;
         const { name } = cur.classroom;
         const key = studentId;
@@ -184,7 +184,7 @@ export class BadnessIndividualService {
           acc[key].badnessScore += badnessScore;
         } else {
           acc[key] = {
-            id: studentKey,
+            id: _studentKey,
             studentId,
             badnessScore,
             fullName: title + firstName + ' ' + lastName,
@@ -213,9 +213,9 @@ export class BadnessIndividualService {
     // ดึงข้อมูลนักเรียนที่มีคะแนนความประพฤติจากฐานข้อมูลเพื่อนับจำนวนทั้งหมด
     const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
       select: {
-        studentKey: true,
+        _studentKey: true,
       },
-      distinct: ['studentKey'],
+      distinct: ['_studentKey'],
     });
 
     // ส่งข้อมูลสรุปคะแนนความประพฤติของนักเรียนและจำนวนทั้งหมดกลับไปยังผู้ใช้งาน
@@ -320,9 +320,9 @@ export class BadnessIndividualService {
     // ดึงข้อมูลนักเรียนที่มีคะแนนความประพฤติจากฐานข้อมูลเพื่อนับจำนวนทั้งหมด
     const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
       select: {
-        studentKey: true,
+        _studentKey: true,
       },
-      distinct: ['studentKey'],
+      distinct: ['_studentKey'],
     });
 
     // ส่งข้อมูลสรุปคะแนนความประพฤติของนักเรียนและจำนวนทั้งหมดกลับไปยังผู้ใช้งาน
@@ -383,7 +383,7 @@ export class BadnessIndividualService {
   ): Promise<{ data: any; total: number }> {
     const selectedStudents = await this.prisma.badnessIndividual.findMany({
       where: {
-        studentKey: id,
+        _studentKey: id,
       },
       skip: skip || 0,
       take: take || 100,
@@ -395,7 +395,7 @@ export class BadnessIndividualService {
     // total
     const totalSelectedStudents = await this.prisma.badnessIndividual.findMany({
       where: {
-        studentKey: id,
+        _studentKey: id,
       },
     });
 

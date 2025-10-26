@@ -16,6 +16,10 @@
   "module": {
     "type": "commonjs"
   },
-  "sourceMaps": true,
-  "minify": false
+  "sourceMaps": "inline",
+  "minify": false,
+  "exclude": [
+    "node_modules/**",
+    "src/database/generated/**"
+  ]
 }
