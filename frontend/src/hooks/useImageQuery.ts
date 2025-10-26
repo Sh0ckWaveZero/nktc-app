@@ -113,7 +113,7 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
         }
 
         // Fetch the image from the server with timeout
-        const controller = new AbortController();
+        const controller = new (globalThis as any).AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
         try {

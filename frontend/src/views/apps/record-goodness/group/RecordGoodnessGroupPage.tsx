@@ -71,6 +71,10 @@ const RecordGoodnessGroupPage = () => {
     setSearchValue({ fullName: value });
   }, []);
 
+  const handleCloseSelectStudents = () => {
+    setOpenSelectStudents(false);
+  };
+
   const onHandleClassroomChange = useCallback(
     (e: any, newValue: any) => {
       e.preventDefault();
@@ -97,9 +101,6 @@ const RecordGoodnessGroupPage = () => {
 
   const onOpenSelectStudents = () => {
     setOpenSelectStudents(true);
-  };
-  const handleCloseSelectStudents = () => {
-    setOpenSelectStudents(false);
   };
 
   const onOpenSelectClassroom = () => {

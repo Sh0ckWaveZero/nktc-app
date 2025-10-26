@@ -509,6 +509,13 @@ const ActivityCheckInReportPage = () => {
     onClearAll('');
   };
 
+  const currentDate = new Date().toLocaleDateString('th-TH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     ability?.can('read', 'check-in-page') &&
     (auth?.user?.role as string) !== 'Admin' && (
@@ -524,12 +531,7 @@ const ActivityCheckInReportPage = () => {
                 }
                 sx={{ color: 'text.primary' }}
                 title={`เช็คชื่อกิจกรรม`}
-                subheader={`${new Date(Date.now()).toLocaleDateString('th-TH', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}`}
+                subheader={currentDate}
               />
               <CardContent>
                 {!isEmpty(currentStudents) && (
