@@ -1,7 +1,6 @@
 import { Icon } from '@iconify/react';
 import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { Fragment } from 'react';
 
 interface ListItem {
   icon: string;

@@ -31,14 +31,26 @@ nktc-app/
 
 #### Frontend
 
-- **Next.js 15.4.2** with App Router (migrated from Pages Router)
-- **React 19.1.0** with functional components and hooks
-- **TypeScript 5.8.3** for type safety
-- **Material-UI 7.x** as primary UI framework
-- **Zustand 4.4.4** for state management
-- **React Query (@tanstack/react-query)** for server state
-- **React Hook Form + Yup** for form handling and validation
-- **Emotion** for CSS-in-JS styling
+- **Next.js 16.0.0** with App Router (migrated from Pages Router)
+- **React 19.2.0** with functional components and hooks
+- **TypeScript 5.9.3** for type safety
+- **Material-UI 7.3.4** as primary UI framework
+  - MUI Icons Material 7.3.4
+  - MUI Lab 7.0.1-beta.18
+  - MUI X Data Grid 8.14.1
+  - MUI X Date Pickers 8.14.1
+- **Zustand 5.0.8** for global state management
+- **React Query 5.90.5** (@tanstack/react-query) for server state management
+- **React Hook Form 7.65.0 + Yup 1.7.1** for form handling and validation
+- **Emotion 11.14.0** for CSS-in-JS styling
+- **Additional Libraries:**
+  - CASL 6.7.3 for ACL (Access Control List)
+  - Axios 1.12.2 for HTTP requests
+  - Date-fns 4.1.0 with Buddhist calendar support
+  - FullCalendar 6.1.19 for scheduling
+  - Recharts 3.3.0 for data visualization
+  - Vitest 2.1.2 for testing
+  - ESLint 9.37.0 with TypeScript support
 
 #### Backend
 
@@ -139,7 +151,7 @@ cd backend && npm run seed
 
 ### App Router Structure
 
-The project uses Next.js 15 App Router with the following key directories:
+The project uses Next.js 16 App Router with the following key directories:
 
 - `src/app/` - App Router pages and layouts
 - `src/@core/` - Core framework components and utilities

@@ -65,7 +65,7 @@ const ACLProvider = ({ children }: { children: ReactNode }) => {
 
   try {
     auth = useContext(AuthContext);
-  } catch (error) {
+  } catch {
     // Context is not available during static generation
     auth = null;
   }

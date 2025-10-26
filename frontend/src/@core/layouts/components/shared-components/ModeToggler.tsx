@@ -1,5 +1,4 @@
 // ** MUI Imports
-import { PaletteMode } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { useColorScheme } from '@mui/material/styles';
 
