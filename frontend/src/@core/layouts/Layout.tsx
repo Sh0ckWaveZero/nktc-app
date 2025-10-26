@@ -49,6 +49,7 @@ const Layout = (props: LayoutProps) => {
     }
 
     setHasInitialized(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hidden, mounted]);
 
   // Prevent rendering until mounted to avoid hydration mismatch

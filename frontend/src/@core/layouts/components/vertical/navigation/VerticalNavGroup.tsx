@@ -1,10 +1,10 @@
 'use client';
 
 // ** React Imports
-import { useEffect, Fragment } from 'react';
+import { useEffect } from 'react';
 
 // ** Next Import
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip';
@@ -93,7 +93,6 @@ const VerticalNavGroup = (props: Props) => {
 
   // ** Hooks & Vars
   const theme = useTheme();
-  const router = useRouter();
   const pathname = usePathname();
   const currentURL = pathname;
   const { skin, direction, navCollapsed, verticalNavToggleType } = settings;

@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { forwardRef, Ref } from 'react';
+import { forwardRef } from 'react';
 
 // ** MUI Imports
 import MuiAvatar from '@mui/material/Avatar';

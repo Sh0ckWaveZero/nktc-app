@@ -42,7 +42,7 @@ const Drawer = (props: Props) => {
   const theme = useTheme();
 
   // ** Vars
-  const { skin, navCollapsed } = settings;
+  const { navCollapsed } = settings;
 
   // Drawer Props for Mobile & Tablet screens
   const MobileDrawerProps = {

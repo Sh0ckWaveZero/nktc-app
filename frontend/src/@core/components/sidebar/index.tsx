@@ -1,5 +1,5 @@
 // ** React Imports
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // ** MUI Imports
 import Backdrop from '@mui/material/Backdrop';

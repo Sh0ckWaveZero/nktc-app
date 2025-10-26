@@ -4,7 +4,7 @@
 import { ReactNode, useState } from 'react';
 
 // ** Next Imports
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 // ** Types
 import type { ACLObj, AppAbility } from '@/configs/acl';
@@ -36,7 +36,6 @@ const AclGuard = (props: AclGuardProps) => {
 
   // ** Hooks
   const auth = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access

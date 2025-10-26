@@ -1,7 +1,7 @@
 'use client';
 
 import { AccountOutline, CogOutline, EmailOutline, LogoutVariant } from 'mdi-material-ui';
-import React, { Fragment, SyntheticEvent, useState } from 'react';
+import React, { SyntheticEvent, useState } from 'react';
 
 import { Avatar, CircularProgress } from '@mui/material';
 import Badge from '@mui/material/Badge';

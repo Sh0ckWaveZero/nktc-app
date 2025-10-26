@@ -4,7 +4,7 @@
 import React, { SyntheticEvent, useState, useEffect } from 'react';
 
 // ** Next Import
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -100,7 +100,6 @@ const HorizontalNavGroup = (props: Props) => {
 
   // ** Hooks & Vars
   const theme = useTheme();
-  const router = useRouter();
   const pathname = usePathname();
   const currentURL = pathname;
   const { skin, direction } = settings;
@@ -140,7 +139,9 @@ const HorizontalNavGroup = (props: Props) => {
   const handleGroupOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget);
     setMenuOpen(true);
-    update ? update() : null;
+    if (update) {
+      update();
+    }
   };
 
   const handleGroupClose = () => {
