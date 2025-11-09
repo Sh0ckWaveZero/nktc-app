@@ -15,7 +15,7 @@ import Icon from '@/@core/components/icon';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface CellType {
   row: any;

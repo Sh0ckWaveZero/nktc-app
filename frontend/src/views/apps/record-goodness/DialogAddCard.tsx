@@ -26,7 +26,7 @@ import { generateErrorMessages } from '@/utils/event';
 import { getInitials } from '@/@core/utils/get-initials';
 import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
@@ -129,15 +129,20 @@ const DialogAddCard = (props: DialogAddCardProps) => {
       updatedBy: user?.id,
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     await createGoodnessIndividual(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('บันทึกข้อมูลสำเร็จ');
         handleOnSearch();
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(message || 'เกิดข้อผิดพลาด');
       }
     });
   };

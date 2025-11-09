@@ -50,7 +50,8 @@
       "Bash(lsof:*)",
       "Bash(npm run start:prod:*)",
       "Bash(pkill:*)",
-      "Bash(npm run start:dev:*)"
+      "Bash(npm run start:dev:*)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": []
   }

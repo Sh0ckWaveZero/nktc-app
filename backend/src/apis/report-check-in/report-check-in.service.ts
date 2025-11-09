@@ -9,52 +9,76 @@ export class ReportCheckInService {
   constructor(private prisma: PrismaService) {}
 
   async create(createReportCheckInDto: Prisma.ReportCheckInCreateInput) {
-    const startDate = new Date(createReportCheckInDto.checkInDate);
-    const endDate = new Date(createReportCheckInDto.checkInDate);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
+    try {
+      // Validate required fields
+      if (!createReportCheckInDto.teacherId || !createReportCheckInDto.classroomId) {
+        throw new Error('teacherId and classroomId are required');
+      }
 
-    const reportCheckIn = await this.prisma.reportCheckIn.findFirst({
-      where: {
-        teacherId: createReportCheckInDto.teacherId,
-        classroomId: createReportCheckInDto.classroomId,
-        checkInDate: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
+      // Convert checkInDate to Date if it's a string
+      const checkInDate = createReportCheckInDto.checkInDate
+        ? new Date(createReportCheckInDto.checkInDate)
+        : new Date();
 
-    if (reportCheckIn) {
-      // update
-      return await this.prisma.reportCheckIn.update({
+      const startDate = new Date(checkInDate);
+      const endDate = new Date(checkInDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      const reportCheckIn = await this.prisma.reportCheckIn.findFirst({
         where: {
-          id: reportCheckIn.id,
-        },
-        data: {
-          ...createReportCheckInDto,
-          updatedBy: createReportCheckInDto.teacherId,
+          teacherId: createReportCheckInDto.teacherId,
+          classroomId: createReportCheckInDto.classroomId,
+          checkInDate: {
+            gte: startDate,
+            lte: endDate,
+          },
         },
       });
-    }
 
-    return await this.prisma.reportCheckIn.create({
-      data: {
+      const data = {
         ...createReportCheckInDto,
+        checkInDate: checkInDate,
+        present: createReportCheckInDto.present || [],
+        absent: createReportCheckInDto.absent || [],
+        late: createReportCheckInDto.late || [],
+        leave: createReportCheckInDto.leave || [],
+        internship: createReportCheckInDto.internship || [],
         createdBy: createReportCheckInDto.teacherId,
         updatedBy: createReportCheckInDto.teacherId,
-        teacher: {
-          connect: {
-            id: createReportCheckInDto.teacherId,
+      };
+
+      if (reportCheckIn) {
+        // update
+        return await this.prisma.reportCheckIn.update({
+          where: {
+            id: reportCheckIn.id,
+          },
+          data: {
+            ...data,
+          },
+        });
+      }
+
+      return await this.prisma.reportCheckIn.create({
+        data: {
+          ...data,
+          teacher: {
+            connect: {
+              id: createReportCheckInDto.teacherId,
+            },
+          },
+          classroom: {
+            connect: {
+              id: createReportCheckInDto.classroomId,
+            },
           },
         },
-        classroom: {
-          connect: {
-            id: createReportCheckInDto.classroomId,
-          },
-        },
-      },
-    });
+      });
+    } catch (error) {
+      console.error('Error in ReportCheckInService.create:', error);
+      throw error;
+    }
   }
 
   async findOne(teachId: string, classroomId: string) {

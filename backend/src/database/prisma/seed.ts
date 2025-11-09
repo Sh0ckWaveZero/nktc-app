@@ -35,7 +35,7 @@ const seedProgram = async () => {
   console.log('🚀 ~ file: seed.ts:42 ~ seedProgram ~ data:', data);
 };
 
-const seedDepartment = async () => {
+const _seedDepartment = async () => {
   const result = (await departmentData()).forEach(async (item: any) => {
     return await prisma.department.create({ data: item });
   });

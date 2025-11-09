@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 // Date formatting helper using date-fns
 import { formatThaiShortDate } from '@/@core/utils/thai-calendar';
+import { TableEmptyState } from '@/@core/components/check-in/CustomNoRowsOverlay';
 
 interface TeacherActivityTableProps {
   teachers: Array<{
@@ -36,9 +37,10 @@ interface TeacherActivityTableProps {
     department?: string;
     program?: string;
   }>;
+  noOptionsText?: string;
 }
 
-const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
+const TeacherActivityTable = ({ teachers, noOptionsText = 'ไม่พบข้อมูล' }: TeacherActivityTableProps) => {
   const [searchText, setSearchText] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [programFilter, setProgramFilter] = useState<string>('all');
@@ -183,10 +185,8 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
             <TableBody>
               {currentPageData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align='center'>
-                    <Typography variant='body2' color='text.secondary'>
-                      ไม่พบข้อมูล
-                    </Typography>
+                  <TableCell colSpan={7} align='center' sx={{ py: 8, height: 400 }}>
+                    <TableEmptyState text={noOptionsText} />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -252,14 +252,14 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
 
         {/* Pagination */}
         <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          rowsPerPageOptions={filteredTeachers.length === 0 ? [] : [10, 25, 50, 100]}
           component='div'
           count={filteredTeachers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage='แสดง:'
+          labelRowsPerPage={filteredTeachers.length === 0 ? '' : 'แสดง:'}
           labelDisplayedRows={({ from, to, count }) => {
             return `${from}-${to} จากทั้งหมด ${count}`;
           }}

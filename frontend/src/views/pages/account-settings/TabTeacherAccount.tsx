@@ -25,7 +25,7 @@ import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth';
 import useImageQuery from '@/hooks/useImageQuery';
 import useImageCompression from '@/hooks/useImageCompression';
@@ -210,10 +210,14 @@ const TabTeacherAccount = () => {
       classrooms: classroomSelected.map((item: any) => item.id),
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('บันทึกข้อมูลสำเร็จ');
 
         await getMe().then(async (data: any) => {
           auth?.setUser({ ...(await data) });
@@ -225,7 +229,8 @@ const TabTeacherAccount = () => {
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(message || 'เกิดข้อผิดพลาด');
       }
     });
   };

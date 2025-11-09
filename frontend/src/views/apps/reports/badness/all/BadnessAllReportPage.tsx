@@ -15,7 +15,7 @@ import { badnessIndividualStore } from '@/store/index';
 import { deepOrange } from '@mui/material/colors';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
 

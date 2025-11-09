@@ -1,168 +1,192 @@
 'use client';
 
+import { useState, useMemo, useContext, useEffect, useRef } from 'react';
 import {
-  Alert,
-  AlertTitle,
   Avatar,
   Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Checkbox,
-  CheckboxProps,
-  Container,
+  Chip,
   Grid,
-  IconButton,
-  Paper,
-  Popper,
-  Stack,
-  Tooltip,
   Typography,
-  alpha,
-  styled,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DataGrid, GridCellParams, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
-import React, { Fragment, useContext, useRef, useState } from 'react';
-import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
-
-import { AbilityContext } from '@/layouts/components/acl/Can';
-import { Close } from 'mdi-material-ui';
-import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import { CustomNoRowsOverlayActivityCheckedIn } from '@/@core/components/check-in/checkedIn';
-import { HiFlag } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
-import IconifyIcon from '@/@core/components/icon';
-import RenderAvatar from '@/@core/components/avatar';
-import TableHeader from '@/views/apps/reports/TableHeader';
-import { isEmpty } from '@/@core/utils/utils';
-import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffectOnce } from '@/hooks/userCommon';
+import { useTeacherStudents } from '@/hooks/queries/useTeachers';
+import { useActivityCheckIn, useAddActivityCheckIn } from '@/hooks/queries/useActivityCheckIn';
+import { toast } from 'react-toastify';
+import ActivityStudentCard from './components/ActivityStudentCard';
+import MobilePaginationControls from '@/views/apps/reports/check-in/components/MobilePaginationControls';
+import CheckInControls from '@/views/apps/reports/check-in/components/CheckInControls';
+import ActivityCheckInDataGrid from './components/ActivityCheckInDataGrid';
+import { shallow } from 'zustand/shallow';
 import { useRouter } from 'next/navigation';
-
-interface CellType {
-  row: any;
-}
-
-const NORMAL_OPACITY = 0.2;
-
-const DataGridCustom = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.internship`]: {
-    backgroundColor: theme.palette.grey[200],
-    ...theme.applyStyles('dark', {
-      backgroundColor: theme.palette.grey[700],
-    }),
-    '&:hover, &.Mui-hovered': {
-      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY),
-      '@media (hover: none)': {
-        backgroundColor: 'transparent',
-      },
-    },
-    '&.Mui-selected': {
-      backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
-      '&:hover, &.Mui-hovered': {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          NORMAL_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
-        ),
-        '@media (hover: none)': {
-          backgroundColor: alpha(theme.palette.primary.main, NORMAL_OPACITY + theme.palette.action.selectedOpacity),
-        },
-      },
-    },
-  },
-}));
-
-const CheckboxStyled = styled(Checkbox)<CheckboxProps>(() => ({
-  padding: '0 0 0 4px',
-}));
+import { AbilityContext } from '@/layouts/components/acl/Can';
 
 const ActivityCheckInReportPage = () => {
   // ** Hooks
   const auth = useAuth();
   const theme = useTheme();
-  const alignCenter = useMediaQuery(theme.breakpoints.down('md')) ? 'center' : 'left';
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const { getActivityCheckIn, addActivityCheckIn }: any = useActivityCheckInStore(
-    (state) => ({
-      getActivityCheckIn: state.getActivityCheckIn,
-      addActivityCheckIn: state.addActivityCheckIn,
-    }),
-    shallow,
-  );
-  const { fetchStudentsByTeacherId }: any = useTeacherStore(
-    (state) => ({ fetchStudentsByTeacherId: state.fetchStudentsByTeacherId }),
-    shallow,
-  );
   const ability = useContext(AbilityContext);
   const router = useRouter();
+  const hasCheckedAuth = useRef(false);
+
+  // ** React Query - Fetch teacher's students and classrooms
+  const teacherId = auth?.user?.teacher?.id as string;
+  const {
+    data: teacherData,
+    isLoading: isLoadingTeacherData,
+  } = useTeacherStudents(teacherId);
+
+  // ** Local State for classroom
+  const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
+  const [classrooms, setClassrooms] = useState<any>([]);
+
+  // ** React Query - Fetch activity check-in data
+  const {
+    data: activityCheckInData,
+    isLoading: isLoadingCheckIn,
+    refetch: refetchCheckIn,
+  } = useActivityCheckIn({
+    teacher: teacherId,
+    classroom: defaultClassroom?.id || '',
+  });
+
+  // ** React Query - Add activity check-in mutation
+  const addCheckInMutation = useAddActivityCheckIn();
+
+  // Memoize responsive values to prevent unnecessary re-renders
+  const responsiveConfig = useMemo(
+    () => ({
+      isMobile,
+      isTablet,
+      isSmallMobile,
+      cardPadding: isMobile ? 2 : 3,
+      formSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
+      gridSpacing: isMobile ? 3 : 4,
+      containerSpacing: isMobile ? 4 : 6,
+      buttonSize: 'small' as 'small' | 'medium',
+      titleVariant: isMobile ? 'h6' : 'h5',
+      titleFontSize: isMobile ? '1.1rem' : '1.25rem',
+      subheaderVariant: isMobile ? 'body2' : 'body1',
+      dataGridRowHeight: isTablet ? 70 : 80,
+      dataGridFontSize: isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
+      dataGridPadding: isMobile ? '8px' : '16px',
+      inputPadding: isMobile ? '12px 14px' : '16.5px 14px',
+      inputFontSize: isMobile ? '0.9rem' : '1rem',
+      chipSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
+      chipMinWidth: isMobile ? 60 : 80,
+      buttonMinWidth: isMobile ? 'auto' : '80px',
+      buttonFontSize: isMobile ? '0.8rem' : '0.875rem',
+    }),
+    [isMobile, isTablet, isSmallMobile],
+  );
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [normalStudents, setNormalStudents] = useState<any>([]);
-  const [pageSize, setPageSize] = useState<number>(currentStudents.length || 0);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [mobilePage, setMobilePage] = useState<number>(0);
+  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
   const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
   const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
-  const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [classrooms, setClassrooms] = useState<any>(null);
-  const [reportCheckIn, setReportCheckIn] = useState<any>(false);
-  const [loading, setLoading] = useState(true);
-  const [openAlert, setOpenAlert] = useState<boolean>(true);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [hasSavedCheckIn, setHasSavedCheckIn] = useState<boolean>(false);
 
-  const timer = useRef<NodeJS.Timeout | null>(null);
+  // Combine loading states
+  const loading = isLoadingTeacherData || isLoadingCheckIn;
 
-  // ** Popper
-  const popperRef = useRef<HTMLDivElement>(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openPopper = Boolean(anchorEl);
-
-  // ดึงข้อมูลห้องเรียนของครู
-  useEffectOnce(() => {
-    const fetchData = async () => {
-      const teacherId = auth?.user?.teacher?.id as string;
-      setLoading(true);
-      const { data: classroomData } = await fetchStudentsByTeacherId(teacherId);
-      if (!classroomData.classrooms || !classroomData.classrooms.length) {
-        setLoading(false);
-        return;
-      }
-
-      const [classroom] = classroomData.classrooms;
-
-      if (!classroom) {
-        setLoading(false);
-        return;
-      }
-
-      await getCheckInStatus(teacherId, classroom.id);
-      const { students } = classroom;
-
-      if (!students || !students.length) {
-        return;
-      }
-
-      setDefaultClassroom(classroom);
-      setClassrooms(classroomData.classrooms);
-      setCurrentStudents(students);
-      setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
-      setPageSize(students.length);
-      setLoading(false);
-    };
-
+  // Authorization check - run once on mount
+  useEffect(() => {
+    if (hasCheckedAuth.current) return;
+    hasCheckedAuth.current = true;
+    
     const isInRole = (auth?.user?.role as string) === 'Admin';
     if (!ability?.can('read', 'check-in-page') || isInRole) {
       router.push('/401');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Process activity check-in data when available
+  useEffect(() => {
+    if (!activityCheckInData) {
+      // No check-in data exists - reset everything
+      setHasSavedCheckIn(false);
+      setIsPresentCheck([]);
+      setIsAbsentCheck([]);
+      setIsPresentCheckAll(false);
+      setIsAbsentCheckAll(false);
       return;
     }
 
-    fetchData();
-  });
+    // Check if data exists and has valid structure
+    const hasValidData = activityCheckInData &&
+      typeof activityCheckInData === 'object' &&
+      Object.keys(activityCheckInData).length > 0 &&
+      (activityCheckInData.id || activityCheckInData.present || activityCheckInData.absent || activityCheckInData.data);
+
+    if (hasValidData) {
+      // Handle nested data structure
+      const reportData = activityCheckInData?.data || activityCheckInData;
+      setHasSavedCheckIn(true);
+
+      if (reportData?.present && Array.isArray(reportData.present) && reportData.present.length > 0) {
+        setIsPresentCheck(reportData.present);
+      } else {
+        setIsPresentCheck([]);
+      }
+
+      if (reportData?.absent && Array.isArray(reportData.absent) && reportData.absent.length > 0) {
+        setIsAbsentCheck(reportData.absent);
+      } else {
+        setIsAbsentCheck([]);
+      }
+    } else {
+      setHasSavedCheckIn(false);
+      setIsPresentCheck([]);
+      setIsAbsentCheck([]);
+      setIsPresentCheckAll(false);
+      setIsAbsentCheckAll(false);
+    }
+  }, [activityCheckInData]);
+
+  // Process teacher data when available
+  useEffect(() => {
+    if (!teacherData?.classrooms || !teacherData.classrooms.length) {
+      return;
+    }
+
+    const [classroom] = teacherData.classrooms;
+
+    if (!classroom) {
+      return;
+    }
+
+    const { students } = classroom;
+
+    if (!students || !students.length) {
+      return;
+    }
+
+    // Initialize state with first classroom
+    setDefaultClassroom(classroom);
+    setClassrooms(teacherData.classrooms);
+    setCurrentStudents(students);
+    setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
+
+    // Set pageSize to a valid option based on student count
+    const validPageSizeOptions = [5, 10, 25, 50, 100];
+    const studentCount = students.length;
+    const appropriatePageSize = validPageSizeOptions.find(size => size >= studentCount) || validPageSizeOptions[validPageSizeOptions.length - 1];
+    setPageSize(appropriatePageSize);
+  }, [teacherData]);
 
   const onHandleToggle = (action: string, param: any): void => {
     switch (action) {
@@ -287,210 +311,67 @@ const ActivityCheckInReportPage = () => {
     }
   };
 
-  const handleCellClick: GridEventListener<'cellClick'> = (params: any) => {
-    params.row.status !== 'internship' ? onHandleToggle(params.field, params.row) : null;
-  };
-
-  const handleColumnHeaderClick: GridEventListener<'columnHeaderClick'> = (params: any) => {
-    onHandleCheckAll(params.field);
-  };
-
-  const handleMouseEnter = () => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    timer.current = setTimeout(() => {
-      setIsHovered(false);
-    }, 2000);
-  };
-
-  const handlePopperOpen = (event: any) => {
-    const id = event.currentTarget.dataset.id;
-    const row = normalStudents.find((item: any) => item.id === id);
-    if (!isEmpty(row)) {
-      setAnchorEl(null);
-    } else {
-      setAnchorEl(event.currentTarget);
+  const handleCellClick = (params: any) => {
+    if (!hasSavedCheckIn && params.row.status !== 'internship') {
+      onHandleToggle(params.field, params.row);
     }
   };
 
-  const handlePopperClose = (event: any) => {
-    if (anchorEl == null || (popperRef.current && popperRef.current.contains(event.nativeEvent.relatedTarget))) {
-      return;
+  const handleColumnHeaderClick = (params: any) => {
+    if (!hasSavedCheckIn) {
+      onHandleCheckAll(params.field);
     }
-    setAnchorEl(null);
   };
 
-  const getCheckInStatus = async (teacher: string, classroom: string) => {
-    setLoading(true);
-    await getActivityCheckIn({ teacher, classroom }).then(async (data: any) => {
-      setReportCheckIn(await data);
-      setLoading(false);
-    });
+  // Get student status for display
+  const getStudentStatus = (studentId: any) => {
+    if (isPresentCheck.includes(studentId)) return { status: 'เข้าร่วม', color: 'success' as const };
+    if (isAbsentCheck.includes(studentId)) return { status: 'ไม่เข้าร่วม', color: 'error' as const };
+    return { status: 'ยังไม่เช็ค', color: 'default' as const };
   };
 
-  const columns: GridColDef[] = [
-    {
-      flex: 0.25,
-      minWidth: 220,
-      field: 'fullName',
-      headerName: 'ชื่อ-สกุล',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} />
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography
-                noWrap
-                variant='body2'
-                sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}
-              >
-                {row?.title + '' + row?.firstName + ' ' + row?.lastName}
-              </Typography>
-              <Stack direction='row' alignItems='center' gap={1}>
-                <Typography
-                  noWrap
-                  variant='caption'
-                  sx={{
-                    textDecoration: 'none',
-                  }}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  @{row?.studentId}
-                </Typography>
-                {isHovered && (
-                  <Tooltip title='คัดลอกไปยังคลิปบอร์ด' placement='top'>
-                    <span>
-                      <IconButton
-                        size='small'
-                        sx={{ p: 0, ml: 0 }}
-                        onClick={() => {
-                          navigator.clipboard.writeText(row?.studentId);
-                          toast.success('คัดลอกไปยังคลิปบอร์ดเรียบร้อยแล้ว');
-                        }}
-                      >
-                        <IconifyIcon
-                          icon='pajamas:copy-to-clipboard'
-                          color={`${theme.palette.grey[500]}`}
-                          width={16}
-                          height={16}
-                        />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                )}
-              </Stack>
-            </Box>
-          </Box>
-        );
-      },
-    },
-    {
-      flex: 0.2,
-      minWidth: 110,
-      field: 'present',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      align: alignCenter as any,
-      renderHeader: () => (
-        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'center' }}>
-          {'เข้าร่วม'}
-          <CheckboxStyled
-            color='success'
-            checked={isPresentCheckAll || false}
-            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
-            checkedIcon={
-              <Icon
-                fontSize='1.5rem'
-                icon={
-                  isPresentCheck.length === normalStudents.length
-                    ? 'material-symbols:check-box-rounded'
-                    : 'material-symbols:indeterminate-check-box-rounded'
-                }
-              />
-            }
-          />
-        </Container>
-      ),
-      renderCell: (params: GridCellParams) => (
-        <Checkbox
-          color='success'
-          checked={isPresentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'internship'}
-          disableRipple
-          disableFocusRipple
-        />
-      ),
-    },
-    {
-      flex: 0.2,
-      minWidth: 110,
-      field: 'absent',
-      editable: false,
-      sortable: false,
-      hideSortIcons: true,
-      align: alignCenter as any,
-      renderHeader: () => (
-        <Container className='MuiDataGrid-columnHeaderTitle' sx={{ display: 'flex', textAlign: 'start' }}>
-          {'ไม่เข้าร่วม'}
-          <CheckboxStyled
-            color='error'
-            checked={isAbsentCheckAll || false}
-            icon={<Icon fontSize='1.5rem' icon={'material-symbols:check-box-outline-blank'} />}
-            checkedIcon={
-              <Icon
-                fontSize='1.5rem'
-                icon={
-                  isAbsentCheck.length === normalStudents.length
-                    ? 'material-symbols:check-box-rounded'
-                    : 'material-symbols:indeterminate-check-box-rounded'
-                }
-              />
-            }
-          />
-        </Container>
-      ),
-      renderCell: (params: GridCellParams) => (
-        <Checkbox
-          color='error'
-          checked={isAbsentCheck.includes(params.id) || false}
-          disabled={params.row.status === 'internship'}
-          disableRipple
-          disableFocusRipple
-        />
-      ),
-    },
-  ];
+  // Mobile pagination helpers
+  const getPaginatedStudents = () => {
+    const startIndex = mobilePage * mobilePageSize;
+    const endIndex = startIndex + mobilePageSize;
+    return currentStudents.slice(startIndex, endIndex);
+  };
 
-  // submit
-  const onHandleSubmit = async (event: any) => {
-    event.preventDefault();
+  const getTotalMobilePages = () => {
+    return Math.ceil((currentStudents?.length ?? 0) / mobilePageSize);
+  };
+
+  const handleMobilePageChange = (newPage: number) => {
+    setMobilePage(newPage);
+  };
+
+  const handleMobilePageSizeChange = (newPageSize: number) => {
+    setMobilePageSize(newPageSize);
+    setMobilePage(0);
+  };
+
+  // Submit handler
+  const handleSaveCheckIn = async () => {
+    if (!defaultClassroom) return;
+
     const data = {
-      teacherId: auth?.user?.teacher?.id,
+      teacherId: auth?.user?.teacher?.id as string,
       classroomId: defaultClassroom.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
       checkInDate: new Date(),
       status: '1',
     };
+
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
-    if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addActivityCheckIn(data), {
-        loading: 'กำลังบันทึกเช็คชื่อ...',
-        success: 'บันทึกเช็คชื่อสำเร็จ',
-        error: 'เกิดข้อผิดพลาด',
-      });
-      getCheckInStatus(auth?.user?.teacher?.id as string, defaultClassroom?.id);
-      onClearAll('');
+    if (totalStudents === currentStudents.length && !hasSavedCheckIn) {
+      try {
+        await addCheckInMutation.mutateAsync(data);
+        onClearAll('');
+        toast.success('บันทึกเช็คชื่อสำเร็จ');
+      } catch (error) {
+        toast.error('เกิดข้อผิดพลาด');
+      }
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
     }
@@ -501,168 +382,294 @@ const ActivityCheckInReportPage = () => {
     const {
       target: { value },
     } = event;
-    const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
-    await getCheckInStatus(auth?.user?.teacher?.id as string, classroomObj?.id);
-    setCurrentStudents(classroomObj.students);
-    setDefaultClassroom(classroomObj);
-    setOpenAlert(true);
-    onClearAll('');
+    const classroomObj: any = classrooms.find((item: any) => item.name === value);
+
+    if (classroomObj) {
+      setCurrentStudents(classroomObj.students || []);
+      setNormalStudents((classroomObj.students || []).filter((student: any) => student?.status !== 'internship'));
+      setDefaultClassroom(classroomObj);
+
+      // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
+      const studentCount = classroomObj.students?.length || 0;
+      const validPageSizes = [5, 10, 25, 50, 100];
+      const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 5;
+      const closestSize = validPageSizes.find(size => size >= calculatedSize) || validPageSizes[0];
+      setPageSize(Math.min(closestSize, studentCount > 0 ? studentCount : 5));
+      setCurrentPage(0);
+      setMobilePage(0);
+
+      // Refetch check-in data for new classroom
+      await refetchCheckIn();
+      onClearAll('');
+    }
   };
 
-  const currentDate = new Date().toLocaleDateString('th-TH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const isInRole = (auth?.user?.role as string) === 'Admin';
+  if (!ability?.can('read', 'check-in-page') || isInRole) {
+    router.push('/401');
+    return null;
+  }
 
   return (
-    ability?.can('read', 'check-in-page') &&
-    (auth?.user?.role as string) !== 'Admin' && (
-      <React.Fragment>
-        <Grid container spacing={6}>
-          <Grid size={12}>
-            <Card>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
-                    <HiFlag />
-                  </Avatar>
-                }
-                sx={{ color: 'text.primary' }}
-                title={`เช็คชื่อกิจกรรม`}
-                subheader={currentDate}
-              />
-              <CardContent>
-                {!isEmpty(currentStudents) && (
-                  <>
-                    <Typography
-                      variant='subtitle1'
-                      sx={{ pb: 3 }}
-                    >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                    {isEmpty(reportCheckIn) ? (
-                      openAlert ? (
-                        <Grid sx={{ mb: 3 }} size={12}>
-                          <Alert
-                            severity='error'
-                            sx={{ '& a': { fontWeight: 400 } }}
-                            action={
-                              <IconButton
-                                size='small'
-                                color='inherit'
-                                aria-label='close'
-                                onClick={() => setOpenAlert(false)}
-                              >
-                                <Close fontSize='inherit' />
-                              </IconButton>
-                            }
-                          >
-                            <AlertTitle>ยังไม่มีการเช็คชื่อร่วมกิจกรรม</AlertTitle>
-                          </Alert>
-                        </Grid>
-                      ) : null
-                    ) : openAlert ? (
-                      <Grid sx={{ mb: 3 }} size={12}>
-                        <Alert
-                          severity='success'
-                          sx={{ '& a': { fontWeight: 400 } }}
-                          action={
-                            <IconButton
-                              size='small'
-                              color='inherit'
-                              aria-label='close'
-                              onClick={() => setOpenAlert(false)}
-                            >
-                              <Close fontSize='inherit' />
-                            </IconButton>
-                          }
-                        >
-                          <AlertTitle>เช็คชื่อร่วมกิจกรรมเรียบร้อยแล้ว</AlertTitle>
-                        </Alert>
-                      </Grid>
-                    ) : null}
-                  </>
-                )}
-              </CardContent>
-              <TableHeader
-                value={classrooms}
-                handleChange={handleSelectChange}
-                defaultValue={defaultClassroom?.name ?? ''}
-                handleSubmit={onHandleSubmit}
-              />
-              <DataGridCustom
-                columns={columns}
-                rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
-                disableColumnMenu
-                loading={loading}
-                rowHeight={isEmpty(reportCheckIn) ? (isEmpty(currentStudents) ? 200 : 50) : 200}
-                initialState={{
-                  pagination: {
-                    paginationModel: { pageSize: pageSize || 10, page: 0 },
-                  },
-                }}
-                pageSizeOptions={[10, 25, 50, 100, pageSize]}
-                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-                onCellClick={handleCellClick}
-                onColumnHeaderClick={handleColumnHeaderClick}
-                getRowClassName={(params) => {
-                  return params.row.status === 'internship' ? 'internship' : 'normal';
-                }}
-                slots={{
-                  noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
-                }}
-                slotProps={{
-                  row: {
-                    onMouseEnter: handlePopperOpen,
-                    onMouseLeave: handlePopperClose,
-                  },
-                }}
-                sx={{
-                  '& .MuiDataGrid-row': {
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                    },
-                    maxHeight: 'none !important',
-                  },
-                  '& .MuiDataGrid-cell': {
-                    display: 'flex',
-                    alignItems: 'center',
-                    lineHeight: 'unset !important',
-                    maxHeight: 'none !important',
-                    overflow: 'visible',
-                    whiteSpace: 'normal',
-                    wordWrap: 'break-word',
-                  },
-                  '& .MuiDataGrid-renderingZone': {
-                    maxHeight: 'none !important',
-                  },
-                }}
-              />
-              <Popper
-                ref={popperRef}
-                open={openPopper}
-                anchorEl={anchorEl}
-                placement={'auto'}
-                onMouseLeave={() => setAnchorEl(null)}
-              >
-                {() => (
-                  <Paper
+    <div 
+      id='activity-checkin-page-fragment'
+      style={{ borderRadius: '8px', overflow: 'hidden' }}
+    >
+      <Grid id='activity-checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
+        <Grid size={{ xs: 12 }}>
+          <Box
+            id='activity-checkin-main-container-box'
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              backgroundColor: 'background.paper',
+            }}
+          >
+            {/* Header Section */}
+            <Box
+              id='activity-checkin-header'
+              sx={{
+                p: 3,
+                pb: 2,
+                backgroundColor: 'background.paper',
+                borderBottom: 1,
+                borderColor: 'divider',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Avatar sx={{ bgcolor: 'info.main', mt: 0.5 }}>
+                  <Icon icon='pepicons-pop:flag' fontSize={24} color={theme.palette.common.white} />
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant='h6' component='div' sx={{ fontWeight: 600, mb: 0.5 }}>
+                    เช็คชื่อกิจกรรม
+                  </Typography>
+                  <Typography
+                    variant='body2'
                     sx={{
-                      transform: 'translateX(-140px)',
-                      zIndex: 100,
+                      color: 'text.secondary',
+                      fontWeight: 500,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      mb: 0.5,
                     }}
                   >
-                    <Typography color={'primary.main'} variant='subtitle1' sx={{ p: 2 }}>
-                      ฝึกงาน
-                    </Typography>
-                  </Paper>
-                )}
-              </Popper>
-            </Card>
-          </Grid>
+                    <Box component='span' sx={{ color: 'primary.main', fontWeight: 600 }}>
+                      ชั้น {defaultClassroom?.name || 'ไม่ระบุ'}
+                    </Box>
+                    <Box component='span' sx={{ color: 'text.secondary' }}>
+                      •
+                    </Box>
+                    <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
+                  </Typography>
+                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                    {new Date(Date.now()).toLocaleDateString('th-TH', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Content Section */}
+            <Box
+              id='activity-checkin-content'
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'background.paper',
+              }}
+            >
+              {/* Loading State */}
+              {loading && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                  <Typography>กำลังโหลดข้อมูล...</Typography>
+                </Box>
+              )}
+
+              {/* Empty State */}
+              {!loading && (!classrooms || !classrooms.length) && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                  <Typography color='text.secondary'>ไม่พบข้อมูลห้องเรียน</Typography>
+                </Box>
+              )}
+
+              {/* Fixed Controls Section */}
+              {!loading && classrooms && classrooms.length > 0 && (
+                <Box
+                  sx={{
+                    flexShrink: 0,
+                    p: responsiveConfig.cardPadding,
+                    pb: 2,
+                  }}
+                >
+                  <CheckInControls
+                    isMobile={responsiveConfig.isMobile}
+                    isTablet={responsiveConfig.isTablet}
+                    isSmallMobile={responsiveConfig.isSmallMobile}
+                    classrooms={classrooms}
+                    defaultClassroom={defaultClassroom}
+                    currentStudentsCount={currentStudents?.length ?? 0}
+                    isComplete={
+                      isPresentCheck.length + isAbsentCheck.length === (currentStudents?.length ?? 0) &&
+                      (currentStudents?.length ?? 0) > 0
+                    }
+                    loading={false}
+                    hasSavedCheckIn={hasSavedCheckIn}
+                    formSize={responsiveConfig.formSize}
+                    inputFontSize={responsiveConfig.inputFontSize}
+                    inputPadding={responsiveConfig.inputPadding}
+                    buttonSize={responsiveConfig.buttonSize}
+                    buttonMinWidth={responsiveConfig.buttonMinWidth}
+                    buttonFontSize={responsiveConfig.buttonFontSize}
+                    onClassroomChange={handleSelectChange}
+                    onSaveCheckIn={handleSaveCheckIn}
+                  />
+                </Box>
+              )}
+
+              {/* Floating Count Display for Mobile */}
+              {responsiveConfig.isMobile && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 100,
+                    right: 16,
+                    zIndex: 1100,
+                  }}
+                >
+                  <Chip
+                    label={`${isPresentCheck.length + isAbsentCheck.length}`}
+                    color={
+                      isPresentCheck.length + isAbsentCheck.length === (currentStudents?.length ?? 0) &&
+                      (currentStudents?.length ?? 0) > 0
+                        ? 'success'
+                        : 'warning'
+                    }
+                    variant='filled'
+                    sx={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      height: '36px',
+                      minWidth: '36px',
+                      borderRadius: '50%',
+                      boxShadow: '0 3px 12px rgba(0, 0, 0, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      '& .MuiChip-label': {
+                        px: 0,
+                        py: 0,
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+
+              {/* Scrollable Mobile View */}
+              {responsiveConfig.isMobile ? (
+                <>
+                  <Box
+                    id='activity-checkin-mobile-scroll-container'
+                    sx={{
+                      overflow: 'auto',
+                      p: responsiveConfig.cardPadding,
+                      pb: '270px', // Add padding for pagination and floating badge
+                      scrollBehavior: 'smooth',
+                    }}
+                  >
+                    <Box
+                      id='activity-checkin-mobile-view'
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(1, 1fr)',
+                        gap: responsiveConfig.isSmallMobile ? 1 : 1.5,
+                      }}
+                    >
+                      {getPaginatedStudents().map((student: any) => {
+                        const { status, color } = getStudentStatus(student.id);
+
+                        return (
+                          <ActivityStudentCard
+                            key={student.id}
+                            student={student}
+                            status={status}
+                            color={color}
+                            isPresentCheck={isPresentCheck}
+                            isAbsentCheck={isAbsentCheck}
+                            hasSavedCheckIn={hasSavedCheckIn}
+                            onCheckboxChange={(studentId: string, status: string) => {
+                              const student = currentStudents.find((s: any) => s.id === studentId);
+                              if (student) {
+                                onHandleToggle(status, student);
+                              }
+                            }}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+
+                  {/* Mobile Pagination - Fixed at bottom */}
+                  <Box
+                    sx={{
+                      position: 'fixed',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: 'background.paper',
+                      borderTop: 1,
+                      borderColor: 'divider',
+                      zIndex: 1000,
+                      p: 1.5,
+                    }}
+                  >
+                    <MobilePaginationControls
+                      currentPage={mobilePage}
+                      totalPages={getTotalMobilePages()}
+                      pageSize={mobilePageSize}
+                      totalItems={currentStudents?.length ?? 0}
+                      onPageChange={handleMobilePageChange}
+                      onPageSizeChange={handleMobilePageSizeChange}
+                    />
+                  </Box>
+                </>
+              ) : (
+                /* Desktop View */
+                <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <ActivityCheckInDataGrid
+                    students={currentStudents}
+                    loading={loading}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                    isPresentCheckAll={isPresentCheckAll}
+                    isAbsentCheckAll={isAbsentCheckAll}
+                    isPresentCheck={isPresentCheck}
+                    isAbsentCheck={isAbsentCheck}
+                    hasSavedCheckIn={hasSavedCheckIn}
+                    onPaginationModelChange={(model) => {
+                      setCurrentPage(model.page);
+                      // Ensure pageSize is always one of the valid options
+                      const validPageSizeOptions = [5, 10, 25, 50, 100];
+                      const newPageSize = validPageSizeOptions.includes(model.pageSize)
+                        ? model.pageSize
+                        : validPageSizeOptions[0]; // Default to smallest if invalid
+                      setPageSize(newPageSize);
+                    }}
+                    onCellClick={handleCellClick}
+                    onColumnHeaderClick={handleColumnHeaderClick}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Grid>
-      </React.Fragment>
-    )
+      </Grid>
+    </div>
   );
 };
 

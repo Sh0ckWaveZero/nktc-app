@@ -47,6 +47,13 @@ export default [
         HTMLLabelElement: 'readonly',
         HTMLSelectElement: 'readonly',
         HTMLOptionElement: 'readonly',
+        HTMLFormElement: 'readonly',
+        HTMLLIElement: 'readonly',
+
+        // Web APIs
+        IntersectionObserver: 'readonly',
+        AbortController: 'readonly',
+        fetch: 'readonly',
 
         // Event types
         Event: 'readonly',

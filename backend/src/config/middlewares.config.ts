@@ -23,7 +23,7 @@ const createBodyParserConfig = () => {
     extended: false,
 
     // ป้องกัน prototype pollution
-    verify: (req: any, res: any, _buf: Buffer) => {
+    verify: (req: any, _res: any, _buf: Buffer) => {
       // ตรวจสอบ content type ที่อนุญาต
       const contentType = req.get('content-type');
       if (

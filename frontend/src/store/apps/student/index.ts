@@ -32,8 +32,10 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
       const { data } = await httpClient.get(authConfig.studentEndpoint + '/search', {
         params: params,
       });
+      set({ loading: false, hasErrors: false });
       return await data;
     } catch (err) {
+      set({ loading: false, hasErrors: true });
       return err;
     }
   },

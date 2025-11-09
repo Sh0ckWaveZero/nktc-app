@@ -4,7 +4,7 @@ import { useClassroomStore, useStudentStore } from '@/store/index';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'next/navigation';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface SearchValue {
   fullName: string;
@@ -243,13 +243,18 @@ export const useStudentList = (): UseStudentListReturn => {
       setStudents([]);
       setLoadingStudent(true);
 
-      const toastId = toast.loading('กำลังลบข้อมูล...');
+      const toastId = toast.info('กำลังลบข้อมูล...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
       try {
         const res = await removeStudents(deletedStudent.id);
         if (res?.status === 204) {
-          toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+          toast.dismiss(toastId);
+          toast.success('ลบข้อมูลสำเร็จ');
         } else {
-          toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
+          toast.dismiss(toastId);
+          toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด');
         }
 
         const updatedStudents = await fetchStudentsWithParams(currentClassroomId);
@@ -257,7 +262,8 @@ export const useStudentList = (): UseStudentListReturn => {
         setLoadingStudent(false);
       } catch (error) {
         console.error('Error deleting student:', error);
-        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
         setLoadingStudent(false);
       }
     },

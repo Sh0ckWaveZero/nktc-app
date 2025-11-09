@@ -9,6 +9,7 @@ declare module '@mui/material/styles' {
       lightBg: string;
       tableHeaderBg: string;
       primaryGradient: string;
+      headerText: string;
     };
   }
   interface PaletteOptions {
@@ -21,6 +22,7 @@ declare module '@mui/material/styles' {
       lightBg?: string;
       tableHeaderBg?: string;
       primaryGradient?: string;
+      headerText?: string;
     };
   }
 }

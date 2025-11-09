@@ -11,6 +11,7 @@ interface CheckInControlsProps {
   currentStudentsCount: number;
   isComplete: boolean;
   loading: boolean;
+  hasSavedCheckIn: boolean;
   formSize: 'small' | 'medium';
   inputFontSize: string;
   inputPadding: string;
@@ -30,6 +31,7 @@ const CheckInControls = ({
   currentStudentsCount,
   isComplete,
   loading,
+  hasSavedCheckIn,
   formSize,
   inputFontSize,
   inputPadding,
@@ -57,19 +59,48 @@ const CheckInControls = ({
       id='checkin-controls-section'
       sx={{
         display: 'flex',
-        alignItems: 'center',
-        gap: responsiveConfig.isMobile ? 2 : 3,
+        flexDirection: 'column',
+        gap: 3,
         mb: responsiveConfig.isMobile ? 2 : 0,
-        flexDirection: responsiveConfig.isMobile ? 'column' : 'row',
         width: '100%',
-        p: 0,
+        px: 0,
+        py: 3,
         backgroundColor: 'transparent',
         borderRadius: '0px',
         border: 'none',
         boxShadow: 'none',
       }}
     >
-      {/* ชั้นเรียนและกิจกรรม */}
+      {/* แสดงข้อความแจ้งเตือนเมื่อบันทึกแล้ว */}
+      {hasSavedCheckIn && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 1.5,
+            backgroundColor: 'success.light',
+            color: 'success.contrastText',
+            borderRadius: 1,
+            fontSize: responsiveConfig.isMobile ? '0.875rem' : '0.9375rem', // เพิ่มขนาดตัวอักษร
+            fontWeight: 500,
+            width: '100%',
+          }}
+        >
+          ✓ บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว
+        </Box>
+      )}
+      {/* Controls Row */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: responsiveConfig.isMobile ? 2 : 3,
+          flexDirection: responsiveConfig.isMobile ? 'column' : 'row',
+          width: '100%',
+        }}
+      >
+        {/* ชั้นเรียนและกิจกรรม */}
       <Box
         id='checkin-classroom-controls'
         sx={{
@@ -85,31 +116,6 @@ const CheckInControls = ({
           id='checkin-classroom-form'
           fullWidth
           size={responsiveConfig.formSize}
-          sx={{
-            '& .MuiInputLabel-root': {
-              fontSize: responsiveConfig.isMobile ? '0.9rem' : '0.9rem',
-              fontWeight: 500,
-              color: 'text.primary',
-              transform: responsiveConfig.isMobile
-                ? 'translate(16px, 16px) scale(1)'
-                : 'translate(16px, 14px) scale(1)',
-              '&.MuiInputLabel-shrink': {
-                transform: responsiveConfig.isMobile
-                  ? 'translate(16px, -8px) scale(0.75)'
-                  : 'translate(16px, -9px) scale(0.75)',
-                fontWeight: 600,
-              },
-            },
-            '& .MuiOutlinedInput-notchedOutline': {
-              border: 'none',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              border: 'none',
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              border: 'none',
-            },
-          }}
         >
           <InputLabel id='checkin-classroom-label' size={responsiveConfig.formSize}>
             เลือกห้องเรียน
@@ -122,22 +128,22 @@ const CheckInControls = ({
             onChange={onClassroomChange}
             size={responsiveConfig.formSize}
             displayEmpty
-            sx={{
-              backgroundColor: 'transparent',
-              borderRadius: '8px',
-              '& .MuiSelect-select': {
-                fontSize: responsiveConfig.inputFontSize,
-                padding: responsiveConfig.isMobile ? '14px 18px' : '12px 16px',
-                minHeight: responsiveConfig.isMobile ? '48px' : '44px',
-                height: responsiveConfig.isMobile ? '48px' : '44px',
-                lineHeight: responsiveConfig.isMobile ? '20px' : '18px',
-                backgroundColor: 'transparent',
-                borderRadius: '8px',
-                border: '1px solid',
-                borderColor: 'rgba(0, 0, 0, 0.12)',
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  backgroundColor: 'background.paper',
+                  zIndex: 1300,
+                },
               },
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
+            }}
+            sx={{
+              height: responsiveConfig.isMobile ? '48px' : '44px',
+              minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+              '& .MuiSelect-select': {
+                height: responsiveConfig.isMobile ? '48px' : '44px',
+                minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+                display: 'flex',
+                alignItems: 'center',
               },
             }}
           >
@@ -188,7 +194,7 @@ const CheckInControls = ({
         id='checkin-save-button'
         variant='contained'
         onClick={onSaveCheckIn}
-        disabled={currentStudentsCount === 0 || loading || !defaultClassroom?.id || !isComplete}
+        disabled={currentStudentsCount === 0 || loading || !defaultClassroom?.id || !isComplete || hasSavedCheckIn}
         size={responsiveConfig.buttonSize}
         sx={{
           background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
@@ -201,8 +207,12 @@ const CheckInControls = ({
             transform: 'translateY(-1px)',
           },
           '&:disabled': {
-            background: 'rgba(0, 0, 0, 0.12)',
-            color: 'rgba(0, 0, 0, 0.38)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'rgba(255, 255, 255, 0.12)' 
+              : 'rgba(0, 0, 0, 0.12)',
+            color: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.38)'
+              : 'rgba(0, 0, 0, 0.38)',
             boxShadow: 'none',
             transform: 'none',
           },
@@ -262,6 +272,7 @@ const CheckInControls = ({
           'บันทึกการเช็คชื่อ'
         )}
       </Button>
+      </Box>
     </Box>
   );
 };

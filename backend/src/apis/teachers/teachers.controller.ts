@@ -76,6 +76,11 @@ export class TeachersController {
     return await this.teachersService.getStudentsByTeacherId(id);
   }
 
+  @Get(':id/classrooms-and-students')
+  async getClassroomsAndStudents(@Param('id') id: string) {
+    return await this.teachersService.getStudentsByTeacherId(id);
+  }
+
   @Put(':id')
   @HttpCode(HttpStatus.ACCEPTED)
   async update(@Param('id') id: string, @Body() updateTeacherDto: any) {

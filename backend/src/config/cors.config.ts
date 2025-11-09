@@ -16,6 +16,7 @@ const createAllowedOrigins = (): string[] => {
       'http://localhost:3001',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
+      'https://app-test.midseelee.com',
     ];
   }
 
@@ -34,14 +35,31 @@ const isOriginAllowed = (
   origin: string | undefined,
   allowedOrigins: string[],
 ): boolean => {
-  if (!origin) return true; // อนุญาต requests ที่ไม่มี origin (เช่น mobile apps)
+  if (!origin) return true; // อนุญาต requests ที่ไม่มี origin (เช่น mobile apps, Postman)
+
+  const config = configuration();
+
+  // ใน development mode: รองรับ IP addresses และ local network
+  if (config.node_env === 'development') {
+    // ตรวจสอบ exact match
+    if (allowedOrigins.includes(origin)) return true;
+
+    // รองรับ local IP addresses (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+    const localIpPattern = /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+)(:\d+)?$/;
+    if (localIpPattern.test(origin)) return true;
+
+    // รองรับ localhost variants
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) return true;
+
+    // รองรับ domain ที่มี midseelee.com
+    if (origin.includes('midseelee.com')) return true;
+  }
 
   return allowedOrigins.some((allowedOrigin) => {
     // ตรวจสอบ exact match
     if (origin === allowedOrigin) return true;
 
     // ตรวจสอบ subdomain ใน production
-    const config = configuration();
     if (config.node_env === 'production') {
       const allowedDomain = allowedOrigin.replace('https://', '');
       return (

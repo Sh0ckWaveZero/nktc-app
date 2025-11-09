@@ -24,11 +24,23 @@ const isValidImageUrl = (url: string): boolean => {
   if (url.startsWith('/')) return true;
 
   // Allow URLs from our own API server
-  if (url.startsWith(API_URL)) return true;
+  if (API_URL && url.startsWith(API_URL)) return true;
 
   // Allow URLs from the same base server (for static assets)
-  const baseUrl = API_URL.replace('/api', '');
-  if (url.startsWith(baseUrl)) return true;
+  // Handle both /api and /statics paths
+  if (API_URL) {
+    const baseUrl = API_URL.replace('/api', '');
+    if (url.startsWith(baseUrl)) return true;
+    
+    // Also check if URL contains our domain (for statics paths)
+    try {
+      const apiUrlObj = new URL(API_URL);
+      const urlObj = new URL(url);
+      if (apiUrlObj.hostname === urlObj.hostname) return true;
+    } catch {
+      // If URL parsing fails, continue with other checks
+    }
+  }
 
   if (url === DEFAULT_AVATAR) return true;
 
@@ -112,14 +124,34 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           return;
         }
 
+        // Convert absolute URL to relative if it's from our server
+        let imageUrl = url;
+        if (API_URL && url.startsWith(API_URL)) {
+          // Convert absolute API URL to relative path
+          imageUrl = url.replace(API_URL, '');
+        } else if (API_URL) {
+          try {
+            const apiUrlObj = new URL(API_URL);
+            const urlObj = new URL(url);
+            if (apiUrlObj.hostname === urlObj.hostname) {
+              // Same domain, use relative path
+              imageUrl = urlObj.pathname + urlObj.search;
+            }
+          } catch {
+            // Keep original URL if parsing fails
+          }
+        }
+
         // Fetch the image from the server with timeout
-        const controller = new (globalThis as any).AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s)
 
         try {
-          const response = await httpClient.get<Blob>(url, {
+          const response = await httpClient.get<Blob>(imageUrl, {
             responseType: 'blob',
             signal: controller.signal,
+            timeout: 5000, // Additional timeout protection
           });
 
           clearTimeout(timeoutId);

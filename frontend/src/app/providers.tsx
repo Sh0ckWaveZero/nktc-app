@@ -31,8 +31,11 @@ import { createEmotionCache } from '@/@core/utils/create-emotion-cache';
 import { AxiosInterceptor } from '@/@core/utils/http';
 
 // ** Toast
-import ReactHotToast from '@/@core/styles/libs/react-hot-toast';
-import { Toaster } from 'react-hot-toast';
+import StyledToastContainer from '@/@core/styles/libs/react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// ** MUI Imports
+import { useColorScheme } from '@mui/material/styles';
 
 // ** Perfect Scrollbar Style
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -87,13 +90,47 @@ const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ThemeComponent settings={settings}>
-      <WindowWrapper>
-        {children}
-        <ReactHotToast>
-          <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-        </ReactHotToast>
-      </WindowWrapper>
+      <ToastContainerWrapper>
+        <WindowWrapper>
+          {children}
+        </WindowWrapper>
+      </ToastContainerWrapper>
     </ThemeComponent>
+  );
+};
+
+// ** Toast Container Wrapper Component
+const ToastContainerWrapper = ({ children }: { children: ReactNode }) => {
+  const [isClient, setIsClient] = useState(false);
+  const { mode } = useColorScheme();
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Only calculate theme when client-side to avoid hydration mismatch
+  const toastTheme = isClient && mode === 'dark' ? 'dark' : 'light';
+  
+  return (
+    <>
+      {children}
+      {isClient && (
+        <StyledToastContainer
+          className='toast-container'
+          position='top-right'
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          limit={5}
+          toastTheme={toastTheme}
+        />
+      )}
+    </>
   );
 };
 

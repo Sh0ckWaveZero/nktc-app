@@ -10,6 +10,13 @@ const nextConfig = {
   reactStrictMode: false,
   output: 'standalone',
 
+  // Cross-Origin Configuration for Development
+  allowedDevOrigins: [
+    'app-test.midseelee.com',
+    'localhost',
+    '127.0.0.1',
+  ],
+
   // Performance & Optimization
   poweredByHeader: false,
   compress: true,

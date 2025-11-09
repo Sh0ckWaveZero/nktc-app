@@ -22,7 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useState, ChangeEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useStudent, useUpdateStudent } from '@/hooks/queries/useStudents';
 
 interface StudentEditPageProps {

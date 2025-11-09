@@ -183,6 +183,8 @@ export default function DialogClassroomGoodnessGroup({
                   error={isEmpty(classrooms) && classroomLoading}
                   helperText={isEmpty(classrooms) && classroomLoading ? 'กรุณาเลือกห้องที่ปรึกษา' : ''}
                   {...otherParams}
+                  id={otherParams.id || 'classroom-input'}
+                  name='classroom'
                   label='ห้องเรียน'
                   placeholder='เลือกห้องเรียน'
                   slotProps={{

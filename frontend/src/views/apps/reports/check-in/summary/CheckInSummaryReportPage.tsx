@@ -13,7 +13,7 @@ import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface CellType {
   row: any;
@@ -49,6 +49,18 @@ const CheckInSummaryReportPage = () => {
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
 
+  const fetchDailyReport = async (classroom: any = '') => {
+    setLoading(true);
+    await findSummaryReport({
+      teacherId: auth?.user?.teacher?.id,
+      classroomId: classroom ? classroom : classroomName.id,
+    }).then(async (data: any) => {
+      setCurrentStudents(await data);
+      setCurrentPage(0); // Reset to first page when loading new data
+      setLoading(false);
+    });
+  };
+
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
     const fetch = async () => {
@@ -71,18 +83,6 @@ const CheckInSummaryReportPage = () => {
       router.push('/401');
     }
   });
-
-  const fetchDailyReport = async (classroom: any = '') => {
-    setLoading(true);
-    await findSummaryReport({
-      teacherId: auth?.user?.teacher?.id,
-      classroomId: classroom ? classroom : classroomName.id,
-    }).then(async (data: any) => {
-      setCurrentStudents(await data);
-      setCurrentPage(0); // Reset to first page when loading new data
-      setLoading(false);
-    });
-  };
 
   const ccyFormat = (num: number) => {
     return `${isNaN(num) || isEmpty(num) ? '0.00' : num.toFixed(2)}`;

@@ -85,7 +85,8 @@ const Navigation = (props: Props) => {
 
   // ** Fixes Navigation InfiniteScroll
   const handleInfiniteScroll = (ref: any | HTMLElement) => {
-    if (ref) {
+    if (ref && !ref._getBoundingClientRect) {
+      // Store original method only if not already stored
       ref._getBoundingClientRect = ref.getBoundingClientRect;
 
       ref.getBoundingClientRect = () => {

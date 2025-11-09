@@ -32,8 +32,10 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
       const { data } = await httpClient.get(authConfig.teacherEndpoint as string, {
         params: params
       });
+      set({ teacherLoading: false, hasErrors: false });
       return await data;
     } catch (err) {
+      set({ teacherLoading: false, hasErrors: true });
       return err;
     }
   },

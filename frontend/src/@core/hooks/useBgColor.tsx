@@ -66,6 +66,14 @@ const UseBgColor = () => {
       color: theme.palette.info.main,
       backgroundColor: hexToRGBA(theme.palette.info.main, 0.12),
     },
+    otherFilled: {
+      color: theme.palette.other.contrastText,
+      backgroundColor: theme.palette.other.main,
+    },
+    otherLight: {
+      color: theme.palette.other.main,
+      backgroundColor: hexToRGBA(theme.palette.other.main, 0.12),
+    },
   };
 };
 

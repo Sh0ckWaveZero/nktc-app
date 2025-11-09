@@ -25,7 +25,7 @@ import { styled } from '@mui/material/styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useClassroomStore, useDepartmentStore, useProgramStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useLevelStore } from '@/store/apps/level';
 
 interface SidebarAddTeacherType {

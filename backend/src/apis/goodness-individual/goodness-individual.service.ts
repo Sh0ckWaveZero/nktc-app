@@ -31,7 +31,7 @@ export class GoodnessIndividualService {
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
           student: {
-            connect: { id: body._studentKey },
+            connect: { id: body.studentKey },
           },
           classroom: {
             connect: { id: body.classroomId },
@@ -63,7 +63,7 @@ export class GoodnessIndividualService {
           goodDate: body.goodDate || null,
           createdBy: body.createdBy,
           updatedBy: body.updatedBy,
-          _studentKey: student.id,
+          studentKey: student.id,
           classroomId: student.classroom?.id,
         })),
       });
@@ -74,12 +74,36 @@ export class GoodnessIndividualService {
   }
 
   async search(query: any) {
-    const filter = {};
+    try {
+      const filter: any = {};
 
     if (query.fullName) {
-      const [firstName, lastName] = query.fullName.split(' ');
+        const nameParts = query.fullName.trim().split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
 
-      if (firstName) {
+        if (firstName && lastName) {
+          // Both first and last name - use AND
+          filter['student'] = {
+            user: {
+              account: {
+                AND: [
+                  {
+                    firstName: {
+                      contains: firstName,
+                    },
+                  },
+                  {
+                    lastName: {
+                      contains: lastName,
+                    },
+                  },
+                ],
+              },
+            },
+          };
+        } else if (firstName) {
+          // Only first name
         filter['student'] = {
           user: {
             account: {
@@ -89,9 +113,8 @@ export class GoodnessIndividualService {
             },
           },
         };
-      }
-
-      if (lastName) {
+        } else if (lastName) {
+          // Only last name
         filter['student'] = {
           user: {
             account: {
@@ -111,9 +134,30 @@ export class GoodnessIndividualService {
     }
 
     if (query.goodDate) {
-      const startDate = new Date(query.goodDate);
-      const endDate = new Date(query.goodDate);
+        // Handle date string format (YYYY-MM-DD) or Date object
+        let dateValue: Date;
+        if (typeof query.goodDate === 'string') {
+          // If it's a date string (YYYY-MM-DD), parse it in local timezone
+          const dateMatch = query.goodDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if (dateMatch) {
+            const [, year, month, day] = dateMatch.map(Number);
+            dateValue = new Date(year, month - 1, day);
+          } else {
+            dateValue = new Date(query.goodDate);
+          }
+        } else {
+          dateValue = new Date(query.goodDate);
+        }
+
+        // Validate date
+        if (isNaN(dateValue.getTime())) {
+          throw new Error('Invalid date format');
+        }
+
+        const startDate = new Date(dateValue);
       startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(dateValue);
       endDate.setHours(23, 59, 59, 999);
 
       filter['createdAt'] = {
@@ -123,7 +167,7 @@ export class GoodnessIndividualService {
     }
 
     if (query.studentId) {
-      filter['_studentKey'] = query.studentId;
+        filter['studentKey'] = query.studentId;
     }
 
     const selectedStudents = await this.prisma.goodnessIndividual.findMany({
@@ -131,10 +175,18 @@ export class GoodnessIndividualService {
       skip: query.skip || 0,
       take: query.take || 1000,
       select: {
-        _studentKey: true,
+          studentKey: true,
       },
-      distinct: ['_studentKey'],
+        distinct: ['studentKey'],
     });
+
+      // If no students found, return empty result
+      if (!selectedStudents || selectedStudents.length === 0) {
+        return {
+          data: [],
+          total: 0,
+        };
+      }
 
     // กำหนดเงื่อนไขการเรียงลำดับข้อมูล
     const sortCondition =
@@ -145,13 +197,9 @@ export class GoodnessIndividualService {
     const filteredGoodnessIndividual =
       await this.prisma.goodnessIndividual.findMany({
         where: {
-          OR: [
-            {
-              _studentKey: {
-                in: selectedStudents.map((item: any) => item._studentKey),
+            studentKey: {
+              in: selectedStudents.map((item: any) => item.studentKey),
               },
-            },
-          ],
         },
         include: {
           student: {
@@ -176,7 +224,7 @@ export class GoodnessIndividualService {
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(
       filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
-        const { studentId, goodnessScore, _studentKey } = cur;
+          const { studentId, goodnessScore, studentKey } = cur;
         const { title, firstName, lastName } = cur.student.user.account;
         const { name } = cur.classroom;
         const key = studentId;
@@ -184,10 +232,11 @@ export class GoodnessIndividualService {
           acc[key].goodnessScore += goodnessScore;
         } else {
           acc[key] = {
-            id: _studentKey,
+              id: studentKey,
             studentId,
             goodnessScore,
-            firstName: title + firstName + ' ' + lastName,
+            title,
+            firstName: `${firstName} ${lastName}`.trim(),
             name,
           };
         }
@@ -214,9 +263,9 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         select: {
-          _studentKey: true,
+            studentKey: true,
         },
-        distinct: ['_studentKey'],
+          distinct: ['studentKey'],
       },
     );
 
@@ -240,6 +289,10 @@ export class GoodnessIndividualService {
       }),
       total: totalSelectedStudents.length || 0,
     };
+    } catch (error: any) {
+      console.error('Error in goodness-individual search:', error);
+      throw error;
+    }
   }
 
   /**
@@ -280,7 +333,7 @@ export class GoodnessIndividualService {
     // สรุปคะแนนความดีของนักเรียน
     const summarizedStudents = Object.values(
       filteredGoodnessIndividual.reduce((acc: any, cur: any) => {
-        const { id, studentId, goodnessScore, _studentKey } = cur;
+        const { id, studentId, goodnessScore } = cur;
         const { title, firstName, lastName } = cur.student.user.account;
         const { name } = cur.classroom;
         const key = studentId;
@@ -291,7 +344,8 @@ export class GoodnessIndividualService {
             id: id,
             studentId,
             goodnessScore,
-            firstName: title + firstName + ' ' + lastName,
+            title,
+            firstName: `${firstName} ${lastName}`.trim(),
             name,
           };
         }
@@ -325,9 +379,9 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         select: {
-          _studentKey: true,
+          studentKey: true,
         },
-        distinct: ['_studentKey'],
+        distinct: ['studentKey'],
       },
     );
 
@@ -389,7 +443,7 @@ export class GoodnessIndividualService {
   ): Promise<{ data: any; total: number }> {
     const selectedStudents = await this.prisma.goodnessIndividual.findMany({
       where: {
-        _studentKey: id,
+        studentKey: id,
       },
       skip: skip || 0,
       take: take || 100,
@@ -402,7 +456,7 @@ export class GoodnessIndividualService {
     const totalSelectedStudents = await this.prisma.goodnessIndividual.findMany(
       {
         where: {
-          _studentKey: id,
+          studentKey: id,
         },
       },
     );
