@@ -24,7 +24,7 @@ import Button, { ButtonProps } from '@mui/material/Button';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 // ** Icons Imports
 import { FcCalendar } from 'react-icons/fc';
@@ -174,10 +174,14 @@ const TabAccount = () => {
       classrooms: classroomSelected.map((item: any) => item.id),
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('บันทึกข้อมูลสำเร็จ');
 
         // Refetch current user data
         const { data: updatedUser } = await refetchCurrentUser();
@@ -191,7 +195,8 @@ const TabAccount = () => {
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(message || 'เกิดข้อผิดพลาด');
       }
     });
   };

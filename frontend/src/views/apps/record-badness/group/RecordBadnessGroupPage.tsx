@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
 import { deepOrange } from '@mui/material/colors';
 import DialogAddGroup from '@/views/apps/record-badness/DialogAddGroup';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface CellType {
   row: any;

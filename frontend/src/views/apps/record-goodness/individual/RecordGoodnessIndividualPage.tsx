@@ -2,7 +2,7 @@
 
 import { Avatar, Box, Button, Card, CardHeader, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect, useMemo } from 'react';
 
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
@@ -13,10 +13,12 @@ import Link from 'next/link';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/record-goodness/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
-import { shallow } from 'zustand/shallow';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
-import { useStudentStore } from '@/store/index';
+import { useStudentsSearch } from '@/hooks/queries/useStudents';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/libs/react-query/queryKeys';
+import { toast } from 'react-toastify';
 
 interface CellType {
   row: any;
@@ -30,38 +32,88 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 const RecordGoodnessIndividualPage = () => {
   // ** Hooks
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   // ** State
   const [pageSize, setPageSize] = useState<number>(10);
-  const [students, setStudents] = useState<any>([]);
-  const [loadingStudent, setLoadingStudent] = useState<boolean>(false);
   const [fullName, setFullName] = useState<string>('');
-  const [studentId, setStudentId] = useState<any>('');
+  const [studentId, setStudentId] = useState<string>('');
+  const [searchParams, setSearchParams] = useState<{ fullName?: string; studentId?: string } | null>(null);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
-  // ** Store
-  const { fetchStudents }: any = useStudentStore((state) => ({ fetchStudents: state.fetchStudents }), shallow);
+  // ** React Query - Manual search trigger
+  // Only enable query when searchParams is set (after clicking search button)
+  // Hook handles response wrapper extraction and always returns an array
+  const {
+    data: allStudents = [],
+    isLoading: loadingStudent,
+    error: studentsError,
+  } = useStudentsSearch(searchParams || undefined, {
+    enabled: !!searchParams && !!(searchParams.fullName || searchParams.studentId),
+  });
+
+  // ** Filter students by teacher's classrooms (if not admin)
+  const students = useMemo(() => {
+    // Return empty array if no students
+    if (allStudents.length === 0) {
+      return [];
+    }
+    
+    // Admin can see all students
+    if (user?.role?.toLowerCase() === 'admin') {
+      return allStudents;
+    }
+
+    // Teacher can only see students from their classrooms
+    if (user?.teacherOnClassroom && Array.isArray(user.teacherOnClassroom) && user.teacherOnClassroom.length > 0) {
+      return allStudents.filter((student: any) => {
+        const studentClassroomId = student?.student?.classroomId;
+        return studentClassroomId && user.teacherOnClassroom.includes(studentClassroomId);
+      });
+    }
+
+    // If teacher has no classrooms, return empty array
+    return [];
+  }, [allStudents, user?.role, user?.teacherOnClassroom]);
+
+  // ** Handle search errors
+  useEffect(() => {
+    if (studentsError) {
+      toast.error('เกิดข้อผิดพลาดในการค้นหานักเรียน');
+    }
+  }, [studentsError]);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
 
   const handleOnSearch = () => {
-    setLoadingStudent(true);
-    const query = { fullName: fullName, studentId: studentId };
-    (async () => {
-      await fetchStudents(query).then(async (res: any) => {
-        setStudents((await res) || []);
-        setLoadingStudent(false);
+    if (!fullName && !studentId) {
+      toast.error('กรุณากรอกชื่อหรือรหัสนักเรียน');
+      return;
+    }
+
+    // Check if teacher has classrooms assigned
+    if (user?.role?.toLowerCase() !== 'admin' && (!user?.teacherOnClassroom || user.teacherOnClassroom.length === 0)) {
+      toast.error('คุณยังไม่มีห้องเรียนที่รับผิดชอบ กรุณาติดต่อผู้ดูแลระบบ');
+      return;
+    }
+
+    const params = { fullName: fullName || undefined, studentId: studentId || undefined };
+    setSearchParams(params);
+    // If searchParams already exists, invalidate to refetch (for DialogAddCard callback)
+    if (searchParams) {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.students.search(searchParams),
       });
-    })();
+    }
   };
 
   const onClearSearch = () => {
     setFullName('');
     setStudentId('');
-    setStudents([]);
+    setSearchParams(null);
     selectedStudent && setSelectedStudent(null);
   };
 
@@ -129,7 +181,7 @@ const RecordGoodnessIndividualPage = () => {
         const { student } = row;
         const goodnessIndividualLatest = isEmpty(student?.goodnessIndividual)
           ? '-'
-          : new Date(student?.goodnessIndividual[0]?.createdAt).toLocaleTimeString('th-TH', {
+          : new Date(student?.goodnessIndividual[0]?.createdAt).toLocaleString('th-TH', {
               year: 'numeric',
               month: 'short',
               day: 'numeric',

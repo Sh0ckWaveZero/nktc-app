@@ -25,8 +25,9 @@ import {
   useTheme,
 } from '@mui/material';
 import { DataGrid, GridColDef, GridEventListener, gridClasses } from '@mui/x-data-grid';
-import React, { Fragment, useContext, useRef, useState } from 'react';
-import { useActivityCheckInStore, useTeacherStore } from '@/store/index';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import { useActivityCheckInStore } from '@/store/index';
+import { useTeacherClassroomsAndStudents } from '@/hooks/queries/useCheckIn';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { Close } from 'mdi-material-ui';
@@ -38,7 +39,7 @@ import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/reports/TableHeader';
 import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/navigation';
@@ -95,10 +96,13 @@ const CheckInDailyReportPage = () => {
     }),
     shallow,
   );
-  const { fetchStudentsByTeacherId }: any = useTeacherStore(
-    (state) => ({ fetchStudentsByTeacherId: state.fetchStudentsByTeacherId }),
-    shallow,
-  );
+
+  // Use React Query hook instead of store
+  const {
+    data: classroomData,
+    isLoading: classroomLoading,
+    error: classroomError,
+  } = useTeacherClassroomsAndStudents(auth?.user?.teacher?.id || '');
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -113,7 +117,7 @@ const CheckInDailyReportPage = () => {
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>(null);
-  const [reportCheckIn, setReportCheckIn] = useState<any>(false);
+  const [reportCheckIn, setReportCheckIn] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -127,46 +131,81 @@ const CheckInDailyReportPage = () => {
 
   // ดึงข้อมูลห้องเรียนของครู
   useEffectOnce(() => {
-    const fetchData = async () => {
-      const teacherId = auth?.user?.teacher?.id as string;
-      setLoading(true);
-      const { data: classroomData } = await fetchStudentsByTeacherId(teacherId);
-      if (!classroomData.classrooms || !classroomData.classrooms.length) {
-        setLoading(false);
-        return;
-      }
-
-      const [classroom] = classroomData.classrooms;
-
-      if (!classroom) {
-        setLoading(false);
-        return;
-      }
-
-      await getCheckInStatus(teacherId, classroom.id);
-      const { students } = classroom;
-
-      if (!students || !students.length) {
-        return;
-      }
-
-      setDefaultClassroom(classroom);
-      setClassrooms(classroomData.classrooms);
-      setCurrentStudents(students);
-      setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
-      setPageSize(students.length);
-      setCurrentPage(0); // Reset to first page when loading new data
-      setLoading(false);
-    };
-
     const isInRole = (auth?.user?.role as string) === 'Admin';
     if (!ability?.can('read', 'report-check-in-daily-page') || isInRole) {
       router.push('/401');
       return;
     }
-
-    fetchData();
   });
+
+  // Initialize classroom data from query
+  useEffect(() => {
+    if (classroomLoading) {
+      setLoading(true);
+      return;
+    }
+
+    if (classroomError) {
+      console.error('Error loading classrooms:', classroomError);
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูลห้องเรียน');
+      setLoading(false);
+      return;
+    }
+
+    if (!classroomData) {
+      console.log('No classroom data available');
+      setLoading(false);
+      return;
+    }
+
+    console.log('classroomData:', classroomData);
+
+    // Handle nested data structure: { data: { data: { classrooms: [...] } } }
+    let actualData = classroomData;
+    if (classroomData?.data) {
+      actualData = classroomData.data;
+      // If still nested, go one level deeper
+      if (actualData?.data) {
+        actualData = actualData.data;
+      }
+    }
+
+    // Access classrooms from the correct level
+    const classrooms = actualData?.classrooms || [];
+
+    if (!classrooms || !classrooms.length) {
+      console.log('No classrooms found');
+      setLoading(false);
+      return;
+    }
+
+    const [classroom] = classrooms;
+
+    if (!classroom) {
+      setLoading(false);
+      return;
+    }
+
+    const teacherId = auth?.user?.teacher?.id as string;
+
+    // Fetch check-in status
+    getCheckInStatus(teacherId, classroom.id);
+
+    const { students } = classroom;
+
+    if (!students || !students.length) {
+      setLoading(false);
+      return;
+    }
+
+    setDefaultClassroom(classroom);
+    setClassrooms(classrooms);
+    setCurrentStudents(students);
+    setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
+    setPageSize(students.length);
+    setCurrentPage(0); // Reset to first page when loading new data
+    setLoading(false);
+  }, [classroomData, classroomLoading, classroomError, auth?.user?.teacher?.id]);
 
   const onHandleToggle = (action: string, param: any): void => {
     switch (action) {
@@ -525,12 +564,19 @@ const CheckInDailyReportPage = () => {
       status: '1',
     };
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
-    if (totalStudents === currentStudents.length && isEmpty(reportCheckIn)) {
-      toast.promise(addActivityCheckIn(data), {
-        loading: 'กำลังบันทึกเช็คชื่อ...',
-        success: 'บันทึกเช็คชื่อสำเร็จ',
-        error: 'เกิดข้อผิดพลาด',
+    if (totalStudents === currentStudents.length && (!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id)) {
+      const toastId = toast.info('กำลังบันทึกเช็คชื่อ...', {
+        autoClose: false,
+        hideProgressBar: true,
       });
+      try {
+        await addActivityCheckIn(data);
+        toast.dismiss(toastId);
+        toast.success('บันทึกเช็คชื่อสำเร็จ');
+      } catch (error) {
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาด');
+      }
       getCheckInStatus(auth?.user?.teacher?.id as string, defaultClassroom?.id);
       onClearAll('');
     } else {
@@ -554,10 +600,20 @@ const CheckInDailyReportPage = () => {
 
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
-    await getActivityCheckIn({ teacher, classroom }).then(async (data: any) => {
-      setReportCheckIn(await data);
+    try {
+      const data = await getActivityCheckIn({ teacher, classroom });
+      // ตรวจสอบว่ามีข้อมูลจริงหรือไม่ (ไม่ใช่ empty object หรือ null)
+      if (data && typeof data === 'object' && Object.keys(data).length > 0 && data.id) {
+        setReportCheckIn(data);
+      } else {
+        setReportCheckIn(null); // ไม่มีข้อมูล ให้ set เป็น null
+      }
+    } catch (error) {
+      console.error('Error fetching check-in status:', error);
+      setReportCheckIn(null); // ถ้า error ให้ set เป็น null
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
   const handlePopperOpen = (event: any) => {
@@ -586,7 +642,7 @@ const CheckInDailyReportPage = () => {
             <Card>
               <CardHeader
                 avatar={
-                  <Avatar sx={{ color: 'primary.main' }} aria-label='recipe'>
+                  <Avatar sx={{ color: 'primary.secondary' }} aria-label='recipe'>
                     <HiFlag />
                   </Avatar>
                 }
@@ -619,7 +675,7 @@ const CheckInDailyReportPage = () => {
                         textAlign: isMobile ? 'center' : 'left',
                       }}
                     >{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
-                    {isEmpty(reportCheckIn) ? (
+                    {!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id ? (
                       openAlert ? (
                         <Grid sx={{ mb: isMobile ? 2 : 3 }} size={12}>
                           <Alert
@@ -684,21 +740,26 @@ const CheckInDailyReportPage = () => {
               {/* Mobile View */}
               {isMobile ? (
                 <Box sx={{ mt: 2 }}>
-                  {(isEmpty(reportCheckIn) ? (currentStudents ?? []) : []).map((student: any) => (
-                    <StudentCard key={student.id} student={student} />
-                  ))}
+                  {(!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id ? (currentStudents ?? []) : []).map(
+                    (student: any) => (
+                      <StudentCard key={student.id} student={student} />
+                    ),
+                  )}
                 </Box>
               ) : (
                 /* Desktop View */
                 <DataGridCustom
                   columns={columns}
-                  rows={isEmpty(reportCheckIn) ? (currentStudents ?? []) : []}
+                  rows={!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id ? (currentStudents ?? []) : []}
                   disableColumnMenu
                   loading={loading}
                   rowHeight={isTablet ? 70 : 80}
                   getRowHeight={() => 'auto'}
                   slots={{
-                    noRowsOverlay: isEmpty(reportCheckIn) ? CustomNoRowsOverlay : CustomNoRowsOverlayActivityCheckedIn,
+                    noRowsOverlay:
+                      !reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id
+                        ? CustomNoRowsOverlay
+                        : CustomNoRowsOverlayActivityCheckedIn,
                   }}
                   onCellClick={handleCellClick}
                   onColumnHeaderClick={handleColumnHeaderClick}

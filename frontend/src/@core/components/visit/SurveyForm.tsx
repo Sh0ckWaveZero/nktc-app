@@ -10,7 +10,7 @@ import {
   TextField,
 } from '@mui/material';
 
-import React, { Fragment, SyntheticEvent } from 'react';
+import React, { SyntheticEvent } from 'react';
 
 import { Controller } from 'react-hook-form';
 

@@ -142,10 +142,13 @@ export class UsersService {
         throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
       }
 
+      // Hash password before storing
+      const hashedPassword = await hash(payload?.teacher?.password || '', 12);
+
       const response = await this.prisma.user.update({
         where: { id },
         data: {
-          password: payload?.teacher?.password,
+          password: hashedPassword,
           updatedAt: new Date(),
           updatedBy: payload?.user?.id,
         },

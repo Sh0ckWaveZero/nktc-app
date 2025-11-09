@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { forwardRef, Ref } from 'react';
+import { forwardRef } from 'react';
 
 // ** MUI Imports
 import MuiAvatar from '@mui/material/Avatar';
@@ -42,13 +42,14 @@ const Avatar = forwardRef<HTMLDivElement, CustomAvatarProps>((props, ref) => {
     return avatarStyles;
   };
 
-  const colors: UseBgColorType = {
+  const colors: UseBgColorType & { other?: any } = {
     primary: getAvatarStyles(skin, 'primary'),
     secondary: getAvatarStyles(skin, 'secondary'),
     success: getAvatarStyles(skin, 'success'),
     error: getAvatarStyles(skin, 'error'),
     warning: getAvatarStyles(skin, 'warning'),
     info: getAvatarStyles(skin, 'info'),
+    other: getAvatarStyles(skin, 'other'),
   };
 
   const avatarElement = (

@@ -44,6 +44,7 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       primaryGradient: primaryGradient(),
       bodyBg: mode === 'light' ? '#F4F5FA' : '#1a1625', // Same as palette.background.default but doesn't consider bordered skin
       tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#2a1f3d',
+      headerText: '#637381', // Header subtitle text color
     },
     common: {
       black: '#000',

@@ -21,10 +21,12 @@ export const useTeacherClassroomsAndStudents = (teacherId: string) => {
   return useQuery({
     queryKey: [teacherId, 'teacher-classrooms-students'],
     queryFn: async () => {
-      const { data } = await httpClient.get(
+      const response = await httpClient.get(
         `${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`
       );
-      return data;
+      console.log('API Response:', response);
+      console.log('Response data:', response.data);
+      return response.data;
     },
     enabled: !!teacherId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -42,12 +44,17 @@ export const useCheckInReports = (params?: {
   return useQuery({
     queryKey: queryKeys.checkIn.report(params || {}),
     queryFn: async () => {
-      const { data } = await httpClient.get(`${authConfig.reportCheckInEndpoint}`, {
-        params,
-      });
+      if (!params?.teacherId || !params?.classroomId) {
+        return null;
+      }
+      
+      // Use the correct endpoint: /teacher/:teacherId/classroom/:classroomId
+      const { data } = await httpClient.get(
+        `${authConfig.reportCheckInEndpoint}/teacher/${params.teacherId}/classroom/${params.classroomId}`
+      );
       return data;
     },
-    enabled: !!(params?.teacherId || params?.classroomId),
+    enabled: !!(params?.teacherId && params?.classroomId),
     staleTime: 5 * 60 * 1000,
   });
 };

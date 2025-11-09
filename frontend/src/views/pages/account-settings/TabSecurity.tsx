@@ -28,7 +28,7 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 // ** Custom Components Imports
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormHelperText } from '@mui/material';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useChangePassword } from '@/hooks/queries/useUser';
 import { useLogin } from '@/hooks/queries/useAuth';

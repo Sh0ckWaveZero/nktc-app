@@ -22,7 +22,7 @@ import Fade, { FadeProps } from '@mui/material/Fade';
 import Icon from '@/@core/components/icon';
 import { generateErrorMessages } from '@/utils/event';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import useImageCompression from '@/hooks/useImageCompression';
 import { deepOrange } from '@mui/material/colors';
 import { badnessIndividualStore } from '@/store/index';
@@ -125,10 +125,14 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
       updatedBy: auth?.user?.id,
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     await createBadnessGroup(body).then((res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('บันทึกข้อมูลสำเร็จ');
         // clear form
         setImgSrc('');
         setBadTypeScore('');
@@ -138,7 +142,8 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(message || 'เกิดข้อผิดพลาด');
       }
     });
   };

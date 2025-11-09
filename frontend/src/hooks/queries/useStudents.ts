@@ -30,9 +30,10 @@ export const useStudents = (params?: StudentQuery, options?: { enabled?: boolean
 /**
  * Hook to search students
  */
-export const useStudentsSearch = (params?: StudentQuery) => {
-  // Only enable query when there's actual search input
+export const useStudentsSearch = (params?: StudentQuery, options?: { enabled?: boolean }) => {
+  // Only enable query when there's actual search input (unless explicitly disabled)
   const hasSearchQuery = !!(params?.q || params?.fullName || params?.studentId);
+  const enabled = options?.enabled !== undefined ? options.enabled && hasSearchQuery : hasSearchQuery;
 
   return useQuery({
     queryKey: queryKeys.students.search(params),
@@ -40,9 +41,17 @@ export const useStudentsSearch = (params?: StudentQuery) => {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/search`, {
         params,
       });
+      // Handle different response formats
+      // API may return { success, statusCode, message, data: [...], meta } or array directly
+      if (Array.isArray(data)) {
       return data;
+      }
+      if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
     },
-    enabled: hasSearchQuery,
+    enabled,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };

@@ -3,13 +3,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/common/services/prisma.service';
-import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../src/apis/auth/auth.service';
 
 describe('Authentication (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let jwtService: JwtService;
   let authService: AuthService;
 
   beforeAll(async () => {
@@ -19,7 +17,6 @@ describe('Authentication (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    jwtService = moduleFixture.get<JwtService>(JwtService);
     authService = moduleFixture.get<AuthService>(AuthService);
 
     // Apply global validation pipe
@@ -133,11 +130,11 @@ describe('Authentication (e2e)', () => {
   });
 
   describe('/auth/login (POST)', () => {
-    let testUser: any;
+    let __testUser: any;
 
     beforeAll(async () => {
       // Create a test user for login tests
-      testUser = await authService.register({
+      _testUser = await authService.register({
         email: 'logintest@example.com',
         password: 'password123',
         firstName: 'Login',

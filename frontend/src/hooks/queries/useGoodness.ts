@@ -33,7 +33,10 @@ export const useGoodnessRecords = (params?: GoodnessQuery) => {
 /**
  * Hook to search goodness records
  */
-export const useGoodnessSearch = (params?: GoodnessQuery) => {
+export const useGoodnessSearch = (params?: GoodnessQuery, options?: { enabled?: boolean }) => {
+  const hasSearchQuery = !!(params?.fullName || params?.classroomId || params?.studentId || params?.goodDate);
+  const enabled = options?.enabled !== undefined ? options.enabled && hasSearchQuery : hasSearchQuery;
+  
   return useQuery({
     queryKey: queryKeys.goodness.list(params),
     queryFn: async () => {
@@ -41,9 +44,56 @@ export const useGoodnessSearch = (params?: GoodnessQuery) => {
         `${authConfig.goodnessIndividualEndpoint}/search`,
         params || {}
       );
-      return data;
+      
+      // Handle different response formats:
+      // 1. { success, statusCode, message, data: { data: [...], total }, meta }
+      // 2. { data: [...], total }
+      // 3. Array directly
+      
+      if (!data || typeof data !== 'object') {
+        return { data: [], total: 0 };
+      }
+      
+      // Check for nested structure: { success, data: { data: [...], total } }
+      if ('success' in data && 'data' in data && data.data && typeof data.data === 'object') {
+        // Check if data.data has nested data property
+        if ('data' in data.data && Array.isArray(data.data.data)) {
+          // Structure: { success, data: { data: [...], total } }
+          return {
+            data: data.data.data,
+            total: data.data.total || data.data.data.length,
+          };
+        }
+        // Check if data.data is already an array
+        if (Array.isArray(data.data)) {
+          // Structure: { success, data: [...] }
+          return {
+            data: data.data,
+            total: data.data.length,
+          };
+        }
+      }
+      
+      // Check for direct structure: { data: [...], total }
+      if ('data' in data && Array.isArray(data.data)) {
+        return {
+          data: data.data,
+          total: data.total || data.data.length,
+        };
+      }
+      
+      // Check if data is array directly
+      if (Array.isArray(data)) {
+        return {
+          data,
+          total: data.length,
+        };
+      }
+      
+      // Fallback
+      return { data: [], total: 0 };
     },
-    enabled: !!(params?.fullName || params?.classroomId || params?.studentId),
+    enabled,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };

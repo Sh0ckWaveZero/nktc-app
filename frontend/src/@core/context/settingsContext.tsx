@@ -138,8 +138,9 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
       }
     }
     if (pageSettings) {
-      setSettings({ ...settings, ...pageSettings });
+      setSettings((prev) => ({ ...prev, ...pageSettings }));
     }
+     
   }, [pageSettings]);
 
   const saveSettings = (updatedSettings: Settings) => {
@@ -158,7 +159,8 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
         saveSettings({ ...settings, appBar: 'fixed' });
       }
     }
-  }, [settings.layout, saveSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.layout]);
 
   return <SettingsContext.Provider value={{ settings, saveSettings }}>{children}</SettingsContext.Provider>;
 };

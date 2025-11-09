@@ -1,496 +1,84 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   Avatar,
   Box,
   Chip,
   Grid,
   Typography,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { HiFlag } from 'react-icons/hi';
-import { useAuth } from '@/hooks/useAuth';
-import { useTeacherClassroomsAndStudents, useSaveCheckIn } from '@/hooks/queries/useCheckIn';
-import toast from 'react-hot-toast';
+import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
 import StudentCard from './components/StudentCard';
 import MobilePaginationControls from './components/MobilePaginationControls';
 import CheckInControls from './components/CheckInControls';
 import CheckInDataGrid from './components/CheckInDataGrid';
 
 const CheckInReportPage = () => {
-  // ** Hooks
-  const auth = useAuth();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('lg', 'xl'));
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // React Query hooks
-  const { data: classroomData, isLoading: classroomLoading } = useTeacherClassroomsAndStudents(
-    auth.user?.teacher?.id || ''
-  );
-  const { mutate: saveCheckIn, isPending: isSaving } = useSaveCheckIn();
-
-  // Memoize responsive values to prevent unnecessary re-renders
-  const responsiveConfig = useMemo(
-    () => ({
-      isMobile,
-      isTablet,
-      isSmallMobile,
-      cardPadding: isMobile ? 2 : 3,
-      formSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
-      gridSpacing: isMobile ? 3 : 4,
-      containerSpacing: isMobile ? 4 : 6,
-      buttonSize: 'small' as 'small' | 'medium',
-      titleVariant: isMobile ? 'h6' : 'h5',
-      titleFontSize: isMobile ? '1.1rem' : '1.25rem',
-      subheaderVariant: isMobile ? 'body2' : 'body1',
-      dataGridRowHeight: isTablet ? 70 : 80,
-      dataGridFontSize: isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
-      dataGridPadding: isMobile ? '8px' : '16px',
-      inputPadding: isMobile ? '12px 14px' : '16.5px 14px',
-      inputFontSize: isMobile ? '0.9rem' : '1rem',
-      chipSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
-      chipMinWidth: isMobile ? 60 : 80,
-      buttonMinWidth: isMobile ? 'auto' : '80px',
-      buttonFontSize: isMobile ? '0.8rem' : '0.875rem',
-    }),
-    [isMobile, isTablet, isSmallMobile],
-  );
-
-  // ** Local State
-  const [currentStudents, setCurrentStudents] = useState<any>([]);
-  const [classrooms, setClassrooms] = useState<any>([]);
-  const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [mobilePage, setMobilePage] = useState<number>(0);
-  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
-  const [checkInDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [classroomDropdownOpen, setClassroomDropdownOpen] = useState<boolean>(false);
-
-  // Check-in status states
-  const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
-  const [isPresentCheckAll, setIsPresentCheckAll] = useState(false);
-  const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
-  const [isAbsentCheckAll, setIsAbsentCheckAll] = useState(false);
-  const [isLateCheck, setIsLateCheck] = useState<any>([]);
-  const [isLateCheckAll, setIsLateCheckAll] = useState(false);
-  const [isLeaveCheck, setIsLeaveCheck] = useState<any>([]);
-  const [isLeaveCheckAll, setIsLeaveCheckAll] = useState(false);
-  const [isInternshipCheck, setIsInternshipCheck] = useState<any>([]);
-  const [isInternshipCheckAll, setIsInternshipCheckAll] = useState(false);
-
-  // Initialize classroom data from query
-  useEffect(() => {
-    if (!classroomData) return;
-
-    const actualData = classroomData.data || classroomData;
-
-    if (!actualData || !actualData.classrooms || !actualData.classrooms.length) {
-      return;
-    }
-
-    const [classroom] = actualData.classrooms;
-
-    if (!classroom) {
-      return;
-    }
-
-    if (!classroom.students || classroom.students.length === 0) {
-      setDefaultClassroom(classroom);
-      setClassrooms(actualData.classrooms);
-      setCurrentStudents([]);
-      setPageSize(10);
-      setCurrentPage(0);
-      setMobilePage(0);
-    } else {
-      const studentCount = classroom.students?.length || 0;
-      setDefaultClassroom(classroom);
-      setClassrooms(actualData.classrooms);
-      setCurrentStudents(classroom.students || []);
-      setPageSize(studentCount > 0 ? Math.min(studentCount, 10) : 10);
-      setCurrentPage(0);
-      setMobilePage(0);
-    }
-  }, [classroomData]);
-
-  // Handle classroom selection change
-  const handleSelectChange = async (event: any) => {
-    event.preventDefault();
-    const {
-      target: { value },
-    } = event;
-    const classroomObj: any = classrooms.find((item: any) => item.name === value);
-
-    if (classroomObj) {
-      setCurrentStudents(classroomObj.students || []);
-      setDefaultClassroom(classroomObj);
-      setPageSize(classroomObj.students?.length || 5);
-      setCurrentPage(0); // Reset to first page when changing classroom
-      setMobilePage(0); // Reset mobile page when changing classroom
-
-      // Clear all selections when changing classroom
-      onClearAll('');
-    }
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (classroomDropdownOpen && !(event.target as Element).closest('.classroom-dropdown')) {
-        setClassroomDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [classroomDropdownOpen]);
-
-  const handleCellClick = (params: any) => {
-    onHandleToggle(params.field, params.row);
-  };
-
-  const handleColumnHeaderClick = (params: any) => {
-    onHandleCheckAll(params.field);
-  };
-
-  // Handle individual checkbox changes
-  const onHandleToggle = (action: string, param: any): void => {
-    switch (action) {
-      case 'present':
-        handleTogglePresent(param);
-        break;
-      case 'absent':
-        handleToggleAbsent(param);
-        break;
-      case 'late':
-        handleToggleLate(param);
-        break;
-      case 'leave':
-        handleToggleLeave(param);
-        break;
-      case 'internship':
-        handleToggleInternship(param);
-        break;
-      default:
-        break;
-    }
-    onRemoveToggleOthers(action, param);
-  };
-
-  const handleTogglePresent = (param: any): void => {
-    setIsPresentCheck((prevState: any) => {
-      return onSetToggle(prevState, param);
+  // Memoize current date to avoid calling Date.now() during render
+  const currentDateString = useMemo(() => {
+    return new Date().toLocaleDateString('th-TH', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
-  };
+  }, []);
 
-  const handleToggleAbsent = (param: any): void => {
-    setIsAbsentCheck((prevState: any) => {
-      return onSetToggle(prevState, param);
-    });
-  };
-
-  const handleToggleLate = (param: any): void => {
-    setIsLateCheck((prevState: any) => {
-      return onSetToggle(prevState, param);
-    });
-  };
-
-  const handleToggleLeave = (param: any): void => {
-    setIsLeaveCheck((prevState: any) => {
-      return onSetToggle(prevState, param);
-    });
-  };
-
-  const handleToggleInternship = (param: any): void => {
-    setIsInternshipCheck((prevState: any) => {
-      return onSetToggle(prevState, param);
-    });
-  };
-
-  const onSetToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
-
-    let newSelection: any[] = [];
-
-    if (index === -1) {
-      newSelection = newSelection.concat(prevSelection, param.id);
-    } else if (index === 0) {
-      newSelection = newSelection.concat(prevSelection.slice(1));
-    } else if (index === prevSelection.length - 1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, -1));
-    } else if (index > 0) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
-    }
-    return newSelection;
-  };
-
-  const onRemoveToggleOthers = (action: string, param: any): void => {
-    switch (action) {
-      case 'present':
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'absent':
-        onHandlePresentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'late':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'leave':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'internship':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onHandlePresentChecked = (param: any): void => {
-    if (isPresentCheck.includes(param.id)) {
-      setIsPresentCheck((prevState: any) => {
-        return onRemoveToggle(prevState, param);
-      });
-    }
-  };
-
-  const onHandleAbsentChecked = (param: any): void => {
-    if (isAbsentCheck.includes(param.id)) {
-      setIsAbsentCheck((prevState: any) => {
-        return onRemoveToggle(prevState, param);
-      });
-    }
-  };
-
-  const onHandleLateChecked = (param: any): void => {
-    if (isLateCheck.includes(param.id)) {
-      setIsLateCheck((prevState: any) => {
-        return onRemoveToggle(prevState, param);
-      });
-    }
-  };
-
-  const onHandleLeaveChecked = (param: any): void => {
-    if (isLeaveCheck.includes(param.id)) {
-      setIsLeaveCheck((prevState: any) => {
-        return onRemoveToggle(prevState, param);
-      });
-    }
-  };
-
-  const onHandleInternshipChecked = (param: any): void => {
-    if (isInternshipCheck.includes(param.id)) {
-      setIsInternshipCheck((prevState: any) => {
-        return onRemoveToggle(prevState, param);
-      });
-    }
-  };
-
-  const onRemoveToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
-
-    let newSelection: any[] = [];
-
-    if (index !== -1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
-    }
-
-    return newSelection;
-  };
-
-  // Handle select all checkboxes
-  const onHandleCheckAll = (action: string): void => {
-    switch (action) {
-      case 'present':
-        handleTogglePresentAll();
-        break;
-      case 'absent':
-        handleToggleAbsentAll();
-        break;
-      case 'late':
-        handleToggleLateAll();
-        break;
-      case 'leave':
-        handleToggleLeaveAll();
-        break;
-      case 'internship':
-        handleToggleInternshipAll();
-        break;
-      default:
-        break;
-    }
-    onClearAll(action);
-  };
-
-  const handleTogglePresentAll = (): void => {
-    setIsPresentCheckAll(!isPresentCheckAll);
-    setIsPresentCheck(currentStudents.map((student: any) => student.id));
-    if (isPresentCheckAll) {
-      setIsPresentCheck([]);
-    }
-  };
-
-  const handleToggleAbsentAll = (): void => {
-    setIsAbsentCheckAll(!isAbsentCheckAll);
-    setIsAbsentCheck(currentStudents.map((student: any) => student.id));
-    if (isAbsentCheckAll) {
-      setIsAbsentCheck([]);
-    }
-  };
-
-  const handleToggleLateAll = (): void => {
-    setIsLateCheckAll(!isLateCheckAll);
-    setIsLateCheck(currentStudents.map((student: any) => student.id));
-    if (isLateCheckAll) {
-      setIsLateCheck([]);
-    }
-  };
-
-  const handleToggleLeaveAll = (): void => {
-    setIsLeaveCheckAll(!isLeaveCheckAll);
-    setIsLeaveCheck(currentStudents.map((student: any) => student.id));
-    if (isLeaveCheckAll) {
-      setIsLeaveCheck([]);
-    }
-  };
-
-  const handleToggleInternshipAll = (): void => {
-    setIsInternshipCheckAll(!isInternshipCheckAll);
-    setIsInternshipCheck(currentStudents.map((student: any) => student.id));
-    if (isInternshipCheckAll) {
-      setIsInternshipCheck([]);
-    }
-  };
-
-  const onClearAll = (action: string): void => {
-    if (action !== 'present') {
-      setIsPresentCheckAll(false);
-      setIsPresentCheck([]);
-    }
-    if (action !== 'absent') {
-      setIsAbsentCheckAll(false);
-      setIsAbsentCheck([]);
-    }
-    if (action !== 'late') {
-      setIsLateCheckAll(false);
-      setIsLateCheck([]);
-    }
-    if (action !== 'leave') {
-      setIsLeaveCheckAll(false);
-      setIsLeaveCheck([]);
-    }
-    if (action !== 'internship') {
-      setIsInternshipCheckAll(false);
-      setIsInternshipCheck([]);
-    }
-  };
-
-  const handleSaveCheckIn = () => {
-    if (!auth.user?.teacher?.id || !defaultClassroom?.id) {
-      toast.error('กรุณาเลือกห้องเรียนและเข้าสู่ระบบ');
-      return;
-    }
-
-    const checkInData = {
-      teacherId: auth.user.teacher.id,
-      classroomId: defaultClassroom.id,
-      checkInDate: checkInDate,
-      present: isPresentCheck,
-      absent: isAbsentCheck,
-      late: isLateCheck,
-      leave: isLeaveCheck,
-      internship: isInternshipCheck,
-    };
-
-    console.log('Check-in Data:', checkInData);
-
-    saveCheckIn(checkInData, {
-      onSuccess: () => {
-        // Clear all selections after saving
-        setIsPresentCheck([]);
-        setIsPresentCheckAll(false);
-        setIsAbsentCheck([]);
-        setIsAbsentCheckAll(false);
-        setIsLateCheck([]);
-        setIsLateCheckAll(false);
-        setIsLeaveCheck([]);
-        setIsLeaveCheckAll(false);
-        setIsInternshipCheck([]);
-        setIsInternshipCheckAll(false);
-
-        toast.success('บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว');
-      },
-      onError: (error) => {
-        console.error('Error saving check-in data:', error);
-        toast.error('ไม่สามารถบันทึกข้อมูลการเช็คชื่อได้');
-      },
-    });
-  };
-
-  // Mobile pagination functions
-  const getPaginatedStudents = () => {
-    const startIndex = mobilePage * mobilePageSize;
-    const endIndex = startIndex + mobilePageSize;
-    return currentStudents.slice(startIndex, endIndex);
-  };
-
-  const handleMobilePageChange = (newPage: number) => {
-    setMobilePage(newPage);
-    // Scroll to top of the list when changing page
-    const scrollContainer = document.getElementById('checkin-mobile-scroll-container');
-    if (scrollContainer) {
-      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleMobilePageSizeChange = (newPageSize: number) => {
-    setMobilePageSize(newPageSize);
-    setMobilePage(0); // Reset to first page when changing page size
-  };
-
-  const getTotalMobilePages = () => {
-    return Math.ceil((currentStudents?.length ?? 0) / mobilePageSize);
-  };
-
-  const getStudentStatus = (studentId: any) => {
-    if (isPresentCheck.includes(studentId)) return { status: 'มาเรียน', color: 'success' as const };
-    if (isAbsentCheck.includes(studentId)) return { status: 'ขาดเรียน', color: 'error' as const };
-    if (isLateCheck.includes(studentId)) return { status: 'มาสาย', color: 'warning' as const };
-    if (isLeaveCheck.includes(studentId)) return { status: 'ลา', color: 'info' as const };
-    if (isInternshipCheck.includes(studentId)) return { status: 'ฝึกงาน', color: 'secondary' as const };
-    return { status: 'ยังไม่เช็ค', color: 'default' as const };
-  };
+  const {
+    responsiveConfig,
+    currentStudents,
+    classrooms,
+    defaultClassroom,
+    classroomLoading,
+    classroomError,
+    pageSize,
+    currentPage,
+    mobilePage,
+    mobilePageSize,
+    isPresentCheck,
+    isPresentCheckAll,
+    isAbsentCheck,
+    isAbsentCheckAll,
+    isLateCheck,
+    isLateCheckAll,
+    isLeaveCheck,
+    isLeaveCheckAll,
+    isInternshipCheck,
+    isInternshipCheckAll,
+    hasSavedCheckIn,
+    isSaving,
+    handleSelectChange,
+    handleCellClick,
+    handleColumnHeaderClick,
+    handleSaveCheckIn,
+    handleMobilePageChange,
+    handleMobilePageSizeChange,
+    handlePaginationModelChange,
+    getPaginatedStudents,
+    getTotalMobilePages,
+    getStudentStatus,
+    onHandleToggle,
+  } = useCheckInReport();
 
   return (
-    <div id='checkin-page-fragment'>
+    <div 
+      id='checkin-page-fragment'
+      style={{ borderRadius: '8px', overflow: 'hidden' }}
+    >
       <Grid id='checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
           <Box
             id='checkin-main-container-box'
-            sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              backgroundColor: 'background.paper',
+            }}
           >
             {/* Header Section */}
             <Box
@@ -504,8 +92,8 @@ const CheckInReportPage = () => {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                <Avatar sx={{ bgcolor: 'info.main', mt: 0.5 }}>
-                  <HiFlag />
+                <Avatar sx={{ bgcolor: theme.palette.warning.main, mt: 0.5 }}>
+                  <HiFlag style={{ color: theme.palette.common.white }} />
                 </Avatar>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant='h6' component='div' sx={{ fontWeight: 600, mb: 0.5 }}>
@@ -531,12 +119,7 @@ const CheckInReportPage = () => {
                     <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    {new Date(Date.now()).toLocaleDateString('th-TH', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {currentDateString}
                   </Typography>
                 </Box>
               </Box>
@@ -548,12 +131,25 @@ const CheckInReportPage = () => {
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                flex: 1,
-                overflow: 'hidden',
+                backgroundColor: 'background.paper',
               }}
             >
+              {/* Loading State */}
+              {classroomLoading && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                  <Typography>กำลังโหลดข้อมูล...</Typography>
+                </Box>
+              )}
+
+              {/* Empty State */}
+              {!classroomLoading && !classroomError && !classrooms.length && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                  <Typography color='text.secondary'>ไม่พบข้อมูลห้องเรียน</Typography>
+                </Box>
+              )}
+
               {/* Fixed Controls Section */}
-              {(currentStudents?.length ?? 0) > 0 && (
+              {!classroomLoading && !classroomError && classrooms.length > 0 && (
                 <Box
                   sx={{
                     flexShrink: 0,
@@ -577,6 +173,7 @@ const CheckInReportPage = () => {
                         (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0
                     }
                     loading={isSaving}
+                    hasSavedCheckIn={hasSavedCheckIn}
                     formSize={responsiveConfig.formSize}
                     inputFontSize={responsiveConfig.inputFontSize}
                     inputPadding={responsiveConfig.inputPadding}
@@ -637,12 +234,10 @@ const CheckInReportPage = () => {
                   <Box
                     id='checkin-mobile-scroll-container'
                     sx={{
-                      flex: 1,
                       overflow: 'auto',
                       p: responsiveConfig.cardPadding,
                       pb: '270px', // Add padding for pagination and floating badge
                       scrollBehavior: 'smooth',
-                      minHeight: 0, // Allow flex item to shrink below content size
                     }}
                   >
                     <Box
@@ -667,6 +262,7 @@ const CheckInReportPage = () => {
                             isLateCheck={isLateCheck}
                             isLeaveCheck={isLeaveCheck}
                             isInternshipCheck={isInternshipCheck}
+                            hasSavedCheckIn={hasSavedCheckIn}
                             onCheckboxChange={(studentId: string, status: string) => {
                               const student = currentStudents.find((s: any) => s.id === studentId);
                               if (student) {
@@ -687,6 +283,8 @@ const CheckInReportPage = () => {
                       left: 0,
                       right: 0,
                       backgroundColor: 'background.paper',
+                      borderTop: 1,
+                      borderColor: 'divider',
                       zIndex: 1000,
                       p: 1.5,
                     }}
@@ -703,7 +301,7 @@ const CheckInReportPage = () => {
                 </>
               ) : (
                 /* Desktop View */
-                <Box sx={{ flex: 1, overflow: 'auto' }}>
+                <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <CheckInDataGrid
                     students={currentStudents}
                     loading={classroomLoading}
@@ -719,10 +317,8 @@ const CheckInReportPage = () => {
                     isLateCheck={isLateCheck}
                     isLeaveCheck={isLeaveCheck}
                     isInternshipCheck={isInternshipCheck}
-                    onPaginationModelChange={(model) => {
-                      setCurrentPage(model.page);
-                      setPageSize(model.pageSize);
-                    }}
+                    hasSavedCheckIn={hasSavedCheckIn}
+                    onPaginationModelChange={handlePaginationModelChange}
                     onCellClick={handleCellClick}
                     onColumnHeaderClick={handleColumnHeaderClick}
                   />

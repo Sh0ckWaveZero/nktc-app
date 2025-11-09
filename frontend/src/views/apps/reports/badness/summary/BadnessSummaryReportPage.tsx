@@ -26,7 +26,7 @@ import IconifyIcon from '@/@core/components/icon';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { badnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 
 interface CellType {
@@ -112,13 +112,18 @@ const BadnessSummaryReportPage = () => {
   };
 
   const handleConfirm = () => {
-    const toastId = toast.loading('กำลังบันทึกลบข้อมูลความประพฤติ...');
+    const toastId = toast.info('กำลังบันทึกลบข้อมูลความประพฤติ...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     deleteBadnessIndividualById(badnessId).then((res: any) => {
       if (res?.status === 204) {
         setIsDeleted(true);
-        toast.success('ลบข้อมูลความประพฤติสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('ลบข้อมูลความประพฤติสำเร็จ');
       } else {
-        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด');
       }
     });
     setIsDeleted(false);

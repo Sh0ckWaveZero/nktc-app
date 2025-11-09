@@ -16,10 +16,31 @@ export const useClassrooms = (params?: ClassroomQuery) => {
   return useQuery({
     queryKey: queryKeys.classrooms.list(params),
     queryFn: async () => {
-      const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/list`, {
+      const { data } = await httpClient.get(authConfig.classroomEndpoint as string, {
         params,
       });
-      return data;
+
+      // Handle different response formats:
+      // 1. { success, statusCode, message, data: [...] }
+      // 2. { data: [...] }
+      // 3. Array directly
+
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      if (data && typeof data === 'object') {
+        // Check for nested structure: { success, data: [...] }
+        if ('success' in data && 'data' in data && Array.isArray(data.data)) {
+          return data.data;
+        }
+        // Check for direct structure: { data: [...] }
+        if ('data' in data && Array.isArray(data.data)) {
+          return data.data;
+        }
+      }
+
+      return [];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

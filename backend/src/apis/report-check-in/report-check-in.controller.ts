@@ -23,12 +23,23 @@ export class ReportCheckInController {
 
   @Post()
   async create(
-    @Body() createReportCheckInDto: Prisma.ReportCheckInCreateManyInput,
+    @Body() createReportCheckInDto: Prisma.ReportCheckInCreateInput,
   ) {
     try {
+      console.log('Received check-in data:', JSON.stringify(createReportCheckInDto, null, 2));
       return await this.reportCheckInService.create(createReportCheckInDto);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+      console.error('Error creating report check-in:', error);
+      const errorMessage = error?.message || 'Failed to create report check-in';
+      const statusCode = error?.status || HttpStatus.FORBIDDEN;
+      throw new HttpException(
+        {
+          message: errorMessage,
+          error: error?.name || 'Forbidden',
+          statusCode,
+        },
+        statusCode,
+      );
     }
   }
 

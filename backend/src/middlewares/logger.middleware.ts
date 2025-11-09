@@ -17,7 +17,7 @@ export class LoggerMiddleware implements NestMiddleware {
       const userAgent = req.get('User-Agent');
       const parser = new UAParser(userAgent);
       const result = parser.getResult();
-      const { username, password } = req.body;
+      const { username } = req.body;
       const ipAddr = requestIp.getClientIp(req);
 
       // Record log to database

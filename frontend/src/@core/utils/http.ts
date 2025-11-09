@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../hooks/useAuth';
+import { authConfig } from '@/configs/auth';
 
 const httpClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -43,18 +44,36 @@ const AxiosInterceptor = ({ children }: any) => {
       (response) => response,
       async (error) => {
         if (error?.response?.status === 401) {
-          await Swal.fire({
-            title: 'เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน',
-            text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
-            icon: 'warning',
-            showCancelButton: false,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'ตกลง',
-          }).then(() => {
-            logout();
-            router.push('/login');
-          });
+          // Get the request URL to check if it's a login endpoint
+          const requestUrl = error?.config?.url || '';
+          const fullUrl = error?.config?.baseURL 
+            ? `${error.config.baseURL}${requestUrl}` 
+            : requestUrl;
+          
+          // Check if this is a login endpoint - don't show Swal for login failures
+          // Login errors should be handled by the login page itself
+          const loginEndpoint = authConfig.loginEndpoint || '';
+          const isLoginEndpoint = fullUrl.includes('/auth/login') || 
+                                 requestUrl.includes('/auth/login') ||
+                                 (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
+          
+          if (!isLoginEndpoint) {
+            // Only show Swal for non-login 401 errors (token expired, unauthorized access)
+            await Swal.fire({
+              title: 'เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน',
+              text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
+              icon: 'warning',
+              showCancelButton: false,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'ตกลง',
+            }).then(() => {
+              logout();
+              router.push('/login');
+            });
+          }
+          // For login endpoint, reject the error so login page can handle it
+          return Promise.reject(error);
         } else {
           return Promise.reject(error);
         }

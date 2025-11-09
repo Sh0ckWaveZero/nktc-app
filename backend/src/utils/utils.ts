@@ -353,7 +353,7 @@ export const getLevelId = async (level: string) => {
   }
 };
 
-export const getDepartIdByName = async (name: string, id: string) => {
+export const getDepartIdByName = async (name: string, _id: string) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {
@@ -363,7 +363,7 @@ export const getDepartIdByName = async (name: string, id: string) => {
   return res.id;
 };
 
-export const getDepartId = async (name: string, id: string) => {
+export const getDepartId = async (name: string, _id: string) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {

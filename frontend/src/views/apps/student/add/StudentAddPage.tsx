@@ -35,7 +35,7 @@ import Link from 'next/link';
 import { handleKeyDown } from '@/utils/event';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import { styled } from '@mui/material/styles';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/navigation';
@@ -189,17 +189,22 @@ const StudentAddPage = () => {
       avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
 
     createStudent(
       { userId: user?.id || '', params: student },
       {
         onSuccess: () => {
-          toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+          toast.dismiss(toastId);
+          toast.success('บันทึกข้อมูลสำเร็จ');
           router.push(`/apps/student/list?classroom=${c.id}`);
         },
         onError: (error: any) => {
-          toast.error(error?.response?.data?.error || 'เกิดข้อผิดพลาด', { id: toastId });
+          toast.dismiss(toastId);
+          toast.error(error?.response?.data?.error || 'เกิดข้อผิดพลาด');
         },
       }
     );

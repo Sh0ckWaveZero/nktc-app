@@ -25,7 +25,7 @@ import Grid from '@mui/material/Grid';
 import IconifyIcon from '@/@core/components/icon';
 import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 
@@ -109,13 +109,18 @@ const GoodnessSummaryReportPage = () => {
   };
 
   const handleConfirm = () => {
-    const toastId = toast.loading('กำลังบันทึกลบข้อมูลความดี...');
+    const toastId = toast.info('กำลังบันทึกลบข้อมูลความดี...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
     deleteGoodnessIndividualById(goodnessId).then((res: any) => {
       if (res?.status === 204) {
         setIsDeleted(true);
-        toast.success('ลบข้อมูลความดีสำเร็จ', { id: toastId });
+        toast.dismiss(toastId);
+        toast.success('ลบข้อมูลความดีสำเร็จ');
       } else {
-        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด', { id: toastId });
+        toast.dismiss(toastId);
+        toast.error(res?.response?.data.error || 'เกิดข้อผิดพลาด');
       }
     });
     setIsDeleted(false);

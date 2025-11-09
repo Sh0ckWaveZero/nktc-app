@@ -46,6 +46,7 @@ const TableHeader = (props: TableHeaderProps) => {
 
   return (
     <Grid
+      id='student-list-table-header'
       container
       spacing={2}
       flexDirection='row'
@@ -57,6 +58,7 @@ const TableHeader = (props: TableHeaderProps) => {
       }}
     >
       <Grid
+        id='student-list-student-id-filter'
         size={{
           xs: 12,
           sm: 12,
@@ -64,7 +66,7 @@ const TableHeader = (props: TableHeaderProps) => {
           lg: 2,
         }}
       >
-        <FormControl fullWidth>
+        <FormControl id='student-id-form-control' fullWidth>
           <TextField
             id='studentId'
             fullWidth
@@ -77,6 +79,7 @@ const TableHeader = (props: TableHeaderProps) => {
                 endAdornment: studentId && (
                   <InputAdornment position='end'>
                     <IconButton
+                      id='clear-student-id-button'
                       size='small'
                       edge='end'
                       onClick={() => onHandleStudentId('')}
@@ -95,6 +98,7 @@ const TableHeader = (props: TableHeaderProps) => {
         </FormControl>
       </Grid>
       <Grid
+        id='student-list-student-name-filter'
         size={{
           xs: 12,
           sm: 12,
@@ -102,7 +106,7 @@ const TableHeader = (props: TableHeaderProps) => {
           lg: 4,
         }}
       >
-        <FormControl fullWidth>
+        <FormControl id='student-name-form-control' fullWidth>
           <Autocomplete
             id='studentName'
             fullWidth
@@ -132,6 +136,7 @@ const TableHeader = (props: TableHeaderProps) => {
             renderInput={(params: any) => {
               return (
                 <TextField
+                  id='student-name-input'
                   {...params}
                   label='ชื่อ-สกุล นักเรียน'
                   placeholder='เลือกชื่อ-สกุล นักเรียน'
@@ -148,6 +153,7 @@ const TableHeader = (props: TableHeaderProps) => {
         </FormControl>
       </Grid>
       <Grid
+        id='student-list-classroom-filter'
         size={{
           xs: 12,
           sm: 12,
@@ -155,7 +161,7 @@ const TableHeader = (props: TableHeaderProps) => {
           lg: 4,
         }}
       >
-        <FormControl fullWidth>
+        <FormControl id='classroom-form-control' fullWidth>
           <Autocomplete
             id='classroom'
             fullWidth
@@ -173,6 +179,7 @@ const TableHeader = (props: TableHeaderProps) => {
             renderInput={(params: any) => {
               return (
                 <TextField
+                  id='classroom-input'
                   {...params}
                   label='ห้องเรียน'
                   placeholder='เลือกห้องเรียน'
@@ -191,6 +198,7 @@ const TableHeader = (props: TableHeaderProps) => {
         </FormControl>
       </Grid>
       <Grid
+        id='student-list-add-button-container'
         size={{
           xs: 12,
           sm: 12,
@@ -198,9 +206,10 @@ const TableHeader = (props: TableHeaderProps) => {
           lg: 2,
         }}
       >
-        <FormControl fullWidth>
+        <FormControl id='add-student-form-control' fullWidth>
           <LinkStyled href='/apps/student/add' passHref>
             <Button
+              id='add-student-button'
               fullWidth
               color='primary'
               variant='contained'

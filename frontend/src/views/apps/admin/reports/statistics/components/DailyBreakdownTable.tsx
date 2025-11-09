@@ -209,14 +209,14 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
 
             {/* Pagination */}
             <TablePagination
-              rowsPerPageOptions={[10, 25, 50, 100]}
+              rowsPerPageOptions={(dailyData?.length || 0) === 0 ? [] : [10, 25, 50, 100]}
               component='div'
               count={dailyData?.length || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
-              labelRowsPerPage='แสดง:'
+              labelRowsPerPage={(dailyData?.length || 0) === 0 ? '' : 'แสดง:'}
               labelDisplayedRows={({ from, to, count }) => {
                 return `${from}-${to} จากทั้งหมด ${count}`;
               }}

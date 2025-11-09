@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
 import { isValidHttpUrl, isEmpty } from '../../utils/utils';
+import { hash } from 'bcrypt';
 @Injectable()
 export class TeachersService {
   constructor(
@@ -147,15 +148,22 @@ export class TeachersService {
       },
     });
     const classroomIds =
-      teacherOnClassroom.map((item: any) => item.classroomId) ?? [];
+      teacherOnClassroom.map((item: any) => item.classroomId).filter(Boolean) ?? [];
+
+    // If teacher has no classrooms, return empty structure
+    if (!classroomIds || classroomIds.length === 0) {
+      return {
+        data: {
+          classrooms: [],
+        },
+      };
+    }
 
     const classrooms = await this.prisma.classroom.findMany({
       where: {
-        OR: classroomIds.map((item: any) => {
-          return {
-            id: item,
-          };
-        }),
+        id: {
+          in: classroomIds,
+        },
       },
       orderBy: [
         {
@@ -177,11 +185,9 @@ export class TeachersService {
     const students = await this.prisma.user.findMany({
       where: {
         student: {
-          OR: classroomIds.map((item: any) => {
-            return {
-              classroomId: item,
-            };
-          }),
+          classroomId: {
+            in: classroomIds,
+          },
         },
       },
       select: {
@@ -259,30 +265,89 @@ export class TeachersService {
   }
 
   async updateClassroom(userId: string, updateTeacherDto: any) {
-    const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
-      where: {
-        teacherId: updateTeacherDto.teacherInfo,
-      },
-    });
+    // Support both old format (classrooms) and new format (teachers)
+    // If teachers array is provided, add those teachers as advisors for the current teacher's classrooms
+    // If classrooms array is provided, use the old behavior (add classrooms to current teacher)
+    
+    if (updateTeacherDto.teachers && Array.isArray(updateTeacherDto.teachers)) {
+      // New format: Add multiple teachers as co-advisors
+      // Get current teacher's classrooms
+      const currentTeacherClassrooms = await this.prisma.teacherOnClassroom.findMany({
+        where: {
+          teacherId: updateTeacherDto.teacherInfo,
+        },
+        select: {
+          classroomId: true,
+        },
+      });
 
-    if (teacherOnClassroom.length > 0) {
-      await this.prisma.teacherOnClassroom.deleteMany({
+      const classroomIds = currentTeacherClassrooms.map((tc) => tc.classroomId);
+
+      if (classroomIds.length === 0) {
+        throw new Error('Teacher has no classrooms assigned. Please assign classrooms first.');
+      }
+
+      // Create teacherOnClassroom records for each selected teacher and each classroom
+      const dataCreate: any[] = [];
+      for (const teacherId of updateTeacherDto.teachers) {
+        for (const classroomId of classroomIds) {
+          // Check if record already exists
+          const existing = await this.prisma.teacherOnClassroom.findUnique({
+            where: {
+              teacherOnClassroomKey: {
+                teacherId: teacherId,
+                classroomId: classroomId,
+              },
+            },
+          });
+
+          if (!existing) {
+            dataCreate.push({
+              teacherId: teacherId,
+              classroomId: classroomId,
+              createdBy: userId,
+              updatedBy: userId,
+            });
+          }
+        }
+      }
+
+      if (dataCreate.length > 0) {
+        return await this.prisma.teacherOnClassroom.createMany({
+          data: dataCreate,
+        });
+      }
+
+      return { count: 0 };
+    } else if (updateTeacherDto.classrooms && Array.isArray(updateTeacherDto.classrooms)) {
+      // Old format: Add classrooms to current teacher
+      const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
         where: {
           teacherId: updateTeacherDto.teacherInfo,
         },
       });
+
+      if (teacherOnClassroom.length > 0) {
+        await this.prisma.teacherOnClassroom.deleteMany({
+          where: {
+            teacherId: updateTeacherDto.teacherInfo,
+          },
+        });
+      }
+
+      const dataCreate = updateTeacherDto.classrooms.map((item: any) => ({
+        teacherId: updateTeacherDto.teacherInfo,
+        classroomId: item,
+        createdBy: userId,
+        updatedBy: userId,
+      }));
+
+      return await this.prisma.teacherOnClassroom.createMany({
+        data: dataCreate,
+      });
+    } else {
+      throw new Error('Either teachers or classrooms array must be provided');
     }
-
-    const dataCreate = updateTeacherDto.classrooms.map((item: any) => ({
-      teacherId: updateTeacherDto.teacherInfo,
-      classroomId: item,
-      createdBy: userId,
-      updatedBy: userId,
-    }));
-
-    return await this.prisma.teacherOnClassroom.createMany({
-      data: dataCreate,
-    });
   }
 
   async updateProfile(userId: string, updateTeacherDto: any) {
@@ -410,10 +475,13 @@ export class TeachersService {
 
   async addTeacher(data: any) {
     try {
+      // Hash password before storing
+      const hashedPassword = await hash(data?.teacher?.password || '', 12);
+      
       const user = await this.prisma.user.create({
         data: {
           username: data?.teacher?.username,
-          password: data?.teacher?.password,
+          password: hashedPassword,
           role: data?.teacher?.role,
           account: {
             create: {

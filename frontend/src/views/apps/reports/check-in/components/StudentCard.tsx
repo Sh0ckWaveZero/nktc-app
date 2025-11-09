@@ -13,6 +13,7 @@ interface StudentCardProps {
   isLateCheck: any[];
   isLeaveCheck: any[];
   isInternshipCheck: any[];
+  hasSavedCheckIn: boolean;
   onCheckboxChange: (studentId: string, status: string) => void;
 }
 
@@ -25,6 +26,7 @@ const StudentCard = ({
   isLateCheck,
   isLeaveCheck,
   isInternshipCheck,
+  hasSavedCheckIn,
   onCheckboxChange,
 }: StudentCardProps) => {
   const theme = useTheme();
@@ -45,7 +47,12 @@ const StudentCard = ({
   return (
     <Card
       id={`checkin-student-card-${student.id}`}
-      sx={{ mb: responsiveConfig.isSmallMobile ? 1 : 1.5, border: 1, borderColor: 'divider' }}
+      sx={{ 
+        mb: responsiveConfig.isSmallMobile ? 1 : 1.5, 
+        border: 1, 
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+      }}
     >
       <CardContent
         sx={{
@@ -97,6 +104,7 @@ const StudentCard = ({
             color='success'
             size={responsiveConfig.buttonSize}
             onClick={() => onCheckboxChange(student.id, 'present')}
+            disabled={hasSavedCheckIn}
             fullWidth
             sx={{
               fontSize: responsiveConfig.buttonFontSize,
@@ -111,6 +119,7 @@ const StudentCard = ({
             color='error'
             size={responsiveConfig.buttonSize}
             onClick={() => onCheckboxChange(student.id, 'absent')}
+            disabled={hasSavedCheckIn}
             fullWidth
             sx={{
               fontSize: responsiveConfig.buttonFontSize,
@@ -125,6 +134,7 @@ const StudentCard = ({
             color='warning'
             size={responsiveConfig.buttonSize}
             onClick={() => onCheckboxChange(student.id, 'late')}
+            disabled={hasSavedCheckIn}
             fullWidth
             sx={{
               fontSize: responsiveConfig.buttonFontSize,
@@ -139,6 +149,7 @@ const StudentCard = ({
             color='info'
             size={responsiveConfig.buttonSize}
             onClick={() => onCheckboxChange(student.id, 'leave')}
+            disabled={hasSavedCheckIn}
             fullWidth
             sx={{
               fontSize: responsiveConfig.buttonFontSize,
@@ -153,6 +164,7 @@ const StudentCard = ({
             color='secondary'
             size={responsiveConfig.buttonSize}
             onClick={() => onCheckboxChange(student.id, 'internship')}
+            disabled={hasSavedCheckIn}
             fullWidth
             sx={{
               fontSize: responsiveConfig.buttonFontSize,

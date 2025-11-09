@@ -3,7 +3,7 @@ import React, { ElementType } from 'react';
 
 // ** Next Imports
 import Link from 'next/link';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 // ** MUI Imports
 import Box from '@mui/material/Box';
@@ -61,7 +61,6 @@ const HorizontalNavLink = (props: Props) => {
   const { item, settings, hasParent } = props;
 
   // ** Hook & Vars
-  const router = useRouter();
   const pathname = usePathname();
   const { navSubItemIcon, menuTextTruncate } = themeConfig;
 

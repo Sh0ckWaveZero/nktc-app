@@ -21,11 +21,10 @@ import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
 import { generateErrorMessages } from '@/utils/event';
-import { goodnessIndividualStore } from '@/store/apps/goodness-individual';
-import { shallow } from 'zustand/shallow';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import { useCreateGoodnessGroup } from '@/hooks/queries/useGoodness';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -61,11 +60,8 @@ interface DialogAddGoodnessGroupProps {
 const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const { onOpen, data, handleClose, auth, handleSusses } = props;
 
-  // hooks
-  const { createGoodnessGroup }: any = goodnessIndividualStore(
-    (state: any) => ({ createGoodnessGroup: state.createGoodnessGroup }),
-    shallow,
-  );
+  // React Query mutation
+  const createGoodnessGroupMutation = useCreateGoodnessGroup();
 
   // ** States
   const [goodTypeScore, setGoodTypeScore] = useState<string>(''); // คะแนนที่ได้
@@ -111,9 +107,9 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
     event.preventDefault();
     setOnSubmit(true);
     if (goodTypeScore === '') {
+      setOnSubmit(false);
       return;
     }
-    handleClose();
 
     const body = {
       students: data,
@@ -125,22 +121,37 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
       updatedBy: auth?.user?.id,
     };
 
-    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
-    await createGoodnessGroup(body).then((res: any) => {
-      if (res?.name !== 'AxiosError') {
-        toast.success('บันทึกข้อมูลสำเร็จ', { id: toastId });
+    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
+    
+    try {
+      const response = await createGoodnessGroupMutation.mutateAsync(body);
+      
+      // Handle response wrapper
+      const responseData = response?.data || response;
+      
+      if (responseData && !responseData.name) {
+        toast.dismiss(toastId);
+        toast.success('บันทึกข้อมูลสำเร็จ');
         // clear form
         setImgSrc('');
         setGoodTypeScore('');
         setDetails('');
         setOnSubmit(false);
+        handleClose();
         handleSusses();
       } else {
-        const { data } = res?.response || {};
-        const message = generateErrorMessages[data?.message] || data?.message;
-        toast.error(message || 'เกิดข้อผิดพลาด', { id: toastId });
+        throw new Error('Invalid response');
       }
-    });
+    } catch (error: any) {
+      const errorData = error?.response?.data || error?.data;
+      const message = generateErrorMessages[errorData?.message] || errorData?.message || error?.message || 'เกิดข้อผิดพลาด';
+      toast.dismiss(toastId);
+      toast.error(message);
+      setOnSubmit(false);
+    }
   };
 
   const handleSelectedDate = useCallback(

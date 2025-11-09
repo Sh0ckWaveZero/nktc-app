@@ -6,11 +6,9 @@ import {
   HttpStatus,
   Param,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StaticsService } from './statics.service';
 import configuration from '../../config/configuration';
 
@@ -85,7 +83,7 @@ export class StaticsController {
     prefix: string,
     response: Response,
     contentType = 'image/webp',
-    fileTypes = '.webp',
+    _fileTypes = '.webp',
   ) {
     try {
       const bucketName = configuration().minioBucket;

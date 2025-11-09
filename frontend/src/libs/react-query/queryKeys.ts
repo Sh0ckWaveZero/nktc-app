@@ -109,6 +109,23 @@ export const checkInKeys = {
 };
 
 /**
+ * Activity Check-in Query Keys
+ */
+export const activityCheckInKeys = {
+  all: ['activity-check-in'] as const,
+  reports: () => [...activityCheckInKeys.all, 'report'] as const,
+  report: (params: {
+    teacher: string;
+    classroom: string;
+  }) => [...activityCheckInKeys.reports(), params] as const,
+  daily: (params: {
+    teacherId: string;
+    classroomId: string;
+    startDate: string;
+  }) => [...activityCheckInKeys.reports(), 'daily', params] as const,
+};
+
+/**
  * User Projects Query Keys
  */
 export const userProjectKeys = {
@@ -179,6 +196,7 @@ export const queryKeys = {
   teachers: teacherKeys,
   classrooms: classroomKeys,
   checkIn: checkInKeys,
+  activityCheckIn: activityCheckInKeys,
   userProjects: userProjectKeys,
   goodness: goodnessKeys,
   badness: badnessKeys,

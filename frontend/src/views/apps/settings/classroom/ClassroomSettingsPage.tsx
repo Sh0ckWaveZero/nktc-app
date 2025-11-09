@@ -17,7 +17,7 @@ import { DeleteOutline, DotsVertical, Plus } from 'mdi-material-ui';
 import React, { Fragment, MouseEvent, useState } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface RowOptionsType {
   row: any;
