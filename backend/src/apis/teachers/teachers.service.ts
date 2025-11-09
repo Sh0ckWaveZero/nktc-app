@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { MinioClientService } from '../minio/minio-client.service';
 import { isValidHttpUrl, isEmpty } from '../../utils/utils';
+import { hash } from 'bcrypt';
 @Injectable()
 export class TeachersService {
   constructor(
@@ -474,10 +475,13 @@ export class TeachersService {
 
   async addTeacher(data: any) {
     try {
+      // Hash password before storing
+      const hashedPassword = await hash(data?.teacher?.password || '', 12);
+      
       const user = await this.prisma.user.create({
         data: {
           username: data?.teacher?.username,
-          password: data?.teacher?.password,
+          password: hashedPassword,
           role: data?.teacher?.role,
           account: {
             create: {

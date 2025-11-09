@@ -14,4 +14,9 @@ export default () => ({
   minioBucket: process.env.MINIO_BUCKET_NAME,
   hostUrl: process.env.HOST_URL,
   educationYears: process.env.EDUCATION_YEARS,
+  // CORS Configuration
+  corsAllowedDomains: process.env.CORS_ALLOWED_DOMAINS?.split(',') || [],
+  corsDevOrigins: process.env.CORS_DEV_ORIGINS?.split(',') || [],
+  corsMaxAge: parseInt(process.env.CORS_MAX_AGE, 10) || 86400,
+  corsProductionMethods: process.env.CORS_PRODUCTION_METHODS || 'GET,POST,PUT,PATCH,DELETE',
 });

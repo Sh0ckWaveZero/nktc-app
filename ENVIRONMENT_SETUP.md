@@ -89,6 +89,16 @@ HOST_URL="http://localhost:3001"
 
 # Education Years
 EDUCATION_YEARS="2567"
+
+# CORS Configuration (Optional)
+# Comma-separated list of allowed domains (for development mode domain validation)
+CORS_ALLOWED_DOMAINS="midseelee.com"
+# Additional development origins (beyond default localhost)
+CORS_DEV_ORIGINS="https://app-test.midseelee.com"
+# CORS preflight cache time in seconds (default: 86400 = 24 hours)
+CORS_MAX_AGE=86400
+# Allowed HTTP methods for production (default: GET,POST,PUT,PATCH,DELETE)
+CORS_PRODUCTION_METHODS="GET,POST,PUT,PATCH,DELETE"
 ```
 
 ---
@@ -207,6 +217,10 @@ env:
 | `POSTGRES_USER` | ❌ | `postgres` | PostgreSQL user |
 | `POSTGRES_PASSWORD` | ❌ | - | PostgreSQL password |
 | `EDUCATION_YEARS` | ✅ | `2567` | Thai education year |
+| `CORS_ALLOWED_DOMAINS` | ❌ | - | Comma-separated list of allowed domains for CORS (e.g., `midseelee.com,example.com`) |
+| `CORS_DEV_ORIGINS` | ❌ | - | Comma-separated list of additional development origins (e.g., `https://app-test.midseelee.com`) |
+| `CORS_MAX_AGE` | ❌ | `86400` | CORS preflight cache time in seconds (default: 24 hours) |
+| `CORS_PRODUCTION_METHODS` | ❌ | `GET,POST,PUT,PATCH,DELETE` | Allowed HTTP methods for production CORS |
 
 ---
 

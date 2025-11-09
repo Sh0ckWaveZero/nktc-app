@@ -4,7 +4,6 @@ import { useEffectOnce } from '@/hooks/userCommon';
 import { useResponsive } from '@/@core/hooks/useResponsive';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
-import bcrypt from 'bcryptjs';
 import { toast } from 'react-toastify';
 import { generateErrorMessages } from '@/utils/event';
 import { isEmpty } from '@/@core/utils/utils';
@@ -309,9 +308,6 @@ export const useTeacherList = () => {
 
     setAddUserOpen(false);
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(info.password, salt);
-
     const { fullName, ...rest } = info;
     const nameParts = fullName.split(' ');
     const firstName = nameParts[0] || '';
@@ -323,7 +319,7 @@ export const useTeacherList = () => {
       },
       teacher: {
         ...rest,
-        password: hashedPassword,
+        password: info.password, // Send plain password - backend will hash it
         firstName,
         lastName,
         role: 'Teacher',
