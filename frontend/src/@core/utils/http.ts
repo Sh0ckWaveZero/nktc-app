@@ -57,8 +57,11 @@ const AxiosInterceptor = ({ children }: any) => {
                                  requestUrl.includes('/auth/login') ||
                                  (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
           
-          if (!isLoginEndpoint) {
-            // Only show Swal for non-login 401 errors (token expired, unauthorized access)
+          // Check if this is the /auth/me endpoint - don't show Swal, let AuthContext handle it
+          const isMeEndpoint = fullUrl.includes('/auth/me') || requestUrl.includes('/auth/me');
+          
+          if (!isLoginEndpoint && !isMeEndpoint) {
+            // Only show Swal for non-login and non-me 401 errors (token expired, unauthorized access)
             await Swal.fire({
               title: 'เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน',
               text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
@@ -72,7 +75,7 @@ const AxiosInterceptor = ({ children }: any) => {
               router.push('/login');
             });
           }
-          // For login endpoint, reject the error so login page can handle it
+          // For login and me endpoints, reject the error so they can handle it
           return Promise.reject(error);
         } else {
           return Promise.reject(error);

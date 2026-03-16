@@ -481,7 +481,7 @@ const TabAccount = () => {
                 multiple={true}
                 limitTags={15}
                 value={classroomSelected}
-                options={classrooms}
+                options={Array.isArray(classrooms) ? classrooms : []}
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}

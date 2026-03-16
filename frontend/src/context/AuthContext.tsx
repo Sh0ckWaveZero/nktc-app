@@ -3,9 +3,10 @@
 // ** React Imports
 import * as React from 'react';
 import { createContext, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 // ** Next Import
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -42,8 +43,6 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const searchParams = useSearchParams();
-
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
 
@@ -87,21 +86,25 @@ const AuthProvider = ({ children }: Props) => {
             window.localStorage.setItem('userData', JSON.stringify(response.data));
           })
           .catch((_) => {
+            console.log('🔒 Token validation failed, clearing auth and redirecting...');
             // Token is invalid, clear everything
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('accessToken');
             setUser(null);
             setLoading(false);
-            router.replace('/login');
+            // Force redirect immediately
+            window.location.href = '/login';
           });
       } else {
         setLoading(false);
+        setIsInitialized(true);
       }
     };
 
     initAuth();
-  }, [isBrowser, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBrowser]);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
     try {
@@ -115,19 +118,18 @@ const AuthProvider = ({ children }: Props) => {
         window.localStorage.setItem('userData', JSON.stringify(data));
       }
 
-      // Set user state
+    // Force synchronous state commit so auth.user is available before router.replace fires
+    flushSync(() => {
       setUser(data?.data);
-
-      // Redirect after setting user
-      if (isBrowser) {
-        const returnUrl = searchParams.get('returnUrl');
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
-        router.replace(redirectURL as string);
-      }
-    } catch (err: any) {
-      if (errorCallback) errorCallback(err);
-    }
-  };
+    });
+    
+    // Return user data for success handling in components
+    return data?.data;
+  } catch (err: any) {
+    if (errorCallback) errorCallback(err);
+    throw err;
+  }
+};
 
   const handleLogout = () => {
     setUser(null);

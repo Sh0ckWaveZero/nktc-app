@@ -1,9 +1,9 @@
-import { Prisma } from '@prisma/client';
+import type { LevelCreateInput } from '../generated/prisma/client/models/Level';
 import { createByAdmin } from '../../utils/utils';
 
 export const levelData = () => {
   const admin = createByAdmin();
-  return Prisma.validator<Prisma.LevelCreateInput[]>()([
+  return [
     {
       levelId: 'L001',
       levelName: 'ปวช.',
@@ -16,5 +16,5 @@ export const levelData = () => {
       levelFullName: 'ประกาศนียบัตรวิชาชีพชั้นสูง',
       ...admin,
     },
-  ]);
+  ] satisfies LevelCreateInput[];
 };

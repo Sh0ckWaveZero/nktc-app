@@ -13,7 +13,7 @@ import {
 import { ActivityCheckInService } from './activity-check-in.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../database/generated/prisma/client/client';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('activity-check-in')

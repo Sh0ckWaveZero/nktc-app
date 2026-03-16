@@ -60,6 +60,8 @@ services:
       retries: 3
     volumes:
       - minio-data:/data
+      # Mount host timezone for proper time synchronization (prevents S3 time errors)
+      - /etc/localtime:/etc/localtime:ro
 
 volumes:
   postgres-data: {}

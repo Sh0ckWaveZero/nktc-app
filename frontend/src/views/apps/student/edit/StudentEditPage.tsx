@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import {
+  Avatar,
   Box,
   Button,
   Card,
@@ -15,7 +16,6 @@ import {
   Select,
   TextField,
   Typography,
-  styled,
   CircularProgress,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
@@ -49,12 +49,7 @@ interface FormData {
   status: string;
 }
 
-const ImgStyled = styled('img')(({ theme }) => ({
-  width: 120,
-  height: 120,
-  marginRight: theme.spacing(6.25),
-  borderRadius: theme.shape.borderRadius,
-}));
+const AVATAR_SIZE = 120;
 
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
@@ -148,7 +143,14 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
           <Grid container spacing={6}>
             <Grid size={12}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ImgStyled src={imgSrc} alt='Profile Pic' />
+                <Avatar
+                  src={imgSrc}
+                  alt='Profile Pic'
+                  variant='rounded'
+                  sx={{ width: AVATAR_SIZE, height: AVATAR_SIZE, mr: 6.25 }}
+                >
+                  {studentData?.firstName?.charAt(0) || 'S'}
+                </Avatar>
                 <Box>
                   <Typography variant='h6'>อัปโหลดรูปโปรไฟล์</Typography>
                   <Typography variant='body2' sx={{ marginTop: 5 }}>

@@ -660,6 +660,7 @@ export class StudentsService {
       if (extractedData.levelClassroom) {
         try {
           levelClassroomId = await getLevelClassroomByName(
+            this.prisma,
             extractedData.levelClassroom,
           );
         } catch (error) {
@@ -681,7 +682,7 @@ export class StudentsService {
       // ค้นหา level
       let levelConnection = null;
       try {
-        levelConnection = await getLevelByName(levelName);
+        levelConnection = await getLevelByName(this.prisma, levelName);
       } catch (error) {
         console.log(`Cannot find level: ${levelName}`);
       }
@@ -700,6 +701,7 @@ export class StudentsService {
       ) {
         try {
           programId = await getProgramId(
+            this.prisma,
             levelConnection.level.connect.id,
             extractedData.programName,
             extractedData.studentType || 'ปกติ',
@@ -714,6 +716,7 @@ export class StudentsService {
       if (extractedData.levelClassroom && extractedData.departmentName) {
         try {
           classroomId = await getClassroomId(
+            this.prisma,
             extractedData.levelClassroom,
             extractedData.departmentName,
             extractedData.studentType || '',
@@ -1031,6 +1034,7 @@ export class StudentsService {
         idCard: user.account?.idCard || '',
         phone: user.account?.phone || '',
         status: user.student?.status || 'normal',
+        avatar: user.account?.avatar || null,
         level: user.student?.level,
         levelClassroom: user.student?.levelClassroom,
         classroom: user.student?.classroom,

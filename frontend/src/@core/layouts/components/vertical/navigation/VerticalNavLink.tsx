@@ -91,11 +91,37 @@ const VerticalNavLink = ({
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon;
 
   const isNavLinkActive = () => {
-    if (pathname === item.path) {
-      return true;
-    } else {
+    if (!item.path) {
       return false;
     }
+    
+    // Normalize paths by removing trailing slashes (except root)
+    const normalizePath = (path: string) => {
+      return path === '/' ? path : path.replace(/\/$/, '');
+    };
+    
+    const normalizedPathname = normalizePath(pathname);
+    const normalizedItemPath = normalizePath(item.path);
+    
+    // Exact match
+    if (normalizedPathname === normalizedItemPath) {
+      return true;
+    }
+    
+    // Check if pathname starts with item.path for nested routes
+    // Make sure we're matching full path segments, not just substrings
+    if (normalizedItemPath !== '/' && normalizedPathname.startsWith(normalizedItemPath)) {
+      // Ensure we're matching a full path segment (not partial match)
+      // e.g., '/apps/record-goodness/individual' should match '/apps/record-goodness/individual'
+      // and '/apps/record-goodness/individual/something' should also match
+      // However, '/apps/record-goodness/group' should NOT match '/apps/record-goodness/individual'
+      const nextChar = normalizedPathname[normalizedItemPath.length];
+      if (!nextChar || nextChar === '/' || nextChar === '?') {
+        return true;
+      }
+    }
+    
+    return false;
   };
 
   return (

@@ -30,6 +30,19 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const icon = <MdCheckBoxOutlineBlank />;
 const checkedIcon = <MdCheckBox />;
 
+interface Student {
+  id: string;
+  studentId: string;
+  fullName?: string;
+  title?: string;
+  account?: {
+    title?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  [key: string]: any;
+}
+
 type Props = {
   handleCloseSelectStudents: () => void;
   onAddStudents: () => void;
@@ -37,8 +50,12 @@ type Props = {
   onSelectStudents: (event: ChangeEvent<any>, value: any) => void;
   openSelectStudents: boolean;
   studentLoading: boolean;
-  studentsList: any;
+  studentsList: Student[];
 };
+
+// Server-side filtering - return all options from API without additional filtering
+const filterOptions = (options: any[]) => options;
+
 
 function DialogStudentGroup({
   handleCloseSelectStudents,
@@ -82,26 +99,42 @@ function DialogStudentGroup({
           <Autocomplete
             id='checkboxes-tags-classroom'
             multiple
+            disableCloseOnSelect
             limitTags={20}
-            options={studentsList}
+            options={Array.isArray(studentsList) ? studentsList : []}
             onChange={onSelectStudents}
             onInputChange={onSearchStudents}
             loading={studentLoading}
-            getOptionLabel={(option: any) => `${option?.title}${option?.fullName} `}
-            isOptionEqualToValue={(option: any, value: any) => option === value}
-            renderOption={(props: any, option, { selected }) => (
-              <li {...props}>
-                <Checkbox
-                  icon={icon}
-                  checkedIcon={checkedIcon}
-                  style={{
-                    marginRight: 8,
-                  }}
-                  checked={selected}
-                />
-                {`${option?.title}${option?.fullName} `}
-              </li>
-            )}
+            filterOptions={filterOptions}
+            getOptionLabel={(option: any) => {
+              // Handle both API response structure and account structure
+              if (option?.fullName) {
+                return `${option?.title || ''}${option.fullName}`;
+              }
+              // Fallback to account structure if exists
+              return `${option?.account?.title || ''}${option?.account?.firstName || ''} ${option?.account?.lastName || ''}`;
+            }}
+            isOptionEqualToValue={(option: any, value: any) => option?.id === value?.id}
+            renderOption={(props: any, option, { selected }) => {
+              // Handle both API response structure and account structure
+              const displayName = option?.fullName 
+                ? `${option?.title || ''}${option.fullName}`
+                : `${option?.account?.title || ''}${option?.account?.firstName || ''} ${option?.account?.lastName || ''}`;
+              
+              return (
+                <li {...props}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{
+                      marginRight: 8,
+                    }}
+                    checked={selected}
+                  />
+                  {displayName}
+                </li>
+              );
+            }}
             renderInput={(params: any) => (
               <TextField
                 {...params}
@@ -109,7 +142,7 @@ function DialogStudentGroup({
                 placeholder='เพิ่มรายชื่อนักเรียน'
                 slotProps={{
                   input: {
-                    ref: undefined,
+                    ...params.InputProps,
                   },
                   inputLabel: {
                     shrink: true,
@@ -117,7 +150,7 @@ function DialogStudentGroup({
                 }}
               />
             )}
-            groupBy={(option: any) => option.department?.name}
+            groupBy={(option: any) => option?.student?.classroom?.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>

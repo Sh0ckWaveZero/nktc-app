@@ -1,9 +1,9 @@
 // filepath: /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/database/db/user-student.ts
-import { Prisma, Role } from '@prisma/client';
+import { Role } from '../generated/prisma/client/client';
+import { prisma } from '../prisma/prisma-client';
 import { hash } from 'bcrypt';
 import {
   createByAdmin,
-  getBirthday,
   getClassroomId,
   getProgramId,
   readWorkSheetFromFile,
@@ -122,7 +122,7 @@ export const userStudentData = async (fileName: string) => {
           let levelClassroomId = null;
           try {
             if (levelClassroom) {
-              levelClassroomId = await getLevelClassroomByName(levelClassroom);
+              levelClassroomId = await getLevelClassroomByName(prisma, levelClassroom);
               console.log(
                 `Level classroom ID for ${studentIdString}: ${levelClassroomId}`,
               );
@@ -140,7 +140,7 @@ export const userStudentData = async (fileName: string) => {
           // Safely get level
           let levelConnection = null;
           try {
-            levelConnection = await getLevelByName(levelName);
+            levelConnection = await getLevelByName(prisma, levelName);
             if (
               levelConnection &&
               levelConnection.level &&
@@ -170,6 +170,7 @@ export const userStudentData = async (fileName: string) => {
           try {
             if (departmentName && levelName) {
               programId = await getProgramId(
+                prisma,
                 levelConnection.level.connect.id,
                 programName.trim(),
                 group,
@@ -192,6 +193,7 @@ export const userStudentData = async (fileName: string) => {
           try {
             if (levelClassroom && departmentName) {
               classroomId = await getClassroomId(
+                prisma,
                 levelClassroom,
                 departmentName,
                 group || '',

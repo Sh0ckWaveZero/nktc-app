@@ -26,9 +26,12 @@ import EyeOutline from 'mdi-material-ui/EyeOutline';
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
 // ** Form & Validation
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, Control, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
+// ** Next Imports
+import { useSearchParams } from 'next/navigation';
 
 // ** Hooks & Utils
 import { useAuth } from '@/hooks/useAuth';
@@ -38,10 +41,7 @@ import { toast } from 'react-toastify';
 import FooterIllustrationsV1 from '@/views/pages/auth/FooterIllustration';
 
 // ** Types
-interface LoginFormData {
-  username: string;
-  password: string;
-}
+type LoginFormData = z.infer<typeof VALIDATION_SCHEMA>;
 
 // ** Constants
 const VALIDATION_SCHEMA = z.object({
@@ -74,8 +74,6 @@ const TOAST_OPTIONS = {
   pauseOnHover: true,
   draggable: true,
 };
-
-const LOGIN_TIMEOUT = 200;
 
 // ** Styled Components
 const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
@@ -129,6 +127,8 @@ const Logo = () => (
       component='img'
       src={LOGO_CONFIG.src}
       alt={LOGO_CONFIG.alt}
+      width={180}
+      height={180}
       sx={{
         width: LOGO_CONFIG.size,
         height: LOGO_CONFIG.size,
@@ -159,6 +159,7 @@ const WelcomeText = () => (
         color: 'text.primary',
         fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem', lg: '1.375rem' },
         lineHeight: { xs: 1.4, sm: 1.5 },
+        textWrap: 'balance',
       }}
     >
       ยินดีต้อนรับสู่ ระบบช่วยเหลือผู้เรียน
@@ -178,8 +179,8 @@ const WelcomeText = () => (
 );
 
 interface UsernameFieldProps {
-  control: any;
-  errors: any;
+  control: Control<LoginFormData>;
+  errors: FieldErrors<LoginFormData>;
 }
 
 const UsernameField = ({ control, errors }: UsernameFieldProps) => (
@@ -195,6 +196,7 @@ const UsernameField = ({ control, errors }: UsernameFieldProps) => (
           autoFocus
           fullWidth
           label='ชื่อผู้ใช้งาน'
+          autoComplete='username'
           sx={{
             mb: { xs: 2, sm: 3, md: 3.5, lg: 4 },
             '& .MuiInputBase-root': {
@@ -224,8 +226,8 @@ const UsernameField = ({ control, errors }: UsernameFieldProps) => (
 );
 
 interface PasswordFieldProps {
-  control: any;
-  errors: any;
+  control: Control<LoginFormData>;
+  errors: FieldErrors<LoginFormData>;
   showPassword: boolean;
   onTogglePassword: () => void;
   onMouseDownPassword: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -266,6 +268,8 @@ const PasswordField = ({
             name='password'
             label='รหัสผ่าน'
             type={showPassword ? 'text' : 'password'}
+            autoComplete='current-password'
+            inputProps={{ spellCheck: false }}
             endAdornment={
               <InputAdornment id='login-password-adornment' position='end'>
                 <IconButton
@@ -302,7 +306,11 @@ const PasswordField = ({
   />
 );
 
-const SubmitButton = () => (
+interface SubmitButtonProps {
+  isLoading: boolean;
+}
+
+const SubmitButton = ({ isLoading }: SubmitButtonProps) => (
   <Box id='login-submit-button-container'>
     <Button
       id='login-submit-button'
@@ -310,6 +318,7 @@ const SubmitButton = () => (
       size='large'
       variant='contained'
       type='submit'
+      disabled={isLoading}
       sx={{
         marginTop: { xs: 0.5, sm: 0 },
         height: { xs: '44px', sm: '48px', md: '52px' },
@@ -317,9 +326,10 @@ const SubmitButton = () => (
         fontWeight: 600,
         textTransform: 'none',
         flexShrink: 0,
+        touchAction: 'manipulation',
       }}
     >
-      ลงชื่อเข้าใช้
+      {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'ลงชื่อเข้าใช้'}
     </Button>
   </Box>
 );
@@ -328,9 +338,11 @@ const SubmitButton = () => (
 const LoginPage = () => {
   // ** State
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // ** Hooks
   const auth = useAuth();
+  const searchParams = useSearchParams();
 
   // ** Form
   const {
@@ -352,44 +364,29 @@ const LoginPage = () => {
     event.preventDefault();
   }, []);
 
-  const createLoginPromise = useCallback(
-    (username: string, password: string): Promise<void> => {
-      return new Promise<void>((resolve, reject) => {
-        let hasError = false;
-        let isResolved = false;
-
-        auth.login(
-          { username, password },
-          (error) => {
-            if (!isResolved) {
-              hasError = true;
-              reject(error);
-            }
-          }
-        );
-
-        setTimeout(() => {
-          if (!hasError && !isResolved) {
-            isResolved = true;
-            resolve();
-          }
-        }, LOGIN_TIMEOUT);
-      });
-    },
-    [auth]
-  );
-
   const onSubmit = useCallback(
     async (data: LoginFormData) => {
-      const loginPromise = createLoginPromise(data.username, data.password);
-
+      setIsLoading(true);
+      const toastId = toast.loading(TOAST_MESSAGES.loading, TOAST_OPTIONS);
       try {
-        await toast.promise(loginPromise, TOAST_MESSAGES, TOAST_OPTIONS);
-      } catch (error) {
-        // Error จะถูกจัดการโดย toast.promise แล้ว
+        await auth.login({ username: data.username, password: data.password });
+        toast.dismiss(toastId);
+        // Use hard redirect so initAuth re-runs with the fresh token from localStorage
+        const returnUrl = searchParams.get('returnUrl');
+        const isSafeUrl = returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') && returnUrl !== '/';
+        const redirectURL = isSafeUrl ? returnUrl : '/home';
+        window.location.href = redirectURL;
+      } catch {
+        toast.update(toastId, {
+          render: TOAST_MESSAGES.error,
+          type: 'error',
+          isLoading: false,
+          autoClose: TOAST_OPTIONS.autoClose,
+        });
+        setIsLoading(false);
       }
     },
-    [createLoginPromise]
+    [auth, searchParams],
   );
 
   return (
@@ -440,7 +437,8 @@ const LoginPage = () => {
             id='login-card-content'
             sx={{
               padding: {
-                xs: (theme) => `${theme.spacing(3, 2.5, 3)} !important`,
+                xs: (theme) =>
+                  `${theme.spacing(3)} ${theme.spacing(2.5)} calc(${theme.spacing(3)} + env(safe-area-inset-bottom)) !important`,
                 sm: (theme) => `${theme.spacing(6, 5, 6)} !important`,
                 md: (theme) => `${theme.spacing(8, 7, 8)} !important`,
               },
@@ -460,7 +458,6 @@ const LoginPage = () => {
             <form
               id='login-form'
               noValidate
-              autoComplete='off'
               onSubmit={handleSubmit(onSubmit)}
               style={{
                 flex: 1,
@@ -477,7 +474,7 @@ const LoginPage = () => {
                 onTogglePassword={handleTogglePassword}
                 onMouseDownPassword={handleMouseDownPassword}
               />
-              <SubmitButton />
+              <SubmitButton isLoading={isLoading} />
             </form>
           </CardContent>
         </Card>

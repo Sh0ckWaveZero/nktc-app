@@ -305,7 +305,6 @@ const RecordBadnessGroupPage = () => {
           openSelectClassroom={openSelectClassroom}
           selectClassrooms={selectClassrooms}
           studentLoading={studentLoading}
-          students={students}
           studentsList={studentsList}
         />
         <DialogAddGroup

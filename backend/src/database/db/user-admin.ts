@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { hash } from 'bcrypt';
 import configuration from '../../config/configuration';
 import { createByAdmin } from '../../utils/utils';

@@ -51,8 +51,21 @@
       "Bash(npm run start:prod:*)",
       "Bash(pkill:*)",
       "Bash(npm run start:dev:*)",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "Bash(sed -i '' \"s|from ''../../database/generated/prisma/client''|from ''../../database/generated/prisma/client/client''|g\" /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/apis/auth/auth.service.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/apis/users/users.service.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/apis/activity-check-in/activity-check-in.controller.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/apis/report-check-in/report-check-in.service.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/apis/report-check-in/report-check-in.controller.ts)",
+      "Bash(sed -i '' \"s|from ''../database/generated/prisma/client''|from ''../database/generated/prisma/client/client''|g\" /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/enhanced-student-import.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/fix-undefined-ids.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/analyze-missing-classrooms.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/test-id-lookups.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/fix-program-connections.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/query-db.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/redistribute-students.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/fix-remaining-programs.ts /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/src/scripts/connect-classrooms-programs.ts)",
+      "Bash(ls /Users/sh0ckpro/Works/Freelance/React/nktc-app/frontend/src/app/\\\\\\(dynamic\\\\\\)/)",
+      "Bash(ls /Users/sh0ckpro/Works/Freelance/React/nktc-app/frontend/src/app/\\\\\\(dynamic\\\\\\)/home/)",
+      "Skill(sc:troubleshoot)",
+      "Skill(sc:troubleshoot:*)",
+      "Bash(grep -E '\"\"react\"\"|\"\"@types/react\"\"' package.json)",
+      "Skill(sc:improve)",
+      "Skill(sc:improve:*)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "next-devtools"
+  ]
 }

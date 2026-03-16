@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+
 import { PrismaService } from '../../common/services/prisma.service';
 import { ccyFormat } from '../../common/shared/util';
 import { sortClassroomsByNumberAndDepartment } from '../../utils/utils';
+import { Prisma } from '@/database/generated/prisma/client/client';
 
 @Injectable()
 export class ActivityCheckInService {

@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma/client';
+import { prisma } from './prisma-client';
 import { Classroom } from '../db/classroom';
 import { departmentData } from '../db/department';
 import { levelData } from '../db/level';
@@ -7,8 +7,6 @@ import { programData } from '../db/program';
 import { userAdmin } from '../db/user-admin';
 import { userStudentData } from '../db/user-student';
 import { userTeacher } from '../db/user-teacher';
-
-const prisma = new PrismaClient();
 
 const main = async () => {
   console.log('Seeding...');

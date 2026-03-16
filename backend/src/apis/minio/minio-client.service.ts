@@ -77,22 +77,7 @@ export class MinioClientService {
       };
       const fileName = `${file.path}${hashedFileName}${extension}`;
 
-      await new Promise<void>((resolve, reject) => {
-        this.client.putObject(
-          bucketName,
-          fileName,
-          buffer,
-          metaData,
-          (err: any) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-
-            resolve();
-          },
-        );
-      });
+      await this.client.putObject(bucketName, fileName, buffer, undefined, metaData);
 
       return {
         url: `${configuration().hostUrl}/statics/${fileName}`,
@@ -104,16 +89,8 @@ export class MinioClientService {
 
   async delete(objetName: string, bucketName: string = this.bucketName) {
     try {
-      await new Promise<void>((resolve, reject) => {
-        this.client.removeObject(bucketName, objetName, (err: any) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          this.logger.log('File deleted successfully');
-          resolve();
-        });
-      });
+      await this.client.removeObject(bucketName, objetName);
+      this.logger.log('File deleted successfully');
     } catch (error) {
       throw new HttpException(
         'An error occured when deleting!',

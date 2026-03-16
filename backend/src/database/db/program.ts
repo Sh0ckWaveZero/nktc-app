@@ -1,11 +1,9 @@
-import { PrismaClient } from '../generated/prisma/client';
+import { prisma } from '../prisma/prisma-client';
 import {
   createByAdmin,
   getLevelId,
   readWorkSheetFromFile,
 } from '../../utils/utils';
-
-const prisma = new PrismaClient();
 export const programData = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('program');
   const admin = createByAdmin();
@@ -38,7 +36,7 @@ export const programData = async () => {
         continue;
       }
 
-      const level = await getLevelId(levelString);
+      const level = await getLevelId(prisma, levelString);
 
       // Use upsert to handle duplicates
       await prisma.program.upsert({

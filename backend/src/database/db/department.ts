@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { createByAdmin, readWorkSheetFromFile } from '../../utils/utils';
 
 export const departmentData = async () => {

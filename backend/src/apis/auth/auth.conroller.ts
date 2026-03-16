@@ -25,7 +25,6 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
 import { LoginDto, RegisterDto, UpdatePasswordDto } from './dto';
 
 @ApiTags('auth')
@@ -51,7 +50,6 @@ export class AuthController {
     return result;
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'User login' })

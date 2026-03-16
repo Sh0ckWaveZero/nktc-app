@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../database/generated/prisma/client/client';
 import { hash } from 'bcrypt';
 import {
   createByAdmin,
@@ -7,7 +8,8 @@ import {
 } from '../utils/utils';
 
 // Initialize Prisma client
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 /**
  * Enhanced student import function with proper sequencing and relationship handling

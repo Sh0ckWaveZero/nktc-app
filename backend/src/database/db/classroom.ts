@@ -1,12 +1,10 @@
-import { PrismaClient } from '../generated/prisma/client';
+import { prisma } from '../prisma/prisma-client';
 import {
   getDepartId,
   getLevelId,
   getProgramId,
   readWorkSheetFromFile,
 } from '../../utils/utils';
-
-const prisma = new PrismaClient();
 export const Classroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('classroom');
 
@@ -32,7 +30,7 @@ export const Classroom = async () => {
           // Try to get program, level and department IDs
           let programId, level, departmentId;
           try {
-            programId = await getProgramId(program, levelName);
+            programId = await getProgramId(prisma, program, levelName);
           } catch (error) {
             console.log(
               `Error getting program ID for ${processedClassroomId}: ${error.message}`,
@@ -41,7 +39,7 @@ export const Classroom = async () => {
           }
 
           try {
-            level = await getLevelId(levelName);
+            level = await getLevelId(prisma, levelName);
           } catch (error) {
             console.log(
               `Error getting level ID for ${processedClassroomId}: ${error.message}`,
@@ -51,6 +49,7 @@ export const Classroom = async () => {
 
           try {
             departmentId = await getDepartId(
+              prisma,
               departmentIds,
               processedClassroomId,
             );

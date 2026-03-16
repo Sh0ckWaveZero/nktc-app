@@ -91,7 +91,7 @@ const TableHeader = (props: TableHeaderProps) => {
                   limitTags={20}
                   value={value || null}
                   inputValue={localInputValue}
-                  options={students}
+                  options={Array.isArray(students) ? students : []}
                      size='medium'
                   loading={loadingStudents}
                   onInputChange={(event, newInputValue, reason) => {

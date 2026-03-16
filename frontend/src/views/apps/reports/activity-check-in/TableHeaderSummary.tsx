@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
 import { Button, Box, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Container } from '@mui/material';
-import { useRef } from 'react';
+import { useRef, type RefObject } from 'react';
 import { BsPrinter } from 'react-icons/bs';
 import { useReactToPrint } from 'react-to-print';
 import PrintSummaryReport from './PrintSummaryReport';
@@ -30,10 +30,10 @@ const MenuProps = {
 const TableHeaderSummary = (props: TableHeaderProps) => {
   // ** Props
   const { students: value, defaultValue, handleChange, isDisabled, classrooms: classroom } = props;
-  const componentRef = useRef(null);
+  const componentRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    contentRef: componentRef,
+    contentRef: componentRef as RefObject<HTMLDivElement>,
   });
 
   return (
@@ -59,13 +59,14 @@ const TableHeaderSummary = (props: TableHeaderProps) => {
           </MenuItem>
 
           {classroom.map((item: any) => (
-            <MenuItem key={item.id} value={item.name}>
+            <MenuItem key={item.id} id={item.id} value={item.name}>
               {item.name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
       <Button
+        id='btn-print-activity-summary'
         disabled={isDisabled}
         color={'primary'}
         startIcon={<BsPrinter />}

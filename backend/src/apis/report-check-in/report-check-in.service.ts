@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../database/generated/prisma/client/client';
 import { PrismaService } from '../../common/services/prisma.service';
 import { ccyFormat } from '../../common/shared/util';
 import { sortClassroomsByNumberAndDepartment } from '../../utils/utils';

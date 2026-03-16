@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import xlsx from 'node-xlsx';
 import * as fs from 'fs';
 
-const prisma = new PrismaClient();
+import type { PrismaClient } from '@/database/generated/prisma/client/client';
 
 export const getBirthday = async (date: string) => {
   // Handle undefined, null, or empty string input
@@ -243,6 +242,7 @@ const getBuddhistYear = async (date: string) => {
 };
 
 export const getClassroomId = async (
+  prisma: PrismaClient,
   levelClassroomId: string,
   departmentName: string,
   group: string = '',
@@ -265,7 +265,7 @@ export const getClassroomId = async (
   return res?.id;
 };
 
-export const getLevelClassroomId = async (level: string, classroom: string) => {
+export const getLevelClassroomId = async (prisma: PrismaClient, level: string, classroom: string) => {
   const name = `${level}${classroom}`;
   const res = await prisma.levelClassroom.findFirst({
     where: {
@@ -278,7 +278,7 @@ export const getLevelClassroomId = async (level: string, classroom: string) => {
   return res?.id;
 };
 
-export const getLevelClassroomByName = async (name: string) => {
+export const getLevelClassroomByName = async (prisma: PrismaClient, name: string) => {
   const res = await prisma.levelClassroom.findFirst({
     where: {
       name: name,
@@ -291,6 +291,7 @@ export const getLevelClassroomByName = async (name: string) => {
 };
 
 export const getProgramId = async (
+  prisma: PrismaClient,
   level: string,
   programName: string = '',
   group: string = '',
@@ -318,7 +319,7 @@ export const readWorkSheetFromFile = (path: string) => {
   return workSheetsFromFile;
 };
 
-export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
+export const getLevelByName = async (prisma: PrismaClient, level: 'ปวช.' | 'ปวส.') => {
   const admin = createByAdmin();
   const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
 
@@ -338,7 +339,7 @@ export const getLevelByName = async (level: 'ปวช.' | 'ปวส.') => {
   };
 };
 
-export const getLevelId = async (level: string) => {
+export const getLevelId = async (prisma: PrismaClient, level: string) => {
   try {
     const res = await prisma.level.findFirstOrThrow({
       where: {
@@ -353,7 +354,7 @@ export const getLevelId = async (level: string) => {
   }
 };
 
-export const getDepartIdByName = async (name: string, _id: string) => {
+export const getDepartIdByName = async (prisma: PrismaClient, name: string, _id: string) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {
@@ -363,7 +364,7 @@ export const getDepartIdByName = async (name: string, _id: string) => {
   return res.id;
 };
 
-export const getDepartId = async (name: string, _id: string) => {
+export const getDepartId = async (prisma: PrismaClient, name: string, _id: string) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {

@@ -1,11 +1,13 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../database/generated/prisma/client/client';
 import { getProgramId, getClassroomId } from '../utils/utils';
 import fs from 'fs';
 import xlsx from 'node-xlsx';
 import path from 'path';
 
 // Initialize Prisma client
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 // Utility function to read Excel file
 const readExcelFile = (fileName: string) => {
@@ -85,6 +87,7 @@ async function testLookupFunctions() {
         // Test with modified parameters to trace the issue
         console.log('Test 1: Standard parameters');
         const programId1 = await getProgramId(
+          prisma,
           departmentName,
           levelName,
           programName,
@@ -92,11 +95,11 @@ async function testLookupFunctions() {
         console.log(`Result: ${programId1 || 'undefined'}`);
 
         console.log('Test 2: Using department name with empty program name');
-        const programId2 = await getProgramId(departmentName, levelName, '');
+        const programId2 = await getProgramId(prisma, departmentName, levelName, '');
         console.log(`Result: ${programId2 || 'undefined'}`);
 
         console.log('Test 3: Using department name as program name');
-        const programId3 = await getProgramId('', levelName, departmentName);
+        const programId3 = await getProgramId(prisma, '', levelName, departmentName);
         console.log(`Result: ${programId3 || 'undefined'}`);
 
         // Check if any program exists in DB with either name
@@ -122,6 +125,7 @@ async function testLookupFunctions() {
         // Test with modified parameters to trace the issue
         console.log('Test 1: Standard parameters');
         const classroomId1 = await getClassroomId(
+          prisma,
           levelClassroom,
           departmentName,
           group,
@@ -131,6 +135,7 @@ async function testLookupFunctions() {
 
         console.log('Test 2: Classroom name format variations');
         const classroomId2 = await getClassroomId(
+          prisma,
           levelClassroom,
           departmentName,
           '',

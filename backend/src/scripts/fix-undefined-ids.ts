@@ -1,8 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../database/generated/prisma/client/client';
 import { getProgramId, getClassroomId } from '../utils/utils';
 
 // Initialize Prisma client
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 /**
  * Analyzes and attempts to fix undefined Program IDs and Classroom IDs for students
@@ -135,7 +137,7 @@ async function fixUndefinedIds() {
           const departmentName = student.department.name || '';
 
           // First try normal lookup
-          let programId = await getProgramId(departmentName, levelName, '');
+          let programId = await getProgramId(prisma, departmentName, levelName, '');
 
           // If that fails, try to find a program linked to the department
           if (!programId) {

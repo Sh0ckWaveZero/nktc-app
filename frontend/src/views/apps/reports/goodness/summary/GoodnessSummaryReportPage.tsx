@@ -72,7 +72,7 @@ const GoodnessSummaryReportPage = () => {
       setLoading(true);
       const response = await summary({ ...params });
       setData(response?.data);
-      setTotal(response?.total);
+      setTotal(response?.total ?? 0);
       setLoading(false);
     } catch (error: any) {
       toast.error(error?.message);

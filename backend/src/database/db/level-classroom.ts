@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../prisma/prisma-client';
 import {
   readWorkSheetFromFile,
   createByAdmin,
   getLevelId,
 } from '../../utils/utils';
-
-const prisma = new PrismaClient();
 
 export const createLevelClassroom = async () => {
   const workSheetsFromFile = readWorkSheetFromFile('level-classroom');
@@ -17,7 +15,7 @@ export const createLevelClassroom = async () => {
       .map(async (item: any) => {
         const levelClassroomId = item[0].toString().trim();
         const name = item[1].toString();
-        const level = await getLevelId(item[2].toString());
+        const level = await getLevelId(prisma, item[2].toString());
 
         return {
           levelClassroomId,

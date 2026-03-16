@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { User } from '../../database/generated/prisma/client/client';
 import { UsersService } from '../../apis/users/users.service';
-import configuration from '../../config/configuration';
 import { JwtPayload } from './jwt.strategy';
+import configuration from '@/config/configuration';
 
 export interface RegistrationStatus {
   success: boolean;
@@ -76,14 +76,14 @@ export class AuthService {
   }
 
   async validateUser(payload: JwtPayload): Promise<any> {
-    const user = await this.usersService.findByPayload(payload);
+    const user = await this.usersService.findById(payload.sub);
     if (!user)
       throw new HttpException('INVALID_TOKEN', HttpStatus.UNAUTHORIZED);
     return user;
   }
 
   public async getMe(user: any) {
-    return await this.usersService.finedById(user.id);
+    return await this.usersService.findById(user.id);
   }
 
   private createAccessToken(data: any): any {

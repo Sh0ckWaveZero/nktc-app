@@ -1,9 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../database/generated/prisma/client/client';
 import { readWorkSheetFromFile } from '../utils/utils';
 import * as fs from 'fs';
 
 // Initialize Prisma client
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 /**
  * วิเคราะห์นักเรียนที่มี Classroom ID เป็น undefined
