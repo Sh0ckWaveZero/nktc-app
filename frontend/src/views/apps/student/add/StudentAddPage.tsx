@@ -1,31 +1,31 @@
 'use client';
 
-import { z } from 'zod';
-
-import {
-  Autocomplete,
-  Avatar,
-  Box,
-  Button,
-  ButtonProps,
-  Card,
-  CardContent,
-  CardHeader,
-  FormControl,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  ListItem,
-  ListItemText,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
+import Autocomplete from '@mui/material/Autocomplete';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import { type ButtonProps } from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
+import { Controller } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { ThailandAddressTypeahead, ThailandAddressValue, ThailandAddressValueHelper } from '@/@core/styles/libs/thailand-address';
+import {
+  ThailandAddressTypeahead,
+  ThailandAddressValue,
+  ThailandAddressValueHelper,
+} from '@/@core/styles/libs/thailand-address';
 import { useCreateStudent } from '@/hooks/queries/useStudents';
 import { useClassrooms } from '@/hooks/queries/useClassrooms';
 
@@ -39,62 +39,16 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import { useStudentAddForm, type StudentAddFormData } from '@/hooks/features/student';
+import type { Classroom } from '@/types/apps/teacherTypes';
 
-interface Data {
-  studentId: string;
-  title: string;
-  firstName: string;
-  lastName: string;
-  classroom: Record<string, any> | null;
-  idCard?: string;
-  birthDate: Date | null;
-  addressLine1?: string;
-  subdistrict?: string;
-  district?: string;
-  province?: string;
-  postalCode?: string;
-  phone?: string;
+interface ClassroomOption extends Classroom {
+  id: string;
+  name: string;
+  department?: { id?: string; name?: string };
+  level?: { id?: string; levelName?: string };
 }
-
-const initialData: Data = {
-  studentId: '',
-  title: '',
-  firstName: '',
-  lastName: '',
-  classroom: null,
-  idCard: '',
-  birthDate: null,
-  addressLine1: '',
-  subdistrict: '',
-  district: '',
-  province: '',
-  postalCode: '',
-  phone: '',
-};
-
-const schema = z.object({
-  studentId: z.string().min(1, 'กรุณากรอกรหัสนักศึกษา').min(11, 'รหัสนักเรียนต้องมีอย่างน้อย 11 ตัวอักษร'),
-  title: z.string().min(1, 'กรุณาเลือกคำนำหน้าชื่อ'),
-  firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร'),
-  lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร'),
-  classroom: z
-    .record(z.string(), z.any())
-    .refine((obj) => obj && Object.keys(obj).length > 0, 'กรุณาเลือกชั้นเรียน')
-    .nullable(),
-  idCard: z.string().optional(),
-  birthDate: z
-    .date()
-    .nullable()
-    .refine((date) => !date || date <= new Date(), 'วันเกิดไม่ถูกต้อง'),
-  addressLine1: z.string().optional(),
-  subdistrict: z.string().optional(),
-  district: z.string().optional(),
-  province: z.string().optional(),
-  postalCode: z.string().optional(),
-  phone: z.string().optional(),
-});
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -113,11 +67,6 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-const LinkStyled = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  color: theme.palette.primary.main,
-}));
-
 const RequiredTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-asterisk': {
     color: theme.palette.error.main,
@@ -132,10 +81,10 @@ const StudentAddPage = () => {
 
   // React Query hooks
   const { data: classroomsData = [], isLoading: isClassroomLoading } = useClassrooms();
-  const { mutate: createStudent, isPending: isCreating } = useCreateStudent();
+  const { mutate: createStudent } = useCreateStudent();
 
   // ** State
-  const [classroom, setClassroom] = useState([initialData.classroom]);
+  const [classroom, setClassroom] = useState<ClassroomOption[]>([]);
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [inputValue, setInputValue] = useState<string>('');
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
@@ -146,10 +95,10 @@ const StudentAddPage = () => {
     if (!classroomsData) return;
 
     if (user?.role?.toLowerCase() === 'admin') {
-      setClassroom(classroomsData);
+      setClassroom(classroomsData as ClassroomOption[]);
     } else {
-      const teacherClassroom = classroomsData.filter((item: any) =>
-        user?.teacherOnClassroom?.includes(item.id)
+      const teacherClassroom = classroomsData.filter((item: ClassroomOption) =>
+        user?.teacherOnClassroom?.includes(item.id),
       );
       setClassroom(teacherClassroom);
     }
@@ -166,26 +115,17 @@ const StudentAddPage = () => {
   }, [imageCompressed]);
 
   // ** Hook
-  const {
-    reset,
-    control,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<Data>({
-    defaultValues: initialData,
-    mode: 'onChange',
-    resolver: zodResolver(schema),
-  });
+  const { reset, control, handleSubmit, errors, isDirty, isValid } = useStudentAddForm();
 
-  const onSubmit = (data: any, e: any) => {
-    e.preventDefault();
+  const onSubmit = (data: StudentAddFormData) => {
+    if (!data.classroom) return;
 
     const { classroom: c, ...rest } = data;
     const student = {
       ...rest,
       ...currentAddress,
       classroom: c.id,
-      level: c.level.id,
+      level: c.level?.id,
       avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
 
@@ -202,11 +142,12 @@ const StudentAddPage = () => {
           toast.success('บันทึกข้อมูลสำเร็จ');
           router.push(`/apps/student/list?classroom=${c.id}`);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+          const err = error as { response?: { data?: { error?: string } } };
           toast.dismiss(toastId);
-          toast.error(error?.response?.data?.error || 'เกิดข้อผิดพลาด');
+          toast.error(err?.response?.data?.error || 'เกิดข้อผิดพลาด');
         },
-      }
+      },
     );
   };
 
@@ -238,16 +179,16 @@ const StudentAddPage = () => {
       <Grid id='student-add-page' container spacing={4}>
         {/* Student Details */}
         <Grid size={12}>
-          <LinkStyled href={`/apps/student/list`} passHref>
-            <Button
-              id='back-button'
-              variant='contained'
-              color='secondary'
-              startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
-            >
-              ย้อนกลับ
-            </Button>
-          </LinkStyled>
+          <Button
+            id='back-button'
+            variant='contained'
+            color='secondary'
+            startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
+            component={Link}
+            href='/apps/student/list'
+          >
+            ย้อนกลับ
+          </Button>
         </Grid>
         <Grid size={12}>
           <Card>
@@ -305,7 +246,7 @@ const StudentAddPage = () => {
                       sm: 12,
                     }}
                   >
-                    <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
+                    <Grid container spacing={2} sx={{ color: 'secondary.main' }} id='student-info-section'>
                       <Grid>
                         <Icon icon='bxs:user-detail' />
                       </Grid>
@@ -332,17 +273,17 @@ const StudentAddPage = () => {
                             fullWidth
                             required
                             type='tel'
-                            id='studentId'
                             label='รหัสนักเรียน'
-                            placeholder='รหัสนักเรียน'
+                            placeholder='รหัสนักศึกษา'
                             value={value}
                             onChange={onChange}
                             error={!!errors.studentId}
                             helperText={errors.studentId ? (errors.studentId.message as string) : ''}
+                            id='studentId'
                             slotProps={{
                               htmlInput: {
                                 maxLength: 11,
-                                onKeyDown(e: any) {
+                                onKeyDown(e: KeyboardEvent) {
                                   handleKeyDown(e);
                                 },
                               },
@@ -404,13 +345,13 @@ const StudentAddPage = () => {
                           <RequiredTextField
                             fullWidth
                             required
-                            id='firstName'
                             label='ชื่อ'
                             placeholder='ชื่อ'
                             value={value}
                             onChange={onChange}
                             error={!!errors.firstName}
                             helperText={errors.firstName ? (errors.firstName.message as string) : ''}
+                            id='firstName'
                           />
                         )}
                       />
@@ -431,13 +372,13 @@ const StudentAddPage = () => {
                           <RequiredTextField
                             fullWidth
                             required
-                            id='lastName'
                             label='นามสกุล'
                             placeholder='นามสกุล'
                             value={value}
                             onChange={onChange}
                             error={!!errors.lastName}
                             helperText={errors.lastName ? (errors.lastName.message as string) : ''}
+                            id='lastName'
                           />
                         )}
                       />
@@ -459,22 +400,24 @@ const StudentAddPage = () => {
                             disablePortal
                             id='classroom-autocomplete'
                             limitTags={15}
-                            value={value}
+                            value={value ?? null}
                             options={classroom}
                             loading={isClassroomLoading}
-                            onChange={(_, newValue: any) => onChange(newValue)}
-                            getOptionLabel={(option: any) => option.name || ''}
-                            isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                            renderInput={(params: any) => {
+                            onChange={(_, newValue) => onChange(newValue)}
+                            getOptionLabel={(option: ClassroomOption) => option.name || ''}
+                            isOptionEqualToValue={(option: ClassroomOption, value: ClassroomOption) =>
+                              option.id === value.id
+                            }
+                            renderInput={(params) => {
                               return (
                                 <RequiredTextField
                                   {...params}
                                   required
-                                  id='classroom'
                                   label='ชั้นเรียน'
                                   placeholder='เลือกชั้นเรียน'
                                   error={!!errors.classroom}
                                   helperText={errors.classroom?.message ? String(errors.classroom.message) : ''}
+                                  id='classroom'
                                   slotProps={{
                                     input: {
                                       ref: undefined,
@@ -486,12 +429,12 @@ const StudentAddPage = () => {
                                 />
                               );
                             }}
-                            renderOption={(props, option, { selected }: any) => (
+                            renderOption={(props, option: ClassroomOption, { selected }: { selected: boolean }) => (
                               <ListItem {...props}>
                                 <ListItemText primary={option.name} />
                               </ListItem>
                             )}
-                            groupBy={(option: any) => option.department?.name}
+                            groupBy={(option: ClassroomOption) => option.department?.name || ''}
                             noOptionsText='ไม่พบข้อมูล'
                           />
                         )}
@@ -511,16 +454,16 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
-                            id='idCard'
                             type={'tel'}
                             label='เลขประจำตัวประชาชน'
                             placeholder='เลขประจำตัวประชาชน'
                             value={value}
                             onChange={onChange}
+                            id='idCard'
                             slotProps={{
                               htmlInput: {
                                 maxLength: 13,
-                                onKeyDown(e: any) {
+                                onKeyDown(e: KeyboardEvent) {
                                   handleKeyDown(e);
                                 },
                               },
@@ -551,9 +494,9 @@ const StudentAddPage = () => {
                             error={!!errors.birthDate}
                             helperText={errors.birthDate ? (errors.birthDate.message as string) : ''}
                             placeholder='วัน/เดือน/ปี (พ.ศ.)'
+                            id='birthDate'
                             slotProps={{
                               textField: {
-                                id: 'birthDate',
                                 fullWidth: true,
                                 input: {
                                   endAdornment: <FcCalendar />,
@@ -578,16 +521,16 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
-                            id='phone'
                             type={'tel'}
                             label='เบอร์โทรศัพท์'
                             placeholder='เบอร์โทรศัพท์'
                             value={value}
                             onChange={onChange}
+                            id='phone'
                             slotProps={{
                               htmlInput: {
                                 maxLength: 10,
-                                onKeyDown(e: any) {
+                                onKeyDown(e: KeyboardEvent) {
                                   handleKeyDown(e);
                                 },
                               },
@@ -603,7 +546,7 @@ const StudentAddPage = () => {
                       sm: 12,
                     }}
                   >
-                    <Grid container spacing={2} sx={{ color: 'secondary.main' }}>
+                    <Grid container spacing={2} sx={{ color: 'secondary.main' }} id='address-section'>
                       <Grid>
                         <Icon icon='icon-park-outline:guide-board' />
                       </Grid>
@@ -627,13 +570,13 @@ const StudentAddPage = () => {
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
-                            id='addressLine1'
                             label='ที่อยู่'
                             placeholder='ที่อยู่'
                             value={value}
                             onChange={onChange}
                             error={!!errors.addressLine1}
                             helperText={errors.addressLine1 ? (errors.addressLine1.message as string) : ''}
+                            id='addressLine1'
                           />
                         )}
                       />
@@ -655,6 +598,7 @@ const StudentAddPage = () => {
                             }}
                           >
                             <ThailandAddressTypeahead.SubdistrictInput
+                              id='subdistrict'
                               className='sub-district-input'
                               style={addressInputStyle as any}
                               placeholder='ตำบล / แขวง'
@@ -667,6 +611,7 @@ const StudentAddPage = () => {
                             }}
                           >
                             <ThailandAddressTypeahead.DistrictInput
+                              id='district'
                               className='district-input'
                               style={addressInputStyle as any}
                               placeholder='อำเภอ / เขต'
@@ -679,6 +624,7 @@ const StudentAddPage = () => {
                             }}
                           >
                             <ThailandAddressTypeahead.ProvinceInput
+                              id='province'
                               className='province-input'
                               style={addressInputStyle as any}
                               placeholder='จังหวัด'
@@ -691,6 +637,7 @@ const StudentAddPage = () => {
                             }}
                           >
                             <ThailandAddressTypeahead.PostalCodeInput
+                              id='postalCode'
                               className='postal-code-input'
                               style={addressInputStyle as any}
                               placeholder='รหัสไปรษณีย์'
@@ -752,16 +699,6 @@ const StudentAddPage = () => {
                     >
                       ล้างข้อมูล
                     </Button>
-                    <LinkStyled href={`/apps/student/list`} passHref>
-                      <Button
-                        id='back-button-bottom'
-                        variant='outlined'
-                        color='secondary'
-                        startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
-                      >
-                        ย้อนกลับ
-                      </Button>
-                    </LinkStyled>
                   </Grid>
                 </Grid>
               </form>
