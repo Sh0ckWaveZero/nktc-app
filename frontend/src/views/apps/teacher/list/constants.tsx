@@ -1,18 +1,11 @@
-import React, { ReactElement } from 'react';
-import {
-  BriefcasePlusOutline,
-  ChartDonut,
-  CogOutline,
-  Laptop,
-  PencilOutline,
-  HumanMaleBoard,
-} from 'mdi-material-ui';
+import { ReactElement } from 'react';
+import { ChartDonut, CogOutline, Laptop, PencilOutline, HumanMaleBoard } from 'mdi-material-ui';
 import { ThemeColor } from '@/@core/layouts/types';
 
 // ** Constants
 export const getUserRoleIcon = (role: string): ReactElement | null => {
   const roleLower = role?.toLowerCase() || '';
-  
+
   switch (roleLower) {
     case 'admin':
       return <Laptop fontSize='small' sx={{ mr: 3, color: 'error.main' }} />;
@@ -62,3 +55,19 @@ export const ITEMS_PER_PAGE = 10; // For mobile infinite scroll
 export const SEARCH_DEBOUNCE_MS = 200;
 export const INFINITE_SCROLL_LOAD_DELAY_MS = 300;
 
+export const JOB_TITLES = [
+  'ผู้อำนวยการ',
+  'รองผู้อำนวยการ',
+  'ข้าราชการ',
+  'พนักงานราชการ',
+  'ครูอัตราจ้าง',
+  'เจ้าหน้าที่ธุรการ',
+  'นักการภารโรง',
+  'ลูกจ้างประจำ',
+  'อื่น ๆ',
+] as const;
+
+export const STATUS_OPTIONS = [
+  { value: 'active', label: 'เปิดใช้งาน' },
+  { value: 'inactive', label: 'ปิดใช้งาน' },
+] as const;

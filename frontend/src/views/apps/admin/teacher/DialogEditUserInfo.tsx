@@ -1,132 +1,87 @@
-import { z } from 'zod';
-
-// ** MUI Imports
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  TextField,
-  Typography,
-  styled,
-} from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
-import Fade, { FadeProps } from '@mui/material/Fade';
-// ** React Imports
-import { ReactElement, Ref, forwardRef } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import Fade from '@mui/material/Fade';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { memo } from 'react';
+import { Controller } from 'react-hook-form';
 
-import { FcCalendar } from 'react-icons/fc';
+import { useEditTeacherForm } from '@/hooks/features/teacher/useEditTeacherForm';
 import IconifyIcon from '@/@core/components/icon';
-import { PatternFormat } from 'react-number-format';
-import { zodResolver } from '@hookform/resolvers/zod';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import { Teacher } from '@/views/apps/teacher/list/utils/teacherUtils';
+import { JOB_TITLES, STATUS_OPTIONS } from '@/views/apps/teacher/list/constants';
+import { FcCalendar } from 'react-icons/fc';
+import { PatternFormat } from 'react-number-format';
 
-const Transition = forwardRef(function Transition(
-  props: FadeProps & { children?: ReactElement<any, any> },
-  ref: Ref<unknown>,
-) {
-  return <Fade ref={ref} {...props} />;
-});
-
-interface DialogEditUserInfoType {
+interface DialogEditUserInfoProps {
   show: boolean;
-  data: any;
+  data: Teacher | null;
   onClose: () => void;
-  onSubmitForm: (data: any) => void;
+  onSubmitForm: (data: Teacher) => Promise<void> | void;
 }
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  username: string;
-  jobTitle: string;
-  idCard: string;
-  birthDate: Date | null;
-  status: string;
-}
-
-const CustomTextField = styled(TextField)(({ theme }) => ({
+const textFieldStyles = {
   '& .MuiFormLabel-asterisk': {
-    color: theme.palette.error.main,
+    color: 'error.main',
   },
-  // when disable background color grey
-  '& .Mui-disabled': {
-    backgroundColor: theme.palette.background.default,
-  },
-}));
+};
 
-const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUserInfoType) => {
-  const defaultValues = {
-    firstName: data?.firstName,
-    lastName: data?.lastName,
-    username: data?.username,
-    jobTitle: data?.jobTitle,
-    idCard: data?.idCard,
-    birthDate: data?.birthDate ? new Date(data?.birthDate) : null,
-    status: data?.status,
+const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUserInfoProps) => {
+  const { control, errors, handleSubmit, reset } = useEditTeacherForm(data);
+
+  const handleClose = () => {
+    reset();
+    onClose();
   };
 
-  const schema = z.object({
-    lastName: z
-      .string()
-      .min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร')
-      .regex(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น'),
-    firstName: z
-      .string()
-      .min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร')
-      .regex(/^[\u0E00-\u0E7F\s]+$/, 'กรุณากรอกภาษาไทยเท่านั้น'),
-    username: z
-      .string()
-      .min(3, 'ชื่อผู้ใช้งานต้องมีอย่างน้อย 3 ตัวอักษร')
-      .regex(/^[A-Za-z0-9]+$/, 'กรุณากรอกเฉพาะภาษาอังกฤษเท่านั้น'),
-    jobTitle: z.string(),
-    idCard: z
-      .string()
-      .regex(/^[0-9]+$/, 'กรุณากรอกเฉพาะตัวเลขเท่านั้น')
-      .or(z.literal('')),
-    birthDate: z.date().nullable(),
-    status: z.string(),
-  }) satisfies z.ZodType<FormData>;
-
-  // ** Hook
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues,
-    mode: 'onChange',
-    resolver: zodResolver(schema),
+  const onSubmit = handleSubmit((formData) => {
+    const teacherData: Teacher = {
+      id: data?.id ?? '',
+      username: formData.username,
+      email: data?.email ?? '',
+      role: data?.role ?? '',
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      idCard: formData.idCard,
+      birthDate: formData.birthDate,
+      jobTitle: formData.jobTitle,
+      status: formData.status,
+      accountId: data?.accountId,
+      teacherId: data?.teacherId,
+    };
+    onSubmitForm(teacherData);
   });
 
-  const onSubmit = (info: FormData) => {
-    onSubmitForm({
-      ...info,
-      id: data?.teacherId,
-    });
-  };
-
   return (
-    <Dialog fullWidth open={show} maxWidth='md' scroll='body' onClose={onClose} TransitionComponent={Transition}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <Dialog fullWidth open={show} maxWidth='md' scroll='body' onClose={handleClose} slots={{ transition: Fade }}>
+      <form onSubmit={onSubmit}>
         <DialogContent
           sx={{
             position: 'relative',
-            pb: (theme) => `${theme.spacing(8)} !important`,
-            px: (theme) => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: (theme) => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`],
+            pb: 8,
+            px: [5, 15],
+            pt: [8, 12.5],
           }}
         >
-          <IconButton size='small' onClick={onClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
+          <IconButton
+            size='small'
+            onClick={handleClose}
+            sx={{ position: 'absolute', right: '1rem', top: '1rem' }}
+            aria-label='close dialog'
+          >
             <IconifyIcon icon='mdi:close' />
           </IconButton>
+
           <Box sx={{ mb: 8, textAlign: 'center' }}>
             <Typography variant='h5' sx={{ mb: 3 }}>
               แก้ไขข้อมูลของครู/อาจารย์
@@ -135,150 +90,112 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
           </Box>
 
           <Grid container spacing={6}>
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.firstName)}>
                 <Controller
                   name='firstName'
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      value={value}
-                      onChange={onChange}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
                       id='firstName'
                       label='ชื่อ'
                       placeholder='ป้อนชื่อ'
                       error={Boolean(errors.firstName)}
-                      helperText={errors.firstName?.message as string}
-                      aria-describedby='validation-schema-first-name'
-                      slotProps={{
-                        inputLabel: {
-                          required: true,
-                        },
-                      }}
+                      helperText={errors.firstName?.message}
+                      required
+                      sx={textFieldStyles}
                     />
                   )}
                 />
               </FormControl>
             </Grid>
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.lastName)}>
                 <Controller
                   name='lastName'
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      value={value}
-                      onChange={onChange}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
                       id='lastName'
                       label='นามสกุล'
                       placeholder='ป้อนนามสกุล'
-                      slotProps={{
-                        inputLabel: {
-                          required: true,
-                        },
-                      }}
                       error={Boolean(errors.lastName)}
-                      helperText={errors.lastName?.message as string}
-                      aria-describedby='validation-schema-last-name'
+                      helperText={errors.lastName?.message}
+                      required
+                      sx={textFieldStyles}
                     />
                   )}
                 />
               </FormControl>
             </Grid>
+
             <Grid size={12}>
               <FormControl fullWidth>
                 <Controller
                   name='username'
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      value={value}
-                      onChange={onChange}
-                      id='lastName'
-                      label='ขื่อผู้ใช้งาน'
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      id='username'
+                      label='ชื่อผู้ใช้งาน'
                       placeholder='ป้อนชื่อผู้ใช้งาน'
-                      slotProps={{
-                        inputLabel: {
-                          required: true,
-                        },
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
                       disabled
                       error={Boolean(errors.username)}
-                      helperText={errors.username?.message as string}
-                      aria-describedby='validation-schema-username'
+                      helperText={errors.username?.message}
+                      required
+                      sx={textFieldStyles}
                     />
                   )}
                 />
               </FormControl>
             </Grid>
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.idCard)}>
                 <Controller
                   name='idCard'
                   control={control}
-                  render={({ field: { value, onChange } }) => (
+                  render={({ field }) => (
                     <PatternFormat
-                      value={value}
-                      onChange={onChange}
+                      {...field}
                       id='idCard'
                       label='เลขที่บัตรประจำตัวประชาชน'
                       format='# #### ##### ## #'
                       allowEmptyFormatting
                       mask='x'
                       customInput={TextField}
-                      sx={{
-                        '& .MuiFormLabel-asterisk': {
-                          color: (theme: any) => theme.palette.error.main,
-                        },
-                      }}
+                      error={Boolean(errors.idCard)}
+                      helperText={errors.idCard?.message}
+                      sx={textFieldStyles}
                     />
                   )}
                 />
               </FormControl>
             </Grid>
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.birthDate)}>
                 <Controller
                   name='birthDate'
                   control={control}
-                  render={({ field: { value, onChange } }) => (
+                  render={({ field }) => (
                     <ThaiDatePicker
+                      {...field}
+                      id='birthDate'
                       label='วันเกิด'
-                      value={value ? new Date(value) : null}
-                      onChange={(newValue) => {
-                        onChange(newValue);
-                      }}
+                      value={field.value ? new Date(field.value) : null}
+                      onChange={(newValue) => field.onChange(newValue)}
                       format='d MMMM yyyy'
                       maxDate={new Date()}
                       slotProps={{
                         textField: {
                           fullWidth: true,
+                          error: Boolean(errors.birthDate),
+                          helperText: errors.birthDate?.message,
                           inputProps: {
                             placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
                           },
@@ -293,76 +210,69 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
               </FormControl>
             </Grid>
 
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.jobTitle)}>
+                <InputLabel id='jobTitle-label'>ตำแหน่ง</InputLabel>
                 <Controller
                   name='jobTitle'
                   control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <>
-                      <InputLabel>ตำแหน่ง</InputLabel>
-                      <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
-                        <MenuItem value=''>
-                          <em>เลือกตำแหน่ง</em>
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      id='jobTitle'
+                      labelId='jobTitle-label'
+                      label='ตำแหน่ง'
+                      error={Boolean(errors.jobTitle)}
+                    >
+                      {JOB_TITLES.map((title) => (
+                        <MenuItem key={title} value={title}>
+                          {title}
                         </MenuItem>
-                        <MenuItem value='ผู้อำนวยการ'>ผู้อำนวยการ</MenuItem>
-                        <MenuItem value='รองผู้อำนวยการ'>รองผู้อำนวยการ</MenuItem>
-                        <MenuItem value='ข้าราชการ'>ข้าราชการ</MenuItem>
-                        <MenuItem value='พนักงานราชการ'>พนักงานราชการ</MenuItem>
-                        <MenuItem value='ครูอัตราจ้าง'>ครูอัตราจ้าง</MenuItem>
-                        <MenuItem value='เจ้าหน้าที่ธุรการ'>เจ้าหน้าที่ธุรการ</MenuItem>
-                        <MenuItem value='นักการภารโรง'>นักการภารโรง</MenuItem>
-                        <MenuItem value='ลูกจ้างประจำ'>ลูกจ้างประจำ</MenuItem>
-                        <MenuItem value='อื่น ๆ'>อื่น ๆ</MenuItem>
-                      </Select>
-                    </>
+                      ))}
+                    </Select>
                   )}
                 />
               </FormControl>
             </Grid>
-            <Grid
-              size={{
-                sm: 6,
-                xs: 12,
-              }}
-            >
-              <FormControl fullWidth>
+
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <FormControl fullWidth error={Boolean(errors.status)}>
+                <InputLabel id='status-label'>สถานะบัญชีใช้งาน</InputLabel>
                 <Controller
                   name='status'
                   control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <>
-                      <InputLabel>สถานะบัญชีใช้งาน</InputLabel>
-                      <Select label='สถานะบัญชีใช้งาน' defaultValue={value} value={value} onChange={onChange}>
-                        <MenuItem value=''>
-                          <em>เลือกสถานะ</em>
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      id='status'
+                      labelId='status-label'
+                      label='สถานะบัญชีใช้งาน'
+                      error={Boolean(errors.status)}
+                    >
+                      {STATUS_OPTIONS.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
                         </MenuItem>
-                        <MenuItem value='true'>เปิดใช้งาน</MenuItem>
-                        <MenuItem value='false'>ปิดใช้งาน</MenuItem>
-                      </Select>
-                    </>
+                      ))}
+                    </Select>
                   )}
                 />
               </FormControl>
             </Grid>
           </Grid>
         </DialogContent>
+
         <DialogActions
           sx={{
             justifyContent: 'center',
-            px: (theme) => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pb: (theme) => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`],
+            px: [5, 15],
+            pb: [8, 12.5],
           }}
         >
           <Button variant='contained' sx={{ mr: 1 }} type='submit'>
             บันทึกการเปลี่ยนแปลง
           </Button>
-          <Button variant='outlined' color='secondary' onClick={onClose}>
+          <Button variant='outlined' color='secondary' onClick={handleClose}>
             ยกเลิก
           </Button>
         </DialogActions>
@@ -371,4 +281,4 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
   );
 };
 
-export default DialogEditUserInfo;
+export default memo(DialogEditUserInfo);

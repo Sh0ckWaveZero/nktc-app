@@ -21,6 +21,9 @@ export interface Teacher {
   accountId?: string;
   teacherId?: string;
   status?: string | boolean;
+  idCard?: string;
+  birthDate?: Date | string | null;
+  jobTitle?: string;
   [key: string]: unknown;
 }
 

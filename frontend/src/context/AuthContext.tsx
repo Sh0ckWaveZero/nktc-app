@@ -101,7 +101,7 @@ const AuthProvider = ({ children }: Props) => {
     };
 
     initAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [isBrowser]);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
