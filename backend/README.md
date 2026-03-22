@@ -147,7 +147,7 @@ MONGODB_DATABASE_URL="mongodb://localhost:27017/nktc_mongo"
 
 # Authentication
 JWT_SECRET="your-super-secret-jwt-key"
-JWT_EXPIRES_IN="7d"
+JWT_REFRESH_EXPIRES_IN="7d"
 
 # File Storage (MinIO)
 MINIO_ENDPOINT="localhost"
@@ -177,11 +177,13 @@ CORS_CREDENTIALS=true
 ## 🗄️ Database Schema
 
 ### หลักการออกแบบ
+
 - **PostgreSQL** - ฐานข้อมูลหลักสำหรับข้อมูลหลัก
 - **MongoDB** - ฐานข้อมูลรองสำหรับ Audit Logs
 - **Prisma ORM** - จัดการฐานข้อมูลทั้งสองแบบ
 
 ### โมเดลหลัก
+
 - `User` - ผู้ใช้งานระบบ
 - `Account` - ข้อมูลส่วนตัว
 - `Student` - ข้อมูลนักเรียน

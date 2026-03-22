@@ -11,12 +11,11 @@ import {
   ClassSerializerInterceptor,
   HttpCode,
   Put,
-  Ip,
-  UnauthorizedException,
   BadRequestException,
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService, RegistrationStatus } from './auth.service';
 import {
   ApiBearerAuth,
@@ -25,7 +24,8 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { LoginDto, RegisterDto, UpdatePasswordDto } from './dto';
+import { LocalAuthGuard } from './local-auth.guard';
+import { RegisterDto, UpdatePasswordDto, RefreshTokenDto } from './dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -50,26 +50,38 @@ export class AuthController {
     return result;
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  public async login(
-    @Ip() userIp: string,
-    @Body() loginUserDto: LoginDto,
-  ): Promise<any> {
-    const loginResults = await this.authService.login(loginUserDto, userIp);
+  @ApiResponse({ status: 429, description: 'Too many login attempts' })
+  public async login(@Request() req: any): Promise<any> {
+    return await this.authService.loginUser(req.user);
+  }
 
-    if (!loginResults) {
-      throw new UnauthorizedException(
-        'This user name, password combination was not found',
-      );
-    }
+  @Post('refresh')
+  @HttpCode(200)
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  public async refresh(@Body() dto: RefreshTokenDto): Promise<any> {
+    return await this.authService.refreshAccessToken(dto.refreshToken);
+  }
 
-    return loginResults;
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('logout')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Logout and invalidate refresh token' })
+  @ApiResponse({ status: 200, description: 'Logged out successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  public async logout(@Request() req: any): Promise<any> {
+    await this.authService.logout(req.user.id);
+    return { success: true, message: 'Logged out successfully' };
   }
 
   @UseGuards(JwtAuthGuard)

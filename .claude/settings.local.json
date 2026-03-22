@@ -64,7 +64,10 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''prisma'''', {}\\), indent=2\\)\\)\")",
       "Bash(NODE_OPTIONS='--no-deprecation' node -e \"require\\(''''./dist/main''''\\)\")",
       "Bash(NODE_OPTIONS='--no-deprecation' npx nest build --builder swc)",
-      "Bash(npx swc:*)"
+      "Bash(npx swc:*)",
+      "Bash(ls /Users/sh0ckpro/Works/Freelance/React/nktc-app/frontend/src/app/\\\\\\(auth\\\\\\)/)",
+      "Bash(ls -la /Users/sh0ckpro/Works/Freelance/React/nktc-app/frontend/.env*)",
+      "Bash(ls -la /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/.env*)"
     ],
     "deny": []
   },

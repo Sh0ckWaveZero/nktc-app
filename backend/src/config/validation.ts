@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   validateSync,
 } from 'class-validator';
@@ -23,8 +24,15 @@ class EnvironmentVariables {
   @IsString()
   JWT_SECRET: string;
 
+  @IsOptional()
   @IsString()
-  JWT_EXPIRES_IN: string;
+  JWT_EXPIRES_IN?: string;
+
+  @IsString()
+  JWT_REFRESH_SECRET: string;
+
+  @IsString()
+  JWT_REFRESH_EXPIRES_IN: string;
 
   @IsString()
   USER_ADMIN: string;

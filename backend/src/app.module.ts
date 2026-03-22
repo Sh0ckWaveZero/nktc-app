@@ -60,6 +60,7 @@ import validate from './config/validation';
     UsersModule,
     VisitsModule,
     ConfigModule.forRoot({
+      isGlobal: true,
       load: [configuration],
       validate,
     }),

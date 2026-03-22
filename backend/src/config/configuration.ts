@@ -1,8 +1,10 @@
 export default () => ({
   node_env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT, 10) || 3001,
-  jwtSecret: process.env.JWT_SECRET || 'secret',
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  jwtSecret: process.env.JWT_SECRET!,
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   userAdmin: process.env.USER_ADMIN,
   userPassword: process.env.USER_PASSWORD,
   host: process.env.HOST,

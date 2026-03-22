@@ -55,30 +55,35 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 #### Step 1: Generate New Credentials
 
 - [ ] **JWT_SECRET** (32+ characters, random)
+
   ```bash
   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
   # Save: ____________________________________
   ```
 
-- [ ] **RT_SECRET** (64+ characters, random)
+- [ ] **JWT_REFRESH_SECRET** (64+ characters, random)
+
   ```bash
   node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
   # Save: ____________________________________
   ```
 
 - [ ] **PostgreSQL Password** (32+ characters)
+
   ```bash
   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
   # Save: ____________________________________
   ```
 
 - [ ] **MinIO Access Key** (20 characters)
+
   ```bash
   node -e "console.log(require('crypto').randomBytes(10).toString('hex').toUpperCase())"
   # Save: ____________________________________
   ```
 
 - [ ] **MinIO Secret Key** (40 characters)
+
   ```bash
   node -e "console.log(require('crypto').randomBytes(20).toString('hex').toUpperCase())"
   # Save: ____________________________________
@@ -88,15 +93,16 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
   - Go to MongoDB Atlas > Org > Database Access
   - Delete old `dev-nktc` user
   - Create new user with strong password
-  - Save new connection string: ____________________________________
+  - Save new connection string: ****************\_\_\_\_****************
 
 - [ ] **Admin User Password**
   - Generate new password (12+ characters, mixed case, numbers, symbols)
-  - Save: ____________________________________
+  - Save: ****************\_\_\_\_****************
 
 #### Step 2: Update Local Development Files
 
 - [ ] Create/update `backend/.env`:
+
   ```bash
   cd backend
   cp .env.example .env
@@ -104,6 +110,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
   ```
 
 - [ ] Create/update `frontend/.env.local`:
+
   ```bash
   cd frontend
   cp .env.example .env.local
@@ -120,6 +127,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 #### Step 3: Update Database
 
 - [ ] PostgreSQL:
+
   ```sql
   -- Connect to PostgreSQL
   -- Change password for adminpostgres user
@@ -128,6 +136,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
   ```
 
 - [ ] MongoDB Atlas:
+
   ```bash
   # Update connection string in backend/.env
   MONGODB_DATABASE_URL="new-connection-string"
@@ -143,6 +152,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 #### Step 4: Update MinIO Configuration
 
 - [ ] MinIO Console (local):
+
   ```
   Access: http://localhost:9000 (or your MinIO endpoint)
   User: admin-minio (or current root user)
@@ -152,6 +162,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
   ```
 
 - [ ] Update backend/.env:
+
   ```
   MINIO_ACCESS_KEY=<new-key>
   MINIO_SECRET_KEY=<new-secret>
@@ -165,23 +176,26 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 #### Step 5: Update Production Configuration
 
 **GitHub Actions** (if using):
+
 - [ ] Go to Settings → Secrets and variables → Actions
 - [ ] Update these secrets:
   - `DATABASE_URL`
   - `JWT_SECRET`
-  - `RT_SECRET`
+  - `JWT_REFRESH_SECRET`
   - `MONGODB_DATABASE_URL`
   - `MINIO_ACCESS_KEY`
   - `MINIO_SECRET_KEY`
 - [ ] Verify secrets are encrypted (✓ shown in list)
 
 **Vercel/Deployment Platform**:
+
 - [ ] Update environment variables:
   - Frontend: `NEXT_PUBLIC_API_URL`
   - Backend: All above secrets
 - [ ] Trigger new deployment to test
 
 **Docker/Self-Hosted**:
+
 - [ ] Update docker-compose.yml or kubernetes configs
 - [ ] Update .env files (not in git)
 - [ ] Restart containers/services
@@ -200,6 +214,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 #### Step 7: Notify Team
 
 - [ ] ✉️ Send team message:
+
   ```
   🔐 SECURITY UPDATE - Credentials Rotated
 
@@ -232,6 +247,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 - [ ] All team members have pulled latest `main` branch
 - [ ] All developers have committed their work
 - [ ] Create backup branch before starting:
+
   ```bash
   git branch backup-before-history-clean
   git push origin backup-before-history-clean
@@ -312,6 +328,7 @@ git log --all --oneline -- backend/.env | wc -l  # Should be 0
 If repository is public and force push is not feasible:
 
 - [ ] Create commit documenting the exposure:
+
   ```bash
   git commit --allow-empty -m "security: credentials exposed and rotated
 
@@ -365,12 +382,13 @@ If repository is public and force push is not feasible:
 #### Backend Deployment
 
 **Option A: Docker**
+
 - [ ] Update docker-compose.yml:
   ```yaml
   environment:
     - DATABASE_URL=<new-postgres-url>
     - JWT_SECRET=<new-jwt-secret>
-    - RT_SECRET=<new-rt-secret>
+    - JWT_REFRESH_SECRET=<new-rt-secret>
     - MONGODB_DATABASE_URL=<new-mongo-url>
     - MINIO_ACCESS_KEY=<new-key>
     - MINIO_SECRET_KEY=<new-secret>
@@ -384,18 +402,20 @@ If repository is public and force push is not feasible:
 - [ ] Verify API responds: `curl https://api.nktc-stu.com/health`
 
 **Option B: Kubernetes**
+
 - [ ] Update secrets:
   ```bash
   kubectl set env deployment/nktc-backend \
     DATABASE_URL=<new-url> \
     JWT_SECRET=<new-secret> \
-    RT_SECRET=<new-secret> \
+    JWT_REFRESH_SECRET=<new-secret> \
     # ... etc
   ```
 - [ ] Verify deployment: `kubectl get pods -w`
 - [ ] Check logs: `kubectl logs -f deployment/nktc-backend`
 
 **Option C: Heroku/PaaS**
+
 - [ ] Update config variables in dashboard
 - [ ] Trigger redeploy if needed
 - [ ] Monitor logs for issues
@@ -403,6 +423,7 @@ If repository is public and force push is not feasible:
 #### CI/CD Pipeline
 
 **GitHub Actions**:
+
 - [ ] Settings → Secrets and variables → Actions
 - [ ] Update all secrets (already done above)
 - [ ] Run workflow manually to test:
@@ -415,12 +436,14 @@ If repository is public and force push is not feasible:
 #### Database Verification
 
 - [ ] PostgreSQL:
+
   ```bash
   # Test connection with new credentials
   psql "postgresql://user:newpass@host:5432/db"
   ```
 
 - [ ] MongoDB Atlas:
+
   ```bash
   # Test connection with new credentials
   mongosh "mongodb+srv://user:pass@cluster..."
@@ -462,7 +485,7 @@ cat > .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
 # Prevent committing secrets
 
-KEYWORDS="DATABASE_URL|JWT_SECRET|RT_SECRET|PASSWORD|MINIO_SECRET|MINIO_ACCESS|MongoDB|mongodb"
+KEYWORDS="DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|PASSWORD|MINIO_SECRET|MINIO_ACCESS|MongoDB|mongodb"
 
 if git diff --cached --name-only | grep -E "\.(env|config|yml|yaml)$"; then
     if git diff --cached | grep -E "$KEYWORDS"; then
@@ -517,6 +540,7 @@ chmod +x .git/hooks/pre-commit
 **Effort**: 1 hour
 
 **GitHub Actions**:
+
 ```yaml
 name: Secret Scanning
 
@@ -551,6 +575,7 @@ jobs:
 **Audience**: All developers
 
 **Agenda**:
+
 1. **Review ENVIRONMENT_SETUP.md** (15 mins)
    - How to properly set up .env files
    - Common mistakes and solutions
@@ -613,11 +638,13 @@ grep "password\|secret\|key" /path/to/app/logs/*.log
 ## ✅ Phase 6: React Query Migrations (COMPLETED - Oct 23)
 
 ### Overview
+
 Successfully migrated 3 high-priority components from direct API calls and Zustand stores to React Query for better state management, caching, and data synchronization.
 
 ### Completed Migrations
 
 **1. CheckInReportPage** ✅
+
 - **File**: [frontend/src/views/apps/reports/check-in/CheckInReportPage.tsx](frontend/src/views/apps/reports/check-in/CheckInReportPage.tsx)
 - **Changes**:
   - Removed: `apiService.getTeacherClassroomsAndStudents()` direct calls
@@ -628,6 +655,7 @@ Successfully migrated 3 high-priority components from direct API calls and Zusta
 - **Benefits**: Automatic caching, background refetch, optimistic updates
 
 **2. StudentAddPage** ✅
+
 - **File**: [frontend/src/views/apps/student/add/StudentAddPage.tsx](frontend/src/views/apps/student/add/StudentAddPage.tsx)
 - **Changes**:
   - Removed: `useClassroomStore` & `useStudentStore` (Zustand)
@@ -638,6 +666,7 @@ Successfully migrated 3 high-priority components from direct API calls and Zusta
 - **Benefits**: Single source of truth, automatic invalidation, better type safety
 
 **3. StudentEditPage** ✅
+
 - **File**: [frontend/src/views/apps/student/edit/StudentEditPage.tsx](frontend/src/views/apps/student/edit/StudentEditPage.tsx)
 - **Changes**:
   - Removed: `httpClient.get()` & `httpClient.put()` direct calls
@@ -649,6 +678,7 @@ Successfully migrated 3 high-priority components from direct API calls and Zusta
 ### New Query Hooks Created
 
 **1. useCheckIn** 📁 [frontend/src/hooks/queries/useCheckIn.ts](frontend/src/hooks/queries/useCheckIn.ts)
+
 - `useTeacherClassroomsAndStudents()` - Fetch teacher's classrooms and students
 - `useCheckInReports()` - Fetch check-in reports with filters
 - `useSaveCheckIn()` - Save check-in data mutation
@@ -656,24 +686,30 @@ Successfully migrated 3 high-priority components from direct API calls and Zusta
 - `useSaveActivityCheckIn()` - Save activity check-in data
 
 **2. useClassrooms** 📁 [frontend/src/hooks/queries/useClassrooms.ts](frontend/src/hooks/queries/useClassrooms.ts)
+
 - `useClassrooms()` - Fetch all classrooms with optional filters
 - `useClassroom()` - Fetch single classroom by ID
 - `useClassroomStudents()` - Fetch students for a specific classroom
 
 ### Build Verification
+
 ✅ **Frontend Build**: Successfully compiled with Turbopack
+
 - No TypeScript errors
 - No compilation warnings
 - All imports resolved correctly
 
 ### Testing Status
+
 All components tested and working correctly with:
+
 - Proper error handling
 - Loading states
 - Success/error callbacks
 - Automatic cache invalidation
 
 ### Migration Statistics
+
 - **Components Migrated**: 3 (Phase 6 Priority High - Complete)
 - **Query Hooks Created**: 2 (useCheckIn.ts, useClassrooms.ts)
 - **Student Hooks**: 6 (useStudents, useStudent, useStudentsSearch, useCreateStudent, useUpdateStudent, useDeleteStudent, useStudentTrophyOverview)
@@ -684,13 +720,16 @@ All components tested and working correctly with:
 - **Build Status**: ✅ Ready for verification
 
 ### Architecture Benefits
+
 ✨ **Before**:
+
 - Multiple async/await patterns
 - Mixed state management (Zustand + direct API)
 - No caching or deduplication
 - Manual error handling
 
 ✨ **After**:
+
 - Unified React Query-based data fetching
 - Automatic caching and background updates
 - Built-in error handling
@@ -700,11 +739,13 @@ All components tested and working correctly with:
 ### Remaining Migrations (Priority Medium/Low - Future)
 
 **Priority Medium** - Teacher/Classroom/User Management:
+
 - [ ] `TeacherListPage.tsx` - Uses `useTeacherStore`, needs query hooks
 - [ ] `AddClassroomDrawer.tsx` - Uses `useClassroomStore`
 - [ ] `UserViewPage.tsx` - Already using `useUser()` ✅
 
 **Priority Low** - Reports & Settings:
+
 - [ ] `CheckInDailyReportPage.tsx` - Uses store-based data
 - [ ] `CheckInSummaryReportPage.tsx` - Uses store-based data
 - [ ] `ActivityCheckInReportPage.tsx` - Uses store-based data
@@ -715,6 +756,7 @@ All components tested and working correctly with:
 **Estimated Effort**: 16-20 additional hours for Medium/Low priority
 
 ### Next Steps
+
 - ✅ Monitor performance with React Query DevTools
 - ✅ Phase 6 Priority High complete and build verified
 - [ ] Schedule Priority Medium migration (Teacher/Classroom/User management)
@@ -727,14 +769,17 @@ All components tested and working correctly with:
 ## 📋 Phase 2: Type Safety (Next Week - 24 hours)
 
 ### Overview
+
 Enable stricter TypeScript and create proper types for all API contracts.
 
 **Files to Check**:
+
 - [ ] Read through `PHASE1_SUMMARY.md` for complete understanding
 - [ ] Review `backend/tsconfig.json` for strict mode settings
 - [ ] List all files with `any` type usage
 
 **Task Order**:
+
 1. Enable stricter TypeScript in backend
 2. Create API response types
 3. Type Zustand stores
@@ -747,9 +792,11 @@ Enable stricter TypeScript and create proper types for all API contracts.
 ## 📋 Phase 3: Testing (Week 3 - 28 hours)
 
 ### Overview
+
 Establish testing foundation with Jest, React Testing Library, and Playwright.
 
 **Deliverables**:
+
 - Jest configuration for frontend
 - React Testing Library setup
 - Critical path test coverage
@@ -763,9 +810,11 @@ Establish testing foundation with Jest, React Testing Library, and Playwright.
 ## 📋 Phase 4: Performance (Week 4 - 24 hours)
 
 ### Overview
+
 Optimize database queries, bundle size, and dependencies.
 
 **Focus Areas**:
+
 - Fix N+1 database queries
 - Bundle size optimization
 - Dependency consolidation
@@ -778,9 +827,11 @@ Optimize database queries, bundle size, and dependencies.
 ## 📋 Phase 5: Architecture (Week 5-6 - 34 hours)
 
 ### Overview
+
 Refactor oversized services and improve code organization.
 
 **Major Refactors**:
+
 - Split StudentsService (1024 lines → multiple services)
 - Split ReportCheckInService (586 lines)
 - Split TeachersService (471 lines)
@@ -825,6 +876,7 @@ WEEK 4-5 (Nov 13-24)
 ## 📞 Support & Questions
 
 ### Documentation
+
 - 📖 `ENVIRONMENT_SETUP.md` - Environment configuration guide
 - 📖 `SECURITY_REMEDIATION.md` - Detailed security procedures
 - 📖 `SECURITY_QUICK_REFERENCE.md` - Quick reference card
@@ -832,13 +884,16 @@ WEEK 4-5 (Nov 13-24)
 - 📖 `ACTION_PLAN.md` - This file
 
 ### Contacts
+
 - **Security Issues**: [Security Lead]
 - **DevOps/Infrastructure**: [DevOps Lead]
 - **Backend Development**: [Backend Lead]
 - **Frontend Development**: [Frontend Lead]
 
 ### Escalation
+
 If stuck, escalate to project lead with:
+
 1. What you're trying to do
 2. Error message (if any)
 3. What you've already tried
@@ -854,6 +909,7 @@ If stuck, escalate to project lead with:
 **Build Status**: Ready for verification with `bun run build`
 
 ### Phase 6 Completion Summary
+
 - ✅ CheckInReportPage - Migration complete
 - ✅ StudentAddPage - Migration complete
 - ✅ StudentEditPage - Migration complete

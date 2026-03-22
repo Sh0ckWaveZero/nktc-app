@@ -34,7 +34,7 @@ import { z } from 'zod';
 import { useSearchParams } from 'next/navigation';
 
 // ** Hooks & Utils
-import { useAuth } from '@/hooks/useAuth';
+import { useLogin } from '@/hooks/queries/useAuth';
 import { toast } from 'react-toastify';
 
 // ** Components
@@ -360,13 +360,12 @@ const SubmitButton = ({ isLoading }: SubmitButtonProps) => (
 const LoginPage = () => {
   // ** State
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   // ** Refs
   const usernameRef = useRef<HTMLInputElement>(null);
 
   // ** Hooks
-  const auth = useAuth();
+  const { mutateAsync: loginMutation, isPending } = useLogin();
   const searchParams = useSearchParams();
   const theme = useTheme();
 
@@ -404,16 +403,14 @@ const LoginPage = () => {
 
   const onSubmit = useCallback(
     async (data: LoginFormData) => {
-      setIsLoading(true);
       const toastId = toast.loading(TOAST_MESSAGES.loading, TOAST_OPTIONS);
       try {
-        await auth.login({ username: data.username, password: data.password });
+        await loginMutation({ username: data.username, password: data.password });
         toast.dismiss(toastId);
         // Use hard redirect so initAuth re-runs with the fresh token from localStorage
         const returnUrl = searchParams.get('returnUrl');
         const isSafeUrl = returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') && returnUrl !== '/';
-        const redirectURL = isSafeUrl ? returnUrl : '/home';
-        window.location.href = redirectURL;
+        window.location.href = isSafeUrl ? returnUrl : '/home';
       } catch {
         toast.update(toastId, {
           render: TOAST_MESSAGES.error,
@@ -421,10 +418,9 @@ const LoginPage = () => {
           isLoading: false,
           autoClose: TOAST_OPTIONS.autoClose,
         });
-        setIsLoading(false);
       }
     },
-    [auth, searchParams],
+    [loginMutation, searchParams],
   );
 
   return (
@@ -529,7 +525,7 @@ const LoginPage = () => {
                   onTogglePassword={handleTogglePassword}
                   onMouseDownPassword={handleMouseDownPassword}
                 />
-                <SubmitButton isLoading={isLoading} />
+                <SubmitButton isLoading={isPending} />
               </Box>
             </Box>
           </CardContent>

@@ -67,6 +67,9 @@ export const useLogin = () => {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('accessToken', data.token);
         window.localStorage.setItem('userData', JSON.stringify(data));
+        if (data.refreshToken) {
+          window.localStorage.setItem('refreshToken', data.refreshToken);
+        }
       }
 
       // Set user in cache
@@ -100,10 +103,8 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      // Call logout endpoint if exists
-      const logoutEndpoint = (authConfig as any).logoutEndpoint;
-      if (logoutEndpoint) {
-        await httpClient.post(logoutEndpoint);
+      if (authConfig.logoutEndpoint) {
+        await httpClient.post(authConfig.logoutEndpoint);
       }
     },
     onSuccess: () => {

@@ -1,6 +1,6 @@
 // ** React Imports
 import { useEffect } from 'react';
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../hooks/useAuth';
@@ -14,10 +14,27 @@ const httpClient = axios.create({
   },
 });
 
+// Module-scope flags for refresh token handling
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue = [];
+};
+
 // Request interceptor for adding auth token
 httpClient.interceptors.request.use(
   (config) => {
-    // Only access localStorage in browser environment
     if (typeof window !== 'undefined') {
       const token = window.localStorage.getItem('accessToken');
       if (token) {
@@ -31,59 +48,119 @@ httpClient.interceptors.request.use(
   }
 );
 
+const clearAuthAndRedirect = () => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem('accessToken');
+    window.localStorage.removeItem('refreshToken');
+    window.localStorage.removeItem('userData');
+    window.location.href = '/login';
+  }
+};
+
 /**
  * Catch the Unauthorized Request
  */
 const AxiosInterceptor = ({ children }: any) => {
-  // ** Hooks
   const { logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     const interceptor = httpClient.interceptors.response.use(
       (response) => response,
-      async (error) => {
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
         if (error?.response?.status === 401) {
-          // Get the request URL to check if it's a login endpoint
-          const requestUrl = error?.config?.url || '';
-          const fullUrl = error?.config?.baseURL 
-            ? `${error.config.baseURL}${requestUrl}` 
+          const requestUrl = originalRequest?.url || '';
+          const fullUrl = originalRequest?.baseURL 
+            ? `${originalRequest.baseURL}${requestUrl}` 
             : requestUrl;
           
-          // Check if this is a login endpoint - don't show Swal for login failures
-          // Login errors should be handled by the login page itself
           const loginEndpoint = authConfig.loginEndpoint || '';
           const isLoginEndpoint = fullUrl.includes('/auth/login') || 
                                  requestUrl.includes('/auth/login') ||
                                  (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
           
-          // Check if this is the /auth/me endpoint - don't show Swal, let AuthContext handle it
           const isMeEndpoint = fullUrl.includes('/auth/me') || requestUrl.includes('/auth/me');
+          const isRefreshEndpoint = fullUrl.includes('/auth/refresh') || requestUrl.includes('/auth/refresh');
           
-          if (!isLoginEndpoint && !isMeEndpoint) {
-            // Only show Swal for non-login and non-me 401 errors (token expired, unauthorized access)
-            await Swal.fire({
-              title: 'เนื่องจากไม่ได้รับการอนุญาตหรือหมดอายุการใช้งาน',
-              text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
-              icon: 'warning',
-              showCancelButton: false,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-              confirmButtonText: 'ตกลง',
-            }).then(() => {
-              logout();
-              router.push('/login');
-            });
+          // For login, me, and refresh endpoints - just reject, don't try to refresh
+          if (isLoginEndpoint || isMeEndpoint || isRefreshEndpoint) {
+            return Promise.reject(error);
           }
-          // For login and me endpoints, reject the error so they can handle it
-          return Promise.reject(error);
-        } else {
-          return Promise.reject(error);
+
+          // If already retried, clear auth and redirect
+          if (originalRequest._retry) {
+            clearAuthAndRedirect();
+            return Promise.reject(error);
+          }
+
+          originalRequest._retry = true;
+
+          // If refresh is already in progress, queue this request
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              failedQueue.push({ resolve, reject });
+            })
+              .then((token) => {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+                return httpClient(originalRequest);
+              })
+              .catch((err) => {
+                return Promise.reject(err);
+              });
+          }
+
+          isRefreshing = true;
+
+          const refreshToken = typeof window !== 'undefined' 
+            ? window.localStorage.getItem('refreshToken') 
+            : null;
+
+          if (!refreshToken) {
+            isRefreshing = false;
+            clearAuthAndRedirect();
+            return Promise.reject(error);
+          }
+
+          try {
+            const response = await httpClient.post(authConfig.refreshEndpoint as string, {
+              refreshToken,
+            });
+
+            const newToken = response.data?.token;
+            
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem('accessToken', newToken);
+            }
+
+            processQueue(null, newToken);
+            
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return httpClient(originalRequest);
+          } catch (refreshError) {
+            processQueue(refreshError, null);
+            clearAuthAndRedirect();
+            return Promise.reject(refreshError);
+          } finally {
+            isRefreshing = false;
+          }
         }
+
+        // For other errors (not 401)
+        if (error?.response?.status === 403) {
+          await Swal.fire({
+            title: 'ไม่มีสิทธิ์เข้าถึง',
+            text: 'คุณไม่มีสิทธิ์ในการเข้าถึงส่วนนี้',
+            icon: 'warning',
+            confirmButtonText: 'ตกลง',
+          });
+        }
+
+        return Promise.reject(error);
       },
     );
 
-    // Cleanup interceptor on unmount
     return () => {
       httpClient.interceptors.response.eject(interceptor);
     };

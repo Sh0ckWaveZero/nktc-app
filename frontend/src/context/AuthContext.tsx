@@ -68,10 +68,9 @@ const AuthProvider = ({ children }: Props) => {
           try {
             const userData = JSON.parse(storedUserData);
             const restoredUser = userData?.data || userData;
-            console.log('🔄 Restoring user from localStorage:', restoredUser);
             setUser(restoredUser);
-          } catch (e) {
-            console.error('❌ Failed to parse stored user data:', e);
+          } catch {
+            // Failed to parse stored user data, will be cleared on /me fetch failure
           }
         }
 
@@ -85,8 +84,7 @@ const AuthProvider = ({ children }: Props) => {
             // Also update localStorage with fresh data
             window.localStorage.setItem('userData', JSON.stringify(response.data));
           })
-          .catch((_) => {
-            console.log('🔒 Token validation failed, clearing auth and redirecting...');
+          .catch(() => {
             // Token is invalid, clear everything
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
@@ -131,13 +129,22 @@ const AuthProvider = ({ children }: Props) => {
   }
 };
 
-  const handleLogout = () => {
-    setUser(null);
-    setIsInitialized(false);
-    if (isBrowser) {
-      window.localStorage.removeItem('userData');
-      window.localStorage.removeItem('accessToken');
-      router.push('/login');
+  const handleLogout = async () => {
+    try {
+      if (authConfig.logoutEndpoint) {
+        await httpClient.post(authConfig.logoutEndpoint);
+      }
+    } catch {
+      // Proceed with logout even if API call fails
+    } finally {
+      setUser(null);
+      setIsInitialized(false);
+      if (isBrowser) {
+        window.localStorage.removeItem('userData');
+        window.localStorage.removeItem('accessToken');
+        window.localStorage.removeItem('refreshToken');
+        router.push('/login');
+      }
     }
   };
 

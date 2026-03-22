@@ -22,6 +22,7 @@ module.exports = {
     'src/database/db/**/*.ts',
     'src/database/generated/**/*.ts',
     'dist/**',
+    'node_modules/**',
   ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',

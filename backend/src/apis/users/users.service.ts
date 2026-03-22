@@ -1,10 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from '../../database/generated/prisma/client/client';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { User, Role } from '../../database/generated/prisma/client/client';
 import { PrismaService } from '../../common/services/prisma.service';
 import { compare, hash } from 'bcrypt';
+import { UpdatePasswordDto } from '@apis/auth/dto';
 
 interface FormatLogin extends Partial<User> {
+  id: string;
   username: string;
+  role: Role;
+  status: string | null;
 }
 
 @Injectable()
@@ -103,28 +107,23 @@ export class UsersService {
     return rest;
   }
 
-  async updatePassword(payload: any, id: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-    });
+  async updatePassword(payload: UpdatePasswordDto, id: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) {
-      throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 
-    // compare password
-    const isValid = await compare(payload.old_password, user.password);
+    const isValid = await compare(payload.currentPassword, user.password);
 
     if (!isValid) {
-      throw new HttpException('invalid_credentials', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 
     return this.prisma.user.update({
       where: { id },
       data: {
-        password: await hash(payload.new_password, 12),
+        password: await hash(payload.newPassword, 12),
       },
     });
   }
@@ -172,7 +171,6 @@ export class UsersService {
     if (user) {
       throw new HttpException('user_already_exists', HttpStatus.CONFLICT);
     }
-    console.log(userDto.account);
 
     let newUser: {};
     try {
@@ -183,7 +181,6 @@ export class UsersService {
         },
       });
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         "Can't create user",
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -226,11 +223,8 @@ export class UsersService {
       },
     });
 
-    // check if user exist
     if (!user) {
-      // throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
-      // throw new Error('User not found');
-      return Promise.resolve(null);
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 
     // get teacher on classroom
@@ -243,7 +237,7 @@ export class UsersService {
     const passwordMatch = await compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 
     // remove password from user object
@@ -312,6 +306,26 @@ export class UsersService {
       },
     });
     return teacherOnClassroom.map((item: any) => item.classroomId) ?? [];
+  }
+
+  async storeRefreshToken(userId: string, hashedToken: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: hashedToken },
+    });
+  }
+
+  async verifyRefreshToken(userId: string, rawToken: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.refreshToken) return false;
+    return compare(rawToken, user.refreshToken);
+  }
+
+  async clearRefreshToken(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
+    });
   }
 
   // getAuditLogs  params: username, skip, take

@@ -1,32 +1,28 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import configuration from '../../config/configuration';
 import { AuthService } from './auth.service';
+import { CONFIG_KEYS } from '../../config/config.constants';
+import type { AuthUser, JwtPayload } from './interfaces';
+
+// Re-export for backward compatibility
+export type { JwtPayload } from './interfaces';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configuration().jwtSecret,
+      secretOrKey: configService.get<string>(CONFIG_KEYS.JWT_SECRET),
     });
   }
 
-  async validate(payload: any) {
-    const user = await this.authService.validateUser(payload);
-    if (!user) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-    }
-    return user;
+  async validate(payload: JwtPayload): Promise<AuthUser> {
+    return await this.authService.validateUser(payload);
   }
-}
-
-export interface JwtPayload {
-  username: string;
-  sub: string;
-  roles?: string;
-  iat?: number;
-  exp?: number;
 }

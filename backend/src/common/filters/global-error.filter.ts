@@ -9,6 +9,7 @@ import {
 import { Request, Response } from 'express';
 import { Prisma } from '@/database/generated/prisma/client/client';
 import { ConfigService } from '@nestjs/config';
+import { CONFIG_KEYS } from '../../config/config.constants';
 
 @Catch()
 export class GlobalErrorFilter implements ExceptionFilter {
@@ -60,7 +61,7 @@ export class GlobalErrorFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      ...(this.configService.get('NODE_ENV') === 'development' && {
+      ...(this.configService.get(CONFIG_KEYS.NODE_ENV) === 'development' && {
         stack: exception instanceof Error ? exception.stack : undefined,
         details: exception,
       }),
