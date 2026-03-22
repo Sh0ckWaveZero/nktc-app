@@ -60,7 +60,11 @@
       "Skill(sc:troubleshoot:*)",
       "Bash(grep -E '\"\"react\"\"|\"\"@types/react\"\"' package.json)",
       "Skill(sc:improve)",
-      "Skill(sc:improve:*)"
+      "Skill(sc:improve:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''prisma'''', {}\\), indent=2\\)\\)\")",
+      "Bash(NODE_OPTIONS='--no-deprecation' node -e \"require\\(''''./dist/main''''\\)\")",
+      "Bash(NODE_OPTIONS='--no-deprecation' npx nest build --builder swc)",
+      "Bash(npx swc:*)"
     ],
     "deny": []
   },
