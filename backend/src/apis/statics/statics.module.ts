@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { StaticsService } from './statics.service';
 import { StaticsController } from './statics.controller';
-import { MinioClientModule } from '../minio/minio-client.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [MinioClientModule],
+  imports: [StorageModule],
   controllers: [StaticsController],
   providers: [StaticsService],
 })

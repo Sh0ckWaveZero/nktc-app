@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from '../../common/services/prisma.service';
-import { MinioClientService } from '../minio/minio-client.service';
+import { StorageService } from '../storage/storage.service';
 import { isEmpty, isValidHttpUrl } from '../../utils/utils';
 import { StudentData } from './entities';
 import {
@@ -25,7 +25,7 @@ export class StudentsService {
 
   constructor(
     private prisma: PrismaService,
-    private readonly minioService: MinioClientService,
+    private readonly minioService: StorageService,
   ) {}
 
   async findBucket() {

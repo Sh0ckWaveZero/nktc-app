@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
-import { MinioClientService } from '../minio/minio-client.service';
+import { StorageService } from '../storage/storage.service';
 import { isValidHttpUrl, isEmpty } from '../../utils/utils';
 import { hash } from 'bcrypt';
 @Injectable()
 export class TeachersService {
   constructor(
     private prisma: PrismaService,
-    private readonly minioService: MinioClientService,
+    private readonly minioService: StorageService,
   ) {}
 
   async findAll(q = '') {

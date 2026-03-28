@@ -34,7 +34,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   minio:
-    image: minio/minio:latest
+    image: pgsty/minio:latest
     container_name: minio
     restart: always
     environment:
@@ -60,8 +60,19 @@ services:
       retries: 3
     volumes:
       - minio-data:/data
-      # Mount host timezone for proper time synchronization (prevents S3 time errors)
-      - /etc/localtime:/etc/localtime:ro
+
+  minio-init:
+    image: minio/mc
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./scripts/minio-init.sh:/scripts/minio-init.sh:ro
+    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    restart: on-failure
 
 volumes:
   postgres-data: {}

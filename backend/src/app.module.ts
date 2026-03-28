@@ -18,7 +18,7 @@ import { DepartmentsModule } from './apis/departments/departments.module';
 import { GoodnessIndividualModule } from './apis/goodness-individual/goodness-individual.module';
 import { LevelModule } from './apis/level/level.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { MinioClientModule } from './apis/minio/minio-client.module';
+import { StorageModule } from './apis/storage/storage.module';
 import { PrismaService } from './common/services/prisma.service';
 import { ProgramsModule } from './apis/programs/programs.module';
 import { ReportCheckInMiddleware } from './middlewares/report-check-in.middleware';
@@ -64,7 +64,7 @@ import validate from './config/validation';
       load: [configuration],
       validate,
     }),
-    MinioClientModule,
+    StorageModule,
     LevelModule,
   ],
   controllers: [AppController],

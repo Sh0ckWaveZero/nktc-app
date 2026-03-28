@@ -6,12 +6,13 @@ import configuration from '../../config/configuration';
 import { MinioService } from '../../lib';
 
 @Injectable()
-export class MinioClientService {
+export class StorageService {
   private readonly logger: Logger;
   constructor(private readonly minio: MinioService) {
-    this.logger = new Logger('MinioService');
+    this.logger = new Logger('StorageService');
 
-    // THIS IS THE POLICY
+    // Bucket policy: allow public read-only for serving files
+    // Write/delete operations are restricted to the IAM user (nktc-app-s3) via minio-init.sh policy
     const policy = {
       Version: '2012-10-17',
       Statement: [
@@ -20,26 +21,8 @@ export class MinioClientService {
           Principal: {
             AWS: ['*'],
           },
-          Action: [
-            's3:ListBucketMultipartUploads',
-            's3:GetBucketLocation',
-            's3:ListBucket',
-          ],
-          Resource: [`arn:aws:s3:::${configuration().minioBucket}`], // Change this according to your bucket name
-        },
-        {
-          Effect: 'Allow',
-          Principal: {
-            AWS: ['*'],
-          },
-          Action: [
-            's3:PutObject',
-            's3:AbortMultipartUpload',
-            's3:DeleteObject',
-            's3:GetObject',
-            's3:ListMultipartUploadParts',
-          ],
-          Resource: [`arn:aws:s3:::${configuration().minioBucket}/*`], // Change this according to your bucket name
+          Action: ['s3:GetObject'],
+          Resource: [`arn:aws:s3:::${configuration().minioBucket}/*`],
         },
       ],
     };
@@ -72,7 +55,6 @@ export class MinioClientService {
         .digest('hex');
       const extension = '.webp';
       const metaData: any = {
-        'Content-Encoding': 'base64',
         'Content-Type': 'image/webp',
       };
       const fileName = `${file.path}${hashedFileName}${extension}`;

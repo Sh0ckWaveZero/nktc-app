@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StaticsController } from './statics.controller';
 import { StaticsService } from './statics.service';
-import { mockMinioClientService } from '@common/test/mocks';
-import { MinioClientService } from '../minio/minio-client.service';
+import { mockStorageService } from '@common/test/mocks';
+import { StorageService } from '../storage/storage.service';
 
 describe('StaticsController', () => {
   let controller: StaticsController;
@@ -13,8 +13,8 @@ describe('StaticsController', () => {
       providers: [
         StaticsService,
         {
-          provide: MinioClientService,
-          useValue: mockMinioClientService,
+          provide: StorageService,
+          useValue: mockStorageService,
         },
       ],
     }).compile();

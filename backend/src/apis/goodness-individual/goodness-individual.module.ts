@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { GoodnessIndividualService } from './goodness-individual.service';
 import { GoodnessIndividualController } from './goodness-individual.controller';
 import { PrismaService } from '../../common/services/prisma.service';
-import { MinioClientModule } from '../minio/minio-client.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [MinioClientModule],
+  imports: [StorageModule],
   controllers: [GoodnessIndividualController],
   providers: [GoodnessIndividualService, PrismaService],
 })

@@ -52,7 +52,7 @@ export const mockPrismaService = {
   appbar: createMockPrismaModel(),
 };
 
-export const mockMinioClientService = {
+export const mockStorageService = {
   uploadFile: jest.fn(),
   deleteFile: jest.fn(),
   getFileUrl: jest.fn(),

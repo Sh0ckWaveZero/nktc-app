@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StudentsService } from './students.service';
-import { mockPrismaService, mockMinioClientService } from '@common/test/mocks';
+import { mockPrismaService, mockStorageService } from '@common/test/mocks';
 import { PrismaService } from '@common/services/prisma.service';
-import { MinioClientService } from '../minio/minio-client.service';
+import { StorageService } from '../storage/storage.service';
 
 describe('StudentsService', () => {
   let service: StudentsService;
@@ -16,8 +16,8 @@ describe('StudentsService', () => {
           useValue: mockPrismaService,
         },
         {
-          provide: MinioClientService,
-          useValue: mockMinioClientService,
+          provide: StorageService,
+          useValue: mockStorageService,
         },
       ],
     }).compile();

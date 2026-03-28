@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { MinioClientService } from '../minio/minio-client.service';
+import { StorageService } from '../storage/storage.service';
 import { PrismaService } from '../../common/services/prisma.service';
 import configuration from '../../config/configuration';
 
@@ -8,7 +8,7 @@ import configuration from '../../config/configuration';
 export class GoodnessIndividualService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly minioService: MinioClientService,
+    private readonly minioService: StorageService,
   ) {}
   async create(body: any) {
     let image: any = '';

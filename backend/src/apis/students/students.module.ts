@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { StudentsController } from './students.controller';
 import { PrismaService } from '../../common/services/prisma.service';
-import { MinioClientModule } from '../minio/minio-client.module';
+import { StorageModule } from '../storage/storage.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
-    MinioClientModule,
+    StorageModule,
     MulterModule.register({
       storage: memoryStorage(),
       limits: {
