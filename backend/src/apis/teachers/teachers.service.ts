@@ -148,7 +148,8 @@ export class TeachersService {
       },
     });
     const classroomIds =
-      teacherOnClassroom.map((item: any) => item.classroomId).filter(Boolean) ?? [];
+      teacherOnClassroom.map((item: any) => item.classroomId).filter(Boolean) ??
+      [];
 
     // If teacher has no classrooms, return empty structure
     if (!classroomIds || classroomIds.length === 0) {
@@ -268,23 +269,26 @@ export class TeachersService {
     // Support both old format (classrooms) and new format (teachers)
     // If teachers array is provided, add those teachers as advisors for the current teacher's classrooms
     // If classrooms array is provided, use the old behavior (add classrooms to current teacher)
-    
+
     if (updateTeacherDto.teachers && Array.isArray(updateTeacherDto.teachers)) {
       // New format: Add multiple teachers as co-advisors
       // Get current teacher's classrooms
-      const currentTeacherClassrooms = await this.prisma.teacherOnClassroom.findMany({
-        where: {
-          teacherId: updateTeacherDto.teacherInfo,
-        },
-        select: {
-          classroomId: true,
-        },
-      });
+      const currentTeacherClassrooms =
+        await this.prisma.teacherOnClassroom.findMany({
+          where: {
+            teacherId: updateTeacherDto.teacherInfo,
+          },
+          select: {
+            classroomId: true,
+          },
+        });
 
       const classroomIds = currentTeacherClassrooms.map((tc) => tc.classroomId);
 
       if (classroomIds.length === 0) {
-        throw new Error('Teacher has no classrooms assigned. Please assign classrooms first.');
+        throw new Error(
+          'Teacher has no classrooms assigned. Please assign classrooms first.',
+        );
       }
 
       // Create teacherOnClassroom records for each selected teacher and each classroom
@@ -319,7 +323,10 @@ export class TeachersService {
       }
 
       return { count: 0 };
-    } else if (updateTeacherDto.classrooms && Array.isArray(updateTeacherDto.classrooms)) {
+    } else if (
+      updateTeacherDto.classrooms &&
+      Array.isArray(updateTeacherDto.classrooms)
+    ) {
       // Old format: Add classrooms to current teacher
       const teacherOnClassroom = await this.prisma.teacherOnClassroom.findMany({
         where: {
@@ -477,7 +484,7 @@ export class TeachersService {
     try {
       // Hash password before storing
       const hashedPassword = await hash(data?.teacher?.password || '', 12);
-      
+
       const user = await this.prisma.user.create({
         data: {
           username: data?.teacher?.username,

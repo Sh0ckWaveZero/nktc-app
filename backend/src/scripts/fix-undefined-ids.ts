@@ -137,7 +137,12 @@ async function fixUndefinedIds() {
           const departmentName = student.department.name || '';
 
           // First try normal lookup
-          let programId = await getProgramId(prisma, departmentName, levelName, '');
+          let programId = await getProgramId(
+            prisma,
+            departmentName,
+            levelName,
+            '',
+          );
 
           // If that fails, try to find a program linked to the department
           if (!programId) {

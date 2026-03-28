@@ -87,7 +87,12 @@
       "Bash(DOCKER_HOST=unix:///Users/sh0ckpro/.local/share/containers/podman/machine/podman.sock podman run --rm --network backend_default --entrypoint /bin/sh minio/mc -c \"mc alias set local http://minio:9000 admin-minio ''znt@rmd8ARC@rkt2xph'' && mc admin accesskey rm local vc3T9a31TwCfGF2I 2>/dev/null; echo done\")",
       "Bash(DOCKER_HOST=unix:///Users/sh0ckpro/.local/share/containers/podman/machine/podman.sock podman compose -f docker-compose-local.yml down)",
       "Bash(DOCKER_HOST=unix:///Users/sh0ckpro/.local/share/containers/podman/machine/podman.sock podman volume rm backend_minio-data)",
-      "Bash(chmod +x /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/scripts/minio-init.sh)"
+      "Bash(chmod +x /Users/sh0ckpro/Works/Freelance/React/nktc-app/backend/scripts/minio-init.sh)",
+      "Bash(node -e \"const Minio = require\\(''minio''\\); const c = new Minio.Client\\({endPoint:''localhost'',port:9000,useSSL:false,accessKey:''nktc-app-s3'',secretKey:''znt@rmd8ARC@rkt2xph2''}\\); console.log\\(''useSSL:'', c.protocol\\);\")",
+      "Bash(node -e \":*)",
+      "Bash(echo \"MINIO_USE_SSL from shell: $MINIO_USE_SSL\")",
+      "Bash(node -e \"console.log\\(''process.env before dotenv:'', process.env.MINIO_USE_SSL\\)\")",
+      "Bash(ls -la /Users/sh0ckpro/Works/Freelance/React/nktc-app/.env*)"
     ],
     "deny": []
   },

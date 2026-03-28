@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config(); // โหลด .env ก่อน module ใดๆ จะ initialize
+
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

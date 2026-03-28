@@ -191,8 +191,8 @@ export class ActivityCheckInService {
               ? reportCheckIn.present.some((present) => present === student.id)
                 ? 'present'
                 : reportCheckIn.absent.some((absent) => absent === student.id)
-                ? 'absent'
-                : 'none'
+                  ? 'absent'
+                  : 'none'
               : 'notCheckIn',
             teacher: user,
           };

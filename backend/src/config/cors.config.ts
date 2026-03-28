@@ -18,12 +18,12 @@ const createAllowedOrigins = (): string[] => {
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
     ];
-    
+
     // รวมกับ origins ที่กำหนดใน environment variable
     const customDevOrigins = config.corsDevOrigins
       .map((origin) => origin.trim())
       .filter((origin) => origin.length > 0);
-    
+
     return [...defaultDevOrigins, ...customDevOrigins];
   }
 
@@ -55,12 +55,14 @@ const extractHostname = (origin: string): string | null => {
 const isValidDomain = (hostname: string, domain: string): boolean => {
   // ตรวจสอบ exact match
   if (hostname === domain) return true;
-  
+
   // ตรวจสอบ subdomain (เช่น app.midseelee.com, test.midseelee.com, app.test.midseelee.com)
   // ต้องลงท้ายด้วย .domain เท่านั้น (ไม่ใช่ midseelee.com.evil.com)
   // ใช้ regex เพื่อตรวจสอบ domain boundary
-  const domainPattern = new RegExp(`^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)*${domain.replace('.', '\\.')}$`);
-  
+  const domainPattern = new RegExp(
+    `^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)*${domain.replace('.', '\\.')}$`,
+  );
+
   return domainPattern.test(hostname);
 };
 
@@ -104,7 +106,8 @@ const isOriginAllowed = (
     if (allowedOrigins.includes(origin)) return true;
 
     // รองรับ local IP addresses (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
-    const localIpPattern = /^(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+)(:\d+)?$/;
+    const localIpPattern =
+      /^(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+)(:\d+)?$/;
     if (localIpPattern.test(hostname)) return true;
 
     // รองรับ localhost variants (ตรวจสอบ hostname เท่านั้น ไม่ใช่ path)
@@ -126,9 +129,11 @@ const isOriginAllowed = (
 
     // ตรวจสอบ subdomain ใน production
     if (config.node_env === 'production') {
-      const allowedDomain = allowedOrigin.replace('https://', '').replace('http://', '');
+      const allowedDomain = allowedOrigin
+        .replace('https://', '')
+        .replace('http://', '');
       const allowedHostname = extractHostname(allowedOrigin);
-      
+
       if (allowedHostname && isValidDomain(hostname, allowedHostname)) {
         // ตรวจสอบ protocol ด้วย
         return origin.startsWith('https://');

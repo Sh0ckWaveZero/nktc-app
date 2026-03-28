@@ -95,11 +95,21 @@ async function testLookupFunctions() {
         console.log(`Result: ${programId1 || 'undefined'}`);
 
         console.log('Test 2: Using department name with empty program name');
-        const programId2 = await getProgramId(prisma, departmentName, levelName, '');
+        const programId2 = await getProgramId(
+          prisma,
+          departmentName,
+          levelName,
+          '',
+        );
         console.log(`Result: ${programId2 || 'undefined'}`);
 
         console.log('Test 3: Using department name as program name');
-        const programId3 = await getProgramId(prisma, '', levelName, departmentName);
+        const programId3 = await getProgramId(
+          prisma,
+          '',
+          levelName,
+          departmentName,
+        );
         console.log(`Result: ${programId3 || 'undefined'}`);
 
         // Check if any program exists in DB with either name

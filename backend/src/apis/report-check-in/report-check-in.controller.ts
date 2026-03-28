@@ -26,7 +26,10 @@ export class ReportCheckInController {
     @Body() createReportCheckInDto: Prisma.ReportCheckInCreateInput,
   ) {
     try {
-      console.log('Received check-in data:', JSON.stringify(createReportCheckInDto, null, 2));
+      console.log(
+        'Received check-in data:',
+        JSON.stringify(createReportCheckInDto, null, 2),
+      );
       return await this.reportCheckInService.create(createReportCheckInDto);
     } catch (error) {
       console.error('Error creating report check-in:', error);

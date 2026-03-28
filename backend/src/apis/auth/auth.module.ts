@@ -23,18 +23,14 @@ import { CONFIG_KEYS } from '../../config/config.constants';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>(CONFIG_KEYS.JWT_SECRET),
         signOptions: {
-          expiresIn: configService.get<string>(CONFIG_KEYS.JWT_EXPIRES_IN) ?? '1d',
+          expiresIn:
+            configService.get<string>(CONFIG_KEYS.JWT_EXPIRES_IN) ?? '1d',
         },
       }),
     } as Parameters<typeof JwtModule.registerAsync>[0]),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    PrismaService,
-    LocalStrategy,
-  ],
+  providers: [AuthService, JwtStrategy, PrismaService, LocalStrategy],
   exports: [PassportModule, JwtModule],
 })
 export class AuthModule {}

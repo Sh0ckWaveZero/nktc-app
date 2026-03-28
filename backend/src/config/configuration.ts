@@ -20,5 +20,6 @@ export default () => ({
   corsAllowedDomains: process.env.CORS_ALLOWED_DOMAINS?.split(',') || [],
   corsDevOrigins: process.env.CORS_DEV_ORIGINS?.split(',') || [],
   corsMaxAge: parseInt(process.env.CORS_MAX_AGE, 10) || 86400,
-  corsProductionMethods: process.env.CORS_PRODUCTION_METHODS || 'GET,POST,PUT,PATCH,DELETE',
+  corsProductionMethods:
+    process.env.CORS_PRODUCTION_METHODS || 'GET,POST,PUT,PATCH,DELETE',
 });

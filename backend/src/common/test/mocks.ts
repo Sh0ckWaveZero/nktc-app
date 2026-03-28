@@ -53,12 +53,14 @@ export const mockPrismaService = {
 };
 
 export const mockStorageService = {
-  uploadFile: jest.fn(),
-  deleteFile: jest.fn(),
-  getFileUrl: jest.fn(),
-  listFiles: jest.fn(),
-  copyFile: jest.fn(),
-  moveFile: jest.fn(),
+  client: {
+    listBuckets: jest.fn(),
+    listObjects: jest.fn(),
+    putObject: jest.fn(),
+    removeObject: jest.fn(),
+  },
+  upload: jest.fn(),
+  delete: jest.fn(),
 };
 
 export const mockUsersService = {

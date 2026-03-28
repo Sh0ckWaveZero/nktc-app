@@ -265,7 +265,11 @@ export const getClassroomId = async (
   return res?.id;
 };
 
-export const getLevelClassroomId = async (prisma: PrismaClient, level: string, classroom: string) => {
+export const getLevelClassroomId = async (
+  prisma: PrismaClient,
+  level: string,
+  classroom: string,
+) => {
   const name = `${level}${classroom}`;
   const res = await prisma.levelClassroom.findFirst({
     where: {
@@ -278,7 +282,10 @@ export const getLevelClassroomId = async (prisma: PrismaClient, level: string, c
   return res?.id;
 };
 
-export const getLevelClassroomByName = async (prisma: PrismaClient, name: string) => {
+export const getLevelClassroomByName = async (
+  prisma: PrismaClient,
+  name: string,
+) => {
   const res = await prisma.levelClassroom.findFirst({
     where: {
       name: name,
@@ -319,7 +326,10 @@ export const readWorkSheetFromFile = (path: string) => {
   return workSheetsFromFile;
 };
 
-export const getLevelByName = async (prisma: PrismaClient, level: 'ปวช.' | 'ปวส.') => {
+export const getLevelByName = async (
+  prisma: PrismaClient,
+  level: 'ปวช.' | 'ปวส.',
+) => {
   const admin = createByAdmin();
   const isLevel = level === 'ปวช.' ? 'L001' : 'L002';
 
@@ -354,7 +364,11 @@ export const getLevelId = async (prisma: PrismaClient, level: string) => {
   }
 };
 
-export const getDepartIdByName = async (prisma: PrismaClient, name: string, _id: string) => {
+export const getDepartIdByName = async (
+  prisma: PrismaClient,
+  name: string,
+  _id: string,
+) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {
@@ -364,7 +378,11 @@ export const getDepartIdByName = async (prisma: PrismaClient, name: string, _id:
   return res.id;
 };
 
-export const getDepartId = async (prisma: PrismaClient, name: string, _id: string) => {
+export const getDepartId = async (
+  prisma: PrismaClient,
+  name: string,
+  _id: string,
+) => {
   const names = name.trim();
   const res = await prisma.department.findFirst({
     where: {

@@ -11,7 +11,10 @@ export class ReportCheckInService {
   async create(createReportCheckInDto: Prisma.ReportCheckInCreateInput) {
     try {
       // Validate required fields
-      if (!createReportCheckInDto.teacherId || !createReportCheckInDto.classroomId) {
+      if (
+        !createReportCheckInDto.teacherId ||
+        !createReportCheckInDto.classroomId
+      ) {
         throw new Error('teacherId and classroomId are required');
       }
 
@@ -213,16 +216,16 @@ export class ReportCheckInService {
               ? reportCheckIn.present.some((present) => present === student.id)
                 ? 'present'
                 : reportCheckIn.absent.some((absent) => absent === student.id)
-                ? 'absent'
-                : reportCheckIn.late.some((late) => late === student.id)
-                ? 'late'
-                : reportCheckIn.leave.some((leave) => leave === student.id)
-                ? 'leave'
-                : reportCheckIn.internship.some(
-                    (internship) => internship === student.id,
-                  )
-                ? 'internship'
-                : 'none'
+                  ? 'absent'
+                  : reportCheckIn.late.some((late) => late === student.id)
+                    ? 'late'
+                    : reportCheckIn.leave.some((leave) => leave === student.id)
+                      ? 'leave'
+                      : reportCheckIn.internship.some(
+                            (internship) => internship === student.id,
+                          )
+                        ? 'internship'
+                        : 'none'
               : 'notCheckIn',
             teacher: user,
           };
@@ -568,14 +571,14 @@ export class ReportCheckInService {
           has: present
             ? 'Present'
             : absent
-            ? 'Absent'
-            : late
-            ? 'Late'
-            : leave
-            ? 'Leave'
-            : internship
-            ? 'Internship'
-            : '-',
+              ? 'Absent'
+              : late
+                ? 'Late'
+                : leave
+                  ? 'Leave'
+                  : internship
+                    ? 'Internship'
+                    : '-',
         };
       }),
     );
