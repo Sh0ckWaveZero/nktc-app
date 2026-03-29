@@ -4,6 +4,17 @@ import { authGuard } from "@/middleware/auth";
 
 export const levels = new Elysia({ prefix: "/levels" })
 	.use(authGuard)
-	.get("/", async () => {
-		return LevelService.getAll();
-	});
+	.guard({
+		detail: {
+			tags: ["Reference-Data"],
+			security: [{ BearerAuth: [] }],
+		},
+	}, (app) =>
+		app.get("/", async () => {
+			return LevelService.getAll();
+		}, {
+			detail: {
+				summary: "Get all educational levels",
+			},
+		}),
+	);

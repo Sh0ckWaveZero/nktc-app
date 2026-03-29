@@ -37,7 +37,39 @@ const app = new Elysia()
 	.use(responsePlugin)
 	.use(logger)
 	.use(cors())
-	.use(swagger())
+	.use(
+		swagger({
+			path: "/swagger",
+			documentation: {
+				info: {
+					title: "NKTC API Documentation",
+					description: "OpenAPI Documentation for NKTC Student Management System",
+					version: "1.0.0",
+				},
+				tags: [
+					{ name: "Auth", description: "Authentication and token management" },
+					{ name: "Users", description: "User management and profiles" },
+					{ name: "Students", description: "Student records and management" },
+					{ name: "Teachers", description: "Teacher records and management" },
+					{ name: "Classrooms", description: "Classroom and group management" },
+					{ name: "Statistics", description: "Data analytics and reports" },
+				],
+				components: {
+					securitySchemes: {
+						BearerAuth: {
+							type: "http",
+							scheme: "bearer",
+							bearerFormat: "JWT",
+						},
+					},
+				},
+			},
+			swaggerOptions: {
+				persistAuthorization: true,
+			},
+		}),
+	)
+
 	.use(
 		jwt({
 			name: "jwt",

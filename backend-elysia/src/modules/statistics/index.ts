@@ -4,18 +4,28 @@ import { authGuard } from "@/middleware/auth";
 
 export const statistics = new Elysia({ prefix: "/statistics" })
 	.use(authGuard)
-	.get(
-		"/term",
-		async ({ query }) => {
-			return StatisticsService.getTermStats(query);
+	.guard({
+		detail: {
+			tags: ["Statistics"],
+			security: [{ BearerAuth: [] }],
 		},
-		{
-			query: t.Object({
-				startDate: t.Optional(t.String()),
-				endDate: t.Optional(t.String()),
-				academicYear: t.Optional(t.String()),
-				departmentId: t.Optional(t.String()),
-				programId: t.Optional(t.String()),
-			}),
-		},
+	}, (app) =>
+		app.get(
+			"/term",
+			async ({ query }) => {
+				return StatisticsService.getTermStats(query);
+			},
+			{
+				query: t.Object({
+					startDate: t.Optional(t.String()),
+					endDate: t.Optional(t.String()),
+					academicYear: t.Optional(t.String()),
+					departmentId: t.Optional(t.String()),
+					programId: t.Optional(t.String()),
+				}),
+				detail: {
+					summary: "Get term-based statistics",
+				},
+			},
+		),
 	);
