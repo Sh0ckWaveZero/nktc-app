@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 // ** Google Fonts
 const prompt = Prompt({
   subsets: ['latin', 'thai'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-prompt',
 });

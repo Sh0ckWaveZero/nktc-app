@@ -19,12 +19,10 @@ export const students = new Elysia({ prefix: "/students" })
 			.get(
 				"/list",
 				async ({ query }) => {
-					const skip = Number(query.skip ?? 0);
-					const take = Number(query.take ?? 20);
-					return StudentService.getList(skip, take);
+					return StudentService.searchWithParams(query);
 				},
 				{
-					query: StudentModel.listQuery,
+					query: StudentModel.searchParams,
 					detail: {
 						summary: "List all students",
 					},
@@ -33,10 +31,10 @@ export const students = new Elysia({ prefix: "/students" })
 			.get(
 				"/search",
 				async ({ query }) => {
-					return StudentService.search(query);
+					return StudentService.searchWithParams(query);
 				},
 				{
-					query: StudentModel.searchQuery,
+					query: StudentModel.searchParams,
 					detail: {
 						summary: "Search students",
 					},
@@ -45,18 +43,10 @@ export const students = new Elysia({ prefix: "/students" })
 			.post(
 				"/search-with-params",
 				async ({ body }) => {
-					const { classroomId, q, skip, take, departmentId, programId } = body as any;
-					return StudentService.searchWithParams({
-						classroomId,
-						q,
-						skip: skip ?? 0,
-						take: take ?? 20,
-						departmentId,
-						programId,
-					});
+					return StudentService.searchWithParams(body);
 				},
 				{
-					body: t.Any(),
+					body: StudentModel.searchParams,
 					detail: {
 						summary: "Search students with complex params",
 					},
@@ -77,7 +67,7 @@ export const students = new Elysia({ prefix: "/students" })
 					return student;
 				},
 				{
-					body: StudentPlainInputCreate,
+					body: StudentModel.createBody,
 					detail: {
 						summary: "Create student profile",
 					},
@@ -89,7 +79,7 @@ export const students = new Elysia({ prefix: "/students" })
 					return StudentService.update(id, body);
 				},
 				{
-					body: StudentPlainInputUpdate,
+					body: StudentModel.updateBody,
 					detail: {
 						summary: "Update student profile",
 					},

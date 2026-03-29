@@ -15,7 +15,7 @@ export const teachers = new Elysia({ prefix: "/teachers" })
 			.get(
 				"/",
 				async ({ query }) => {
-					return TeacherService.search(query.q);
+					return TeacherService.search(query);
 				},
 				{
 					query: TeacherModel.searchQuery,

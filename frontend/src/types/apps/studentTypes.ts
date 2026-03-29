@@ -44,6 +44,9 @@ export interface StudentClassroom {
   updatedBy: string | null;
   createdBy: string | null;
   levelClassroomIds: string[];
+  level?: StudentLevel;
+  program?: StudentProgram;
+  department?: StudentDepartment;
 }
 
 export interface StudentProgram {
@@ -58,6 +61,8 @@ export interface StudentProgram {
   updatedAt: string;
   updatedBy: string;
   createdBy: string;
+  level?: StudentLevel;
+  department?: StudentDepartment;
 }
 
 export interface StudentDepartment {
@@ -72,21 +77,41 @@ export interface StudentDepartment {
   createdBy: string | null;
 }
 
-export interface StudentData {
+export interface StudentAccount {
   id: string;
-  studentId: string;
   title: string;
   firstName: string;
   lastName: string;
   idCard: string;
   phone: string;
-  status: string;
   avatar: string | null;
-  level: StudentLevel;
-  levelClassroom: StudentLevelClassroom;
-  classroom: StudentClassroom;
-  program: StudentProgram;
+  birthDate: string | null;
+  addressLine1: string | null;
+  subdistrict: string | null;
+  district: string | null;
+  province: string | null;
+  postcode: string | null;
+}
+
+export interface StudentUser {
+  id: string;
+  email: string | null;
+  username: string;
+  role: string;
+  account: StudentAccount;
+}
+
+export interface StudentData {
+  id: string;
+  studentId: string;
+  status: string;
+  userId: string;
+  user: StudentUser;
+  classroomId: string | null;
+  classroom: StudentClassroom | null;
+  program: StudentProgram | null;
   department: StudentDepartment | null;
+  level: StudentLevel | null;
 }
 
 /**

@@ -4,6 +4,8 @@ import { userPublicSelect } from "@/libs/prisma/userSelectExclude";
 export const TeacherModel = {
   searchQuery: t.Object({
     q: t.Optional(t.String()),
+    skip: t.Optional(t.Numeric()),
+    take: t.Optional(t.Numeric()),
   }),
   classroomsBody: t.Object({
     classrooms: t.Array(t.String()),

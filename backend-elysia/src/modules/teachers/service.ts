@@ -26,35 +26,49 @@ const stripSensitive = (teacher: any) => {
 };
 
 export abstract class TeacherService {
-  static async search(q?: string) {
-    log.info("[TeacherService] search", { query: q });
-    const result = await prisma.teacher.findMany({
-      where: q
-        ? {
-            OR: [
-              { teacherId: { contains: q, mode: "insensitive" } },
-              {
-                user: {
-                  username: { contains: q, mode: "insensitive" },
-                },
+  static async search(params: TeacherModel["searchQuery"]) {
+    const { q, skip = 0, take = 20 } = params;
+    log.info("[TeacherService] search", { query: q, skip, take });
+
+    const whereCondition = q
+      ? {
+          OR: [
+            { teacherId: { contains: q, mode: "insensitive" as const } },
+            {
+              user: {
+                username: { contains: q, mode: "insensitive" as const },
               },
-              {
-                user: {
-                  account: { firstName: { contains: q, mode: "insensitive" } },
-                },
+            },
+            {
+              user: {
+                account: { firstName: { contains: q, mode: "insensitive" as const } },
               },
-              {
-                user: {
-                  account: { lastName: { contains: q, mode: "insensitive" } },
-                },
+            },
+            {
+              user: {
+                account: { lastName: { contains: q, mode: "insensitive" as const } },
               },
-            ],
-          }
-        : undefined,
+            },
+          ],
+        }
+      : undefined;
+
+    const data = await prisma.teacher.findMany({
+      where: whereCondition,
+      skip,
+      take,
       include: teacherInclude,
     });
-    log.debug("[TeacherService] search result", { count: result.length });
-    return result.map(stripSensitive);
+
+    const total = await prisma.teacher.count({
+      where: whereCondition,
+    });
+
+    log.debug("[TeacherService] search result", { count: data.length, total });
+    return {
+      data: data.map(stripSensitive),
+      total,
+    };
   }
 
   static async create(data: TeacherModel["createBody"]) {
@@ -180,7 +194,7 @@ export abstract class TeacherService {
   static async updateProfile(id: string, data: any) {
     log.info("[TeacherService] updateProfile", { id });
 
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const teacher = await tx.teacher.findUnique({
         where: { id },
         select: { userId: true },
@@ -194,15 +208,14 @@ export abstract class TeacherService {
           userId: teacher.userId,
         });
       }
-      const updated = await tx.teacher.findUnique({
-        where: { id },
-        include: teacherInclude,
-      });
-      log.info("[TeacherService] updateProfile success", { id });
-      return updated ? stripSensitive(updated) : null;
     });
 
-    return result;
+    const updated = await prisma.teacher.findUnique({
+      where: { id },
+      include: teacherInclude,
+    });
+    log.info("[TeacherService] updateProfile success", { id });
+    return updated ? stripSensitive(updated) : null;
   }
 
   static async updateClassrooms(id: string, classrooms: string[]) {
@@ -211,7 +224,7 @@ export abstract class TeacherService {
       classroomCount: classrooms?.length || 0,
     });
 
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       await tx.teacherOnClassroom.deleteMany({
         where: { teacherId: id },
       });
@@ -229,18 +242,17 @@ export abstract class TeacherService {
           classroomIds: classrooms || [],
         },
       });
-      const updated = await tx.teacher.findUnique({
-        where: { id },
-        include: teacherInclude,
-      });
-      log.info("[TeacherService] updateClassrooms success", {
-        id,
-        added: classrooms?.length || 0,
-      });
-      return updated ? stripSensitive(updated) : null;
     });
 
-    return result;
+    const updated = await prisma.teacher.findUnique({
+      where: { id },
+      include: teacherInclude,
+    });
+    log.info("[TeacherService] updateClassrooms success", {
+      id,
+      added: classrooms?.length || 0,
+    });
+    return updated ? stripSensitive(updated) : null;
   }
 
   static async getStudents(teacherId: string) {
@@ -280,22 +292,20 @@ export abstract class TeacherService {
       });
       const classroomIds = assignments.map((a) => a.classroomId);
 
-      const [classrooms, students] = await Promise.all([
-        tx.classroom.findMany({
+      const classrooms = await tx.classroom.findMany({
           where: { id: { in: classroomIds } },
           include: {
             program: true,
             department: true,
             level: true,
           },
-        }),
-        tx.student.findMany({
+        });
+      const students = await tx.student.findMany({
           where: { classroomId: { in: classroomIds } },
           include: {
             user: { select: userMinimalSelect },
           },
-        }),
-      ]);
+        });
 
       const mapped = classrooms.map((c) => ({
         ...c,
