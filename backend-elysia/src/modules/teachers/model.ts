@@ -73,5 +73,15 @@ export const teacherInclude = {
     },
   },
   department: true,
-  classrooms: true,
+  classrooms: {
+    include: {
+      classroom: {
+        include: {
+          program: true,
+          department: true,
+          level: true,
+        },
+      },
+    },
+  },
 } as const;

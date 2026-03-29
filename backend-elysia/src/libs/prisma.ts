@@ -30,10 +30,10 @@ logger.info("🗄️ Initializing database connection", {
 
 const pool = new pg.Pool({ 
   connectionString: DATABASE_URL,
-  // Connection pool settings
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
+  allowExitOnIdle: true,
 });
 
 // Log pool events
@@ -106,12 +106,12 @@ async function testConnection() {
       database: dbInfo.database,
       error: error instanceof Error ? error.message : String(error),
     });
-    // Don't throw - allow app to start even if DB is unavailable
-    // Prisma will retry on queries
   }
 }
 
-testConnection();
+export async function initializeDatabase() {
+  await testConnection();
+}
 
 // Graceful shutdown
 process.on("beforeExit", async () => {

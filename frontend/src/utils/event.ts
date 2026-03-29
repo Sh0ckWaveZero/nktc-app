@@ -25,4 +25,6 @@ interface Errors {
 
 export const generateErrorMessages: Errors = {
   'request entity too large': 'ขนาดไฟล์ใหญ่เกินไป',
+  'Username already exists': 'ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว',
+  'A record with this value already exists': 'ข้อมูลนี้มีอยู่ในระบบแล้ว',
 };

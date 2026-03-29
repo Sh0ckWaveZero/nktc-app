@@ -30,18 +30,33 @@ export const editTeacherSchema = z.object({
 
 export type EditTeacherFormData = z.infer<typeof editTeacherSchema>;
 
+const normalizeStatus = (status: string | undefined): string => {
+  if (!status) return '';
+  const s = status.toLowerCase();
+  if (s === 'true' || s === 'active') return 'active';
+  if (s === 'false' || s === 'inactive') return 'inactive';
+  return s;
+};
+
 export const useEditTeacherForm = (data: Teacher | null) => {
+  const account = data?.user?.account;
+  const user = data?.user;
+
   const defaultValues = useMemo(
     () => ({
-      firstName: data?.firstName ?? '',
-      lastName: data?.lastName ?? '',
-      username: data?.username ?? '',
-      idCard: data?.idCard ?? '',
-      birthDate: data?.birthDate ? new Date(data.birthDate) : null,
+      firstName: (account?.firstName as string) ?? (data?.firstName as string) ?? '',
+      lastName: (account?.lastName as string) ?? (data?.lastName as string) ?? '',
+      username: (user?.username as string) ?? (data?.username as string) ?? '',
+      idCard: (account?.idCard as string) ?? (data?.idCard as string) ?? '',
+      birthDate: account?.birthDate
+        ? new Date(account.birthDate as string | Date)
+        : data?.birthDate
+          ? new Date(data.birthDate as string | Date)
+          : null,
       jobTitle: data?.jobTitle ?? '',
-      status: typeof data?.status === 'string' ? data.status.toLowerCase() : '',
+      status: normalizeStatus(data?.status),
     }),
-    [data],
+    [data, account, user],
   );
 
   const {

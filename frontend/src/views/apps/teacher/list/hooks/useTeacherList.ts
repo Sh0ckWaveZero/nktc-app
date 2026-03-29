@@ -171,7 +171,7 @@ export const useTeacherList = () => {
     const info: UpdateClassroomInfo = {
       id: currentData.id,
       classrooms,
-      teacherInfo: currentData.teacherId,
+      teacherInfo: currentData.teacherId || currentData.id,
     };
 
     setIsSubmittingClassroom(true);
@@ -324,7 +324,7 @@ export const useTeacherList = () => {
         firstName,
         lastName,
         role: 'Teacher',
-        status: 'true',
+        status: 'Active',
       } as Partial<Teacher> as Teacher,
       account: {},
     };

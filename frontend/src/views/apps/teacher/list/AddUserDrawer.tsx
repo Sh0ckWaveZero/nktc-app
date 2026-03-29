@@ -161,6 +161,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <CustomTextField
+                  id='fullName'
                   value={value}
                   label='ชื่อ-นามสกุล'
                   onChange={onChange}
@@ -179,6 +180,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <CustomTextField
+                  id='username'
                   value={value}
                   label='ชื่อเข้าใช้งานระบบ'
                   onChange={onChange}
@@ -267,6 +269,7 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               control={control}
               render={({ field: { value, onChange } }) => (
                 <ThaiDatePicker
+                  id='birthDate'
                   label='วันเกิด'
                   value={value ? new Date(value) : null}
                   onChange={onChange}
@@ -293,8 +296,8 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               control={control}
               render={({ field: { value, onChange } }) => (
                 <React.Fragment>
-                  <InputLabel>ตำแหน่ง</InputLabel>
-                  <Select label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
+                  <InputLabel id='jobTitle-label'>ตำแหน่ง</InputLabel>
+                  <Select id='jobTitle' labelId='jobTitle-label' label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
                     <MenuItem value=''>
                       <em>เลือกตำแหน่ง</em>
                     </MenuItem>

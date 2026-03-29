@@ -1,267 +1,336 @@
 import { prisma } from "@/libs/prisma";
-import { teacherInclude } from "./model";
+import { teacherInclude, type TeacherModel } from "./model";
 import { hash } from "bcrypt";
 import { ConflictError } from "@/libs/errors";
+import { Role } from "../../../generated/client";
+import { createLogger } from "@/infrastructure/logging";
+
+const log = createLogger();
+
+const stripSensitive = (teacher: any) => {
+  const { user, classrooms, ...rest } = teacher;
+  return {
+    ...rest,
+    user: user
+      ? (() => {
+          const { password, accessToken, refreshToken, expiresAt, ...u } = user;
+          return u;
+        })()
+      : user,
+    teacherOnClassroom: classrooms?.map((c: any) => c.classroomId) || [],
+    classroomNames:
+      classrooms?.map((c: any) => c.classroom?.name).filter(Boolean) || [],
+    classrooms,
+  };
+};
 
 export abstract class TeacherService {
-	static async search(q?: string) {
-		console.log("[TeacherService.search] Query:", q);
-		const result = await prisma.teacher.findMany({
-			where: q
-				? {
-						OR: [
-							{ teacherId: { contains: q, mode: "insensitive" } },
-							{
-								user: {
-									account: { firstName: { contains: q, mode: "insensitive" } },
-								},
-							},
-							{
-								user: {
-									account: { lastName: { contains: q, mode: "insensitive" } },
-								},
-							},
-						],
-					}
-				: undefined,
-			include: teacherInclude,
-		});
-		console.log("[TeacherService.search] Result count:", result.length);
-		return result;
-	}
+  static async search(q?: string) {
+    log.info("[TeacherService] search", { query: q });
+    const result = await prisma.teacher.findMany({
+      where: q
+        ? {
+            OR: [
+              { teacherId: { contains: q, mode: "insensitive" } },
+              {
+                user: {
+                  username: { contains: q, mode: "insensitive" },
+                },
+              },
+              {
+                user: {
+                  account: { firstName: { contains: q, mode: "insensitive" } },
+                },
+              },
+              {
+                user: {
+                  account: { lastName: { contains: q, mode: "insensitive" } },
+                },
+              },
+            ],
+          }
+        : undefined,
+      include: teacherInclude,
+    });
+    log.debug("[TeacherService] search result", { count: result.length });
+    return result.map(stripSensitive);
+  }
 
-	static async create(data: any) {
-		console.log("[TeacherService.create] Input data:", JSON.stringify(data, null, 2));
-		
-		const { user, teacher } = data;
-		console.log("[TeacherService.create] User:", user);
-		console.log("[TeacherService.create] Teacher:", teacher);
-		
-		const hashedPassword = await hash(teacher.password || "password123", 12);
-		console.log("[TeacherService.create] Password hashed");
-		
-		// Handle status - convert "true"/"false" string to "Active"/"Inactive"
-		let status = teacher.status || "Active";
-		if (status === "true") status = "Active";
-		if (status === "false") status = "Inactive";
-		console.log("[TeacherService.create] Status:", status);
+  static async create(data: TeacherModel["createBody"]) {
+    const { user, teacher } = data;
+    const hashedPassword = await hash(teacher.password || "password123", 12);
 
-		try {
-			const existingUser = await prisma.user.findUnique({
-				where: { username: teacher.username },
-			});
-			if (existingUser) {
-				throw new ConflictError("Username already exists", "username");
-			}
+    let status = teacher.status || "Active";
+    if (status === "true") status = "Active";
+    if (status === "false") status = "Inactive";
 
-			const result = await prisma.user.create({
-				data: {
-					username: teacher.username,
-					password: hashedPassword,
-					email: teacher.email || null,
-					role: teacher.role || "Teacher",
-					status: status,
-					createdBy: user?.id || "system",
-					updatedBy: user?.id || "system",
-					account: {
-						create: {
-							title: teacher.title || null,
-							firstName: teacher.firstName || "",
-							lastName: teacher.lastName || "",
-							idCard: teacher.idCard || null,
-							birthDate: teacher.birthDate ? new Date(teacher.birthDate) : null,
-							createdBy: user?.id || "system",
-							updatedBy: user?.id || "system",
-						},
-					},
-					teacher: {
-						create: {
-							jobTitle: teacher.jobTitle || null,
-							academicStanding: teacher.academicStanding || null,
-							status: status,
-							createdBy: user?.id || "system",
-							updatedBy: user?.id || "system",
-						},
-					},
-				},
-				include: {
-					account: true,
-					teacher: true,
-				},
-			});
-			console.log("[TeacherService.create] Success - Created user:", result.id);
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: { username: teacher.username },
+      });
+      if (existingUser) {
+        log.warn("[TeacherService] create - duplicate username", {
+          username: teacher.username,
+        });
+        throw new ConflictError("Username already exists", "username");
+      }
 
-	static async update(id: string, data: any) {
-		console.log("[TeacherService.update] ID:", id, "Data:", JSON.stringify(data, null, 2));
-		try {
-			const { user, teacher, account } = data;
-			
-			if (teacher && account?.id) {
-				await prisma.account.update({
-					where: { id: account.id },
-					data: {
-						firstName: teacher.firstName,
-						lastName: teacher.lastName,
-						title: teacher.title,
-						idCard: teacher.idCard || null,
-						birthDate: teacher.birthDate || null,
-						updatedBy: user?.id,
-					},
-				});
-				console.log("[TeacherService.update] Account updated:", account.id);
-			}
+      const result = await prisma.user.create({
+        data: {
+          username: teacher.username,
+          password: hashedPassword,
+          email: teacher.email || null,
+          role: (teacher.role || "Teacher") as Role,
+          status: status,
+          createdBy: user?.id || "system",
+          updatedBy: user?.id || "system",
+          account: {
+            create: {
+              title: teacher.title || null,
+              firstName: teacher.firstName || "",
+              lastName: teacher.lastName || "",
+              idCard: teacher.idCard || null,
+              birthDate: teacher.birthDate
+                ? new Date(teacher.birthDate)
+                : null,
+              createdBy: user?.id || "system",
+              updatedBy: user?.id || "system",
+            },
+          },
+          teacher: {
+            create: {
+              jobTitle: teacher.jobTitle || null,
+              academicStanding: teacher.academicStanding || null,
+              status: status,
+              createdBy: user?.id || "system",
+              updatedBy: user?.id || "system",
+            },
+          },
+        },
+        include: {
+          account: true,
+          teacher: true,
+        },
+      });
+      log.info("[TeacherService] create success", { userId: result.id });
+      return { id: result.id, teacherId: result.teacher?.id };
+    } catch (error) {
+      throw error;
+    }
+  }
 
-			const result = await prisma.teacher.update({
-				where: { id },
-				data: {
-					jobTitle: teacher?.jobTitle,
-					status: teacher?.status,
-				},
-				include: teacherInclude,
-			});
-			console.log("[TeacherService.update] Success:", id);
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+  static async update(id: string, data: TeacherModel["updateBody"]) {
+    const { user, teacher, account } = data;
+    log.info("[TeacherService] update", { id });
 
-	static async delete(id: string) {
-		console.log("[TeacherService.delete] ID:", id);
-		try {
-			const user = await prisma.teacher.findUnique({
-				where: { id },
-				select: { userId: true },
-			});
-			if (user?.userId) {
-				await prisma.user.delete({ where: { id: user.userId } });
-				console.log("[TeacherService.delete] Success - Deleted user:", user.userId);
-			} else {
-				await prisma.teacher.delete({ where: { id } });
-				console.log("[TeacherService.delete] Success - Deleted teacher:", id);
-			}
-		} catch (error) {
-			throw error;
-		}
-	}
+    await prisma.$transaction(async (tx) => {
+      if (teacher && account?.id) {
+        await tx.account.update({
+          where: { id: account.id },
+          data: {
+            firstName: teacher.firstName,
+            lastName: teacher.lastName,
+            title: teacher.title,
+            idCard: teacher.idCard || null,
+            birthDate: teacher.birthDate || null,
+            updatedBy: user?.id,
+          },
+        });
+        log.debug("[TeacherService] update - account updated", {
+          accountId: account.id,
+        });
+      }
 
-	static async updateProfile(id: string, data: any) {
-		console.log("[TeacherService.updateProfile] ID:", id, "Data:", JSON.stringify(data, null, 2));
-		try {
-			const teacher = await prisma.teacher.findUnique({
-				where: { id },
-				select: { userId: true },
-			});
-			if (teacher?.userId) {
-				await prisma.account.update({
-					where: { userId: teacher.userId },
-					data,
-				});
-				console.log("[TeacherService.updateProfile] Account updated for userId:", teacher.userId);
-			}
-			const result = await prisma.teacher.findUnique({ where: { id }, include: teacherInclude });
-			console.log("[TeacherService.updateProfile] Success:", id);
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+      await tx.teacher.update({
+        where: { id },
+        data: {
+          jobTitle: teacher?.jobTitle,
+          status: teacher?.status,
+        },
+      });
+    });
 
-	static async updateClassrooms(id: string, classrooms: string[]) {
-		console.log("[TeacherService.updateClassrooms] ID:", id, "Classrooms:", classrooms);
-		try {
-			await prisma.teacherOnClassroom.deleteMany({ where: { teacherId: id } });
-			console.log("[TeacherService.updateClassrooms] Cleared old assignments");
-			if (classrooms?.length) {
-				await prisma.teacherOnClassroom.createMany({
-					data: classrooms.map((classroomId) => ({
-						teacherId: id,
-						classroomId,
-					})),
-				});
-			}
-			const result = await prisma.teacher.findUnique({ where: { id }, include: teacherInclude });
-			console.log("[TeacherService.updateClassrooms] Success - Added", classrooms?.length || 0, "classrooms");
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+    const result = await prisma.teacher.findUnique({
+      where: { id },
+      include: teacherInclude,
+    });
+    log.info("[TeacherService] update success", { id });
+    return result ? stripSensitive(result) : null;
+  }
 
-	static async getStudents(teacherId: string) {
-		console.log("[TeacherService.getStudents] TeacherID:", teacherId);
-		try {
-			const assignments = await prisma.teacherOnClassroom.findMany({
-				where: { teacherId },
-				select: { classroomId: true },
-			});
-			const classroomIds = assignments.map((a) => a.classroomId);
-			console.log("[TeacherService.getStudents] Classroom IDs:", classroomIds);
-			const result = await prisma.student.findMany({
-				where: { classroomId: { in: classroomIds } },
-				include: {
-					user: {
-						include: {
-							account: {
-								select: { title: true, firstName: true, lastName: true, avatar: true },
-							},
-						},
-					},
-					classroom: true,
-					program: true,
-					level: true,
-				},
-			});
-			console.log("[TeacherService.getStudents] Result count:", result.length);
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+  static async delete(id: string) {
+    log.info("[TeacherService] delete", { id });
 
-	static async getClassroomsWithStudents(teacherId: string) {
-		console.log("[TeacherService.getClassroomsWithStudents] TeacherID:", teacherId);
-		try {
-			const assignments = await prisma.teacherOnClassroom.findMany({
-				where: { teacherId },
-				select: { classroomId: true },
-			});
-			const classroomIds = assignments.map((a) => a.classroomId);
-			console.log("[TeacherService.getClassroomsWithStudents] Classroom IDs:", classroomIds);
-			
-			const classrooms = await prisma.classroom.findMany({
-				where: { id: { in: classroomIds } },
-				include: {
-					program: true,
-					department: true,
-					level: true,
-				},
-			});
-			const students = await prisma.student.findMany({
-				where: { classroomId: { in: classroomIds } },
-				include: {
-					user: {
-						include: {
-							account: {
-								select: { title: true, firstName: true, lastName: true, avatar: true },
-							},
-						},
-					},
-				},
-			});
-			const result = classrooms.map((c) => ({
-				...c,
-				students: students.filter((s) => s.classroomId === c.id),
-			}));
-			console.log("[TeacherService.getClassroomsWithStudents] Result - Classrooms:", classrooms.length, "Students:", students.length);
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+    await prisma.$transaction(async (tx) => {
+      const teacher = await tx.teacher.findUnique({
+        where: { id },
+        select: { userId: true },
+      });
+      if (teacher?.userId) {
+        await tx.user.delete({ where: { id: teacher.userId } });
+        log.info("[TeacherService] delete success - deleted user", {
+          userId: teacher.userId,
+        });
+      } else {
+        await tx.teacher.delete({ where: { id } });
+        log.info("[TeacherService] delete success - deleted teacher", { id });
+      }
+    });
+  }
+
+  static async updateProfile(id: string, data: any) {
+    log.info("[TeacherService] updateProfile", { id });
+
+    const result = await prisma.$transaction(async (tx) => {
+      const teacher = await tx.teacher.findUnique({
+        where: { id },
+        select: { userId: true },
+      });
+      if (teacher?.userId) {
+        await tx.account.update({
+          where: { userId: teacher.userId },
+          data,
+        });
+        log.debug("[TeacherService] updateProfile - account updated", {
+          userId: teacher.userId,
+        });
+      }
+      const updated = await tx.teacher.findUnique({
+        where: { id },
+        include: teacherInclude,
+      });
+      log.info("[TeacherService] updateProfile success", { id });
+      return updated ? stripSensitive(updated) : null;
+    });
+
+    return result;
+  }
+
+  static async updateClassrooms(id: string, classrooms: string[]) {
+    log.info("[TeacherService] updateClassrooms", {
+      id,
+      classroomCount: classrooms?.length || 0,
+    });
+
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.teacherOnClassroom.deleteMany({
+        where: { teacherId: id },
+      });
+      if (classrooms?.length) {
+        await tx.teacherOnClassroom.createMany({
+          data: classrooms.map((classroomId) => ({
+            teacherId: id,
+            classroomId,
+          })),
+        });
+      }
+      await tx.teacher.update({
+        where: { id },
+        data: {
+          classroomIds: classrooms || [],
+        },
+      });
+      const updated = await tx.teacher.findUnique({
+        where: { id },
+        include: teacherInclude,
+      });
+      log.info("[TeacherService] updateClassrooms success", {
+        id,
+        added: classrooms?.length || 0,
+      });
+      return updated ? stripSensitive(updated) : null;
+    });
+
+    return result;
+  }
+
+  static async getStudents(teacherId: string) {
+    log.info("[TeacherService] getStudents", { teacherId });
+    try {
+      const assignments = await prisma.teacherOnClassroom.findMany({
+        where: { teacherId },
+        select: { classroomId: true },
+      });
+      const classroomIds = assignments.map((a) => a.classroomId);
+      const result = await prisma.student.findMany({
+        where: { classroomId: { in: classroomIds } },
+        include: {
+          user: {
+            include: {
+              account: {
+                select: {
+                  title: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                },
+              },
+            },
+          },
+          classroom: true,
+          program: true,
+          level: true,
+        },
+      });
+      log.debug("[TeacherService] getStudents result", {
+        classroomIds,
+        count: result.length,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getClassroomsWithStudents(teacherId: string) {
+    log.info("[TeacherService] getClassroomsWithStudents", { teacherId });
+
+    const result = await prisma.$transaction(async (tx) => {
+      const assignments = await tx.teacherOnClassroom.findMany({
+        where: { teacherId },
+        select: { classroomId: true },
+      });
+      const classroomIds = assignments.map((a) => a.classroomId);
+
+      const [classrooms, students] = await Promise.all([
+        tx.classroom.findMany({
+          where: { id: { in: classroomIds } },
+          include: {
+            program: true,
+            department: true,
+            level: true,
+          },
+        }),
+        tx.student.findMany({
+          where: { classroomId: { in: classroomIds } },
+          include: {
+            user: {
+              include: {
+                account: {
+                  select: {
+                    title: true,
+                    firstName: true,
+                    lastName: true,
+                    avatar: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+
+      const mapped = classrooms.map((c) => ({
+        ...c,
+        students: students.filter((s) => s.classroomId === c.id),
+      }));
+      log.debug("[TeacherService] getClassroomsWithStudents result", {
+        classrooms: classrooms.length,
+        students: students.length,
+      });
+      return mapped;
+    });
+
+    return result;
+  }
 }

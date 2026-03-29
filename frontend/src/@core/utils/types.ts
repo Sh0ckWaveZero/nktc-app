@@ -92,8 +92,11 @@ export const userRoleType: any = {
 
 export const userStatusType: any = {
   Active: 'เปิดใช้งาน',
+  active: 'เปิดใช้งาน',
   Pending: 'รอการยืนยัน',
+  pending: 'รอการยืนยัน',
   Inactive: 'ปิดใช้งาน',
+  inactive: 'ปิดใช้งาน',
   true: 'เปิดใช้งาน',
   false: 'ปิดใช้งาน',
 };

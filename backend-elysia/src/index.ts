@@ -7,6 +7,7 @@ import { errorHandler } from "./plugins/error-handler";
 import { responsePlugin } from "./plugins/response";
 import { logger } from "./libs/logger";
 import { createLogger } from "./infrastructure/logging";
+import { initializeDatabase } from "./libs/prisma";
 
 // Modules
 import { auth } from "./modules/auth";
@@ -28,6 +29,8 @@ import { students } from "./modules/students";
 import { statics } from "./modules/statics";
 
 const appLogger = createLogger();
+
+await initializeDatabase();
 
 const app = new Elysia()
 	.use(errorHandler)

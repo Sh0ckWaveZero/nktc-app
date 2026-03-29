@@ -175,7 +175,7 @@ model Teacher {
   jobTitle              String? // ตำแหน่ง
   academicStanding      String? // วิทยฐานะ
   classroomIds          String[]                @default([]) // รหัสห้องเรียนที่สอน
-  classrooms            Classroom[] // ครูประจำชั้น
+  classrooms            TeacherOnClassroom[] // ครูประจำชั้น
   rfId                  String?
   program               Program?                @relation(fields: [programId], references: [id])
   programId             String? // สาขาวิชา
@@ -205,7 +205,7 @@ model Classroom {
   name                  String?                 @unique
   description           String?
   teacherIds            String[]                @default([]) // รหัสครูประจำชั้น
-  teachers              Teacher[]
+  teachers              TeacherOnClassroom[]
   student               Student[]
   course                Course[]
   level                 Level?                  @relation(fields: [levelId], references: [id])
@@ -256,11 +256,13 @@ model LevelClassroom {
 
 // อาจารย์ประจำห้องที่ปรึกษา
 model TeacherOnClassroom {
-  id          String   @id @default(cuid())
-  teacherId   String // relation scalar field (used in the `@relation` attribute above)
-  classroomId String // relation scalar field (used in the `@relation` attribute above)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          String    @id @default(cuid())
+  teacherId   String
+  classroomId String
+  teacher     Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   updatedBy   String?
   createdBy   String?
 

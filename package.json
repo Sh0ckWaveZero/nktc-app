@@ -28,7 +28,6 @@
   },
   "workspaces": [
     "frontend",
-    "backend",
     "backend-elysia"
   ],
   "dependencies": {
