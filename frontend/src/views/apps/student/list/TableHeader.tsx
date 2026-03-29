@@ -53,85 +53,93 @@ const TableHeader = memo((props: TableHeaderProps) => {
     students = [],
   } = props;
 
-  return (
-    <Grid
-      id='student-list-table-header'
-      container
-      spacing={2}
-      flexDirection='row'
-      flexWrap='wrap'
-      alignContent='center'
-      justifyContent='space-between'
-      sx={{ p: 5 }}
-    >
-      {/* รหัสนักเรียน */}
-      <FilterGrid
-        id='student-list-student-id-filter'
-        size={{ xs: 12, sm: 12, md: 12, lg: 2 }}
-      >
-        <FormControl id='student-id-form-control' fullWidth>
-          <TextField
-            id='studentId'
-            fullWidth
-            label='รหัสนักเรียน'
-            placeholder='รหัสนักเรียน'
-            value={studentId}
-            onChange={(e) => onHandleStudentId(e.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: studentId && (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      id='clear-student-id-button'
-                      size='small'
-                      edge='end'
-                      onClick={() => onHandleStudentId('')}
-                      aria-label='clear student id'
-                    >
-                      <Close fontSize='small' />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{ height: 56 }}
-          />
-        </FormControl>
-      </FilterGrid>
+    const getStudentLabel = (option: any) => {
+      if (typeof option === 'string') return option;
 
-      {/* ชื่อ-สกุล นักเรียน */}
-      <FilterGrid
-        id='student-list-student-name-filter'
-        size={{ xs: 12, sm: 12, md: 12, lg: 4 }}
+      const account = option?.user?.account || option?.account;
+      if (account) {
+        const { title = '', firstName = '', lastName = '' } = account;
+        const label = `${title}${firstName} ${lastName}`.trim();
+        if (label) return label;
+      }
+
+      if (option?.fullName) {
+        return `${option?.title || ''}${option.fullName}`;
+      }
+
+      return option?.studentId || option?.id || '';
+    };
+
+    return (
+      <Grid
+        id='student-list-table-header'
+        container
+        spacing={2}
+        flexDirection='row'
+        flexWrap='wrap'
+        alignContent='center'
+        justifyContent='space-between'
+        sx={{ p: 5 }}
       >
-        <FormControl id='student-name-form-control' fullWidth>
-          <Autocomplete
-            id='studentName'
-            fullWidth
-            disablePortal={false}
-            value={fullName || null}
-            options={Array.isArray(students) ? students : []}
-            loading={loadingStudents}
-            onInputChange={onSearchChange}
-            onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
-            sx={{
-              '& .MuiAutocomplete-clearIndicator': { visibility: 'visible' },
-            }}
-            getOptionLabel={(option: any) => {
-              if (typeof option === 'string') return option;
-              if (option?.fullName) {
-                return `${option?.title || ''}${option.fullName}`;
-              }
-              if (option?.account) {
-                const { title = '', firstName = '', lastName = '' } = option.account;
-                return `${title}${firstName} ${lastName}`.trim();
-              }
-              return '';
-            }}
-            isOptionEqualToValue={(option: any, value: any) => {
-              if (!option || !value) return false;
-              return option.id === value.id;
-            }}
+        {/* รหัสนักเรียน */}
+        <FilterGrid id='student-list-student-id-filter' size={{ xs: 12, sm: 12, md: 12, lg: 2 }}>
+          <FormControl id='student-id-form-control' fullWidth>
+            <TextField
+              id='studentId'
+              fullWidth
+              label='รหัสนักเรียน'
+              placeholder='รหัสนักเรียน'
+              value={studentId}
+              onChange={(e) => onHandleStudentId(e.target.value)}
+              slotProps={{
+                input: {
+                  endAdornment: studentId && (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        id='clear-student-id-button'
+                        size='small'
+                        edge='end'
+                        onClick={() => onHandleStudentId('')}
+                        aria-label='clear student id'
+                      >
+                        <Close fontSize='small' />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              sx={{ height: 56 }}
+            />
+          </FormControl>
+        </FilterGrid>
+
+        {/* ชื่อ-สกุล นักเรียน */}
+        <FilterGrid id='student-list-student-name-filter' size={{ xs: 12, sm: 12, md: 12, lg: 4 }}>
+          <FormControl id='student-name-form-control' fullWidth>
+            <Autocomplete
+              id='studentName'
+              fullWidth
+              disablePortal={false}
+              value={fullName || null}
+              options={Array.isArray(students) ? students : []}
+              loading={loadingStudents}
+              onInputChange={onSearchChange}
+              onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
+              sx={{
+                '& .MuiAutocomplete-clearIndicator': { visibility: 'visible' },
+              }}
+              getOptionLabel={getStudentLabel}
+              isOptionEqualToValue={(option: any, value: any) => {
+                if (typeof option === 'string' || typeof value === 'string') {
+                  return option === value;
+                }
+                return option?.id === value?.id;
+              }}
+              renderOption={(props, option: any) => (
+                <li {...props} key={option.id}>
+                  {getStudentLabel(option)}
+                </li>
+              )}
             renderInput={(params: any) => (
               <TextField
                 id='student-name-input'

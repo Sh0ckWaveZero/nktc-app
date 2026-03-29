@@ -107,22 +107,43 @@ function DialogStudentGroup({
             loading={studentLoading}
             filterOptions={filterOptions}
             getOptionLabel={(option: any) => {
-              // Handle both API response structure and account structure
+              if (typeof option === 'string') return option;
+
+              const account = option?.user?.account || option?.account;
+              if (account) {
+                const { title = '', firstName = '', lastName = '' } = account;
+                const label = `${title}${firstName} ${lastName}`.trim();
+                if (label) return label;
+              }
+
               if (option?.fullName) {
                 return `${option?.title || ''}${option.fullName}`;
               }
-              // Fallback to account structure if exists
-              return `${option?.account?.title || ''}${option?.account?.firstName || ''} ${option?.account?.lastName || ''}`;
+
+              return option?.studentId || option?.id || '';
             }}
-            isOptionEqualToValue={(option: any, value: any) => option?.id === value?.id}
-            renderOption={(props: any, option, { selected }) => {
-              // Handle both API response structure and account structure
-              const displayName = option?.fullName 
-                ? `${option?.title || ''}${option.fullName}`
-                : `${option?.account?.title || ''}${option?.account?.firstName || ''} ${option?.account?.lastName || ''}`;
+            isOptionEqualToValue={(option: any, value: any) => {
+              if (typeof option === 'string' || typeof value === 'string') {
+                return option === value;
+              }
+              return option?.id === value?.id;
+            }}
+            renderOption={(props: any, option: any, { selected }) => {
+              const { key, ...optionProps } = props;
+              
+              const account = option?.user?.account || option?.account;
+              let displayName = '';
+              if (account) {
+                const { title = '', firstName = '', lastName = '' } = account;
+                displayName = `${title}${firstName} ${lastName}`.trim();
+              } else if (option?.fullName) {
+                displayName = `${option?.title || ''}${option.fullName}`;
+              } else {
+                displayName = option?.studentId || option?.id || '';
+              }
               
               return (
-                <li {...props}>
+                <li {...optionProps} key={option.id || key}>
                   <Checkbox
                     icon={icon}
                     checkedIcon={checkedIcon}

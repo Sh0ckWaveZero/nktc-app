@@ -7,6 +7,12 @@ export const StudentModel = {
     classroomId: t.Optional(t.String()),
     departmentId: t.Optional(t.String()),
     programId: t.Optional(t.String()),
+    search: t.Optional(
+      t.Object({
+        fullName: t.Optional(t.String()),
+        studentId: t.Optional(t.String()),
+      }),
+    ),
     skip: t.Optional(t.Numeric()),
     take: t.Optional(t.Numeric()),
   }),

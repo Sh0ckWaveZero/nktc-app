@@ -53,36 +53,56 @@ export abstract class StudentService {
     const {
       classroomId,
       q,
+      search,
       skip = 0,
       take = 20,
       departmentId,
       programId,
     } = params;
+    
+    // Support both q (from GET) and search object (from POST)
+    const searchQuery = q || search?.studentId || search?.fullName;
+    const searchConditions: any[] = [];
+    
+    if (searchQuery) {
+      searchConditions.push({ studentId: { contains: searchQuery, mode: "insensitive" as const } });
+      
+      // If searchQuery has a space, it might be "firstName lastName"
+      const nameParts = searchQuery.split(' ').filter(p => !!p);
+      if (nameParts.length > 1) {
+        searchConditions.push({
+          user: {
+            account: {
+              AND: [
+                { firstName: { contains: nameParts[0], mode: "insensitive" as const } },
+                { lastName: { contains: nameParts[1], mode: "insensitive" as const } },
+              ]
+            }
+          }
+        });
+      } else {
+        searchConditions.push({
+          user: {
+            account: {
+              firstName: { contains: searchQuery, mode: "insensitive" as const },
+            },
+          },
+        });
+        searchConditions.push({
+          user: {
+            account: {
+              lastName: { contains: searchQuery, mode: "insensitive" as const },
+            },
+          },
+        });
+      }
+    }
+
     const whereCondition = {
       ...(classroomId ? { classroomId } : {}),
       ...(departmentId ? { departmentId } : {}),
       ...(programId ? { programId } : {}),
-      ...(q
-        ? {
-            OR: [
-              { studentId: { contains: q, mode: "insensitive" as const } },
-              {
-                user: {
-                  account: {
-                    firstName: { contains: q, mode: "insensitive" as const },
-                  },
-                },
-              },
-              {
-                user: {
-                  account: {
-                    lastName: { contains: q, mode: "insensitive" as const },
-                  },
-                },
-              },
-            ],
-          }
-        : {}),
+      ...(searchConditions.length > 0 ? { OR: searchConditions } : {}),
     };
 
     const data = await prisma.student.findMany({
@@ -94,9 +114,7 @@ export abstract class StudentService {
     });
 
     const total = await prisma.student.count({
-      where: {
-        ...(classroomId ? { classroomId } : {}),
-      },
+      where: whereCondition,
     });
     return { data, total };
   }

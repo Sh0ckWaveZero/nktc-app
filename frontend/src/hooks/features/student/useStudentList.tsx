@@ -103,8 +103,9 @@ export const useStudentList = (): UseStudentListReturn => {
   const handleChangeFullName = useCallback((e: any, newValue: any) => {
     e.preventDefault();
     setCurrentStudent(newValue || null);
-    if (newValue?.account) {
-      const { firstName = '', lastName = '' } = newValue.account;
+    const account = newValue?.user?.account || newValue?.account;
+    if (account) {
+      const { firstName = '', lastName = '' } = account;
       setSearchValue((prev) => ({ ...prev, fullName: `${firstName} ${lastName}`.trim() }));
     } else if (!newValue) {
       setSearchValue((prev) => ({ ...prev, fullName: '' }));

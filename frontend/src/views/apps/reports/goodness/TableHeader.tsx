@@ -1,28 +1,158 @@
-import { useState, useEffect } from 'react';
-import { Autocomplete, Button, FormControl, TextField, Tooltip } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { Controller, Control } from 'react-hook-form';
+'use client';
 
-import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+// ** React Imports
+import { useState, useEffect } from 'react';
+
+// ** MUI Imports
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+
+// ** Icon Imports
 import Icon from '@/@core/components/icon';
-import { isEmpty } from '@/@core/utils/utils';
+
+// ** Custom Components Imports
+import { Controller } from 'react-hook-form';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+
+// ** Utils Imports
+import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
 interface TableHeaderProps {
-  control: Control<any>;
+  control: any;
   classroomLoading: boolean;
-  classrooms: any;
+  classrooms: any[];
   datePickLabel: string;
-  inputValue?: string;
+  inputValue: string;
   loadingStudents: boolean;
   isPending?: boolean;
   onClear: () => void;
   onSubmit: () => void;
-  onSearchChange: (event: any, value: any, reason: any) => void;
-  students: any;
+  onSearchChange: (event: any, value: string, reason: string) => void;
+  students: any[];
 }
 
+const StudentAutocomplete = ({ value, onChange, inputValue, students, loadingStudents, onSearchChange }: any) => {
+  const [localInputValue, setLocalInputValue] = useState(inputValue || '');
+
+  useEffect(() => {
+    if (value && inputValue !== undefined && inputValue.trim() !== '') {
+      setLocalInputValue((prev: string) => (prev !== inputValue ? inputValue : prev));
+    } else if (!value && localInputValue !== '') {
+      setLocalInputValue('');
+    }
+  }, [value, inputValue, localInputValue]);
+
+  return (
+    <Autocomplete
+      id='goodness-report-filter-student-autocomplete'
+      value={value || null}
+      inputValue={localInputValue}
+      options={Array.isArray(students) ? students : []}
+      loading={loadingStudents}
+      onInputChange={(event, newInputValue, reason) => {
+        setLocalInputValue(newInputValue || '');
+        if (reason !== 'blur' && reason !== 'reset') {
+          onSearchChange(event, newInputValue, reason);
+        }
+      }}
+      onChange={(_, newValue: any) => {
+        onChange(newValue);
+        if (newValue) {
+          const account = newValue?.user?.account || newValue?.account;
+          let displayName = '';
+          if (account) {
+            const { title = '', firstName = '', lastName = '' } = account;
+            displayName = `${title}${firstName} ${lastName}`.trim();
+          } else if (newValue.fullName) {
+            displayName = `${newValue.title || ''}${newValue.fullName}`;
+          } else {
+            displayName = newValue.studentId || newValue.id || '';
+          }
+          setLocalInputValue(displayName);
+        } else {
+          setLocalInputValue('');
+        }
+      }}
+      getOptionLabel={(option: any) => {
+        if (typeof option === 'string') return option;
+        const account = option?.user?.account || option?.account;
+        if (account) {
+          const { title = '', firstName = '', lastName = '' } = account;
+          const label = `${title}${firstName} ${lastName}`.trim();
+          if (label) return label;
+        }
+        if (option?.fullName) {
+          return `${option?.title || ''}${option.fullName}`;
+        }
+        return option?.studentId || option?.id || '';
+      }}
+      isOptionEqualToValue={(option: any, val: any) => {
+        if (!option || !val) return false;
+        return option.id === val.id;
+      }}
+      renderOption={(props, option: any) => {
+        const { key, ...optionProps } = props;
+        const account = option?.user?.account || option?.account;
+        let displayText = '';
+        if (account) {
+          const { title = '', firstName = '', lastName = '' } = account;
+          displayText = `${title}${firstName} ${lastName}`.trim();
+        } else if (option?.fullName) {
+          displayText = `${option?.title || ''}${option.fullName}`;
+        } else {
+          displayText = option?.studentId || option?.id || '';
+        }
+        return (
+          <li {...optionProps} key={option.id || key}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Icon icon='mdi:account-outline' fontSize='1.25rem' color='primary.main' />
+              <Box>
+                <Typography variant='body2' sx={{ fontWeight: 600 }}>{displayText}</Typography>
+                <Typography variant='caption' color='text.secondary'>{option.studentId || ''}</Typography>
+              </Box>
+            </Box>
+          </li>
+        );
+      }}
+      slotProps={{
+        listbox: { sx: { maxHeight: 400, p: 2 } },
+        popper: { sx: { zIndex: 1300 } },
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label='ค้นหารายชื่อนักเรียน'
+          placeholder='ระบุชื่อ หรือ รหัสประจำตัว'
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  <Icon icon='mdi:account-search-outline' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
+                  {params.InputProps.startAdornment}
+                </>
+              ),
+              sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
+            },
+            inputLabel: {
+              shrink: true,
+              sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' }
+            },
+          }}
+        />
+      )}
+      noOptionsText='ไม่พบรายชื่อนักเรียน'
+    />
+  );
+};
+
 const TableHeader = (props: TableHeaderProps) => {
-  // ** Props
   const {
     control,
     classroomLoading,
@@ -38,371 +168,214 @@ const TableHeader = (props: TableHeaderProps) => {
   } = props;
 
   return (
-    <Grid
-      id='goodness-report-filter-container-grid'
-      container
-      spacing={2}
+    <Box
+      id='goodness-report-header-container'
       sx={{
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        width: '100%',
-        maxWidth: '100%',
-        m: 0,
+        p: { xs: 4, sm: 6 },
+        mb: 8,
+        borderRadius: 4,
+        bgcolor: (theme) => (theme.palette.mode === 'light' ? 'background.paper' : 'background.default'),
+        border: (theme) => `1px solid ${theme.palette.divider}`,
+        boxShadow: (theme) => `0 8px 32px -4px ${hexToRGBA(theme.palette.mode === 'light' ? '#3A3541' : '#000000', 0.08)}`,
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.info.main})`,
+        }
       }}
     >
-      <Grid
-        id='goodness-report-filter-student-grid'
-        size={{
-          xs: 12,
-          sm: 6,
-          md: 3,
-        }}
-        sx={{ minWidth: 0 }}
-      >
-        <FormControl id='goodness-report-filter-student-form-control' fullWidth sx={{ minWidth: 0 }}>
-          <Controller
-            name='student'
-            control={control}
-            render={({ field: { onChange, value } }) => {
-              // Use local state for inputValue to allow typing
-              const [localInputValue, setLocalInputValue] = useState(inputValue || '');
-              
-              // Sync with prop when student value changes (when selected from dropdown)
-              useEffect(() => {
-                // Only sync when value changes (not when inputValue changes from typing)
-                if (value && inputValue !== undefined && inputValue.trim() !== '') {
-                  // Only update if inputValue is different from current local state
-                  setLocalInputValue((prev) => {
-                    if (prev !== inputValue) {
-                      return inputValue;
-                    }
-                    return prev;
-                  });
-                } else if (!value && localInputValue !== '') {
-                  // Clear input when value is cleared (only if localInputValue is not empty)
-                  setLocalInputValue('');
-                }
-                // eslint-disable-next-line react-hooks/exhaustive-deps
-              }, [value]); // Only depend on value, not inputValue to prevent infinite loop
-              
-              return (
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 6, gap: 3 }}>
+        <Box 
+          sx={{ 
+            p: 2, 
+            borderRadius: 1.5, 
+            bgcolor: (theme) => hexToRGBA(theme.palette.primary.main, 0.1),
+            color: 'primary.main',
+            display: 'flex'
+          }}
+        >
+          <Icon icon='mdi:filter-variant' fontSize='1.5rem' />
+        </Box>
+        <Box>
+          <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: -0.5, lineHeight: 1.2 }}>
+            ตัวกรองข้อมูล
+          </Typography>
+          <Typography variant='caption' color='text.secondary'>
+            ค้นหาและสรุปรายงานความดีรายบุคคล/รายห้อง
+          </Typography>
+        </Box>
+      </Box>
+
+      <Grid container spacing={6} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, md: 3.5 }}>
+          <FormControl fullWidth>
+            <Controller
+              name='student'
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <StudentAutocomplete
+                  value={value}
+                  onChange={onChange}
+                  inputValue={inputValue}
+                  students={students}
+                  loadingStudents={loadingStudents}
+                  onSearchChange={onSearchChange}
+                />
+              )}
+            />
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+          <FormControl fullWidth>
+            <Controller
+              name='classroom'
+              control={control}
+              render={({ field: { onChange, value } }) => (
                 <Autocomplete
-                  id='goodness-report-filter-student-autocomplete'
-                  limitTags={20}
+                  id='goodness-report-classroom-autocomplete'
                   value={value || null}
-                  inputValue={localInputValue}
-                  options={Array.isArray(students) ? students : []}
-                     size='medium'
-                  loading={loadingStudents}
-                  onInputChange={(event, newInputValue, reason) => {
-                    // Always update local state to allow typing
-                    setLocalInputValue(newInputValue || '');
-                    // Call parent handler for search (only if not blur/reset)
-                    if (reason !== 'blur' && reason !== 'reset') {
-                      onSearchChange(event, newInputValue, reason);
-                    }
-                  }}
-                  onChange={(_, newValue: any) => {
-                    onChange(newValue);
-                    // Update inputValue when student is selected
-                    if (newValue) {
-                      let displayName = '';
-                      if (newValue.account) {
-                        const { title = '', firstName = '', lastName = '' } = newValue.account;
-                        displayName = `${title}${firstName} ${lastName}`.trim();
-                      } else if (newValue.fullName) {
-                        displayName = `${newValue.title || ''}${newValue.fullName}`;
-                      }
-                      setLocalInputValue(displayName);
-                    } else {
-                      setLocalInputValue('');
-                    }
-                  }}
-                getOptionLabel={(option: any) => {
-                  if (typeof option === 'string') return option;
-                  // Handle different data structures
-                  if (option?.fullName) {
-                    return `${option?.title || ''}${option.fullName}`;
-                  }
-                  // Handle API response structure: account.title + account.firstName + account.lastName
-                  if (option?.account) {
-                    const { title = '', firstName = '', lastName = '' } = option.account;
-                    return `${title}${firstName} ${lastName}`.trim();
-                  }
-                  return '';
-                }}
-                isOptionEqualToValue={(option: any, value: any) => {
-                  if (!option || !value) return false;
-                  return option.id === value.id;
-                }}
-                renderOption={(props: any, option: any) => {
-                  let displayText = '';
-                  if (option?.fullName) {
-                    displayText = `${option?.title || ''}${option.fullName}`;
-                  } else if (option?.account) {
-                    const { title = '', firstName = '', lastName = '' } = option.account;
-                    displayText = `${title}${firstName} ${lastName}`.trim();
-                  }
-                  return <li {...props} id={`goodness-report-student-option-${option.id}`}>{displayText}</li>;
-                }}
-                clearOnBlur={false}
-                selectOnFocus
-                handleHomeEndKeys
-                disablePortal={false}
-                slotProps={{
-                  listbox: {
-                    sx: {
-                      maxHeight: { xs: '300px', sm: '400px' },
-                    },
-                  },
-                  popper: {
-                    sx: {
-                      zIndex: 1300,
-                    },
-                  },
-                }}
-                renderInput={(params: any) => (
-                  <TextField
-                    {...params}
-                    id='goodness-report-filter-student-input'
-                    label='ชื่อ-สกุล นักเรียน'
-                    placeholder='เลือกชื่อ-สกุล นักเรียน'
-                    slotProps={{
-                      input: {
-                        ref: undefined,
-                        id: 'goodness-report-filter-student-textfield',
-                        sx: {
-                          height: { xs: '40px', sm: '44px' },
-                        },
-                      },
-                      inputLabel: {
-                        shrink: true,
-                        id: 'goodness-report-filter-student-label',
-                      },
-                    }}
-                  />
-                )}
-                noOptionsText='ไม่พบข้อมูล'
-              />
-              );
-            }}
-          />
-        </FormControl>
-      </Grid>
-      <Grid
-        id='goodness-report-filter-classroom-grid'
-        size={{
-          xs: 12,
-          sm: 6,
-          md: 3,
-        }}
-        sx={{ minWidth: 0 }}
-      >
-        <FormControl id='goodness-report-filter-classroom-form-control' fullWidth sx={{ minWidth: 0 }}>
-          <Controller
-            name='classroom'
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Autocomplete
-                id='goodness-report-filter-classroom-autocomplete'
-                limitTags={15}
-                value={value || null}
-                options={Array.isArray(classrooms) ? classrooms : []}
-                size='medium'
-                loading={classroomLoading}
-                openOnFocus
-                autoHighlight
-                disableClearable={false}
-                disablePortal={false}
-                slotProps={{
-                  listbox: {
-                    sx: {
-                      maxHeight: { xs: '300px', sm: '400px' },
-                    },
-                  },
-                  popper: {
-                    sx: {
-                      zIndex: 1300,
-                    },
-                  },
-                }}
-                onChange={(_, newValue: any) => {
-                  onChange(newValue);
-                }}
-                getOptionLabel={(option: any) => {
-                  if (!option) return '';
-                  if (typeof option === 'string') return option;
-                  // Classroom object from Prisma has 'name' field
-                  return option?.name || '';
-                }}
-                isOptionEqualToValue={(option: any, value: any) => {
-                  if (!option || !value) return false;
-                  return option.id === value.id;
-                }}
-                renderOption={(props: any, option: any) => {
-                  const { key, ...otherProps } = props;
-                  return (
-                    <li
-                      key={option.id}
-                      {...otherProps}
-                      id={`goodness-report-classroom-option-${option.id}`}
-                    >
-                      {option?.name || ''}
+                  options={Array.isArray(classrooms) ? classrooms : []}
+                  loading={classroomLoading}
+                  onChange={(_, newValue) => onChange(newValue)}
+                  getOptionLabel={(option: any) => option?.name ?? ''}
+                  isOptionEqualToValue={(option: any, val: any) => option?.id === val?.id}
+                  renderOption={(props, option: any) => (
+                    <li {...props} key={option.id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Icon icon='mdi:google-classroom' fontSize='1.2rem' color='info.main' />
+                        {option.name}
+                      </Box>
                     </li>
-                  );
-                }}
-                renderInput={(params: any) => {
-                  return (
+                  )}
+                  slotProps={{ popper: { sx: { zIndex: 1300 } } }}
+                  renderInput={(params) => (
                     <TextField
-                      id='goodness-report-filter-classroom-input'
-                      error={isEmpty(classrooms) && !classroomLoading}
-                      helperText={
-                        isEmpty(classrooms) && !classroomLoading
-                          ? 'ไม่พบข้อมูลห้องเรียน'
-                          : classroomLoading
-                            ? 'กำลังโหลด...'
-                            : ''
-                      }
                       {...params}
-                      label='ห้องเรียน'
-                      placeholder='เลือกห้องเรียน'
+                      label='ชั้นเรียน'
+                      placeholder='เลือกชั้นเรียน'
                       slotProps={{
                         input: {
                           ...params.InputProps,
-                          id: 'goodness-report-filter-classroom-textfield',
-                          sx: {
-                            height: { xs: '40px', sm: '44px' },
-                          },
+                          startAdornment: (
+                            <Icon icon='mdi:google-classroom' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
+                          ),
+                          sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
                         },
                         inputLabel: {
                           shrink: true,
-                          id: 'goodness-report-filter-classroom-label',
+                          sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' }
                         },
                       }}
                     />
-                  );
-                }}
-                groupBy={(option: any) => option?.department?.name || ''}
-                noOptionsText={classroomLoading ? 'กำลังโหลด...' : 'ไม่พบข้อมูล'}
-              />
-            )}
-          />
-        </FormControl>
-      </Grid>
-      <Grid
-        id='goodness-report-filter-date-grid'
-        size={{
-          xs: 12,
-          sm: 6,
-          md: 3,
-        }}
-        sx={{ minWidth: 0 }}
-      >
-        <FormControl id='goodness-report-filter-date-form-control' fullWidth sx={{ minWidth: 0 }}>
-          <Controller
-            name='goodDate'
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <ThaiDatePicker
-                id='goodness-report-filter-date-picker'
-                label={datePickLabel}
-                value={value || null}
-                onChange={(date) => onChange(date)}
-                format='dd/MM/yyyy'
-                minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
-                maxDate={new Date()}
-                placeholder='วัน/เดือน/ปี (พ.ศ.)'
-                slotProps={{
-                  textField: {
-                    size: 'medium',
-                    slotProps: {
-                      input: {
-                        sx: {
-                          height: { xs: '40px', sm: '44px' },
+                  )}
+                  noOptionsText='ไม่พบข้อมูลชั้นเรียน'
+                />
+              )}
+            />
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 2.5 }}>
+          <FormControl fullWidth>
+            <Controller
+              name='goodDate'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <ThaiDatePicker
+                  label={datePickLabel}
+                  value={value}
+                  onChange={onChange}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      placeholder: 'ระบุวันที่',
+                      sx: {
+                        '& .MuiOutlinedInput-root': {
+                          height: { xs: 44, sm: 48 },
+                          borderRadius: 2,
+                          bgcolor: 'background.paper'
                         },
+                        '& .MuiInputLabel-root': {
+                          fontWeight: 600,
+                          transform: 'translate(14px, -9px) scale(0.75)'
+                        }
                       },
+                      slotProps: {
+                        input: {
+                          startAdornment: (
+                            <Icon icon='mdi:calendar-range' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
+                          ),
+                        }
+                      }
                     },
-                  },
+                  }}
+                />
+              )}
+            />
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+          <Box sx={{ display: 'flex', gap: 3 }}>
+            <Button
+              fullWidth
+              variant='contained'
+              onClick={onSubmit}
+              loading={isPending}
+              disabled={isPending}
+              startIcon={<Icon icon='mdi:magnify' />}
+              sx={{
+                height: { xs: 44, sm: 48 },
+                borderRadius: 2.5,
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                textTransform: 'none',
+                boxShadow: (theme) => `0 8px 24px ${hexToRGBA(theme.palette.primary.main, 0.25)}`,
+                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: (theme) => `0 12px 32px ${hexToRGBA(theme.palette.primary.main, 0.4)}`,
+                },
+                '&:active': { transform: 'translateY(0)' }
+              }}
+            >
+              แสดงรายงาน
+            </Button>
+            <Tooltip title='ล้างค่าทั้งหมด' arrow>
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={onClear}
+                sx={{
+                  minWidth: { xs: 44, sm: 48 },
+                  width: { xs: 44, sm: 48 },
+                  height: { xs: 44, sm: 48 },
+                  borderRadius: 2.5,
+                  p: 0,
+                  bgcolor: (theme) => hexToRGBA(theme.palette.secondary.main, 0.05),
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  '&:hover': {
+                    bgcolor: (theme) => hexToRGBA(theme.palette.secondary.main, 0.1),
+                    borderColor: 'secondary.main',
+                    color: 'secondary.main'
+                  }
                 }}
-              />
-            )}
-          />
-        </FormControl>
+              >
+                <Icon icon='mdi:filter-off-outline' fontSize='1.25rem' />
+              </Button>
+            </Tooltip>
+          </Box>
+        </Grid>
       </Grid>
-      <Grid
-        id='goodness-report-filter-search-button-grid'
-        size={{
-          xs: 12,
-          sm: 6,
-          md: 2,
-        }}
-        sx={{ minWidth: 0 }}
-      >
-        <Tooltip title='ค้นหา' arrow>
-          <Button
-            id='goodness-report-filter-search-button'
-            fullWidth
-            size='medium'
-            color='primary'
-            variant='contained'
-            type='button'
-            disabled={isPending}
-            startIcon={<Icon icon='icon-park-outline:people-search-one' />}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onSubmit();
-            }}
-            sx={{
-              fontSize: { xs: 13, sm: 14 },
-              fontWeight: 500,
-              height: { xs: 40, sm: 44 },
-              px: { xs: 2, sm: 3 },
-            }}
-          >
-            {isPending ? 'กำลังค้นหา...' : 'ค้นหา'}
-          </Button>
-        </Tooltip>
-      </Grid>
-      <Grid
-        id='goodness-report-filter-clear-button-grid'
-        size={{
-          xs: 12,
-          sm: 6,
-          md: 1,
-        }}
-        sx={{ minWidth: 0 }}
-      >
-        <Tooltip title='ล้างข้อมูลค้นหา' arrow>
-          <Button
-            id='goodness-report-filter-clear-button'
-            fullWidth
-            size='medium'
-            color='warning'
-            variant='contained'
-            type='button'
-            startIcon={<Icon icon='carbon:clean' />}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClear();
-            }}
-            sx={{
-              fontSize: { xs: 13, sm: 14 },
-              fontWeight: 500,
-              height: { xs: 40, sm: 44 },
-              px: { xs: 2, sm: 3 },
-            }}
-          >
-            ล้างค่า
-          </Button>
-        </Tooltip>
-      </Grid>
-    </Grid>
+    </Box>
   );
 };
 

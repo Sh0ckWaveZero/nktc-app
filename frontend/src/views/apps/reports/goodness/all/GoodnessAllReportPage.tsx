@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Dialog, Grid, IconButton, Typography, styled, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Dialog, Grid, IconButton, styled, useMediaQuery, useTheme } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -51,7 +51,6 @@ const GoodnessAllReportPage = () => {
     handleClickOpen,
     handleClose,
     handleSearchChange,
-    handleFormSubmit,
     handleSearchClick,
     handleClearClick,
     getPaginatedStudents,
@@ -126,10 +125,9 @@ const GoodnessAllReportPage = () => {
                     id='goodness-report-controls-section'
                     sx={{
                       flexShrink: 0,
-                      px: responsiveConfig.cardPadding,
-                      py: responsiveConfig.cardPadding + 2,
-                      borderBottom: currentStudents.length > 0 ? 1 : 0,
-                      borderColor: 'divider',
+                      px: { xs: 4, sm: 6 },
+                      py: 2,
+                      borderBottom: 0,
                     }}
                   >
               <TableHeader
