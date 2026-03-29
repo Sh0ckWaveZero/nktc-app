@@ -1,6 +1,6 @@
 import { prisma } from "@/libs/prisma";
-import { compare, hash } from "bcryptjs";
 import { Role } from "../../../generated/client";
+
 import {
 	ConflictError,
 	NotFoundError,
@@ -25,7 +25,7 @@ export abstract class AuthService {
 			throw new ConflictError("User already exists", "username");
 		}
 
-		const hashedPassword = await hash(password, 12);
+		const hashedPassword = await Bun.password.hash(password);
 
 		const user = await prisma.user.create({
 			data: {
@@ -79,7 +79,7 @@ export abstract class AuthService {
 			throw new UnauthorizedError("Invalid credentials");
 		}
 
-		const isMatch = await compare(password, user.password);
+		const isMatch = await Bun.password.verify(password, user.password);
 		if (!isMatch) {
 			throw new UnauthorizedError("Invalid credentials");
 		}
@@ -113,7 +113,7 @@ export abstract class AuthService {
 			throw new UnauthorizedError("Invalid refresh token");
 		}
 
-		const isValid = await compare(refreshToken, user.refreshToken);
+		const isValid = await Bun.password.verify(refreshToken, user.refreshToken);
 		if (!isValid) {
 			throw new UnauthorizedError("Invalid refresh token");
 		}
@@ -194,12 +194,12 @@ export abstract class AuthService {
 			throw new NotFoundError("User not found");
 		}
 
-		const isMatch = await compare(data.currentPassword, userData.password);
+		const isMatch = await Bun.password.verify(data.currentPassword, userData.password);
 		if (!isMatch) {
 			throw new BadRequestError("Current password is incorrect", "currentPassword");
 		}
 
-		const hashed = await hash(data.newPassword, 10);
+		const hashed = await Bun.password.hash(data.newPassword);
 		await prisma.user.update({
 			where: { id: userData.id },
 			data: { password: hashed },
@@ -207,6 +207,6 @@ export abstract class AuthService {
 	}
 
 	static async hashToken(token: string) {
-		return hash(token, 10);
+		return Bun.password.hash(token);
 	}
 }
