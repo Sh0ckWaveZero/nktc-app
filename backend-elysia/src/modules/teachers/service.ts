@@ -1,5 +1,6 @@
 import { prisma } from "@/libs/prisma";
 import { teacherInclude, type TeacherModel } from "./model";
+import { userMinimalSelect } from "@/libs/prisma/userSelectExclude";
 import { hash } from "bcrypt";
 import { ConflictError } from "@/libs/errors";
 import { Role } from "../../../generated/client";
@@ -90,9 +91,7 @@ export abstract class TeacherService {
               firstName: teacher.firstName || "",
               lastName: teacher.lastName || "",
               idCard: teacher.idCard || null,
-              birthDate: teacher.birthDate
-                ? new Date(teacher.birthDate)
-                : null,
+              birthDate: teacher.birthDate ? new Date(teacher.birthDate) : null,
               createdBy: user?.id || "system",
               updatedBy: user?.id || "system",
             },
@@ -255,18 +254,7 @@ export abstract class TeacherService {
       const result = await prisma.student.findMany({
         where: { classroomId: { in: classroomIds } },
         include: {
-          user: {
-            include: {
-              account: {
-                select: {
-                  title: true,
-                  firstName: true,
-                  lastName: true,
-                  avatar: true,
-                },
-              },
-            },
-          },
+          user: { select: userMinimalSelect },
           classroom: true,
           program: true,
           level: true,
@@ -304,18 +292,7 @@ export abstract class TeacherService {
         tx.student.findMany({
           where: { classroomId: { in: classroomIds } },
           include: {
-            user: {
-              include: {
-                account: {
-                  select: {
-                    title: true,
-                    firstName: true,
-                    lastName: true,
-                    avatar: true,
-                  },
-                },
-              },
-            },
+            user: { select: userMinimalSelect },
           },
         }),
       ]);

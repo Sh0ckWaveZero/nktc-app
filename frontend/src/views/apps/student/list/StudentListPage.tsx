@@ -58,13 +58,13 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 
 const StudentNameCell = memo(({ row }: { row: any }) => (
   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-    <RenderAvatar row={row.account} />
+    <RenderAvatar row={row.user?.account} />
     <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
       <Typography noWrap variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-        {row.account?.title + '' + row.account?.firstName + ' ' + row.account?.lastName}
+        {row.user?.account?.title + '' + row.user?.account?.firstName + ' ' + row.user?.account?.lastName}
       </Typography>
       <Typography noWrap variant='caption'>
-        @{row.username}
+        @{row.user?.username}
       </Typography>
     </Box>
   </Box>
@@ -90,7 +90,7 @@ const StudentDeleteDialog = memo(({ open, student, onConfirm, onCancel }: Studen
     <DialogTitle id='alert-dialog-title'>ยืนยันการลบข้อมูล</DialogTitle>
     <DialogContent>
       <DialogContentText id='alert-dialog-description'>
-        {`คุณต้องการลบข้อมูลของ ${student?.account?.title}${student?.account?.firstName} ${student?.account?.lastName} ใช่หรือไม่?`}
+        {`คุณต้องการลบข้อมูลของ ${student?.user?.account?.title}${student?.user?.account?.firstName} ${student?.user?.account?.lastName} ใช่หรือไม่?`}
       </DialogContentText>
     </DialogContent>
     <DialogActions className='dialog-actions-dense'>
@@ -157,7 +157,7 @@ const StudentListPage = () => {
       filterable: false,
       renderCell: ({ row }) => (
         <Typography noWrap variant='body2'>
-          {row.student?.classroom?.name}
+          {row.classroom?.name}
         </Typography>
       ),
     },

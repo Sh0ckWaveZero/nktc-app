@@ -1,4 +1,5 @@
 import { t, type UnwrapSchema } from "elysia";
+import { userPublicSelect } from "@/libs/prisma/userSelectExclude";
 
 export const TeacherModel = {
   searchQuery: t.Object({
@@ -56,22 +57,7 @@ export type TeacherModel = {
 };
 
 export const teacherInclude = {
-  user: {
-    include: {
-      account: {
-        select: {
-          id: true,
-          title: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          idCard: true,
-          birthDate: true,
-          phone: true,
-        },
-      },
-    },
-  },
+  user: { select: userPublicSelect },
   department: true,
   classrooms: {
     include: {
