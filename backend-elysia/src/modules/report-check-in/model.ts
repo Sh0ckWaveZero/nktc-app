@@ -1,0 +1,27 @@
+import { t, type UnwrapSchema } from "elysia";
+
+export const ReportCheckInModel = {
+	checkInBody: t.Object({
+		teacherId: t.String(),
+		classroomId: t.String(),
+		checkInDate: t.String(),
+		checkInTime: t.Optional(t.String()),
+		present: t.Optional(t.Array(t.String())),
+		absent: t.Optional(t.Array(t.String())),
+		late: t.Optional(t.Array(t.String())),
+		leave: t.Optional(t.Array(t.String())),
+		internship: t.Optional(t.Array(t.String())),
+	}),
+	updateBody: t.Object({
+		present: t.Optional(t.Array(t.String())),
+		absent: t.Optional(t.Array(t.String())),
+		late: t.Optional(t.Array(t.String())),
+		leave: t.Optional(t.Array(t.String())),
+		internship: t.Optional(t.Array(t.String())),
+		status: t.Optional(t.String()),
+	}),
+} as const;
+
+export type ReportCheckInModel = {
+	[k in keyof typeof ReportCheckInModel]: UnwrapSchema<typeof ReportCheckInModel[k]>;
+};

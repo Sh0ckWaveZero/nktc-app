@@ -78,6 +78,7 @@ coverage/
 backend/prisma/migrations/
 backend/src/database/db/
 backend/src/database/db/nktc-services
+backend-elysia/generated/
 
 # Database files
 *.db
