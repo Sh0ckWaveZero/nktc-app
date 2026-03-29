@@ -1,4 +1,5 @@
 import { storage } from "@/libs/storage";
+import { NotFoundError } from "@/libs/errors";
 
 const contentTypes: Record<string, string> = {
 	webp: "image/webp",
@@ -14,7 +15,11 @@ const contentTypes: Record<string, string> = {
 export abstract class StaticsService {
 	static async getFile(folder: string, filename: string) {
 		const objectName = `${folder}/${filename}`;
-		return storage.getFile(objectName);
+		try {
+			return await storage.getFile(objectName);
+		} catch {
+			throw new NotFoundError(`File not found: ${filename}`);
+		}
 	}
 
 	static getContentType(filename: string): string {

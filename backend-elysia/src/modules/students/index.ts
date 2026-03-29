@@ -44,13 +44,8 @@ export const students = new Elysia({ prefix: "/students" })
 		},
 		{ body: t.Any() },
 	)
-	.get("/profile/:id", async ({ params: { id }, set }) => {
-		try {
-			return await StudentService.getById(id);
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return { success: false, message: error.message };
-		}
+	.get("/profile/:id", async ({ params: { id } }) => {
+		return StudentService.getById(id);
 	})
 	.post(
 		"/profile/:id",

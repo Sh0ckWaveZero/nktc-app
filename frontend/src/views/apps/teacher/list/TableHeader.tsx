@@ -13,11 +13,23 @@ interface LoginCountByUser {
   count: number;
 }
 
-interface TeacherData {
+interface TeacherAccount {
+  id: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+}
+
+interface TeacherUser {
   id: string;
   username: string;
-  firstName: string;
-  lastName: string;
+  account?: TeacherAccount;
+}
+
+interface TeacherData {
+  id: string;
+  user?: TeacherUser;
   loginCountByUser?: LoginCountByUser[];
 }
 
@@ -113,13 +125,16 @@ const TableHeader = (props: TableHeaderProps) => {
     const teacherArray = extractTeacherArray(data);
 
     return teacherArray.map((item: TeacherData, index: number) => {
+      const username = item.user?.username || '';
+      const firstName = item.user?.account?.firstName || '';
+      const lastName = item.user?.account?.lastName || '';
       const loginDates = item.loginCountByUser?.map((log: LoginCountByUser) => log.date).join('| ') || '';
       const loginCount = item.loginCountByUser?.length || 0;
 
       return {
         id: index + 1,
-        username: item.username,
-        fullName: `${item.firstName} ${item.lastName}`,
+        username,
+        fullName: `${firstName} ${lastName}`,
         logs: loginDates,
         total: loginCount,
       };

@@ -19,7 +19,7 @@ import IconifyIcon from '@/@core/components/icon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 import { isEmpty } from '@/@core/utils/utils';
 import { USER_ROLE_ICONS, USER_STATUS_COLORS } from '../constants';
-import { Teacher, getFullName } from './teacherUtils';
+import { Teacher, getFullName, getTeacherDisplayData } from './teacherUtils';
 import RowOptions from '../components/RowOptions';
 
 const StyledLink = styled(Link)(({ theme }) => ({
@@ -55,12 +55,14 @@ export const getColumns = ({
     sortable: false,
     hideSortIcons: true,
     renderCell: (params: GridRenderCellParams<Teacher>) => {
-      const { id, username } = params.row;
+      const { id } = params.row;
       const fullName = getFullName(params.row);
+      const username = params.row.user?.username || '';
+      const displayData = getTeacherDisplayData(params.row);
 
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <RenderAvatar row={params.row} />
+          <RenderAvatar row={displayData} />
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <StyledLink href={`/apps/user/view/${id}`} passHref id={`teacher-name-link-${id}`}>
               <Typography
@@ -87,14 +89,14 @@ export const getColumns = ({
     minWidth: isMobile ? 100 : 120,
     field: 'teacherOnClassroom',
     headerName: 'ครูประจำชั้น',
-    hide: isMobile,
     editable: false,
     sortable: false,
     hideSortIcons: true,
     align: 'center',
     renderCell: (params: GridRenderCellParams<Teacher>) => {
-      const { teacherOnClassroom = [], classrooms = [] } = params.row;
-      const hasClassrooms = teacherOnClassroom.length > 0 && !isEmpty(classrooms);
+      const teacherOnClassroom = params.row.teacherOnClassroom || [];
+      const classrooms = params.row.classroomNames || params.row.classrooms || [];
+      const hasClassrooms = teacherOnClassroom.length > 0;
 
       return (
         <Stack
@@ -187,12 +189,12 @@ export const getColumns = ({
     field: 'role',
     minWidth: isMobile ? 100 : 120,
     headerName: 'บทบาท',
-    hide: isMobile,
     editable: false,
     sortable: false,
     hideSortIcons: true,
     renderCell: (params: GridRenderCellParams<Teacher>) => {
-      const roleKey = params.row.role?.toLowerCase() || '';
+      const role = params.row.user?.role || '';
+      const roleKey = role.toLowerCase();
       return (
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {USER_ROLE_ICONS[roleKey]}
@@ -201,7 +203,7 @@ export const getColumns = ({
             noWrap
             sx={{ fontWeight: 600, color: 'text.primary', textTransform: 'capitalize' }}
           >
-            {userRoleType[params.row.role] ?? 'ไม่ระบุ'}
+            {userRoleType[role] ?? 'ไม่ระบุ'}
           </Typography>
         </Box>
       );
@@ -212,7 +214,6 @@ export const getColumns = ({
     minWidth: isMobile ? 100 : 130,
     headerName: 'ลงชื่อเข้าใช้งานสะสม',
     field: 'totalLogin',
-    hide: isMobile,
     editable: false,
     sortable: false,
     hideSortIcons: true,
@@ -235,7 +236,6 @@ export const getColumns = ({
     minWidth: isMobile ? 70 : 80,
     field: 'status',
     headerName: 'สถานะ',
-    hide: isMobile,
     editable: false,
     sortable: false,
     hideSortIcons: true,
@@ -273,4 +273,3 @@ export const getColumns = ({
     ),
   },
 ];
-

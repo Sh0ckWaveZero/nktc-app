@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prisma";
+import { NotFoundError } from "@/libs/errors";
 
 export abstract class AccountService {
 	static async create(data: any) {
@@ -17,7 +18,7 @@ export abstract class AccountService {
 			include: { user: { select: { id: true, username: true, role: true } } },
 		});
 		if (!account) {
-			throw { status: 404, message: "Account not found" };
+			throw new NotFoundError("Account not found");
 		}
 		return account;
 	}

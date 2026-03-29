@@ -2,51 +2,21 @@ import { Elysia } from "elysia";
 import { UserService } from "./service";
 import { UserModel } from "./model";
 import { authGuard } from "@/middleware/auth";
+import { ForbiddenError } from "@/libs/errors";
 
 export const users = new Elysia({ prefix: "/users" })
 	.use(authGuard)
-	.get("/me", async ({ user, set }) => {
-		try {
-			const userData = await UserService.getUserById(
-				(user as any).sub,
-			);
-			return userData;
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return {
-				success: false,
-				message: error.message || "Failed to get user",
-			};
-		}
+	.get("/me", async ({ user }) => {
+		return UserService.getUserById((user as any).sub);
 	})
-	.get("/:id", async ({ params: { id }, set }) => {
-		try {
-			const userData = await UserService.getUserByIdentifier(id);
-			return userData;
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return {
-				success: false,
-				message: error.message || "Failed to get user",
-			};
-		}
+	.get("/:id", async ({ params: { id } }) => {
+		return UserService.getUserByIdentifier(id);
 	})
 	.put(
 		"/update/password",
-		async ({ body, user, set }) => {
-			try {
-				await UserService.updatePassword(
-					(user as any).sub,
-					body,
-				);
-				return { message: "password_update_success" };
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Password update failed",
-				};
-			}
+		async ({ body, user }) => {
+			await UserService.updatePassword((user as any).sub, body);
+			return { message: "password_update_success" };
 		},
 		{
 			body: UserModel.updatePassword,
@@ -54,25 +24,12 @@ export const users = new Elysia({ prefix: "/users" })
 	)
 	.put(
 		"/update/password/:id",
-		async ({ params: { id }, body, user, set }) => {
+		async ({ params: { id }, body, user }) => {
 			if ((user as any).roles !== "Admin") {
-				set.status = 403;
-				return { success: false, message: "Forbidden" };
+				throw new ForbiddenError();
 			}
-
-			try {
-				await UserService.updatePasswordByAdmin(
-					id,
-					body.newPassword,
-				);
-				return { message: "password_update_success" };
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Password update failed",
-				};
-			}
+			await UserService.updatePasswordByAdmin(id, body.newPassword);
+			return { message: "password_update_success" };
 		},
 		{
 			body: UserModel.updatePasswordById,

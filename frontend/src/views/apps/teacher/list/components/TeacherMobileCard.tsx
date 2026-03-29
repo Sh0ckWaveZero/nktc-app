@@ -17,7 +17,7 @@ import CustomChip from '@/@core/components/mui/chip';
 import IconifyIcon from '@/@core/components/icon';
 import { userRoleType, userStatusType } from '@/@core/utils/types';
 import { USER_ROLE_ICONS, USER_STATUS_COLORS } from '../constants';
-import { Teacher, getFullName } from '../utils/teacherUtils';
+import { Teacher, getFullName, getTeacherDisplayData } from '../utils/teacherUtils';
 import RowOptions from './RowOptions';
 
 const StyledLink = styled(Link)(({ theme }) => ({
@@ -43,10 +43,12 @@ const TeacherMobileCard = React.memo(({
   onAddClassroom 
 }: TeacherMobileCardProps) => {
   const theme = useTheme();
+  const displayData = getTeacherDisplayData(teacher);
   const fullName = getFullName(teacher);
-  const { teacherOnClassroom = [], classrooms = [] } = teacher;
+  const teacherOnClassroom = teacher.teacherOnClassroom || [];
   const loginCount = teacher.loginCountByUser?.length || 0;
-  const roleKey = teacher.role?.toLowerCase() || '';
+  const role = teacher.user?.role || '';
+  const roleKey = role.toLowerCase();
   const status = typeof teacher.status === 'string' ? teacher.status.toLowerCase() : '';
   
   // Calculate icon color based on theme mode
@@ -73,7 +75,7 @@ const TeacherMobileCard = React.memo(({
     >
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
-          <RenderAvatar row={teacher} />
+          <RenderAvatar row={displayData} />
           <Box sx={{ ml: 2, flex: 1, minWidth: 0 }}>
             <StyledLink href={`/apps/user/view/${teacher.id}`} passHref>
               <Typography
@@ -97,7 +99,7 @@ const TeacherMobileCard = React.memo(({
                 variant='caption'
                 sx={{ color: 'text.secondary', textDecoration: 'none', fontSize: '0.75rem' }}
               >
-                @{teacher.username}
+                @{displayData.username}
               </Typography>
             </StyledLink>
           </Box>
@@ -129,7 +131,7 @@ const TeacherMobileCard = React.memo(({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {USER_ROLE_ICONS[roleKey]}
             <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '0.85rem' }}>
-              {userRoleType[teacher.role] ?? 'ไม่ระบุ'}
+              {userRoleType[role] ?? 'ไม่ระบุ'}
             </Typography>
           </Box>
         </Box>
@@ -222,12 +224,15 @@ const TeacherMobileCard = React.memo(({
   );
 }, (prevProps, nextProps) => {
   // Only re-render if teacher data actually changed
-  return prevProps.teacher.id === nextProps.teacher.id &&
-         prevProps.teacher.avatar === nextProps.teacher.avatar &&
-         prevProps.teacher.firstName === nextProps.teacher.firstName &&
-         prevProps.teacher.lastName === nextProps.teacher.lastName &&
-         prevProps.teacher.role === nextProps.teacher.role &&
-         prevProps.teacher.status === nextProps.teacher.status &&
+  const prevDisplay = getTeacherDisplayData(prevProps.teacher);
+  const nextDisplay = getTeacherDisplayData(nextProps.teacher);
+  
+  return prevDisplay.id === nextDisplay.id &&
+         prevDisplay.avatar === nextDisplay.avatar &&
+         prevDisplay.firstName === nextDisplay.firstName &&
+         prevDisplay.lastName === nextDisplay.lastName &&
+         prevDisplay.role === nextDisplay.role &&
+         prevDisplay.status === nextDisplay.status &&
          JSON.stringify(prevProps.teacher.teacherOnClassroom) === JSON.stringify(nextProps.teacher.teacherOnClassroom) &&
          prevProps.teacher.loginCountByUser?.length === nextProps.teacher.loginCountByUser?.length;
 });
@@ -235,4 +240,3 @@ const TeacherMobileCard = React.memo(({
 TeacherMobileCard.displayName = 'TeacherMobileCard';
 
 export default TeacherMobileCard;
-

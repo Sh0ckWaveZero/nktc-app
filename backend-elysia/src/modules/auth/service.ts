@@ -1,6 +1,12 @@
 import { prisma } from "@/libs/prisma";
 import { compare, hash } from "bcryptjs";
 import { Role } from "../../../generated/client";
+import {
+	ConflictError,
+	NotFoundError,
+	UnauthorizedError,
+	BadRequestError,
+} from "@/libs/errors";
 
 export abstract class AuthService {
 	static async register(data: {
@@ -16,7 +22,7 @@ export abstract class AuthService {
 		});
 
 		if (existingUser) {
-			throw { status: 409, message: "User already exists" };
+			throw new ConflictError("User already exists", "username");
 		}
 
 		const hashedPassword = await hash(password, 12);
@@ -70,12 +76,12 @@ export abstract class AuthService {
 		});
 
 		if (!user) {
-			throw { status: 401, message: "INVALID_CREDENTIALS" };
+			throw new UnauthorizedError("Invalid credentials");
 		}
 
 		const isMatch = await compare(password, user.password);
 		if (!isMatch) {
-			throw { status: 401, message: "INVALID_CREDENTIALS" };
+			throw new UnauthorizedError("Invalid credentials");
 		}
 
 		let teacherOnClassroom: string[] = [];
@@ -104,12 +110,12 @@ export abstract class AuthService {
 		});
 
 		if (!user || !user.refreshToken) {
-			throw { status: 401, message: "INVALID_REFRESH_TOKEN" };
+			throw new UnauthorizedError("Invalid refresh token");
 		}
 
 		const isValid = await compare(refreshToken, user.refreshToken);
 		if (!isValid) {
-			throw { status: 401, message: "INVALID_REFRESH_TOKEN" };
+			throw new UnauthorizedError("Invalid refresh token");
 		}
 
 		return {
@@ -153,7 +159,7 @@ export abstract class AuthService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		let teacherOnClassroom: string[] = [];
@@ -185,12 +191,12 @@ export abstract class AuthService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		const isMatch = await compare(data.currentPassword, userData.password);
 		if (!isMatch) {
-			throw { status: 400, message: "Current password is incorrect" };
+			throw new BadRequestError("Current password is incorrect", "currentPassword");
 		}
 
 		const hashed = await hash(data.newPassword, 10);

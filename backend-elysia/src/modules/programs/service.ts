@@ -1,5 +1,6 @@
 import { prisma } from "@/libs/prisma";
 import { programInclude } from "./model";
+import { NotFoundError } from "@/libs/errors";
 
 export abstract class ProgramService {
 	static async getAll() {
@@ -15,7 +16,7 @@ export abstract class ProgramService {
 			include: programInclude,
 		});
 		if (!program) {
-			throw { status: 404, message: "Program not found" };
+			throw new NotFoundError("Program not found");
 		}
 		return program;
 	}

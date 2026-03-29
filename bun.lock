@@ -106,6 +106,7 @@
         "@prisma/adapter-pg": "^7.5.0",
         "@prisma/client": "^7.5.0",
         "@prisma/client-runtime-utils": "^7.6.0",
+        "bcrypt": "^6.0.0",
         "bcryptjs": "^3.0.2",
         "dotenv": "^16.4.7",
         "elysia": "^1.4.28",
@@ -118,6 +119,7 @@
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
       },
       "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
         "@types/bcryptjs": "^2.4.6",
         "@types/node": "^22.13.9",
         "@types/pg": "^8.11.11",

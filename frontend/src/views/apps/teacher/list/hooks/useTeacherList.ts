@@ -224,7 +224,8 @@ export const useTeacherList = () => {
   }, []);
 
   const handleEditTeacher = useCallback(async (data: Teacher) => {
-    if (!user?.id || !currentTeacher?.accountId) {
+    const accountId = currentTeacher?.user?.account?.id;
+    if (!user?.id || !accountId) {
       toast.error('ข้อมูลไม่ครบถ้วน');
       return;
     }
@@ -238,7 +239,7 @@ export const useTeacherList = () => {
         ...data,
       },
       account: {
-        id: currentTeacher.accountId,
+        id: accountId,
       },
     };
 

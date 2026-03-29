@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prisma";
+import { ConflictError } from "@/libs/errors";
 
 export abstract class ReportCheckInService {
 	static async create(data: any) {
@@ -7,7 +8,7 @@ export abstract class ReportCheckInService {
 			where: { teacherId, classroomId, checkInDate: new Date(checkInDate) },
 		});
 		if (existing) {
-			throw { status: 409, message: "Check-in already exists for this date" };
+			throw new ConflictError("Check-in already exists for this date");
 		}
 		return prisma.reportCheckIn.create({
 			data: { teacherId, classroomId, checkInDate: new Date(checkInDate), ...rest },

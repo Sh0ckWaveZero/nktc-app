@@ -1,8 +1,9 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import { AuthService } from "./service";
 import { AuthModel } from "./model";
 import { prisma } from "@/libs/prisma";
+import { UnauthorizedError } from "@/libs/errors";
 
 export const auth = new Elysia({ prefix: "/auth" })
 	.use(
@@ -21,20 +22,13 @@ export const auth = new Elysia({ prefix: "/auth" })
 	.post(
 		"/register",
 		async ({ body, set }) => {
-			try {
-				const user = await AuthService.register(body);
-				return {
-					success: true,
-					message: "ACCOUNT_CREATE_SUCCESS",
-					data: user,
-				};
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Registration failed",
-				};
-			}
+			const user = await AuthService.register(body);
+			set.status = 201;
+			return {
+				success: true,
+				message: "ACCOUNT_CREATE_SUCCESS",
+				data: user,
+			};
 		},
 		{
 			body: AuthModel.register,
@@ -42,46 +36,36 @@ export const auth = new Elysia({ prefix: "/auth" })
 	)
 	.post(
 		"/login",
-		async ({ body, jwt, refreshJwt, set }) => {
-			try {
-				const result = await AuthService.login(body);
+		async ({ body, jwt, refreshJwt }) => {
+			const result = await AuthService.login(body);
 
-				const payload = {
-					sub: result.userId,
-					username: result.username,
-					roles: result.roles,
-				};
+			const payload = {
+				sub: result.userId,
+				username: result.username,
+				roles: result.roles,
+			};
 
-				const token = await jwt.sign(payload);
-				const refreshToken = await refreshJwt.sign({
-					sub: result.userId,
-					username: result.username,
-				});
+			const token = await jwt.sign(payload);
+			const refreshToken = await refreshJwt.sign({
+				sub: result.userId,
+				username: result.username,
+			});
 
-				const hashedRefreshToken = await AuthService.hashToken(
-					refreshToken,
-				);
-				await prisma.user.update({
-					where: { id: result.userId },
-					data: { refreshToken: hashedRefreshToken },
-				});
+			const hashedRefreshToken = await AuthService.hashToken(refreshToken);
+			await prisma.user.update({
+				where: { id: result.userId },
+				data: { refreshToken: hashedRefreshToken },
+			});
 
-				const { password: _, ...userWithoutPassword } = result.user;
+			const { password: _, ...userWithoutPassword } = result.user;
 
-				return {
-					success: true,
-					message: "login successfully",
-					data: userWithoutPassword,
-					token,
-					refreshToken,
-				};
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Login failed",
-				};
-			}
+			return {
+				success: true,
+				message: "login successfully",
+				data: userWithoutPassword,
+				token,
+				refreshToken,
+			};
 		},
 		{
 			body: AuthModel.login,
@@ -89,35 +73,26 @@ export const auth = new Elysia({ prefix: "/auth" })
 	)
 	.post(
 		"/refresh",
-		async ({ body, jwt, refreshJwt, set }) => {
+		async ({ body, jwt, refreshJwt }) => {
 			const { refreshToken } = body;
 
 			const payload = await refreshJwt.verify(refreshToken);
 			if (!payload) {
-				set.status = 401;
-				return { success: false, message: "INVALID_REFRESH_TOKEN" };
+				throw new UnauthorizedError("Invalid refresh token");
 			}
 
-			try {
-				const result = await AuthService.validateRefreshToken(
-					payload.sub as string,
-					refreshToken,
-				);
+			const result = await AuthService.validateRefreshToken(
+				payload.sub as string,
+				refreshToken,
+			);
 
-				const newToken = await jwt.sign({
-					sub: result.userId,
-					username: result.username,
-					roles: result.roles,
-				});
+			const newToken = await jwt.sign({
+				sub: result.userId,
+				username: result.username,
+				roles: result.roles,
+			});
 
-				return { token: newToken };
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Token refresh failed",
-				};
-			}
+			return { token: newToken };
 		},
 		{
 			body: AuthModel.refresh,
@@ -137,61 +112,27 @@ export const auth = new Elysia({ prefix: "/auth" })
 
 		return { user: payload };
 	})
-	.get("/me", async ({ user, set }) => {
+	.get("/me", async ({ user }) => {
 		if (!user) {
-			set.status = 401;
-			return { success: false, message: "Unauthorized" };
+			throw new UnauthorizedError();
 		}
-
-		try {
-			const userData = await AuthService.getUser(user.sub as string);
-			return userData;
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return {
-				success: false,
-				message: error.message || "Failed to get user",
-			};
-		}
+		return AuthService.getUser(user.sub as string);
 	})
-	.post("/logout", async ({ user, set }) => {
+	.post("/logout", async ({ user }) => {
 		if (!user) {
-			set.status = 401;
-			return { success: false, message: "Unauthorized" };
+			throw new UnauthorizedError();
 		}
-
-		try {
-			await AuthService.logout(user.sub as string);
-			return { success: true, message: "Logged out successfully" };
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return {
-				success: false,
-				message: error.message || "Logout failed",
-			};
-		}
+		await AuthService.logout(user.sub as string);
+		return { success: true, message: "Logged out successfully" };
 	})
 	.put(
 		"/update/password",
-		async ({ body, user, set }) => {
+		async ({ body, user }) => {
 			if (!user) {
-				set.status = 401;
-				return { success: false, message: "Unauthorized" };
+				throw new UnauthorizedError();
 			}
-
-			try {
-				await AuthService.updatePassword(
-					user.sub as string,
-					body,
-				);
-				return { message: "password_update_success" };
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return {
-					success: false,
-					message: error.message || "Password update failed",
-				};
-			}
+			await AuthService.updatePassword(user.sub as string, body);
+			return { message: "password_update_success" };
 		},
 		{
 			body: AuthModel.updatePassword,

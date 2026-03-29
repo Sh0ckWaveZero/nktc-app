@@ -17,13 +17,8 @@ export const accounts = new Elysia({ prefix: "/accounts" })
 	.get("/", async () => {
 		return AccountService.getAll();
 	})
-	.get("/:id", async ({ params: { id }, set }) => {
-		try {
-			return await AccountService.getById(id);
-		} catch (error: any) {
-			set.status = error.status || 500;
-			return { success: false, message: error.message };
-		}
+	.get("/:id", async ({ params: { id } }) => {
+		return AccountService.getById(id);
 	})
 	.patch(
 		"/:id",

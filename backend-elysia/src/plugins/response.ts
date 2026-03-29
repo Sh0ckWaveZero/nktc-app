@@ -1,13 +1,13 @@
 import { Elysia } from "elysia";
 
 export const responsePlugin = new Elysia({ name: "response" }).mapResponse(
-	({ response, path, request, set }) => {
+	({ responseValue, path, request, set }) => {
 		if (
-			response &&
-			typeof response === "object" &&
-			("success" in response || "statusCode" in response)
+			responseValue &&
+			typeof responseValue === "object" &&
+			("success" in responseValue || "statusCode" in responseValue)
 		) {
-			return new Response(JSON.stringify(response), {
+			return new Response(JSON.stringify(responseValue), {
 				status: (set.status as number) || 200,
 				headers: { "Content-Type": "application/json" },
 			});
@@ -18,7 +18,7 @@ export const responsePlugin = new Elysia({ name: "response" }).mapResponse(
 			success: !isError,
 			statusCode: set.status || 200,
 			message: isError ? "Request failed" : "Request successful",
-			data: response,
+			data: responseValue,
 			meta: {
 				timestamp: new Date().toISOString(),
 				path,

@@ -21,14 +21,14 @@ export const teachers = new Elysia({ prefix: "/teachers" })
 			set.status = 201;
 			return teacher;
 		},
-		{ body: TeacherModel.searchQuery },
+		{ body: TeacherModel.createBody },
 	)
 	.put(
 		"/:id",
 		async ({ params: { id }, body }) => {
 			return TeacherService.update(id, body);
 		},
-		{ body: TeacherModel.searchQuery },
+		{ body: TeacherModel.updateBody },
 	)
 	.delete("/:id", async ({ params: { id }, set }) => {
 		await TeacherService.delete(id);
@@ -40,7 +40,7 @@ export const teachers = new Elysia({ prefix: "/teachers" })
 		async ({ params: { id }, body }) => {
 			return TeacherService.updateProfile(id, body);
 		},
-		{ body: TeacherModel.searchQuery },
+		{ body: TeacherModel.updateBody },
 	)
 	.put(
 		"/:id/classrooms",

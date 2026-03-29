@@ -1,6 +1,7 @@
 import { prisma } from "@/libs/prisma";
 import { studentInclude } from "./model";
 import { importStudentsFromXLSX, generateStudentTemplate } from "@/libs/xlsx";
+import { NotFoundError } from "@/libs/errors";
 
 export abstract class StudentService {
 	static async getList(skip: number = 0, take: number = 20) {
@@ -112,7 +113,7 @@ export abstract class StudentService {
 			include: studentInclude,
 		});
 		if (!student) {
-			throw { status: 404, message: "Student not found" };
+			throw new NotFoundError("Student not found");
 		}
 		return student;
 	}

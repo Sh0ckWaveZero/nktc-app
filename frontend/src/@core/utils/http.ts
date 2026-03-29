@@ -45,7 +45,7 @@ httpClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 const clearAuthAndRedirect = () => {
@@ -66,24 +66,37 @@ const AxiosInterceptor = ({ children }: any) => {
 
   useEffect(() => {
     const interceptor = httpClient.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Extract data from wrapped response: { success, statusCode, message, data, meta }
+        // But don't extract if there are other important fields like token, refreshToken at top level
+        if (
+          response.data &&
+          typeof response.data === 'object' &&
+          'data' in response.data &&
+          'success' in response.data &&
+          !('token' in response.data) &&
+          !('refreshToken' in response.data)
+        ) {
+          response.data = response.data.data;
+        }
+        return response;
+      },
       async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
         if (error?.response?.status === 401) {
           const requestUrl = originalRequest?.url || '';
-          const fullUrl = originalRequest?.baseURL 
-            ? `${originalRequest.baseURL}${requestUrl}` 
-            : requestUrl;
-          
+          const fullUrl = originalRequest?.baseURL ? `${originalRequest.baseURL}${requestUrl}` : requestUrl;
+
           const loginEndpoint = authConfig.loginEndpoint || '';
-          const isLoginEndpoint = fullUrl.includes('/auth/login') || 
-                                 requestUrl.includes('/auth/login') ||
-                                 (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
-          
+          const isLoginEndpoint =
+            fullUrl.includes('/auth/login') ||
+            requestUrl.includes('/auth/login') ||
+            (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
+
           const isMeEndpoint = fullUrl.includes('/auth/me') || requestUrl.includes('/auth/me');
           const isRefreshEndpoint = fullUrl.includes('/auth/refresh') || requestUrl.includes('/auth/refresh');
-          
+
           // For login, me, and refresh endpoints - just reject, don't try to refresh
           if (isLoginEndpoint || isMeEndpoint || isRefreshEndpoint) {
             return Promise.reject(error);
@@ -113,9 +126,7 @@ const AxiosInterceptor = ({ children }: any) => {
 
           isRefreshing = true;
 
-          const refreshToken = typeof window !== 'undefined' 
-            ? window.localStorage.getItem('refreshToken') 
-            : null;
+          const refreshToken = typeof window !== 'undefined' ? window.localStorage.getItem('refreshToken') : null;
 
           if (!refreshToken) {
             isRefreshing = false;
@@ -129,13 +140,13 @@ const AxiosInterceptor = ({ children }: any) => {
             });
 
             const newToken = response.data?.token;
-            
+
             if (typeof window !== 'undefined') {
               window.localStorage.setItem('accessToken', newToken);
             }
 
             processQueue(null, newToken);
-            
+
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return httpClient(originalRequest);
           } catch (refreshError) {

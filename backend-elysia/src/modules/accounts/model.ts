@@ -6,7 +6,7 @@ export const AccountModel = {
 		firstName: t.Optional(t.String()),
 		lastName: t.Optional(t.String()),
 		idCard: t.Optional(t.String()),
-		birthDate: t.Optional(t.String()),
+		birthDate: t.Optional(t.Union([t.String(), t.Null()])),
 		phone: t.Optional(t.String()),
 		address: t.Optional(t.String()),
 		subDistrict: t.Optional(t.String()),

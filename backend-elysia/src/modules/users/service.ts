@@ -1,5 +1,6 @@
 import { prisma } from "@/libs/prisma";
 import { compare, hash } from "bcryptjs";
+import { NotFoundError, BadRequestError } from "@/libs/errors";
 
 export abstract class UserService {
 	static async getUserById(userId: string) {
@@ -13,7 +14,7 @@ export abstract class UserService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		const { password: _, refreshToken: __, ...rest } = userData;
@@ -31,7 +32,7 @@ export abstract class UserService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		const { password: _, refreshToken: __, ...rest } = userData;
@@ -47,12 +48,12 @@ export abstract class UserService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		const isMatch = await compare(data.currentPassword, userData.password);
 		if (!isMatch) {
-			throw { status: 400, message: "Current password is incorrect" };
+			throw new BadRequestError("Current password is incorrect", "currentPassword");
 		}
 
 		const hashed = await hash(data.newPassword, 10);
@@ -68,7 +69,7 @@ export abstract class UserService {
 		});
 
 		if (!userData) {
-			throw { status: 404, message: "User not found" };
+			throw new NotFoundError("User not found");
 		}
 
 		const hashed = await hash(newPassword, 10);

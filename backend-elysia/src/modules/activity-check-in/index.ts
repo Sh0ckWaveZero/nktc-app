@@ -8,14 +8,9 @@ export const activityCheckIn = new Elysia({ prefix: "/activity-check-in" })
 	.post(
 		"/",
 		async ({ body, set }) => {
-			try {
-				const record = await ActivityCheckInService.create(body);
-				set.status = 201;
-				return record;
-			} catch (error: any) {
-				set.status = error.status || 500;
-				return { success: false, message: error.message };
-			}
+			const record = await ActivityCheckInService.create(body);
+			set.status = 201;
+			return record;
 		},
 		{ body: ActivityCheckInModel.activityBody },
 	)
