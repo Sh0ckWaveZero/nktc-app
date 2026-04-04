@@ -1,8 +1,17 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { isSameDay, startOfWeek, addDays, isWithinInterval } from 'date-fns';
+import { isSameDay, startOfWeek, addDays, isWithinInterval, format } from 'date-fns';
+import { th } from 'date-fns/locale';
+import { BUDDHIST_ERA_OFFSET } from '@/@core/utils/constants';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+
+const formatThaiShort = (date: Date): string => {
+  const day = format(date, 'd', { locale: th });
+  const month = format(date, 'MM');
+  const year = date.getFullYear() + BUDDHIST_ERA_OFFSET;
+  return `${day.padStart(2, '0')}/${month}/${year}`;
+};
 // date-fns helper functions
 const getStartOfWeek = (date: Date): Date => {
   return startOfWeek(date, { weekStartsOn: 1 }); // Monday as first day
@@ -79,6 +88,13 @@ export default function CustomDay(props: TableHeaderProps) {
     [selectedDate],
   );
 
+  const weekRangeLabel = React.useMemo(() => {
+    if (!selectedDate) return '';
+    const start = getStartOfWeek(selectedDate);
+    const end = getEndOfWeek(selectedDate);
+    return `${formatThaiShort(start)} - ${formatThaiShort(end)}`;
+  }, [selectedDate]);
+
   return (
     <ThaiDatePicker
       label='เลือกสัปดาห์'
@@ -91,6 +107,7 @@ export default function CustomDay(props: TableHeaderProps) {
         textField: {
           fullWidth: true,
           placeholder: 'วัน เดือน ปี (พ.ศ.)',
+          inputProps: { value: weekRangeLabel },
         },
       }}
       format='dd/MM/yyyy'

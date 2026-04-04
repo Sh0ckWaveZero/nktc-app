@@ -60,34 +60,43 @@ export abstract class ReportCheckInService {
 		const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
 		const sortedClassrooms = classrooms
 			.sort((a, b) => {
-				const matchA = a.name.match(nameNumberRegex);
-				const matchB = b.name.match(nameNumberRegex);
-				if (!matchA || !matchB) return a.name.localeCompare(b.name);
-				const [, prefixA, numberA, suffixA] = matchA;
-				const [, prefixB, numberB, suffixB] = matchB;
+				const nameA = a.name ?? "";
+				const nameB = b.name ?? "";
+				const matchA = nameA.match(nameNumberRegex);
+				const matchB = nameB.match(nameNumberRegex);
+				if (!matchA || !matchB) return nameA.localeCompare(nameB);
+				const prefixA = matchA[1] ?? "";
+				const numberA = matchA[2] ?? "";
+				const suffixA = matchA[3] ?? "";
+				const prefixB = matchB[1] ?? "";
+				const numberB = matchB[2] ?? "";
+				const suffixB = matchB[3] ?? "";
 				if (prefixA !== prefixB) return prefixA.localeCompare(prefixB);
-				const [majorA, minorA] = numberA.split("/");
-				const [majorB, minorB] = numberB.split("/");
+				const [majorA = "0", minorA = "0"] = numberA.split("/");
+				const [majorB = "0", minorB = "0"] = numberB.split("/");
 				if (majorA !== majorB) return Number(majorA) - Number(majorB);
 				if (minorA !== minorB) return Number(minorA) - Number(minorB);
 				return suffixA.localeCompare(suffixB);
 			})
-			.sort((a, b) => a.department.name.localeCompare(b.department.name));
+			.sort((a, b) => (a.department?.name ?? "").localeCompare(b.department?.name ?? ""));
 
 		const totalStudents = await prisma.student.count();
 
 		const checkIn = await Promise.all(
 			sortedClassrooms.map(async (classroom) => {
-				const reportCheckIn = await prisma.reportCheckIn.findFirst({
+				const records = await prisma.reportCheckIn.findMany({
 					where: {
 						classroomId: classroom.id,
 						checkInDate: { gte: start, lte: end },
 					},
+					orderBy: { checkInDate: "desc" },
 				});
 
-				const checkInBy = reportCheckIn?.createdBy
+				const latest = records[0] ?? null;
+
+				const checkInBy = latest?.createdBy
 					? await prisma.user.findFirst({
-						where: { teacher: { id: reportCheckIn.createdBy } },
+						where: { teacher: { id: latest.createdBy } },
 						select: {
 							id: true,
 							username: true,
@@ -104,11 +113,18 @@ export abstract class ReportCheckInService {
 					})
 					: null;
 
-				const presentCount = reportCheckIn?.present?.length ?? 0;
-				const absentCount = reportCheckIn?.absent?.length ?? 0;
-				const lateCount = reportCheckIn?.late?.length ?? 0;
-				const leaveCount = reportCheckIn?.leave?.length ?? 0;
-				const internshipCount = reportCheckIn?.internship?.length ?? 0;
+				// Aggregate unique student IDs across all records in the range
+				const presentIds = new Set(records.flatMap((r) => r.present ?? []));
+				const absentIds = new Set(records.flatMap((r) => r.absent ?? []));
+				const lateIds = new Set(records.flatMap((r) => r.late ?? []));
+				const leaveIds = new Set(records.flatMap((r) => r.leave ?? []));
+				const internshipIds = new Set(records.flatMap((r) => r.internship ?? []));
+
+				const presentCount = presentIds.size;
+				const absentCount = absentIds.size;
+				const lateCount = lateIds.size;
+				const leaveCount = leaveIds.size;
+				const internshipCount = internshipIds.size;
 				const total = presentCount + absentCount + lateCount + leaveCount + internshipCount;
 
 				const pct = (n: number) => (total > 0 ? Math.round((n / total) * 10000) / 100 : 0);
@@ -126,7 +142,7 @@ export abstract class ReportCheckInService {
 					internship: internshipCount,
 					internshipPercent: pct(internshipCount),
 					total,
-					checkInDate: reportCheckIn?.checkInDate ?? null,
+					checkInDate: latest?.checkInDate ?? null,
 					...(checkInBy ? { checkInBy } : {}),
 				};
 			}),
@@ -166,7 +182,7 @@ export abstract class ReportCheckInService {
 		const total = checkIns.length;
 
 		return studentsInfo.map((student) => {
-			const studentRecordId = student.student?.id;
+			const studentRecordId = student.student?.id ?? "";
 			const present = checkIns.filter((r) => r.present?.includes(studentRecordId)).length;
 			const absent = checkIns.filter((r) => r.absent?.includes(studentRecordId)).length;
 			const late = checkIns.filter((r) => r.late?.includes(studentRecordId)).length;

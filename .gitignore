@@ -162,3 +162,4 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 backend/src/database/generated/*
+.claude/settings.local.json
