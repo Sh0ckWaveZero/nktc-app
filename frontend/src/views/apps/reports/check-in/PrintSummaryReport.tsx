@@ -81,7 +81,7 @@ const PrintSummaryReport = memo(({ value, classroom, ref }: Props) => {
         >
           {tableHead}
           <TableBody>
-            {value.map((row: any) => (
+            {(Array.isArray(value) ? value : []).map((row: any) => (
               <TableRow
                 key={row.student.studentId}
                 sx={{ fontSize: 8, '&:last-child td, &:last-child th': { border: 0 } }}

@@ -18,7 +18,9 @@ export const ReportCheckInModel = {
 		late: t.Optional(t.Array(t.String())),
 		leave: t.Optional(t.Array(t.String())),
 		internship: t.Optional(t.Array(t.String())),
-		status: t.Optional(t.String()),
+		status: t.Optional(t.Nullable(t.String())),
+		updatedBy: t.Optional(t.Nullable(t.String())),
+		updateBy: t.Optional(t.Nullable(t.String())),
 	}),
 } as const;
 

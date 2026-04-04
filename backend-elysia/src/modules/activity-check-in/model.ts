@@ -12,7 +12,9 @@ export const ActivityCheckInModel = {
 	updateBody: t.Object({
 		present: t.Optional(t.Array(t.String())),
 		absent: t.Optional(t.Array(t.String())),
-		status: t.Optional(t.String()),
+		status: t.Optional(t.Nullable(t.String())),
+		updatedBy: t.Optional(t.Nullable(t.String())),
+		updateBy: t.Optional(t.Nullable(t.String())),
 	}),
 } as const;
 

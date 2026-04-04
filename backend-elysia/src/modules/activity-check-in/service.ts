@@ -24,10 +24,62 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async getByDate(teacherId: string, classroomId: string, date: string) {
-		return prisma.activityCheckInReport.findFirst({
-			where: { teacherId, classroomId, checkInDate: new Date(date) },
-			include: { classroom: true, teacher: true },
+		const startDate = new Date(date);
+		const endDate = new Date(date);
+		startDate.setHours(0, 0, 0, 0);
+		endDate.setHours(23, 59, 59, 999);
+
+		const teacherUser = await prisma.user.findFirstOrThrow({
+			where: { teacher: { id: teacherId } },
+			select: {
+				id: true,
+				username: true,
+				account: {
+					select: { id: true, title: true, firstName: true, lastName: true, avatar: true },
+				},
+				teacher: {
+					select: { id: true, teacherId: true, jobTitle: true, academicStanding: true, status: true },
+				},
+			},
 		});
+
+		const classroom = await prisma.classroom.findUnique({ where: { id: classroomId } });
+		if (!classroom) return [];
+
+		const reportCheckIn = await prisma.activityCheckInReport.findFirst({
+			where: {
+				teacherId,
+				classroomId,
+				checkInDate: { gte: startDate, lte: endDate },
+			},
+		});
+
+		const studentsInfo = await prisma.user.findMany({
+			where: { student: { classroomId } },
+			select: {
+				id: true,
+				username: true,
+				student: { select: { id: true, studentId: true, status: true } },
+				account: {
+					select: { id: true, title: true, firstName: true, lastName: true, avatar: true },
+				},
+			},
+			orderBy: [{ account: { firstName: "asc" } }, { account: { lastName: "asc" } }],
+		});
+
+		const students = studentsInfo.map((student) => ({
+			...student,
+			checkInStatus: reportCheckIn
+				? reportCheckIn.present.includes(student.student?.id ?? "")
+					? "present"
+					: reportCheckIn.absent.includes(student.student?.id ?? "")
+						? "absent"
+						: "none"
+				: "notCheckIn",
+			teacher: teacherUser,
+		}));
+
+		return [{ ...classroom, reportCheckIn: reportCheckIn ?? null, students }];
 	}
 
 	static async getByDateRange(startDate: string, endDate: string) {
@@ -44,22 +96,57 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async getSummary(teacherId: string, classroomId: string) {
-		const records = await prisma.activityCheckInReport.findMany({
+		const studentsInfo = await prisma.user.findMany({
+			where: { student: { classroomId } },
+			select: {
+				id: true,
+				username: true,
+				student: { select: { id: true, studentId: true } },
+				account: {
+					select: {
+						id: true,
+						title: true,
+						firstName: true,
+						lastName: true,
+						avatar: true,
+					},
+				},
+			},
+			orderBy: [
+				{ account: { firstName: "asc" } },
+				{ account: { lastName: "asc" } },
+			],
+		});
+
+		const checkIns = await prisma.activityCheckInReport.findMany({
 			where: { teacherId, classroomId },
 			orderBy: { checkInDate: "asc" },
 		});
-		return {
-			totalDays: records.length,
-			totalPresent: records.reduce((s, r) => s + (r.present?.length ?? 0), 0),
-			totalAbsent: records.reduce((s, r) => s + (r.absent?.length ?? 0), 0),
-			records,
-		};
+
+		const total = checkIns.length;
+
+		return studentsInfo.map((student) => {
+			const studentRecordId = student.student?.id;
+			const present = checkIns.filter((r) => r.present?.includes(studentRecordId)).length;
+			const absent = checkIns.filter((r) => r.absent?.includes(studentRecordId)).length;
+
+			return {
+				...student,
+				present,
+				presentPercent: total > 0 ? (present / total) * 100 : 0,
+				absent,
+				absentPercent: total > 0 ? (absent / total) * 100 : 0,
+				checkInTotal: total,
+			};
+		});
 	}
 
 	static async update(id: string, data: any) {
+		const { updateBy, id: _id, teacherId, classroomId, checkInDate, checkInTime,
+			createdAt, updatedAt, createdBy, teacherKey, classroomKey, ...rest } = data;
 		return prisma.activityCheckInReport.update({
 			where: { id },
-			data,
+			data: rest,
 		});
 	}
 

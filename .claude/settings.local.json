@@ -94,7 +94,17 @@
       "Bash(node -e \"console.log\\(''process.env before dotenv:'', process.env.MINIO_USE_SSL\\)\")",
       "Bash(ls -la /Users/sh0ckpro/Works/Freelance/React/nktc-app/.env*)",
       "mcp__plugin_claude-mem_mcp-search__search",
-      "Bash(bun run:*)"
+      "Bash(bun run:*)",
+      "Bash(grep -r \"NEXT_PUBLIC_API_URL\" /Users/sh0ckpro/Works/Freelance/React/nktc-app/frontend/.env*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('present IDs:', d.get\\('present', []\\)[:3]\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\([\\(x['student']['studentId'], x['present']\\) for x in d[:3]]\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\([\\(x['student']['studentId'], x['present'], x['checkInTotal']\\) for x in d[:3]]\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('present:', d.get\\('present', []\\)[:3]\\); print\\('id:', d.get\\('id'\\)\\); print\\('checkInDate:', d.get\\('checkInDate'\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); s=d[0]; print\\('user id:', s['id']\\); print\\('student.id:', s['student']['id']\\)\")",
+      "mcp__MUI-MCP__useMuiDocs",
+      "mcp__MUI-MCP__fetchDocs",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('id'\\) or d\\)\")",
+      "Bash(kill -9 33672)"
     ],
     "deny": []
   },

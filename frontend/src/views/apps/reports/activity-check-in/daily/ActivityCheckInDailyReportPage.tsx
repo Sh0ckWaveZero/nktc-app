@@ -128,7 +128,7 @@ const ActivityCheckInDailyReportPage = () => {
     );
 
   const [currentStudents, setCurrentStudents] = useState<any>([]);
-  const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
@@ -193,9 +193,11 @@ const ActivityCheckInDailyReportPage = () => {
         startDate: dateInfo,
       });
 
-      const reportCheckInData = data.find((item: any) => item.id === classroomInfo);
+      const dataArray = Array.isArray(data) ? data : [];
+      const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
       const students = reportCheckInData?.students ?? [];
       setCurrentStudents(students);
+      setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
       getActivityCheckIn({
         teacher: auth?.user?.teacher?.id,
@@ -238,15 +240,15 @@ const ActivityCheckInDailyReportPage = () => {
   };
 
   const onSetToggle = (prevState: any, param: any): any => {
-    const { id } = param;
-    const index = prevState.indexOf(id);
+    const studentRecordId = param?.student?.id || param.id;
+    const index = prevState.indexOf(studentRecordId);
 
     let newSelection = [...prevState];
 
     if (index === -1) {
-      newSelection.push(id);
+      newSelection.push(studentRecordId);
     } else {
-      newSelection = newSelection.filter((item) => item !== id);
+      newSelection = newSelection.filter((item) => item !== studentRecordId);
     }
 
     return newSelection;
@@ -272,25 +274,28 @@ const ActivityCheckInDailyReportPage = () => {
   };
 
   const onHandlePresentChecked = (param: any): void => {
-    if (isPresentCheck.includes(param.id)) {
-      isPresentCheck = onRemoveToggle(isPresentCheck, param);
+    const studentRecordId = param?.student?.id || param.id;
+    if (isPresentCheck.includes(studentRecordId)) {
+      isPresentCheck = onRemoveToggle(isPresentCheck, studentRecordId);
     }
   };
 
   const onHandleAbsentChecked = (param: any): void => {
-    if (isAbsentCheck.includes(param.id)) {
-      isAbsentCheck = onRemoveToggle(isAbsentCheck, param);
+    const studentRecordId = param?.student?.id || param.id;
+    if (isAbsentCheck.includes(studentRecordId)) {
+      isAbsentCheck = onRemoveToggle(isAbsentCheck, studentRecordId);
     }
   };
 
   const onHandleInternshipChecked = (param: any): void => {
-    if (isInternshipCheck.includes(param.id)) {
-      isInternshipCheck = onRemoveToggle(isInternshipCheck, param);
+    const studentRecordId = param?.student?.id || param.id;
+    if (isInternshipCheck.includes(studentRecordId)) {
+      isInternshipCheck = onRemoveToggle(isInternshipCheck, studentRecordId);
     }
   };
 
-  const onRemoveToggle = (prevState: any, param: any): any => {
-    const index = prevState.indexOf(param.id);
+  const onRemoveToggle = (prevState: any, studentRecordId: string): any => {
+    const index = prevState.indexOf(studentRecordId);
 
     if (index === -1) {
       return prevState;
@@ -345,16 +350,19 @@ const ActivityCheckInDailyReportPage = () => {
       error: 'เกิดข้อผิดพลาด',
     };
 
-    if (reportCheckInData) {
-      toast.promise(updateActivityCheckIn(updated), options);
-    } else {
-      toast.promise(addActivityCheckIn(created), options);
+    try {
+      if (reportCheckInData) {
+        await toast.promise(updateActivityCheckIn(updated), options);
+      } else {
+        await toast.promise(addActivityCheckIn(created), options);
+      }
+      await fetchDailyReport(selectedDate, classroomId);
+      toggleCloseEditCheckIn();
+    } catch (error) {
+      console.error('Save failed:', error);
+    } finally {
+      onClearAll();
     }
-    setTimeout(() => {
-      fetchDailyReport(selectedDate, classroomId);
-    }, 200);
-    toggleCloseEditCheckIn();
-    onClearAll();
   };
 
   const handleDateChange = async (date: Date | null) => {
@@ -475,7 +483,7 @@ const ActivityCheckInDailyReportPage = () => {
             variant='subtitle2'
             sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
           >
-            {account.title + '' + account.firstName + ' ' + account.lastName}
+            {(account.title ?? '') + account.firstName + ' ' + account.lastName}
           </Typography>
         );
       },
@@ -545,20 +553,22 @@ const ActivityCheckInDailyReportPage = () => {
                 rows={currentStudents ?? []}
                 disableColumnMenu
                 loading={isLoading}
-                rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                initialState={{
-                  pagination: {
-                    paginationModel: { pageSize: pageSize, page: 0 },
-                  },
-                }}
-                pageSizeOptions={[pageSize]}
-                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                getRowHeight={() => 'auto'}
+                getEstimatedRowHeight={() => 52}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[10, 20, 50, { value: -1, label: 'ทั้งหมด' }]}
                 slots={{
                   noRowsOverlay: CustomNoRowsOverlay,
                 }}
                 getRowClassName={(params) => {
                   const { status } = params.row.student;
                   return status === 'internship' ? 'internship' : 'normal';
+                }}
+                sx={{
+                  '& .MuiDataGrid-cell': { py: 1, alignItems: 'center', display: 'flex', overflow: 'visible' },
+                  '& .MuiDataGrid-row': { overflow: 'visible' },
+                  overflow: 'visible',
                 }}
               />
             </Card>
