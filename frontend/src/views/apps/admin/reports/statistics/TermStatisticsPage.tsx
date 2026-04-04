@@ -71,6 +71,12 @@ const TermStatisticsPage = () => {
   // Convert error to string
   const error = statisticsError ? 'เกิดข้อผิดพลาดในการโหลดข้อมูล' : null;
 
+  // Safe accessors to prevent undefined errors when API returns partial data
+  const studentStats = statistics?.studentCheckInStats ?? {};
+  const teacherStats = statistics?.teacherUsageStats ?? {};
+  const dailyBreakdown = Array.isArray(statistics?.dailyBreakdown) ? statistics.dailyBreakdown : [];
+  const dailyChartData = Array.isArray(statistics?.dailyChartData) ? statistics.dailyChartData : [];
+
   const handleExportExcel = () => {
     if (!statistics || !termStartDate || !termEndDate) return;
 
@@ -82,20 +88,20 @@ const TermStatisticsPage = () => {
       [`ข้อมูลตั้งแต่ ${formatThaiDate(termStartDate)} ถึง ${formatThaiDate(termEndDate)}`],
       [],
       ['ภาพรวม'],
-      ['นักเรียนทั้งหมด', statistics.studentCheckInStats.totalStudents],
-      ['อัตราเข้าเรียนเฉลี่ย', `${statistics.studentCheckInStats.averageAttendanceRate.toFixed(2)}%`],
-      ['จำนวนวันที่เช็คชื่อ', statistics.studentCheckInStats.totalCheckInDays],
+      ['นักเรียนทั้งหมด', studentStats.totalStudents],
+      ['อัตราเข้าเรียนเฉลี่ย', `${(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%`],
+      ['จำนวนวันที่เช็คชื่อ', studentStats.totalCheckInDays],
       [],
       ['สถิติการมาเข้าแถว'],
       [
         'มาเข้าแถว',
-        statistics.studentCheckInStats.studentsCheckedIn,
-        `${statistics.studentCheckInStats.checkInPercentage.toFixed(2)}%`,
+        studentStats.studentsCheckedIn,
+        `${(studentStats.checkInPercentage ?? 0).toFixed(2)}%`,
       ],
       [
         'ไม่มาเข้าแถว',
-        statistics.studentCheckInStats.studentsNotCheckedIn,
-        `${statistics.studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`,
+        studentStats.studentsNotCheckedIn,
+        `${(studentStats.notCheckedInPercentage ?? 0).toFixed(2)}%`,
       ],
     ];
 
@@ -103,14 +109,14 @@ const TermStatisticsPage = () => {
     XLSX.utils.book_append_sheet(workbook, overviewSheet, 'ภาพรวม');
 
     // Sheet 2: สถิติการเข้าแถวรายวัน
-    if (statistics.dailyBreakdown && statistics.dailyBreakdown.length > 0) {
+    if (dailyBreakdown.length > 0) {
       const dailyData = [
         ['สถิติการเข้าแถวรายวัน'],
         [],
         ['วันที่', 'มาเข้าแถว', 'ไม่มาเข้าแถว', 'รวม', 'อัตราการเข้าแถว (%)'],
       ];
 
-      statistics.dailyBreakdown.forEach((day: any) => {
+      dailyBreakdown.forEach((day: any) => {
         const checkedIn = day.checkedIn ?? 0;
         const notCheckedIn = day.notCheckedIn ?? 0;
         const totalStudents = day.totalStudents ?? 0;
@@ -135,27 +141,27 @@ const TermStatisticsPage = () => {
     const teacherOverviewData = [
       ['สถิติการใช้งานของครู'],
       [],
-      ['ครูทั้งหมด', statistics.teacherUsageStats.totalTeachers],
+      ['ครูทั้งหมด', teacherStats.totalTeachers],
       [
         'ครูที่ใช้งาน',
-        statistics.teacherUsageStats.activeTeachers,
-        `${statistics.teacherUsageStats.activePercentage.toFixed(2)}%`,
+        teacherStats.activeTeachers,
+        `${(teacherStats.activePercentage ?? 0).toFixed(2)}%`,
       ],
       [
         'ครูที่ไม่ได้ใช้งาน',
-        statistics.teacherUsageStats.inactiveTeachers,
-        `${statistics.teacherUsageStats.inactivePercentage.toFixed(2)}%`,
+        teacherStats.inactiveTeachers,
+        `${(teacherStats.inactivePercentage ?? 0).toFixed(2)}%`,
       ],
       [],
       ['รายละเอียดการใช้งานของครู'],
       ['รหัสครู', 'ชื่อ-นามสกุล', 'แผนก', 'สาขาวิชา', 'จำนวนครั้งที่เช็คชื่อ', 'เช็คชื่อล่าสุด', 'สถานะการใช้งาน'],
     ];
 
-    if (
-      statistics.teacherUsageStats.teacherActivityDetails &&
-      statistics.teacherUsageStats.teacherActivityDetails.length > 0
-    ) {
-      statistics.teacherUsageStats.teacherActivityDetails.forEach((teacher: any) => {
+    const teacherActivityDetails = Array.isArray(teacherStats.teacherActivityDetails)
+      ? teacherStats.teacherActivityDetails
+      : [];
+    if (teacherActivityDetails.length > 0) {
+      teacherActivityDetails.forEach((teacher: any) => {
         const lastCheckInDate = teacher.lastCheckInDate ? formatThaiDate(new Date(teacher.lastCheckInDate)) : '-';
 
         teacherOverviewData.push([
@@ -252,7 +258,7 @@ const TermStatisticsPage = () => {
                   <InputLabel>แผนก</InputLabel>
                   <Select value={departmentFilter} label='แผนก' onChange={(e) => setDepartmentFilter(e.target.value)}>
                     <MenuItem value='all'>ทั้งหมด</MenuItem>
-                    {departments.map((dept) => (
+                    {departments.map((dept: { id: string; name: string }) => (
                       <MenuItem key={dept.id} value={dept.id}>
                         {dept.name}
                       </MenuItem>
@@ -265,7 +271,7 @@ const TermStatisticsPage = () => {
                   <InputLabel>สาขาวิชา</InputLabel>
                   <Select value={programFilter} label='สาขาวิชา' onChange={(e) => setProgramFilter(e.target.value)}>
                     <MenuItem value='all'>ทั้งหมด</MenuItem>
-                    {programs.map((prog) => (
+                    {programs.map((prog: { id: string; name: string }) => (
                       <MenuItem key={prog.id} value={prog.id}>
                         {prog.name}
                       </MenuItem>
@@ -356,7 +362,7 @@ const TermStatisticsPage = () => {
                       <Grid size={{ xs: 12, md: 4 }}>
                         <Box textAlign='center'>
                           <Typography variant='h3' fontWeight='bold'>
-                            {statistics.studentCheckInStats.totalStudents.toLocaleString()}
+                            {(studentStats.totalStudents ?? 0).toLocaleString()}
                           </Typography>
                           <Typography variant='body1' sx={{ opacity: 0.9 }}>
                             นักเรียนทั้งหมด
@@ -366,7 +372,7 @@ const TermStatisticsPage = () => {
                       <Grid size={{ xs: 12, md: 4 }}>
                         <Box textAlign='center'>
                           <Typography variant='h3' fontWeight='bold'>
-                            {statistics.studentCheckInStats.averageAttendanceRate.toFixed(2)}%
+                            {(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%
                           </Typography>
                           <Typography variant='body1' sx={{ opacity: 0.9 }}>
                             อัตราเข้าเรียนเฉลี่ย
@@ -376,7 +382,7 @@ const TermStatisticsPage = () => {
                       <Grid size={{ xs: 12, md: 4 }}>
                         <Box textAlign='center'>
                           <Typography variant='h3' fontWeight='bold'>
-                            {statistics.studentCheckInStats.totalCheckInDays}
+                            {studentStats.totalCheckInDays ?? 0}
                           </Typography>
                           <Typography variant='body1' sx={{ opacity: 0.9 }}>
                             จำนวนวันที่เช็คชื่อ
@@ -393,8 +399,8 @@ const TermStatisticsPage = () => {
                 <Card sx={{ height: '100%', minHeight: { xs: 350, sm: 400 } }}>
                   <CardContent sx={{ height: '100%' }}>
                     <AttendanceChart
-                      studentsCheckedIn={statistics.studentCheckInStats.studentsCheckedIn}
-                      studentsNotCheckedIn={statistics.studentCheckInStats.studentsNotCheckedIn}
+                      studentsCheckedIn={studentStats.studentsCheckedIn ?? 0}
+                      studentsNotCheckedIn={studentStats.studentsNotCheckedIn ?? 0}
                     />
                   </CardContent>
                 </Card>
@@ -403,7 +409,7 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, lg: 6 }}>
                 <Card sx={{ height: '100%', minHeight: { xs: 350, sm: 400 } }}>
                   <CardContent sx={{ height: '100%', pb: 1 }}>
-                    <DailyAttendanceChart dailyData={statistics.dailyChartData} />
+                    <DailyAttendanceChart dailyData={dailyChartData} />
                   </CardContent>
                 </Card>
               </Grid>
@@ -423,7 +429,7 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='นักเรียนทั้งหมด'
-                  value={statistics.studentCheckInStats.totalStudents}
+                  value={studentStats.totalStudents ?? 0}
                   icon={<FaUserGraduate />}
                   color='primary'
                 />
@@ -432,8 +438,8 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='มาเข้าแถว'
-                  value={statistics.studentCheckInStats.studentsCheckedIn}
-                  subtitle={`${statistics.studentCheckInStats.checkInPercentage.toFixed(2)}%`}
+                  value={studentStats.studentsCheckedIn ?? 0}
+                  subtitle={`${(studentStats.checkInPercentage ?? 0).toFixed(2)}%`}
                   icon={<FaUserGraduate />}
                   color='success'
                 />
@@ -442,8 +448,8 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='ไม่มาเข้าแถว'
-                  value={statistics.studentCheckInStats.studentsNotCheckedIn}
-                  subtitle={`${statistics.studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`}
+                  value={studentStats.studentsNotCheckedIn ?? 0}
+                  subtitle={`${(studentStats.notCheckedInPercentage ?? 0).toFixed(2)}%`}
                   icon={<FaUserGraduate />}
                   color='error'
                 />
@@ -452,8 +458,8 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='จำนวนวันเช็คชื่อ'
-                  value={statistics.studentCheckInStats.totalCheckInDays}
-                  subtitle={`เฉลี่ย ${statistics.studentCheckInStats.averageAttendanceRate.toFixed(2)}%`}
+                  value={studentStats.totalCheckInDays ?? 0}
+                  subtitle={`เฉลี่ย ${(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%`}
                   icon={<FaChartPie />}
                   color='info'
                 />
@@ -461,7 +467,7 @@ const TermStatisticsPage = () => {
 
               {/* Daily Breakdown Table */}
               <Grid size={12}>
-                <DailyBreakdownTable dailyData={statistics.dailyBreakdown} />
+                <DailyBreakdownTable dailyData={dailyBreakdown} />
               </Grid>
             </>
           )}
@@ -479,7 +485,7 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='ครูทั้งหมด'
-                  value={statistics.teacherUsageStats.totalTeachers}
+                  value={teacherStats.totalTeachers ?? 0}
                   icon={<FaChalkboardTeacher />}
                   color='primary'
                 />
@@ -488,8 +494,8 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='ครูที่ใช้งาน'
-                  value={statistics.teacherUsageStats.activeTeachers}
-                  subtitle={`${statistics.teacherUsageStats.activePercentage.toFixed(2)}%`}
+                  value={teacherStats.activeTeachers ?? 0}
+                  subtitle={`${(teacherStats.activePercentage ?? 0).toFixed(2)}%`}
                   icon={<FaChalkboardTeacher />}
                   color='success'
                 />
@@ -498,8 +504,8 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='ครูที่ไม่ได้ใช้งาน'
-                  value={statistics.teacherUsageStats.inactiveTeachers}
-                  subtitle={`${statistics.teacherUsageStats.inactivePercentage.toFixed(2)}%`}
+                  value={teacherStats.inactiveTeachers ?? 0}
+                  subtitle={`${(teacherStats.inactivePercentage ?? 0).toFixed(2)}%`}
                   icon={<FaChalkboardTeacher />}
                   color='error'
                 />
@@ -508,7 +514,7 @@ const TermStatisticsPage = () => {
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <StatisticsCard
                   title='อัตราการใช้งานเฉลี่ย'
-                  value={`${statistics.teacherUsageStats.activePercentage.toFixed(1)}%`}
+                  value={`${(teacherStats.activePercentage ?? 0).toFixed(1)}%`}
                   icon={<FaChartPie />}
                   color='info'
                 />
@@ -518,8 +524,8 @@ const TermStatisticsPage = () => {
                 <Card sx={{ minHeight: { xs: 350, sm: 400 } }}>
                   <CardContent>
                     <TeacherUsageChart
-                      activeTeachers={statistics.teacherUsageStats.activeTeachers}
-                      inactiveTeachers={statistics.teacherUsageStats.inactiveTeachers}
+                      activeTeachers={teacherStats.activeTeachers ?? 0}
+                      inactiveTeachers={teacherStats.inactiveTeachers ?? 0}
                     />
                   </CardContent>
                 </Card>
@@ -538,7 +544,7 @@ const TermStatisticsPage = () => {
                             align='center'
                             sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
                           >
-                            {statistics.teacherUsageStats.activeTeachers}
+                            {teacherStats.activeTeachers ?? 0}
                           </Typography>
                           <Typography
                             variant='body2'
@@ -558,7 +564,7 @@ const TermStatisticsPage = () => {
                             align='center'
                             sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
                           >
-                            {statistics.teacherUsageStats.inactiveTeachers}
+                            {teacherStats.inactiveTeachers ?? 0}
                           </Typography>
                           <Typography
                             variant='body2'
@@ -577,7 +583,7 @@ const TermStatisticsPage = () => {
 
               {/* Teacher Activity Table */}
               <Grid size={12}>
-                <TeacherActivityTable teachers={statistics.teacherUsageStats.teacherActivityDetails} />
+                <TeacherActivityTable teachers={Array.isArray(teacherStats.teacherActivityDetails) ? teacherStats.teacherActivityDetails : []} />
               </Grid>
             </>
           )}
