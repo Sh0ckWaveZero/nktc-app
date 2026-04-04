@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,24 +6,47 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
-import { useGoodnessSearch } from '@/hooks/queries/useGoodness';
 import { queryKeys } from '@/libs/react-query/queryKeys';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
-import { use } from 'react';
 
 // Form schema
 const searchFormSchema = z.object({
   student: z.any().nullable().optional(),
   classroom: z.any().nullable().optional(),
-  goodDate: z.date().nullable().optional(),
+  badDate: z.date().nullable().optional(),
 });
 
 type SearchFormData = z.infer<typeof searchFormSchema>;
 
-export const useGoodnessReport = () => {
+// localStorage key
+const BADNESS_REPORT_STORAGE_KEY = 'badness-report-filters';
+
+export const useBadnessReport = () => {
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
+
+  // Load saved filters from localStorage on mount
+  const getSavedFilters = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(BADNESS_REPORT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          student: parsed.student || null,
+          classroom: parsed.classroom || null,
+          badDate: parsed.badDate ? new Date(parsed.badDate) : new Date(), // Default to today
+        };
+      }
+    } catch (error) {
+      console.error('Error loading saved filters:', error);
+    }
+    return {
+      student: null,
+      classroom: null,
+      badDate: new Date(), // Default to today
+    };
+  }, []);
 
   // Form management
   const {
@@ -31,14 +54,11 @@ export const useGoodnessReport = () => {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<SearchFormData>({
     resolver: zodResolver(searchFormSchema),
-    defaultValues: {
-      student: null,
-      classroom: null,
-      goodDate: new Date(),
-    },
+    defaultValues: getSavedFilters(),
   });
 
   // Watch form values for student search
@@ -58,7 +78,6 @@ export const useGoodnessReport = () => {
   const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
 
   // Transform inputValue to proper format for useStudentsSearch
-  // Compute watchedInputValue inline where it's actually used
   const getWatchedInputValue = useCallback(() => {
     if (!watchedStudent) return '';
     if (watchedStudent.account) {
@@ -91,16 +110,16 @@ export const useGoodnessReport = () => {
     enabled: !!studentSearchParams?.fullName && watchedInputValue.trim().length > 0,
   });
 
-  // Create a Promise for goodness search
-  const goodnessSearchPromise = useMemo(() => {
+  // Badness search hook
+  const badnessSearchPromise = useMemo(() => {
     if (!searchParams) {
       return Promise.resolve({ data: [], total: 0 });
     }
 
     return queryClient.fetchQuery({
-      queryKey: queryKeys.goodness.list(searchParams),
+      queryKey: queryKeys.badness.list(searchParams),
       queryFn: async () => {
-        const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, searchParams);
+        const { data } = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/search`, searchParams);
 
         // Handle different response formats
         if (!data || typeof data !== 'object') {
@@ -142,19 +161,10 @@ export const useGoodnessReport = () => {
   }, [searchParams, queryClient]);
 
   // Use `use` hook to read the Promise
-  const goodnessSearchDataFromUse = use(goodnessSearchPromise);
+  const badnessSearchDataFromUse = use(badnessSearchPromise);
 
-  // Fallback: Manual search trigger for goodness records
-  const {
-    data: goodnessSearchDataFallback,
-    isLoading: loadingGoodnessSearch,
-    error: goodnessSearchError,
-  } = useGoodnessSearch(searchParams || undefined, {
-    enabled: !!searchParams,
-  });
-
-  // Use data from `use` hook if available, otherwise fallback to React Query hook
-  const finalGoodnessSearchData = goodnessSearchDataFromUse || goodnessSearchDataFallback;
+  // Fallback: Manual search trigger for badness records
+  const badnessSearchData = badnessSearchDataFromUse;
 
   // Show error toast if queries fail
   useEffect(() => {
@@ -171,14 +181,14 @@ export const useGoodnessReport = () => {
 
   // Update currentStudents when search data changes
   useEffect(() => {
-    if (finalGoodnessSearchData) {
-      const responseData = finalGoodnessSearchData?.data;
+    if (badnessSearchData) {
+      const responseData = badnessSearchData?.data;
 
       if (Array.isArray(responseData)) {
         setCurrentStudents(responseData);
       } else {
-        if (Array.isArray(finalGoodnessSearchData)) {
-          setCurrentStudents(finalGoodnessSearchData);
+        if (Array.isArray(badnessSearchData)) {
+          setCurrentStudents(badnessSearchData);
         } else {
           setCurrentStudents([]);
         }
@@ -186,18 +196,25 @@ export const useGoodnessReport = () => {
     } else if (searchParams === null) {
       setCurrentStudents([]);
     }
-  }, [finalGoodnessSearchData, searchParams]);
+  }, [badnessSearchData, searchParams]);
 
-  // Handle search error
+  // Save form values to localStorage whenever they change
   useEffect(() => {
-    if (goodnessSearchError) {
-      const errorMessage =
-        (goodnessSearchError as any)?.response?.data?.message ||
-        (goodnessSearchError as any)?.message ||
-        'เกิดข้อผิดพลาดในการค้นหา';
-      toast.error(errorMessage);
-    }
-  }, [goodnessSearchError]);
+    const subscription = watch((value) => {
+      try {
+        const toSave = {
+          student: value.student,
+          classroom: value.classroom,
+          badDate: value.badDate ? value.badDate.toISOString() : null,
+        };
+        localStorage.setItem(BADNESS_REPORT_STORAGE_KEY, JSON.stringify(toSave));
+      } catch (error) {
+        console.error('Error saving filters to localStorage:', error);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   // Form submit handler
   const onSubmit = useCallback(
@@ -228,10 +245,10 @@ export const useGoodnessReport = () => {
       }
 
       // Convert Date to ISO string if Date object
-      if (data.goodDate) {
-        if (data.goodDate instanceof Date) {
-          const dateStr = data.goodDate.toISOString().split('T')[0];
-          requestBody.goodDate = dateStr;
+      if (data.badDate) {
+        if (data.badDate instanceof Date) {
+          const dateStr = data.badDate.toISOString().split('T')[0];
+          requestBody.badDate = dateStr;
         }
       }
 
@@ -247,7 +264,7 @@ export const useGoodnessReport = () => {
 
         if (searchParams) {
           queryClient.invalidateQueries({
-            queryKey: queryKeys.goodness.list(requestBody),
+            queryKey: queryKeys.badness.list(requestBody),
           });
         }
       });
@@ -328,7 +345,7 @@ export const useGoodnessReport = () => {
     studentsListData,
     loadingStudents,
     currentStudents,
-    loadingGoodnessSearch,
+    loadingBadnessSearch: false,
 
     // State
     isPending,

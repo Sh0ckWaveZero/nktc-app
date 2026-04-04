@@ -61,7 +61,6 @@ const GoodnessAllReportPage = () => {
     currentStudents,
     loadingGoodnessSearch,
     isPending,
-    watchedInputValue,
     pageSize,
     mobilePage,
     mobilePageSize,
@@ -106,10 +105,7 @@ const GoodnessAllReportPage = () => {
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
       <React.Fragment>
-        <Box
-          id='goodness-report-page'
-          sx={{ borderRadius: '8px', overflow: 'hidden' }}
-        >
+        <Box id='goodness-report-page' sx={{ borderRadius: '8px', overflow: 'hidden' }}>
           <Grid id='goodness-report-grid-container' container spacing={responsiveConfig.containerSpacing}>
             <Grid id='goodness-report-grid-item' size={12}>
               <Box
@@ -137,6 +133,8 @@ const GoodnessAllReportPage = () => {
                     flexDirection: 'column',
                     backgroundColor: 'background.paper',
                     position: 'relative',
+                    flex: 1,
+                    height: '100%',
                   }}
                 >
                   {/* Controls Section */}
@@ -145,23 +143,23 @@ const GoodnessAllReportPage = () => {
                     sx={{
                       flexShrink: 0,
                       px: { xs: 4, sm: 6 },
-                      py: 2,
+                      py: { xs: 4, sm: 6 },
                       borderBottom: 0,
+                      borderRadius: 4,
                     }}
                   >
-              <TableHeader
-                control={control}
-                classroomLoading={classroomLoading as boolean}
-                classrooms={classrooms}
-                datePickLabel='วันที่บันทึกความดี'
-                inputValue={watchedInputValue}
-                loadingStudents={loadingStudents}
-                isPending={isPending}
+                    <TableHeader
+                      control={control}
+                      classroomLoading={classroomLoading as boolean}
+                      classrooms={classrooms}
+                      datePickLabel='วันที่บันทึกความดี'
+                      loadingStudents={loadingStudents}
+                      isPending={isPending}
                       onClear={handleClearClick}
                       onSubmit={handleSearchClick}
                       onSearchChange={handleSearchChange}
-                students={studentsListData}
-              />
+                      students={studentsListData}
+                    />
                   </Box>
 
                   {/* Mobile Card View */}

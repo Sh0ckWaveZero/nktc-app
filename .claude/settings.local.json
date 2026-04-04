@@ -108,7 +108,8 @@
       "mcp__next-devtools__nextjs_index",
       "Bash(kill 49033)",
       "Bash(npx prisma:*)",
-      "Bash(pnpm exec:*)"
+      "Bash(pnpm exec:*)",
+      "Bash(node -e \"console.log\\(new Date\\(\\)\\)\")"
     ],
     "deny": []
   },

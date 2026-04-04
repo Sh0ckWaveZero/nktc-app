@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useContext, useDeferredValue, useState } from 'react';
+import React, { useCallback, useContext, useDeferredValue, useState } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGroup';
@@ -44,7 +44,11 @@ const RecordBadnessGroupPage = () => {
 
   // React Query hooks
   const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
-  const { data: studentsList = [], isLoading: studentLoading, error: studentsError } = useStudentsSearch({
+  const {
+    data: studentsList = [],
+    isLoading: studentLoading,
+    error: studentsError,
+  } = useStudentsSearch({
     q: deferredValue,
   });
 
@@ -128,9 +132,7 @@ const RecordBadnessGroupPage = () => {
     handleCloseClassroom();
     setDefaultClassroom(null);
 
-    const validSelectedStudents = Array.isArray(selectClassrooms)
-      ? selectClassrooms.filter((s: any) => s && s.id)
-      : [];
+    const validSelectedStudents = Array.isArray(selectClassrooms) ? selectClassrooms.filter((s: any) => s && s.id) : [];
 
     const selectedIds = validSelectedStudents.map((student: any) => student.id);
 

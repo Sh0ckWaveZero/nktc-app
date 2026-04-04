@@ -28,7 +28,6 @@ interface TableHeaderProps {
   classroomLoading: boolean;
   classrooms: any[];
   datePickLabel: string;
-  inputValue: string;
   loadingStudents: boolean;
   isPending?: boolean;
   onClear: () => void;
@@ -121,8 +120,12 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Icon icon='mdi:account-outline' fontSize='1.25rem' color='primary.main' />
               <Box>
-                <Typography variant='body2' sx={{ fontWeight: 600 }}>{displayText}</Typography>
-                <Typography variant='caption' color='text.secondary'>{option.studentId || ''}</Typography>
+                <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                  {displayText}
+                </Typography>
+                <Typography variant='caption' color='text.secondary'>
+                  {option.studentId || ''}
+                </Typography>
               </Box>
             </Box>
           </li>
@@ -150,7 +153,7 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
             },
             inputLabel: {
               shrink: true,
-              sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' }
+              sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
             },
           }}
         />
@@ -168,7 +171,6 @@ const TableHeader = (props: TableHeaderProps) => {
     classroomLoading,
     classrooms,
     datePickLabel,
-    inputValue,
     loadingStudents,
     isPending = false,
     onClear,
@@ -183,10 +185,11 @@ const TableHeader = (props: TableHeaderProps) => {
       sx={{
         p: { xs: 4, sm: 6 },
         mb: 8,
-        borderRadius: 4,
+        borderRadius: 1,
         bgcolor: (theme) => (theme.palette.mode === 'light' ? 'background.paper' : 'background.default'),
         border: (theme) => `1px solid ${theme.palette.divider}`,
-        boxShadow: (theme) => `0 8px 32px -4px ${hexToRGBA(theme.palette.mode === 'light' ? '#3A3541' : '#000000', 0.08)}`,
+        boxShadow: (theme) =>
+          `0 8px 32px -4px ${hexToRGBA(theme.palette.mode === 'light' ? '#3A3541' : '#000000', 0.08)}`,
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -197,17 +200,17 @@ const TableHeader = (props: TableHeaderProps) => {
           right: 0,
           height: 4,
           background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.info.main})`,
-        }
+        },
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 6, gap: 3 }}>
-        <Box 
-          sx={{ 
-            p: 2, 
-            borderRadius: 1.5, 
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 1.5,
             bgcolor: (theme) => hexToRGBA(theme.palette.primary.main, 0.1),
             color: 'primary.main',
-            display: 'flex'
+            display: 'flex',
           }}
         >
           <Icon icon='mdi:filter-variant' fontSize='1.5rem' />
@@ -273,13 +276,17 @@ const TableHeader = (props: TableHeaderProps) => {
                         input: {
                           ...params.InputProps,
                           startAdornment: (
-                            <Icon icon='mdi:google-classroom' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
+                            <Icon
+                              icon='mdi:google-classroom'
+                              fontSize='1.25rem'
+                              style={{ marginRight: 8, opacity: 0.6 }}
+                            />
                           ),
                           sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
                         },
                         inputLabel: {
                           shrink: true,
-                          sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' }
+                          sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
                         },
                       }}
                     />
@@ -294,7 +301,7 @@ const TableHeader = (props: TableHeaderProps) => {
         <Grid size={{ xs: 12, md: 2.5 }}>
           <FormControl fullWidth>
             <Controller
-              name='goodDate'
+              name={datePickLabel.includes('ดี') ? 'goodDate' : 'badDate'}
               control={control}
               render={({ field: { value, onChange } }) => (
                 <ThaiDatePicker
@@ -309,20 +316,24 @@ const TableHeader = (props: TableHeaderProps) => {
                         '& .MuiOutlinedInput-root': {
                           height: { xs: 44, sm: 48 },
                           borderRadius: 2,
-                          bgcolor: 'background.paper'
+                          bgcolor: 'background.paper',
                         },
                         '& .MuiInputLabel-root': {
                           fontWeight: 600,
-                          transform: 'translate(14px, -9px) scale(0.75)'
-                        }
+                          transform: 'translate(14px, -9px) scale(0.75)',
+                        },
                       },
                       slotProps: {
                         input: {
                           startAdornment: (
-                            <Icon icon='mdi:calendar-range' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
+                            <Icon
+                              icon='mdi:calendar-range'
+                              fontSize='1.25rem'
+                              style={{ marginRight: 8, opacity: 0.6 }}
+                            />
                           ),
-                        }
-                      }
+                        },
+                      },
                     },
                   }}
                 />
@@ -347,13 +358,14 @@ const TableHeader = (props: TableHeaderProps) => {
                 fontSize: '0.95rem',
                 textTransform: 'none',
                 boxShadow: (theme) => `0 8px 24px ${hexToRGBA(theme.palette.primary.main, 0.25)}`,
-                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                background: (theme) =>
+                  `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                 transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   transform: 'translateY(-2px)',
                   boxShadow: (theme) => `0 12px 32px ${hexToRGBA(theme.palette.primary.main, 0.4)}`,
                 },
-                '&:active': { transform: 'translateY(0)' }
+                '&:active': { transform: 'translateY(0)' },
               }}
             >
               แสดงรายงาน
@@ -374,8 +386,8 @@ const TableHeader = (props: TableHeaderProps) => {
                   '&:hover': {
                     bgcolor: (theme) => hexToRGBA(theme.palette.secondary.main, 0.1),
                     borderColor: 'secondary.main',
-                    color: 'secondary.main'
-                  }
+                    color: 'secondary.main',
+                  },
                 }}
               >
                 <Icon icon='mdi:filter-off-outline' fontSize='1.25rem' />
