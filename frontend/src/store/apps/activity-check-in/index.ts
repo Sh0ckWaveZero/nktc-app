@@ -79,8 +79,10 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   },
   findDailyReportAdmin: async (param: any) => {
     try {
+      const toISODate = (d: Date | string) =>
+        d instanceof Date ? d.toISOString().split('T')[0] : d;
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/start-date/${param.startDate}/end-date/${param.endDate}/admin-daily-report`,
+        `${authConfig.activityCheckInEndpoint}/start-date/${toISODate(param.startDate)}/end-date/${toISODate(param.endDate)}/admin-daily-report`,
       );
       return await data;
     } catch (err) {

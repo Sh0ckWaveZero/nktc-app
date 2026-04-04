@@ -19,24 +19,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { isEmpty } from '@/@core/utils/utils';
-import React, { Fragment, useId, useState } from 'react';
+import React, { useId, useState } from 'react';
 import Icon from '@/@core/components/icon';
-
-interface Row {
-  level: string;
-  department: string;
-  present: number;
-  presentPercent: number;
-  absent: number;
-  absentPercent: number;
-  leave: number;
-  leavePercent: number;
-  late: number;
-  latePercent: number;
-  internship: number;
-  internshipPercent: number;
-  total: number;
-}
+import { CheckInClassroom } from '@/types/apps/reportCheckIn';
 
 interface Header {
   key: string;
@@ -92,31 +77,30 @@ const header: Header[] = [
   { name: 'รวมทั้งหมด', key: 'รวมทั้งหมด', align: 'right' },
 ];
 
-const subtotal = (items: readonly Row[], level: string) => {
+const subtotal = (items: readonly CheckInClassroom[], level: string) => {
   return items
-    .filter((item: any) => item?.level?.levelName === level)
+    .filter((item) => item?.level?.levelName === level)
     .map(({ total }) => total)
     .reduce((sum, i) => sum + i, 0);
 };
 
-const sumByProperty = (items: readonly Row[], level: string, property: StudentAttendance) => {
-  const filteredItems = items.filter((item: any) => item?.level?.levelName === level);
-  const values = filteredItems.map((item: any) => item[property]);
+const sumByProperty = (items: readonly CheckInClassroom[], level: string, property: StudentAttendance) => {
+  const filteredItems = items.filter((item) => item?.level?.levelName === level);
+  const values = filteredItems.map((item) => item[property]);
   return values.reduce((sum, value) => sum + value, 0);
 };
 
-const subPresent = (items: readonly Row[], level: string) => sumByProperty(items, level, 'present');
-const subAbsent = (items: readonly Row[], level: string) => sumByProperty(items, level, 'absent');
-const subLeave = (items: readonly Row[], level: string) => sumByProperty(items, level, 'leave');
-const subLate = (items: readonly Row[], level: string) => sumByProperty(items, level, 'late');
-const subInternship = (items: readonly Row[], level: string) => sumByProperty(items, level, 'internship');
+const subPresent = (items: readonly CheckInClassroom[], level: string) => sumByProperty(items, level, 'present');
+const subAbsent = (items: readonly CheckInClassroom[], level: string) => sumByProperty(items, level, 'absent');
+const subLeave = (items: readonly CheckInClassroom[], level: string) => sumByProperty(items, level, 'leave');
+const subLate = (items: readonly CheckInClassroom[], level: string) => sumByProperty(items, level, 'late');
+const subInternship = (items: readonly CheckInClassroom[], level: string) => sumByProperty(items, level, 'internship');
 
 interface TableHeaderProps {
-  values: any[];
+  values: CheckInClassroom[];
 }
 
-const RowDaily = (prop: any) => {
-  const { values, levelRow } = prop;
+const RowDaily = ({ values, levelRow }: { values: CheckInClassroom[]; levelRow: string }) => {
 
   // ** Hook
   const theme = useTheme();
@@ -180,7 +164,7 @@ const RowDaily = (prop: any) => {
                 </TableHead>
                 <TableBody>
                   {values
-                    .filter((item: any) => item?.level?.levelName === levelRow)
+                    .filter((item) => item?.level?.levelName === levelRow)
                     .map((row: any) => (
                       <StyledTableRow hover key={row.id}>
                         <StyledTableCell>{row.name}</StyledTableCell>

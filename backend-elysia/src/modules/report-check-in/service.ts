@@ -31,16 +31,108 @@ export abstract class ReportCheckInService {
 	}
 
 	static async getByDateRange(startDate: string, endDate: string) {
-		return prisma.reportCheckIn.findMany({
-			where: {
-				checkInDate: { gte: new Date(startDate), lte: new Date(endDate) },
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+		start.setHours(0, 0, 0, 0);
+		end.setHours(23, 59, 59, 999);
+
+		const classrooms = await prisma.classroom.findMany({
+			select: {
+				id: true,
+				name: true,
+				level: {
+					select: {
+						id: true,
+						levelName: true,
+						levelFullName: true,
+					},
+				},
+				department: {
+					select: {
+						id: true,
+						departmentId: true,
+						name: true,
+					},
+				},
 			},
-			include: {
-				classroom: { include: { program: true, department: true } },
-				teacher: true,
-			},
-			orderBy: { checkInDate: "asc" },
 		});
+
+		const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
+		const sortedClassrooms = classrooms
+			.sort((a, b) => {
+				const matchA = a.name.match(nameNumberRegex);
+				const matchB = b.name.match(nameNumberRegex);
+				if (!matchA || !matchB) return a.name.localeCompare(b.name);
+				const [, prefixA, numberA, suffixA] = matchA;
+				const [, prefixB, numberB, suffixB] = matchB;
+				if (prefixA !== prefixB) return prefixA.localeCompare(prefixB);
+				const [majorA, minorA] = numberA.split("/");
+				const [majorB, minorB] = numberB.split("/");
+				if (majorA !== majorB) return Number(majorA) - Number(majorB);
+				if (minorA !== minorB) return Number(minorA) - Number(minorB);
+				return suffixA.localeCompare(suffixB);
+			})
+			.sort((a, b) => a.department.name.localeCompare(b.department.name));
+
+		const totalStudents = await prisma.student.count();
+
+		const checkIn = await Promise.all(
+			sortedClassrooms.map(async (classroom) => {
+				const reportCheckIn = await prisma.reportCheckIn.findFirst({
+					where: {
+						classroomId: classroom.id,
+						checkInDate: { gte: start, lte: end },
+					},
+				});
+
+				const checkInBy = reportCheckIn?.createdBy
+					? await prisma.user.findFirst({
+						where: { teacher: { id: reportCheckIn.createdBy } },
+						select: {
+							id: true,
+							username: true,
+							account: {
+								select: {
+									id: true,
+									title: true,
+									firstName: true,
+									lastName: true,
+									avatar: true,
+								},
+							},
+						},
+					})
+					: null;
+
+				const presentCount = reportCheckIn?.present?.length ?? 0;
+				const absentCount = reportCheckIn?.absent?.length ?? 0;
+				const lateCount = reportCheckIn?.late?.length ?? 0;
+				const leaveCount = reportCheckIn?.leave?.length ?? 0;
+				const internshipCount = reportCheckIn?.internship?.length ?? 0;
+				const total = presentCount + absentCount + lateCount + leaveCount + internshipCount;
+
+				const pct = (n: number) => (total > 0 ? Math.round((n / total) * 10000) / 100 : 0);
+
+				return {
+					...classroom,
+					present: presentCount,
+					presentPercent: pct(presentCount),
+					absent: absentCount,
+					absentPercent: pct(absentCount),
+					late: lateCount,
+					latePercent: pct(lateCount),
+					leave: leaveCount,
+					leavePercent: pct(leaveCount),
+					internship: internshipCount,
+					internshipPercent: pct(internshipCount),
+					total,
+					checkInDate: reportCheckIn?.checkInDate ?? null,
+					...(checkInBy ? { checkInBy } : {}),
+				};
+			}),
+		);
+
+		return { students: totalStudents, checkIn };
 	}
 
 	static async getSummary(teacherId: string, classroomId: string) {
