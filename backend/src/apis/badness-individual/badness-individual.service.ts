@@ -73,56 +73,51 @@ export class BadnessIndividualService {
   }
 
   async search(query: any) {
-    const filter = {};
+    const filter: any = {};
 
-    if (query.fullName) {
-      const [firstName, lastName] = query.fullName.split(' ');
-
-      if (firstName) {
-        filter['student'] = {
-          user: {
-            account: {
-              firstName: {
-                contains: firstName,
-              },
-            },
-          },
-        };
-      }
-
-      if (lastName) {
-        filter['student'] = {
-          user: {
-            account: {
-              lastName: {
-                contains: lastName,
-              },
-            },
-          },
-        };
-      }
+    // Filter by student ID if provided
+    if (query.studentId) {
+      filter.studentKey = query.studentId;
     }
 
+    // Filter by classroom ID if provided
     if (query.classroomId) {
-      filter['classroom'] = {
-        id: query.classroomId,
-      };
+      filter.classroomId = query.classroomId;
     }
 
+    // Filter by badDate (the date when badness was recorded) if provided
     if (query.badDate) {
       const startDate = new Date(query.badDate);
       const endDate = new Date(query.badDate);
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      filter['createdAt'] = {
+      filter.badDate = {
         gte: startDate,
         lte: endDate,
       };
     }
 
-    if (query.studentId) {
-      filter['studentKey'] = query.studentId;
+    // Filter by fullName if provided
+    if (query.fullName) {
+      // Search in both firstName and lastName fields
+      filter.student = {
+        user: {
+          account: {
+            OR: [
+              { firstName: { contains: query.fullName, mode: 'insensitive' } },
+              { lastName: { contains: query.fullName, mode: 'insensitive' } },
+              {
+                // Also search the concatenated name
+                OR: [
+                  { firstName: { contains: query.fullName.split(' ')[0], mode: 'insensitive' } },
+                  { lastName: { contains: query.fullName.split(' ').slice(-1)[0], mode: 'insensitive' } }
+                ]
+              }
+            ]
+          }
+        }
+      };
     }
 
     const selectedStudents = await this.prisma.badnessIndividual.findMany({

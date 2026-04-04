@@ -78,4 +78,9 @@ export const studentInclude = {
     take: 1,
     select: { createdAt: true, goodnessDetail: true, goodnessScore: true },
   },
+  badnessIndividual: {
+    orderBy: { createdAt: "desc" as const },
+    take: 1,
+    select: { createdAt: true, badnessDetail: true, badnessScore: true },
+  },
 } as const;

@@ -3,11 +3,14 @@ import { t, type UnwrapSchema } from "elysia";
 export const BadnessModel = {
 	badnessBody: t.Object({
 		studentId: t.String(),
-		classroomId: t.String(),
+		studentKey: t.Optional(t.String()),
+		classroomId: t.Optional(t.String()),
 		badnessScore: t.Number(),
 		badnessDetail: t.Optional(t.String()),
 		image: t.Optional(t.String()),
 		badDate: t.Optional(t.String()),
+		createdBy: t.Optional(t.String()),
+		updatedBy: t.Optional(t.String()),
 	}),
 	queryBody: t.Object({
 		skip: t.Optional(t.String()),

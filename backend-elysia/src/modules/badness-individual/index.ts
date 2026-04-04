@@ -58,8 +58,10 @@ export const badnessIndividual = new Elysia({ prefix: "/badness-individual" })
 			.post(
 				"/search",
 				async ({ body }) => {
-					const { classroomId, studentId, startDate, endDate, skip, take } = body as any;
+					const { classroomId, studentId, fullName, badDate, startDate, endDate, skip, take } = body as any;
 					return BadnessService.search({
+						fullName,
+						badDate,
 						classroomId,
 						studentId,
 						startDate,

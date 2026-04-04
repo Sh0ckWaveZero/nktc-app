@@ -396,24 +396,25 @@ export class StudentsService {
   }
 
   async search(query: any) {
-    const filer = {};
+    const filer: any = {};
     if (query.fullName) {
       const [firstName, lastName] = query.fullName.split(' ');
+      const accountFilter: any = {};
 
       if (firstName) {
-        filer['account'] = {
-          ['firstName']: {
-            contains: firstName,
-          },
+        accountFilter.firstName = {
+          contains: firstName,
         };
       }
 
       if (lastName) {
-        filer['account'] = {
-          ['lastName']: {
-            contains: lastName,
-          },
+        accountFilter.lastName = {
+          contains: lastName,
         };
+      }
+
+      if (Object.keys(accountFilter).length > 0) {
+        filer['account'] = accountFilter;
       }
     }
 

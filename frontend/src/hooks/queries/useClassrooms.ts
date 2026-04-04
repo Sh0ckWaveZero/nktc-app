@@ -47,6 +47,39 @@ export const useClassrooms = (params?: ClassroomQuery) => {
 };
 
 /**
+ * Hook to fetch teacher's assigned classrooms with students
+ * This endpoint returns only classrooms assigned to the teacher
+ */
+export const useTeacherClassrooms = (teacherId: string) => {
+  return useQuery({
+    queryKey: queryKeys.classrooms.list({ teacherId }),
+    queryFn: async () => {
+      const { data } = await httpClient.get(
+        `${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`
+      );
+
+      // Returns array of classrooms with students: [{ id, name, students: [], ... }]
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      if (data && typeof data === 'object') {
+        if ('success' in data && 'data' in data && Array.isArray(data.data)) {
+          return data.data;
+        }
+        if ('data' in data && Array.isArray(data.data)) {
+          return data.data;
+        }
+      }
+
+      return [];
+    },
+    enabled: !!teacherId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
  * Hook to fetch classroom by ID
  */
 export const useClassroom = (classroomId: string) => {
