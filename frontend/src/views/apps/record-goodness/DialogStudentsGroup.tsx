@@ -56,6 +56,21 @@ type Props = {
 // Server-side filtering - return all options from API without additional filtering
 const filterOptions = (options: any[]) => options;
 
+function getStudentDisplayName(option: any): string {
+  // Structure from account nested: { account: { title, firstName, lastName } }
+  const account = option?.user?.account || option?.account;
+  if (account) {
+    const { title = '', firstName = '', lastName = '' } = account;
+    const label = `${title} ${firstName} ${lastName}`.trim();
+    if (label) return label;
+  }
+  // Structure from /students/list: { fullName, title }
+  if (option?.fullName) {
+    return `${option.title || ''} ${option.fullName}`.trim();
+  }
+  return option?.studentId || option?.id || '';
+}
+
 
 function DialogStudentGroup({
   handleCloseSelectStudents,
@@ -108,42 +123,19 @@ function DialogStudentGroup({
             filterOptions={filterOptions}
             getOptionLabel={(option: any) => {
               if (typeof option === 'string') return option;
-
-              const account = option?.user?.account || option?.account;
-              if (account) {
-                const { title = '', firstName = '', lastName = '' } = account;
-                const label = `${title}${firstName} ${lastName}`.trim();
-                if (label) return label;
-              }
-
-              if (option?.fullName) {
-                return `${option?.title || ''}${option.fullName}`;
-              }
-
-              return option?.studentId || option?.id || '';
+              return getStudentDisplayName(option);
             }}
             isOptionEqualToValue={(option: any, value: any) => {
               if (typeof option === 'string' || typeof value === 'string') {
                 return option === value;
               }
-              return option?.id === value?.id;
+              return (option?.id && option.id === value?.id) || (option?.studentId && option.studentId === value?.studentId);
             }}
             renderOption={(props: any, option: any, { selected }) => {
               const { key, ...optionProps } = props;
-              
-              const account = option?.user?.account || option?.account;
-              let displayName = '';
-              if (account) {
-                const { title = '', firstName = '', lastName = '' } = account;
-                displayName = `${title}${firstName} ${lastName}`.trim();
-              } else if (option?.fullName) {
-                displayName = `${option?.title || ''}${option.fullName}`;
-              } else {
-                displayName = option?.studentId || option?.id || '';
-              }
-              
+              const uniqueKey = key ?? option.id ?? option.studentId;
               return (
-                <li {...optionProps} key={option.id || key}>
+                <li key={uniqueKey} {...optionProps}>
                   <Checkbox
                     icon={icon}
                     checkedIcon={checkedIcon}
@@ -152,7 +144,7 @@ function DialogStudentGroup({
                     }}
                     checked={selected}
                   />
-                  {displayName}
+                  {getStudentDisplayName(option)}
                 </li>
               );
             }}
@@ -171,7 +163,6 @@ function DialogStudentGroup({
                 }}
               />
             )}
-            groupBy={(option: any) => option?.student?.classroom?.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>

@@ -383,12 +383,14 @@ export class StudentsService {
     });
 
     return students.map((student) => {
+      const firstName = student.account?.firstName || '';
+      const lastName = student.account?.lastName || '';
       return {
-        fullName: `${student.account.firstName} ${student.account.lastName}`,
-        title: student.account.title,
-        id: student.student.id,
+        fullName: `${firstName} ${lastName}`.trim(),
+        title: student.account?.title || '',
+        id: student.student?.id,
         studentId: student.username,
-        classroom: student.student.classroom,
+        classroom: student.student?.classroom,
       };
     });
   }

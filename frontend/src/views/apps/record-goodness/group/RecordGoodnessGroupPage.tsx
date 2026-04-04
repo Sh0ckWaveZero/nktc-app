@@ -26,12 +26,14 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useClassrooms, useStudents } from '@/hooks/queries';
 import { toast } from 'react-toastify';
+import { getStudentName, getStudentId, getStudentClassroom } from '@/utils/student';
 
 export interface DialogTitleProps {
   id: string;
   children?: React.ReactNode;
   onClose: () => void;
 }
+
 
 const RecordGoodnessGroupPage = () => {
   // ** Hooks
@@ -109,7 +111,7 @@ const RecordGoodnessGroupPage = () => {
 
   const handleAddStudents = useCallback(() => {
     handleCloseSelectStudents();
-    const selectedIds = selectStudents.map((student: any) => student.id);
+const selectedIds = selectStudents.map((student: any) => student.id);
     const uniqueStudents = students.filter((student: any) => !selectedIds.includes(student.id));
     setStudents([...uniqueStudents, ...selectStudents]);
   }, [students, selectStudents]);
@@ -302,17 +304,10 @@ const RecordGoodnessGroupPage = () => {
                         </TableRowCustom>
                       ) : (
                         paginatedStudents.map((row: any, index: number) => {
-                          const { id, account, username, student, fullName, title, studentId: directStudentId, classroom: directClassroom } = row;
-                          
-                          // Handle both API structures:
-                          // 1. Original: {account: {title, firstName, lastName}, student: {studentId, classroom}}
-                          // 2. New API: {fullName, title, studentId, classroom}
-                          const studentName = fullName 
-                            ? `${title || ''}${fullName}`
-                            : `${account?.title || ''}${account?.firstName || ''} ${account?.lastName || ''}`;
-                          
-                          const studentId = directStudentId || student?.studentId || username;
-                          const classroom = directClassroom || student?.classroom;
+                          const { id } = row;
+                          const studentName = getStudentName(row);
+                          const studentId = getStudentId(row);
+                          const classroom = getStudentClassroom(row);
                           const isLastRow = index === paginatedStudents.length - 1;
 
                           return (

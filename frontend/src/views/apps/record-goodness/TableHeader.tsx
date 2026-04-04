@@ -127,25 +127,27 @@ const TableHeader = (props: TableHeaderProps) => {
         sx={{ minWidth: 0 }}
       >
         <Tooltip title='ค้นหา' arrow>
-          <Button
-            id='record-goodness-individual-filter-search-button'
-            fullWidth
-            size='medium'
-            color='primary'
-            variant='contained'
-            type='button'
-            disabled={!fullName && !id}
-            startIcon={<Icon icon='icon-park-outline:people-search-one' />}
-            onClick={handleSearch}
-            sx={{
-              fontSize: { xs: 13, sm: 14 },
-              fontWeight: 500,
-              height: { xs: 40, sm: 44 },
-              px: { xs: 2, sm: 3 },
-            }}
-          >
-            ค้นหา
-          </Button>
+          <span style={{ width: '100%' }}>
+            <Button
+              id='record-goodness-individual-filter-search-button'
+              fullWidth
+              size='medium'
+              color='primary'
+              variant='contained'
+              type='button'
+              disabled={!fullName && !id}
+              startIcon={<Icon icon='icon-park-outline:people-search-one' />}
+              onClick={handleSearch}
+              sx={{
+                fontSize: { xs: 13, sm: 14 },
+                fontWeight: 500,
+                height: { xs: 40, sm: 44 },
+                px: { xs: 2, sm: 3 },
+              }}
+            >
+              ค้นหา
+            </Button>
+          </span>
         </Tooltip>
       </Grid>
       <Grid
@@ -158,25 +160,27 @@ const TableHeader = (props: TableHeaderProps) => {
         sx={{ minWidth: 0 }}
       >
         <Tooltip title='ล้างข้อมูลค้นหา' arrow>
-          <Button
-            id='record-goodness-individual-filter-clear-button'
-            fullWidth
-            size='medium'
-            color='warning'
-            variant='contained'
-            type='button'
-            disabled={!fullName && !id}
-            startIcon={<Icon icon='carbon:clean' />}
-            onClick={handleClear}
-            sx={{
-              fontSize: { xs: 13, sm: 14 },
-              fontWeight: 500,
-              height: { xs: 40, sm: 44 },
-              px: { xs: 2, sm: 3 },
-            }}
-          >
-            ล้างค่า
-          </Button>
+          <span style={{ width: '100%' }}>
+            <Button
+              id='record-goodness-individual-filter-clear-button'
+              fullWidth
+              size='medium'
+              color='warning'
+              variant='contained'
+              type='button'
+              disabled={!fullName && !id}
+              startIcon={<Icon icon='carbon:clean' />}
+              onClick={handleClear}
+              sx={{
+                fontSize: { xs: 13, sm: 14 },
+                fontWeight: 500,
+                height: { xs: 40, sm: 44 },
+                px: { xs: 2, sm: 3 },
+              }}
+            >
+              ล้างค่า
+            </Button>
+          </span>
         </Tooltip>
       </Grid>
     </Grid>
