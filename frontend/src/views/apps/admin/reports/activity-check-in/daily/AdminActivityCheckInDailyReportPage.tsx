@@ -9,7 +9,6 @@ import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
 import TableHeader from '@/views/apps/admin/reports/check-in/TableHeader';
-import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { formatFullDateThai } from '@/utils/datetime';
@@ -26,14 +25,16 @@ const AdminActivityCheckInDailyReportPage = () => {
   // ** State
   const [value, setValue] = useState<ReportCheckIn>({} as ReportCheckIn);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!selectedDate) return;
 
+    setLoading(true);
     (async () => {
-      await findDailyReportAdmin({ startDate: selectedDate, endDate: selectedDate }).then(async (res: any) => {
-        setValue(await res);
-      });
+      const res = await findDailyReportAdmin({ startDate: selectedDate, endDate: selectedDate });
+      setValue(res ?? {});
+      setLoading(false);
     })();
   }, [selectedDate]);
 
@@ -60,7 +61,7 @@ const AdminActivityCheckInDailyReportPage = () => {
       <Grid size={12}>
         <Card>
           <TableHeader value={value} selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
-          {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
+          {loading ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
         </Card>
       </Grid>
     </Grid>

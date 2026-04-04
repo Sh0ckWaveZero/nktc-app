@@ -83,16 +83,104 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async getByDateRange(startDate: string, endDate: string) {
-		return prisma.activityCheckInReport.findMany({
-			where: {
-				checkInDate: { gte: new Date(startDate), lte: new Date(endDate) },
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+		start.setHours(0, 0, 0, 0);
+		end.setHours(23, 59, 59, 999);
+
+		const classrooms = await prisma.classroom.findMany({
+			select: {
+				id: true,
+				name: true,
+				level: {
+					select: {
+						id: true,
+						levelName: true,
+						levelFullName: true,
+					},
+				},
+				department: {
+					select: {
+						id: true,
+						departmentId: true,
+						name: true,
+					},
+				},
 			},
-			include: {
-				classroom: { include: { program: true, department: true } },
-				teacher: true,
-			},
-			orderBy: { checkInDate: "asc" },
 		});
+
+		const nameNumberRegex = /^([^\d]+)(\d+\/\d+)-(.*)$/;
+		const sortedClassrooms = classrooms
+			.sort((a, b) => {
+				const nameA = a.name ?? "";
+				const nameB = b.name ?? "";
+				const matchA = nameA.match(nameNumberRegex);
+				const matchB = nameB.match(nameNumberRegex);
+				if (!matchA || !matchB) return nameA.localeCompare(nameB);
+				const prefixA = matchA[1] ?? "";
+				const numberA = matchA[2] ?? "";
+				const suffixA = matchA[3] ?? "";
+				const prefixB = matchB[1] ?? "";
+				const numberB = matchB[2] ?? "";
+				const suffixB = matchB[3] ?? "";
+				if (prefixA !== prefixB) return prefixA.localeCompare(prefixB);
+				const [majorA = "0", minorA = "0"] = numberA.split("/");
+				const [majorB = "0", minorB = "0"] = numberB.split("/");
+				if (majorA !== majorB) return Number(majorA) - Number(majorB);
+				if (minorA !== minorB) return Number(minorA) - Number(minorB);
+				return suffixA.localeCompare(suffixB);
+			})
+			.sort((a, b) => (a.department?.name ?? "").localeCompare(b.department?.name ?? ""));
+
+		const totalStudents = await prisma.student.count();
+
+		const checkIn = await Promise.all(
+			sortedClassrooms.map(async (classroom) => {
+				const report = await prisma.activityCheckInReport.findFirst({
+					where: {
+						classroomId: classroom.id,
+						checkInDate: { gte: start, lte: end },
+					},
+				});
+
+				const checkInBy = report?.createdBy
+					? await prisma.user.findFirst({
+						where: { teacher: { id: report.createdBy } },
+						select: {
+							id: true,
+							username: true,
+							account: {
+								select: {
+									id: true,
+									title: true,
+									firstName: true,
+									lastName: true,
+									avatar: true,
+								},
+							},
+						},
+					})
+					: null;
+
+				const present = report ? report.present.length : 0;
+				const absent = report ? report.absent.length : 0;
+				const total = present + absent;
+				const pct = (n: number) => (total > 0 ? Math.round((n / total) * 10000) / 100 : 0);
+
+				return {
+					...classroom,
+					present,
+					presentPercent: pct(present),
+					absent,
+					absentPercent: pct(absent),
+					total,
+					checkInDate: report?.checkInDate ?? null,
+					...(checkInBy ? { checkInBy } : {}),
+				};
+			}),
+		);
+
+		return { students: totalStudents, checkIn };
 	}
 
 	static async getSummary(teacherId: string, classroomId: string) {
@@ -126,7 +214,7 @@ export abstract class ActivityCheckInService {
 		const total = checkIns.length;
 
 		return studentsInfo.map((student) => {
-			const studentRecordId = student.student?.id;
+			const studentRecordId = student.student?.id ?? "";
 			const present = checkIns.filter((r) => r.present?.includes(studentRecordId)).length;
 			const absent = checkIns.filter((r) => r.absent?.includes(studentRecordId)).length;
 
