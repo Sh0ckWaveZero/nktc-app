@@ -65,6 +65,10 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
       inputValue={localInputValue}
       options={Array.isArray(students) ? students : []}
       loading={loadingStudents}
+      freeSolo
+      clearOnBlur={false}
+      selectOnFocus
+      handleHomeEndKeys
       onInputChange={(event, newInputValue, reason) => {
         // Always update local input value (allow typing and preserve value on blur)
         setLocalInputValue(newInputValue || '');
@@ -75,7 +79,13 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
         }
       }}
       onChange={(_, newValue: any) => {
-        onChange(newValue);
+        // Allow both object selection and string input (freeSolo)
+        if (typeof newValue === 'string') {
+          // If user typed a custom value and selected it
+          onChange(null);
+        } else {
+          onChange(newValue);
+        }
       }}
       getOptionLabel={(option: any) => {
         if (typeof option === 'string') return option;

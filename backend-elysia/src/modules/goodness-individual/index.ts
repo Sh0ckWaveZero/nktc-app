@@ -58,10 +58,11 @@ export const goodnessIndividual = new Elysia({ prefix: "/goodness-individual" })
 			.post(
 				"/search",
 				async ({ body }) => {
-					const { classroomId, studentId, startDate, endDate, skip, take } = body as any;
+					const { classroomId, studentId, fullName, startDate, endDate, skip, take } = body;
 					return GoodnessService.search({
 						classroomId,
 						studentId,
+						fullName,
 						startDate,
 						endDate,
 						skip: skip ?? 0,
@@ -69,20 +70,21 @@ export const goodnessIndividual = new Elysia({ prefix: "/goodness-individual" })
 					});
 				},
 				{
-					body: t.Any(),
+					body: GoodnessModel.searchBody,
 					detail: {
 						summary: "Search goodness records",
+						description: "Search goodness records by classroom, student full name, or date range",
 					},
 				},
 			)
 			.post(
 				"/summary",
 				async ({ body }) => {
-					const { classroomId, startDate, endDate } = body as any;
+					const { classroomId, startDate, endDate } = body;
 					return GoodnessService.summary({ classroomId, startDate, endDate });
 				},
 				{
-					body: t.Any(),
+					body: GoodnessModel.summaryBody,
 					detail: {
 						summary: "Get goodness summary",
 					},

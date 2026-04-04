@@ -173,20 +173,13 @@ export const useGoodnessReport = () => {
     if (finalGoodnessSearchData) {
       const responseData = finalGoodnessSearchData?.data;
 
-      console.log('useGoodnessReport - finalGoodnessSearchData:', finalGoodnessSearchData);
-      console.log('useGoodnessReport - responseData:', responseData);
-      console.log('useGoodnessReport - isArray check:', Array.isArray(responseData));
-
       if (Array.isArray(responseData)) {
         setCurrentStudents(responseData);
-        console.log('useGoodnessReport - Setting currentStudents with', responseData.length, 'items');
       } else {
         if (Array.isArray(finalGoodnessSearchData)) {
           setCurrentStudents(finalGoodnessSearchData);
-          console.log('useGoodnessReport - Setting currentStudents from fallback with', finalGoodnessSearchData.length, 'items');
         } else {
           setCurrentStudents([]);
-          console.log('useGoodnessReport - No array found, setting empty array');
         }
       }
     } else if (searchParams === null) {

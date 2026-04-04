@@ -14,6 +14,21 @@ export const GoodnessModel = {
 		skip: t.Optional(t.String()),
 		take: t.Optional(t.String()),
 	}),
+	searchBody: t.Object({
+		classroomId: t.Optional(t.String()),
+		studentId: t.Optional(t.String()),
+		fullName: t.Optional(t.String()),
+		goodDate: t.Optional(t.String()),
+		startDate: t.Optional(t.String()),
+		endDate: t.Optional(t.String()),
+		skip: t.Optional(t.Number()),
+		take: t.Optional(t.Number()),
+	}),
+	summaryBody: t.Object({
+		classroomId: t.Optional(t.String()),
+		startDate: t.Optional(t.String()),
+		endDate: t.Optional(t.String()),
+	}),
 } as const;
 
 export type GoodnessModel = {

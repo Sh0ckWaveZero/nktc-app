@@ -106,7 +106,9 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('id'\\) or d\\)\")",
       "Bash(kill -9 33672)",
       "mcp__next-devtools__nextjs_index",
-      "Bash(kill 49033)"
+      "Bash(kill 49033)",
+      "Bash(npx prisma:*)",
+      "Bash(pnpm exec:*)"
     ],
     "deny": []
   },
