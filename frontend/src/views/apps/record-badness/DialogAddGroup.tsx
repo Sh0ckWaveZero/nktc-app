@@ -116,7 +116,7 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
     }
     handleClose();
     const body = {
-      students: data,
+      students: Array.isArray(data) ? data.filter((s: any) => s && s.id) : [],
       image: imgSrc,
       badnessScore: badTypeScore,
       badnessDetail: details,

@@ -20,7 +20,6 @@ import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
 import { getStudentName } from '@/utils/student';
-import { useClassroomSelection } from '@/hooks/features/goodness';
 import { StyledClassroomDialog } from './DialogClassroomGroup.styles';
 
 interface CellType {
@@ -144,12 +143,13 @@ export default function DialogClassroomGoodnessGroup({
   const [pageSize, setPageSize] = useState(10);
   const [localSelection, setLocalSelection] = useState<string[]>([]);
 
-  // Use custom hook to get global selection (for preserving other classrooms)
-  const { rowSelectionModel } = useClassroomSelection({
-    studentsList,
-    selectClassrooms,
-    onSelectionModelChange,
-  });
+  // Reset local selection when classroom changes
+  const prevClassroomIdRef = React.useRef<string | null>(null);
+  const currentClassroomId = defaultClassroom?.id ?? null;
+  if (prevClassroomIdRef.current !== currentClassroomId) {
+    prevClassroomIdRef.current = currentClassroomId;
+    if (localSelection.length > 0) setLocalSelection([]);
+  }
 
   // Get IDs of students from current classroom only
   const currentClassroomIds = useMemo(() => {
@@ -157,16 +157,7 @@ export default function DialogClassroomGoodnessGroup({
     return new Set(studentsList.filter(s => s?.id).map(s => String(s.id)));
   }, [studentsList]);
 
-  // Sync local selection with current classroom selection from global state
-  React.useEffect(() => {
-    const currentRoomSelected = Array.from(rowSelectionModel.ids).filter(id => currentClassroomIds.has(id));
-    setLocalSelection(currentRoomSelected);
-  }, [rowSelectionModel.ids, currentClassroomIds]);
-
-  // Count selected students from current classroom
-  const currentClassroomSelectedCount = useMemo(() => {
-    return localSelection.length;
-  }, [localSelection]);
+  const currentClassroomSelectedCount = localSelection.length;
 
   // Memoize rows to prevent undefined errors
   const rows = useMemo(() => {
@@ -187,25 +178,22 @@ export default function DialogClassroomGoodnessGroup({
   const handleSelectionChange = useCallback((newSelection: any) => {
     let idArray: string[];
 
-    // Handle both 'include' and 'exclude' types
     if (Array.isArray(newSelection)) {
       idArray = newSelection.map((id) => String(id));
     } else if (typeof newSelection === 'object' && 'ids' in newSelection) {
       if (newSelection.type === 'exclude') {
-        // 'exclude' with empty ids = select all
-        idArray = rows.map(row => row.id);
+        // 'exclude' = all rows except listed ids; empty ids = select all
+        const excludedIds = new Set(Array.from(newSelection.ids || []).map(String));
+        idArray = rows.filter(row => !excludedIds.has(String(row.id))).map(row => row.id);
       } else {
-        // 'include' type
         idArray = Array.from(newSelection.ids || []).map((id) => String(id));
       }
     } else {
       idArray = [];
     }
 
-    // Update local state for DataGrid
     setLocalSelection(idArray);
 
-    // Preserve selections from other classrooms
     const otherRoomsSelected = Array.isArray(selectClassrooms)
       ? selectClassrooms.filter((s: any) => {
           if (!s || !s.id) return false;
@@ -387,14 +375,6 @@ export default function DialogClassroomGoodnessGroup({
               slotProps={{
                 pagination: {
                   labelRowsPerPage: 'แสดง:',
-                },
-                baseSelect: {
-                  onClick: (e) => {
-                    // Prevent default and handle select all
-                    e.stopPropagation();
-                    const allIds = rows.map(row => row.id);
-                    handleSelectionChange(allIds);
-                  },
                 },
               }}
               sx={{

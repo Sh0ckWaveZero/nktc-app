@@ -43,13 +43,24 @@ export const badnessIndividual = new Elysia({ prefix: "/badness-individual" })
 			.post(
 				"/group",
 				async ({ body, set }) => {
-					const records = body as any[];
+					const { students, image, badnessScore, badnessDetail, badDate, createdBy, updatedBy } = body;
+					const records = students.map((student) => ({
+						studentId: student.studentId,
+						studentKey: student.id,
+						classroomId: student.classroom?.id,
+						badnessScore: Number(badnessScore),
+						badnessDetail,
+						image: image || '',
+						badDate,
+						createdBy,
+						updatedBy,
+					}));
 					const created = await BadnessService.createMany(records);
 					set.status = 201;
 					return created;
 				},
 				{
-					body: t.Array(BadnessModel.badnessBody),
+					body: BadnessModel.badnessGroupBody,
 					detail: {
 						summary: "Create multiple badness records",
 					},

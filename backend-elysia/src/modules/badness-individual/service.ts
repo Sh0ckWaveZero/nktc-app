@@ -143,8 +143,11 @@ export abstract class BadnessService {
       const key = record.studentId;
 
       if (!studentMap.has(key)) {
-        const { title, firstName, lastName } = record.student.user.account;
-        const { name } = record.classroom;
+        const account = record.student?.user?.account;
+        const title = account?.title ?? '';
+        const firstName = account?.firstName ?? '';
+        const lastName = account?.lastName ?? '';
+        const name = record.classroom?.name ?? '';
 
         studentMap.set(key, {
           id: record.studentId,
