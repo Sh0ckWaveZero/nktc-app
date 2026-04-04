@@ -2,6 +2,7 @@
 
 import { Card, CardContent, Box, Typography, Button, Chip } from '@mui/material';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { useMemo } from 'react';
 import RenderAvatar from '@/@core/components/avatar';
 import IconifyIcon from '@/@core/components/icon';
 
@@ -25,35 +26,45 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
     chipSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
   };
 
-  // Get student name
-  const getStudentName = () => {
-    if (student.title && student.firstName) {
-      return `${student.title}${student.firstName}`;
-    }
-    if (student.account) {
-      const { title = '', firstName = '', lastName = '' } = student.account;
-      return `${title}${firstName} ${lastName}`.trim();
-    }
-    if (student.fullName) {
-      return `${student.title || ''}${student.fullName}`;
-    }
-    return 'ไม่ระบุชื่อ';
-  };
+  // Cache student info to avoid recalculating on every render
+  const studentInfo = useMemo(() => {
+    // Get student name
+    const getStudentName = () => {
+      if (student.title && student.firstName) {
+        return `${student.title}${student.firstName}`;
+      }
+      if (student.account) {
+        const { title = '', firstName = '', lastName = '' } = student.account;
+        return `${title}${firstName} ${lastName}`.trim();
+      }
+      if (student.fullName) {
+        return `${student.title || ''}${student.fullName}`;
+      }
+      return 'ไม่ระบุชื่อ';
+    };
 
-  // Get student ID
-  const getStudentId = () => {
-    return student.studentId || student.id || '';
-  };
+    // Get student ID
+    const getStudentId = () => {
+      return student.studentId || student.id || '';
+    };
 
-  // Get classroom name
-  const getClassroomName = () => {
-    return student.name || student.classroomName || student.classroom?.name || 'ไม่ระบุ';
-  };
+    // Get classroom name
+    const getClassroomName = () => {
+      return student.name || student.classroomName || student.classroom?.name || 'ไม่ระบุ';
+    };
 
-  // Get score
-  const getScore = () => {
-    return student.goodnessScore || student.score || 0;
-  };
+    // Get score
+    const getScore = () => {
+      return student.goodnessScore || student.score || 0;
+    };
+
+    return {
+      name: getStudentName(),
+      id: getStudentId(),
+      classroom: getClassroomName(),
+      score: getScore(),
+    };
+  }, [student]);
 
   return (
     <Card
@@ -82,26 +93,26 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
               variant={responsiveConfig.isMobile ? 'subtitle1' : 'h6'}
               sx={{ fontWeight: 600 }}
             >
-              {getStudentName()}
+              {studentInfo.name}
             </Typography>
             <Typography
               id={`goodness-student-id-${student.id || student.studentId}`}
               variant='body2'
               color='text.secondary'
             >
-              @{getStudentId()}
+              @{studentInfo.id}
             </Typography>
             <Typography
               id={`goodness-student-class-${student.id || student.studentId}`}
               variant='body2'
               color='text.secondary'
             >
-              {getClassroomName()}
+              {studentInfo.classroom}
             </Typography>
           </Box>
           <Chip
             id={`goodness-student-score-${student.id || student.studentId}`}
-            label={`${getScore()} คะแนน`}
+            label={`${studentInfo.score} คะแนน`}
             color='warning'
             size={responsiveConfig.chipSize}
             sx={{
@@ -113,7 +124,7 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
         </Box>
 
         <Box
-          id={`goodness-student-actions-${student.id || student.studentId}`}
+          id={`goodness-student-actions-${student.id || student.id}`}
           sx={{
             display: 'flex',
             gap: 1,
@@ -125,7 +136,11 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
             variant='contained'
             color='success'
             size={responsiveConfig.buttonSize}
-            onClick={() => onDetailClick(student.info || student)}
+            onClick={() => {
+              console.log('Mobile card clicked - student:', student);
+              // Pass the entire student object as it contains the goodness record with student data
+              onDetailClick(student);
+            }}
             fullWidth
             startIcon={<IconifyIcon icon={'mdi:timeline-check-outline'} width={18} height={18} />}
             sx={{

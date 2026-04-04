@@ -43,7 +43,23 @@ export const useGoodnessReport = () => {
 
   // Watch form values for student search
   const watchedStudent = watch('student');
-  const watchedInputValue = useMemo(() => {
+
+  // Local State
+  const [searchParams, setSearchParams] = useState<any>(null);
+  const [currentStudents, setCurrentStudents] = useState<any[]>([]);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState<any>(null);
+  const [mobilePage, setMobilePage] = useState<number>(0);
+  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
+
+  // React Query hooks - Get all classrooms
+  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
+
+  // Transform inputValue to proper format for useStudentsSearch
+  // Compute watchedInputValue inline where it's actually used
+  const getWatchedInputValue = useCallback(() => {
     if (!watchedStudent) return '';
     if (watchedStudent.account) {
       const { title = '', firstName = '', lastName = '' } = watchedStudent.account;
@@ -55,34 +71,22 @@ export const useGoodnessReport = () => {
     return '';
   }, [watchedStudent]);
 
-  // Local State
-  const [searchParams, setSearchParams] = useState<any>(null);
-  const [currentStudents, setCurrentStudents] = useState<any[]>([]);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [inputValue, setInputValue] = useState<string>('');
-  const deferredValue = useDeferredValue(watchedInputValue);
-  const [open, setOpen] = useState(false);
-  const [info, setInfo] = useState<any>(null);
-  const [mobilePage, setMobilePage] = useState<number>(0);
-  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
+  const watchedInputValue = getWatchedInputValue();
 
-  // React Query hooks - Get all classrooms
-  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
-
-  // Transform inputValue to proper format for useStudentsSearch
   const studentSearchParams = useMemo(() => {
-    if (!deferredValue || !deferredValue.trim()) {
+    const inputValue = getWatchedInputValue();
+    if (!inputValue || !inputValue.trim()) {
       return undefined;
     }
     return {
-      fullName: deferredValue,
+      fullName: inputValue,
     };
-  }, [deferredValue]);
+  }, [getWatchedInputValue]);
 
   const { data: studentsListData = [], isLoading: loadingStudents, error: studentsError } = useStudentsSearch(
     studentSearchParams,
     {
-      enabled: !!studentSearchParams?.fullName && deferredValue.trim().length > 0,
+      enabled: !!studentSearchParams?.fullName && watchedInputValue.trim().length > 0,
     }
   );
 
@@ -169,13 +173,20 @@ export const useGoodnessReport = () => {
     if (finalGoodnessSearchData) {
       const responseData = finalGoodnessSearchData?.data;
 
+      console.log('useGoodnessReport - finalGoodnessSearchData:', finalGoodnessSearchData);
+      console.log('useGoodnessReport - responseData:', responseData);
+      console.log('useGoodnessReport - isArray check:', Array.isArray(responseData));
+
       if (Array.isArray(responseData)) {
         setCurrentStudents(responseData);
+        console.log('useGoodnessReport - Setting currentStudents with', responseData.length, 'items');
       } else {
         if (Array.isArray(finalGoodnessSearchData)) {
           setCurrentStudents(finalGoodnessSearchData);
+          console.log('useGoodnessReport - Setting currentStudents from fallback with', finalGoodnessSearchData.length, 'items');
         } else {
           setCurrentStudents([]);
+          console.log('useGoodnessReport - No array found, setting empty array');
         }
       }
     } else if (searchParams === null) {
@@ -237,7 +248,7 @@ export const useGoodnessReport = () => {
 
     startTransition(() => {
       setSearchParams(requestBody);
-      setMobilePage(0);
+      setMobilePage(prev => 0);
 
       if (searchParams) {
         queryClient.invalidateQueries({
@@ -282,7 +293,7 @@ export const useGoodnessReport = () => {
 
   const handleMobilePageSizeChange = (newPageSize: number) => {
     setMobilePageSize(newPageSize);
-    setMobilePage(0);
+    setMobilePage(prev => 0);
   };
 
   const handleSearchChange = (event: any, value: any, reason: any) => {

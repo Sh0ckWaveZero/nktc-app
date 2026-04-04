@@ -23,6 +23,25 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+const DialogCloseButton = React.memo(({ onClose }: { onClose: () => void }) => (
+  <IconButton
+    id='goodness-report-detail-dialog-close-button'
+    aria-label='close'
+    onClick={onClose}
+    sx={(theme) => ({
+      position: 'absolute',
+      right: 8,
+      top: 8,
+      color: theme.palette.grey[500],
+      zIndex: 1,
+    })}
+  >
+    <CloseIcon />
+  </IconButton>
+));
+
+DialogCloseButton.displayName = 'DialogCloseButton';
+
 const GoodnessAllReportPage = () => {
   // ** Hooks
   const auth = useAuth();
@@ -87,12 +106,12 @@ const GoodnessAllReportPage = () => {
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
       <React.Fragment>
-        <Box 
+        <Box
           id='goodness-report-page'
           sx={{ borderRadius: '8px', overflow: 'hidden' }}
         >
-          <Grid container spacing={responsiveConfig.containerSpacing}>
-            <Grid size={12}>
+          <Grid id='goodness-report-grid-container' container spacing={responsiveConfig.containerSpacing}>
+            <Grid id='goodness-report-grid-item' size={12}>
               <Box
                 id='goodness-report-main-container'
                 sx={{
@@ -146,64 +165,63 @@ const GoodnessAllReportPage = () => {
                   </Box>
 
                   {/* Mobile Card View */}
-                  {isMobile && (
-                    <GoodnessReportMobileView
-                      students={getPaginatedStudents()}
-                      currentPage={mobilePage}
-                      totalPages={getTotalMobilePages()}
-                      pageSize={mobilePageSize}
-                      totalItems={currentStudents?.length ?? 0}
-                      onDetailClick={handleClickOpen}
-                      onPageChange={handleMobilePageChange}
-                      onPageSizeChange={handleMobilePageSizeChange}
-                    />
-                  )}
-
-                  {/* Desktop DataGrid View */}
-                  {!isMobile && (
-                    <GoodnessReportDataGrid
-                columns={columns}
-                      rows={currentStudents}
-                  loading={loadingGoodnessSearch}
-                      pageSize={pageSize}
-                      isTablet={isTablet}
-                      getRowId={getRowId}
-                    />
+                  {isMobile ? (
+                    <Box id='goodness-report-mobile-view-container'>
+                      <GoodnessReportMobileView
+                        students={getPaginatedStudents()}
+                        currentPage={mobilePage}
+                        totalPages={getTotalMobilePages()}
+                        pageSize={mobilePageSize}
+                        totalItems={currentStudents?.length ?? 0}
+                        onDetailClick={handleClickOpen}
+                        onPageChange={handleMobilePageChange}
+                        onPageSizeChange={handleMobilePageSizeChange}
+                      />
+                    </Box>
+                  ) : (
+                    <Box id='goodness-report-desktop-view-container'>
+                      <GoodnessReportDataGrid
+                        columns={columns}
+                        rows={currentStudents}
+                        loading={loadingGoodnessSearch}
+                        pageSize={pageSize}
+                        isTablet={isTablet}
+                        getRowId={getRowId}
+                      />
+                    </Box>
                   )}
                 </Box>
               </Box>
             </Grid>
           </Grid>
         </Box>
-        <BootstrapDialog 
+        <BootstrapDialog
           id='goodness-report-detail-dialog'
-          fullWidth 
-          maxWidth='sm' 
-          onClose={handleClose} 
+          fullWidth
+          maxWidth='md'
+          onClose={handleClose}
           aria-labelledby='goodness-detail-dialog-title'
           open={open}
           disableAutoFocus={false}
           disableEnforceFocus={true}
           disableRestoreFocus={false}
           keepMounted={false}
+          sx={{
+            '& .MuiDialog-container': {
+              '& .MuiPaper-root': {
+                maxHeight: '90vh',
+              },
+            },
+            '& .MuiDialogContent-root': {
+              maxHeight: 'calc(90vh - 64px)',
+              overflowY: 'auto',
+            },
+          }}
         >
-          {handleClose ? (
-            <IconButton
-              id='goodness-report-detail-dialog-close-button'
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-                zIndex: 1,
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <TimelineGoodness info={info} user={auth.user} />
+          <Box id='goodness-report-detail-dialog-content'>
+            {handleClose && <DialogCloseButton onClose={handleClose} />}
+            <TimelineGoodness info={info} user={auth.user} />
+          </Box>
         </BootstrapDialog>
       </React.Fragment>
     )

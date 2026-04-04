@@ -75,6 +75,7 @@ export abstract class GoodnessService {
         student: {
           include: {
             user: { select: userMinimalSelect },
+            classroom: true,
           },
         },
       },
@@ -104,6 +105,7 @@ export abstract class GoodnessService {
         student: {
           include: {
             user: { select: userMinimalSelect },
+            classroom: true,
           },
         },
       },

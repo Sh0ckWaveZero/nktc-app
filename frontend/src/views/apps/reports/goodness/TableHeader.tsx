@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // ** MUI Imports
 import Autocomplete from '@mui/material/Autocomplete';
@@ -37,16 +37,26 @@ interface TableHeaderProps {
   students: any[];
 }
 
-const StudentAutocomplete = ({ value, onChange, inputValue, students, loadingStudents, onSearchChange }: any) => {
-  const [localInputValue, setLocalInputValue] = useState(inputValue || '');
+const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStudents, onSearchChange }: any) => {
+  const [localInputValue, setLocalInputValue] = useState('');
 
   useEffect(() => {
-    if (value && inputValue !== undefined && inputValue.trim() !== '') {
-      setLocalInputValue((prev: string) => (prev !== inputValue ? inputValue : prev));
-    } else if (!value && localInputValue !== '') {
-      setLocalInputValue('');
+    if (value) {
+      const account = value?.user?.account || value?.account;
+      let displayName = '';
+      if (account) {
+        const { title = '', firstName = '', lastName = '' } = account;
+        displayName = `${title}${firstName} ${lastName}`.trim();
+      } else if (value.fullName) {
+        displayName = `${value.title || ''}${value.fullName}`;
+      } else {
+        displayName = value.studentId || value.id || '';
+      }
+      setLocalInputValue(displayName);
     }
-  }, [value, inputValue, localInputValue]);
+    // Note: We DON'T clear localInputValue when value is null
+    // This allows users to type freely without the input being cleared
+  }, [value]);
 
   return (
     <Autocomplete
@@ -56,28 +66,16 @@ const StudentAutocomplete = ({ value, onChange, inputValue, students, loadingStu
       options={Array.isArray(students) ? students : []}
       loading={loadingStudents}
       onInputChange={(event, newInputValue, reason) => {
+        // Always update local input value (allow typing and preserve value on blur)
         setLocalInputValue(newInputValue || '');
+
+        // Only trigger search on user typing (not blur or reset)
         if (reason !== 'blur' && reason !== 'reset') {
           onSearchChange(event, newInputValue, reason);
         }
       }}
       onChange={(_, newValue: any) => {
         onChange(newValue);
-        if (newValue) {
-          const account = newValue?.user?.account || newValue?.account;
-          let displayName = '';
-          if (account) {
-            const { title = '', firstName = '', lastName = '' } = account;
-            displayName = `${title}${firstName} ${lastName}`.trim();
-          } else if (newValue.fullName) {
-            displayName = `${newValue.title || ''}${newValue.fullName}`;
-          } else {
-            displayName = newValue.studentId || newValue.id || '';
-          }
-          setLocalInputValue(displayName);
-        } else {
-          setLocalInputValue('');
-        }
       }}
       getOptionLabel={(option: any) => {
         if (typeof option === 'string') return option;
@@ -150,7 +148,9 @@ const StudentAutocomplete = ({ value, onChange, inputValue, students, loadingStu
       noOptionsText='ไม่พบรายชื่อนักเรียน'
     />
   );
-};
+});
+
+StudentAutocomplete.displayName = 'StudentAutocomplete';
 
 const TableHeader = (props: TableHeaderProps) => {
   const {
@@ -222,7 +222,6 @@ const TableHeader = (props: TableHeaderProps) => {
                 <StudentAutocomplete
                   value={value}
                   onChange={onChange}
-                  inputValue={inputValue}
                   students={students}
                   loadingStudents={loadingStudents}
                   onSearchChange={onSearchChange}
