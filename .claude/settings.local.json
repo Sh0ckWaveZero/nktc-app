@@ -93,7 +93,8 @@
       "Bash(echo \"MINIO_USE_SSL from shell: $MINIO_USE_SSL\")",
       "Bash(node -e \"console.log\\(''process.env before dotenv:'', process.env.MINIO_USE_SSL\\)\")",
       "Bash(ls -la /Users/sh0ckpro/Works/Freelance/React/nktc-app/.env*)",
-      "mcp__plugin_claude-mem_mcp-search__search"
+      "mcp__plugin_claude-mem_mcp-search__search",
+      "Bash(bun run:*)"
     ],
     "deny": []
   },

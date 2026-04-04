@@ -16,15 +16,12 @@ import {
   MenuItem,
   FormHelperText,
 } from '@mui/material';
-import { MouseEvent, ReactElement, Ref, forwardRef, useEffect, useState, useCallback } from 'react';
+import { MouseEvent, ReactElement, Ref, forwardRef } from 'react';
 import Fade, { FadeProps } from '@mui/material/Fade';
 
 import Icon from '@/@core/components/icon';
-import { generateErrorMessages } from '@/utils/event';
-import { toast } from 'react-toastify';
-import useImageCompression from '@/hooks/useImageCompression';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-import { useCreateGoodnessGroup } from '@/hooks/queries/useGoodness';
+import { useGoodnessGroupForm } from '@/hooks/features/goodness';
 
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
@@ -60,106 +57,12 @@ interface DialogAddGoodnessGroupProps {
 const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
   const { onOpen, data, handleClose, auth, handleSusses } = props;
 
-  // React Query mutation
-  const createGoodnessGroupMutation = useCreateGoodnessGroup();
-
-  // ** States
-  const [goodTypeScore, setGoodTypeScore] = useState<string>(''); // คะแนนที่ได้
-  const [imgSrc, setImgSrc] = useState<string>('');
-  const [inputValue, setInputValue] = useState<string>('');
-  const [loadingImg, setLoadingImg] = useState<boolean>(false);
-  const [details, setDetails] = useState<string>('');
-  const [onSubmit, setOnSubmit] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
-  const { imageCompressed, handleInputImageChange } = useImageCompression();
-
-  useEffect(() => {
-    if (imageCompressed) {
-      setLoadingImg(true);
-      setImgSrc(imageCompressed);
-      setLoadingImg(false);
-    }
-  }, [imageCompressed]);
-
-  const handleInputChange = ({ target }: any) => {
-    if (target.name === 'details') {
-      setDetails(target.value);
-    } else if (target.name === 'goodTypeScore') {
-      setGoodTypeScore(target.value);
-    }
-  };
-
-  const handleInputImageReset = useCallback(() => {
-    setInputValue('');
-    setImgSrc('');
-  }, [setInputValue, setImgSrc]);
-
-  const onHandleClose = () => {
-    setImgSrc('');
-    setGoodTypeScore('');
-    setDetails('');
-    setOnSubmit(false);
-    handleClose();
-  };
-
-  const handleSubmit = async (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setOnSubmit(true);
-    if (goodTypeScore === '') {
-      setOnSubmit(false);
-      return;
-    }
-
-    const body = {
-      students: data,
-      image: imgSrc,
-      goodnessScore: goodTypeScore,
-      goodnessDetail: details,
-      goodDate: selectedDate,
-      createdBy: auth?.user?.id,
-      updatedBy: auth?.user?.id,
-    };
-
-    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
-    
-    try {
-      const response = await createGoodnessGroupMutation.mutateAsync(body);
-      
-      // Handle response wrapper
-      const responseData = response?.data || response;
-      
-      if (responseData && !responseData.name) {
-        toast.dismiss(toastId);
-        toast.success('บันทึกข้อมูลสำเร็จ');
-        // clear form
-        setImgSrc('');
-        setGoodTypeScore('');
-        setDetails('');
-        setOnSubmit(false);
-        handleClose();
-        handleSusses();
-      } else {
-        throw new Error('Invalid response');
-      }
-    } catch (error: any) {
-      const errorData = error?.response?.data || error?.data;
-      const message = generateErrorMessages[errorData?.message] || errorData?.message || error?.message || 'เกิดข้อผิดพลาด';
-      toast.dismiss(toastId);
-      toast.error(message);
-      setOnSubmit(false);
-    }
-  };
-
-  const handleSelectedDate = useCallback(
-    (newDate: Date | null) => {
-      setSelectedDate(newDate);
-    },
-    [setSelectedDate],
-  );
+  // Use custom hook for form management
+  const form = useGoodnessGroupForm({
+    students: data,
+    onSuccess: handleSusses,
+    onClose: handleClose,
+  });
 
   return (
     <Dialog
@@ -167,11 +70,11 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
       open={onOpen}
       maxWidth='sm'
       scroll='body'
-      onClose={onHandleClose}
+      onClose={form.handleClose}
       TransitionComponent={Transition}
     >
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
-        <IconButton size='small' onClick={onHandleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
+        <IconButton size='small' onClick={form.handleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
           <Icon icon='mdi:close' />
         </IconButton>
         <Box sx={{ mb: 20, textAlign: 'center' }}>
@@ -190,8 +93,8 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
               >
                 <ThaiDatePicker
                   label='เลือกวันที่'
-                  value={selectedDate}
-                  onChange={handleSelectedDate}
+                  value={form.selectedDate}
+                  onChange={form.handleSelectedDate}
                   format='dd MMMM yyyy'
                   minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
                   maxDate={new Date()}
@@ -204,22 +107,22 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                   sm: 6,
                 }}
               >
-                <FormControl required fullWidth error={onSubmit && !goodTypeScore}>
+                <FormControl required fullWidth error={form.onSubmit && !form.goodTypeScore}>
                   <InputLabel id='goodTypeScore-label'>คะแนนความดี</InputLabel>
                   <Select
                     labelId='goodTypeScore-label'
                     id='goodTypeScore'
                     name='goodTypeScore'
-                    value={goodTypeScore}
+                    value={form.goodTypeScore}
                     label='คะแนนความดี'
-                    onChange={handleInputChange}
+                    onChange={form.handleInputChange}
                   >
                     <MenuItem value=''>
                       <em>คะแนนความดี</em>
                     </MenuItem>
                     <MenuItem value={5}>5</MenuItem>
                   </Select>
-                  {onSubmit && !goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
+                  {form.onSubmit && !form.goodTypeScore && <FormHelperText>กรุณากรอกคะแนนความดี</FormHelperText>}
                 </FormControl>
               </Grid>
               <Grid size={12}>
@@ -230,19 +133,19 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                   maxRows={5}
                   name='details'
                   label='รายละเอียดของการทำความดี'
-                  value={details}
+                  value={form.details}
                   autoComplete='off'
-                  onChange={handleInputChange}
+                  onChange={form.handleInputChange}
                   placeholder='รายละเอียดของการทำความดี'
                 />
               </Grid>
 
               <Grid sx={{ mt: 4.8, mb: 3 }} size={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {imgSrc && <ImgStyled src={imgSrc} alt='Profile Pic' />}
+                  {form.imgSrc && <ImgStyled src={form.imgSrc} alt='Profile Pic' />}
                   <Box>
                     <Button
-                      loading={loadingImg}
+                      loading={form.loadingImg}
                       startIcon={<Icon icon={'uil:image-upload'} />}
                       variant='contained'
                       component='label'
@@ -252,13 +155,13 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
                       <input
                         hidden
                         type='file'
-                        value={inputValue}
-                        onChange={handleInputImageChange}
+                        value={form.inputValue}
+                        onChange={form.handleInputImageChange}
                         accept='image/png, image/jpeg, image/webp'
                         id='account-settings-upload-image'
                       />
                     </Button>
-                    <ResetButtonStyled color='error' variant='outlined' onClick={handleInputImageReset}>
+                    <ResetButtonStyled color='error' variant='outlined' onClick={form.handleInputImageReset}>
                       รีเซ็ต
                     </ResetButtonStyled>
                     <Typography variant='body2' sx={{ mt: 5 }}>
@@ -272,10 +175,10 @@ const DialogAddGroup = (props: DialogAddGoodnessGroupProps) => {
         </Grid>
       </DialogContent>
       <DialogActions sx={{ pb: { xs: 8, sm: 12.5 }, justifyContent: 'center' }}>
-        <Button variant='contained' sx={{ mr: 1 }} onClick={handleSubmit}>
+        <Button variant='contained' sx={{ mr: 1 }} onClick={form.handleSubmit} disabled={form.isSubmitting}>
           บันทึก
         </Button>
-        <Button variant='outlined' color='secondary' onClick={onHandleClose}>
+        <Button variant='outlined' color='secondary' onClick={form.handleClose}>
           ยกเลิก
         </Button>
       </DialogActions>

@@ -51,7 +51,7 @@ const RecordGoodnessGroupPage = () => {
   const [openSelectStudents, setOpenSelectStudents] = useState(false);
   const [openGoodnessDetail, setOpenGoodnessDetail] = useState(false);
   const [openSelectClassroom, setOpenSelectClassroom] = useState(false);
-  const [selectClassrooms, setSelectClassrooms] = useState<any>([]);
+  const [selectClassrooms, setSelectClassrooms] = useState<any[]>([]);
 
   // React Query hooks
   const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
@@ -134,6 +134,8 @@ const selectedIds = selectStudents.map((student: any) => student.id);
 
   const handleCloseClassroom = () => {
     setOpenSelectClassroom(false);
+    setDefaultClassroom(null);
+    setSelectClassrooms([]);
   };
 
   const onOpenGoodnessDetail = () => {
@@ -155,17 +157,18 @@ const selectedIds = selectStudents.map((student: any) => student.id);
     handleCloseClassroom();
     setDefaultClassroom(null);
 
-    const validSelectedStudents = Array.isArray(selectClassrooms) 
-      ? selectClassrooms.filter((s: any) => s && s.id) 
+    const validSelectedStudents = Array.isArray(selectClassrooms)
+      ? selectClassrooms.filter((s: any) => s && s.id)
       : [];
-      
+
     const selectedIds = validSelectedStudents.map((student: any) => student.id);
-    
+
     const currentStudents = Array.isArray(students) ? students : [];
     const uniqueStudents = currentStudents.filter((student: any) => student && !selectedIds.includes(student.id));
 
     setStudents([...uniqueStudents, ...validSelectedStudents]);
     setSearchValue({ classroomId: null });
+    setSelectClassrooms([]); // Reset selection after adding
   }, [students, selectClassrooms]);
 
   const handleSusses = useCallback(() => {
@@ -432,7 +435,7 @@ const selectedIds = selectStudents.map((student: any) => student.id);
           classroomLoading={classroomLoading}
           classrooms={classroomsArray}
           defaultClassroom={defaultClassroom}
-          handleCloseSelectStudents={handleCloseSelectStudents}
+          handleCloseSelectStudents={handleCloseClassroom}
           onAddClassroom={onAddClassroom}
           onCloseClassroom={handleCloseClassroom}
           onHandleClassroomChange={onHandleClassroomChange}
