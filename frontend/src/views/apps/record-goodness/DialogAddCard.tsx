@@ -80,9 +80,10 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const [onSubmit, setOnSubmit] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const avatar = data?.account?.avatar;
-  const fullName = data.account.title + data.account.firstName + ' ' + data.account.lastName;
-  const classroom = data.student?.classroom?.name;
+  const account = data?.user?.account;
+  const avatar = account?.avatar;
+  const fullName = (account?.title ?? '') + (account?.firstName ?? '') + ' ' + (account?.lastName ?? '');
+  const classroom = data?.classroom?.name;
 
   const { imageCompressed, handleInputImageChange } = useImageCompression();
 
@@ -118,15 +119,13 @@ const DialogAddCard = (props: DialogAddCardProps) => {
     handleClose();
     const { ...rest } = data;
     const body = {
-      studentId: rest?.username,
-      studentKey: rest?.student?.id,
-      classroomId: rest?.student?.classroomId,
+      studentId: rest?.user?.username,
+      studentKey: rest?.id,
+      classroomId: rest?.classroomId,
       image: imgSrc,
-      goodnessScore: goodTypeScore,
+      goodnessScore: Number(goodTypeScore),
       goodnessDetail: details,
-      goodDate: selectedDate,
-      createdBy: user?.id,
-      updatedBy: user?.id,
+      goodDate: selectedDate ? selectedDate.toISOString() : undefined,
     };
 
     const toastId = toast.info('กำลังบันทึกข้อมูล...', {
@@ -180,7 +179,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
               <CustomAvatar src={image as string} sx={{ m: 3, width: 160, height: 160 }} />
             ) : (
               <CustomAvatar skin='light' color={'primary'} sx={{ m: 3, width: 160, height: 160, fontSize: '5rem' }}>
-                {getInitials(data?.account?.firstName + ' ' + data.account?.lastName)}
+                {getInitials((account?.firstName ?? '') + ' ' + (account?.lastName ?? ''))}
               </CustomAvatar>
             )}
           </Grid>

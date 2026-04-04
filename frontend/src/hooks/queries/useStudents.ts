@@ -62,10 +62,21 @@ export const useStudentsSearch = (params?: StudentQuery, options?: { enabled?: b
   return useQuery({
     queryKey: queryKeys.students.search(params),
     queryFn: async () => {
+      // Backend GET /students/search only accepts `q` — map fullName/studentId to it
+      const q = params?.q || params?.fullName || params?.studentId;
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/search`, {
-        params,
+        params: { ...params, q },
       });
-      return unwrapArrayResponse(data);
+      // response interceptor may have already extracted data.data → data
+      // Raw: { success, data: { data: [...], total } }
+      // After interceptor: { data: [...], total }
+      // We handle both:
+      if (Array.isArray(data)) return data as any[];
+      if (data && typeof data === 'object') {
+        if (Array.isArray(data.data)) return data.data as any[];
+        if (data.data && typeof data.data === 'object' && Array.isArray(data.data.data)) return data.data.data as any[];
+      }
+      return [];
     },
     enabled,
     staleTime: 2 * 60 * 1000,

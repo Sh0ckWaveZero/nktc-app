@@ -64,9 +64,28 @@ export abstract class UserService {
 	}
 
 	static async updatePasswordByAdmin(userId: string, newPassword: string) {
-		const userData = await prisma.user.findUnique({
+		let userData = await prisma.user.findUnique({
 			where: { id: userId },
 		});
+
+		if (!userData) {
+			// Try finding user via teacher or student relation
+			const teacher = await prisma.teacher.findUnique({
+				where: { id: userId },
+				include: { user: true },
+			});
+			if (teacher?.user) {
+				userData = teacher.user;
+			} else {
+				const student = await prisma.student.findUnique({
+					where: { id: userId },
+					include: { user: true },
+				});
+				if (student?.user) {
+					userData = student.user;
+				}
+			}
+		}
 
 		if (!userData) {
 			throw new NotFoundError("User not found");
@@ -74,7 +93,7 @@ export abstract class UserService {
 
 		const hashed = await hash(newPassword, 10);
 		await prisma.user.update({
-			where: { id: userId },
+			where: { id: userData.id },
 			data: { password: hashed },
 		});
 	}

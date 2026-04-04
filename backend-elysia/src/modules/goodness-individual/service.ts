@@ -20,12 +20,12 @@ export abstract class GoodnessService {
   }
 
   static async create(data: any) {
-    const { goodDate, studentId, ...rest } = data;
+    const { goodDate, studentId, studentKey, ...rest } = data;
     return prisma.goodnessIndividual.create({
       data: {
         ...rest,
         studentId,
-        studentKey: studentId,
+        studentKey,
         goodDate: goodDate ? new Date(goodDate) : new Date(),
       },
     });

@@ -73,4 +73,9 @@ export const studentInclude = {
   program: true,
   department: true,
   level: true,
+  goodnessIndividual: {
+    orderBy: { createdAt: "desc" as const },
+    take: 1,
+    select: { createdAt: true, goodnessDetail: true, goodnessScore: true },
+  },
 } as const;

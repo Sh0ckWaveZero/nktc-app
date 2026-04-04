@@ -285,39 +285,37 @@ export abstract class TeacherService {
   static async getClassroomsWithStudents(teacherId: string) {
     log.info("[TeacherService] getClassroomsWithStudents", { teacherId });
 
-    const result = await prisma.$transaction(async (tx) => {
-      const assignments = await tx.teacherOnClassroom.findMany({
-        where: { teacherId },
-        select: { classroomId: true },
-      });
-      const classroomIds = assignments.map((a) => a.classroomId);
-
-      const classrooms = await tx.classroom.findMany({
-          where: { id: { in: classroomIds } },
-          include: {
-            program: true,
-            department: true,
-            level: true,
-          },
-        });
-      const students = await tx.student.findMany({
-          where: { classroomId: { in: classroomIds } },
-          include: {
-            user: { select: userMinimalSelect },
-          },
-        });
-
-      const mapped = classrooms.map((c) => ({
-        ...c,
-        students: students.filter((s) => s.classroomId === c.id),
-      }));
-      log.debug("[TeacherService] getClassroomsWithStudents result", {
-        classrooms: classrooms.length,
-        students: students.length,
-      });
-      return mapped;
+    const assignments = await prisma.teacherOnClassroom.findMany({
+      where: { teacherId },
+      select: { classroomId: true },
     });
+    const classroomIds = assignments.map((a) => a.classroomId);
 
-    return result;
+    const [classrooms, students] = await Promise.all([
+      prisma.classroom.findMany({
+        where: { id: { in: classroomIds } },
+        include: {
+          program: true,
+          department: true,
+          level: true,
+        },
+      }),
+      prisma.student.findMany({
+        where: { classroomId: { in: classroomIds } },
+        include: {
+          user: { select: userMinimalSelect },
+        },
+      }),
+    ]);
+
+    const mapped = classrooms.map((c) => ({
+      ...c,
+      students: students.filter((s) => s.classroomId === c.id),
+    }));
+    log.debug("[TeacherService] getClassroomsWithStudents result", {
+      classrooms: classrooms.length,
+      students: students.length,
+    });
+    return mapped;
   }
 }

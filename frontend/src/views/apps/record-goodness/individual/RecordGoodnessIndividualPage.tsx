@@ -75,7 +75,7 @@ const RecordGoodnessIndividualPage = () => {
     // Teacher can only see students from their classrooms
     if (user?.teacherOnClassroom && Array.isArray(user.teacherOnClassroom) && user.teacherOnClassroom.length > 0) {
       return allStudents.filter((student: any) => {
-        const studentClassroomId = student?.student?.classroomId;
+        const studentClassroomId = student?.classroomId ?? student?.student?.classroomId;
         return studentClassroomId && user.teacherOnClassroom.includes(studentClassroomId);
       });
     }
@@ -269,11 +269,13 @@ const RecordGoodnessIndividualPage = () => {
                       </TableRowCustom>
                     ) : (
                       paginatedStudents.map((row: any, index: number) => {
-                        const { id, account, username, student } = row;
+                        const { id, user, classroom, goodnessIndividual } = row;
+                        const account = user?.account;
+                        const username = user?.username;
                         const isLastRow = index === paginatedStudents.length - 1;
-                        const goodnessIndividualLatest = isEmpty(student?.goodnessIndividual)
+                        const goodnessIndividualLatest = isEmpty(goodnessIndividual)
                           ? '-'
-                          : new Date(student?.goodnessIndividual[0]?.createdAt).toLocaleString('th-TH', {
+                          : new Date(goodnessIndividual[0]?.createdAt).toLocaleString('th-TH', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
@@ -295,7 +297,7 @@ const RecordGoodnessIndividualPage = () => {
                               }}
                             >
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <RenderAvatar row={row} />
+                                <RenderAvatar row={{ ...row, account }} />
                                 <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
                                   <LinkStyled href={`/apps/student/view/${id}`} passHref>
                                     <Typography
@@ -336,7 +338,7 @@ const RecordGoodnessIndividualPage = () => {
                               }}
                             >
                               <Typography noWrap variant='body2'>
-                                {student?.classroom?.name || '-'}
+                                {classroom?.name || '-'}
                               </Typography>
                             </TableCellCustom>
                             <TableCellCustom

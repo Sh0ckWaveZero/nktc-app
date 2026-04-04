@@ -170,8 +170,8 @@ const CheckInDailyReportPage = () => {
       }
     }
 
-    // Access classrooms from the correct level
-    const classrooms = actualData?.classrooms || [];
+    // Backend returns a plain array directly; also support { classrooms: [...] } wrapper
+    const classrooms = Array.isArray(actualData) ? actualData : (actualData?.classrooms || []);
 
     if (!classrooms || !classrooms.length) {
       console.log('No classrooms found');
@@ -198,10 +198,14 @@ const CheckInDailyReportPage = () => {
       return;
     }
 
+    const flatStudents = students.map((s: any) => {
+      const account = s?.user?.account || {};
+      return { ...s, firstName: account.firstName ?? s.firstName, lastName: account.lastName ?? s.lastName, title: account.title ?? s.title, avatar: account.avatar ?? s.avatar };
+    });
     setDefaultClassroom(classroom);
     setClassrooms(classrooms);
-    setCurrentStudents(students);
-    setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
+    setCurrentStudents(flatStudents);
+    setNormalStudents(flatStudents.filter((student: any) => student?.status !== 'internship'));
     setPageSize(students.length);
     setCurrentPage(0); // Reset to first page when loading new data
     setLoading(false);
@@ -591,7 +595,10 @@ const CheckInDailyReportPage = () => {
     } = event;
     const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
     await getCheckInStatus(auth?.user?.teacher?.id as string, classroomObj?.id);
-    setCurrentStudents(classroomObj.students);
+    setCurrentStudents((classroomObj.students || []).map((s: any) => {
+      const account = s?.user?.account || {};
+      return { ...s, firstName: account.firstName ?? s.firstName, lastName: account.lastName ?? s.lastName, title: account.title ?? s.title, avatar: account.avatar ?? s.avatar };
+    }));
     setDefaultClassroom(classroomObj);
     setCurrentPage(0); // Reset to first page when changing classroom
     setOpenAlert(true);

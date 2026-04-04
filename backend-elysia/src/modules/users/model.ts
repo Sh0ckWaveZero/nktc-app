@@ -8,7 +8,7 @@ export const UserModel = {
 	}),
 	updatePasswordById: t.Object({
 		newPassword: t.String(),
-		confirmPassword: t.String(),
+		confirmPassword: t.Optional(t.String()),
 	}),
 	auditLogsQuery: t.Object({
 		skip: t.Optional(t.String()),

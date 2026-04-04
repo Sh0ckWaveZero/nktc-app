@@ -3,6 +3,7 @@ import { t, type UnwrapSchema } from "elysia";
 export const GoodnessModel = {
 	goodnessBody: t.Object({
 		studentId: t.String(),
+		studentKey: t.String(),
 		classroomId: t.String(),
 		goodnessScore: t.Number(),
 		goodnessDetail: t.Optional(t.String()),

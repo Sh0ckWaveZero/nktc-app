@@ -33,75 +33,76 @@ const appLogger = createLogger();
 await initializeDatabase();
 
 const app = new Elysia()
-	.use(errorHandler)
-	.use(responsePlugin)
-	.use(logger)
-	.use(cors())
-	.use(
-		swagger({
-			path: "/swagger",
-			documentation: {
-				info: {
-					title: "NKTC API Documentation",
-					description: "OpenAPI Documentation for NKTC Student Management System",
-					version: "1.0.0",
-				},
-				tags: [
-					{ name: "Auth", description: "Authentication and token management" },
-					{ name: "Users", description: "User management and profiles" },
-					{ name: "Students", description: "Student records and management" },
-					{ name: "Teachers", description: "Teacher records and management" },
-					{ name: "Classrooms", description: "Classroom and group management" },
-					{ name: "Statistics", description: "Data analytics and reports" },
-				],
-				components: {
-					securitySchemes: {
-						BearerAuth: {
-							type: "http",
-							scheme: "bearer",
-							bearerFormat: "JWT",
-						},
-					},
-				},
-			},
-			swaggerOptions: {
-				persistAuthorization: true,
-			},
-		}),
-	)
+  .use(errorHandler)
+  .use(responsePlugin)
+  .use(logger)
+  .use(cors())
+  .use(
+    swagger({
+      path: "/swagger",
+      documentation: {
+        info: {
+          title: "NKTC API Documentation",
+          description:
+            "OpenAPI Documentation for NKTC Student Management System",
+          version: "1.0.0",
+        },
+        tags: [
+          { name: "Auth", description: "Authentication and token management" },
+          { name: "Users", description: "User management and profiles" },
+          { name: "Students", description: "Student records and management" },
+          { name: "Teachers", description: "Teacher records and management" },
+          { name: "Classrooms", description: "Classroom and group management" },
+          { name: "Statistics", description: "Data analytics and reports" },
+        ],
+        components: {
+          securitySchemes: {
+            BearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
+      },
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    }),
+  )
 
-	.use(
-		jwt({
-			name: "jwt",
-			secret: process.env.JWT_SECRET || "supersecret",
-		}),
-	)
-	.get("/", () => "Hello Elysia!")
-	.group("/api", (app) =>
-		app
-			.get("/health", () => ({ status: "ok" }))
-			.use(auth)
-			.use(users)
-			.use(accounts)
-			.use(levels)
-			.use(departments)
-			.use(programs)
-			.use(auditLog)
-			.use(visits)
-			.use(statistics)
-			.use(classrooms)
-			.use(teachers)
-			.use(students)
-			.use(reportCheckIn)
-			.use(activityCheckIn)
-			.use(goodnessIndividual)
-			.use(badnessIndividual)
-			.use(statics),
-	)
-	.listen(process.env.PORT || 3001);
+  .use(
+    jwt({
+      name: "jwt",
+      secret: process.env.JWT_SECRET || "supersecret",
+    }),
+  )
+  .get("/", () => "Hello Elysia!")
+  .group("/api", (app) =>
+    app
+      .get("/health", () => ({ status: "ok" }))
+      .use(auth)
+      .use(users)
+      .use(accounts)
+      .use(levels)
+      .use(departments)
+      .use(programs)
+      .use(auditLog)
+      .use(visits)
+      .use(statistics)
+      .use(classrooms)
+      .use(teachers)
+      .use(students)
+      .use(reportCheckIn)
+      .use(activityCheckIn)
+      .use(goodnessIndividual)
+      .use(badnessIndividual)
+      .use(statics),
+  )
+  .listen(process.env.PORT || 3001);
 
-appLogger.info("Server started", {
-	url: `http://${app.server?.hostname}:${app.server?.port}`,
-	port: app.server?.port,
-	environment: process.env.NODE_ENV || "development",
+appLogger.info("🦊 Server started", {
+  url: `http://${app.server?.hostname}:${app.server?.port}`,
+  port: app.server?.port,
+  environment: process.env.NODE_ENV || "development",
 });

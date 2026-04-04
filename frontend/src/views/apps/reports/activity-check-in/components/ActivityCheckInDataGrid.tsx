@@ -237,6 +237,7 @@ const ActivityCheckInDataGrid = ({
               paginatedStudents.map((row: any, index: number) => {
                 const { status, color } = getStudentStatus(row.id);
                 const isLastRow = index === paginatedStudents.length - 1;
+                const account = row?.user?.account ?? row;
 
         return (
                   <TableRowCustom
@@ -253,19 +254,19 @@ const ActivityCheckInDataGrid = ({
                       }}
                     >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={row} />
+            <RenderAvatar row={{ ...row, ...account }} />
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography
                             noWrap
                 variant='body1'
-                sx={{ 
-                  fontWeight: 600, 
-                  color: 'text.primary', 
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
                   textDecoration: 'none',
                   fontSize: '0.9375rem',
                 }}
               >
-                {row?.title + '' + row?.firstName + ' ' + row?.lastName}
+                {account?.title + '' + account?.firstName + ' ' + account?.lastName}
               </Typography>
               <Typography
                             noWrap

@@ -58,14 +58,14 @@ const ActivityStudentCard = ({
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <RenderAvatar row={student} />
+          <RenderAvatar row={{ ...student, ...student?.user?.account }} />
           <Box sx={{ ml: responsiveConfig.isMobile ? 1.5 : 2, flex: 1 }}>
             <Typography
               id={`activity-checkin-student-name-${student.id}`}
               variant={responsiveConfig.isMobile ? 'subtitle1' : 'h6'}
               sx={{ fontWeight: 600 }}
             >
-              {student.title + '' + student.firstName + ' ' + student.lastName}
+              {(student?.user?.account?.title ?? student?.title) + '' + (student?.user?.account?.firstName ?? student?.firstName) + ' ' + (student?.user?.account?.lastName ?? student?.lastName)}
             </Typography>
             <Typography id={`activity-checkin-student-id-${student.id}`} variant='body2' color='text.secondary'>
               @{student.studentId}

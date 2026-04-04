@@ -72,6 +72,18 @@ interface UseCheckInReportReturn {
   onHandleToggle: (action: string, param: any) => void;
 }
 
+// Flatten nested student data from API: student.user.account.* → student.*
+const flattenStudent = (student: any) => {
+  const account = student?.user?.account || {};
+  return {
+    ...student,
+    firstName: account.firstName ?? student.firstName,
+    lastName: account.lastName ?? student.lastName,
+    title: account.title ?? student.title,
+    avatar: account.avatar ?? student.avatar,
+  };
+};
+
 export const useCheckInReport = (): UseCheckInReportReturn => {
   // ** Hooks
   const auth = useAuth();
@@ -160,7 +172,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
 
     console.log('classroomData:', classroomData);
-    
+
     // Handle nested data structure: { data: { data: { classrooms: [...] } } }
     let actualData = classroomData;
     if (classroomData?.data) {
@@ -170,9 +182,9 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
         actualData = actualData.data;
       }
     }
-    
-    // Access classrooms from the correct level
-    const classrooms = actualData?.classrooms || [];
+
+    // Backend returns a plain array directly; also support { classrooms: [...] } wrapper
+    const classrooms = Array.isArray(actualData) ? actualData : (actualData?.classrooms || []);
     
     if (!classrooms || !classrooms.length) {
       console.log('No classrooms found:', { 
@@ -211,7 +223,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       const studentCount = classroom.students?.length || 0;
       setDefaultClassroom(classroom);
       setClassrooms(classrooms);
-      setCurrentStudents(classroom.students || []);
+      setCurrentStudents(classroom.students.map(flattenStudent));
       // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 10;
@@ -273,7 +285,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     const classroomObj: any = classrooms.find((item: any) => item.name === value);
 
     if (classroomObj) {
-      setCurrentStudents(classroomObj.students || []);
+      setCurrentStudents((classroomObj.students || []).map(flattenStudent));
       setDefaultClassroom(classroomObj);
       // Reset saved check-in status when changing classroom
       setHasSavedCheckIn(false);
