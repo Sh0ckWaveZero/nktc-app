@@ -206,6 +206,7 @@ export abstract class BadnessService {
         student: {
           include: {
             user: { select: userMinimalSelect },
+            classroom: true,
           },
         },
       },

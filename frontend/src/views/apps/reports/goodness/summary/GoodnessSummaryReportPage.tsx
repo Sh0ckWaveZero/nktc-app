@@ -16,7 +16,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
@@ -60,34 +60,72 @@ const GoodnessSummaryReportPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [sortModel, setSortModel] = useState([{ field: 'createdAt', sort: 'desc' as const }]);
   const [total, setTotal] = useState(0);
   const [info, setInfo] = useState<any>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [goodnessId, setGoodnessId] = useState('');
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const searchWithParams = async (params: any) => {
+  const searchWithParams = useCallback(async (params: any) => {
     try {
       setLoading(true);
       const response = await summary({ ...params });
-      setData(response?.data);
-      setTotal(response?.total ?? 0);
+
+      const records: any[] = response?.records ?? [];
+
+      // Group by studentId and sum goodnessScore
+      const grouped: Record<string, any> = {};
+      for (const r of records) {
+        const sid = r.studentId;
+        if (!grouped[sid]) {
+          const { title, firstName, lastName } = r.student?.user?.account ?? {};
+          grouped[sid] = {
+            id: r.studentKey,
+            studentId: sid,
+            title: title ?? '',
+            firstName: `${firstName ?? ''} ${lastName ?? ''}`.trim(),
+            name: r.student?.classroom?.name ?? '',
+            goodnessScore: 0,
+            info: [],
+          };
+        }
+        grouped[sid].goodnessScore += r.goodnessScore ?? 0;
+        grouped[sid].info.push({
+          id: r.id,
+          goodnessDetail: r.goodnessDetail,
+          goodnessScore: r.goodnessScore,
+          goodDate: r.goodDate,
+          image: r.image,
+        });
+      }
+
+      // Sort by goodnessScore desc
+      const sorted = Object.values(grouped).sort((a, b) => b.goodnessScore - a.goodnessScore);
+
+      // Pagination slice
+      const { skip, take } = params;
+      const page = sorted.slice(skip, skip + take);
+
+      // Assign running number
+      const withRunningNumber = page.map((item, idx) => ({
+        ...item,
+        runningNumber: skip + idx + 1,
+      }));
+
+      setData(withRunningNumber);
+      setTotal(Object.keys(grouped).length);
       setLoading(false);
     } catch (error: any) {
       toast.error(error?.message);
       setLoading(false);
     }
-  };
+  }, [summary]);
 
   useEffect(() => {
-    const params = {
-      skip: paginationModel.page === 0 ? 0 : paginationModel.page * paginationModel.pageSize,
-      take: paginationModel.pageSize,
-      sort: sortModel,
-    };
-    searchWithParams(params);
-  }, [paginationModel.page, paginationModel.pageSize, sortModel, isDeleted]);
+    const skip = paginationModel.page === 0 ? 0 : paginationModel.page * paginationModel.pageSize;
+    const take = paginationModel.pageSize;
+    searchWithParams({ skip, take });
+  }, [paginationModel.page, paginationModel.pageSize, isDeleted, searchWithParams]);
 
   const handleClickOpen = (info: any) => {
     setOpen(true);
@@ -180,16 +218,17 @@ const GoodnessSummaryReportPage = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { firstName } = row;
+        const { title, firstName } = row;
+        const fullName = `${title ?? ''}${firstName ?? ''}`.trim();
         return (
-          <Tooltip title={firstName} arrow>
+          <Tooltip title={fullName} arrow>
             <span>
               <Typography
                 noWrap
                 variant='subtitle2'
                 sx={{ fontWeight: 400, color: 'text.primary', textDecoration: 'none' }}
               >
-                {firstName}
+                {fullName}
               </Typography>
             </span>
           </Tooltip>
