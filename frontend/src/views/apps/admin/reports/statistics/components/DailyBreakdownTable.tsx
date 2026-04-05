@@ -1,229 +1,242 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState, type ChangeEvent } from 'react';
+import { alpha } from '@mui/material/styles';
 import {
+  Box,
   Card,
-  CardHeader,
   CardContent,
+  CardHeader,
+  Chip,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  Typography,
-  Box,
-  LinearProgress,
   TablePagination,
+  TableRow,
+  Typography,
 } from '@mui/material';
-// Date formatting helpers using date-fns
-import { formatThaiShortDate } from '@/@core/utils/thai-calendar';
 
-const formatThaiDayOfWeek = (dateString: string): string => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('th-TH', {
+import type { DailyBreakdownDatum } from '@/hooks/queries/useStatistics';
+
+const formatThaiShortDate = (value: string) =>
+  new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+  }).format(new Date(value));
+
+const formatThaiWeekday = (value: string) =>
+  new Intl.DateTimeFormat('th-TH', {
     weekday: 'long',
-  }).format(date);
+  }).format(new Date(value));
+
+const getAttendanceTone = (rate: number) => {
+  if (rate >= 90) {
+    return 'success';
+  }
+
+  if (rate >= 75) {
+    return 'warning';
+  }
+
+  return 'error';
 };
 
-interface DailyData {
-  date: string;
-  checkedIn: number;
-  notCheckedIn: number;
-  totalStudents: number;
-  attendanceRate: number;
-}
+const getAttendanceLabel = (rate: number) => {
+  if (rate >= 90) {
+    return 'ดีมาก';
+  }
+
+  if (rate >= 75) {
+    return 'ควบคุมได้';
+  }
+
+  return 'ต้องติดตาม';
+};
 
 interface DailyBreakdownTableProps {
-  dailyData: DailyData[];
+  dailyData: DailyBreakdownDatum[];
 }
 
 const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const getAttendanceColor = (rate: number) => {
-    if (rate >= 90) return 'success';
-    if (rate >= 75) return 'warning';
-    return 'error';
+  const currentRows = useMemo(
+    () => dailyData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [dailyData, page, rowsPerPage]
+  );
+
+  const handleChangePage = (_event: unknown, nextPage: number) => {
+    setPage(nextPage);
   };
 
-  const getAttendanceLabel = (rate: number) => {
-    if (rate >= 90) return 'ดีมาก';
-    if (rate >= 75) return 'ดี';
-    if (rate >= 60) return 'พอใช้';
-    return 'ต้องปรับปรุง';
-  };
-
-  // Handle pagination
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number(event.target.value));
     setPage(0);
   };
 
-  // Get current page data
-  const currentPageData = useMemo(() => {
-    if (!dailyData || !Array.isArray(dailyData)) return [];
-    return dailyData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [dailyData, page, rowsPerPage]);
-
   return (
-    <Card>
-      <CardHeader title='ข้อมูลการมาเข้าแถวรายวัน' subheader={`ทั้งหมด ${dailyData?.length || 0} วัน`} />
-      <CardContent>
-        {!dailyData || dailyData.length === 0 ? (
-          <Box display='flex' justifyContent='center' alignItems='center' py={4}>
-            <Typography variant='body1' color='text.secondary'>
-              ไม่มีข้อมูล
-            </Typography>
-          </Box>
-        ) : (
-          <>
-            <TableContainer
-              component={Paper}
-              variant='outlined'
-              sx={{
-                overflowX: 'auto',
-                '& .MuiTable-root': {
-                  minWidth: { xs: 800, sm: 650 },
-                },
-              }}
-            >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>วันที่</strong>
-                    </TableCell>
-                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>มาเข้าแถว</strong>
-                    </TableCell>
-                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>ไม่มาเข้าแถว</strong>
-                    </TableCell>
-                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>รวมนักเรียน</strong>
-                    </TableCell>
-                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>อัตราเข้าเรียน</strong>
-                    </TableCell>
-                    <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      <strong>สถานะ</strong>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {currentPageData.map((row, index) => {
-                    const checkedIn = row.checkedIn ?? 0;
-                    const notCheckedIn = row.notCheckedIn ?? 0;
-                    const totalStudents = row.totalStudents ?? 0;
-                    // คำนวณอัตราการเข้าเรียนจากข้อมูลจริงที่เช็คชื่อในวันนั้น
-                    const actualCheckedStudents = checkedIn + notCheckedIn;
-                    const attendanceRate = actualCheckedStudents > 0 ? (checkedIn / actualCheckedStudents) * 100 : 0;
+    <Card
+      sx={{
+        borderRadius: 3,
+        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+      }}
+    >
+      <CardHeader
+        title='สถิติรายวัน'
+        subheader={`เรียงตามวันจริง ${dailyData.length.toLocaleString()} วัน`}
+        slotProps={{
+          title: {
+            sx: {
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+            },
+          },
+          subheader: {
+            sx: {
+              mt: 0.75,
+            },
+          },
+        }}
+      />
+      <CardContent sx={{ pt: 0 }}>
+        <Box
+          sx={{
+            mb: 2,
+            p: 1.35,
+            borderRadius: 2.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+            backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.04),
+          }}
+        >
+          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
+            ตารางคะแนนรายวัน
+          </Typography>
+          <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+            แยก มาเข้าแถว ขาด สาย ลา และฝึกงาน ต่อวัน
+          </Typography>
+        </Box>
 
-                    return (
-                      <TableRow key={index} hover>
-                        <TableCell>
-                          <Typography
-                            variant='body2'
-                            fontWeight={500}
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            {formatThaiShortDate(row.date)}
+        <TableContainer
+          sx={{
+            borderRadius: 2.5,
+            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
+            overflowX: 'auto',
+          }}
+        >
+          <Table sx={{ minWidth: 980 }}>
+            <TableHead>
+              <TableRow
+                sx={{
+                  '& th': {
+                    py: 1.8,
+                    fontWeight: 800,
+                    color: 'text.primary',
+                    borderBottom: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                    backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                  },
+                }}
+              >
+                <TableCell>วันที่</TableCell>
+                <TableCell align='center'>มาเข้าแถว</TableCell>
+                <TableCell align='center'>ขาด</TableCell>
+                <TableCell align='center'>สาย</TableCell>
+                <TableCell align='center'>ลา</TableCell>
+                <TableCell align='center'>ฝึกงาน</TableCell>
+                <TableCell align='center'>เช็คชื่อรวม</TableCell>
+                <TableCell align='center'>อัตราเข้าแถว</TableCell>
+                <TableCell align='center'>สถานะ</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {currentRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align='center' sx={{ py: 8 }}>
+                    <Typography color='text.secondary'>ไม่พบข้อมูลรายวันในช่วงวันที่นี้</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                currentRows.map((row) => {
+                  const tone = getAttendanceTone(row.attendanceRate);
+
+                  return (
+                    <TableRow
+                      key={row.date}
+                      hover
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.035),
+                        },
+                      }}
+                    >
+                      <TableCell>
+                        <Typography sx={{ fontWeight: 700 }}>{formatThaiShortDate(row.date)}</Typography>
+                        <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                          {formatThaiWeekday(row.date)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align='center'>{row.present.toLocaleString()}</TableCell>
+                      <TableCell align='center'>{row.absent.toLocaleString()}</TableCell>
+                      <TableCell align='center'>{row.late.toLocaleString()}</TableCell>
+                      <TableCell align='center'>{row.leave.toLocaleString()}</TableCell>
+                      <TableCell align='center'>{row.internship.toLocaleString()}</TableCell>
+                      <TableCell align='center'>
+                        <Typography sx={{ fontWeight: 700 }}>{row.checkedRecords.toLocaleString()}</Typography>
+                        <Typography variant='caption' sx={{ display: 'block', color: 'text.secondary' }}>
+                          จาก {row.totalStudents.toLocaleString()} คน
+                        </Typography>
+                      </TableCell>
+                      <TableCell align='center' sx={{ minWidth: 160 }}>
+                        <Box sx={{ px: 1 }}>
+                          <Typography sx={{ fontWeight: 800, color: `${tone}.main` }}>
+                            {row.attendanceRate.toFixed(2)}%
                           </Typography>
-                          <Typography
-                            variant='caption'
-                            color='text.secondary'
-                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
-                          >
-                            {formatThaiDayOfWeek(row.date)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Typography
-                            variant='body2'
-                            color='success.main'
-                            fontWeight={500}
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            {checkedIn.toLocaleString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Typography
-                            variant='body2'
-                            color='error.main'
-                            fontWeight={500}
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            {notCheckedIn.toLocaleString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Typography
-                            variant='body2'
-                            fontWeight={500}
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            {actualCheckedStudents.toLocaleString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Box sx={{ minWidth: { xs: 60, sm: 80 } }}>
-                            <Typography
-                              variant='body2'
-                              fontWeight={600}
-                              color={`${getAttendanceColor(attendanceRate)}.main`}
-                              sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                            >
-                              {attendanceRate.toFixed(2)}%
-                            </Typography>
-                            <LinearProgress
-                              variant='determinate'
-                              value={attendanceRate}
-                              color={getAttendanceColor(attendanceRate)}
-                              sx={{ mt: 0.5, height: { xs: 4, sm: 6 }, borderRadius: 1 }}
-                            />
-                          </Box>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Chip
-                            label={getAttendanceLabel(attendanceRate)}
-                            color={getAttendanceColor(attendanceRate)}
-                            size='small'
-                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
+                          <LinearProgress
+                            variant='determinate'
+                            value={row.attendanceRate}
+                            color={tone}
+                            sx={{
+                              mt: 0.8,
+                              height: 8,
+                              borderRadius: 999,
+                              bgcolor: (theme) => alpha(theme.palette[tone].main, 0.12),
+                            }}
                           />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                        </Box>
+                      </TableCell>
+                      <TableCell align='center'>
+                        <Chip
+                          label={getAttendanceLabel(row.attendanceRate)}
+                          color={tone}
+                          size='small'
+                          sx={{ borderRadius: 2, fontWeight: 700 }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-            {/* Pagination */}
-            <TablePagination
-              rowsPerPageOptions={(dailyData?.length || 0) === 0 ? [] : [10, 25, 50, 100]}
-              component='div'
-              count={dailyData?.length || 0}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              labelRowsPerPage={(dailyData?.length || 0) === 0 ? '' : 'แสดง:'}
-              labelDisplayedRows={({ from, to, count }) => {
-                return `${from}-${to} จากทั้งหมด ${count}`;
-              }}
-              sx={{ mt: 2 }}
-            />
-          </>
-        )}
+        <TablePagination
+          rowsPerPageOptions={dailyData.length === 0 ? [] : [10, 25, 50]}
+          component='div'
+          count={dailyData.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage={dailyData.length === 0 ? '' : 'แสดง'}
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} จาก ${count}`}
+          sx={{ mt: 1 }}
+        />
       </CardContent>
     </Card>
   );

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
 
-interface TermStatisticsParams {
+export interface TermStatisticsParams {
   startDate: string;
   endDate: string;
   academicYear?: string;
@@ -10,9 +10,86 @@ interface TermStatisticsParams {
   programId?: string;
 }
 
+export interface TermStatisticsScope {
+  totalStudents: number;
+  totalTeachers: number;
+  departmentId?: string;
+  departmentName?: string | null;
+  programId?: string;
+  programName?: string | null;
+}
+
+export interface StudentCheckInTotals {
+  present: number;
+  absent: number;
+  late: number;
+  leave: number;
+  internship: number;
+}
+
+export interface StudentCheckInStats {
+  totalStudents: number;
+  totalCheckInDays: number;
+  checkedRecords: number;
+  studentsCheckedIn: number;
+  studentsNotCheckedIn: number;
+  averageAttendanceRate: number;
+  checkInPercentage: number;
+  notCheckedInPercentage: number;
+  totals: StudentCheckInTotals;
+}
+
+export interface TeacherActivityDetail {
+  teacherDbId: string;
+  teacherId: string;
+  teacherName: string;
+  department: string | null;
+  program: string | null;
+  checkInCount: number;
+  lastCheckInDate: string | null;
+  isActive: boolean;
+}
+
+export interface TeacherUsageStats {
+  totalTeachers: number;
+  activeTeachers: number;
+  inactiveTeachers: number;
+  activePercentage: number;
+  inactivePercentage: number;
+  teacherActivityDetails: TeacherActivityDetail[];
+}
+
+export interface DailyChartDatum {
+  date: string;
+  attendanceRate: number;
+  checkedRecords: number;
+  present: number;
+  absent: number;
+  late: number;
+  leave: number;
+  internship: number;
+}
+
+export interface DailyBreakdownDatum extends DailyChartDatum {
+  totalStudents: number;
+}
+
+export interface TermStatisticsResponse {
+  summary: {
+    dateRange: {
+      startDate: string;
+      endDate: string;
+    };
+    scope: TermStatisticsScope;
+  };
+  studentCheckInStats: StudentCheckInStats;
+  teacherUsageStats: TeacherUsageStats;
+  dailyChartData: DailyChartDatum[];
+  dailyBreakdown: DailyBreakdownDatum[];
+}
+
 /**
  * Hook to fetch term statistics with React Query
- * Auto-refetches when params change
  */
 export const useTermStatistics = (params: TermStatisticsParams) => {
   return useQuery({
@@ -26,14 +103,14 @@ export const useTermStatistics = (params: TermStatisticsParams) => {
         ...(params.programId && params.programId !== 'all' && { programId: params.programId }),
       });
 
-      const { data } = await httpClient.get(
+      const { data } = await httpClient.get<TermStatisticsResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/statistics/term?${queryParams.toString()}`
       );
 
       return data;
     },
-    enabled: !!(params.startDate && params.endDate), // Only fetch when dates are provided
-    staleTime: 10 * 60 * 1000, // 10 minutes - statistics don't change frequently
-    gcTime: 15 * 60 * 1000, // 15 minutes cache time
+    enabled: !!(params.startDate && params.endDate),
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
   });
 };

@@ -1,52 +1,253 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { alpha, styled, type Theme } from '@mui/material/styles';
 import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
   Card,
   CardContent,
-  CardHeader,
-  Grid,
+  Chip,
+  Skeleton,
+  Stack,
   Typography,
-  Box,
-  Avatar,
-  CircularProgress,
-  Alert,
-  Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Tabs,
-  Tab,
-  Button,
 } from '@mui/material';
-import { FaChartPie, FaUserGraduate, FaChalkboardTeacher, FaFileExcel } from 'react-icons/fa';
+import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import { FaChalkboardTeacher, FaChartLine, FaFileExcel, FaUserGraduate } from 'react-icons/fa';
 import { MdAssessment } from 'react-icons/md';
 import * as XLSX from 'xlsx';
 
-import { useTermStatistics, useDepartments, usePrograms } from '@/hooks/queries';
-import StatisticsCard from './components/StatisticsCard';
-import AttendanceChart from './components/AttendanceChart';
-import TeacherUsageChart from './components/TeacherUsageChart';
-import DailyAttendanceChart from './components/DailyAttendanceChart';
-import DailyBreakdownTable from './components/DailyBreakdownTable';
-import TeacherActivityTable from './components/TeacherActivityTable';
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 import {
   formatDateForAPI,
   formatThaiDate,
   getEndOfMonth,
   getStartOfMonth,
 } from '@/@core/components/mui/date-picker-thai/utils';
-import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import { useDepartments, usePrograms, useTermStatistics, type DailyBreakdownDatum } from '@/hooks/queries';
+
+import AttendanceChart from './components/AttendanceChart';
+import DailyAttendanceChart from './components/DailyAttendanceChart';
+import DailyBreakdownTable from './components/DailyBreakdownTable';
+import StatisticsCard from './components/StatisticsCard';
+import TeacherActivityTable from './components/TeacherActivityTable';
+import TeacherUsageChart from './components/TeacherUsageChart';
+
+const PANEL_RADIUS = 14;
+const SECTION_RADIUS = 12;
+const CONTROL_RADIUS = 10;
+
+const HeroCard = styled(Card)(({ theme }) => ({
+  position: 'relative',
+  overflow: 'hidden',
+  borderRadius: PANEL_RADIUS,
+  border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+  background:
+    theme.palette.mode === 'dark'
+      ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.background.paper, 0.98)} 18%, ${alpha(theme.palette.background.default, 0.98)} 100%)`
+      : `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.06)} 0%, ${alpha(theme.palette.background.paper, 0.995)} 20%, ${theme.palette.background.paper} 100%)`,
+  boxShadow:
+    theme.palette.mode === 'dark'
+      ? `0 26px 54px ${alpha(theme.palette.common.black, 0.2)}`
+      : `0 26px 52px ${alpha(theme.palette.primary.main, 0.08)}`,
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: -140,
+    right: -90,
+    width: 340,
+    height: 340,
+    borderRadius: '50%',
+    pointerEvents: 'none',
+    background:
+      theme.palette.mode === 'dark'
+        ? `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.16)} 0%, transparent 72%)`
+        : `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.14)} 0%, transparent 74%)`,
+  },
+}));
+
+const FilterSurface = styled(Box)(({ theme }) => ({
+  borderRadius: SECTION_RADIUS,
+  padding: theme.spacing(2.25),
+  border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
+  backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.8 : 0.92),
+  boxShadow:
+    theme.palette.mode === 'dark'
+      ? `inset 0 1px 0 ${alpha(theme.palette.common.white, 0.03)}`
+      : `0 16px 32px ${alpha(theme.palette.primary.main, 0.04)}`,
+}));
+
+const SectionHeading = styled(Typography)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  fontWeight: 800,
+  letterSpacing: '-0.03em',
+  fontSize: '1.05rem',
+  color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.9 : 0.82),
+  '&::before': {
+    content: '""',
+    width: 10,
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.74 : 0.64),
+    boxShadow:
+      theme.palette.mode === 'dark'
+        ? `0 0 0 6px ${alpha(theme.palette.primary.main, 0.08)}`
+        : `0 0 0 5px ${alpha(theme.palette.primary.main, 0.08)}`,
+  },
+}));
+
+const HeroEyebrow = styled(Typography)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  fontSize: '0.8rem',
+  fontWeight: 800,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.94 : 0.8),
+}));
+
+const ChartSurface = styled(Card)(({ theme }) => ({
+  height: '100%',
+  borderRadius: 12,
+  border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+  background:
+    theme.palette.mode === 'dark'
+      ? `linear-gradient(180deg, ${alpha(theme.palette.background.paper, 0.94)} 0%, ${alpha(theme.palette.background.default, 0.98)} 100%)`
+      : `linear-gradient(180deg, ${alpha(theme.palette.background.paper, 0.995)} 0%, ${alpha(theme.palette.primary.main, 0.018)} 100%)`,
+  boxShadow:
+    theme.palette.mode === 'dark'
+      ? `0 18px 36px ${alpha(theme.palette.common.black, 0.16)}`
+      : `0 18px 34px ${alpha(theme.palette.primary.main, 0.05)}`,
+}));
+
+const CONTROL_SX = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: `${CONTROL_RADIUS}px`,
+    backgroundColor: (theme: Theme) => alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.9 : 0.94),
+    '& fieldset': {
+      borderColor: (theme: Theme) => alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.18 : 0.12),
+    },
+    '&:hover fieldset': {
+      borderColor: (theme: Theme) => alpha(theme.palette.primary.main, 0.24),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'primary.main',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 600,
+  },
+  '& .MuiInputBase-input': {
+    fontWeight: 400,
+  },
+} as const;
+
+const EmptyStateCard = styled(Card)(({ theme }) => ({
+  borderRadius: 12,
+  border: `1px dashed ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.26 : 0.2)}`,
+  backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
+}));
+
+const formatThaiDateTime = (value: string) =>
+  new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+
+const getErrorMessage = (error: unknown) => {
+  if (typeof error === 'object' && error !== null) {
+    const response = 'response' in error ? (error as { response?: { data?: { message?: unknown } } }).response : undefined;
+    if (typeof response?.data?.message === 'string') {
+      return response.data.message;
+    }
+
+    const errorMessage = 'message' in error ? (error as { message?: unknown }).message : undefined;
+    if (typeof errorMessage === 'string') {
+      return errorMessage;
+    }
+  }
+
+  return 'เกิดข้อผิดพลาดในการโหลดข้อมูลสถิติ';
+};
+
+const findBestAndWorstDay = (dailyBreakdown: DailyBreakdownDatum[]) => {
+  if (dailyBreakdown.length === 0) {
+    return {
+      bestDay: null,
+      worstDay: null,
+    };
+  }
+
+  const sorted = [...dailyBreakdown].sort((left, right) => left.attendanceRate - right.attendanceRate);
+
+  return {
+    worstDay: sorted[0] ?? null,
+    bestDay: sorted[sorted.length - 1] ?? null,
+  };
+};
+
+const StatisticsSkeleton = () => (
+  <Grid container spacing={3}>
+    <Grid size={12}>
+      <HeroCard>
+        <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
+          <Skeleton variant='rounded' height={180} sx={{ borderRadius: 4 }} />
+        </CardContent>
+      </HeroCard>
+    </Grid>
+    {[0, 1, 2, 3].map((item) => (
+      <Grid key={item} size={{ xs: 12, sm: 6, xl: 3 }}>
+        <Skeleton variant='rounded' height={176} sx={{ borderRadius: 4 }} />
+      </Grid>
+    ))}
+    <Grid size={{ xs: 12, xl: 8 }}>
+      <Skeleton variant='rounded' height={420} sx={{ borderRadius: 4 }} />
+    </Grid>
+    <Grid size={{ xs: 12, xl: 4 }}>
+      <Skeleton variant='rounded' height={420} sx={{ borderRadius: 4 }} />
+    </Grid>
+    <Grid size={12}>
+      <Skeleton variant='rounded' height={420} sx={{ borderRadius: 4 }} />
+    </Grid>
+  </Grid>
+);
 
 const TermStatisticsPage = () => {
   const [termStartDate, setTermStartDate] = useState<Date | null>(getStartOfMonth());
   const [termEndDate, setTermEndDate] = useState<Date | null>(getEndOfMonth());
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [programFilter, setProgramFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState(0);
 
-  // Memoize query params to prevent unnecessary refetches
+  const { data: departments = [] } = useDepartments();
+  const { data: programs = [] } = usePrograms();
+
+  const filteredPrograms = useMemo(() => {
+    if (departmentFilter === 'all') {
+      return programs;
+    }
+
+    return programs.filter((program) => program.departmentId === departmentFilter);
+  }, [departmentFilter, programs]);
+
+  useEffect(() => {
+    if (programFilter === 'all') {
+      return;
+    }
+
+    const isProgramAvailable = filteredPrograms.some((program) => program.id === programFilter);
+
+    if (!isProgramAvailable) {
+      setProgramFilter('all');
+    }
+  }, [filteredPrograms, programFilter]);
+
   const queryParams = useMemo(
     () => ({
       startDate: termStartDate ? formatDateForAPI(termStartDate) : '',
@@ -54,541 +255,503 @@ const TermStatisticsPage = () => {
       departmentId: departmentFilter,
       programId: programFilter,
     }),
-    [termStartDate, termEndDate, departmentFilter, programFilter]
+    [departmentFilter, programFilter, termEndDate, termStartDate]
   );
 
-  // Fetch statistics with React Query
   const {
     data: statistics,
-    isLoading: isLoadingData,
-    error: statisticsError,
+    error,
+    isLoading,
+    isFetching,
   } = useTermStatistics(queryParams);
 
-  // Fetch departments and programs
-  const { data: departments = [] } = useDepartments();
-  const { data: programs = [] } = usePrograms();
+  const hasChartData = (statistics?.dailyBreakdown.length ?? 0) > 0;
+  const bestAndWorstDay = useMemo(
+    () => findBestAndWorstDay(statistics?.dailyBreakdown ?? []),
+    [statistics?.dailyBreakdown]
+  );
 
-  // Convert error to string
-  const error = statisticsError ? 'เกิดข้อผิดพลาดในการโหลดข้อมูล' : null;
+  const scopeChips = useMemo(() => {
+    if (!statistics) {
+      return [];
+    }
 
-  // Safe accessors to prevent undefined errors when API returns partial data
-  const studentStats = statistics?.studentCheckInStats ?? {};
-  const teacherStats = statistics?.teacherUsageStats ?? {};
-  const dailyBreakdown = Array.isArray(statistics?.dailyBreakdown) ? statistics.dailyBreakdown : [];
-  const dailyChartData = Array.isArray(statistics?.dailyChartData) ? statistics.dailyChartData : [];
+    return [
+      statistics.summary.scope.departmentName
+        ? `แผนก ${statistics.summary.scope.departmentName}`
+        : 'ทุกแผนก',
+      statistics.summary.scope.programName ? `สาขา ${statistics.summary.scope.programName}` : 'ทุกสาขา',
+      `นักเรียน ${statistics.summary.scope.totalStudents.toLocaleString()} คน`,
+      `ครู ${statistics.summary.scope.totalTeachers.toLocaleString()} คน`,
+    ];
+  }, [statistics]);
 
   const handleExportExcel = () => {
-    if (!statistics || !termStartDate || !termEndDate) return;
+    if (!statistics || !termStartDate || !termEndDate) {
+      return;
+    }
 
     const workbook = XLSX.utils.book_new();
+    const { summary, studentCheckInStats, teacherUsageStats, dailyBreakdown } = statistics;
 
-    // Sheet 1: ภาพรวม
-    const overviewData = [
+    const summarySheetData = [
       ['สถิติการใช้งานระบบตามเทอม'],
       [`ข้อมูลตั้งแต่ ${formatThaiDate(termStartDate)} ถึง ${formatThaiDate(termEndDate)}`],
+      [`แผนก: ${summary.scope.departmentName ?? 'ทุกแผนก'}`],
+      [`สาขา: ${summary.scope.programName ?? 'ทุกสาขา'}`],
       [],
       ['ภาพรวม'],
-      ['นักเรียนทั้งหมด', studentStats.totalStudents],
-      ['อัตราเข้าเรียนเฉลี่ย', `${(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%`],
-      ['จำนวนวันที่เช็คชื่อ', studentStats.totalCheckInDays],
+      ['นักเรียนในขอบเขต', summary.scope.totalStudents],
+      ['ครูในขอบเขต', summary.scope.totalTeachers],
+      ['จำนวนวันที่มีการเช็คชื่อ', studentCheckInStats.totalCheckInDays],
+      ['จำนวนรายการที่ถูกเช็คชื่อ', studentCheckInStats.checkedRecords],
+      ['อัตราเข้าแถวเฉลี่ย', `${studentCheckInStats.averageAttendanceRate.toFixed(2)}%`],
+      ['มาเข้าแถว', studentCheckInStats.studentsCheckedIn, `${studentCheckInStats.checkInPercentage.toFixed(2)}%`],
+      ['ไม่มาตามปกติ', studentCheckInStats.studentsNotCheckedIn, `${studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`],
       [],
-      ['สถิติการมาเข้าแถว'],
-      [
-        'มาเข้าแถว',
-        studentStats.studentsCheckedIn,
-        `${(studentStats.checkInPercentage ?? 0).toFixed(2)}%`,
-      ],
-      [
-        'ไม่มาเข้าแถว',
-        studentStats.studentsNotCheckedIn,
-        `${(studentStats.notCheckedInPercentage ?? 0).toFixed(2)}%`,
-      ],
+      ['แยกตามสถานะ'],
+      ['มาเข้าแถว', studentCheckInStats.totals.present],
+      ['ขาด', studentCheckInStats.totals.absent],
+      ['สาย', studentCheckInStats.totals.late],
+      ['ลา', studentCheckInStats.totals.leave],
+      ['ฝึกงาน', studentCheckInStats.totals.internship],
+      [],
+      ['การใช้งานครู'],
+      ['ครูทั้งหมด', teacherUsageStats.totalTeachers],
+      ['ครูที่ใช้งาน', teacherUsageStats.activeTeachers, `${teacherUsageStats.activePercentage.toFixed(2)}%`],
+      ['ครูที่ยังไม่ใช้งาน', teacherUsageStats.inactiveTeachers, `${teacherUsageStats.inactivePercentage.toFixed(2)}%`],
     ];
 
-    const overviewSheet = XLSX.utils.aoa_to_sheet(overviewData);
-    XLSX.utils.book_append_sheet(workbook, overviewSheet, 'ภาพรวม');
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(summarySheetData), 'ภาพรวม');
 
-    // Sheet 2: สถิติการเข้าแถวรายวัน
-    if (dailyBreakdown.length > 0) {
-      const dailyData = [
-        ['สถิติการเข้าแถวรายวัน'],
-        [],
-        ['วันที่', 'มาเข้าแถว', 'ไม่มาเข้าแถว', 'รวม', 'อัตราการเข้าแถว (%)'],
-      ];
-
-      dailyBreakdown.forEach((day: any) => {
-        const checkedIn = day.checkedIn ?? 0;
-        const notCheckedIn = day.notCheckedIn ?? 0;
-        const totalStudents = day.totalStudents ?? 0;
-        // คำนวณอัตราการเข้าเรียนจากข้อมูลจริงที่เช็คชื่อในวันนั้น
-        const actualCheckedStudents = checkedIn + notCheckedIn;
-        const attendanceRate = actualCheckedStudents > 0 ? (checkedIn / actualCheckedStudents) * 100 : 0;
-
-        dailyData.push([
-          formatThaiDate(new Date(day.date)),
-          checkedIn,
-          notCheckedIn,
-          actualCheckedStudents,
-          attendanceRate.toFixed(2),
-        ]);
-      });
-
-      const dailySheet = XLSX.utils.aoa_to_sheet(dailyData);
-      XLSX.utils.book_append_sheet(workbook, dailySheet, 'สถิติรายวัน');
-    }
-
-    // Sheet 3: สถิติการใช้งานของครู
-    const teacherOverviewData = [
-      ['สถิติการใช้งานของครู'],
-      [],
-      ['ครูทั้งหมด', teacherStats.totalTeachers],
-      [
-        'ครูที่ใช้งาน',
-        teacherStats.activeTeachers,
-        `${(teacherStats.activePercentage ?? 0).toFixed(2)}%`,
-      ],
-      [
-        'ครูที่ไม่ได้ใช้งาน',
-        teacherStats.inactiveTeachers,
-        `${(teacherStats.inactivePercentage ?? 0).toFixed(2)}%`,
-      ],
-      [],
-      ['รายละเอียดการใช้งานของครู'],
-      ['รหัสครู', 'ชื่อ-นามสกุล', 'แผนก', 'สาขาวิชา', 'จำนวนครั้งที่เช็คชื่อ', 'เช็คชื่อล่าสุด', 'สถานะการใช้งาน'],
+    const dailySheetData = [
+      ['วันที่', 'มาเข้าแถว', 'ขาด', 'สาย', 'ลา', 'ฝึกงาน', 'เช็คชื่อรวม', 'นักเรียนในขอบเขต', 'อัตราเข้าแถว (%)'],
+      ...dailyBreakdown.map((row) => [
+        formatThaiDate(new Date(row.date)),
+        row.present,
+        row.absent,
+        row.late,
+        row.leave,
+        row.internship,
+        row.checkedRecords,
+        row.totalStudents,
+        row.attendanceRate.toFixed(2),
+      ]),
     ];
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(dailySheetData), 'สถิติรายวัน');
 
-    const teacherActivityDetails = Array.isArray(teacherStats.teacherActivityDetails)
-      ? teacherStats.teacherActivityDetails
-      : [];
-    if (teacherActivityDetails.length > 0) {
-      teacherActivityDetails.forEach((teacher: any) => {
-        const lastCheckInDate = teacher.lastCheckInDate ? formatThaiDate(new Date(teacher.lastCheckInDate)) : '-';
+    const teacherSheetData = [
+      ['รหัสครู', 'ชื่อครู', 'แผนก', 'สาขา', 'จำนวนครั้งที่เช็คชื่อ', 'เช็คชื่อล่าสุด', 'สถานะ'],
+      ...teacherUsageStats.teacherActivityDetails.map((teacher) => [
+        teacher.teacherId,
+        teacher.teacherName,
+        teacher.department ?? '-',
+        teacher.program ?? '-',
+        teacher.checkInCount,
+        teacher.lastCheckInDate ? formatThaiDateTime(teacher.lastCheckInDate) : '-',
+        teacher.isActive ? 'มีการใช้งาน' : 'ยังไม่ใช้งาน',
+      ]),
+    ];
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(teacherSheetData), 'สถิติครู');
 
-        teacherOverviewData.push([
-          teacher.teacherId || '-',
-          teacher.teacherName || '-',
-          teacher.department || '-',
-          teacher.program || '-',
-          teacher.checkInCount || 0,
-          lastCheckInDate,
-          teacher.isActive ? 'ใช้งาน' : 'ไม่ได้ใช้งาน',
-        ]);
-      });
-    }
-
-    const teacherSheet = XLSX.utils.aoa_to_sheet(teacherOverviewData);
-    XLSX.utils.book_append_sheet(workbook, teacherSheet, 'สถิติครู');
-
-    // Export file
-    const fileName = `สถิติการใช้งานระบบ_${formatDateForAPI(termStartDate)}_${formatDateForAPI(termEndDate)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    XLSX.writeFile(
+      workbook,
+      `สถิติการใช้งานระบบ_${formatDateForAPI(termStartDate)}_${formatDateForAPI(termEndDate)}.xlsx`
+    );
   };
 
+  if (isLoading && !statistics) {
+    return <StatisticsSkeleton />;
+  }
+
   return (
-    <Grid container spacing={6}>
-      {/* Header Card */}
+    <Grid container spacing={3}>
       <Grid size={12}>
-        <Card>
-          <CardHeader
-            avatar={
-              <Avatar sx={{ bgcolor: 'second.main' }}>
-                <MdAssessment />
-              </Avatar>
-            }
-            title='สถิติการใช้งานระบบตามเทอม'
-            subheader={
-              termStartDate && termEndDate
-                ? `ข้อมูลตั้งแต่ ${formatThaiDate(termStartDate)} ถึง ${formatThaiDate(termEndDate)}`
-                : 'เลือกช่วงวันที่'
-            }
-            action={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pr: 2 }}>
-                {isLoadingData && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={20} />
-                    <Typography variant='caption' color='text.secondary'>
-                      กำลังโหลด...
-                    </Typography>
-                  </Box>
-                )}
-                {statistics && (
-                  <Button
-                    variant='contained'
-                    color='success'
-                    startIcon={<FaFileExcel />}
-                    onClick={handleExportExcel}
-                    sx={{
-                      minWidth: { xs: 'auto', sm: 120 },
-                      px: { xs: 2, sm: 3 },
-                    }}
-                  >
-                    <Box component='span' sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                      Export
-                    </Box>
-                    <Box component='span' sx={{ display: { xs: 'inline', sm: 'none' } }}>
-                      Excel
-                    </Box>
-                  </Button>
-                )}
-              </Box>
-            }
-          />
-          <CardContent>
+        <HeroCard>
+          <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ThaiDatePicker
-                  label='วันที่เริ่มต้น'
-                  value={termStartDate}
-                  onChange={(newValue: Date | null) => setTermStartDate(newValue)}
-                  format='dd/MM/yyyy'
-                  placeholder='วัน/เดือน/ปี (พ.ศ.)'
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <ThaiDatePicker
-                  label='วันที่สิ้นสุด'
-                  value={termEndDate}
-                  onChange={(newValue: Date | null) => setTermEndDate(newValue)}
-                  format='dd/MM/yyyy'
-                  placeholder='วัน/เดือน/ปี (พ.ศ.)'
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <FormControl fullWidth>
-                  <InputLabel>แผนก</InputLabel>
-                  <Select value={departmentFilter} label='แผนก' onChange={(e) => setDepartmentFilter(e.target.value)}>
-                    <MenuItem value='all'>ทั้งหมด</MenuItem>
-                    {departments.map((dept: { id: string; name: string }) => (
-                      <MenuItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </MenuItem>
+              <Grid size={{ xs: 12, lg: 7 }}>
+                <Stack spacing={2.2}>
+                  <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
+                    <Avatar
+                      sx={{
+                        width: { xs: 58, md: 66 },
+                        height: { xs: 58, md: 66 },
+                        bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                        color: 'primary.main',
+                      }}
+                    >
+                      <MdAssessment size={26} />
+                    </Avatar>
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <HeroEyebrow>Term Analytics</HeroEyebrow>
+                      <Typography
+                        sx={{
+                          mt: 0.9,
+                          fontSize: 'clamp(1.75rem, 1.45rem + 1vw, 2.8rem)',
+                          fontWeight: 800,
+                          letterSpacing: '-0.05em',
+                          lineHeight: 1.05,
+                        }}
+                      >
+                        สถิติการใช้งานระบบตามเทอม
+                      </Typography>
+                      <Typography
+                        sx={{
+                          mt: 1,
+                          maxWidth: 680,
+                          fontSize: '1rem',
+                          lineHeight: 1.7,
+                          color: 'text.secondary',
+                        }}
+                      >
+                        ใช้ดูภาพรวมการเข้าแถวของนักเรียน การใช้งานครู และจุดที่ควรติดตามในช่วงวันที่เลือก
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
+                    {scopeChips.map((chip) => (
+                      <Chip
+                        key={chip}
+                        label={chip}
+                        size='small'
+                        sx={{
+                          borderRadius: 999,
+                          bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.15 : 0.08),
+                          color: 'text.primary',
+                          fontWeight: 700,
+                        }}
+                      />
                     ))}
-                  </Select>
-                </FormControl>
+                    {isFetching ? (
+                      <Chip
+                        label='กำลังอัปเดตข้อมูล'
+                        size='small'
+                        sx={{
+                          borderRadius: 999,
+                          bgcolor: (theme) => alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                          color: 'warning.main',
+                          fontWeight: 700,
+                        }}
+                      />
+                    ) : null}
+                  </Stack>
+
+                  {statistics ? (
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(4, minmax(0, 1fr))' },
+                        gap: 1.25,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          borderRadius: 2.5,
+                          p: 1.55,
+                          borderTop: (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.38)}`,
+                          backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                        }}
+                      >
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                          นักเรียน
+                        </Typography>
+                        <Typography sx={{ mt: 0.5, fontWeight: 800, fontSize: '1.35rem' }}>
+                          {statistics.summary.scope.totalStudents.toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          borderRadius: 2.5,
+                          p: 1.55,
+                          borderTop: (theme) => `2px solid ${alpha(theme.palette.success.main, 0.38)}`,
+                          backgroundColor: (theme) => alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                        }}
+                      >
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                          อัตราเข้าแถว
+                        </Typography>
+                        <Typography sx={{ mt: 0.5, fontWeight: 800, fontSize: '1.35rem' }}>
+                          {statistics.studentCheckInStats.averageAttendanceRate.toFixed(2)}%
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          borderRadius: 2.5,
+                          p: 1.55,
+                          borderTop: (theme) => `2px solid ${alpha(theme.palette.info.main, 0.38)}`,
+                          backgroundColor: (theme) => alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                        }}
+                      >
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                          ครูที่ใช้งาน
+                        </Typography>
+                        <Typography sx={{ mt: 0.5, fontWeight: 800, fontSize: '1.35rem' }}>
+                          {statistics.teacherUsageStats.activeTeachers.toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          borderRadius: 2.5,
+                          p: 1.55,
+                          borderTop: (theme) => `2px solid ${alpha(theme.palette.warning.main, 0.38)}`,
+                          backgroundColor: (theme) => alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                        }}
+                      >
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                          วันเช็คชื่อ
+                        </Typography>
+                        <Typography sx={{ mt: 0.5, fontWeight: 800, fontSize: '1.35rem' }}>
+                          {statistics.studentCheckInStats.totalCheckInDays.toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : null}
+                </Stack>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <FormControl fullWidth>
-                  <InputLabel>สาขาวิชา</InputLabel>
-                  <Select value={programFilter} label='สาขาวิชา' onChange={(e) => setProgramFilter(e.target.value)}>
-                    <MenuItem value='all'>ทั้งหมด</MenuItem>
-                    {programs.map((prog: { id: string; name: string }) => (
-                      <MenuItem key={prog.id} value={prog.id}>
-                        {prog.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+
+              <Grid size={{ xs: 12, lg: 5 }}>
+                <FilterSurface>
+                  <Stack spacing={2}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                      <Box>
+                        <SectionHeading>ช่วงข้อมูลและตัวกรอง</SectionHeading>
+                        <Typography sx={{ mt: 0.9, color: 'text.secondary', lineHeight: 1.7 }}>
+                          ปรับช่วงเวลา แผนก และสาขาเพื่อดูเทรนด์จริงของภาคเรียนหรือช่วงที่ต้องการ
+                        </Typography>
+                      </Box>
+
+                      <Button
+                        variant='contained'
+                        startIcon={<FaFileExcel />}
+                        onClick={handleExportExcel}
+                        disabled={!statistics}
+                        sx={{
+                          alignSelf: 'flex-start',
+                          minWidth: { xs: 48, sm: 148 },
+                          borderRadius: 2.5,
+                          px: { xs: 1.4, sm: 2.2 },
+                          boxShadow: (theme) => `0 18px 32px ${alpha(theme.palette.primary.main, 0.2)}`,
+                        }}
+                      >
+                        <Box component='span' sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                          Export Excel
+                        </Box>
+                      </Button>
+                    </Box>
+
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ThaiDatePicker
+                          label='วันที่เริ่มต้น'
+                          value={termStartDate}
+                          onChange={setTermStartDate}
+                          format='dd/MM/yyyy'
+                          placeholder='วัน เดือน ปี'
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ThaiDatePicker
+                          label='วันที่สิ้นสุด'
+                          value={termEndDate}
+                          onChange={setTermEndDate}
+                          format='dd/MM/yyyy'
+                          placeholder='วัน เดือน ปี'
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                          select
+                          fullWidth
+                          label='แผนก'
+                          value={departmentFilter}
+                          onChange={(event) => setDepartmentFilter(event.target.value)}
+                          sx={CONTROL_SX}
+                        >
+                          <MenuItem value='all'>ทุกแผนก</MenuItem>
+                          {departments.map((department) => (
+                            <MenuItem key={department.id} value={department.id}>
+                              {department.name}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                          select
+                          fullWidth
+                          label='สาขา'
+                          value={programFilter}
+                          onChange={(event) => setProgramFilter(event.target.value)}
+                          sx={CONTROL_SX}
+                        >
+                          <MenuItem value='all'>ทุกสาขา</MenuItem>
+                          {filteredPrograms.map((program) => (
+                            <MenuItem key={program.id} value={program.id}>
+                              {program.name}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                  </Stack>
+                </FilterSurface>
               </Grid>
             </Grid>
           </CardContent>
-        </Card>
+        </HeroCard>
       </Grid>
 
-      {error && (
+      {error ? (
         <Grid size={12}>
-          <Alert severity='error'>{error}</Alert>
+          <Alert severity='error'>{getErrorMessage(error)}</Alert>
         </Grid>
-      )}
+      ) : null}
 
-      {!statistics && !error && (
-        <Grid size={12}>
-          <Box display='flex' justifyContent='center' alignItems='center' minHeight='400px'>
-            <CircularProgress />
-          </Box>
-        </Grid>
-      )}
-
-      {isLoadingData && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            bgcolor: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(2px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Box textAlign='center'>
-            <CircularProgress size={48} />
-            <Typography variant='body1' sx={{ mt: 2, fontWeight: 500 }}>
-              กำลังโหลดข้อมูล...
-            </Typography>
-          </Box>
-        </Box>
-      )}
-
-      {statistics && (
+      {statistics ? (
         <>
-          {/* Tab Navigation */}
-          <Grid size={12}>
-            <Paper sx={{ width: '100%', mb: 2 }}>
-              <Tabs
-                value={activeTab}
-                onChange={(_e, newValue) => setActiveTab(newValue)}
-                indicatorColor='primary'
-                textColor='primary'
-                variant='scrollable'
-                scrollButtons='auto'
-                allowScrollButtonsMobile
-                sx={{
-                  '& .MuiTab-root': {
-                    minWidth: { xs: 100, sm: 120, md: 'auto' },
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                    px: { xs: 1, sm: 2 },
-                  },
-                }}
-              >
-                <Tab label='ภาพรวม' />
-                <Tab label='สถิติการเข้าแถวของนักเรียน' />
-                <Tab label='สถิติการใช้งานของครู' />
-              </Tabs>
-            </Paper>
+          <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <StatisticsCard
+              title='นักเรียนในขอบเขต'
+              value={statistics.summary.scope.totalStudents.toLocaleString()}
+              caption='นับจากตัวกรองแผนกและสาขาปัจจุบัน'
+              insight={`เช็คชื่อแล้ว ${statistics.studentCheckInStats.checkedRecords.toLocaleString()} รายการ`}
+              icon={<FaUserGraduate />}
+              tone='primary'
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <StatisticsCard
+              title='อัตราเข้าแถวเฉลี่ย'
+              value={`${statistics.studentCheckInStats.averageAttendanceRate.toFixed(2)}%`}
+              caption='คำนวณจาก มาเข้าแถว ÷ จำนวนที่เช็คชื่อจริง'
+              insight={`ไม่มาตามปกติ ${statistics.studentCheckInStats.studentsNotCheckedIn.toLocaleString()} รายการ`}
+              icon={<FaChartLine />}
+              tone='success'
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <StatisticsCard
+              title='ครูที่ใช้งาน'
+              value={statistics.teacherUsageStats.activeTeachers.toLocaleString()}
+              caption={`จากครูทั้งหมด ${statistics.teacherUsageStats.totalTeachers.toLocaleString()} คน`}
+              insight={`อัตราใช้งาน ${statistics.teacherUsageStats.activePercentage.toFixed(2)}%`}
+              icon={<FaChalkboardTeacher />}
+              tone='info'
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <StatisticsCard
+              title='วันที่มีการเช็คชื่อ'
+              value={statistics.studentCheckInStats.totalCheckInDays.toLocaleString()}
+              caption='ใช้วัดความต่อเนื่องของการรายงานประจำวัน'
+              insight={
+                bestAndWorstDay.bestDay
+                  ? `สูงสุด ${bestAndWorstDay.bestDay.attendanceRate.toFixed(2)}%`
+                  : 'ยังไม่มีข้อมูลรายวัน'
+              }
+              icon={<MdAssessment />}
+              tone='warning'
+            />
           </Grid>
 
-          {/* Tab Panels */}
-          {activeTab === 0 && (
+          <Grid size={12}>
+            <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
+              {bestAndWorstDay.bestDay ? (
+                <Chip
+                  label={`ดีที่สุด ${formatThaiDate(new Date(bestAndWorstDay.bestDay.date))} · ${bestAndWorstDay.bestDay.attendanceRate.toFixed(2)}%`}
+                  sx={{
+                    borderRadius: 999,
+                    bgcolor: (theme) => alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.18 : 0.08),
+                    color: 'success.main',
+                    fontWeight: 700,
+                  }}
+                />
+              ) : null}
+              {bestAndWorstDay.worstDay ? (
+                <Chip
+                  label={`น่าติดตาม ${formatThaiDate(new Date(bestAndWorstDay.worstDay.date))} · ${bestAndWorstDay.worstDay.attendanceRate.toFixed(2)}%`}
+                  sx={{
+                    borderRadius: 999,
+                    bgcolor: (theme) => alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.18 : 0.08),
+                    color: 'warning.main',
+                    fontWeight: 700,
+                  }}
+                />
+              ) : null}
+              {statistics.teacherUsageStats.teacherActivityDetails.length > 0 ? (
+                <Chip
+                  label={`ครูใช้งานล่าสุด ${statistics.teacherUsageStats.teacherActivityDetails.find((teacher) => teacher.isActive)?.teacherName ?? '-'}`}
+                  sx={{
+                    borderRadius: 999,
+                    bgcolor: (theme) => alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.18 : 0.08),
+                    color: 'info.main',
+                    fontWeight: 700,
+                  }}
+                />
+              ) : null}
+            </Stack>
+          </Grid>
+
+          {hasChartData ? (
             <>
-              {/* Summary Overview Card */}
+              <Grid size={{ xs: 12, xl: 8 }} sx={{ minWidth: 0 }}>
+                <ChartSurface>
+                  <CardContent sx={{ p: { xs: 2.25, md: 2.75 }, height: '100%' }}>
+                    <DailyAttendanceChart dailyData={statistics.dailyChartData} />
+                  </CardContent>
+                </ChartSurface>
+              </Grid>
+
+              <Grid size={{ xs: 12, xl: 4 }} sx={{ minWidth: 0 }}>
+                <Stack spacing={3} sx={{ height: '100%' }}>
+                  <ChartSurface sx={{ flex: 1 }}>
+                    <CardContent sx={{ p: { xs: 2.25, md: 2.5 }, height: '100%' }}>
+                      <AttendanceChart
+                        studentsCheckedIn={statistics.studentCheckInStats.studentsCheckedIn}
+                        studentsNotCheckedIn={statistics.studentCheckInStats.studentsNotCheckedIn}
+                        averageAttendanceRate={statistics.studentCheckInStats.averageAttendanceRate}
+                      />
+                    </CardContent>
+                  </ChartSurface>
+
+                  <ChartSurface sx={{ flex: 1 }}>
+                    <CardContent sx={{ p: { xs: 2.25, md: 2.5 }, height: '100%' }}>
+                      <TeacherUsageChart
+                        activeTeachers={statistics.teacherUsageStats.activeTeachers}
+                        inactiveTeachers={statistics.teacherUsageStats.inactiveTeachers}
+                      />
+                    </CardContent>
+                  </ChartSurface>
+                </Stack>
+              </Grid>
+
               <Grid size={12}>
-                <Card sx={{ bgcolor: 'primary.light', color: 'primary.contrastText' }}>
-                  <CardContent>
-                    <Grid container spacing={3}>
-                      <Grid size={{ xs: 12, md: 4 }}>
-                        <Box textAlign='center'>
-                          <Typography variant='h3' fontWeight='bold'>
-                            {(studentStats.totalStudents ?? 0).toLocaleString()}
-                          </Typography>
-                          <Typography variant='body1' sx={{ opacity: 0.9 }}>
-                            นักเรียนทั้งหมด
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 4 }}>
-                        <Box textAlign='center'>
-                          <Typography variant='h3' fontWeight='bold'>
-                            {(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%
-                          </Typography>
-                          <Typography variant='body1' sx={{ opacity: 0.9 }}>
-                            อัตราเข้าเรียนเฉลี่ย
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 4 }}>
-                        <Box textAlign='center'>
-                          <Typography variant='h3' fontWeight='bold'>
-                            {studentStats.totalCheckInDays ?? 0}
-                          </Typography>
-                          <Typography variant='body1' sx={{ opacity: 0.9 }}>
-                            จำนวนวันที่เช็คชื่อ
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Charts Section */}
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <Card sx={{ height: '100%', minHeight: { xs: 350, sm: 400 } }}>
-                  <CardContent sx={{ height: '100%' }}>
-                    <AttendanceChart
-                      studentsCheckedIn={studentStats.studentsCheckedIn ?? 0}
-                      studentsNotCheckedIn={studentStats.studentsNotCheckedIn ?? 0}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <Card sx={{ height: '100%', minHeight: { xs: 350, sm: 400 } }}>
-                  <CardContent sx={{ height: '100%', pb: 1 }}>
-                    <DailyAttendanceChart dailyData={dailyChartData} />
-                  </CardContent>
-                </Card>
+                <DailyBreakdownTable dailyData={statistics.dailyBreakdown} />
               </Grid>
             </>
+          ) : (
+            <Grid size={12}>
+              <EmptyStateCard>
+                <CardContent sx={{ py: { xs: 5, md: 6 }, textAlign: 'center' }}>
+                  <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
+                    ยังไม่มีข้อมูลการเช็คชื่อในช่วงวันที่นี้
+                  </Typography>
+                  <Typography sx={{ mt: 1.25, maxWidth: 560, mx: 'auto', color: 'text.secondary', lineHeight: 1.7 }}>
+                    ระบบยังคงแสดงขอบเขตของนักเรียนและครูให้ แต่จะไม่มีกราฟและตารางรายวันจนกว่าจะมีการบันทึกเช็คชื่อหน้าธง
+                  </Typography>
+                </CardContent>
+              </EmptyStateCard>
+            </Grid>
           )}
 
-          {activeTab === 1 && (
-            <>
-              {/* Student Check-In Statistics */}
-              <Grid size={12}>
-                <Typography variant='h5' sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <FaUserGraduate />
-                  สถิติการมาเข้าแถวของนักเรียน
-                </Typography>
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='นักเรียนทั้งหมด'
-                  value={studentStats.totalStudents ?? 0}
-                  icon={<FaUserGraduate />}
-                  color='primary'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='มาเข้าแถว'
-                  value={studentStats.studentsCheckedIn ?? 0}
-                  subtitle={`${(studentStats.checkInPercentage ?? 0).toFixed(2)}%`}
-                  icon={<FaUserGraduate />}
-                  color='success'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='ไม่มาเข้าแถว'
-                  value={studentStats.studentsNotCheckedIn ?? 0}
-                  subtitle={`${(studentStats.notCheckedInPercentage ?? 0).toFixed(2)}%`}
-                  icon={<FaUserGraduate />}
-                  color='error'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='จำนวนวันเช็คชื่อ'
-                  value={studentStats.totalCheckInDays ?? 0}
-                  subtitle={`เฉลี่ย ${(studentStats.averageAttendanceRate ?? 0).toFixed(2)}%`}
-                  icon={<FaChartPie />}
-                  color='info'
-                />
-              </Grid>
-
-              {/* Daily Breakdown Table */}
-              <Grid size={12}>
-                <DailyBreakdownTable dailyData={dailyBreakdown} />
-              </Grid>
-            </>
-          )}
-
-          {activeTab === 2 && (
-            <>
-              {/* Teacher Usage Statistics */}
-              <Grid size={12}>
-                <Typography variant='h5' sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <FaChalkboardTeacher />
-                  สถิติการใช้งานของครู
-                </Typography>
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='ครูทั้งหมด'
-                  value={teacherStats.totalTeachers ?? 0}
-                  icon={<FaChalkboardTeacher />}
-                  color='primary'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='ครูที่ใช้งาน'
-                  value={teacherStats.activeTeachers ?? 0}
-                  subtitle={`${(teacherStats.activePercentage ?? 0).toFixed(2)}%`}
-                  icon={<FaChalkboardTeacher />}
-                  color='success'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='ครูที่ไม่ได้ใช้งาน'
-                  value={teacherStats.inactiveTeachers ?? 0}
-                  subtitle={`${(teacherStats.inactivePercentage ?? 0).toFixed(2)}%`}
-                  icon={<FaChalkboardTeacher />}
-                  color='error'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <StatisticsCard
-                  title='อัตราการใช้งานเฉลี่ย'
-                  value={`${(teacherStats.activePercentage ?? 0).toFixed(1)}%`}
-                  icon={<FaChartPie />}
-                  color='info'
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Card sx={{ minHeight: { xs: 350, sm: 400 } }}>
-                  <CardContent>
-                    <TeacherUsageChart
-                      activeTeachers={teacherStats.activeTeachers ?? 0}
-                      inactiveTeachers={teacherStats.inactiveTeachers ?? 0}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Card sx={{ minHeight: { xs: 350, sm: 400 } }}>
-                  <CardHeader title='สรุปสถิติครู' />
-                  <CardContent>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 6 }}>
-                        <Paper sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: 'success.lighter' }}>
-                          <Typography
-                            variant='h4'
-                            color='success.main'
-                            align='center'
-                            sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
-                          >
-                            {teacherStats.activeTeachers ?? 0}
-                          </Typography>
-                          <Typography
-                            variant='body2'
-                            align='center'
-                            color='text.secondary'
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            ครูที่เข้าใช้งาน
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                      <Grid size={{ xs: 6 }}>
-                        <Paper sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: 'error.lighter' }}>
-                          <Typography
-                            variant='h4'
-                            color='error.main'
-                            align='center'
-                            sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
-                          >
-                            {teacherStats.inactiveTeachers ?? 0}
-                          </Typography>
-                          <Typography
-                            variant='body2'
-                            align='center'
-                            color='text.secondary'
-                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                          >
-                            ครูที่ไม่ได้ใช้งาน
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Teacher Activity Table */}
-              <Grid size={12}>
-                <TeacherActivityTable teachers={Array.isArray(teacherStats.teacherActivityDetails) ? teacherStats.teacherActivityDetails : []} />
-              </Grid>
-            </>
-          )}
+          <Grid size={12}>
+            <TeacherActivityTable teachers={statistics.teacherUsageStats.teacherActivityDetails} />
+          </Grid>
         </>
-      )}
+      ) : null}
     </Grid>
   );
 };
