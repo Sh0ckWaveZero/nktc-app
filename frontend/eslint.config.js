@@ -54,6 +54,11 @@ export default [
         IntersectionObserver: 'readonly',
         AbortController: 'readonly',
         fetch: 'readonly',
+        Headers: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        RequestInit: 'readonly',
+        ResponseInit: 'readonly',
 
         // Event types
         Event: 'readonly',
