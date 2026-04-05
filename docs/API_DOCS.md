@@ -699,10 +699,10 @@ Content-Type: application/json
 
 ## 📚 Additional Resources
 
-- **Swagger UI**: `/api` (when server is running)
+- **Swagger UI**: `/swagger` (when server is running)
 - **Postman Collection**: Available in `/docs/postman/`
-- **Database Schema**: See `backend/src/database/prisma/schema.prisma`
-- **Frontend Integration**: See `frontend/src/services/api/`
+- **Database Schema**: See `backend-elysia/prisma/schema.prisma`
+- **Frontend Integration**: See `frontend/src/services/`
 
 ---
 

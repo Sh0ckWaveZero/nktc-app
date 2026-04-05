@@ -101,10 +101,10 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 
 #### Step 2: Update Local Development Files
 
-- [ ] Create/update `backend/.env`:
+- [ ] Create/update `backend-elysia/.env`:
 
   ```bash
-  cd backend
+  cd backend-elysia
   cp .env.example .env
   # Edit .env with new credentials
   ```
@@ -832,10 +832,9 @@ Refactor oversized services and improve code organization.
 
 **Major Refactors**:
 
-- Split StudentsService (1024 lines → multiple services)
-- Split ReportCheckInService (586 lines)
-- Split TeachersService (471 lines)
-- Extract common utilities
+- Split Elysia route handlers into smaller modules
+- Extract common utilities and middleware
+- Improve request/response type safety with Elysia's built-in type system
 
 **Estimated Effort**: 34 hours
 

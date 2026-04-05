@@ -51,7 +51,7 @@ git status  # Should NOT show .env.local
 1. Navigate to backend directory:
 
 ```bash
-cd backend
+cd backend-elysia
 ```
 
 2. Copy the example file:
@@ -66,13 +66,11 @@ cp .env.example .env
 # Application
 NODE_ENV=development
 PORT=3001
-APP_NAME="NKTC Backend API"
+HOST="localhost"
+HOST_URL="http://localhost:3001"
 
 # Database (PostgreSQL)
 DATABASE_URL="postgresql://adminpostgres:password@localhost:5433/edu?schema=public"
-
-# MongoDB (optional, for logs/sessions)
-MONGODB_DATABASE_URL="mongodb://localhost:27017/nktc_mongo"
 
 # Authentication
 JWT_SECRET="your-32-character-secret-key-here"
@@ -126,8 +124,8 @@ docker-compose up -d
 ```yaml
 environment:
   - DATABASE_URL=postgresql://postgres:password@postgres:5432/nktc_db
-  - MONGODB_DATABASE_URL=mongodb://mongo:27017/nktc_mongo
   - JWT_SECRET=your-secret-key
+  - JWT_REFRESH_SECRET=your-refresh-secret-key
 ```
 
 3. For local `.env` overrides, create `docker-compose.override.yml`:
@@ -182,7 +180,6 @@ docker run --env-file .env backend:latest
    DATABASE_URL
    JWT_SECRET
    JWT_REFRESH_SECRET
-   MONGODB_DATABASE_URL
    MINIO_ACCESS_KEY
    MINIO_SECRET_KEY
    ```
@@ -212,11 +209,9 @@ env:
 | ------------------------- | -------- | --------------------------- | ----------------------------------------------------------------------------------------------- |
 | `NODE_ENV`                | ✅       | `development`               | `development`, `test`, or `production`                                                          |
 | `PORT`                    | ✅       | `3001`                      | Server port                                                                                     |
-| `APP_NAME`                | ❌       | `NKTC Backend API`          | Application name                                                                                |
 | `HOST`                    | ❌       | `localhost`                 | Server host                                                                                     |
 | `HOST_URL`                | ✅       | `http://localhost:3001`     | Full server URL                                                                                 |
 | `DATABASE_URL`            | ✅       | -                           | PostgreSQL connection string                                                                    |
-| `MONGODB_DATABASE_URL`    | ❌       | -                           | MongoDB connection string (optional)                                                            |
 | `JWT_SECRET`              | ✅       | -                           | JWT signing secret (min 32 chars)                                                               |
 | `JWT_REFRESH_EXPIRES_IN`  | ✅       | `30m`                       | JWT token expiration                                                                            |
 | `JWT_REFRESH_SECRET`      | ✅       | -                           | Refresh token secret (min 64 chars)                                                             |
@@ -373,7 +368,7 @@ If you encounter issues with environment setup:
 1. Check this guide and `.env.example` files
 2. Verify all required variables are present
 3. Check file permissions (`.env` should be readable)
-4. Verify services are running (PostgreSQL, MongoDB, MinIO)
+4. Verify services are running (PostgreSQL, MinIO)
 5. Check application logs for error messages
 6. Ask team lead or DevOps engineer
 

@@ -55,8 +55,8 @@
 
 ```
 nktc-app/
-├── frontend/          # Next.js 15 + React 19 + TypeScript + Material-UI
-├── backend/           # NestJS 11 + TypeScript + Prisma + PostgreSQL/MongoDB
+├── frontend/          # Next.js 16 + React 19 + TypeScript + Material-UI
+├── backend-elysia/    # Elysia + TypeScript + Prisma 7 + PostgreSQL/MongoDB
 ├── turbo.json         # Turbo Repo configuration
 ├── package.json       # Root package.json (Monorepo)
 └── bun.lock          # Bun lockfile
@@ -139,29 +139,28 @@ bun run dev:tui     # สำหรับ UI ที่สวยงาม
 
 ### Frontend Stack
 
-- **Next.js 15.4.2** - React Framework with App Router
-- **React 19.1.0** - UI Library with latest features
-- **TypeScript 5.8.3** - Type Safety และ Developer Experience
-- **Material-UI (MUI)** - UI Component Library
-- **Zustand** - Lightweight State Management
-- **React Hook Form** - Form Management และ Validation
-- **React Query/TanStack Query** - Server State Management
+- **Next.js 16.x** - React Framework with App Router + Turbopack
+- **React 19.x** - UI Library with latest features
+- **TypeScript 5.9.x** - Type Safety และ Developer Experience
+- **Material-UI (MUI) 7.x** - UI Component Library
+- **Zustand 5.x** - Lightweight State Management
+- **React Hook Form 7.x** - Form Management และ Validation
+- **TanStack Query 5.x** - Server State Management
 - **Iconify** - Icon System
+- **Recharts** - Data Visualization
+- **Yup / Zod** - Schema Validation
 
 ### Backend Stack
 
-- **NestJS 11.x** - Scalable Node.js Framework
-- **TypeScript 5.8.3** - Type Safety สำหรับ Backend
-- **Prisma 6.0.0** - Modern Database ORM
+- **Elysia 1.x** - Fast Bun-native Web Framework
+- **TypeScript 5.9.x** - Type Safety สำหรับ Backend
+- **Prisma 7.x** - Modern Database ORM
 - **PostgreSQL** - Primary Relational Database
 - **MongoDB** - Secondary NoSQL Database (สำหรับ Audit Logs)
-- **JWT** - JSON Web Token Authentication
-- **Passport.js** - Authentication Middleware
-- **MinIO** - S3-Compatible Object Storage
-- **Bcrypt** - Password Hashing
-- **Class Validator** - DTO Validation
-- **Swagger/OpenAPI** - API Documentation
-- **SWC** - Fast TypeScript/JavaScript Compiler
+- **@elysiajs/jwt** - JWT Authentication
+- **@elysiajs/swagger** - Swagger/OpenAPI Documentation
+- **MinIO 8.x** - S3-Compatible Object Storage
+- **Pino** - High-performance Logger
 
 ### DevOps & Tools
 
@@ -176,12 +175,10 @@ bun run dev:tui     # สำหรับ UI ที่สวยงาม
 
 ### Security & Performance
 
-- **Helmet** - Security Headers
+- **Elysia CORS** - Cross-Origin Resource Sharing
 - **Rate Limiting** - API Rate Protection
-- **CORS** - Cross-Origin Resource Sharing
-- **Request IP** - IP Address Tracking
-- **UA Parser** - User Agent Analysis
-- **SWC** - Fast TypeScript/JavaScript Compiler
+- **UA Parser JS** - User Agent Analysis
+- **Bun Runtime** - Fast JavaScript/TypeScript Runtime
 
 ## 📱 หน้าจอและฟังก์ชันการทำงาน
 
@@ -352,29 +349,19 @@ bun run lint                 # Lint ทั้งหมด
 bun run test                 # Test ทั้งหมด
 ```
 
-### Backend Commands
+### Backend (Elysia) Commands
 
 ```bash
 # Development
-bun run dev                  # รัน development server
-bun run start:prod          # รัน production server
+bun run dev                  # รัน development server (Bun hot reload)
+bun run build               # Build สำหรับ production
+bun run start               # รัน production server
 
 # Database
 bun run prisma:generate     # Generate Prisma Client
 bun run prisma:migrate      # Run migrations
 bun run prisma:push         # Push schema to database
 bun run seed                # Seed database
-bun run seed2               # Seed MongoDB
-
-# Database Scripts
-bun run db:query            # Query database
-bun run db:fix-ids          # Fix undefined IDs
-bun run db:enhanced-import  # Enhanced student import
-
-# Testing
-bun run test                # Unit tests
-bun run test:e2e           # E2E tests
-bun run test:cov           # Test coverage
 ```
 
 ## 📝 การพัฒนา
