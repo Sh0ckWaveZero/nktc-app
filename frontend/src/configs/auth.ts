@@ -1,3 +1,5 @@
+import { apiConfig } from '@/configs/api';
+
 export type AuthConfig = {
   backEndUrl?: string;
   meEndpoint?: string;
@@ -20,30 +22,30 @@ export type AuthConfig = {
   userEndpoint?: string;
   levelEndpoint?: string;
   visitEndpoint?: string;
+  statisticsEndpoint?: string;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
 export const authConfig: AuthConfig = {
-  backEndUrl: apiUrl,
-  meEndpoint: `${apiUrl}/auth/me`,
-  loginEndpoint: `${apiUrl}/auth/login`,
-  logoutEndpoint: `${apiUrl}/auth/logout`,
-  refreshEndpoint: `${apiUrl}/auth/refresh`,
-  changePasswordEndpoint: `${apiUrl}/auth/update/password`,
-  teacherEndpoint: `${apiUrl}/teachers`,
-  studentEndpoint: `${apiUrl}/students`,
-  appbarEndpoint: `${apiUrl}/app-bar/search`,
-  appbarDefaultSuggestionsEndpoint: `${apiUrl}/app-bar/default-suggestions`,
-  classroomEndpoint: `${apiUrl}/classrooms`,
-  reportCheckInEndpoint: `${apiUrl}/reportCheckIn`,
-  activityCheckInEndpoint: `${apiUrl}/activity-check-in`,
-  departmentEndpoint: `${apiUrl}/departments`,
-  programEndpoint: `${apiUrl}/programs`,
+  backEndUrl: '',
+  meEndpoint: apiConfig.endpoint('/auth/me'),
+  loginEndpoint: apiConfig.endpoint('/auth/login'),
+  logoutEndpoint: apiConfig.endpoint('/auth/logout'),
+  refreshEndpoint: apiConfig.endpoint('/auth/refresh'),
+  changePasswordEndpoint: apiConfig.endpoint('/auth/update/password'),
+  teacherEndpoint: apiConfig.endpoint('/teachers'),
+  studentEndpoint: apiConfig.endpoint('/students'),
+  appbarEndpoint: apiConfig.endpoint('/app-bar/search'),
+  appbarDefaultSuggestionsEndpoint: apiConfig.endpoint('/app-bar/default-suggestions'),
+  classroomEndpoint: apiConfig.endpoint('/classrooms'),
+  reportCheckInEndpoint: apiConfig.endpoint('/reportCheckIn'),
+  activityCheckInEndpoint: apiConfig.endpoint('/activity-check-in'),
+  departmentEndpoint: apiConfig.endpoint('/departments'),
+  programEndpoint: apiConfig.endpoint('/programs'),
   registerEndpoint: '/jwt/register',
-  goodnessIndividualEndpoint: `${apiUrl}/goodness-individual`,
-  badnessIndividualEndpoint: `${apiUrl}/badness-individual`,
-  userEndpoint: `${apiUrl}/users`,
-  levelEndpoint: `${apiUrl}/levels`,
-  visitEndpoint: `${apiUrl}/visits`,
+  goodnessIndividualEndpoint: apiConfig.endpoint('/goodness-individual'),
+  badnessIndividualEndpoint: apiConfig.endpoint('/badness-individual'),
+  userEndpoint: apiConfig.endpoint('/users'),
+  levelEndpoint: apiConfig.endpoint('/levels'),
+  visitEndpoint: apiConfig.endpoint('/visits'),
+  statisticsEndpoint: apiConfig.endpoint('/statistics'),
 };

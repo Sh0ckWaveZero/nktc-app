@@ -1,4 +1,5 @@
 import { createWithEqualityFn } from 'zustand/traditional';
+import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 
 interface StatisticsState {
@@ -42,7 +43,7 @@ export const useStatisticsStore = createWithEqualityFn<StatisticsState>()((set) 
       });
 
       const { data } = await httpClient.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/statistics/term?${queryParams.toString()}`,
+        `${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`,
       );
 
       set({ termStatistics: data, statisticsLoading: false });

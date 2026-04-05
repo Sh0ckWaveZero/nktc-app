@@ -1,7 +1,7 @@
 import { prisma } from "@/libs/prisma";
 import { teacherInclude, type TeacherModel } from "./model";
 import { userMinimalSelect } from "@/libs/prisma/userSelectExclude";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import { BadRequestError, ConflictError } from "@/libs/errors";
 import { Role } from "../../../generated/client";
 import { createLogger } from "@/infrastructure/logging";

@@ -9,6 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Icon from '@/@core/components/icon';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { apiConfig } from '@/configs/api';
 import generateCertificatePdf from '@/utils/generateCertificatePdf';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '../../../../hooks/useAuth';
@@ -83,7 +84,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
   const { user }: any = useAuth();
   const [open, setOpen] = useState(false);
   const [pdfData, setPdfData] = useState<any | null>(null);
-  const certsUrl = `${process.env.NEXT_PUBLIC_API_URL}/statics/goodness-individual/certs/${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`;
+  const certsUrl = apiConfig.staticsEndpoint(`/goodness-individual/certs/${apiConfig.educationYears}`);
   const { PDF, isLoading } = useGetPDF(certsUrl);
 
   const handleClose = () => {
@@ -128,7 +129,7 @@ const CardAward = ({ trophyOverview, fullName }: PropsTypes) => {
       >
         <CardContent>
           <Typography variant='h6'>{`ขอแสดงความยินดีกับ ${fullName} ได้รับเกียรติบัตรความประพฤติดี! 🥳`}</Typography>
-          <Typography variant='body2'>{`นี่เป็นความสำเร็จที่มีค่าและเป็นเครื่องหมายของความพยายามและความมุ่งมั่นของนักเรียน ในปีการศึกษา ${process.env.NEXT_PUBLIC_EDUCATION_YEARS}`}</Typography>
+          <Typography variant='body2'>{`นี่เป็นความสำเร็จที่มีค่าและเป็นเครื่องหมายของความพยายามและความมุ่งมั่นของนักเรียน ในปีการศึกษา ${apiConfig.educationYears}`}</Typography>
           <Typography variant='h5' sx={{ mt: 3.5, color: 'primary.main' }}>
             {trophyOverview?.goodScore - trophyOverview.badScore} คะแนน
           </Typography>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import httpClient from '@/@core/utils/http';
+import { apiConfig } from '@/configs/api';
 import { useImageCacheStore } from '@/store/image-cache';
 
 interface UseImageQueryReturn {
@@ -11,7 +11,26 @@ interface UseImageQueryReturn {
 const DEFAULT_AVATAR = '/images/avatars/1.png';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+const normalizeImageUrl = (url: string): string => {
+  if (!url || url === DEFAULT_AVATAR || url.startsWith('data:image/')) {
+    return url;
+  }
+
+  if (url.startsWith('/api/')) {
+    return url;
+  }
+
+  if (url.startsWith('/statics/')) {
+    return apiConfig.browserUrl(url);
+  }
+
+  if (url.startsWith('/')) {
+    return url;
+  }
+
+  return apiConfig.browserUrl(url);
+};
 
 /**
  * Validates that the URL is safe to load
@@ -24,21 +43,18 @@ const isValidImageUrl = (url: string): boolean => {
   if (url.startsWith('/')) return true;
 
   // Allow URLs from our own API server
-  if (API_URL && url.startsWith(API_URL)) return true;
+  if (apiConfig.legacyApiUrl && url.startsWith(apiConfig.legacyApiUrl)) return true;
 
-  // Allow URLs from the same base server (for static assets)
-  // Handle both /api and /statics paths
-  if (API_URL) {
-    const baseUrl = API_URL.replace('/api', '');
-    if (url.startsWith(baseUrl)) return true;
-    
-    // Also check if URL contains our domain (for statics paths)
+  if (apiConfig.appUrl) {
     try {
-      const apiUrlObj = new URL(API_URL);
-      const urlObj = new URL(url);
-      if (apiUrlObj.hostname === urlObj.hostname) return true;
+      const appUrl = new URL(apiConfig.appUrl);
+      const imageUrl = new URL(url);
+
+      if (appUrl.origin === imageUrl.origin) {
+        return true;
+      }
     } catch {
-      // If URL parsing fails, continue with other checks
+      // Ignore invalid absolute URLs and continue with other checks
     }
   }
 
@@ -124,40 +140,32 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           return;
         }
 
-        // Convert absolute URL to relative if it's from our server
-        let imageUrl = url;
-        if (API_URL && url.startsWith(API_URL)) {
-          // Convert absolute API URL to relative path
-          imageUrl = url.replace(API_URL, '');
-        } else if (API_URL) {
-          try {
-            const apiUrlObj = new URL(API_URL);
-            const urlObj = new URL(url);
-            if (apiUrlObj.hostname === urlObj.hostname) {
-              // Same domain, use relative path
-              imageUrl = urlObj.pathname + urlObj.search;
-            }
-          } catch {
-            // Keep original URL if parsing fails
-          }
-        }
+        const imageUrl = normalizeImageUrl(url);
 
         // Fetch the image from the server with timeout
-         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s)
 
         try {
-          const response = await httpClient.get<Blob>(imageUrl, {
-            responseType: 'blob',
+          const token = typeof window !== 'undefined' ? window.localStorage.getItem('accessToken') : null;
+          const response = await fetch(imageUrl, {
+            headers: {
+              Accept: 'image/webp,image/avif,image/png,image/jpeg,image/gif,*/*',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
             signal: controller.signal,
-            timeout: 5000, // Additional timeout protection
           });
 
           clearTimeout(timeoutId);
 
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.status}`);
+          }
+
+          const imageBlob = await response.blob();
+
           // Validate content type
-          const contentType = response.headers['content-type'] || response.data.type;
+          const contentType = response.headers.get('content-type') || imageBlob.type;
           if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
             console.warn(`Invalid content type: ${contentType}`);
             const err = new Error('Invalid image format');
@@ -169,8 +177,8 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           }
 
           // Validate file size
-          if (response.data.size > MAX_IMAGE_SIZE) {
-            console.warn(`Image too large: ${response.data.size} bytes`);
+          if (imageBlob.size > MAX_IMAGE_SIZE) {
+            console.warn(`Image too large: ${imageBlob.size} bytes`);
             const err = new Error('Image file too large');
             cacheError(url, err);
             setError(err);
@@ -180,7 +188,7 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           }
 
           // Create object URL and cache it
-          const objectUrl = URL.createObjectURL(response.data);
+          const objectUrl = URL.createObjectURL(imageBlob);
           cacheImage(url, objectUrl);
           setImage(objectUrl);
           setIsLoading(false);

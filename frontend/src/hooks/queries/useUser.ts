@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/libs/react-query/queryKeys';
 import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
+import { queryKeys } from '@/libs/react-query/queryKeys';
 import type {
   ChangePasswordRequest,
   ChangePasswordResponse,
@@ -19,7 +19,7 @@ export const useUserById = (userId: string, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.users.detail(userId),
     queryFn: async () => {
-      const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
+      const { data } = await httpClient.get(`${authConfig.userEndpoint}/${userId}`);
       return data as UserDataType;
     },
     enabled: enabled && !!userId,
@@ -93,7 +93,7 @@ export const useUpdateProfile = () => {
 
   return useMutation({
     mutationFn: async (profileData: any) => {
-      const { data } = await httpClient.put(`${process.env.NEXT_PUBLIC_API_URL}/users/${profileData.id}`, profileData);
+      const { data } = await httpClient.put(`${authConfig.userEndpoint}/${profileData.id}`, profileData);
       return data;
     },
     onSuccess: (data, variables) => {
@@ -131,7 +131,7 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: async (userData: any) => {
-      const { data } = await httpClient.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, userData);
+      const { data } = await httpClient.post(authConfig.userEndpoint as string, userData);
       return data;
     },
     onSuccess: () => {
@@ -150,7 +150,7 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const { data } = await httpClient.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
+      const { data } = await httpClient.delete(`${authConfig.userEndpoint}/${userId}`);
       return data;
     },
     onSuccess: () => {

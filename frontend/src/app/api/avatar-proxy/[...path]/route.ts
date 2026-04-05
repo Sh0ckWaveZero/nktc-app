@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+import { backendServerConfig } from '@/server/backend';
 
 /**
  * Avatar Proxy Route Handler with Next.js Caching
@@ -32,7 +32,7 @@ export async function GET(
     // Construct the full API URL
     // Keep full path including 'statics/'
     const apiPath = imagePath;
-    const apiUrl = `${API_URL}/${apiPath}`;
+    const apiUrl = backendServerConfig.url(apiPath);
 
     // Fetch image with Next.js caching
     // Using Next.js fetch caching with revalidation
@@ -119,4 +119,3 @@ export async function GET(
 // Route segment config for caching
 // This route will be cached and revalidated every hour
 export const revalidate = 3600; // Revalidate every hour (3600 seconds)
-

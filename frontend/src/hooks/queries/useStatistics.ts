@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import httpClient from '@/@core/utils/http';
+import { authConfig } from '@/configs/auth';
 import { queryKeys } from '@/libs/react-query/queryKeys';
 
 export interface TermStatisticsParams {
@@ -104,7 +105,7 @@ export const useTermStatistics = (params: TermStatisticsParams) => {
       });
 
       const { data } = await httpClient.get<TermStatisticsResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL}/statistics/term?${queryParams.toString()}`
+        `${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`
       );
 
       return data;

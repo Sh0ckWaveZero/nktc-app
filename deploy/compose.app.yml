@@ -1,0 +1,75 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: ./deploy/backend-elysia.Dockerfile
+    env_file:
+      - ./env/backend.env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      TZ: Asia/Bangkok
+    expose:
+      - "3001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      options:
+        max-file: "3"
+        max-size: 10m
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./deploy/frontend.Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    env_file:
+      - ./env/frontend.env
+    environment:
+      BACKEND_INTERNAL_URL: ${BACKEND_INTERNAL_URL:-http://backend:3001/api}
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_BASE_PATH: ${NEXT_PUBLIC_API_BASE_PATH:-/api/backend}
+      NODE_ENV: production
+      PORT: 3000
+      TZ: Asia/Bangkok
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    logging:
+      options:
+        max-file: "3"
+        max-size: 10m
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    name: app-net
+    driver: bridge

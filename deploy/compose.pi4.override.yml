@@ -1,0 +1,8 @@
+services:
+  backend:
+    cpus: 1.0
+    mem_limit: 1024m
+
+  frontend:
+    cpus: 0.75
+    mem_limit: 512m

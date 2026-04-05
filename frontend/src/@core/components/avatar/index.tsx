@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { useState, memo, useMemo, useRef, useEffect } from 'react';
 import CustomAvatar from '@/@core/components/mui/avatar';
+import { apiConfig } from '@/configs/api';
 import { getInitials } from '@/@core/utils/get-initials';
 import { getAvatarColor } from '@/@core/utils/get-avatar-color';
 
@@ -60,6 +61,9 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
     if (avatarUrl.startsWith('/statics/')) {
       staticsPath = avatarUrl.replace('/statics/', '');
     }
+    else if (avatarUrl.startsWith(`${apiConfig.basePath}/statics/`)) {
+      staticsPath = avatarUrl.replace(`${apiConfig.basePath}/statics/`, '');
+    }
     // Handle absolute URLs
     else {
       try {
@@ -86,11 +90,10 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
     
     // Fallback to original URL handling
     if (avatarUrl.startsWith('/')) {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-      if (avatarUrl.startsWith('/statics/') && API_URL) {
-        const baseUrl = API_URL.endsWith('/api') ? API_URL : API_URL;
-        return `${baseUrl}${avatarUrl}`;
+      if (avatarUrl.startsWith('/statics/')) {
+        return apiConfig.staticsUrl(avatarUrl);
       }
+
       return avatarUrl;
     }
     

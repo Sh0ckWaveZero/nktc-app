@@ -10,18 +10,19 @@
     "start": "bun dist/index.js",
     "prisma:generate": "bun prisma generate",
     "prisma:migrate": "bun prisma migrate dev",
+    "prisma:migrate:deploy": "bun prisma migrate deploy",
     "prisma:push": "bun prisma db push",
     "seed": "bun prisma/seed.ts",
     "postinstall": "bun run prisma:generate"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/jwt": "^1.4.1",
     "@elysiajs/swagger": "^1.3.1",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
     "@prisma/client-runtime-utils": "^7.6.0",
-
     "dotenv": "^16.6.1",
     "elysia": "^1.4.28",
     "minio": "^8.0.7",
