@@ -41,6 +41,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['manage'], 'student-goodness-summary-report');
     can(['manage'], 'student-badness-summary-report');
     can(['read'], 'setting-system-page');
+    can(['manage'], 'settings-department-list-pages');
     can(['manage'], 'settings-classroom-list-pages');
     can(['manage'], 'settings-program-list-pages');
     can(['read'], 'calendar-page');
