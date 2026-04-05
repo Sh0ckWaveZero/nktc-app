@@ -71,6 +71,13 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'setting-system-page',
       children: [
         {
+          title: 'แผนกวิชา',
+          icon: 'tabler:building-community',
+          path: '/apps/settings/department',
+          action: 'manage',
+          subject: 'settings-department-list-pages',
+        },
+        {
           title: 'ห้องเรียน',
           icon: 'material-symbols:room-preferences-outline-rounded',
           path: '/apps/settings/classroom',

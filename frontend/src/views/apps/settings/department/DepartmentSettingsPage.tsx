@@ -29,24 +29,23 @@ import { alpha, styled } from '@mui/material/styles';
 import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { toast } from 'react-toastify';
 
+import httpClient from '@/@core/utils/http';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import Icon from '@/@core/components/icon';
-import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
 import {
-  useClassrooms,
-  useCreateClassroom,
-  useDeleteClassroom,
-  useImportClassrooms,
-  useUpdateClassroom,
-  type ClassroomImportResult,
-  type ClassroomItem,
-  type ClassroomPayload,
-} from '@/hooks/queries/useClassrooms';
-import { useDepartments, useLevels, usePrograms } from '@/hooks/queries/useDepartments';
+  useCreateDepartment,
+  useDeleteDepartment,
+  useDepartments,
+  useImportDepartments,
+  useUpdateDepartment,
+  type DepartmentImportResult,
+  type DepartmentItem,
+  type DepartmentPayload,
+} from '@/hooks/queries/useDepartments';
 
-import ClassroomDeleteDialog from './ClassroomDeleteDialog';
-import ClassroomFormDialog from './ClassroomFormDialog';
+import DepartmentDeleteDialog from './DepartmentDeleteDialog';
+import DepartmentFormDialog from './DepartmentFormDialog';
 
 const PANEL_RADIUS = 16;
 const SECTION_RADIUS = 14;
@@ -218,28 +217,16 @@ const getErrorMessage = (error: any, fallback: string) => {
   return fallback;
 };
 
-const isClassroomActive = (status?: string | null) => status !== 'inactive';
+const isDepartmentActive = (status?: string | null) => status !== 'inactive';
 
-const formatThaiDateTimeParts = (value?: string) => {
-  if (!value) {
-    return { date: '-', time: '' };
-  }
+const formatThaiDateTime = (value?: string) => {
+  if (!value) return '-';
 
-  const date = new Date(value);
-
-  return {
-    date: new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' }).format(date),
-    time: new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' }).format(date),
-  };
+  return new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
 };
-
-const getLinkedRecords = (classroom: ClassroomItem) =>
-  (classroom._count?.student ?? 0) +
-  (classroom._count?.teachers ?? 0) +
-  (classroom._count?.course ?? 0) +
-  (classroom._count?.reportCheckIn ?? 0) +
-  (classroom._count?.activityCheckInReport ?? 0) +
-  (classroom._count?.levelClassrooms ?? 0);
 
 const fileToBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -261,90 +248,70 @@ const fileToBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
-const ClassroomSettingsPage = () => {
+const DepartmentSettingsPage = () => {
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [departmentFilter, setDepartmentFilter] = useState('all');
-  const [programFilter, setProgramFilter] = useState('all');
-  const [levelFilter, setLevelFilter] = useState('all');
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [openForm, setOpenForm] = useState(false);
-  const [editingClassroom, setEditingClassroom] = useState<ClassroomItem | null>(null);
-  const [deletingClassroom, setDeletingClassroom] = useState<ClassroomItem | null>(null);
+  const [editingDepartment, setEditingDepartment] = useState<DepartmentItem | null>(null);
+  const [deletingDepartment, setDeletingDepartment] = useState<DepartmentItem | null>(null);
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [importResult, setImportResult] = useState<ClassroomImportResult | null>(null);
+  const [importResult, setImportResult] = useState<DepartmentImportResult | null>(null);
   const [isImportResultOpen, setIsImportResultOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data: classrooms = [], isLoading } = useClassrooms();
-  const { data: departments = [] } = useDepartments();
-  const { data: programs = [] } = usePrograms();
-  const { data: levels = [] } = useLevels();
-  const { mutate: createClassroom, isPending: isCreating } = useCreateClassroom();
-  const { mutate: updateClassroom, isPending: isUpdating } = useUpdateClassroom();
-  const { mutate: deleteClassroom, isPending: isDeleting } = useDeleteClassroom();
-  const { mutate: importClassrooms, isPending: isImporting } = useImportClassrooms();
+  const { data: departments = [], isLoading } = useDepartments();
+  const { mutate: createDepartment, isPending: isCreating } = useCreateDepartment();
+  const { mutate: updateDepartment, isPending: isUpdating } = useUpdateDepartment();
+  const { mutate: deleteDepartment, isPending: isDeleting } = useDeleteDepartment();
+  const { mutate: importDepartments, isPending: isImporting } = useImportDepartments();
 
   const isSubmitting = isCreating || isUpdating;
 
-  const availablePrograms = useMemo(() => {
-    if (departmentFilter === 'all') {
-      return programs;
-    }
-
-    return programs.filter((program) => !program.departmentId || program.departmentId === departmentFilter);
-  }, [departmentFilter, programs]);
-
-  const filteredClassrooms = useMemo(() => {
+  const filteredDepartments = useMemo(() => {
     const normalizedSearch = searchText.trim().toLowerCase();
 
-    return classrooms.filter((classroom) => {
+    return departments.filter((department) => {
       const matchesSearch =
         !normalizedSearch ||
-        classroom.name.toLowerCase().includes(normalizedSearch) ||
-        classroom.classroomId.toLowerCase().includes(normalizedSearch) ||
-        classroom.description?.toLowerCase().includes(normalizedSearch) ||
-        classroom.department?.name?.toLowerCase().includes(normalizedSearch) ||
-        classroom.program?.name?.toLowerCase().includes(normalizedSearch) ||
-        classroom.level?.levelName?.toLowerCase().includes(normalizedSearch);
+        department.name.toLowerCase().includes(normalizedSearch) ||
+        department.departmentId?.toLowerCase().includes(normalizedSearch) ||
+        department.description?.toLowerCase().includes(normalizedSearch);
 
-      const active = isClassroomActive(classroom.status);
+      const active = isDepartmentActive(department.status);
       const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? active : !active);
-      const matchesDepartment = departmentFilter === 'all' || classroom.departmentId === departmentFilter;
-      const matchesProgram = programFilter === 'all' || classroom.programId === programFilter;
-      const matchesLevel = levelFilter === 'all' || classroom.levelId === levelFilter;
 
-      return matchesSearch && matchesStatus && matchesDepartment && matchesProgram && matchesLevel;
+      return matchesSearch && matchesStatus;
     });
-  }, [classrooms, departmentFilter, levelFilter, programFilter, searchText, statusFilter]);
+  }, [departments, searchText, statusFilter]);
 
   const summary = useMemo(() => {
-    return classrooms.reduce(
-      (acc, classroom) => {
-        const active = isClassroomActive(classroom.status);
+    return departments.reduce(
+      (acc, department) => {
+        const active = isDepartmentActive(department.status);
 
         acc.total += 1;
         acc.active += active ? 1 : 0;
         acc.inactive += active ? 0 : 1;
-        acc.students += classroom._count.student;
-        acc.teachers += classroom._count.teachers;
+        acc.programs += department._count.program;
+        acc.classrooms += department._count.classroom;
 
         return acc;
       },
-      { total: 0, active: 0, inactive: 0, students: 0, teachers: 0 },
+      { total: 0, active: 0, inactive: 0, programs: 0, classrooms: 0 },
     );
-  }, [classrooms]);
+  }, [departments]);
 
   const handleOpenCreate = () => {
     setFormMode('create');
-    setEditingClassroom(null);
+    setEditingDepartment(null);
     setOpenForm(true);
   };
 
-  const handleOpenEdit = (classroom: ClassroomItem) => {
+  const handleOpenEdit = (department: DepartmentItem) => {
     setFormMode('edit');
-    setEditingClassroom(classroom);
+    setEditingDepartment(department);
     setOpenForm(true);
   };
 
@@ -352,51 +319,51 @@ const ClassroomSettingsPage = () => {
     if (isSubmitting) return;
 
     setOpenForm(false);
-    setEditingClassroom(null);
+    setEditingDepartment(null);
   };
 
-  const handleSubmitForm = (payload: ClassroomPayload) => {
+  const handleSubmitForm = (payload: DepartmentPayload) => {
     if (formMode === 'create') {
-      createClassroom(payload, {
+      createDepartment(payload, {
         onSuccess: () => {
-          toast.success(`เพิ่มห้องเรียน ${payload.name} เรียบร้อยแล้ว`);
+          toast.success(`เพิ่มแผนก ${payload.name} เรียบร้อยแล้ว`);
           setOpenForm(false);
         },
         onError: (error) => {
-          toast.error(getErrorMessage(error, 'ไม่สามารถเพิ่มห้องเรียนได้'));
+          toast.error(getErrorMessage(error, 'ไม่สามารถเพิ่มแผนกวิชาได้'));
         },
       });
 
       return;
     }
 
-    if (!editingClassroom?.id) return;
+    if (!editingDepartment?.id) return;
 
-    updateClassroom(
-      { id: editingClassroom.id, params: payload },
+    updateDepartment(
+      { id: editingDepartment.id, params: payload },
       {
         onSuccess: () => {
-          toast.success(`อัปเดตห้องเรียน ${payload.name} เรียบร้อยแล้ว`);
+          toast.success(`อัปเดตแผนก ${payload.name} เรียบร้อยแล้ว`);
           setOpenForm(false);
-          setEditingClassroom(null);
+          setEditingDepartment(null);
         },
         onError: (error) => {
-          toast.error(getErrorMessage(error, 'ไม่สามารถอัปเดตห้องเรียนได้'));
+          toast.error(getErrorMessage(error, 'ไม่สามารถอัปเดตแผนกวิชาได้'));
         },
       },
     );
   };
 
   const handleDelete = () => {
-    if (!deletingClassroom?.id) return;
+    if (!deletingDepartment?.id) return;
 
-    deleteClassroom(deletingClassroom.id, {
+    deleteDepartment(deletingDepartment.id, {
       onSuccess: () => {
-        toast.success(`ลบห้องเรียน ${deletingClassroom.name} เรียบร้อยแล้ว`);
-        setDeletingClassroom(null);
+        toast.success(`ลบแผนก ${deletingDepartment.name} เรียบร้อยแล้ว`);
+        setDeletingDepartment(null);
       },
       onError: (error) => {
-        toast.error(getErrorMessage(error, 'ไม่สามารถลบห้องเรียนได้'));
+        toast.error(getErrorMessage(error, 'ไม่สามารถลบแผนกวิชาได้'));
       },
     });
   };
@@ -404,7 +371,7 @@ const ClassroomSettingsPage = () => {
   const handleDownloadTemplate = async () => {
     try {
       setIsDownloadingTemplate(true);
-      const { data } = await httpClient.get(`${authConfig.classroomEndpoint}/download-template`, {
+      const { data } = await httpClient.get(`${authConfig.departmentEndpoint}/download-template`, {
         responseType: 'arraybuffer',
       });
 
@@ -415,7 +382,7 @@ const ClassroomSettingsPage = () => {
       const link = document.createElement('a');
 
       link.href = url;
-      link.download = 'classroom_template.xlsx';
+      link.download = 'department_template.xlsx';
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -428,8 +395,8 @@ const ClassroomSettingsPage = () => {
   };
 
   const handleExport = async () => {
-    if (filteredClassrooms.length === 0) {
-      toast.warning('ไม่มีข้อมูลห้องเรียนสำหรับ export');
+    if (filteredDepartments.length === 0) {
+      toast.warning('ไม่มีข้อมูลแผนกสำหรับ export');
       return;
     }
 
@@ -437,21 +404,18 @@ const ClassroomSettingsPage = () => {
       setIsExporting(true);
       const XLSX = await import('xlsx');
       const worksheet = XLSX.utils.json_to_sheet(
-        filteredClassrooms.map((classroom) => ({
-          รหัสห้องเรียน: classroom.classroomId,
-          ชื่อห้องเรียน: classroom.name,
-          รหัสสาขา: classroom.program?.programId ?? '',
-          รหัสแผนก: classroom.department?.departmentId ?? '',
-          รหัสระดับ: classroom.level?.levelId ?? '',
-          คำอธิบาย: classroom.description ?? '',
-          สถานะ: isClassroomActive(classroom.status) ? 'เปิดใช้งาน' : 'ปิดใช้งาน',
+        filteredDepartments.map((department) => ({
+          รหัสแผนก: department.departmentId ?? '',
+          ชื่อแผนก: department.name,
+          คำอธิบาย: department.description ?? '',
+          สถานะ: isDepartmentActive(department.status) ? 'เปิดใช้งาน' : 'ปิดใช้งาน',
         })),
       );
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'ห้องเรียน');
-      XLSX.writeFile(workbook, `classrooms_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'แผนกวิชา');
+      XLSX.writeFile(workbook, `departments_${new Date().toISOString().slice(0, 10)}.xlsx`);
     } catch (error) {
-      toast.error(getErrorMessage(error, 'ไม่สามารถ export ข้อมูลห้องเรียนได้'));
+      toast.error(getErrorMessage(error, 'ไม่สามารถ export ข้อมูลแผนกได้'));
     } finally {
       setIsExporting(false);
     }
@@ -477,7 +441,7 @@ const ClassroomSettingsPage = () => {
     try {
       const file = await fileToBase64(selectedFile);
 
-      importClassrooms(
+      importDepartments(
         { file },
         {
           onSuccess: (result) => {
@@ -492,7 +456,7 @@ const ClassroomSettingsPage = () => {
             toast.success(result.message);
           },
           onError: (error) => {
-            toast.error(getErrorMessage(error, 'ไม่สามารถนำเข้าข้อมูลห้องเรียนได้'));
+            toast.error(getErrorMessage(error, 'ไม่สามารถนำเข้าข้อมูลแผนกได้'));
           },
         },
       );
@@ -504,55 +468,51 @@ const ClassroomSettingsPage = () => {
   const columns: GridColDef[] = [
     {
       field: 'name',
-      headerName: 'ห้องเรียน',
-      flex: 0.31,
-      minWidth: 320,
+      headerName: 'แผนกวิชา',
+      flex: 0.3,
+      minWidth: 260,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5, width: '100%' }}>
-          <Typography
-            variant='body2'
-            sx={{
-              fontWeight: 700,
-              fontSize: '0.98rem',
-              lineHeight: 1.45,
-              whiteSpace: 'normal',
-              overflowWrap: 'anywhere',
-            }}
-          >
+        <Box sx={{ py: 1.5 }}>
+          <Typography variant='body2' sx={{ fontWeight: 700, fontSize: '0.98rem' }}>
             {row.name || '-'}
           </Typography>
           <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
-            {row.classroomId || 'ยังไม่กำหนดรหัสห้องเรียน'}
+            {row.departmentId || 'ยังไม่กำหนดรหัสแผนก'}
           </Typography>
         </Box>
       ),
     },
     {
-      field: 'structure',
-      headerName: 'โครงสร้าง',
-      flex: 0.23,
+      field: 'description',
+      headerName: 'รายละเอียด',
+      flex: 0.28,
       minWidth: 220,
-      sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
-            {row.program?.name || 'ไม่ระบุสาขา'} • {row.level?.levelName || 'ไม่ระบุระดับ'}
-          </Typography>
-        </Box>
+        <Typography
+          variant='body2'
+          color='text.secondary'
+          sx={{
+            display: '-webkit-box',
+            overflow: 'hidden',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          {row.description || 'ยังไม่มีคำอธิบาย'}
+        </Typography>
       ),
     },
     {
       field: 'usage',
       headerName: 'การใช้งาน',
-      flex: 0.18,
+      flex: 0.2,
       minWidth: 190,
       sortable: false,
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>นักเรียน {row._count?.student ?? 0} คน</Typography>
+          <Typography variant='body2'>สาขา {row._count?.program ?? 0} รายการ</Typography>
           <Typography variant='caption' color='text.secondary'>
-            ครู {row._count?.teachers ?? 0} • รายวิชา {row._count?.course ?? 0}
+            ห้องเรียน {row._count?.classroom ?? 0} • นักเรียน {row._count?.student ?? 0}
           </Typography>
         </Box>
       ),
@@ -563,7 +523,7 @@ const ClassroomSettingsPage = () => {
       flex: 0.12,
       minWidth: 120,
       renderCell: ({ row }) => {
-        const active = isClassroomActive(row.status);
+        const active = isDepartmentActive(row.status);
 
         return (
           <Chip
@@ -578,24 +538,13 @@ const ClassroomSettingsPage = () => {
     {
       field: 'updatedAt',
       headerName: 'อัปเดตล่าสุด',
-      flex: 0.14,
-      minWidth: 165,
-      renderCell: ({ row }) => {
-        const formatted = formatThaiDateTimeParts(row.updatedAt);
-
-        return (
-          <Box sx={{ py: 1.5 }}>
-            <Typography variant='body2' color='text.secondary'>
-              {formatted.date}
-            </Typography>
-            {formatted.time ? (
-              <Typography variant='caption' color='text.secondary'>
-                {formatted.time}
-              </Typography>
-            ) : null}
-          </Box>
-        );
-      },
+      flex: 0.18,
+      minWidth: 180,
+      renderCell: ({ row }) => (
+        <Typography variant='body2' color='text.secondary'>
+          {formatThaiDateTime(row.updatedAt)}
+        </Typography>
+      ),
     },
     {
       field: 'actions',
@@ -606,11 +555,15 @@ const ClassroomSettingsPage = () => {
       align: 'center',
       headerAlign: 'center',
       renderCell: ({ row }) => {
-        const linkedRecords = getLinkedRecords(row);
+        const linkedRecords =
+          (row._count?.teacher ?? 0) +
+          (row._count?.student ?? 0) +
+          (row._count?.program ?? 0) +
+          (row._count?.classroom ?? 0);
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title='แก้ไขห้องเรียน'>
+            <Tooltip title='แก้ไขแผนก'>
               <Button
                 size='small'
                 variant='text'
@@ -622,7 +575,7 @@ const ClassroomSettingsPage = () => {
               </Button>
             </Tooltip>
 
-            <Tooltip title={linkedRecords > 0 ? 'ลบไม่ได้ เพราะยังมีข้อมูลใช้งานอยู่' : 'ลบห้องเรียน'}>
+            <Tooltip title={linkedRecords > 0 ? 'ลบไม่ได้ เพราะยังมีข้อมูลใช้งานอยู่' : 'ลบแผนก'}>
               <span>
                 <Button
                   size='small'
@@ -641,7 +594,7 @@ const ClassroomSettingsPage = () => {
                   aria-disabled={linkedRecords > 0}
                   onClick={() => {
                     if (linkedRecords > 0) return;
-                    setDeletingClassroom(row);
+                    setDeletingDepartment(row);
                   }}
                 >
                   <Icon icon='tabler:trash' fontSize='1.1rem' />
@@ -685,7 +638,7 @@ const ClassroomSettingsPage = () => {
                     color: 'primary.main',
                   }}
                 >
-                  <Icon icon='tabler:door' />
+                  <Icon icon='tabler:building-community' />
                 </Avatar>
               }
               title={
@@ -698,10 +651,10 @@ const ClassroomSettingsPage = () => {
                       letterSpacing: '-0.03em',
                     }}
                   >
-                    จัดการชั้นเรียน
+                    จัดการแผนกวิชา
                   </Typography>
                   <Typography variant='body1' color='text.secondary' sx={{ mt: 0.75 }}>
-                    ดูแลรหัสห้องเรียน ชื่อห้องเรียน และความเชื่อมโยงกับแผนก สาขา และระดับชั้นให้พร้อมใช้งาน
+                    ดูแลรหัส ชื่อ และสถานะของแผนกวิชาให้พร้อมใช้งานต่อกับสาขา ห้องเรียน และข้อมูลนักเรียน
                   </Typography>
                 </Box>
               }
@@ -712,9 +665,7 @@ const ClassroomSettingsPage = () => {
                 <Grid container spacing={3} alignItems='flex-end'>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <SectionTitle>ค้นหาและกรอง</SectionTitle>
-                    <SectionDescription>
-                      ค้นหาจากชื่อห้องเรียน รหัสห้องเรียน หรือกรองตามแผนก สาขา ระดับชั้น และสถานะก่อนจัดการรายการ
-                    </SectionDescription>
+                    <SectionDescription>ค้นหาจากชื่อแผนก รหัสแผนก หรือกรองตามสถานะก่อนจัดการรายการ</SectionDescription>
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Box
@@ -724,7 +675,7 @@ const ClassroomSettingsPage = () => {
                       }}
                     >
                       <Box
-                        id='classroom-list-tools-surface'
+                        id='department-list-tools-surface'
                         sx={{
                           display: 'inline-flex',
                           alignItems: 'stretch',
@@ -745,7 +696,7 @@ const ClassroomSettingsPage = () => {
                         <Tooltip title={isDownloadingTemplate ? 'กำลังดาวน์โหลด Template' : 'ดาวน์โหลด Template'}>
                           <ToolButtonSlot>
                             <ToolButton
-                              id='download-classroom-template-button'
+                              id='download-department-template-button'
                               disabled={isDownloadingTemplate || isImporting || isExporting}
                               onClick={handleDownloadTemplate}
                             >
@@ -756,12 +707,12 @@ const ClassroomSettingsPage = () => {
 
                         <ToolDivider />
 
-                        <Tooltip title={isExporting ? 'กำลัง Export ข้อมูล' : 'Export ข้อมูลห้องเรียน'}>
+                        <Tooltip title={isExporting ? 'กำลัง Export ข้อมูล' : 'Export ข้อมูลแผนก'}>
                           <ToolButtonSlot>
                             <ToolButton
-                              id='export-classroom-button'
+                              id='export-department-button'
                               disabled={
-                                isExporting || isImporting || isDownloadingTemplate || !filteredClassrooms.length
+                                isExporting || isImporting || isDownloadingTemplate || !filteredDepartments.length
                               }
                               onClick={handleExport}
                             >
@@ -775,7 +726,7 @@ const ClassroomSettingsPage = () => {
                         <Tooltip title={isImporting ? 'กำลัง Import ไฟล์' : 'Import ไฟล์ XLSX'}>
                           <ToolButtonSlot>
                             <ToolButton
-                              id='import-classroom-button'
+                              id='import-department-button'
                               disabled={isImporting || isDownloadingTemplate || isExporting}
                               onClick={handleImportClick}
                             >
@@ -786,9 +737,9 @@ const ClassroomSettingsPage = () => {
 
                         <ToolDivider />
 
-                        <Tooltip title='เพิ่มห้องเรียน'>
+                        <Tooltip title='เพิ่มแผนกวิชา'>
                           <ToolButtonSlot>
-                            <ActiveToolButton id='add-classroom-button' onClick={handleOpenCreate}>
+                            <ActiveToolButton id='add-department-button' onClick={handleOpenCreate}>
                               <Icon icon='tabler:plus' />
                             </ActiveToolButton>
                           </ToolButtonSlot>
@@ -796,72 +747,17 @@ const ClassroomSettingsPage = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid size={{ xs: 12, md: 8 }}>
                     <TextField
                       fullWidth
-                      label='ค้นหาห้องเรียน'
-                      placeholder='พิมพ์ชื่อห้องเรียน รหัส หรือคำอธิบาย'
+                      label='ค้นหาแผนก'
+                      placeholder='พิมพ์ชื่อแผนก รหัสแผนก หรือคำอธิบาย'
                       value={searchText}
                       onChange={(event) => setSearchText(event.target.value)}
                       sx={CONTROL_SX}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                    <TextField
-                      select
-                      fullWidth
-                      label='แผนก'
-                      value={departmentFilter}
-                      onChange={(event) => {
-                        const nextDepartment = event.target.value;
-                        setDepartmentFilter(nextDepartment);
-                        setProgramFilter('all');
-                      }}
-                      sx={CONTROL_SX}
-                    >
-                      <MenuItem value='all'>ทุกแผนก</MenuItem>
-                      {departments.map((department) => (
-                        <MenuItem key={department.id} value={department.id}>
-                          {department.name}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                    <TextField
-                      select
-                      fullWidth
-                      label='สาขา'
-                      value={programFilter}
-                      onChange={(event) => setProgramFilter(event.target.value)}
-                      sx={CONTROL_SX}
-                    >
-                      <MenuItem value='all'>ทุกสาขา</MenuItem>
-                      {availablePrograms.map((program) => (
-                        <MenuItem key={program.id} value={program.id}>
-                          {program.name}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                    <TextField
-                      select
-                      fullWidth
-                      label='ระดับชั้น'
-                      value={levelFilter}
-                      onChange={(event) => setLevelFilter(event.target.value)}
-                      sx={CONTROL_SX}
-                    >
-                      <MenuItem value='all'>ทุกระดับ</MenuItem>
-                      {levels.map((level) => (
-                        <MenuItem key={level.id} value={level.id}>
-                          {level.levelName}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
                       select
                       fullWidth
@@ -883,28 +779,28 @@ const ClassroomSettingsPage = () => {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {[
                   {
-                    label: 'ห้องเรียนทั้งหมด',
+                    label: 'แผนกทั้งหมด',
                     value: summary.total,
                     hint: `${summary.active} เปิดใช้งาน`,
-                    icon: 'tabler:door',
+                    icon: 'tabler:building-community',
                   },
                   {
                     label: 'ปิดใช้งาน',
                     value: summary.inactive,
-                    hint: 'พักใช้งานชั่วคราว',
-                    icon: 'tabler:door-off',
+                    hint: 'รอตรวจสอบหรือพักใช้งาน',
+                    icon: 'tabler:building-off',
                   },
                   {
-                    label: 'นักเรียนที่ผูกอยู่',
-                    value: summary.students,
+                    label: 'สาขาที่ผูกอยู่',
+                    value: summary.programs,
                     hint: 'รวมทั้งระบบ',
-                    icon: 'tabler:users',
+                    icon: 'tabler:school',
                   },
                   {
-                    label: 'ครูที่ผูกอยู่',
-                    value: summary.teachers,
+                    label: 'ห้องเรียนที่ผูกอยู่',
+                    value: summary.classrooms,
                     hint: 'พร้อมใช้งานต่อในระบบ',
-                    icon: 'tabler:user-star',
+                    icon: 'tabler:door',
                   },
                 ].map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
@@ -952,9 +848,9 @@ const ClassroomSettingsPage = () => {
                   }}
                 >
                   <Box>
-                    <SectionTitle>รายการชั้นเรียน</SectionTitle>
+                    <SectionTitle>รายการแผนกวิชา</SectionTitle>
                     <SectionDescription>
-                      แสดงผล {filteredClassrooms.length} จาก {classrooms.length} รายการ
+                      แสดงผล {filteredDepartments.length} จาก {departments.length} รายการ
                     </SectionDescription>
                   </Box>
                 </Box>
@@ -962,10 +858,9 @@ const ClassroomSettingsPage = () => {
                 <Box sx={{ width: '100%' }}>
                   <StyledDataGrid
                     autoHeight
-                    rows={filteredClassrooms}
+                    rows={filteredDepartments}
                     columns={columns}
                     loading={isLoading}
-                    getRowHeight={() => 'auto'}
                     disableRowSelectionOnClick
                     disableColumnMenu
                     hideFooterSelectedRowCount
@@ -986,28 +881,25 @@ const ClassroomSettingsPage = () => {
         </Grid>
       </Grid>
 
-      <ClassroomFormDialog
+      <DepartmentFormDialog
         open={openForm}
         mode={formMode}
-        initialData={editingClassroom}
-        departments={departments}
-        programs={programs}
-        levels={levels}
+        initialData={editingDepartment}
         isSubmitting={isSubmitting}
         onClose={handleCloseForm}
         onSubmit={handleSubmitForm}
       />
 
-      <ClassroomDeleteDialog
-        open={Boolean(deletingClassroom)}
-        classroom={deletingClassroom}
+      <DepartmentDeleteDialog
+        open={Boolean(deletingDepartment)}
+        department={deletingDepartment}
         isDeleting={isDeleting}
-        onClose={() => setDeletingClassroom(null)}
+        onClose={() => setDeletingDepartment(null)}
         onConfirm={handleDelete}
       />
 
       <Dialog open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
-        <DialogTitle>ผลการนำเข้าข้อมูลห้องเรียน</DialogTitle>
+        <DialogTitle>ผลการนำเข้าข้อมูลแผนก</DialogTitle>
         <DialogContent>
           {importResult && (
             <>
@@ -1093,4 +985,4 @@ const ClassroomSettingsPage = () => {
   );
 };
 
-export default ClassroomSettingsPage;
+export default DepartmentSettingsPage;
