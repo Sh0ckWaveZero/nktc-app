@@ -11,6 +11,21 @@ interface StudentQuery {
   classroomId?: string;
 }
 
+export interface StudentImportError {
+  row: number;
+  message: string;
+}
+
+export interface StudentImportResult {
+  success: boolean;
+  message: string;
+  total: number;
+  imported: number;
+  updated?: number;
+  failed: number;
+  errors: StudentImportError[];
+}
+
 /**
  * Unwrap API response from backend ResponseInterceptor
  * Backend wraps all responses in { success, statusCode, message, data, meta }
@@ -142,6 +157,23 @@ export const useDeleteStudent = () => {
   return useMutation({
     mutationFn: async (studentId: string) => {
       return await httpClient.delete(`${authConfig.studentEndpoint}/profile/${studentId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
+    },
+  });
+};
+
+/**
+ * Hook to import students via XLSX file payload
+ */
+export const useImportStudents = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ file }: { file: string }) => {
+      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/upload`, { file });
+      return data as StudentImportResult;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.students.all });

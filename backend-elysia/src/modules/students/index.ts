@@ -131,9 +131,22 @@ export const students = new Elysia({ prefix: "/students" })
 					}
 					const { file } = body as { file: string };
 					const result = await StudentService.importFromXLSX(file, (user as any).sub);
+					const hasErrors = result.failed > 0;
+					const created = Math.max(result.success - result.updated, 0);
+					const successMessage =
+						result.updated > 0
+							? `นำเข้าใหม่ ${created} และอัปเดต ${result.updated} รายการ`
+							: `นำเข้าข้อมูลนักเรียนสำเร็จ ${result.success} รายการ`;
+
 					return {
 						success: true,
-						message: `Imported ${result.success} students`,
+						message: hasErrors
+							? `${successMessage} จาก ${result.total} รายการ`
+							: successMessage,
+						total: result.total,
+						imported: result.success,
+						updated: result.updated,
+						failed: result.failed,
 						errors: result.errors,
 					};
 				},

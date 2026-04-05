@@ -3,6 +3,42 @@ import { studentInclude, StudentModel } from "./model";
 import { importStudentsFromXLSX, generateStudentTemplate } from "@/libs/xlsx";
 import { NotFoundError } from "@/libs/errors";
 
+const maskIdCard = (idCard?: string | null) => {
+  if (!idCard) return idCard ?? null;
+  const digits = idCard.replace(/\D/g, "");
+
+  if (digits.length !== 13) {
+    return idCard;
+  }
+
+  return `x-xxxx-xxxxx-x-${digits.slice(-2)}`;
+};
+
+const maskStudentSensitiveFields = <
+  T extends {
+    user?: {
+      account?: {
+        idCard?: string | null;
+      } | null;
+    } | null;
+  },
+>(
+  student: T,
+): T => ({
+  ...student,
+  user: student.user
+    ? {
+        ...student.user,
+        account: student.user.account
+          ? {
+              ...student.user.account,
+              idCard: maskIdCard(student.user.account.idCard),
+            }
+          : student.user.account,
+      }
+    : student.user,
+});
+
 export abstract class StudentService {
   static async getList(skip: number = 0, take: number = 20) {
     const data = await prisma.student.findMany({
@@ -12,12 +48,12 @@ export abstract class StudentService {
       orderBy: { studentId: "asc" },
     });
     const total = await prisma.student.count();
-    return { data, total, skip, take };
+    return { data: data.map(maskStudentSensitiveFields), total, skip, take };
   }
 
   static async search(params: StudentModel["searchParams"]) {
     const { q, classroomId, departmentId, programId } = params;
-    return prisma.student.findMany({
+    const students = await prisma.student.findMany({
       where: {
         ...(classroomId ? { classroomId } : {}),
         ...(departmentId ? { departmentId } : {}),
@@ -47,6 +83,7 @@ export abstract class StudentService {
       include: studentInclude,
       orderBy: { studentId: "asc" },
     });
+    return students.map(maskStudentSensitiveFields);
   }
 
   static async searchWithParams(params: StudentModel["searchParams"]) {
@@ -116,7 +153,7 @@ export abstract class StudentService {
     const total = await prisma.student.count({
       where: whereCondition,
     });
-    return { data, total };
+    return { data: data.map(maskStudentSensitiveFields), total };
   }
 
   static async getById(id: string) {
@@ -127,12 +164,12 @@ export abstract class StudentService {
     if (!student) {
       throw new NotFoundError("Student not found");
     }
-    return student;
+    return maskStudentSensitiveFields(student);
   }
 
   static async create(userId: string, data: StudentModel["createBody"]) {
     const { graduationDate, ...rest } = data;
-    return prisma.student.create({
+    const student = await prisma.student.create({
       data: {
         ...rest,
         graduationDate: graduationDate
@@ -144,6 +181,7 @@ export abstract class StudentService {
       },
       include: studentInclude,
     });
+    return maskStudentSensitiveFields(student);
   }
 
   static async update(id: string, data: StudentModel["updateBody"]) {
@@ -205,10 +243,11 @@ export abstract class StudentService {
 
     // Fetch the full student data outside the transaction or after updates finish
     // to avoid complex parallel queries on the transaction connection
-    return await prisma.student.findUnique({
+    const student = await prisma.student.findUnique({
       where: { id },
       include: studentInclude,
     });
+    return student ? maskStudentSensitiveFields(student) : student;
   }
 
   static async delete(id: string) {

@@ -3,8 +3,15 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
+import httpClient from '@/@core/utils/http';
+import { authConfig } from '@/configs/auth';
 import { useClassrooms } from '@/hooks/queries/useClassrooms';
-import { useStudentsWithParams, useDeleteStudent } from '@/hooks/queries/useStudents';
+import {
+  useStudentsWithParams,
+  useDeleteStudent,
+  useImportStudents,
+  type StudentImportResult,
+} from '@/hooks/queries/useStudents';
 
 interface SearchValue {
   fullName: string;
@@ -17,6 +24,7 @@ interface UseStudentListReturn {
   initClassroom: any | null;
   currentClassroomId: string | null;
   loadingClassroom: boolean;
+  isAdmin: boolean;
 
   // Student state
   students: any[];
@@ -27,6 +35,13 @@ interface UseStudentListReturn {
   // Delete dialog state
   openDeletedConfirm: boolean;
   deletedStudent: any | null;
+
+  // Import state
+  openImportResultDialog: boolean;
+  importResult: StudentImportResult | null;
+  isImportingStudents: boolean;
+  isDownloadingTemplate: boolean;
+  isExportingStudents: boolean;
 
   // Pagination
   pageSize: number;
@@ -39,8 +54,46 @@ interface UseStudentListReturn {
   handleDeleteClick: (student: any) => void;
   handleDeleteConfirm: (event: any) => void;
   handleDeleteCancel: () => void;
+  handleImportStudents: (file: File | null) => Promise<void>;
+  handleCloseImportResultDialog: () => void;
+  handleDownloadTemplate: () => Promise<void>;
+  handleExportStudents: () => Promise<void>;
   setPageSize: (size: number) => void;
 }
+
+const MAX_IMPORT_FILE_SIZE = 5 * 1024 * 1024;
+const STUDENT_EXPORT_HEADERS = [
+  'รหัสนักเรียน*',
+  'คำนำหน้า',
+  'ชื่อ',
+  'นามสกุล',
+  'รหัสห้องเรียน',
+  'รหัสสาขา',
+  'รหัสแผนก',
+  'รหัสระดับ',
+  'เบอร์โทร',
+  'อีเมล',
+] as const;
+
+const convertFileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result;
+
+      if (typeof result !== 'string') {
+        reject(new Error('ไม่สามารถอ่านไฟล์ได้'));
+        return;
+      }
+
+      const [, base64 = ''] = result.split(',');
+      resolve(base64);
+    };
+
+    reader.onerror = () => reject(new Error('ไม่สามารถอ่านไฟล์ได้'));
+    reader.readAsDataURL(file);
+  });
 
 export const useStudentList = (): UseStudentListReturn => {
   const { user } = useAuth();
@@ -51,6 +104,7 @@ export const useStudentList = (): UseStudentListReturn => {
 
   const { data: allClassrooms = [], isLoading: loadingClassroom } = useClassrooms();
   const { mutate: deleteStudent } = useDeleteStudent();
+  const { mutateAsync: importStudents, isPending: isImportingStudents } = useImportStudents();
 
   // ─── UI State ────────────────────────────────────────────────────────────────
 
@@ -61,26 +115,29 @@ export const useStudentList = (): UseStudentListReturn => {
   const deferredSearchValue = useDeferredValue(searchValue);
   const [openDeletedConfirm, setOpenDeletedConfirm] = useState(false);
   const [deletedStudent, setDeletedStudent] = useState<any | null>(null);
+  const [openImportResultDialog, setOpenImportResultDialog] = useState(false);
+  const [importResult, setImportResult] = useState<StudentImportResult | null>(null);
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+  const [isExportingStudents, setIsExportingStudents] = useState(false);
   const [pageSize, setPageSize] = useState(10);
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
 
   // ─── Derived classrooms (filter by teacher role) ─────────────────────────────
 
   const classrooms = useMemo(() => {
     if (!allClassrooms.length) return [];
-    if (user?.role?.toLowerCase() === 'admin') return allClassrooms;
+    if (isAdmin) return allClassrooms;
     if (user && user.teacherOnClassroom?.length > 0) {
       return allClassrooms.filter((item: any) => user.teacherOnClassroom.includes(item.id));
     }
     return allClassrooms;
-  }, [allClassrooms, user]);
+  }, [allClassrooms, isAdmin, user]);
 
   // ─── Set initial classroom once data loads ────────────────────────────────────
 
   useEffect(() => {
     if (!classrooms.length || currentClassroomId) return;
-    const target = classroom
-      ? (classrooms.find((item: any) => item.id === classroom) ?? classrooms[0])
-      : classrooms[0];
+    const target = classroom ? (classrooms.find((item: any) => item.id === classroom) ?? classrooms[0]) : classrooms[0];
     setInitClassroom(target ?? null);
     setCurrentClassroomId(target?.id ?? null);
   }, [classrooms, classroom, currentClassroomId]);
@@ -163,17 +220,158 @@ export const useStudentList = (): UseStudentListReturn => {
     setDeletedStudent(null);
   }, []);
 
+  const handleCloseImportResultDialog = useCallback(() => {
+    setOpenImportResultDialog(false);
+  }, []);
+
+  const handleDownloadTemplate = useCallback(async () => {
+    const toastId = toast.info('กำลังดาวน์โหลด template...', { autoClose: false, hideProgressBar: true });
+    setIsDownloadingTemplate(true);
+
+    try {
+      const response = await httpClient.get(`${authConfig.studentEndpoint}/download-template`, {
+        responseType: 'blob',
+      });
+      const contentType =
+        response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = 'student_template.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.dismiss(toastId);
+      toast.success('ดาวน์โหลด template สำเร็จ');
+    } catch {
+      toast.dismiss(toastId);
+      toast.error('ไม่สามารถดาวน์โหลด template ได้');
+    } finally {
+      setIsDownloadingTemplate(false);
+    }
+  }, []);
+
+  const handleExportStudents = useCallback(async () => {
+    if (!students.length) {
+      toast.warn('ไม่มีข้อมูลนักเรียนสำหรับ export');
+      return;
+    }
+
+    const toastId = toast.info('กำลังเตรียมไฟล์ export...', { autoClose: false, hideProgressBar: true });
+    setIsExportingStudents(true);
+
+    try {
+      const XLSX = await import('xlsx');
+      const rows = students.map((student: any) => {
+        const account = student?.user?.account;
+        const classroom = student?.classroom;
+        const program = student?.program ?? classroom?.program;
+        const department = student?.department ?? classroom?.department;
+        const level = student?.level ?? classroom?.level;
+
+        return {
+          'รหัสนักเรียน*': student?.studentId ?? '',
+          คำนำหน้า: account?.title ?? '',
+          ชื่อ: account?.firstName ?? '',
+          นามสกุล: account?.lastName ?? '',
+          รหัสห้องเรียน: classroom?.classroomId ?? '',
+          รหัสสาขา: program?.programId ?? '',
+          รหัสแผนก: department?.departmentId ?? '',
+          รหัสระดับ: level?.levelId ?? '',
+          เบอร์โทร: account?.phone ?? '',
+          อีเมล: student?.user?.email ?? '',
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rows, { header: [...STUDENT_EXPORT_HEADERS] });
+      worksheet['!cols'] = STUDENT_EXPORT_HEADERS.map((header) => ({
+        wch: header === 'อีเมล' ? 28 : header === 'รหัสนักเรียน*' ? 16 : 18,
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'นักเรียน');
+
+      const formattedDate = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(/[: ]/g, '-');
+      const classroomName = initClassroom?.name ? String(initClassroom.name).replace(/[\\/:*?"<>|]/g, '_') : 'students';
+
+      XLSX.writeFile(workbook, `student_export_${classroomName}_${formattedDate}.xlsx`);
+
+      toast.dismiss(toastId);
+      toast.success(`export ข้อมูลนักเรียน ${rows.length} รายการสำเร็จ`);
+    } catch {
+      toast.dismiss(toastId);
+      toast.error('ไม่สามารถ export ข้อมูลนักเรียนได้');
+    } finally {
+      setIsExportingStudents(false);
+    }
+  }, [initClassroom?.name, students]);
+
+  const handleImportStudents = useCallback(
+    async (file: File | null) => {
+      if (!file) return;
+
+      const isXlsxFile = file.name.toLowerCase().endsWith('.xlsx');
+
+      if (!isXlsxFile) {
+        toast.error('รองรับเฉพาะไฟล์ .xlsx เท่านั้น');
+        return;
+      }
+
+      if (file.size > MAX_IMPORT_FILE_SIZE) {
+        toast.error('ขนาดไฟล์ต้องไม่เกิน 5 MB');
+        return;
+      }
+
+      const toastId = toast.info('กำลังนำเข้าข้อมูลนักเรียน...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
+
+      try {
+        const base64File = await convertFileToBase64(file);
+        const result = await importStudents({ file: base64File });
+
+        setImportResult(result);
+        setOpenImportResultDialog(true);
+        toast.dismiss(toastId);
+
+        if (result.total === 0 || result.imported === 0 || result.failed > 0) {
+          toast.warn(result.message);
+          return;
+        }
+
+        toast.success(result.message);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { error?: string; message?: string } } };
+
+        toast.dismiss(toastId);
+        toast.error(err?.response?.data?.error || err?.response?.data?.message || 'ไม่สามารถนำเข้าข้อมูลนักเรียนได้');
+      }
+    },
+    [importStudents],
+  );
+
   return {
     classrooms,
     initClassroom,
     currentClassroomId,
     loadingClassroom,
+    isAdmin,
     students,
     loadingStudent,
     currentStudent,
     searchValue,
     openDeletedConfirm,
     deletedStudent,
+    openImportResultDialog,
+    importResult,
+    isImportingStudents,
+    isDownloadingTemplate,
+    isExportingStudents,
     pageSize,
     handleChangeClassroom,
     handleChangeFullName,
@@ -182,6 +380,10 @@ export const useStudentList = (): UseStudentListReturn => {
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
+    handleImportStudents,
+    handleCloseImportResultDialog,
+    handleDownloadTemplate,
+    handleExportStudents,
     setPageSize,
   };
 };
