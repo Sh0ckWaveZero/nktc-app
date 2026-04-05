@@ -11,6 +11,7 @@
     "prisma:generate": "bun prisma generate",
     "prisma:migrate": "bun prisma migrate dev",
     "prisma:push": "bun prisma db push",
+    "seed": "bun prisma/seed.ts",
     "postinstall": "bun run prisma:generate"
   },
   "dependencies": {
