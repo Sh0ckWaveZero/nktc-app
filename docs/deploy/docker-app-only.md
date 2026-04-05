@@ -22,6 +22,7 @@
 - `deploy/compose.app.yml`
 - `deploy/compose.x86.override.yml`
 - `deploy/compose.pi4.override.yml`
+- `deploy/deploy.sh`
 - `deploy/frontend.Dockerfile`
 - `deploy/backend-elysia.Dockerfile`
 - `deploy/env/frontend.env.example`
@@ -82,12 +83,24 @@ JWT_REFRESH_EXPIRES_IN=6000s
 docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml build
 ```
 
+หรือใช้ script ที่รวม flow ให้แล้ว:
+
+```bash
+bash ./deploy/deploy.sh x86 build
+```
+
 ## 3. Apply Prisma migrations บน Production DB
 
 รัน migration หลัง image build สำเร็จ และก่อน `up -d` เสมอ
 
 ```bash
 docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run --rm backend bun run prisma:migrate:deploy
+```
+
+หรือ:
+
+```bash
+bash ./deploy/deploy.sh x86 migrate
 ```
 
 ถ้าต้อง generate Prisma client เพิ่มใน job แยก:
@@ -108,7 +121,33 @@ docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run 
 docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml up -d
 ```
 
-## 5. Deploy บน Raspberry Pi 4
+หรือ:
+
+```bash
+bash ./deploy/deploy.sh x86 up
+```
+
+## 5. คำสั่งเดียวสำหรับ deploy บน Intel x86
+
+```bash
+bash ./deploy/deploy.sh x86 deploy
+```
+
+หรือจาก root package script:
+
+```bash
+bun run deploy:x86
+```
+
+คำสั่งนี้จะทำตามลำดับ:
+
+1. สร้าง network `app-net` ถ้ายังไม่มี
+2. build image
+3. run `prisma migrate deploy`
+4. `up -d --no-build`
+5. แสดงสถานะ container
+
+## 6. Deploy บน Raspberry Pi 4
 
 ```bash
 docker compose -f deploy/compose.app.yml -f deploy/compose.pi4.override.yml build
@@ -116,9 +155,31 @@ docker compose -f deploy/compose.app.yml -f deploy/compose.pi4.override.yml run 
 docker compose -f deploy/compose.app.yml -f deploy/compose.pi4.override.yml up -d
 ```
 
+หรือใช้ script:
+
+```bash
+bash ./deploy/deploy.sh pi4 deploy
+```
+
+หรือ:
+
+```bash
+bun run deploy:pi4
+```
+
 สำหรับ Pi4 แนะนำให้ build ตอน maintenance window เพื่อลด memory pressure
 
-## 6. ตรวจสถานะ
+## 7. คำสั่งช่วยเหลือ
+
+```bash
+bash ./deploy/deploy.sh x86 ps
+bash ./deploy/deploy.sh x86 logs
+bash ./deploy/deploy.sh x86 down
+```
+
+มีเทียบเท่ากันสำหรับ `pi4`
+
+## 8. ตรวจสถานะ
 
 ```bash
 docker compose -f deploy/compose.app.yml ps
@@ -138,7 +199,7 @@ docker compose -f deploy/compose.app.yml logs -f frontend
 docker compose -f deploy/compose.app.yml logs -f backend
 ```
 
-## 7. Cloudflare Tunnel
+## 9. Cloudflare Tunnel
 
 ตั้ง `cloudflared` แยกจาก compose นี้ แล้วชี้ service มาที่ frontend เท่านั้น
 
@@ -155,27 +216,25 @@ ingress:
 - ไม่มี route ใดชี้ไป `backend:3001`
 - backend ไม่ถูก publish ออก host
 
-## 8. Update flow
+## 10. Update flow
 
 เมื่อมี release ใหม่:
 
 ```bash
 git pull
-docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml build
-docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run --rm backend bun run prisma:migrate:deploy
-docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml up -d
+bash ./deploy/deploy.sh x86 deploy
 ```
 
 ถ้าไม่มี migration ใหม่ `prisma migrate deploy` จะไม่ทำอะไรเพิ่ม
 
-## 9. Rollback
+## 11. Rollback
 
 Rollback application:
 
 ```bash
 git checkout <release-tag>
-docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml build
-docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml up -d
+bash ./deploy/deploy.sh x86 build
+bash ./deploy/deploy.sh x86 up
 ```
 
 ข้อควรระวัง:
@@ -184,7 +243,7 @@ docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml up -
 - ต้องประเมิน backward compatibility ของ release ก่อน rollback
 - ถ้าจะ rollback schema ให้ทำผ่าน migration strategy ที่ออกแบบไว้ ไม่ใช้ `db push`
 
-## 10. Troubleshooting
+## 12. Troubleshooting
 
 Frontend ขึ้นได้ แต่ login ไม่ผ่าน:
 
