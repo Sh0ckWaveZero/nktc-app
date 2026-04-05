@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-MINIO_HOST="nktc-minio:9000"
+MINIO_HOST="${MINIO_HOST:-minio:9000}"
 BUCKET="${MINIO_BUCKET_NAME:-nktc-app}"
 
 echo "Waiting for MinIO to be ready..."

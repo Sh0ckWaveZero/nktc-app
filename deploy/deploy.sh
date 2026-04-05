@@ -48,8 +48,8 @@ compose() {
 }
 
 ensure_network() {
-  if "$CONTAINER_BIN" network exists app-net >/dev/null 2>&1; then
-    log "Docker network app-net already exists"
+  if "$CONTAINER_BIN" network inspect app-net >/dev/null 2>&1; then
+    log "Network app-net already exists"
     return
   fi
 

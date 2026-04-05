@@ -80,6 +80,26 @@ services:
     networks:
       - app-net
 
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    privileged: true
+    ports:
+      - "9100:9000"
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Bangkok
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:9000 || exit 1"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-net
+
 volumes:
   postgres-data: {}
   minio-data: {}
