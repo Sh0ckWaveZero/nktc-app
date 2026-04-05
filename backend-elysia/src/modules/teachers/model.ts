@@ -7,6 +7,9 @@ export const TeacherModel = {
     skip: t.Optional(t.Numeric()),
     take: t.Optional(t.Numeric()),
   }),
+  uploadBody: t.Object({
+    file: t.String(),
+  }),
   classroomsBody: t.Object({
     classrooms: t.Array(t.String()),
   }),
@@ -59,8 +62,14 @@ export type TeacherModel = {
 };
 
 export const teacherInclude = {
-  user: { select: userPublicSelect },
+  user: {
+    select: {
+      ...userPublicSelect,
+      email: true,
+    },
+  },
   department: true,
+  program: true,
   classrooms: {
     include: {
       classroom: {

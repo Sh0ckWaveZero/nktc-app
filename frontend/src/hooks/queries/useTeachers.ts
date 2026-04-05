@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
@@ -10,6 +10,21 @@ interface TeacherQuery {
   lastName?: string;
   departmentId?: string;
   [key: string]: any;
+}
+
+export interface TeacherImportError {
+  row: number;
+  message: string;
+}
+
+export interface TeacherImportResult {
+  success: boolean;
+  message: string;
+  total: number;
+  imported: number;
+  updated: number;
+  failed: number;
+  errors: TeacherImportError[];
 }
 
 /**
@@ -57,9 +72,7 @@ export const useTeacherStudents = (teacherId: string) => {
   return useQuery({
     queryKey: queryKeys.teachers.students(teacherId),
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`
-      );
+      const { data } = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`);
 
       // Handle nested response structure: { data: [...] } or array directly
       let classrooms = data;
@@ -78,3 +91,16 @@ export const useTeacherStudents = (teacherId: string) => {
   });
 };
 
+export const useImportTeachers = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ file }: { file: string }) => {
+      const { data } = await httpClient.post(`${authConfig.teacherEndpoint}/upload`, { file });
+      return data as TeacherImportResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.teachers.all });
+    },
+  });
+};

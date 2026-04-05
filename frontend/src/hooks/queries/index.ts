@@ -29,7 +29,8 @@ export * from './useCheckIn';
 export * from './useClassrooms';
 
 // Teachers hooks
-export { useTeachers } from './useTeachers';
+export { useImportTeachers, useTeachers } from './useTeachers';
+export type { TeacherImportResult } from './useTeachers';
 
 // Goodness Records hooks
 export * from './useGoodness';
