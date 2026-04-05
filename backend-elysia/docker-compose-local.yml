@@ -87,7 +87,7 @@ services:
     ports:
       - "9100:9000"
     volumes:
-      - ./data:/data
+      - portainer-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     environment:
@@ -103,6 +103,7 @@ services:
 volumes:
   postgres-data: {}
   minio-data: {}
+  portainer-data: {}
 
 networks:
   app-net:
