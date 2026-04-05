@@ -30,6 +30,19 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const icon = <MdCheckBoxOutlineBlank />;
 const checkedIcon = <MdCheckBox />;
 
+interface Student {
+  id: string;
+  studentId: string;
+  fullName?: string;
+  title?: string;
+  account?: {
+    title?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  [key: string]: any;
+}
+
 type Props = {
   handleCloseSelectStudents: () => void;
   onAddStudents: () => void;
@@ -37,8 +50,27 @@ type Props = {
   onSelectStudents: (event: ChangeEvent<any>, value: any) => void;
   openSelectStudents: boolean;
   studentLoading: boolean;
-  studentsList: any;
+  studentsList: Student[];
 };
+
+// Server-side filtering - return all options from API without additional filtering
+const filterOptions = (options: any[]) => options;
+
+function getStudentDisplayName(option: any): string {
+  // Structure from account nested: { account: { title, firstName, lastName } }
+  const account = option?.user?.account || option?.account;
+  if (account) {
+    const { title = '', firstName = '', lastName = '' } = account;
+    const label = `${title} ${firstName} ${lastName}`.trim();
+    if (label) return label;
+  }
+  // Structure from /students/list: { fullName, title }
+  if (option?.fullName) {
+    return `${option.title || ''} ${option.fullName}`.trim();
+  }
+  return option?.studentId || option?.id || '';
+}
+
 
 function DialogStudentGroup({
   handleCloseSelectStudents,
@@ -82,26 +114,40 @@ function DialogStudentGroup({
           <Autocomplete
             id='checkboxes-tags-classroom'
             multiple
+            disableCloseOnSelect
             limitTags={20}
-            options={studentsList}
+            options={Array.isArray(studentsList) ? studentsList : []}
             onChange={onSelectStudents}
             onInputChange={onSearchStudents}
             loading={studentLoading}
-            getOptionLabel={(option: any) => `${option?.title}${option?.fullName} `}
-            isOptionEqualToValue={(option: any, value: any) => option === value}
-            renderOption={(props: any, option, { selected }) => (
-              <li {...props}>
-                <Checkbox
-                  icon={icon}
-                  checkedIcon={checkedIcon}
-                  style={{
-                    marginRight: 8,
-                  }}
-                  checked={selected}
-                />
-                {`${option?.title}${option?.fullName} `}
-              </li>
-            )}
+            filterOptions={filterOptions}
+            getOptionLabel={(option: any) => {
+              if (typeof option === 'string') return option;
+              return getStudentDisplayName(option);
+            }}
+            isOptionEqualToValue={(option: any, value: any) => {
+              if (typeof option === 'string' || typeof value === 'string') {
+                return option === value;
+              }
+              return (option?.id && option.id === value?.id) || (option?.studentId && option.studentId === value?.studentId);
+            }}
+            renderOption={(props: any, option: any, { selected }) => {
+              const { key, ...optionProps } = props;
+              const uniqueKey = key ?? option.id ?? option.studentId;
+              return (
+                <li key={uniqueKey} {...optionProps}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{
+                      marginRight: 8,
+                    }}
+                    checked={selected}
+                  />
+                  {getStudentDisplayName(option)}
+                </li>
+              );
+            }}
             renderInput={(params: any) => (
               <TextField
                 {...params}
@@ -109,7 +155,7 @@ function DialogStudentGroup({
                 placeholder='เพิ่มรายชื่อนักเรียน'
                 slotProps={{
                   input: {
-                    ref: undefined,
+                    ...params.InputProps,
                   },
                   inputLabel: {
                     shrink: true,
@@ -117,7 +163,6 @@ function DialogStudentGroup({
                 }}
               />
             )}
-            groupBy={(option: any) => option.department?.name}
             noOptionsText='ไม่พบข้อมูล'
           />
         </FormControl>

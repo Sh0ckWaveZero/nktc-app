@@ -41,6 +41,8 @@ export const studentKeys = {
   details: () => [...studentKeys.all, 'detail'] as const,
   detail: (id: string) => [...studentKeys.details(), id] as const,
   trophy: (id: string) => [...studentKeys.detail(id), 'trophy'] as const,
+  searchWithParams: (params?: { classroomId?: string | null; search?: Record<string, any> | null }) =>
+    [...studentKeys.all, 'search-with-params', params] as const,
 };
 
 /**

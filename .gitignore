@@ -78,6 +78,7 @@ coverage/
 backend/prisma/migrations/
 backend/src/database/db/
 backend/src/database/db/nktc-services
+backend-elysia/generated/
 
 # Database files
 *.db
@@ -161,3 +162,4 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 backend/src/database/generated/*
+.claude/settings.local.json

@@ -50,18 +50,18 @@ const TeacherActivityTable = ({ teachers, noOptionsText = 'ไม่พบข้
 
   // Extract unique departments and programs from teacher data
   const departments = useMemo(() => {
-    const depts = new Set(teachers.map((t) => t.department).filter(Boolean));
+    const depts = new Set((teachers ?? []).map((t) => t.department).filter(Boolean));
     return Array.from(depts).sort();
   }, [teachers]);
 
   const programs = useMemo(() => {
-    const progs = new Set(teachers.map((t) => t.program).filter(Boolean));
+    const progs = new Set((teachers ?? []).map((t) => t.program).filter(Boolean));
     return Array.from(progs).sort();
   }, [teachers]);
 
   // Filter teachers based on all criteria
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((teacher) => {
+    return (teachers ?? []).filter((teacher) => {
       const matchesSearch =
         searchText === '' ||
         teacher.teacherId.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -92,14 +92,14 @@ const TeacherActivityTable = ({ teachers, noOptionsText = 'ไม่พบข้
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return filteredTeachers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    return (filteredTeachers ?? []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [filteredTeachers, page, rowsPerPage]);
 
   return (
     <Card>
       <CardHeader
         title='รายละเอียดการใช้งานของครู'
-        subheader={`พบทั้งหมด ${filteredTeachers.length} จาก ${teachers.length} คน`}
+        subheader={`พบทั้งหมด ${filteredTeachers?.length ?? 0} จาก ${teachers?.length ?? 0} คน`}
       />
       <CardContent>
         {/* Filter Section */}

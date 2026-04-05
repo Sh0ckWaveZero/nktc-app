@@ -69,7 +69,7 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    if (!dailyData) return [];
+    if (!dailyData || !Array.isArray(dailyData)) return [];
     return dailyData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [dailyData, page, rowsPerPage]);
 

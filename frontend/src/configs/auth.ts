@@ -2,6 +2,8 @@ export type AuthConfig = {
   backEndUrl?: string;
   meEndpoint?: string;
   loginEndpoint?: string;
+  logoutEndpoint?: string;
+  refreshEndpoint?: string;
   changePasswordEndpoint?: string;
   teacherEndpoint?: string;
   studentEndpoint?: string;
@@ -26,6 +28,8 @@ export const authConfig: AuthConfig = {
   backEndUrl: apiUrl,
   meEndpoint: `${apiUrl}/auth/me`,
   loginEndpoint: `${apiUrl}/auth/login`,
+  logoutEndpoint: `${apiUrl}/auth/logout`,
+  refreshEndpoint: `${apiUrl}/auth/refresh`,
   changePasswordEndpoint: `${apiUrl}/auth/update/password`,
   teacherEndpoint: `${apiUrl}/teachers`,
   studentEndpoint: `${apiUrl}/students`,

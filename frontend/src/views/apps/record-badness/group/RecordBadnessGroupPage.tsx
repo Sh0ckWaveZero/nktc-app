@@ -2,7 +2,7 @@
 
 import { Avatar, Button, Card, CardHeader, Grid, Tooltip, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { Fragment, useCallback, useContext, useDeferredValue, useState } from 'react';
+import React, { useCallback, useContext, useDeferredValue, useState } from 'react';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import DialogClassroomGoodnessGroup from '@/views/apps/record-goodness/DialogClassroomGroup';
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
 import { deepOrange } from '@mui/material/colors';
 import DialogAddGroup from '@/views/apps/record-badness/DialogAddGroup';
+import { getStudentName } from '@/utils/student';
 import { toast } from 'react-toastify';
 
 interface CellType {
@@ -43,7 +44,11 @@ const RecordBadnessGroupPage = () => {
 
   // React Query hooks
   const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
-  const { data: studentsList = [], isLoading: studentLoading, error: studentsError } = useStudentsSearch({
+  const {
+    data: studentsList = [],
+    isLoading: studentLoading,
+    error: studentsError,
+  } = useStudentsSearch({
     q: deferredValue,
   });
 
@@ -118,21 +123,25 @@ const RecordBadnessGroupPage = () => {
 
   const onSelectionModelChange = useCallback(
     (newSelection: any) => {
-      const selectedRowsData = newSelection.map((id: any) => studentsList.find((row: any) => row.id === id));
-      setSelectClassrooms(selectedRowsData);
+      setSelectClassrooms(newSelection);
     },
-    [setSelectClassrooms, studentsList],
+    [setSelectClassrooms],
   );
 
   const onAddClassroom = useCallback(() => {
     handleCloseClassroom();
     setDefaultClassroom(null);
 
-    const selectedIds = selectClassrooms.map((student: any) => student.id);
-    const uniqueStudents = students.filter((student: any) => !selectedIds.includes(student.id));
+    const validSelectedStudents = Array.isArray(selectClassrooms) ? selectClassrooms.filter((s: any) => s && s.id) : [];
 
-    setStudents([...uniqueStudents, ...selectClassrooms]);
+    const selectedIds = validSelectedStudents.map((student: any) => student.id);
+
+    const currentStudents = Array.isArray(students) ? students : [];
+    const uniqueStudents = currentStudents.filter((student: any) => student && !selectedIds.includes(student.id));
+
+    setStudents([...uniqueStudents, ...validSelectedStudents]);
     setSearchValue({ classroomId: null });
+    setSelectClassrooms([]);
   }, [students, selectClassrooms]);
 
   const handleSusses = useCallback(() => {
@@ -172,8 +181,7 @@ const RecordBadnessGroupPage = () => {
       sortable: false,
       hideSortIcons: true,
       renderCell: ({ row }: CellType) => {
-        const { title, fullName } = row;
-        const studentName = title + fullName;
+        const studentName = getStudentName(row);
         return (
           <Tooltip title={studentName} arrow>
             <span>
@@ -305,7 +313,6 @@ const RecordBadnessGroupPage = () => {
           openSelectClassroom={openSelectClassroom}
           selectClassrooms={selectClassrooms}
           studentLoading={studentLoading}
-          students={students}
           studentsList={studentsList}
         />
         <DialogAddGroup

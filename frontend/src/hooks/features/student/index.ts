@@ -4,3 +4,5 @@
  */
 
 export * from './useStudentList';
+export * from './useStudentAddForm';
+export type { StudentAddFormData } from './useStudentAddForm';

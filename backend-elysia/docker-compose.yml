@@ -1,0 +1,105 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nktc-backend
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      NODE_ENV: production
+      TZ: Asia/Bangkok
+    ports:
+      - "${PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - nktc-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: nktc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: Asia/Bangkok
+    env_file:
+      - .env.prod
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - nktc-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: nktc-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      TZ: Asia/Bangkok
+    env_file:
+      - .env.prod
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - minio-data:/data
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - nktc-network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: nktc-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    env_file:
+      - .env.prod
+    volumes:
+      - ./scripts/minio-init.sh:/scripts/minio-init.sh:ro
+    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    restart: on-failure
+    networks:
+      - nktc-network
+
+volumes:
+  postgres-data:
+  minio-data:
+
+networks:
+  nktc-network:
+    driver: bridge

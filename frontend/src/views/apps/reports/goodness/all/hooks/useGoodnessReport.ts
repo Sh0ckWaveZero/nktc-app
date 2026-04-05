@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useDeferredValue, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +43,23 @@ export const useGoodnessReport = () => {
 
   // Watch form values for student search
   const watchedStudent = watch('student');
-  const watchedInputValue = useMemo(() => {
+
+  // Local State
+  const [searchParams, setSearchParams] = useState<any>(null);
+  const [currentStudents, setCurrentStudents] = useState<any[]>([]);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState<any>(null);
+  const [mobilePage, setMobilePage] = useState<number>(0);
+  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
+
+  // React Query hooks - Get all classrooms
+  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
+
+  // Transform inputValue to proper format for useStudentsSearch
+  // Compute watchedInputValue inline where it's actually used
+  const getWatchedInputValue = useCallback(() => {
     if (!watchedStudent) return '';
     if (watchedStudent.account) {
       const { title = '', firstName = '', lastName = '' } = watchedStudent.account;
@@ -55,36 +71,25 @@ export const useGoodnessReport = () => {
     return '';
   }, [watchedStudent]);
 
-  // Local State
-  const [searchParams, setSearchParams] = useState<any>(null);
-  const [currentStudents, setCurrentStudents] = useState<any[]>([]);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [inputValue, setInputValue] = useState<string>('');
-  const deferredValue = useDeferredValue(watchedInputValue);
-  const [open, setOpen] = useState(false);
-  const [info, setInfo] = useState<any>(null);
-  const [mobilePage, setMobilePage] = useState<number>(0);
-  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
+  const watchedInputValue = getWatchedInputValue();
 
-  // React Query hooks - Get all classrooms
-  const { data: classrooms = [], isLoading: classroomLoading, error: classroomError } = useClassrooms();
-
-  // Transform inputValue to proper format for useStudentsSearch
   const studentSearchParams = useMemo(() => {
-    if (!deferredValue || !deferredValue.trim()) {
+    const inputValue = getWatchedInputValue();
+    if (!inputValue || !inputValue.trim()) {
       return undefined;
     }
     return {
-      fullName: deferredValue,
+      fullName: inputValue,
     };
-  }, [deferredValue]);
+  }, [getWatchedInputValue]);
 
-  const { data: studentsListData = [], isLoading: loadingStudents, error: studentsError } = useStudentsSearch(
-    studentSearchParams,
-    {
-      enabled: !!studentSearchParams?.fullName && deferredValue.trim().length > 0,
-    }
-  );
+  const {
+    data: studentsListData = [],
+    isLoading: loadingStudents,
+    error: studentsError,
+  } = useStudentsSearch(studentSearchParams, {
+    enabled: !!studentSearchParams?.fullName && watchedInputValue.trim().length > 0,
+  });
 
   // Create a Promise for goodness search
   const goodnessSearchPromise = useMemo(() => {
@@ -195,57 +200,60 @@ export const useGoodnessReport = () => {
   }, [goodnessSearchError]);
 
   // Form submit handler
-  const onSubmit = (data: SearchFormData) => {
-    const requestBody: any = {};
+  const onSubmit = useCallback(
+    (data: SearchFormData) => {
+      const requestBody: any = {};
 
-    // Build fullName from student object structure or inputValue
-    if (data.student) {
-      if (data.student.fullName && typeof data.student.fullName === 'string') {
-        requestBody.fullName = data.student.fullName.trim();
-      } else if (data.student.account) {
-        const { firstName = '', lastName = '' } = data.student.account;
-        const fullName = `${firstName} ${lastName}`.trim();
-        if (fullName) {
-          requestBody.fullName = fullName;
+      // Build fullName from student object structure or inputValue
+      if (data.student) {
+        if (data.student.fullName && typeof data.student.fullName === 'string') {
+          requestBody.fullName = data.student.fullName.trim();
+        } else if (data.student.account) {
+          const { firstName = '', lastName = '' } = data.student.account;
+          const fullName = `${firstName} ${lastName}`.trim();
+          if (fullName) {
+            requestBody.fullName = fullName;
+          }
+        }
+      } else {
+        const typedName = inputValue?.trim() || watchedInputValue?.trim() || '';
+        if (typedName) {
+          requestBody.fullName = typedName;
         }
       }
-    } else {
-      const typedName = inputValue?.trim() || watchedInputValue?.trim() || '';
-      if (typedName) {
-        requestBody.fullName = typedName;
+
+      // Add classroomId if selected
+      if (data.classroom?.id) {
+        requestBody.classroomId = data.classroom.id;
       }
-    }
 
-    // Add classroomId if selected
-    if (data.classroom?.id) {
-      requestBody.classroomId = data.classroom.id;
-    }
-
-    // Convert Date to ISO string if Date object
-    if (data.goodDate) {
-      if (data.goodDate instanceof Date) {
-        const dateStr = data.goodDate.toISOString().split('T')[0];
-        requestBody.goodDate = dateStr;
+      // Convert Date to ISO string if Date object
+      if (data.goodDate) {
+        if (data.goodDate instanceof Date) {
+          const dateStr = data.goodDate.toISOString().split('T')[0];
+          requestBody.goodDate = dateStr;
+        }
       }
-    }
 
-    // Only make request if at least one filter is provided
-    if (Object.keys(requestBody).length === 0) {
-      toast.error('กรุณาเลือกเงื่อนไขการค้นหาอย่างน้อย 1 ข้อ');
-      return;
-    }
-
-    startTransition(() => {
-      setSearchParams(requestBody);
-      setMobilePage(0);
-
-      if (searchParams) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.goodness.list(requestBody),
-        });
+      // Only make request if at least one filter is provided
+      if (Object.keys(requestBody).length === 0) {
+        toast.error('กรุณาเลือกเงื่อนไขการค้นหาอย่างน้อย 1 ข้อ');
+        return;
       }
-    });
-  };
+
+      startTransition(() => {
+        setSearchParams(requestBody);
+        setMobilePage((prev) => 0);
+
+        if (searchParams) {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.goodness.list(requestBody),
+          });
+        }
+      });
+    },
+    [inputValue, watchedInputValue, searchParams, queryClient, startTransition],
+  );
 
   const onClear = useCallback(() => {
     setCurrentStudents([]);
@@ -282,7 +290,7 @@ export const useGoodnessReport = () => {
 
   const handleMobilePageSizeChange = (newPageSize: number) => {
     setMobilePageSize(newPageSize);
-    setMobilePage(0);
+    setMobilePage((prev) => 0);
   };
 
   const handleSearchChange = (event: any, value: any, reason: any) => {
@@ -291,11 +299,14 @@ export const useGoodnessReport = () => {
     }
   };
 
-  const handleFormSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleSubmit(onSubmit)();
-  }, [handleSubmit, onSubmit]);
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleSubmit(onSubmit)();
+    },
+    [handleSubmit, onSubmit],
+  );
 
   const handleSearchClick = useCallback(() => {
     handleSubmit(onSubmit)();
@@ -321,7 +332,6 @@ export const useGoodnessReport = () => {
 
     // State
     isPending,
-    watchedInputValue,
     pageSize,
     setPageSize,
     mobilePage,
@@ -344,4 +354,3 @@ export const useGoodnessReport = () => {
     handleMobilePageSizeChange,
   };
 };
-

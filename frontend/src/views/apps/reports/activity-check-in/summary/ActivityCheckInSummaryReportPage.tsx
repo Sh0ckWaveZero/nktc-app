@@ -10,7 +10,7 @@ import { isEmpty } from '@/@core/utils/utils';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { useRouter } from 'next/navigation';
 import { BsBarChartLine } from 'react-icons/bs';
-import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
+import TableHeaderSummary from '@/views/apps/reports/activity-check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
@@ -39,7 +39,7 @@ const ActivityCheckInSummaryReportPage = () => {
   );
 
   const [currentStudents, setCurrentStudents] = useState<any>([]);
-  const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [classroomName, setClassroomName] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
@@ -51,7 +51,9 @@ const ActivityCheckInSummaryReportPage = () => {
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
-      setCurrentStudents(await data);
+      const students = await data;
+      setCurrentStudents(students);
+      setPaginationModel({ page: 0, pageSize: Array.isArray(students) && students.length > 0 ? students.length : 10 });
       setLoading(false);
     });
   };
@@ -272,14 +274,10 @@ const ActivityCheckInSummaryReportPage = () => {
                 rows={currentStudents ?? []}
                 disableColumnMenu
                 loading={loading}
-                rowHeight={isEmpty(currentStudents) ? 100 : 50}
-                initialState={{
-                  pagination: {
-                    paginationModel: { pageSize: pageSize, page: 0 },
-                  },
-                }}
-                pageSizeOptions={[pageSize]}
-                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                rowHeight={isEmpty(currentStudents) ? 100 : 60}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[10, 20, 50, { value: -1, label: 'ทั้งหมด' }]}
                 slots={{
                   noRowsOverlay: CustomNoRowsOverlay,
                 }}

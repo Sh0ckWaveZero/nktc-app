@@ -3,9 +3,10 @@
 // ** React Imports
 import * as React from 'react';
 import { createContext, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 // ** Next Import
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 // ** Config
 import { authConfig } from '@/configs/auth';
@@ -42,8 +43,6 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter();
-  const searchParams = useSearchParams();
-
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
 
@@ -69,10 +68,9 @@ const AuthProvider = ({ children }: Props) => {
           try {
             const userData = JSON.parse(storedUserData);
             const restoredUser = userData?.data || userData;
-            console.log('🔄 Restoring user from localStorage:', restoredUser);
             setUser(restoredUser);
-          } catch (e) {
-            console.error('❌ Failed to parse stored user data:', e);
+          } catch {
+            // Failed to parse stored user data, will be cleared on /me fetch failure
           }
         }
 
@@ -86,22 +84,25 @@ const AuthProvider = ({ children }: Props) => {
             // Also update localStorage with fresh data
             window.localStorage.setItem('userData', JSON.stringify(response.data));
           })
-          .catch((_) => {
+          .catch(() => {
             // Token is invalid, clear everything
             localStorage.removeItem('userData');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('accessToken');
             setUser(null);
             setLoading(false);
-            router.replace('/login');
+            // Force redirect immediately
+            window.location.href = '/login';
           });
       } else {
         setLoading(false);
+        setIsInitialized(true);
       }
     };
 
     initAuth();
-  }, [isBrowser, router]);
+   
+  }, [isBrowser]);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
     try {
@@ -115,27 +116,35 @@ const AuthProvider = ({ children }: Props) => {
         window.localStorage.setItem('userData', JSON.stringify(data));
       }
 
-      // Set user state
+    // Force synchronous state commit so auth.user is available before router.replace fires
+    flushSync(() => {
       setUser(data?.data);
+    });
+    
+    // Return user data for success handling in components
+    return data?.data;
+  } catch (err: any) {
+    if (errorCallback) errorCallback(err);
+    throw err;
+  }
+};
 
-      // Redirect after setting user
-      if (isBrowser) {
-        const returnUrl = searchParams.get('returnUrl');
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/home';
-        router.replace(redirectURL as string);
+  const handleLogout = async () => {
+    try {
+      if (authConfig.logoutEndpoint) {
+        await httpClient.post(authConfig.logoutEndpoint);
       }
-    } catch (err: any) {
-      if (errorCallback) errorCallback(err);
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setIsInitialized(false);
-    if (isBrowser) {
-      window.localStorage.removeItem('userData');
-      window.localStorage.removeItem('accessToken');
-      router.push('/login');
+    } catch {
+      // Proceed with logout even if API call fails
+    } finally {
+      setUser(null);
+      setIsInitialized(false);
+      if (isBrowser) {
+        window.localStorage.removeItem('userData');
+        window.localStorage.removeItem('accessToken');
+        window.localStorage.removeItem('refreshToken');
+        router.push('/login');
+      }
     }
   };
 

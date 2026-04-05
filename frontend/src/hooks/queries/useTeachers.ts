@@ -50,32 +50,31 @@ export const useTeachers = (params?: TeacherQuery) => {
 };
 
 /**
- * Hook to fetch students by teacher ID
- * Returns classrooms and their students for a specific teacher
+ * Hook to fetch classrooms and students by teacher ID
+ * Returns classrooms with nested students for a specific teacher
  */
 export const useTeacherStudents = (teacherId: string) => {
   return useQuery({
     queryKey: queryKeys.teachers.students(teacherId),
     queryFn: async () => {
       const { data } = await httpClient.get(
-        `${authConfig.teacherEndpoint}/${teacherId}/students`
+        `${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`
       );
 
-      // Handle nested response structure: { data: { data: { classrooms: [...] } } }
-      let actualData = data;
+      // Handle nested response structure: { data: [...] } or array directly
+      let classrooms = data;
       if (data?.data) {
-        actualData = data.data;
-        // If still nested, go one level deeper
-        if (actualData?.data) {
-          actualData = actualData.data;
+        classrooms = data.data;
+        if (classrooms?.data) {
+          classrooms = classrooms.data;
         }
       }
 
-      return actualData;
+      return { classrooms: Array.isArray(classrooms) ? classrooms : [] };
     },
-    enabled: !!teacherId, // Only run when teacherId exists
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2, // Retry failed requests 2 times
+    enabled: !!teacherId,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 

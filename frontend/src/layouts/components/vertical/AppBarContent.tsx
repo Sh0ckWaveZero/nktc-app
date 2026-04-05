@@ -36,7 +36,7 @@ const AppBarContent = (props: Props) => {
     >
       <Box id='appbar-actions-left' className='actions-left' sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
         {hidden ? (
-          <IconButton id='menu-toggle-button' color='inherit' sx={{ ml: -2.75, mr: 1 }} onClick={toggleNavVisibility}>
+          <IconButton id='menu-toggle-button' color='inherit' sx={{ ml: 1, mr: 1 }} onClick={toggleNavVisibility}>
             <MenuIcon />
           </IconButton>
         ) : null}

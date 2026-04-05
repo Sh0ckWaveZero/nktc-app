@@ -42,7 +42,7 @@ const CheckInSummaryReportPage = () => {
 
   // ** Local State
   const [currentStudents, setCurrentStudents] = useState<any>([]);
-  const [pageSize, setPageSize] = useState<number>(isEmpty(currentStudents) ? 0 : currentStudents.length);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [classroomName, setClassroomName] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
@@ -55,8 +55,10 @@ const CheckInSummaryReportPage = () => {
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
-      setCurrentStudents(await data);
-      setCurrentPage(0); // Reset to first page when loading new data
+      const students = await data;
+      setCurrentStudents(students);
+      setPageSize(Array.isArray(students) && students.length > 0 ? students.length : 10);
+      setCurrentPage(0);
       setLoading(false);
     });
   };

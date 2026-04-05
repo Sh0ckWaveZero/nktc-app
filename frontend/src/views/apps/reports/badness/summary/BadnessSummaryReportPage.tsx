@@ -17,7 +17,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
@@ -59,38 +59,72 @@ const BadnessSummaryReportPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [sortModel, setSortModel] = useState([{ field: 'createdAt', sort: 'desc' as const }]);
   const [total, setTotal] = useState(0);
   const [info, setInfo] = useState<any>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [badnessId, setBadnessId] = useState('');
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const searchWithParams = async (params: any) => {
+  const searchWithParams = useCallback(async (params: any) => {
     try {
       setLoading(true);
+      const response = await summary({ ...params });
 
-      const response = await summary({
-        ...params,
-      });
+      const records: any[] = response?.records ?? [];
 
-      setData(response?.data);
-      setTotal(response?.total);
+      // Group by studentId and sum badnessScore
+      const grouped: Record<string, any> = {};
+      for (const r of records) {
+        const sid = r.studentId;
+        if (!grouped[sid]) {
+          const { title, firstName, lastName } = r.student?.user?.account ?? {};
+          grouped[sid] = {
+            id: r.studentKey,
+            studentId: sid,
+            title: title ?? '',
+            firstName: `${title ?? ''}${firstName ?? ''} ${lastName ?? ''}`.trim(),
+            name: r.student?.classroom?.name ?? '',
+            badnessScore: 0,
+            info: [],
+          };
+        }
+        grouped[sid].badnessScore += r.badnessScore ?? 0;
+        grouped[sid].info.push({
+          id: r.id,
+          badnessDetail: r.badnessDetail,
+          badnessScore: r.badnessScore,
+          badDate: r.badDate,
+          image: r.image,
+        });
+      }
+
+      // Sort by badnessScore desc
+      const sorted = Object.values(grouped).sort((a, b) => b.badnessScore - a.badnessScore);
+
+      // Pagination slice
+      const { skip, take } = params;
+      const page = sorted.slice(skip, skip + take);
+
+      // Assign running number
+      const withRunningNumber = page.map((item, idx) => ({
+        ...item,
+        runningNumber: skip + idx + 1,
+      }));
+
+      setData(withRunningNumber);
+      setTotal(Object.keys(grouped).length);
       setLoading(false);
     } catch (error: any) {
       toast.error(error?.message);
       setLoading(false);
     }
-  };
+  }, [summary]);
 
   useEffect(() => {
-    const params = {
-      skip: paginationModel.page === 0 ? 0 : paginationModel.page * paginationModel.pageSize,
-      take: paginationModel.pageSize,
-      sort: sortModel,
-    };
-    searchWithParams(params);
-  }, [paginationModel.page, paginationModel.pageSize, sortModel, isDeleted]);
+    const skip = paginationModel.page === 0 ? 0 : paginationModel.page * paginationModel.pageSize;
+    const take = paginationModel.pageSize;
+    searchWithParams({ skip, take });
+  }, [paginationModel.page, paginationModel.pageSize, isDeleted, searchWithParams]);
 
   const handleClickOpen = (info: any) => {
     setOpen(true);
@@ -185,7 +219,7 @@ const BadnessSummaryReportPage = () => {
       renderCell: ({ row }: CellType) => {
         const { firstName } = row;
         return (
-          <Tooltip title={firstName} arrow>
+          <Tooltip title={firstName ?? ''} arrow>
             <span>
               <Typography
                 noWrap

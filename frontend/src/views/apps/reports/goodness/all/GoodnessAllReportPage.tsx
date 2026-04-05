@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Dialog, Grid, IconButton, Typography, styled, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Dialog, Grid, IconButton, styled, useMediaQuery, useTheme } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 
 import { AbilityContext } from '@/layouts/components/acl/Can';
@@ -23,6 +23,25 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+const DialogCloseButton = React.memo(({ onClose }: { onClose: () => void }) => (
+  <IconButton
+    id='goodness-report-detail-dialog-close-button'
+    aria-label='close'
+    onClick={onClose}
+    sx={(theme) => ({
+      position: 'absolute',
+      right: 8,
+      top: 8,
+      color: theme.palette.grey[500],
+      zIndex: 1,
+    })}
+  >
+    <CloseIcon />
+  </IconButton>
+));
+
+DialogCloseButton.displayName = 'DialogCloseButton';
+
 const GoodnessAllReportPage = () => {
   // ** Hooks
   const auth = useAuth();
@@ -42,7 +61,6 @@ const GoodnessAllReportPage = () => {
     currentStudents,
     loadingGoodnessSearch,
     isPending,
-    watchedInputValue,
     pageSize,
     mobilePage,
     mobilePageSize,
@@ -51,7 +69,6 @@ const GoodnessAllReportPage = () => {
     handleClickOpen,
     handleClose,
     handleSearchChange,
-    handleFormSubmit,
     handleSearchClick,
     handleClearClick,
     getPaginatedStudents,
@@ -88,12 +105,9 @@ const GoodnessAllReportPage = () => {
     ability?.can('read', 'report-goodness-page') &&
     auth?.user?.role !== 'Admin' && (
       <React.Fragment>
-        <Box 
-          id='goodness-report-page'
-          sx={{ borderRadius: '8px', overflow: 'hidden' }}
-        >
-          <Grid container spacing={responsiveConfig.containerSpacing}>
-            <Grid size={12}>
+        <Box id='goodness-report-page' sx={{ borderRadius: '8px', overflow: 'hidden' }}>
+          <Grid id='goodness-report-grid-container' container spacing={responsiveConfig.containerSpacing}>
+            <Grid id='goodness-report-grid-item' size={12}>
               <Box
                 id='goodness-report-main-container'
                 sx={{
@@ -119,6 +133,8 @@ const GoodnessAllReportPage = () => {
                     flexDirection: 'column',
                     backgroundColor: 'background.paper',
                     position: 'relative',
+                    flex: 1,
+                    height: '100%',
                   }}
                 >
                   {/* Controls Section */}
@@ -126,86 +142,84 @@ const GoodnessAllReportPage = () => {
                     id='goodness-report-controls-section'
                     sx={{
                       flexShrink: 0,
-                      px: responsiveConfig.cardPadding,
-                      py: responsiveConfig.cardPadding + 2,
-                      borderBottom: currentStudents.length > 0 ? 1 : 0,
-                      borderColor: 'divider',
+                      px: { xs: 4, sm: 6 },
+                      py: { xs: 4, sm: 6 },
+                      borderBottom: 0,
+                      borderRadius: 4,
                     }}
                   >
-              <TableHeader
-                control={control}
-                classroomLoading={classroomLoading as boolean}
-                classrooms={classrooms}
-                datePickLabel='วันที่บันทึกความดี'
-                inputValue={watchedInputValue}
-                loadingStudents={loadingStudents}
-                isPending={isPending}
+                    <TableHeader
+                      control={control}
+                      classroomLoading={classroomLoading as boolean}
+                      classrooms={classrooms}
+                      datePickLabel='วันที่บันทึกความดี'
+                      loadingStudents={loadingStudents}
+                      isPending={isPending}
                       onClear={handleClearClick}
                       onSubmit={handleSearchClick}
                       onSearchChange={handleSearchChange}
-                students={studentsListData}
-              />
+                      students={studentsListData}
+                    />
                   </Box>
 
                   {/* Mobile Card View */}
-                  {isMobile && (
-                    <GoodnessReportMobileView
-                      students={getPaginatedStudents()}
-                      currentPage={mobilePage}
-                      totalPages={getTotalMobilePages()}
-                      pageSize={mobilePageSize}
-                      totalItems={currentStudents?.length ?? 0}
-                      onDetailClick={handleClickOpen}
-                      onPageChange={handleMobilePageChange}
-                      onPageSizeChange={handleMobilePageSizeChange}
-                    />
-                  )}
-
-                  {/* Desktop DataGrid View */}
-                  {!isMobile && (
-                    <GoodnessReportDataGrid
-                columns={columns}
-                      rows={currentStudents}
-                  loading={loadingGoodnessSearch}
-                      pageSize={pageSize}
-                      isTablet={isTablet}
-                      getRowId={getRowId}
-                    />
+                  {isMobile ? (
+                    <Box id='goodness-report-mobile-view-container'>
+                      <GoodnessReportMobileView
+                        students={getPaginatedStudents()}
+                        currentPage={mobilePage}
+                        totalPages={getTotalMobilePages()}
+                        pageSize={mobilePageSize}
+                        totalItems={currentStudents?.length ?? 0}
+                        onDetailClick={handleClickOpen}
+                        onPageChange={handleMobilePageChange}
+                        onPageSizeChange={handleMobilePageSizeChange}
+                      />
+                    </Box>
+                  ) : (
+                    <Box id='goodness-report-desktop-view-container'>
+                      <GoodnessReportDataGrid
+                        columns={columns}
+                        rows={currentStudents}
+                        loading={loadingGoodnessSearch}
+                        pageSize={pageSize}
+                        isTablet={isTablet}
+                        getRowId={getRowId}
+                      />
+                    </Box>
                   )}
                 </Box>
               </Box>
             </Grid>
           </Grid>
         </Box>
-        <BootstrapDialog 
+        <BootstrapDialog
           id='goodness-report-detail-dialog'
-          fullWidth 
-          maxWidth='sm' 
-          onClose={handleClose} 
+          fullWidth
+          maxWidth='md'
+          onClose={handleClose}
           aria-labelledby='goodness-detail-dialog-title'
           open={open}
           disableAutoFocus={false}
           disableEnforceFocus={true}
           disableRestoreFocus={false}
           keepMounted={false}
+          sx={{
+            '& .MuiDialog-container': {
+              '& .MuiPaper-root': {
+                maxHeight: '90vh',
+              },
+            },
+            '& .MuiDialogContent-root': {
+              maxHeight: 'calc(90vh - 64px)',
+              overflowY: 'auto',
+            },
+          }}
         >
-          {handleClose ? (
-            <IconButton
-              id='goodness-report-detail-dialog-close-button'
-              aria-label='close'
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-                zIndex: 1,
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-          <TimelineGoodness info={info} user={auth.user} />
+          <Box id='goodness-report-detail-dialog-content'>
+            {handleClose && <DialogCloseButton onClose={handleClose} />}
+            <TimelineGoodness info={info} user={auth.user} />
+          </Box>
         </BootstrapDialog>
       </React.Fragment>
     )

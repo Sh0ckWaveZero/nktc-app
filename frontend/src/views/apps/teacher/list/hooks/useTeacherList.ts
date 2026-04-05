@@ -171,7 +171,7 @@ export const useTeacherList = () => {
     const info: UpdateClassroomInfo = {
       id: currentData.id,
       classrooms,
-      teacherInfo: currentData.teacherId,
+      teacherInfo: currentData.teacherId || currentData.id,
     };
 
     setIsSubmittingClassroom(true);
@@ -224,7 +224,8 @@ export const useTeacherList = () => {
   }, []);
 
   const handleEditTeacher = useCallback(async (data: Teacher) => {
-    if (!user?.id || !currentTeacher?.accountId) {
+    const accountId = currentTeacher?.user?.account?.id;
+    if (!user?.id || !accountId) {
       toast.error('ข้อมูลไม่ครบถ้วน');
       return;
     }
@@ -238,7 +239,7 @@ export const useTeacherList = () => {
         ...data,
       },
       account: {
-        id: currentTeacher.accountId,
+        id: accountId,
       },
     };
 
@@ -323,7 +324,7 @@ export const useTeacherList = () => {
         firstName,
         lastName,
         role: 'Teacher',
-        status: 'true',
+        status: 'Active',
       } as Partial<Teacher> as Teacher,
       account: {},
     };
