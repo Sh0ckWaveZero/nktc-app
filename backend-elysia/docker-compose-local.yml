@@ -32,6 +32,8 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-net
 
   minio:
     image: pgsty/minio:latest
@@ -60,6 +62,8 @@ services:
       retries: 3
     volumes:
       - minio-data:/data
+    networks:
+      - app-net
 
   minio-init:
     image: minio/mc
@@ -73,7 +77,14 @@ services:
       - ./scripts/minio-init.sh:/scripts/minio-init.sh:ro
     entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
     restart: on-failure
+    networks:
+      - app-net
 
 volumes:
   postgres-data: {}
   minio-data: {}
+
+networks:
+  app-net:
+    external: true
+    name: app-net

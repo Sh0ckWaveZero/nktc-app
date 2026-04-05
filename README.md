@@ -122,6 +122,19 @@ bun run lint
 bun run test
 ```
 
+## 🚢 Deployment
+
+Production deployment แบบ Docker app-only ถูกแยกไว้ที่:
+
+- `docs/deploy/docker-app-only.md`
+
+แนวทางนี้จะ:
+
+- เปิด public แค่ `frontend` ผ่าน Cloudflare Tunnel
+- ไม่ publish `backend` ออก host
+- ใช้ external `Postgres` และ `MinIO`
+- ใช้ `prisma migrate deploy` สำหรับ Production database
+
 ## 🎛️ Turbo UI Modes
 
 Turbo Repo รองรับ UI modes ต่างๆ สำหรับการแสดงผล:

@@ -72,7 +72,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   async fetchUserById(userId: string) {
     set({ error: null });
     try {
-      const { data } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
+      const { data } = await httpClient.get(`${authConfig.userEndpoint}/${userId}`);
       return data as UserDataType;
     } catch (err: any) {
       const apiError: ApiError = {
@@ -86,7 +86,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   addUser: async (data: any) => {
     set({ error: null });
     try {
-      const response = await httpClient.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, data);
+      const response = await httpClient.post(authConfig.userEndpoint as string, data);
       return response.data;
     } catch (err: any) {
       const apiError: ApiError = {
@@ -100,7 +100,7 @@ export const useUserStore = createWithEqualityFn<UserState>()((set) => ({
   deleteUser: async (id: string) => {
     set({ error: null });
     try {
-      const response = await httpClient.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      const response = await httpClient.delete(`${authConfig.userEndpoint}/${id}`);
       return response.data;
     } catch (err: any) {
       const apiError: ApiError = {

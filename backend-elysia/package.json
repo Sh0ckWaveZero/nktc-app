@@ -10,6 +10,7 @@
     "start": "bun dist/index.js",
     "prisma:generate": "bun prisma generate",
     "prisma:migrate": "bun prisma migrate dev",
+    "prisma:migrate:deploy": "bun prisma migrate deploy",
     "prisma:push": "bun prisma db push",
     "seed": "bun prisma/seed.ts",
     "postinstall": "bun run prisma:generate"

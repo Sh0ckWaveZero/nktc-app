@@ -3,11 +3,12 @@ import { useEffect } from 'react';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import { apiConfig } from '@/configs/api';
 import { useAuth } from '../../hooks/useAuth';
 import { authConfig } from '@/configs/auth';
 
 const httpClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: apiConfig.basePath,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json; charset=UTF-8',
