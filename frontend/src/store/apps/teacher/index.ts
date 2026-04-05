@@ -6,6 +6,7 @@ import { shallow } from 'zustand/shallow';
 import httpClient from '@/@core/utils/http';
 interface TeacherQuery {
   q: string;
+  take?: number;
 }
 interface TeacherState {
   teacher: Array<any>;
@@ -30,7 +31,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
     set({ teacherLoading: true });
     try {
       const { data } = await httpClient.get(authConfig.teacherEndpoint as string, {
-        params: params
+        params: params,
       });
       set({ teacherLoading: false, hasErrors: false });
       return await data;
@@ -53,7 +54,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
       const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/classrooms`, teacher);
       set({ teacherLoading: false, hasErrors: false });
       return await data;
-    } catch (err) {
+    } catch {
       set({ teacherLoading: false, hasErrors: true });
     }
   },
@@ -63,7 +64,7 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
       const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/profile`, teacher);
       set({ teacherLoading: false, hasErrors: false });
       return await data;
-    } catch (err) {
+    } catch {
       set({ teacherLoading: false, hasErrors: true });
     }
   },

@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { generateErrorMessages } from '@/utils/event';
-import { isEmpty } from '@/@core/utils/utils';
 import { Classroom } from '@/types/apps/teacherTypes';
 import { ResetPasswordByAdminRequest } from '@/types/apps/userTypes';
 import {
@@ -36,7 +35,7 @@ export const useTeacherList = () => {
   const [isSubmittingClassroom, setIsSubmittingClassroom] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
-  
+
   // ** Infinite scroll state for mobile
   const [displayedTeachers, setDisplayedTeachers] = useState<TeacherArray>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,8 +85,9 @@ export const useTeacherList = () => {
       try {
         const res = await fetchTeacher({
           q: deferredValue,
+          take: 1000,
         });
-        
+
         if (isMounted) {
           const teacherArray = extractTeacherArray(res);
           setTeachers(teacherArray);
@@ -136,10 +136,7 @@ export const useTeacherList = () => {
   }, [teachers, currentPage, isMobile]);
 
   // ** Memoized Values
-  const defaultValue = useMemo(
-    () => getClassroomDefaultValues(currentData, classroom),
-    [currentData, classroom]
-  );
+  const defaultValue = useMemo(() => getClassroomDefaultValues(currentData, classroom), [currentData, classroom]);
 
   // ** Handlers
   const handleFilter = useCallback((val: string) => {
@@ -159,42 +156,45 @@ export const useTeacherList = () => {
     });
   }, []);
 
-  const onSubmittedClassroom = useCallback(async (event: React.FormEvent, data: Classroom[]) => {
-    event.preventDefault();
-    
-    if (!currentData) {
-      toast.error('ไม่พบข้อมูลครู');
-      return;
-    }
+  const onSubmittedClassroom = useCallback(
+    async (event: React.FormEvent, data: Classroom[]) => {
+      event.preventDefault();
 
-    const classrooms = data.map((item: Classroom) => item.id || item.classroomId).filter(Boolean) as string[];
-    const info: UpdateClassroomInfo = {
-      id: currentData.id,
-      classrooms,
-      teacherInfo: currentData.teacherId || currentData.id,
-    };
+      if (!currentData) {
+        toast.error('ไม่พบข้อมูลครู');
+        return;
+      }
 
-    setIsSubmittingClassroom(true);
+      const classrooms = data.map((item: Classroom) => item.id || item.classroomId).filter(Boolean) as string[];
+      const info: UpdateClassroomInfo = {
+        id: currentData.id,
+        classrooms,
+        teacherInfo: currentData.teacherId || currentData.id,
+      };
 
-    const toastId = toast.info('กำลังบันทึก...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
+      setIsSubmittingClassroom(true);
 
-    try {
-      await updateClassroom(info);
-      toast.dismiss(toastId);
-      toast.success('บันทึกสำเร็จ');
-      setRefreshTrigger((prev) => prev + 1);
-      toggleAddClassroomDrawer();
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error('เกิดข้อผิดพลาด');
-      console.error('Error updating classroom:', error);
-    } finally {
-      setIsSubmittingClassroom(false);
-    }
-  }, [currentData, updateClassroom, toggleAddClassroomDrawer]);
+      const toastId = toast.info('กำลังบันทึก...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
+
+      try {
+        await updateClassroom(info);
+        toast.dismiss(toastId);
+        toast.success('บันทึกสำเร็จ');
+        setRefreshTrigger((prev) => prev + 1);
+        toggleAddClassroomDrawer();
+      } catch (error) {
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาด');
+        console.error('Error updating classroom:', error);
+      } finally {
+        setIsSubmittingClassroom(false);
+      }
+    },
+    [currentData, updateClassroom, toggleAddClassroomDrawer],
+  );
 
   const handleEdit = useCallback((data: Teacher) => {
     setCurrentTeacher(data);
@@ -223,133 +223,142 @@ export const useTeacherList = () => {
     setOpenDialogDelete(false);
   }, []);
 
-  const handleEditTeacher = useCallback(async (data: Teacher) => {
-    const accountId = currentTeacher?.user?.account?.id;
-    if (!user?.id || !accountId) {
-      toast.error('ข้อมูลไม่ครบถ้วน');
-      return;
-    }
-
-    setOpenDialogEdit(false);
-    const body: UpdateTeacherBody = {
-      user: {
-        id: user.id,
-      },
-      teacher: {
-        ...data,
-      },
-      account: {
-        id: accountId,
-      },
-    };
-
-    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
-    try {
-      const res = await update(body);
-      if (res?.name !== 'AxiosError') {
-        toast.dismiss(toastId);
-        toast.success('บันทึกข้อมูลสำเร็จ');
-        setRefreshTrigger((prev) => prev + 1);
-      } else {
-        const { data: errorData } = res?.response || {};
-        const message = generateErrorMessages[errorData?.message] || errorData?.message;
-        toast.dismiss(toastId);
-        toast.error(message || 'เกิดข้อผิดพลาด');
+  const handleEditTeacher = useCallback(
+    async (data: Teacher) => {
+      const accountId = currentTeacher?.user?.account?.id;
+      if (!user?.id || !accountId) {
+        toast.error('ข้อมูลไม่ครบถ้วน');
+        return;
       }
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error('เกิดข้อผิดพลาด');
-    }
-  }, [user, currentTeacher, update]);
 
-  const handleChangePasswordTeacher = useCallback(async (data: Teacher & { password: string }) => {
-    if (!user?.id) {
-      toast.error('ไม่พบข้อมูลผู้ใช้');
-      return;
-    }
+      setOpenDialogEdit(false);
+      const body: UpdateTeacherBody = {
+        user: {
+          id: user.id,
+        },
+        teacher: {
+          ...data,
+        },
+        account: {
+          id: accountId,
+        },
+      };
 
-    setOpenChangePassword(false);
-    const body: ResetPasswordByAdminRequest = {
-      teacher: {
-        id: data.id,
-      },
-      newPassword: data.password,
-    };
-
-    const toastId = toast.info('กำลังเปลี่ยนรหัสผ่าน...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
-    try {
-      const res = await resetPasswordByAdmin(body);
-      if (res?.name !== 'AxiosError') {
+      const toastId = toast.info('กำลังบันทึกข้อมูล...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
+      try {
+        const res = await update(body);
+        if (res?.name !== 'AxiosError') {
+          toast.dismiss(toastId);
+          toast.success('บันทึกข้อมูลสำเร็จ');
+          setRefreshTrigger((prev) => prev + 1);
+        } else {
+          const { data: errorData } = res?.response || {};
+          const message = generateErrorMessages[errorData?.message] || errorData?.message;
+          toast.dismiss(toastId);
+          toast.error(message || 'เกิดข้อผิดพลาด');
+        }
+      } catch {
         toast.dismiss(toastId);
-        toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
-        setRefreshTrigger((prev) => prev + 1);
-      } else {
-        const { data: errorData } = res?.response || {};
-        const message = generateErrorMessages[errorData?.message] || errorData?.message;
-        toast.dismiss(toastId);
-        toast.error(message || 'เกิดข้อผิดพลาด');
+        toast.error('เกิดข้อผิดพลาด');
       }
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error('เกิดข้อผิดพลาด');
-    }
-  }, [user, resetPasswordByAdmin]);
+    },
+    [user, currentTeacher, update],
+  );
 
-  const onHandleAddTeacher = useCallback(async (info: AddTeacherInfo) => {
-    if (!user?.id) {
-      toast.error('ไม่พบข้อมูลผู้ใช้');
-      return;
-    }
-
-    setAddUserOpen(false);
-
-    const { fullName, ...rest } = info;
-    const nameParts = fullName.split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    const body: UpdateTeacherBody = {
-      user: {
-        id: user.id,
-      },
-      teacher: {
-        ...rest,
-        password: info.password, // Send plain password - backend will hash it
-        firstName,
-        lastName,
-        role: 'Teacher',
-        status: 'Active',
-      } as Partial<Teacher> as Teacher,
-      account: {},
-    };
-
-    const toastId = toast.info('กำลังเพิ่มข้อมูลของครู/อาจารย์...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
-    try {
-      const res = await addTeacher(body);
-      if (res?.name !== 'AxiosError') {
-        toast.dismiss(toastId);
-        toast.success('เพิ่มข้อมูลสำเร็จ');
-        setRefreshTrigger((prev) => prev + 1);
-      } else {
-        const { data: errorData } = res?.response || {};
-        const message = generateErrorMessages[errorData?.message] || errorData?.message;
-        toast.dismiss(toastId);
-        toast.error(message || 'เกิดข้อผิดพลาด');
+  const handleChangePasswordTeacher = useCallback(
+    async (data: Teacher & { password: string }) => {
+      if (!user?.id) {
+        toast.error('ไม่พบข้อมูลผู้ใช้');
+        return;
       }
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error('เกิดข้อผิดพลาด');
-    }
-  }, [user, addTeacher]);
+
+      setOpenChangePassword(false);
+      const body: ResetPasswordByAdminRequest = {
+        teacher: {
+          id: data.id,
+        },
+        newPassword: data.password,
+      };
+
+      const toastId = toast.info('กำลังเปลี่ยนรหัสผ่าน...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
+      try {
+        const res = await resetPasswordByAdmin(body);
+        if (res?.name !== 'AxiosError') {
+          toast.dismiss(toastId);
+          toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
+          setRefreshTrigger((prev) => prev + 1);
+        } else {
+          const { data: errorData } = res?.response || {};
+          const message = generateErrorMessages[errorData?.message] || errorData?.message;
+          toast.dismiss(toastId);
+          toast.error(message || 'เกิดข้อผิดพลาด');
+        }
+      } catch {
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาด');
+      }
+    },
+    [user, resetPasswordByAdmin],
+  );
+
+  const onHandleAddTeacher = useCallback(
+    async (info: AddTeacherInfo) => {
+      if (!user?.id) {
+        toast.error('ไม่พบข้อมูลผู้ใช้');
+        return;
+      }
+
+      setAddUserOpen(false);
+
+      const { fullName, ...rest } = info;
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      const body: UpdateTeacherBody = {
+        user: {
+          id: user.id,
+        },
+        teacher: {
+          ...rest,
+          password: info.password, // Send plain password - backend will hash it
+          firstName,
+          lastName,
+          role: 'Teacher',
+          status: 'Active',
+        } as Partial<Teacher> as Teacher,
+        account: {},
+      };
+
+      const toastId = toast.info('กำลังเพิ่มข้อมูลของครู/อาจารย์...', {
+        autoClose: false,
+        hideProgressBar: true,
+      });
+      try {
+        const res = await addTeacher(body);
+        if (res?.name !== 'AxiosError') {
+          toast.dismiss(toastId);
+          toast.success('เพิ่มข้อมูลสำเร็จ');
+          setRefreshTrigger((prev) => prev + 1);
+        } else {
+          const { data: errorData } = res?.response || {};
+          const message = generateErrorMessages[errorData?.message] || errorData?.message;
+          toast.dismiss(toastId);
+          toast.error(message || 'เกิดข้อผิดพลาด');
+        }
+      } catch {
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาด');
+      }
+    },
+    [user, addTeacher],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!currentTeacher?.id) {
@@ -375,7 +384,7 @@ export const useTeacherList = () => {
         toast.dismiss(toastId);
         toast.error(message || 'เกิดข้อผิดพลาด');
       }
-    } catch (error) {
+    } catch {
       toast.dismiss(toastId);
       toast.error('เกิดข้อผิดพลาด');
     }
@@ -396,6 +405,10 @@ export const useTeacherList = () => {
     }
   }, [isLoadingMore]);
 
+  const refreshTeachers = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
+
   return {
     // State
     searchValue,
@@ -413,7 +426,7 @@ export const useTeacherList = () => {
     displayedTeachers,
     isLoadingMore,
     defaultValue,
-    
+
     // Actions
     setPageSize,
     handleFilter,
@@ -432,6 +445,6 @@ export const useTeacherList = () => {
     handleDeleteConfirm,
     handleAddClassroom,
     handleLoadMore,
+    refreshTeachers,
   };
 };
-

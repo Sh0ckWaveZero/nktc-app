@@ -1,295 +1,260 @@
-// ** MUI Imports
+'use client';
 
-// ** Icons Imports
+import { Box, IconButton, TextField, Tooltip, Typography } from '@mui/material';
+import { alpha, styled } from '@mui/material/styles';
+
 import IconifyIcon from '@/@core/components/icon';
-import { Button, TextField, Box, Stack, InputAdornment, IconButton } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import CsvDownloader from 'react-csv-downloader';
-import Close from 'mdi-material-ui/Close';
 import { useResponsive } from '@/@core/hooks/useResponsive';
-
-interface LoginCountByUser {
-  date: string;
-  count: number;
-}
-
-interface TeacherAccount {
-  id: string;
-  title?: string;
-  firstName?: string;
-  lastName?: string;
-  avatar?: string;
-}
-
-interface TeacherUser {
-  id: string;
-  username: string;
-  account?: TeacherAccount;
-}
-
-interface TeacherData {
-  id: string;
-  user?: TeacherUser;
-  loginCountByUser?: LoginCountByUser[];
-}
-
-type TeacherDataArray = TeacherData[];
-
-type TeacherDataResponse =
-  | TeacherDataArray
-  | { data: TeacherDataArray }
-  | { teachers: TeacherDataArray }
-  | { items: TeacherDataArray }
-  | null
-  | undefined;
 
 interface TableHeaderProps {
   value: string;
   toggle: () => void;
   handleFilter: (val: string) => void;
-  data: TeacherDataResponse;
+  onDownloadTemplate: () => void;
+  onExport: () => void;
+  onImportClick: () => void;
+  isDownloadingTemplate: boolean;
+  isExporting: boolean;
+  isImporting: boolean;
+  canExport: boolean;
 }
 
-interface Column {
-  id: string;
-  displayName: string;
-}
+const TOOLBAR_RADIUS = 14;
+const CONTROL_RADIUS = 12;
 
-interface CsvData {
-  id: number;
-  username: string;
-  fullName: string;
-  logs: string;
-  total: number;
-  [key: string]: string | number | null | undefined;
-}
+const getPanelBorderColor = (theme: any) =>
+  alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1);
+const getSectionSurfaceBackground = (theme: any) =>
+  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.76 : 0.9);
+const getControlSurfaceColor = (theme: any) =>
+  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.96 : 0.88);
+const getToolbarSurfaceColor = (theme: any) =>
+  theme.palette.mode === 'dark'
+    ? alpha(theme.palette.background.paper, 0.04)
+    : alpha(theme.palette.background.paper, 0.98);
 
-const TableHeader = (props: TableHeaderProps) => {
-  // ** Props
-  const { handleFilter, toggle, value } = props;
+const SectionSurface = styled(Box)(({ theme }) => ({
+  borderRadius: 14,
+  border: `1px solid ${getPanelBorderColor(theme)}`,
+  backgroundColor: getSectionSurfaceBackground(theme),
+  boxShadow:
+    theme.palette.mode === 'dark'
+      ? `inset 0 1px 0 ${alpha(theme.palette.common.white, 0.03)}`
+      : `0 10px 22px ${alpha(theme.palette.primary.main, 0.03)}`,
+}));
+
+const SectionTitle = styled(Typography)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  fontSize: 'clamp(0.92rem, 0.88rem + 0.14vw, 1rem)',
+  fontWeight: 800,
+  letterSpacing: '-0.01em',
+  color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.88 : 0.82),
+  '&::before': {
+    content: '""',
+    width: 10,
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.72 : 0.64),
+    boxShadow:
+      theme.palette.mode === 'dark'
+        ? `0 0 0 6px ${alpha(theme.palette.primary.main, 0.08)}`
+        : `0 0 0 5px ${alpha(theme.palette.primary.main, 0.08)}`,
+  },
+}));
+
+const SectionDescription = styled(Typography)(({ theme }) => ({
+  marginTop: theme.spacing(0.5),
+  maxWidth: '60ch',
+  fontSize: 'clamp(0.94rem, 0.9rem + 0.16vw, 1rem)',
+  fontWeight: 500,
+  lineHeight: 1.6,
+  color: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.8) : theme.palette.text.secondary,
+}));
+
+const ToolButton = styled(IconButton)(({ theme }) => ({
+  width: '100%',
+  minWidth: 54,
+  height: 52,
+  borderRadius: 0,
+  border: 0,
+  backgroundColor: 'transparent',
+  color: theme.palette.primary.main,
+  boxShadow: 'none',
+  transition: 'background-color 180ms ease, color 180ms ease',
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+  },
+}));
+
+const ToolButtonSlot = styled(Box)({
+  display: 'flex',
+  flex: '1 1 0',
+  minWidth: 0,
+});
+
+const ToolDivider = styled(Box)(({ theme }) => ({
+  width: 1,
+  alignSelf: 'stretch',
+  backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.16),
+}));
+
+const ActiveToolButton = styled(ToolButton)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.12),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.16),
+  },
+}));
+
+const CONTROL_SX = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: `${CONTROL_RADIUS}px`,
+    backgroundColor: (theme: any) => getControlSurfaceColor(theme),
+    '& fieldset': {
+      borderColor: (theme: any) => alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.16 : 0.12),
+    },
+    '&:hover fieldset': {
+      borderColor: (theme: any) => alpha(theme.palette.primary.main, 0.28),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'primary.main',
+    },
+  },
+  '& .MuiInputBase-input': {
+    letterSpacing: '-0.01em',
+  },
+  '& .MuiInputLabel-root': {
+    fontSize: '0.92rem',
+    fontWeight: 600,
+    letterSpacing: '-0.01em',
+  },
+  '& .MuiInputLabel-shrink': {
+    fontSize: '0.86rem',
+  },
+} as const;
+
+const TableHeader = ({
+  value,
+  toggle,
+  handleFilter,
+  onDownloadTemplate,
+  onExport,
+  onImportClick,
+  isDownloadingTemplate,
+  isExporting,
+  isImporting,
+  canExport,
+}: TableHeaderProps) => {
   const { isMobile } = useResponsive();
 
-  // ** Handlers
-  const handleClearSearch = () => {
-    handleFilter('');
-  };
-
-  const columns: Column[] = [
-    {
-      id: 'id',
-      displayName: 'ลำดับ',
-    },
-    {
-      id: 'username',
-      displayName: 'ชื่อผู้ใช้',
-    },
-    {
-      id: 'fullName',
-      displayName: 'ชื่อ-นามสกุล',
-    },
-    {
-      id: 'logs',
-      displayName: 'วันที่เข้าใช้งาน',
-    },
-    {
-      id: 'total',
-      displayName: 'จำนวนครั้งที่เข้าใช้งาน',
-    },
-  ];
-
-  const extractTeacherArray = (data: TeacherDataResponse): TeacherDataArray => {
-    if (!data) {
-      return [];
-    }
-
-    if (Array.isArray(data)) {
-      return data;
-    }
-
-    if (typeof data === 'object') {
-      if ('data' in data && Array.isArray(data.data)) {
-        return data.data;
-      }
-      if ('teachers' in data && Array.isArray(data.teachers)) {
-        return data.teachers;
-      }
-      if ('items' in data && Array.isArray(data.items)) {
-        return data.items;
-      }
-    }
-
-    return [];
-  };
-
-  const mapDataToTable = (data: TeacherDataResponse): CsvData[] => {
-    const teacherArray = extractTeacherArray(data);
-
-    return teacherArray.map((item: TeacherData, index: number) => {
-      const username = item.user?.username || '';
-      const firstName = item.user?.account?.firstName || '';
-      const lastName = item.user?.account?.lastName || '';
-      const loginDates = item.loginCountByUser?.map((log: LoginCountByUser) => log.date).join('| ') || '';
-      const loginCount = item.loginCountByUser?.length || 0;
-
-      return {
-        id: index + 1,
-        username,
-        fullName: `${firstName} ${lastName}`,
-        logs: loginDates,
-        total: loginCount,
-      };
-    });
-  };
-
-  const date = new Date();
-  const options = { timeZone: 'Asia/Bangkok' };
-  const formattedDate = date.toLocaleString('th-TH', options).replace(/\//g, '-').replace(',', '').replace(/ /g, '_');
-  const filename = `${formattedDate}`;
-
-  const datas: CsvData[] = mapDataToTable(props.data);
-
   return (
-    <Box sx={{ px: isMobile ? 2 : 3, py: isMobile ? 2 : 2 }}>
-      {isMobile ? (
-        <Stack spacing={2}>
+    <SectionSurface sx={{ mx: { xs: 2, sm: 3 }, mb: 3, p: { xs: 3, sm: 3.5 } }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 3,
+          gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
+          alignItems: 'end',
+        }}
+      >
+        <Box sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' } }}>
+          <SectionTitle>ค้นหาและจัดการ</SectionTitle>
+          <SectionDescription>
+            ค้นหาครูหรือบุคลากรจากชื่อ ชื่อผู้ใช้ และจัดการข้อมูลด้วย template, import และ export ในจุดเดียว
+          </SectionDescription>
+        </Box>
+
+        <Box
+          sx={{
+            gridColumn: { xs: '1 / -1', md: 'span 6' },
+            display: 'flex',
+            justifyContent: { xs: 'stretch', md: 'flex-end' },
+          }}
+        >
+          <Box
+            id='teacher-list-tools-surface'
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'stretch',
+              overflow: 'hidden',
+              borderRadius: TOOLBAR_RADIUS,
+              bgcolor: (theme) => getToolbarSurfaceColor(theme),
+              border: (theme) =>
+                `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.24 : 0.18)}`,
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? `inset 0 1px 0 ${alpha(theme.palette.common.white, 0.04)}`
+                  : `0 8px 20px ${alpha(theme.palette.primary.main, 0.06)}`,
+              width: { xs: '100%', sm: 'auto' },
+              maxWidth: { xs: '100%', sm: 'none' },
+              justifyContent: 'stretch',
+            }}
+          >
+            <Tooltip title={isDownloadingTemplate ? 'กำลังดาวน์โหลด Template' : 'ดาวน์โหลด Template'}>
+              <ToolButtonSlot>
+                <ToolButton
+                  id='download-teacher-template-button'
+                  disabled={isDownloadingTemplate || isImporting || isExporting}
+                  onClick={onDownloadTemplate}
+                >
+                  <IconifyIcon icon='tabler:file-download' />
+                </ToolButton>
+              </ToolButtonSlot>
+            </Tooltip>
+
+            <ToolDivider />
+
+            <Tooltip title={isExporting ? 'กำลัง Export ข้อมูล' : 'Export ข้อมูลครูและบุคลากร'}>
+              <ToolButtonSlot>
+                <ToolButton
+                  id='export-teacher-button'
+                  disabled={isExporting || isImporting || isDownloadingTemplate || !canExport}
+                  onClick={onExport}
+                >
+                  <IconifyIcon icon='tabler:database-export' />
+                </ToolButton>
+              </ToolButtonSlot>
+            </Tooltip>
+
+            <ToolDivider />
+
+            <Tooltip title={isImporting ? 'กำลัง Import ไฟล์' : 'Import ไฟล์ XLSX'}>
+              <ToolButtonSlot>
+                <ToolButton
+                  id='import-teacher-button'
+                  disabled={isImporting || isDownloadingTemplate || isExporting}
+                  onClick={onImportClick}
+                >
+                  <IconifyIcon icon='tabler:file-import' />
+                </ToolButton>
+              </ToolButtonSlot>
+            </Tooltip>
+
+            <ToolDivider />
+
+            <Tooltip title='เพิ่มครู/บุคลากร'>
+              <ToolButtonSlot>
+                <ActiveToolButton id='add-teacher-button' onClick={toggle}>
+                  <IconifyIcon icon='tabler:user-plus' />
+                </ActiveToolButton>
+              </ToolButtonSlot>
+            </Tooltip>
+          </Box>
+        </Box>
+
+        <Box sx={{ gridColumn: { xs: '1 / -1', md: isMobile ? '1 / -1' : 'span 6' } }}>
           <TextField
             fullWidth
-            size='small'
             value={value}
-            placeholder='ค้นหาครู/บุคลากร'
-            onChange={(e) => handleFilter(e.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: value && (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      id='teacher-search-clear-button'
-                      size='small'
-                      onClick={handleClearSearch}
-                      edge='end'
-                      aria-label='ล้างการค้นหา'
-                      sx={{ mr: -1 }}
-                    >
-                      <Close fontSize='small' />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
+            label='ค้นหาครู/บุคลากร'
+            placeholder='พิมพ์ชื่อ ชื่อผู้ใช้ หรือนามสกุล'
+            onChange={(event) => handleFilter(event.target.value)}
+            sx={CONTROL_SX}
           />
-          <Stack direction='row' spacing={2}>
-            <CsvDownloader
-              prefix='System Access Report'
-              filename={filename}
-              extension='.csv'
-              separator=','
-              columns={columns}
-              datas={datas}
-            >
-              <Button
-                color='primary'
-                variant='contained'
-                startIcon={<IconifyIcon icon='line-md:download-loop' width={18} height={18} />}
-                fullWidth
-                size={isMobile ? 'small' : 'medium'}
-                sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}
-              >
-                ดาวน์โหลด
-              </Button>
-            </CsvDownloader>
-            <Button
-              fullWidth
-              color='success'
-              startIcon={<IconifyIcon icon='tabler:user-plus' width={18} height={18} />}
-              onClick={toggle}
-              variant='contained'
-              size={isMobile ? 'small' : 'medium'}
-              sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}
-            >
-              เพิ่มครู
-            </Button>
-          </Stack>
-        </Stack>
-      ) : (
-        <Grid container spacing={2} display='flex' direction='row' justifyContent='space-between'>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 12,
-              md: 12,
-              lg: 2,
-            }}
-          >
-            <CsvDownloader
-              prefix='System Access Report'
-              filename={filename}
-              extension='.csv'
-              separator=','
-              columns={columns}
-              datas={datas}
-            >
-              <Button
-                color='primary'
-                variant='contained'
-                startIcon={<IconifyIcon icon='line-md:download-loop' width={20} height={20} />}
-                fullWidth
-                sx={{ mr: 4, mb: 2 }}
-              >
-                ดาวน์โหลดข้อมูล
-              </Button>
-            </CsvDownloader>
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              md: 12,
-              lg: 6,
-            }}
-          >
-            <Stack direction='row' spacing={2} justifyContent='flex-end'>
-              <TextField
-                fullWidth
-                size='small'
-                value={value}
-                sx={{ mr: 4, mb: 2 }}
-                placeholder='ค้นหาครู/บุคลากร'
-                onChange={(e) => handleFilter(e.target.value)}
-                slotProps={{
-                  input: {
-                    endAdornment: value && (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          id='teacher-search-clear-button'
-                          size='small'
-                          onClick={handleClearSearch}
-                          edge='end'
-                          aria-label='ล้างการค้นหา'
-                          sx={{ mr: -1 }}
-                        >
-                          <Close fontSize='small' />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              <Box sx={{ mb: 2, width: '250px' }}>
-                <Button
-                  fullWidth
-                  color='success'
-                  startIcon={<IconifyIcon icon='tabler:user-plus' width={20} height={20} />}
-                  sx={{ mb: 2 }}
-                  onClick={toggle}
-                  variant='contained'
-                >
-                  เพิ่มครู/บุคลากร
-                </Button>
-              </Box>
-            </Stack>
-          </Grid>
-        </Grid>
-      )}
-    </Box>
+        </Box>
+      </Box>
+    </SectionSurface>
   );
 };
 
