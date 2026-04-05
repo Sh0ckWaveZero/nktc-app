@@ -5,7 +5,7 @@ COPY package.json bun.lock ./
 COPY frontend/package.json frontend/package.json
 COPY backend-elysia/package.json backend-elysia/package.json
 
-RUN bun install --frozen-lockfile
+RUN bun install --ignore-scripts
 
 FROM deps AS builder
 WORKDIR /app
@@ -28,12 +28,12 @@ ENV PORT=3000
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 -G nodejs
 
-COPY --from=builder /app/frontend/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/public ./frontend/public
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./frontend/.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "frontend/server.js"]

@@ -3,10 +3,12 @@ WORKDIR /app/backend-elysia
 
 COPY backend-elysia/package.json backend-elysia/bun.lock ./
 
-RUN bun install --frozen-lockfile
+RUN bun install --ignore-scripts
 
 FROM deps AS prisma
 WORKDIR /app/backend-elysia
+
+ENV DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
 
 COPY backend-elysia/prisma ./prisma
 COPY backend-elysia/prisma.config.ts ./
@@ -30,6 +32,8 @@ ENV PORT=3001
 COPY --from=builder /app/backend-elysia/dist ./dist
 COPY --from=prisma /app/backend-elysia/generated ./generated
 COPY --from=deps /app/backend-elysia/node_modules ./node_modules
+COPY backend-elysia/prisma ./prisma
+COPY backend-elysia/prisma.config.ts ./
 COPY backend-elysia/package.json ./
 
 EXPOSE 3001
