@@ -27,7 +27,7 @@ export function parseXLSX<T>(buffer: Buffer, schema: Record<string, string>): XL
       } else if (xlsxColumn.includes("*")) {
         errors.push({
           row: rowIndex + 2,
-          column: xlsxColumn.replace("*", ""),
+          column: xlsxColumn.replace(/\*/g, ""),
           message: `Required field is missing`,
         });
         hasError = true;
