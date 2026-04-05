@@ -1,247 +1,249 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState, type ChangeEvent } from 'react';
+import { alpha } from '@mui/material/styles';
 import {
   Card,
   CardContent,
   CardHeader,
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Chip,
-  Paper,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
-  TextField,
   TablePagination,
+  TableRow,
+  TextField,
+  Typography,
 } from '@mui/material';
-// Date formatting helper using date-fns
-import { formatThaiShortDate } from '@/@core/utils/thai-calendar';
-import { TableEmptyState } from '@/@core/components/check-in/CustomNoRowsOverlay';
+import Grid from '@mui/material/Grid';
+
+import type { TeacherActivityDetail } from '@/hooks/queries/useStatistics';
+
+const formatThaiDateTime = (value: string | null) => {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+};
 
 interface TeacherActivityTableProps {
-  teachers: Array<{
-    id: string;
-    teacherId: string;
-    teacherName: string;
-    checkInCount: number;
-    lastCheckInDate: Date | null;
-    isActive: boolean;
-    department?: string;
-    program?: string;
-  }>;
-  noOptionsText?: string;
+  teachers: TeacherActivityDetail[];
 }
 
-const TeacherActivityTable = ({ teachers, noOptionsText = 'ไม่พบข้อมูล' }: TeacherActivityTableProps) => {
-  const [searchText, setSearchText] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [programFilter, setProgramFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
+  const [search, setSearch] = useState('');
+  const [department, setDepartment] = useState('all');
+  const [program, setProgram] = useState('all');
+  const [status, setStatus] = useState('all');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Extract unique departments and programs from teacher data
-  const departments = useMemo(() => {
-    const depts = new Set((teachers ?? []).map((t) => t.department).filter(Boolean));
-    return Array.from(depts).sort();
-  }, [teachers]);
+  const departments = useMemo(
+    () => Array.from(new Set(teachers.map((teacher) => teacher.department).filter(Boolean) as string[])).sort(),
+    [teachers]
+  );
+  const programs = useMemo(
+    () => Array.from(new Set(teachers.map((teacher) => teacher.program).filter(Boolean) as string[])).sort(),
+    [teachers]
+  );
 
-  const programs = useMemo(() => {
-    const progs = new Set((teachers ?? []).map((t) => t.program).filter(Boolean));
-    return Array.from(progs).sort();
-  }, [teachers]);
-
-  // Filter teachers based on all criteria
   const filteredTeachers = useMemo(() => {
-    return (teachers ?? []).filter((teacher) => {
+    return teachers.filter((teacher) => {
       const matchesSearch =
-        searchText === '' ||
-        teacher.teacherId.toLowerCase().includes(searchText.toLowerCase()) ||
-        teacher.teacherName.toLowerCase().includes(searchText.toLowerCase());
-
-      const matchesDepartment = departmentFilter === 'all' || teacher.department === departmentFilter;
-
-      const matchesProgram = programFilter === 'all' || teacher.program === programFilter;
-
+        search.trim() === '' ||
+        teacher.teacherId.toLowerCase().includes(search.toLowerCase()) ||
+        teacher.teacherName.toLowerCase().includes(search.toLowerCase());
+      const matchesDepartment = department === 'all' || teacher.department === department;
+      const matchesProgram = program === 'all' || teacher.program === program;
       const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'active' && teacher.isActive) ||
-        (statusFilter === 'inactive' && !teacher.isActive);
+        status === 'all' ||
+        (status === 'active' && teacher.isActive) ||
+        (status === 'inactive' && !teacher.isActive);
 
       return matchesSearch && matchesDepartment && matchesProgram && matchesStatus;
     });
-  }, [teachers, searchText, departmentFilter, programFilter, statusFilter]);
+  }, [department, program, search, status, teachers]);
 
-  // Handle pagination
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+  const currentRows = useMemo(
+    () => filteredTeachers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [filteredTeachers, page, rowsPerPage]
+  );
+
+  const handleChangePage = (_event: unknown, nextPage: number) => {
+    setPage(nextPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number(event.target.value));
     setPage(0);
   };
 
-  // Get current page data
-  const currentPageData = useMemo(() => {
-    return (filteredTeachers ?? []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [filteredTeachers, page, rowsPerPage]);
-
   return (
-    <Card>
+    <Card
+      sx={{
+        borderRadius: 3,
+        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+      }}
+    >
       <CardHeader
-        title='รายละเอียดการใช้งานของครู'
-        subheader={`พบทั้งหมด ${filteredTeachers?.length ?? 0} จาก ${teachers?.length ?? 0} คน`}
+        title='กิจกรรมการใช้งานของครู'
+        subheader={`พบ ${filteredTeachers.length.toLocaleString()} จาก ${teachers.length.toLocaleString()} คน`}
+        slotProps={{
+          title: {
+            sx: {
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+            },
+          },
+          subheader: {
+            sx: {
+              mt: 0.75,
+            },
+          },
+        }}
       />
-      <CardContent>
-        {/* Filter Section */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <CardContent sx={{ pt: 0 }}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            mb: 2.5,
+            p: 1.4,
+            borderRadius: 2.5,
+            backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.04),
+          }}
+        >
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
-              label='ค้นหา'
+              label='ค้นหาครู'
               placeholder='รหัสหรือชื่อครู'
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
               size='small'
             />
           </Grid>
-
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 2.66 }}>
             <FormControl fullWidth size='small'>
               <InputLabel>แผนก</InputLabel>
-              <Select value={departmentFilter} label='แผนก' onChange={(e) => setDepartmentFilter(e.target.value)}>
-                <MenuItem value='all'>ทั้งหมด</MenuItem>
-                {departments.map((dept) => (
-                  <MenuItem key={dept} value={dept}>
-                    {dept}
+              <Select value={department} label='แผนก' onChange={(event) => setDepartment(event.target.value)}>
+                <MenuItem value='all'>ทุกแผนก</MenuItem>
+                {departments.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {item}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 2.66 }}>
             <FormControl fullWidth size='small'>
-              <InputLabel>สาขาวิชา</InputLabel>
-              <Select value={programFilter} label='สาขาวิชา' onChange={(e) => setProgramFilter(e.target.value)}>
-                <MenuItem value='all'>ทั้งหมด</MenuItem>
-                {programs.map((prog) => (
-                  <MenuItem key={prog} value={prog}>
-                    {prog}
+              <InputLabel>สาขา</InputLabel>
+              <Select value={program} label='สาขา' onChange={(event) => setProgram(event.target.value)}>
+                <MenuItem value='all'>ทุกสาขา</MenuItem>
+                {programs.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {item}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 2.66 }}>
             <FormControl fullWidth size='small'>
               <InputLabel>สถานะ</InputLabel>
-              <Select value={statusFilter} label='สถานะ' onChange={(e) => setStatusFilter(e.target.value)}>
+              <Select value={status} label='สถานะ' onChange={(event) => setStatus(event.target.value)}>
                 <MenuItem value='all'>ทั้งหมด</MenuItem>
-                <MenuItem value='active'>ใช้งาน</MenuItem>
-                <MenuItem value='inactive'>ไม่ได้ใช้งาน</MenuItem>
+                <MenuItem value='active'>มีการใช้งาน</MenuItem>
+                <MenuItem value='inactive'>ยังไม่ใช้งาน</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
 
         <TableContainer
-          component={Paper}
           sx={{
+            borderRadius: 2.5,
+            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
             overflowX: 'auto',
-            '& .MuiTable-root': {
-              minWidth: { xs: 900, sm: 650 },
-            },
           }}
         >
-          <Table>
+          <Table sx={{ minWidth: 980 }}>
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>รหัสครู</TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>ชื่อ-นามสกุล</TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>แผนก</TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>สาขาวิชา</TableCell>
-                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                  จำนวนครั้งที่เช็คชื่อ
-                </TableCell>
-                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                  เช็คชื่อล่าสุด
-                </TableCell>
-                <TableCell align='center' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                  สถานะ
-                </TableCell>
+              <TableRow
+                sx={{
+                  '& th': {
+                    py: 1.8,
+                    fontWeight: 800,
+                    color: 'text.primary',
+                    borderBottom: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                    backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                  },
+                }}
+              >
+                <TableCell>ครู</TableCell>
+                <TableCell>แผนก / สาขา</TableCell>
+                <TableCell align='center'>จำนวนครั้ง</TableCell>
+                <TableCell align='center'>เช็คชื่อล่าสุด</TableCell>
+                <TableCell align='center'>สถานะ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {currentPageData.length === 0 ? (
+              {currentRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align='center' sx={{ py: 8, height: 400 }}>
-                    <TableEmptyState text={noOptionsText} />
+                  <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
+                    <Typography color='text.secondary'>ไม่พบกิจกรรมของครูตามเงื่อนไขที่เลือก</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                currentPageData.map((teacher) => (
+                currentRows.map((teacher) => (
                   <TableRow
-                    key={teacher.id}
+                    key={teacher.teacherDbId}
+                    hover
                     sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      '&:hover': { bgcolor: 'action.hover' },
+                      '&:hover': {
+                        backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.035),
+                      },
                     }}
                   >
-                    <TableCell component='th' scope='row' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      {teacher.teacherId}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{teacher.teacherName}</TableCell>
                     <TableCell>
-                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {teacher.department || '-'}
+                      <Typography sx={{ fontWeight: 700 }}>{teacher.teacherName}</Typography>
+                      <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                        {teacher.teacherId}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {teacher.program || '-'}
+                      <Typography>{teacher.department || 'ไม่ระบุแผนก'}</Typography>
+                      <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                        {teacher.program || 'ไม่ระบุสาขา'}
                       </Typography>
                     </TableCell>
                     <TableCell align='center'>
-                      <Typography
-                        variant='body2'
-                        fontWeight='bold'
-                        sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-                      >
-                        {teacher.checkInCount}
-                      </Typography>
+                      <Typography sx={{ fontWeight: 800 }}>{teacher.checkInCount.toLocaleString()}</Typography>
                     </TableCell>
                     <TableCell align='center'>
-                      <Typography variant='body2' sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        {formatThaiShortDate(teacher.lastCheckInDate)}
-                      </Typography>
+                      <Typography>{formatThaiDateTime(teacher.lastCheckInDate)}</Typography>
                     </TableCell>
                     <TableCell align='center'>
-                      {teacher.isActive ? (
-                        <Chip
-                          label='ใช้งาน'
-                          color='success'
-                          size='small'
-                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
-                        />
-                      ) : (
-                        <Chip
-                          label='ไม่ได้ใช้งาน'
-                          color='error'
-                          size='small'
-                          sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}
-                        />
-                      )}
+                      <Chip
+                        label={teacher.isActive ? 'มีการใช้งาน' : 'ยังไม่ใช้งาน'}
+                        color={teacher.isActive ? 'success' : 'default'}
+                        size='small'
+                        sx={{
+                          borderRadius: 2,
+                          fontWeight: 700,
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -250,20 +252,17 @@ const TeacherActivityTable = ({ teachers, noOptionsText = 'ไม่พบข้
           </Table>
         </TableContainer>
 
-        {/* Pagination */}
         <TablePagination
-          rowsPerPageOptions={filteredTeachers.length === 0 ? [] : [10, 25, 50, 100]}
+          rowsPerPageOptions={filteredTeachers.length === 0 ? [] : [10, 25, 50]}
           component='div'
           count={filteredTeachers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage={filteredTeachers.length === 0 ? '' : 'แสดง:'}
-          labelDisplayedRows={({ from, to, count }) => {
-            return `${from}-${to} จากทั้งหมด ${count}`;
-          }}
-          sx={{ mt: 2 }}
+          labelRowsPerPage={filteredTeachers.length === 0 ? '' : 'แสดง'}
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} จาก ${count}`}
+          sx={{ mt: 1 }}
         />
       </CardContent>
     </Card>

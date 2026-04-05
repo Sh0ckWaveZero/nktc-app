@@ -1,64 +1,129 @@
 'use client';
 
-import { CardHeader } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-// Date formatting helper using Intl.DateTimeFormat
-const formatChartDate = (dateInput: string | Date): string => {
-  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+import { alpha } from '@mui/material/styles';
+import { Box, Stack, Typography } from '@mui/material';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+import type { DailyChartDatum } from '@/hooks/queries/useStatistics';
+
+const formatChartDate = (dateInput: string): string => {
+  const date = new Date(dateInput);
+
   return new Intl.DateTimeFormat('th-TH', {
     day: 'numeric',
-    month: 'numeric',
+    month: 'short',
   }).format(date);
 };
 
 interface DailyAttendanceChartProps {
-  dailyData: Array<{
-    date: string | Date;
-    present: number;
-    absent: number;
-    late: number;
-    leave: number;
-    internship: number;
-  }>;
+  dailyData: DailyChartDatum[];
 }
 
 const DailyAttendanceChart = ({ dailyData }: DailyAttendanceChartProps) => {
-  const chartData =
-    dailyData?.map((day) => ({
-      date: formatChartDate(day.date),
-      มาเรียน: day.present,
-      ขาดเรียน: day.absent,
-      มาสาย: day.late,
-      ลา: day.leave,
-      ฝึกงาน: day.internship,
-    })) || [];
+  const chartData = dailyData.map((day) => ({
+    ...day,
+    label: formatChartDate(day.date),
+  }));
 
   return (
-    <>
-      <CardHeader
-        title='กราฟการเข้าเรียนรายวัน'
-        slotProps={{
-          title: {
-            variant: 'h6',
-            sx: { fontSize: { xs: '1rem', sm: '1.25rem' } },
-          },
-        }}
-      />
-      <ResponsiveContainer width='100%' height='100%' minHeight={250}>
-        <BarChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray='3 3' />
-          <XAxis dataKey='date' tick={{ fontSize: 12 }} angle={-45} textAnchor='end' height={60} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip contentStyle={{ fontSize: '0.875rem' }} />
-          <Legend wrapperStyle={{ fontSize: '0.875rem' }} iconSize={12} />
-          <Bar dataKey='มาเรียน' fill='#4caf50' />
-          <Bar dataKey='ขาดเรียน' fill='#f44336' />
-          <Bar dataKey='มาสาย' fill='#ff9800' />
-          <Bar dataKey='ลา' fill='#2196f3' />
-          <Bar dataKey='ฝึกงาน' fill='#9c27b0' />
-        </BarChart>
-      </ResponsiveContainer>
-    </>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 2.5 }}>
+        <Box>
+          <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
+            แนวโน้มการเข้าแถวรายวัน
+          </Typography>
+          <Typography variant='body2' sx={{ mt: 0.75, color: 'text.secondary', maxWidth: 420 }}>
+            แสดงอัตราการเข้าแถวต่อวันจากสูตร มาเข้าแถว ÷ จำนวนที่ถูกเช็คชื่อจริงในวันนั้น
+          </Typography>
+        </Box>
+
+        <Stack spacing={0.5} alignItems='flex-end'>
+          <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
+            จำนวนวันที่มีข้อมูล
+          </Typography>
+          <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
+            {dailyData.length.toLocaleString()}
+          </Typography>
+        </Stack>
+      </Box>
+
+      <Box sx={{ flex: 1, minHeight: 320, width: '100%', minWidth: 0 }}>
+        <ResponsiveContainer width='100%' height={320} minWidth={0}>
+          <AreaChart data={chartData} margin={{ top: 12, right: 12, left: -20, bottom: 6 }}>
+            <defs>
+              <linearGradient id='attendanceAreaGradient' x1='0' y1='0' x2='0' y2='1'>
+                <stop offset='5%' stopColor='#2F7DFF' stopOpacity={0.36} />
+                <stop offset='95%' stopColor='#2F7DFF' stopOpacity={0.03} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray='4 4' strokeOpacity={0.18} vertical={false} />
+            <XAxis dataKey='label' tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 12 }}
+              domain={[0, 100]}
+              tickFormatter={(value: number) => `${value}%`}
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) {
+                  return null;
+                }
+
+                const row = payload[0]?.payload as DailyChartDatum | undefined;
+
+                if (!row) {
+                  return null;
+                }
+
+                return (
+                  <Box
+                    sx={{
+                      borderRadius: 2.5,
+                      border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                      bgcolor: 'background.paper',
+                      px: 1.5,
+                      py: 1.25,
+                      boxShadow: (theme) => `0 18px 32px ${alpha(theme.palette.common.black, 0.12)}`,
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 700 }}>{formatChartDate(row.date)}</Typography>
+                    <Typography variant='body2' sx={{ mt: 0.5, color: 'text.secondary' }}>
+                      อัตราเข้าแถว {row.attendanceRate.toFixed(2)}%
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                      เช็คชื่อรวม {row.checkedRecords.toLocaleString()} รายการ
+                    </Typography>
+                  </Box>
+                );
+              }}
+              contentStyle={{
+                borderRadius: 14,
+                border: `1px solid ${alpha('#2F7DFF', 0.14)}`,
+                boxShadow: `0 18px 42px ${alpha('#12233d', 0.12)}`,
+              }}
+            />
+            <Area
+              type='monotone'
+              dataKey='attendanceRate'
+              stroke='#2F7DFF'
+              strokeWidth={3}
+              fill='url(#attendanceAreaGradient)'
+              name='attendanceRate'
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </Box>
+    </Box>
   );
 };
 
