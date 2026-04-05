@@ -1,11 +1,28 @@
 import * as XLSX from "xlsx";
 import { prisma } from "./prisma";
 import { Role } from "../../generated/client";
+import { BadRequestError } from "./errors";
+
+interface XLSXParsedRow<T> {
+  row: number;
+  data: T;
+}
 
 export interface XLSXParseResult<T> {
-  data: T[];
+  rows: XLSXParsedRow<T>[];
   errors: Array<{ row: number; column: string; message: string }>;
 }
+
+const normalizeCellValue = (value: unknown) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmedValue = value.trim();
+  return trimmedValue === "" ? undefined : trimmedValue;
+};
+
+const countUniqueRows = <T extends { row: number }>(items: T[]) => new Set(items.map((item) => item.row)).size;
 
 export function parseXLSX<T>(buffer: Buffer, schema: Record<string, string>): XLSXParseResult<T> {
   const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -13,7 +30,7 @@ export function parseXLSX<T>(buffer: Buffer, schema: Record<string, string>): XL
   const sheet = workbook.Sheets[sheetName];
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false });
 
-  const data: T[] = [];
+  const parsedRows: XLSXParsedRow<T>[] = [];
   const errors: Array<{ row: number; column: string; message: string }> = [];
 
   rows.forEach((row, rowIndex) => {
@@ -21,8 +38,9 @@ export function parseXLSX<T>(buffer: Buffer, schema: Record<string, string>): XL
     let hasError = false;
 
     for (const [xlsxColumn, dbField] of Object.entries(schema)) {
-      const value = row[xlsxColumn];
-      if (value !== undefined && value !== null && value !== "") {
+      const value = normalizeCellValue(row[xlsxColumn]);
+
+      if (value !== undefined && value !== null) {
         record[dbField] = value;
       } else if (xlsxColumn.includes("*")) {
         errors.push({
@@ -35,17 +53,17 @@ export function parseXLSX<T>(buffer: Buffer, schema: Record<string, string>): XL
     }
 
     if (!hasError) {
-      data.push(record as T);
+      parsedRows.push({ row: rowIndex + 2, data: record as T });
     }
   });
 
-  return { data, errors };
+  return { rows: parsedRows, errors };
 }
 
 export async function importStudentsFromXLSX(
   buffer: Buffer,
   createdBy: string
-): Promise<{ success: number; errors: Array<{ row: number; message: string }> }> {
+): Promise<{ total: number; success: number; failed: number; updated: number; errors: Array<{ row: number; message: string }> }> {
   const schema: Record<string, string> = {
     "รหัสนักเรียน*": "studentId",
     "คำนำหน้า": "title",
@@ -59,78 +77,306 @@ export async function importStudentsFromXLSX(
     "อีเมล": "email",
   };
 
-  const { data, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
+  const { rows, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
 
-  if (errors.length > 0) {
-    return {
-      success: 0,
-      errors: errors.map((e) => ({ row: e.row, message: `${e.column}: ${e.message}` })),
-    };
+  if (rows.length === 0 && errors.length === 0) {
+    throw new BadRequestError("ไม่พบข้อมูลนักเรียนในไฟล์ กรุณากรอกข้อมูลอย่างน้อย 1 แถว");
   }
 
   let success = 0;
-  const importErrors: Array<{ row: number; message: string }> = [];
+  let updated = 0;
+  const importErrors: Array<{ row: number; message: string }> = errors.map((error) => ({
+    row: error.row,
+    message: `${error.column}: ${error.message}`,
+  }));
+  const seenStudentIds = new Set<string>();
+  const seenEmails = new Set<string>();
 
-  for (let i = 0; i < data.length; i++) {
-    const row = data[i];
+  for (const { row: rowNumber, data: row } of rows) {
     try {
-      const studentId = row.studentId as string;
+      const studentId = String(row.studentId ?? "").trim();
+      const title = typeof row.title === "string" ? row.title.trim() : undefined;
+      const firstName = typeof row.firstName === "string" ? row.firstName.trim() : undefined;
+      const lastName = typeof row.lastName === "string" ? row.lastName.trim() : undefined;
+      const phone = typeof row.phone === "string" ? row.phone.trim() : undefined;
+      const email = typeof row.email === "string" ? row.email.trim().toLowerCase() : undefined;
+      const classroomCode = typeof row.classroomId === "string" ? row.classroomId.trim() : undefined;
+      const programCode = typeof row.programId === "string" ? row.programId.trim() : undefined;
+      const departmentCode = typeof row.departmentId === "string" ? row.departmentId.trim() : undefined;
+      const levelCode = typeof row.levelId === "string" ? row.levelId.trim() : undefined;
 
-      const existingUser = await prisma.user.findFirst({
-        where: { username: studentId },
-      });
-
-      if (existingUser) {
-        importErrors.push({ row: i + 2, message: `รหัสนักเรียน ${studentId} มีอยู่แล้ว` });
+      if (!studentId) {
+        importErrors.push({ row: rowNumber, message: "รหัสนักเรียนห้ามว่าง" });
         continue;
       }
 
-      const hashedPassword = await import("bcryptjs").then((m) =>
-        m.hash(studentId, 10)
-      );
+      if (seenStudentIds.has(studentId)) {
+        importErrors.push({ row: rowNumber, message: `รหัสนักเรียน ${studentId} ซ้ำในไฟล์` });
+        continue;
+      }
 
-      const user = await prisma.user.create({
-        data: {
-          username: studentId,
-          password: hashedPassword,
-          role: Role.Student,
-          email: row.email as string | undefined,
-          createdBy,
-        },
-      });
+      seenStudentIds.add(studentId);
 
-      await prisma.account.create({
-        data: {
-          userId: user.id,
-          title: row.title as string | undefined,
-          firstName: row.firstName as string | undefined,
-          lastName: row.lastName as string | undefined,
-          phone: row.phone as string | undefined,
-        },
-      });
+      if (email) {
+        if (seenEmails.has(email)) {
+          importErrors.push({ row: rowNumber, message: `อีเมล ${email} ซ้ำในไฟล์` });
+          continue;
+        }
 
-      await prisma.student.create({
-        data: {
-          userId: user.id,
-          studentId,
-          classroomId: row.classroomId as string | undefined,
-          programId: row.programId as string | undefined,
-          departmentId: row.departmentId as string | undefined,
-          levelId: row.levelId as string | undefined,
-          createdBy,
-        },
+        seenEmails.add(email);
+      }
+
+      const [existingUser, existingStudent, existingEmailUser, classroom, program, department, level] = await Promise.all([
+        prisma.user.findFirst({
+          where: { username: studentId },
+          select: { id: true, role: true },
+        }),
+        prisma.student.findFirst({
+          where: { studentId },
+          select: { id: true, userId: true },
+        }),
+        email
+          ? prisma.user.findFirst({
+              where: { email },
+              select: { id: true },
+            })
+          : Promise.resolve(null),
+        classroomCode
+          ? prisma.classroom.findUnique({
+              where: { classroomId: classroomCode },
+              select: { id: true, programId: true, departmentId: true, levelId: true },
+            })
+          : Promise.resolve(null),
+        programCode
+          ? prisma.program.findUnique({
+              where: { programId: programCode },
+              select: { id: true },
+            })
+          : Promise.resolve(null),
+        departmentCode
+          ? prisma.department.findFirst({
+              where: { departmentId: departmentCode },
+              select: { id: true },
+            })
+          : Promise.resolve(null),
+        levelCode
+          ? prisma.level.findUnique({
+              where: { levelId: levelCode },
+              select: { id: true },
+            })
+          : Promise.resolve(null),
+      ]);
+
+      const targetUserId = existingStudent?.userId ?? existingUser?.id ?? null;
+
+      if (existingUser && existingUser.role !== Role.Student && !existingStudent) {
+        importErrors.push({ row: rowNumber, message: `รหัสนักเรียน ${studentId} ถูกใช้งานโดยบัญชีประเภทอื่น` });
+        continue;
+      }
+
+      if (email && existingEmailUser && existingEmailUser.id !== targetUserId) {
+        importErrors.push({ row: rowNumber, message: `อีเมล ${email} มีอยู่แล้ว` });
+        continue;
+      }
+
+      if (classroomCode && !classroom) {
+        importErrors.push({ row: rowNumber, message: `ไม่พบรหัสห้องเรียน ${classroomCode}` });
+        continue;
+      }
+
+      if (programCode && !program) {
+        importErrors.push({ row: rowNumber, message: `ไม่พบรหัสสาขา ${programCode}` });
+        continue;
+      }
+
+      if (departmentCode && !department) {
+        importErrors.push({ row: rowNumber, message: `ไม่พบรหัสแผนก ${departmentCode}` });
+        continue;
+      }
+
+      if (levelCode && !level) {
+        importErrors.push({ row: rowNumber, message: `ไม่พบรหัสระดับ ${levelCode}` });
+        continue;
+      }
+
+      if (classroom && program && classroom.programId && classroom.programId !== program.id) {
+        importErrors.push({ row: rowNumber, message: `รหัสสาขา ${programCode} ไม่ตรงกับห้องเรียน ${classroomCode}` });
+        continue;
+      }
+
+      if (classroom && department && classroom.departmentId && classroom.departmentId !== department.id) {
+        importErrors.push({ row: rowNumber, message: `รหัสแผนก ${departmentCode} ไม่ตรงกับห้องเรียน ${classroomCode}` });
+        continue;
+      }
+
+      if (classroom && level && classroom.levelId && classroom.levelId !== level.id) {
+        importErrors.push({ row: rowNumber, message: `รหัสระดับ ${levelCode} ไม่ตรงกับห้องเรียน ${classroomCode}` });
+        continue;
+      }
+
+      const resolvedProgramId = program?.id ?? classroom?.programId ?? undefined;
+      const resolvedDepartmentId = department?.id ?? classroom?.departmentId ?? undefined;
+      const resolvedLevelId = level?.id ?? classroom?.levelId ?? undefined;
+      const resolvedClassroomId = classroom?.id ?? undefined;
+
+      await prisma.$transaction(async (tx) => {
+        if (existingStudent && !targetUserId) {
+          const hashedPassword = await import("bcryptjs").then((m) =>
+            m.hash(studentId, 10)
+          );
+
+          const user = await tx.user.create({
+            data: {
+              username: studentId,
+              password: hashedPassword,
+              role: Role.Student,
+              email,
+              createdBy,
+            },
+            select: { id: true },
+          });
+
+          await tx.account.create({
+            data: {
+              userId: user.id,
+              title,
+              firstName,
+              lastName,
+              phone,
+              createdBy,
+            },
+          });
+
+          await tx.student.update({
+            where: { id: existingStudent.id },
+            data: {
+              userId: user.id,
+              studentId,
+              classroomId: resolvedClassroomId,
+              programId: resolvedProgramId,
+              departmentId: resolvedDepartmentId,
+              levelId: resolvedLevelId,
+              updatedBy: createdBy,
+            },
+          });
+
+          updated++;
+          return;
+        }
+
+        if (targetUserId) {
+          const user = await tx.user.update({
+            where: { id: targetUserId },
+            data: {
+              email,
+              updatedBy: createdBy,
+            },
+            select: { id: true },
+          });
+
+          await tx.account.upsert({
+            where: { userId: user.id },
+            update: {
+              title,
+              firstName,
+              lastName,
+              phone,
+              updatedBy: createdBy,
+            },
+            create: {
+              userId: user.id,
+              title,
+              firstName,
+              lastName,
+              phone,
+              createdBy,
+            },
+          });
+
+          if (existingStudent) {
+            await tx.student.update({
+              where: { id: existingStudent.id },
+              data: {
+                studentId,
+                classroomId: resolvedClassroomId,
+                programId: resolvedProgramId,
+                departmentId: resolvedDepartmentId,
+                levelId: resolvedLevelId,
+                updatedBy: createdBy,
+              },
+            });
+          } else {
+            await tx.student.create({
+              data: {
+                userId: user.id,
+                studentId,
+                classroomId: resolvedClassroomId,
+                programId: resolvedProgramId,
+                departmentId: resolvedDepartmentId,
+                levelId: resolvedLevelId,
+                createdBy,
+              },
+            });
+          }
+
+          updated++;
+          return;
+        }
+
+        const hashedPassword = await import("bcryptjs").then((m) =>
+          m.hash(studentId, 10)
+        );
+
+        const user = await tx.user.create({
+          data: {
+            username: studentId,
+            password: hashedPassword,
+            role: Role.Student,
+            email,
+            createdBy,
+          },
+        });
+
+        await tx.account.create({
+          data: {
+            userId: user.id,
+            title,
+            firstName,
+            lastName,
+            phone,
+            createdBy,
+          },
+        });
+
+        await tx.student.create({
+          data: {
+            userId: user.id,
+            studentId,
+            classroomId: resolvedClassroomId,
+            programId: resolvedProgramId,
+            departmentId: resolvedDepartmentId,
+            levelId: resolvedLevelId,
+            createdBy,
+          },
+        });
       });
 
       success++;
     } catch (error) {
       importErrors.push({
-        row: i + 2,
+        row: rowNumber,
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
 
-  return { success, errors: importErrors };
+  return {
+    total: rows.length + countUniqueRows(errors),
+    success,
+    updated,
+    failed: countUniqueRows(importErrors),
+    errors: importErrors,
+  };
 }
 
 export async function importTeachersFromXLSX(
@@ -150,20 +396,19 @@ export async function importTeachersFromXLSX(
     "อีเมล": "email",
   };
 
-  const { data, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
+  const { rows, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
 
-  if (errors.length > 0) {
-    return {
-      success: 0,
-      errors: errors.map((e) => ({ row: e.row, message: `${e.column}: ${e.message}` })),
-    };
+  if (rows.length === 0 && errors.length === 0) {
+    throw new BadRequestError("ไม่พบข้อมูลครูในไฟล์ กรุณากรอกข้อมูลอย่างน้อย 1 แถว");
   }
 
   let success = 0;
-  const importErrors: Array<{ row: number; message: string }> = [];
+  const importErrors: Array<{ row: number; message: string }> = errors.map((error) => ({
+    row: error.row,
+    message: `${error.column}: ${error.message}`,
+  }));
 
-  for (let i = 0; i < data.length; i++) {
-    const row = data[i];
+  for (const { row: rowNumber, data: row } of rows) {
     try {
       const teacherId = row.teacherId as string;
 
@@ -172,7 +417,7 @@ export async function importTeachersFromXLSX(
       });
 
       if (existingUser) {
-        importErrors.push({ row: i + 2, message: `รหัสครู ${teacherId} มีอยู่แล้ว` });
+        importErrors.push({ row: rowNumber, message: `รหัสครู ${teacherId} มีอยู่แล้ว` });
         continue;
       }
 
@@ -215,7 +460,7 @@ export async function importTeachersFromXLSX(
       success++;
     } catch (error) {
       importErrors.push({
-        row: i + 2,
+        row: rowNumber,
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }

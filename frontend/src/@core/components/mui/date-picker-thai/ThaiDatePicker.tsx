@@ -22,6 +22,7 @@ const ThaiDatePicker = ({
   disabled = false,
   error = false,
   helperText,
+  localeText,
   slotProps,
   slots,
   ...props
@@ -50,6 +51,16 @@ const ThaiDatePicker = ({
     return isNaN(converted.getTime()) ? undefined : maxDate;
   }, [maxDate]);
 
+  const mergedLocaleText = React.useMemo(
+    () => ({
+      fieldDayPlaceholder: () => 'วัน',
+      fieldMonthPlaceholder: () => 'เดือน',
+      fieldYearPlaceholder: () => 'ปี',
+      ...localeText,
+    }),
+    [localeText],
+  );
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={th}>
       <DatePicker
@@ -60,6 +71,7 @@ const ThaiDatePicker = ({
         minDate={minDateValue as any}
         maxDate={maxDateValue as any}
         disabled={disabled}
+        localeText={mergedLocaleText}
         slots={slots}
         slotProps={{
           textField: {
