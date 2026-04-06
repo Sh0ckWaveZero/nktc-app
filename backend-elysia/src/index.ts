@@ -36,7 +36,36 @@ const app = new Elysia()
   .use(errorHandler)
   .use(responsePlugin)
   .use(logger)
-  .use(cors())
+  .use(
+    cors({
+      origin: (request) => {
+        const origin = request.headers.get("origin");
+        if (!origin) return true;
+
+        const allowedDomains = (process.env.CORS_ALLOWED_DOMAINS || "")
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean);
+
+        const devOrigins = (process.env.CORS_DEV_ORIGINS || "")
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean);
+
+        const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        const isAllowedDomain = allowedDomains.some((domain) => origin.endsWith(domain));
+        const isDevOrigin = devOrigins.includes(origin);
+
+        return isLocalhost || isAllowedDomain || isDevOrigin;
+      },
+      methods: (process.env.CORS_PRODUCTION_METHODS || "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+        .split(",")
+        .map((m) => m.trim()),
+      allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+      credentials: true,
+      maxAge: Number(process.env.CORS_MAX_AGE) || 86400,
+    }),
+  )
   .use(
     swagger({
       path: "/swagger",
