@@ -3,6 +3,7 @@ import { useMediaQuery, useTheme } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherClassroomsAndStudents, useSaveCheckIn, useCheckInReports } from '@/hooks/queries/useCheckIn';
+import { toApiDate } from '@/utils/datetime';
 
 interface UseCheckInReportReturn {
   // Responsive config
@@ -265,7 +266,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     // ตรวจสอบว่า checkInDate ของ record ตรงกับวันนี้จริงๆ
     // backend อาจส่งข้อมูลวันเก่ากลับมาถ้ายังไม่ filter date ฝั่ง server
     const recordDate = reportData?.checkInDate
-      ? new Date(reportData.checkInDate).toLocaleDateString('en-CA') // "YYYY-MM-DD"
+      ? toApiDate(reportData.checkInDate)
       : null;
     const isToday = recordDate === checkInDate;
 

@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useMemo, useContext, useEffect, useRef } from 'react';
-import {
-  Avatar,
-  Box,
-  Chip,
-  Grid,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Avatar, Box, Chip, Grid, Typography, useMediaQuery, useTheme } from '@mui/material';
 import Icon from '@/@core/components/icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
@@ -19,9 +11,9 @@ import ActivityStudentCard from './components/ActivityStudentCard';
 import MobilePaginationControls from '@/views/apps/reports/check-in/components/MobilePaginationControls';
 import CheckInControls from '@/views/apps/reports/check-in/components/CheckInControls';
 import ActivityCheckInDataGrid from './components/ActivityCheckInDataGrid';
-import { shallow } from 'zustand/shallow';
 import { useRouter } from 'next/navigation';
 import { AbilityContext } from '@/layouts/components/acl/Can';
+import { toApiDate } from '@/utils/datetime';
 
 const ActivityCheckInReportPage = () => {
   // ** Hooks
@@ -37,14 +29,14 @@ const ActivityCheckInReportPage = () => {
 
   // ** React Query - Fetch teacher's students and classrooms
   const teacherId = auth?.user?.teacher?.id as string;
-  const {
-    data: teacherData,
-    isLoading: isLoadingTeacherData,
-  } = useTeacherStudents(teacherId);
+  const { data: teacherData, isLoading: isLoadingTeacherData } = useTeacherStudents(teacherId);
 
   // ** Local State for classroom
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
+
+  // วันที่ปัจจุบัน YYYY-MM-DD (local time) — ใช้เปรียบเทียบกับ checkInDate ใน response
+  const todayDate = useMemo(() => toApiDate(), []);
 
   // ** React Query - Fetch activity check-in data
   const {
@@ -54,6 +46,7 @@ const ActivityCheckInReportPage = () => {
   } = useActivityCheckIn({
     teacher: teacherId,
     classroom: defaultClassroom?.id || '',
+    date: todayDate,
   });
 
   // ** React Query - Add activity check-in mutation
@@ -106,7 +99,7 @@ const ActivityCheckInReportPage = () => {
   useEffect(() => {
     if (hasCheckedAuth.current) return;
     hasCheckedAuth.current = true;
-    
+
     const isInRole = (auth?.user?.role as string) === 'Admin';
     if (!ability?.can('read', 'check-in-page') || isInRole) {
       router.push('/401');
@@ -116,46 +109,46 @@ const ActivityCheckInReportPage = () => {
 
   // Process activity check-in data when available
   useEffect(() => {
-    if (!activityCheckInData) {
-      // No check-in data exists - reset everything
+    const reset = () => {
       setHasSavedCheckIn(false);
       setIsPresentCheck([]);
       setIsAbsentCheck([]);
       setIsPresentCheckAll(false);
       setIsAbsentCheckAll(false);
+    };
+
+    if (!activityCheckInData) {
+      reset();
       return;
     }
 
-    // Check if data exists and has valid structure
-    const hasValidData = activityCheckInData &&
-      typeof activityCheckInData === 'object' &&
-      Object.keys(activityCheckInData).length > 0 &&
-      (activityCheckInData.id || activityCheckInData.present || activityCheckInData.absent || activityCheckInData.data);
+    // Normalize nested structure
+    const reportData = activityCheckInData?.data ?? activityCheckInData;
 
-    if (hasValidData) {
-      // Handle nested data structure
-      const reportData = activityCheckInData?.data || activityCheckInData;
-      setHasSavedCheckIn(true);
+    // ตรวจว่า record นี้เป็นของวันนี้จริงๆ
+    // backend อาจส่งข้อมูลวันเก่ากลับมาถ้ายังไม่ filter date ฝั่ง server
+    const recordDate = reportData?.checkInDate
+      ? toApiDate(reportData.checkInDate)
+      : null;
+    const isToday = recordDate === todayDate;
 
-      if (reportData?.present && Array.isArray(reportData.present) && reportData.present.length > 0) {
-        setIsPresentCheck(reportData.present);
-      } else {
-        setIsPresentCheck([]);
-      }
-
-      if (reportData?.absent && Array.isArray(reportData.absent) && reportData.absent.length > 0) {
-        setIsAbsentCheck(reportData.absent);
-      } else {
-        setIsAbsentCheck([]);
-      }
-    } else {
-      setHasSavedCheckIn(false);
-      setIsPresentCheck([]);
-      setIsAbsentCheck([]);
-      setIsPresentCheckAll(false);
-      setIsAbsentCheckAll(false);
+    if (!isToday) {
+      reset();
+      return;
     }
-  }, [activityCheckInData]);
+
+    const present = Array.isArray(reportData?.present) ? reportData.present : [];
+    const absent = Array.isArray(reportData?.absent) ? reportData.absent : [];
+    const hasData = present.length + absent.length > 0;
+
+    if (hasData) {
+      setHasSavedCheckIn(true);
+      setIsPresentCheck(present);
+      setIsAbsentCheck(absent);
+    } else {
+      reset();
+    }
+  }, [activityCheckInData, todayDate]);
 
   // Process teacher data when available
   useEffect(() => {
@@ -184,7 +177,9 @@ const ActivityCheckInReportPage = () => {
     // Set pageSize to a valid option based on student count
     const validPageSizeOptions = [5, 10, 25, 50, 100];
     const studentCount = students.length;
-    const appropriatePageSize = validPageSizeOptions.find(size => size >= studentCount) || validPageSizeOptions[validPageSizeOptions.length - 1];
+    const appropriatePageSize =
+      validPageSizeOptions.find((size) => size >= studentCount) ||
+      validPageSizeOptions[validPageSizeOptions.length - 1];
     setPageSize(appropriatePageSize);
   }, [teacherData]);
 
@@ -393,7 +388,7 @@ const ActivityCheckInReportPage = () => {
       const studentCount = classroomObj.students?.length || 0;
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 5;
-      const closestSize = validPageSizes.find(size => size >= calculatedSize) || validPageSizes[0];
+      const closestSize = validPageSizes.find((size) => size >= calculatedSize) || validPageSizes[0];
       setPageSize(Math.min(closestSize, studentCount > 0 ? studentCount : 5));
       setCurrentPage(0);
       setMobilePage(0);
@@ -411,17 +406,14 @@ const ActivityCheckInReportPage = () => {
   }
 
   return (
-    <div 
-      id='activity-checkin-page-fragment'
-      style={{ borderRadius: '8px', overflow: 'hidden' }}
-    >
+    <div id='activity-checkin-page-fragment' style={{ borderRadius: '8px', overflow: 'hidden' }}>
       <Grid id='activity-checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
           <Box
             id='activity-checkin-main-container-box'
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
               backgroundColor: 'background.paper',
             }}
           >

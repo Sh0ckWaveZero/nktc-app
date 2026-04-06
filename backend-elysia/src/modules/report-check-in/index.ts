@@ -26,11 +26,12 @@ export const reportCheckIn = new Elysia({ prefix: "/reportCheckIn" })
 					},
 				},
 			)
-			.get("/teacher/:teacherId/classroom/:classroomId", async ({ params: { teacherId, classroomId } }) => {
-				return ReportCheckInService.getByTeacherAndClassroom(teacherId, classroomId);
+			.get("/teacher/:teacherId/classroom/:classroomId", async ({ params: { teacherId, classroomId }, query }) => {
+				return ReportCheckInService.getByTeacherAndClassroom(teacherId, classroomId, query.date);
 			}, {
+				query: ReportCheckInModel.teacherClassroomQuery,
 				detail: {
-					summary: "Get check-in by teacher and classroom",
+					summary: "Get check-in by teacher and classroom (filter by ?date=YYYY-MM-DD)",
 				},
 			})
 			.get(

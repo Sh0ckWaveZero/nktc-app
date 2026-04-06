@@ -1,6 +1,9 @@
 import { t, type UnwrapSchema } from "elysia";
 
 export const ReportCheckInModel = {
+	teacherClassroomQuery: t.Object({
+		date: t.Optional(t.String({ description: "Filter by date YYYY-MM-DD" })),
+	}),
 	checkInBody: t.Object({
 		teacherId: t.String(),
 		classroomId: t.String(),

@@ -135,6 +135,22 @@ export function getBuddhistYear(date: Date | string | number): string {
 }
 
 /**
+ * Format date as YYYY-MM-DD for API query parameters (local time, not UTC)
+ * ใช้สำหรับส่ง date ไปกับ API เท่านั้น ไม่ใช่สำหรับแสดงผล
+ *
+ * @example
+ * toApiDate(new Date())       // "2026-04-06"
+ * toApiDate("2026-04-06T03:01:31.593Z") // "2026-04-06"
+ */
+export function toApiDate(date: Date | string | number = new Date()): string {
+  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+/**
  * Calculate time ago in Thai
  */
 export function calculateTimeAgo(date: Date): string {
