@@ -28,12 +28,13 @@ export const activityCheckIn = new Elysia({ prefix: "/activity-check-in" })
 			)
 			.get(
 				"/teacher/:teacherId/classroom/:classroomId",
-				async ({ params: { teacherId, classroomId } }) => {
-					return ActivityCheckInService.getByTeacherAndClassroom(teacherId, classroomId);
+				async ({ params: { teacherId, classroomId }, query }) => {
+					return ActivityCheckInService.getByTeacherAndClassroom(teacherId, classroomId, query.date);
 				},
 				{
+					query: ActivityCheckInModel.teacherClassroomQuery,
 					detail: {
-						summary: "Get activity check-in by teacher and classroom",
+						summary: "Get activity check-in by teacher and classroom (filter by ?date=YYYY-MM-DD)",
 					},
 				},
 			)

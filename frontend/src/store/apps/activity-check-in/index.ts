@@ -23,8 +23,9 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   activityCheckInErrors: false,
   getActivityCheckIn: async (param: any) => {
     try {
+      const dateParam = param.date ? `?date=${param.date}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
+        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}${dateParam}`,
       );
       return await data;
     } catch (err) {

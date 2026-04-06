@@ -40,6 +40,7 @@ import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/Edi
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import React from 'react';
+import { toApiDate } from '@/utils/datetime';
 
 interface CellType {
   row: any;
@@ -199,9 +200,12 @@ const ActivityCheckInDailyReportPage = () => {
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
+      // ส่ง date เพื่อกรองเฉพาะวันที่เลือก ไม่เช่นนั้นจะได้ข้อมูลวันเก่า
+      const dateStr = toApiDate(dateInfo as Date | string);
       getActivityCheckIn({
         teacher: auth?.user?.teacher?.id,
         classroom: classroomInfo,
+        date: dateStr,
       });
     } catch (error) {
       console.error(error);

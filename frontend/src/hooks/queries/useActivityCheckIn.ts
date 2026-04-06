@@ -6,6 +6,7 @@ import { queryKeys } from '@/libs/react-query/queryKeys';
 interface ActivityCheckInParams {
   teacher: string;
   classroom: string;
+  date?: string; // YYYY-MM-DD — กรองเฉพาะวันนั้น
 }
 
 interface AddActivityCheckInData {
@@ -25,8 +26,10 @@ export const useActivityCheckIn = (params: ActivityCheckInParams) => {
   return useQuery({
     queryKey: queryKeys.activityCheckIn.report(params),
     queryFn: async () => {
+      // แนบ date เพื่อกรองเฉพาะวันนั้น ไม่เช่นนั้น backend ส่งข้อมูลวันเก่ากลับมา
+      const dateParam = params.date ? `?date=${params.date}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${params.teacher}/classroom/${params.classroom}`
+        `${authConfig.activityCheckInEndpoint}/teacher/${params.teacher}/classroom/${params.classroom}${dateParam}`
       );
       return data;
     },

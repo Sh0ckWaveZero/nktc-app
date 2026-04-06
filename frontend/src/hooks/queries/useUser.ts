@@ -3,10 +3,10 @@ import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
 import { queryKeys } from '@/libs/react-query/queryKeys';
 import type {
+  AuditLog,
+  AuditLogParams,
   ChangePasswordRequest,
   ChangePasswordResponse,
-  AuditLogParams,
-  AuditLogsResponse,
   UserDataType,
 } from '@/types/apps/userTypes';
 
@@ -30,6 +30,7 @@ export const useUserById = (userId: string, enabled = true) => {
 /**
  * Hook to fetch audit logs for a user
  * Server-side paginated with skip/take
+ * รองรับทั้ง plain array และ { data, total } จาก backend
  */
 export const useAuditLogs = (params: AuditLogParams) => {
   return useQuery({
@@ -38,7 +39,11 @@ export const useAuditLogs = (params: AuditLogParams) => {
       const { data } = await httpClient.get(
         `${authConfig.userEndpoint}/audit-logs/${params.userName}?skip=${params.skip || 0}&take=${params.take || 10}`,
       );
-      return data as AuditLogsResponse;
+      // normalize: backend อาจส่ง plain array หรือ { data, total }
+      if (Array.isArray(data)) {
+        return { data, total: data.length } as { data: AuditLog[]; total: number };
+      }
+      return data as { data: AuditLog[]; total: number };
     },
     enabled: !!params.userName,
     staleTime: 60 * 1000, // 1 minute

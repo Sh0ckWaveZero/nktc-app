@@ -31,18 +31,22 @@ export interface AuditLogParams {
 export interface AuditLog {
   id: string;
   action: 'CheckIn' | 'Login' | string;
+  model: string;
+  recordId: string | null;
+  fieldName: string | null;
+  oldValue: string | null;
+  newValue: string | null;
   detail: string;
   ipAddr: string;
   browser: string;
   device: string;
   createdAt: Date;
-  userId: string;
+  createdBy: string;
+  userId?: string;
 }
 
-export interface AuditLogsResponse {
-  data: AuditLog[];
-  total: number;
-}
+/** Backend ส่งกลับเป็น plain array หรือ object { data, total } */
+export type AuditLogsResponse = AuditLog[] | { data: AuditLog[]; total: number };
 
 export interface UserByIdResponse {
   data: UserDataType;

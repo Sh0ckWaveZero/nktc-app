@@ -43,6 +43,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/navigation';
+import { toApiDate } from '@/utils/datetime';
 
 interface CellType {
   row: any;
@@ -608,7 +609,8 @@ const CheckInDailyReportPage = () => {
   const getCheckInStatus = async (teacher: string, classroom: string) => {
     setLoading(true);
     try {
-      const data = await getActivityCheckIn({ teacher, classroom });
+      // ส่ง date วันนี้เพื่อกรองเฉพาะวันนี้ ไม่เช่นนั้นจะได้ข้อมูลวันเก่า
+      const data = await getActivityCheckIn({ teacher, classroom, date: toApiDate() });
       // ตรวจสอบว่ามีข้อมูลจริงหรือไม่ (ไม่ใช่ empty object หรือ null)
       if (data && typeof data === 'object' && Object.keys(data).length > 0 && data.id) {
         setReportCheckIn(data);

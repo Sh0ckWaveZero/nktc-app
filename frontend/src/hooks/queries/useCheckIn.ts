@@ -35,6 +35,8 @@ export const useTeacherClassroomsAndStudents = (teacherId: string) => {
 
 /**
  * Hook to fetch check-in reports
+ * ต้องส่ง date ไปกับ query เสมอ เพื่อกรองเฉพาะวันนั้น
+ * ไม่เช่นนั้น backend จะคืนข้อมูลทุกวัน → hasSavedCheckIn เป็น true ผิดๆ
  */
 export const useCheckInReports = (params?: {
   teacherId?: string;
@@ -47,15 +49,16 @@ export const useCheckInReports = (params?: {
       if (!params?.teacherId || !params?.classroomId) {
         return null;
       }
-      
-      // Use the correct endpoint: /teacher/:teacherId/classroom/:classroomId
+
+      // แนบ date เป็น query string เพื่อกรองเฉพาะวันที่ต้องการ
+      const dateParam = params.date ? `?date=${params.date}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.reportCheckInEndpoint}/teacher/${params.teacherId}/classroom/${params.classroomId}`
+        `${authConfig.reportCheckInEndpoint}/teacher/${params.teacherId}/classroom/${params.classroomId}${dateParam}`
       );
       return data;
     },
     enabled: !!(params?.teacherId && params?.classroomId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000, // ลดเหลือ 1 นาที เพื่อ reflect การบันทึกใหม่ได้เร็วขึ้น
   });
 };
 

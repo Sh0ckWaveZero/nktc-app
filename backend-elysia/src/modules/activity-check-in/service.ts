@@ -15,9 +15,20 @@ export abstract class ActivityCheckInService {
 		});
 	}
 
-	static async getByTeacherAndClassroom(teacherId: string, classroomId: string) {
+	static async getByTeacherAndClassroom(teacherId: string, classroomId: string, date?: string) {
+		// ถ้ามี date ให้กรองเฉพาะวันนั้น ไม่เช่นนั้นจะส่งข้อมูลวันเก่ากลับมาผิดๆ
+		const where = date
+			? (() => {
+				const start = new Date(date);
+				const end = new Date(date);
+				start.setHours(0, 0, 0, 0);
+				end.setHours(23, 59, 59, 999);
+				return { teacherId, classroomId, checkInDate: { gte: start, lte: end } };
+			})()
+			: { teacherId, classroomId };
+
 		const record = await prisma.activityCheckInReport.findFirst({
-			where: { teacherId, classroomId },
+			where,
 			orderBy: { checkInDate: "desc" },
 		});
 		return record ?? {};
