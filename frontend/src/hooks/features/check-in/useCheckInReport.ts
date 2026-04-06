@@ -235,46 +235,68 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   }, [classroomData, classroomLoading, classroomError, auth.user?.teacher?.id]);
 
   // Load saved check-in status when report data is available
+  // dependency: checkInReport และ defaultClassroom?.id เท่านั้น
+  // ไม่ใส่ currentStudents?.length เพราะจะทำให้ effect re-run แล้ว reset state ผิดเวลา
   useEffect(() => {
-    if (!checkInReport || !defaultClassroom?.id) {
+    if (!defaultClassroom?.id) {
       setHasSavedCheckIn(false);
       return;
     }
 
-    // Handle nested data structure
-    const reportData = checkInReport?.data || checkInReport;
-    
-    // Check if there's saved check-in data
-    const hasData = reportData && (
-      (Array.isArray(reportData.present) && reportData.present.length > 0) ||
-      (Array.isArray(reportData.absent) && reportData.absent.length > 0) ||
-      (Array.isArray(reportData.late) && reportData.late.length > 0) ||
-      (Array.isArray(reportData.leave) && reportData.leave.length > 0) ||
-      (Array.isArray(reportData.internship) && reportData.internship.length > 0)
-    );
-    
+    // checkInReport เป็น null/undefined = ยังไม่มีข้อมูลวันนี้
+    if (!checkInReport) {
+      setHasSavedCheckIn(false);
+      setIsPresentCheck([]);
+      setIsAbsentCheck([]);
+      setIsLateCheck([]);
+      setIsLeaveCheck([]);
+      setIsInternshipCheck([]);
+      setIsPresentCheckAll(false);
+      setIsAbsentCheckAll(false);
+      setIsLateCheckAll(false);
+      setIsLeaveCheckAll(false);
+      setIsInternshipCheckAll(false);
+      return;
+    }
+
+    // Normalize nested structure: { data: { present: [] } } หรือ { present: [] }
+    const reportData = checkInReport?.data ?? checkInReport;
+
+    // ตรวจสอบว่า checkInDate ของ record ตรงกับวันนี้จริงๆ
+    // backend อาจส่งข้อมูลวันเก่ากลับมาถ้ายังไม่ filter date ฝั่ง server
+    const recordDate = reportData?.checkInDate
+      ? new Date(reportData.checkInDate).toLocaleDateString('en-CA') // "YYYY-MM-DD"
+      : null;
+    const isToday = recordDate === checkInDate;
+
+    const present     = Array.isArray(reportData?.present)     ? reportData.present     : [];
+    const absent      = Array.isArray(reportData?.absent)      ? reportData.absent      : [];
+    const late        = Array.isArray(reportData?.late)        ? reportData.late        : [];
+    const leave       = Array.isArray(reportData?.leave)       ? reportData.leave       : [];
+    const internship  = Array.isArray(reportData?.internship)  ? reportData.internship  : [];
+
+    // มีข้อมูล AND เป็นวันนี้เท่านั้น จึงถือว่าเช็คชื่อไปแล้ว
+    const hasData = isToday &&
+      present.length + absent.length + late.length + leave.length + internship.length > 0;
+
     if (hasData) {
       setHasSavedCheckIn(true);
-      // Set saved check-in status
-      setIsPresentCheck(reportData.present || []);
-      setIsAbsentCheck(reportData.absent || []);
-      setIsLateCheck(reportData.late || []);
-      setIsLeaveCheck(reportData.leave || []);
-      setIsInternshipCheck(reportData.internship || []);
-      
-      // Update check-all states based on saved data
-      const totalStudents = currentStudents?.length || 0;
-      if (totalStudents > 0) {
-        setIsPresentCheckAll((reportData.present || []).length === totalStudents);
-        setIsAbsentCheckAll((reportData.absent || []).length === totalStudents);
-        setIsLateCheckAll((reportData.late || []).length === totalStudents);
-        setIsLeaveCheckAll((reportData.leave || []).length === totalStudents);
-        setIsInternshipCheckAll((reportData.internship || []).length === totalStudents);
-      }
+      setIsPresentCheck(present);
+      setIsAbsentCheck(absent);
+      setIsLateCheck(late);
+      setIsLeaveCheck(leave);
+      setIsInternshipCheck(internship);
+
+      // อัปเดต check-all โดยใช้ค่า currentStudents ณ ตอนนั้น (ไม่ใช้ใน dependency)
+      setIsPresentCheckAll(prev => prev); // จะถูกคำนวณใหม่ถ้า students โหลดทีหลัง
+      setIsAbsentCheckAll(prev => prev);
+      setIsLateCheckAll(prev => prev);
+      setIsLeaveCheckAll(prev => prev);
+      setIsInternshipCheckAll(prev => prev);
     } else {
       setHasSavedCheckIn(false);
     }
-  }, [checkInReport, defaultClassroom?.id, currentStudents?.length]);
+  }, [checkInReport, defaultClassroom?.id]);
 
   // Handle classroom selection change
   const handleSelectChange = async (event: any) => {
