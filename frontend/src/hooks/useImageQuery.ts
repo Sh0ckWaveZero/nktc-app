@@ -87,19 +87,20 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
   const { getImage, setImage: cacheImage, setError: cacheError, getError } = useImageCacheStore();
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const fetchImage = async () => {
       setError(null);
       setIsLoading(true);
 
       try {
-        // No URL provided, use default
         if (!url) {
           setImage(DEFAULT_AVATAR);
           setIsLoading(false);
           return;
         }
 
-        // Validate URL for security
         if (!isValidImageUrl(url)) {
           console.warn(`Invalid image URL blocked: ${url}`);
           const err = new Error('Invalid image URL');
@@ -109,21 +110,18 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           return;
         }
 
-        // Use default avatar directly (no fetch needed)
         if (url === DEFAULT_AVATAR) {
           setImage(DEFAULT_AVATAR);
           setIsLoading(false);
           return;
         }
 
-        // Handle data URLs directly (no fetch needed)
         if (url.startsWith('data:image/')) {
           setImage(url);
           setIsLoading(false);
           return;
         }
 
-        // Check if image is already cached
         const cachedImage = getImage(url);
         if (cachedImage) {
           setImage(cachedImage);
@@ -131,7 +129,6 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
           return;
         }
 
-        // Check if there's a recent error (prevent spam retries)
         const cachedError = getError(url);
         if (cachedError) {
           setError(cachedError);
@@ -141,10 +138,6 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
         }
 
         const imageUrl = normalizeImageUrl(url);
-
-        // Fetch the image from the server with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s)
 
         try {
           const token = typeof window !== 'undefined' ? window.localStorage.getItem('accessToken') : null;
@@ -164,7 +157,6 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
 
           const imageBlob = await response.blob();
 
-          // Validate content type
           const contentType = response.headers.get('content-type') || imageBlob.type;
           if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
             console.warn(`Invalid content type: ${contentType}`);
@@ -176,7 +168,6 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
             return;
           }
 
-          // Validate file size
           if (imageBlob.size > MAX_IMAGE_SIZE) {
             console.warn(`Image too large: ${imageBlob.size} bytes`);
             const err = new Error('Image file too large');
@@ -187,17 +178,13 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
             return;
           }
 
-          // Create object URL and cache it
           const objectUrl = URL.createObjectURL(imageBlob);
           cacheImage(url, objectUrl);
           setImage(objectUrl);
           setIsLoading(false);
         } catch (err: any) {
           clearTimeout(timeoutId);
-
-          // Handle abort timeout
           const error = err?.name === 'AbortError' ? new Error('Image loading timeout') : err;
-
           cacheError(url, error);
           setError(error);
           setImage(DEFAULT_AVATAR);
@@ -212,6 +199,11 @@ const useImageQuery = (url: string): UseImageQueryReturn => {
     };
 
     fetchImage();
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
   }, [url, getImage, getError, cacheImage, cacheError]);
 
   return {

@@ -28,7 +28,7 @@ logger.info("🗄️ Initializing database connection", {
   database: dbInfo.database,
 });
 
-const pool = new pg.Pool({ 
+const pool = new pg.Pool({
   connectionString: DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,

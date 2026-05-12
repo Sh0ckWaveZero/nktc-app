@@ -96,7 +96,7 @@ const VerticalNavHeader = (props: Props) => {
     }
   };
 
-  const MenuLockedIcon = () =>
+  const renderMenuLockedIcon = () =>
     userMenuLockedIcon || (
       <RecordCircleOutline
         sx={{
@@ -108,7 +108,7 @@ const VerticalNavHeader = (props: Props) => {
       />
     );
 
-  const MenuUnlockedIcon = () =>
+  const renderMenuUnlockedIcon = () =>
     userMenuUnlockedIcon || (
       <CircleOutline
         sx={{
@@ -176,7 +176,7 @@ const VerticalNavHeader = (props: Props) => {
             backgroundColor: 'transparent !important',
           }}
         >
-          {navCollapsed ? MenuUnlockedIcon() : MenuLockedIcon()}
+          {navCollapsed ? renderMenuUnlockedIcon() : renderMenuLockedIcon()}
         </IconButton>
       )}
     </MenuHeaderWrapper>

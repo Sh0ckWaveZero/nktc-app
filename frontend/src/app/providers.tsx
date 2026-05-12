@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useContext, useState, useEffect } from 'react';
+import { ReactNode, use, useState, useSyncExternalStore } from 'react';
 
 // ** Emotion Imports
 import { CacheProvider } from '@emotion/react';
@@ -42,18 +42,11 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 
 const clientSideEmotionCache = createEmotionCache();
 
-// ** Client-only component for React Query DevTools
+const emptySubscribe = () => () => {};
+
 const ClientOnlyDevTools = () => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return null;
-  }
-
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  if (!isClient) return null;
   return <ReactQueryDevtools initialIsOpen={false} position='bottom' />;
 };
 
@@ -64,16 +57,7 @@ interface ProvidersProps {
 
 // ** ACL Provider Component
 const ACLProvider = ({ children }: { children: ReactNode }) => {
-  let auth;
-
-  try {
-    auth = useContext(AuthContext);
-  } catch {
-    // Context is not available during static generation
-    auth = null;
-  }
-
-  // Handle case where context might be null during static generation or client-side only
+  const auth = use(AuthContext);
   const ability = auth?.user?.role ? buildAbilityFor(auth.user.role, 'all') : buildAbilityFor('guest', 'all');
 
   // Type assertion to handle React 19 compatibility with CASL
@@ -101,14 +85,8 @@ const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
 
 // ** Toast Container Wrapper Component
 const ToastContainerWrapper = ({ children }: { children: ReactNode }) => {
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const { mode } = useColorScheme();
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
-  // Only calculate theme when client-side to avoid hydration mismatch
   const toastTheme = isClient && mode === 'dark' ? 'dark' : 'light';
   
   return (

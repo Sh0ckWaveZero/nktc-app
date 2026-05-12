@@ -1,5 +1,7 @@
 'use client';
 
+import { Suspense } from 'react';
+
 // ** Component Import
 import StudentListPage from '@/views/apps/student/list/StudentListPage';
 
@@ -15,7 +17,9 @@ export default function StudentList() {
       }}
       guestGuard={false}
     >
-      <StudentListPage />
+      <Suspense>
+        <StudentListPage />
+      </Suspense>
     </AclGuard>
   );
 }

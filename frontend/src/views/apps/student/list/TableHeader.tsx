@@ -212,11 +212,6 @@ const TableHeader = memo((props: TableHeaderProps) => {
     '& .MuiInputBase-input': {
       letterSpacing: '-0.01em',
     },
-    '& .MuiInputBase-input::placeholder': {
-      color: 'text.secondary',
-      opacity: 1,
-      fontWeight: 500,
-    },
     '& .MuiInputLabel-root': {
       fontSize: '0.9rem',
       fontWeight: 600,
@@ -228,7 +223,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
     '& .MuiSvgIcon-root': {
       color: 'text.secondary',
     },
-    '& .MuiFormHelperText-root': {
+    '& .MuiFormHelperText-root:not(.Mui-error)': {
       color: 'text.secondary',
       fontWeight: 500,
     },

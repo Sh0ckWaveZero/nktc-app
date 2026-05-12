@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useState, Fragment, useEffect } from 'react';
+import { useContext, useState, Fragment, useEffect, useRef } from 'react';
 import {
   Typography,
   CardHeader,
@@ -101,9 +101,9 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 }));
 
 const ActivityCheckInDailyReportPage = () => {
-  let isPresentCheck: any[] = [];
-  let isAbsentCheck: any[] = [];
-  let isInternshipCheck: any[] = [];
+  const isPresentCheckRef = useRef<any[]>([]);
+  const isAbsentCheckRef = useRef<any[]>([]);
+  const isInternshipCheckRef = useRef<any[]>([]);
 
   const auth = useAuth();
   const ability = useContext(AbilityContext);
@@ -141,6 +141,39 @@ const ActivityCheckInDailyReportPage = () => {
 
   // Combine loading states from React Query and local state
   const isLoading = isLoadingTeacherData || loading;
+
+  // Fetch daily report - must be declared before useEffect that uses it
+  const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
+    setLoading(true);
+    const classroomInfo = classroom || defaultClassroom.id;
+    const dateInfo = date || selectedDate;
+
+    try {
+      const data = await findDailyReport({
+        teacherId: auth?.user?.teacher?.id,
+        classroomId: classroomInfo,
+        startDate: dateInfo,
+      });
+
+      const dataArray = Array.isArray(data) ? data : [];
+      const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
+      const students = reportCheckInData?.students ?? [];
+      setCurrentStudents(students);
+      setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
+      setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
+      const dateStr = toApiDate(dateInfo as Date | string);
+      getActivityCheckIn({
+        teacher: auth?.user?.teacher?.id,
+        classroom: classroomInfo,
+        date: dateStr,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Authorization check
   useEffectOnce(() => {
@@ -182,39 +215,6 @@ const ActivityCheckInDailyReportPage = () => {
     fetchDailyReport(null, classroom.id);
   }, [teacherData, isLoadingTeacherData]);
 
-  const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
-    setLoading(true);
-    const classroomInfo = classroom || defaultClassroom.id;
-    const dateInfo = date || selectedDate;
-
-    try {
-      const data = await findDailyReport({
-        teacherId: auth?.user?.teacher?.id,
-        classroomId: classroomInfo,
-        startDate: dateInfo,
-      });
-
-      const dataArray = Array.isArray(data) ? data : [];
-      const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
-      const students = reportCheckInData?.students ?? [];
-      setCurrentStudents(students);
-      setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
-      setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
-      // ส่ง date เพื่อกรองเฉพาะวันที่เลือก ไม่เช่นนั้นจะได้ข้อมูลวันเก่า
-      const dateStr = toApiDate(dateInfo as Date | string);
-      getActivityCheckIn({
-        teacher: auth?.user?.teacher?.id,
-        classroom: classroomInfo,
-        date: dateStr,
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error('เกิดข้อผิดพลาด');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onHandleToggle = (action: StudentStatus, param: any): void => {
     switch (action) {
       case 'present':
@@ -232,15 +232,15 @@ const ActivityCheckInDailyReportPage = () => {
   };
 
   const handleTogglePresent = (param: any): void => {
-    isPresentCheck.push(...onSetToggle(isPresentCheck, param));
+    isPresentCheckRef.current.push(...onSetToggle(isPresentCheckRef.current, param));
   };
 
   const handleToggleAbsent = (param: any): void => {
-    isAbsentCheck.push(...onSetToggle(isAbsentCheck, param));
+    isAbsentCheckRef.current.push(...onSetToggle(isAbsentCheckRef.current, param));
   };
 
   const handleToggleInternship = (param: any): void => {
-    isInternshipCheck.push(...onSetToggle(isInternshipCheck, param));
+    isInternshipCheckRef.current.push(...onSetToggle(isInternshipCheckRef.current, param));
   };
 
   const onSetToggle = (prevState: any, param: any): any => {
@@ -279,22 +279,22 @@ const ActivityCheckInDailyReportPage = () => {
 
   const onHandlePresentChecked = (param: any): void => {
     const studentRecordId = param?.student?.id || param.id;
-    if (isPresentCheck.includes(studentRecordId)) {
-      isPresentCheck = onRemoveToggle(isPresentCheck, studentRecordId);
+    if (isPresentCheckRef.current.includes(studentRecordId)) {
+      isPresentCheckRef.current = onRemoveToggle(isPresentCheckRef.current, studentRecordId);
     }
   };
 
   const onHandleAbsentChecked = (param: any): void => {
     const studentRecordId = param?.student?.id || param.id;
-    if (isAbsentCheck.includes(studentRecordId)) {
-      isAbsentCheck = onRemoveToggle(isAbsentCheck, studentRecordId);
+    if (isAbsentCheckRef.current.includes(studentRecordId)) {
+      isAbsentCheckRef.current = onRemoveToggle(isAbsentCheckRef.current, studentRecordId);
     }
   };
 
   const onHandleInternshipChecked = (param: any): void => {
     const studentRecordId = param?.student?.id || param.id;
-    if (isInternshipCheck.includes(studentRecordId)) {
-      isInternshipCheck = onRemoveToggle(isInternshipCheck, studentRecordId);
+    if (isInternshipCheckRef.current.includes(studentRecordId)) {
+      isInternshipCheckRef.current = onRemoveToggle(isInternshipCheckRef.current, studentRecordId);
     }
   };
 
@@ -309,8 +309,8 @@ const ActivityCheckInDailyReportPage = () => {
   };
 
   const onClearAll = (): void => {
-    isPresentCheck = [];
-    isAbsentCheck = [];
+    isPresentCheckRef.current = [];
+    isAbsentCheckRef.current = [];
   };
 
   const handleOpenEditCheckIn = (param: any): void => {
@@ -324,26 +324,26 @@ const ActivityCheckInDailyReportPage = () => {
     const { reportCheckInData } = values?.data || {};
     const { present = [], absent = [] } = reportCheckInData || {};
 
-    isPresentCheck.push(...present);
-    isAbsentCheck.push(...absent);
+    isPresentCheckRef.current.push(...present);
+    isAbsentCheckRef.current.push(...absent);
 
     onHandleToggle(values?.isCheckInStatus, values?.data);
 
-    isPresentCheck = [...new Set(isPresentCheck)];
-    isAbsentCheck = [...new Set(isAbsentCheck)];
+    isPresentCheckRef.current = [...new Set(isPresentCheckRef.current)];
+    isAbsentCheckRef.current = [...new Set(isAbsentCheckRef.current)];
 
     const updated = {
       ...reportCheckInData,
-      present: isPresentCheck,
-      absent: isAbsentCheck,
+      present: isPresentCheckRef.current,
+      absent: isAbsentCheckRef.current,
       updateBy: auth?.user?.id,
     };
 
     const created = {
       teacherId: auth?.user?.teacher?.id,
       classroomId,
-      present: isPresentCheck,
-      absent: isAbsentCheck,
+      present: isPresentCheckRef.current,
+      absent: isAbsentCheckRef.current,
       checkInDate: selectedDate,
       status: '1',
     };

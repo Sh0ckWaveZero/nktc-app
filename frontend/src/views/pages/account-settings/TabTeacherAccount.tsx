@@ -90,6 +90,30 @@ const TabTeacherAccount = () => {
   const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
   const { isLoading, image } = useImageQuery(imgSrc);
 
+  const defaultValues = {
+    title: auth?.user?.account?.title ?? '',
+    firstName: auth?.user?.account?.firstName ?? '',
+    lastName: auth?.user?.account?.lastName ?? '',
+    jobTitle: auth?.user?.teacher?.jobTitle ?? '',
+    academicStanding: auth?.user?.teacher?.academicStanding ?? '',
+    department: auth?.user?.teacher?.department?.id ?? '',
+    teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
+    avatar: auth?.user?.account?.avatar ?? '',
+    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
+    idCard: auth?.user?.account?.idCard ?? '',
+  };
+
+  const {
+    reset,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+    resolver: zodResolver(schema),
+  });
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -156,30 +180,6 @@ const TabTeacherAccount = () => {
       setImgSrc(imageCompressed);
     }
   }, [imageCompressed]);
-
-  const defaultValues = {
-    title: auth?.user?.account?.title ?? '',
-    firstName: auth?.user?.account?.firstName ?? '',
-    lastName: auth?.user?.account?.lastName ?? '',
-    jobTitle: auth?.user?.teacher?.jobTitle ?? '',
-    academicStanding: auth?.user?.teacher?.academicStanding ?? '',
-    department: auth?.user?.teacher?.department?.id ?? '',
-    teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
-    avatar: auth?.user?.account?.avatar ?? '',
-    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
-    idCard: auth?.user?.account?.idCard ?? '',
-  };
-
-  const {
-    reset,
-    control,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm({
-    defaultValues,
-    mode: 'onChange',
-    resolver: zodResolver(schema),
-  });
 
   const onHandleChange = (event: any, value: any) => {
     event.preventDefault();

@@ -19,6 +19,12 @@ export interface ClassroomStats {
   levelClassrooms: number;
 }
 
+export interface ClassroomLevelClassroomRef {
+  id: string;
+  programId: string | null;
+  levelId: string | null;
+}
+
 export interface ClassroomItem {
   id: string;
   classroomId: string;
@@ -35,6 +41,7 @@ export interface ClassroomItem {
   department?: DepartmentItem | null;
   program?: ProgramItem | null;
   level?: LevelItem | null;
+  levelClassrooms?: ClassroomLevelClassroomRef[];
   _count: ClassroomStats;
 }
 
@@ -101,6 +108,7 @@ const normalizeClassroom = (classroom: any): ClassroomItem => ({
   department: classroom.department ?? null,
   program: classroom.program ?? null,
   level: classroom.level ?? null,
+  levelClassrooms: Array.isArray(classroom.levelClassrooms) ? classroom.levelClassrooms : [],
   _count: {
     student: classroom._count?.student ?? 0,
     teachers: classroom._count?.teachers ?? 0,

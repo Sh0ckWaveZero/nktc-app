@@ -139,7 +139,7 @@ export const useCreateStudent = () => {
 
   return useMutation({
     mutationFn: async ({ userId, params }: { userId: string; params: any }) => {
-      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/profile/${userId}`, params);
+      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/profile/${userId}/`, params);
       return unwrapResponse(data);
     },
     onSuccess: () => {
@@ -156,7 +156,7 @@ export const useDeleteStudent = () => {
 
   return useMutation({
     mutationFn: async (studentId: string) => {
-      return await httpClient.delete(`${authConfig.studentEndpoint}/profile/${studentId}`);
+      return await httpClient.delete(`${authConfig.studentEndpoint}/${studentId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
@@ -181,6 +181,62 @@ export const useImportStudents = () => {
   });
 };
 
+export interface PromotePreviewStudent {
+  id: string;
+  studentId: string | null;
+  name: string;
+}
+
+export interface PromotePreviewResult {
+  classroomName: string | null;
+  total: number;
+  students: PromotePreviewStudent[];
+}
+
+export interface PromoteClassroomResult {
+  promoted: number;
+  sourceClassroom: string;
+  targetClassroom: string;
+}
+
+/**
+ * Hook to preview students that will be promoted from a classroom
+ */
+export const usePromotePreview = (sourceClassroomId: string) => {
+  return useQuery({
+    queryKey: ['promote-preview', sourceClassroomId],
+    queryFn: async () => {
+      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/promote-preview`, {
+        params: { sourceClassroomId },
+      });
+      return unwrapResponse<PromotePreviewResult>(data);
+    },
+    enabled: !!sourceClassroomId,
+    staleTime: 0,
+  });
+};
+
+/**
+ * Hook to promote all students from one classroom to another
+ */
+export const usePromoteStudents = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ sourceClassroomId, targetClassroomId }: { sourceClassroomId: string; targetClassroomId: string }) => {
+      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/promote-classroom`, {
+        sourceClassroomId,
+        targetClassroomId,
+      });
+      return data as PromoteClassroomResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.classrooms.all });
+    },
+  });
+};
+
 /**
  * Hook to search students with POST params (classroomId + search filters)
  */
@@ -197,7 +253,7 @@ export const useStudentsWithParams = (
       });
       return unwrapArrayResponse(data);
     },
-    enabled: options?.enabled ?? !!params.classroomId,
+    enabled: options?.enabled ?? true,
     staleTime: 2 * 60 * 1000,
     placeholderData: (prev) => prev,
   });

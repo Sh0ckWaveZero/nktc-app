@@ -456,7 +456,7 @@ const ActivityCheckInReportPage = () => {
                     <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    {new Date(Date.now()).toLocaleDateString('th-TH', {
+                    {new Date().toLocaleDateString('th-TH', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
