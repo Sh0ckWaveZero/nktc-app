@@ -1,15 +1,13 @@
-import IconifyIcon from '@/@core/components/icon';
+import { alpha, Box, Typography } from '@mui/material';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  styled,
 } from '@mui/material';
 import React from 'react';
+
+import IconifyIcon from '@/@core/components/icon';
 
 type Props = {
   data: any;
@@ -18,55 +16,51 @@ type Props = {
   open: boolean;
 };
 
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
-}));
-
 const DialogDeleteTeacher = (props: Props) => {
   const { data, onClose, onSubmitted, open } = props;
   const fullName = `${data?.title ? data?.title : ''}${data?.firstName} ${data?.lastName}`;
   return (
-    <BootstrapDialog
-      fullWidth
-      maxWidth='xs'
-      onClose={onClose}
-      aria-labelledby='ยืนยันการลบข้อมูลครู / บุคลากร'
-      open={open}
-    >
-      {onClose ? (
-        <IconButton
-          aria-label='close'
-          onClick={onClose}
+    <Dialog fullWidth maxWidth='xs' onClose={onClose} aria-labelledby='ยืนยันการลบข้อมูลครู / บุคลากร' open={open}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 6, pt: 6, pb: 2 }}>
+        <Box
           sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
+            color: 'error.main',
+            mb: 3,
           }}
         >
-          <IconifyIcon icon='mdi:close' />
-        </IconButton>
-      ) : null}
-      <DialogTitle id='alert-dialog-title-goodness'>ยืนยันการลบข้อมูลครู / บุคลากร</DialogTitle>
-      <DialogContent>
-        <DialogContentText id='alert-delete-badness' p={5}>
-          {`คุณต้องการลบข้อมูลของ ${fullName} ใช่หรือไม่?`}
-        </DialogContentText>
+          <IconifyIcon icon='tabler:trash' fontSize={28} />
+        </Box>
+        <Typography variant='h6' fontWeight={600} textAlign='center'>
+          ยืนยันการลบข้อมูลครู / บุคลากร
+        </Typography>
+      </Box>
+
+      <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
+        <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.8 }}>
+          {'คุณต้องการลบข้อมูลของ '}
+          <Box component='strong' sx={{ color: 'text.primary' }}>
+            {fullName}
+          </Box>
+          {' ใช่หรือไม่?'}
+        </Typography>
       </DialogContent>
-      <DialogActions className='dialog-badness-dense'>
-        <Button color='secondary' onClick={onClose}>
+
+      <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
+        <Button variant='outlined' color='inherit' onClick={onClose} fullWidth>
           ยกเลิก
         </Button>
-        <Button variant='contained' color='error' onClick={onSubmitted}>
-          ยืนยัน
+        <Button variant='contained' color='error' onClick={onSubmitted} fullWidth>
+          ลบข้อมูล
         </Button>
       </DialogActions>
-    </BootstrapDialog>
+    </Dialog>
   );
 };
 

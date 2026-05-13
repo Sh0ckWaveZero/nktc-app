@@ -46,7 +46,7 @@ import {
   type ProgramPayload,
 } from '@/hooks/queries/useDepartments';
 
-import ProgramDeleteDialog from './ProgramDeleteDialog';
+import ProgramDeleteDialog from '@/components/dialogs/ProgramDeleteDialog';
 import ProgramFormDialog from './ProgramFormDialog';
 
 const PANEL_RADIUS = 16;

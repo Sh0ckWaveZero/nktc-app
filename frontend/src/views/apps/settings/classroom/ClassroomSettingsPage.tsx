@@ -2,7 +2,6 @@
 
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-import Autocomplete from '@mui/material/Autocomplete';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,12 +9,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Chip from '@mui/material/Chip';
-import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -47,8 +44,9 @@ import {
 import { useDepartments, useLevels, usePrograms } from '@/hooks/queries/useDepartments';
 import { usePromoteStudents, usePromotePreview } from '@/hooks/queries/useStudents';
 
-import ClassroomDeleteDialog from './ClassroomDeleteDialog';
+import ClassroomDeleteDialog from '@/components/dialogs/ClassroomDeleteDialog';
 import ClassroomFormDialog from './ClassroomFormDialog';
+import ClassroomPromotionDialog from './ClassroomPromotionDialog';
 
 const PANEL_RADIUS = 16;
 const SECTION_RADIUS = 14;
@@ -1148,126 +1146,23 @@ const ClassroomSettingsPage = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        id='promote-students-dialog'
+
+      <ClassroomPromotionDialog
         open={openPromote}
-        fullWidth
-        maxWidth='sm'
-      >
-        <DialogTitle>เลื่อนชั้นนักเรียน</DialogTitle>
-        <DialogContent sx={{ pt: '16px !important' }}>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-            นักเรียนทุกคนในห้องเรียนต้นทาง (ยกเว้นที่จบการศึกษาแล้ว) จะถูกย้ายไปยังห้องเรียนปลายทาง
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Autocomplete
-              id='promote-source-classroom'
-              options={classrooms.filter((c) => c.id !== promoteTarget?.id)}
-              getOptionLabel={(option) => option.name ?? option.classroomId ?? ''}
-              value={promoteSource}
-              onChange={(_, value) => {
-                setPromoteSource(value);
-                if (promoteTarget?.id === value?.id) setPromoteTarget(null);
-              }}
-              disabled={isPromoting}
-              renderInput={(params) => (
-                <TextField {...params} label='ห้องเรียนต้นทาง' placeholder='พิมพ์เพื่อค้นหา...' sx={CONTROL_SX} />
-              )}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              noOptionsText='ไม่พบห้องเรียน'
-            />
-
-            {promoteSource && (
-              <Box>
-                {isLoadingPreview ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant='body2' color='text.secondary'>กำลังโหลดรายชื่อ...</Typography>
-                  </Box>
-                ) : promotePreview?.total === 0 ? (
-                  <Alert severity='warning' sx={{ borderRadius: 2 }}>
-                    ไม่มีนักเรียนในห้องเรียนนี้ที่จะเลื่อนชั้นได้
-                  </Alert>
-                ) : promotePreview && promotePreview.total > 0 ? (
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant='subtitle2'>
-                        รายชื่อนักเรียนที่จะเลื่อนชั้น
-                      </Typography>
-                      <Chip size='small' label={`${promotePreview.total} คน`} color='primary' variant='outlined' />
-                    </Box>
-                    <Box
-                      sx={{
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        border: (theme) => `1px solid ${theme.palette.divider}`,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <List disablePadding dense>
-                        {promotePreview.students.map((student, index) => (
-                          <ListItem
-                            key={student.id}
-                            divider={index < promotePreview.students.length - 1}
-                            sx={{ py: 0.75 }}
-                          >
-                            <ListItemText
-                              primary={student.name}
-                              secondary={student.studentId ?? '-'}
-                              slotProps={{
-                                primary: { variant: 'body2', fontWeight: 500 },
-                                secondary: { variant: 'caption' },
-                              }}
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-                  </Box>
-                ) : null}
-              </Box>
-            )}
-
-            <Divider />
-
-            <Autocomplete
-              id='promote-target-classroom'
-              options={classrooms.filter((c) => c.id !== promoteSource?.id)}
-              getOptionLabel={(option) => option.name ?? option.classroomId ?? ''}
-              value={promoteTarget}
-              onChange={(_, value) => setPromoteTarget(value)}
-              disabled={isPromoting || !promoteSource || promotePreview?.total === 0}
-              renderInput={(params) => (
-                <TextField {...params} label='ห้องเรียนปลายทาง' placeholder='พิมพ์เพื่อค้นหา...' sx={CONTROL_SX} />
-              )}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              noOptionsText='ไม่พบห้องเรียน'
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
-          <Button
-            id='promote-cancel-button'
-            variant='outlined'
-            color='error'
-            onClick={() => setOpenPromote(false)}
-            disabled={isPromoting}
-          >
-            ยกเลิก
-          </Button>
-          <Button
-            id='promote-confirm-button'
-            variant='contained'
-            color='primary'
-            onClick={handleConfirmPromote}
-            disabled={!promoteSource || !promoteTarget || isPromoting || promotePreview?.total === 0}
-          >
-            {isPromoting ? 'กำลังเลื่อนชั้น...' : 'ยืนยันเลื่อนชั้น'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <input ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
+        classrooms={classrooms}
+        promoteSource={promoteSource}
+        promoteTarget={promoteTarget}
+        promotePreview={promotePreview}
+        isLoadingPreview={isLoadingPreview}
+        isPromoting={isPromoting}
+        onSourceChange={(value) => {
+          setPromoteSource(value);
+          if (promoteTarget?.id === value?.id) setPromoteTarget(null);
+        }}
+        onTargetChange={setPromoteTarget}
+        onConfirm={handleConfirmPromote}
+        onCancel={() => setOpenPromote(false)}
+      />
     </>
   );
 };

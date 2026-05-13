@@ -96,6 +96,7 @@ export abstract class StudentService {
       take = 1000,
       departmentId,
       programId,
+      studentStatus,
     } = params;
 
     // Support both q (from GET) and search object (from POST)
@@ -136,10 +137,17 @@ export abstract class StudentService {
       }
     }
 
+    const statusCondition = studentStatus
+      ? studentStatus === 'graduated'
+        ? { OR: [{ studentStatus: 'graduated' }, { isGraduation: true }] }
+        : { studentStatus }
+      : {};
+
     const whereCondition = {
       ...(classroomId ? { classroomId } : {}),
       ...(departmentId ? { departmentId } : {}),
       ...(programId ? { programId } : {}),
+      ...statusCondition,
       ...(searchConditions.length > 0 ? { OR: searchConditions } : {}),
     };
 
@@ -472,6 +480,48 @@ export abstract class StudentService {
       promoted: count,
       sourceClassroom: source.name,
       targetClassroom: target.name,
+    };
+  }
+
+  static async graduateClassroom(classroomId: string, graduationYear: number, graduatedBy: string, rawGraduationDate?: string | Date) {
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, name: true },
+    });
+
+    if (!classroom) throw new NotFoundError("ไม่พบห้องเรียน");
+
+    const graduationDate = rawGraduationDate ? new Date(rawGraduationDate as any) : new Date();
+
+    const { count } = await prisma.student.updateMany({
+      where: {
+        classroomId,
+        OR: [{ isGraduation: false }, { isGraduation: null }],
+      },
+      data: {
+        isGraduation: true,
+        graduationYear,
+        graduationDate,
+        studentStatus: "graduated",
+        updatedBy: graduatedBy,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "GRADUATE_CLASSROOM",
+        model: "Student",
+        detail: `จบการศึกษานักเรียน ${count} คน จากห้อง "${classroom.name}" ปีการศึกษา ${graduationYear}`,
+        oldValue: classroom.id,
+        newValue: String(graduationYear),
+        createdBy: graduatedBy,
+      },
+    });
+
+    return {
+      graduated: count,
+      classroom: classroom.name,
+      graduationYear,
     };
   }
 

@@ -10,32 +10,32 @@ import CardHeader from '@mui/material/CardHeader';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { alpha, styled } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import React, { memo, useMemo, useCallback } from 'react';
-import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine } from 'react-icons/ri';
+import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine, RiGraduationCapLine, RiArrowUpLine } from 'react-icons/ri';
 import { AccountEditOutline } from 'mdi-material-ui';
-import Link from 'next/link';
-
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/student/list/TableHeader';
+import ClassroomPromotionDialog from '@/views/apps/settings/classroom/ClassroomPromotionDialog';
+import StudentDeleteDialog from '@/components/dialogs/StudentDeleteDialog';
+import StudentGraduationDialog from '@/components/dialogs/StudentGraduationDialog';
+import StudentBulkGraduationDialog from '@/components/dialogs/StudentBulkGraduationDialog';
+import StudentIndividualPromotionDialog from '@/components/dialogs/StudentIndividualPromotionDialog';
 import { useStudentList } from '@/hooks/features/student';
 import type { StudentImportResult } from '@/hooks/queries/useStudents';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
-
-const LinkStyled = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  color: theme.palette.primary.main,
-}));
 
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   border: 0,
@@ -106,40 +106,6 @@ const StudentNameCell = memo(({ row }: { row: any }) => (
       </Typography>
     </Box>
   </Box>
-));
-
-interface StudentDeleteDialogProps {
-  open: boolean;
-  student: any;
-  onConfirm: (event: any) => void;
-  onCancel: () => void;
-}
-
-const StudentDeleteDialog = memo(({ open, student, onConfirm, onCancel }: StudentDeleteDialogProps) => (
-  <Dialog
-    open={open}
-    disableEscapeKeyDown
-    aria-labelledby='alert-dialog-title'
-    aria-describedby='alert-dialog-description'
-    onClose={(_, reason) => {
-      if (reason !== 'backdropClick') onCancel();
-    }}
-  >
-    <DialogTitle id='alert-dialog-title'>ยืนยันการลบข้อมูล</DialogTitle>
-    <DialogContent>
-      <DialogContentText id='alert-dialog-description'>
-        {`คุณต้องการลบข้อมูลของ ${student?.user?.account?.title}${student?.user?.account?.firstName} ${student?.user?.account?.lastName} ใช่หรือไม่?`}
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions className='dialog-actions-dense'>
-      <Button color='secondary' onClick={onCancel}>
-        ยกเลิก
-      </Button>
-      <Button variant='outlined' color='error' onClick={onConfirm}>
-        ยืนยัน
-      </Button>
-    </DialogActions>
-  </Dialog>
 ));
 
 interface StudentImportResultDialogProps {
@@ -255,6 +221,21 @@ const StudentListPage = () => {
     searchValue,
     openDeletedConfirm,
     deletedStudent,
+    isDeleting,
+    openGraduationConfirm,
+    graduationStudent,
+    isGraduating,
+    openBulkGraduationConfirm,
+    isGraduatingClassroom,
+    openPromoteConfirm,
+    promoteSource,
+    promoteTarget,
+    promotePreview,
+    isLoadingPromotePreview,
+    isPromoting,
+    openIndividualPromoteConfirm,
+    promoteStudent,
+    promoteStudentTarget,
     openImportResultDialog,
     importResult,
     isImportingStudents,
@@ -266,9 +247,25 @@ const StudentListPage = () => {
     handleChangeFullName,
     handleSearchChange,
     handleStudentId,
+    handleStatusChange,
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
+    handleGraduationClick,
+    handleGraduationConfirm,
+    handleGraduationCancel,
+    handleBulkGraduationClick,
+    handleBulkGraduationConfirm,
+    handleBulkGraduationCancel,
+    handlePromoteClick,
+    handlePromoteSourceChange,
+    handlePromoteTargetChange,
+    handlePromoteConfirm,
+    handlePromoteCancel,
+    handleIndividualPromoteClick,
+    handleIndividualPromoteTargetChange,
+    handleIndividualPromoteConfirm,
+    handleIndividualPromoteCancel,
     handleImportStudents,
     handleCloseImportResultDialog,
     handleDownloadTemplate,
@@ -309,62 +306,91 @@ const StudentListPage = () => {
         ),
       },
       {
-        flex: 0.15,
-        minWidth: 120,
-        field: 'edited',
-        headerName: 'แก้ไข',
-        editable: false,
+        flex: 0.24,
+        minWidth: 220,
+        field: 'actions',
+        headerName: 'การดำเนินการ',
         sortable: false,
-        hideSortIcons: true,
         filterable: false,
         align: 'center',
-        renderCell: ({ row }) => (
-          <LinkStyled href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`} passHref>
-            <Button color='warning' variant='contained' startIcon={<AccountEditOutline fontSize='small' />}>
-              แก้ไข
-            </Button>
-          </LinkStyled>
-        ),
-      },
-      {
-        flex: 0.15,
-        minWidth: 120,
-        field: 'delete',
-        headerName: 'ลบข้อมูล',
-        editable: false,
-        sortable: false,
-        hideSortIcons: true,
-        filterable: false,
-        align: 'center',
-        renderCell: ({ row }) => (
-          <Button
-            color='error'
-            variant='contained'
-            startIcon={<RiUserUnfollowLine fontSize='small' />}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteClick(row);
-            }}
-          >
-            ลบ
-          </Button>
-        ),
-      },
-      {
-        flex: 0.15,
-        minWidth: 120,
-        field: 'details',
-        headerName: 'ดูรายละเอียด',
-        sortable: false,
-        align: 'center',
-        renderCell: () => (
-          <Button disabled color='primary' variant='contained' startIcon={<RiUserSearchLine fontSize='small' />}>
-            ดู
-          </Button>
-        ),
+        headerAlign: 'center',
+        renderCell: ({ row }) => {
+          const isGraduated = row.studentStatus === 'graduated' || row.isGraduation === true;
+
+          const getActionIconSx = (color: 'info' | 'warning' | 'error' | 'success' | 'primary') => ({
+            width: 32,
+            height: 32,
+            borderRadius: 1.5,
+            border: (theme: Theme) => `1px solid ${alpha(theme.palette[color].main, 0.24)}`,
+            backgroundColor: (theme: Theme) => alpha(theme.palette[color].main, 0.12),
+            color: `${color}.dark`,
+            transition: 'all 160ms ease',
+            '&:hover': {
+              backgroundColor: (theme: Theme) => alpha(theme.palette[color].main, 0.2),
+            },
+            '&.Mui-disabled': {
+              borderColor: (theme: Theme) => alpha(theme.palette.action.disabled, 0.28),
+              backgroundColor: (theme: Theme) => alpha(theme.palette.action.disabledBackground, 0.46),
+              color: 'text.disabled',
+            },
+          });
+
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}>
+              <Tooltip title='ดูรายละเอียด'>
+                <IconButton href={`/apps/student/view/${row?.id}`} sx={getActionIconSx('info')}>
+                  <RiUserSearchLine fontSize='1rem' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='แก้ไข'>
+                <IconButton
+                  href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`}
+                  sx={getActionIconSx('warning')}
+                >
+                  <AccountEditOutline fontSize='small' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='เลื่อนชั้น'>
+                <IconButton
+                  disabled={isGraduated}
+                  sx={getActionIconSx('primary')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleIndividualPromoteClick(row);
+                  }}
+                >
+                  <RiArrowUpLine fontSize='1rem' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={isGraduated ? 'จบแล้ว' : 'จบการศึกษา'}>
+                <IconButton
+                  disabled={isGraduated}
+                  sx={getActionIconSx('success')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGraduationClick(row);
+                  }}
+                >
+                  <RiGraduationCapLine fontSize='1rem' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='ลบข้อมูล'>
+                <IconButton
+                  sx={getActionIconSx('error')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(row);
+                  }}
+                >
+                  <RiUserUnfollowLine fontSize='1rem' />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          );
+        },
       },
     ],
-    [currentClassroomId, handleDeleteClick],
+    [currentClassroomId, handleDeleteClick, handleGraduationClick, handleIndividualPromoteClick],
   );
 
   return (
@@ -491,12 +517,17 @@ const StudentListPage = () => {
               onImportStudents={handleImportStudents}
               onDownloadTemplate={handleDownloadTemplate}
               onExportStudents={handleExportStudents}
+              onBulkGraduate={isAdmin ? handleBulkGraduationClick : undefined}
+              onBulkPromote={isAdmin ? handlePromoteClick : undefined}
+              onStatusChange={handleStatusChange}
+              studentStatus={searchValue.studentStatus}
               studentId={searchValue.studentId}
               students={students}
               canImportStudents={isAdmin}
               isImportingStudents={isImportingStudents}
               isDownloadingTemplate={isDownloadingTemplate}
               isExportingStudents={isExportingStudents}
+              isPromoting={isPromoting}
             />
             <StyledDataGrid
               rows={students}
@@ -521,8 +552,55 @@ const StudentListPage = () => {
         <StudentDeleteDialog
           open={openDeletedConfirm}
           student={deletedStudent}
+          isDeleting={isDeleting}
+          onClose={handleDeleteCancel}
           onConfirm={handleDeleteConfirm}
-          onCancel={handleDeleteCancel}
+        />
+      )}
+      {openGraduationConfirm && (
+        <StudentGraduationDialog
+          open={openGraduationConfirm}
+          student={graduationStudent}
+          isGraduating={isGraduating}
+          onClose={handleGraduationCancel}
+          onConfirm={handleGraduationConfirm}
+        />
+      )}
+      {openBulkGraduationConfirm && (
+        <StudentBulkGraduationDialog
+          open={openBulkGraduationConfirm}
+          classroomName={initClassroom?.name ?? ''}
+          studentCount={students.length}
+          isGraduating={isGraduatingClassroom}
+          onClose={handleBulkGraduationCancel}
+          onConfirm={handleBulkGraduationConfirm}
+        />
+      )}
+      {openPromoteConfirm && (
+        <ClassroomPromotionDialog
+          open={openPromoteConfirm}
+          classrooms={classrooms}
+          promoteSource={promoteSource}
+          promoteTarget={promoteTarget}
+          promotePreview={promotePreview}
+          isLoadingPreview={isLoadingPromotePreview}
+          isPromoting={isPromoting}
+          onSourceChange={handlePromoteSourceChange}
+          onTargetChange={handlePromoteTargetChange}
+          onConfirm={handlePromoteConfirm}
+          onCancel={handlePromoteCancel}
+        />
+      )}
+      {openIndividualPromoteConfirm && (
+        <StudentIndividualPromotionDialog
+          open={openIndividualPromoteConfirm}
+          student={promoteStudent}
+          classrooms={classrooms}
+          targetClassroom={promoteStudentTarget}
+          isPromoting={isPromoting}
+          onTargetChange={handleIndividualPromoteTargetChange}
+          onConfirm={handleIndividualPromoteConfirm}
+          onCancel={handleIndividualPromoteCancel}
         />
       )}
       <StudentImportResultDialog

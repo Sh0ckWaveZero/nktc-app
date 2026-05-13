@@ -7,6 +7,7 @@ export const StudentModel = {
     classroomId: t.Optional(t.Union([t.String(), t.Null()])),
     departmentId: t.Optional(t.Union([t.String(), t.Null()])),
     programId: t.Optional(t.Union([t.String(), t.Null()])),
+    studentStatus: t.Optional(t.Union([t.String(), t.Null()])),
     search: t.Optional(
       t.Object({
         fullName: t.Optional(t.String()),
@@ -50,6 +51,11 @@ export const StudentModel = {
   promoteBody: t.Object({
     sourceClassroomId: t.String(),
     targetClassroomId: t.String(),
+  }),
+  graduateClassroomBody: t.Object({
+    classroomId: t.String(),
+    graduationYear: t.Integer(),
+    graduationDate: t.Optional(t.Union([t.String(), t.Date()])),
   }),
   updateBody: t.Object({
     studentId: t.Optional(t.String()),

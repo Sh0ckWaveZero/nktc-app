@@ -44,7 +44,7 @@ import {
   type DepartmentPayload,
 } from '@/hooks/queries/useDepartments';
 
-import DepartmentDeleteDialog from './DepartmentDeleteDialog';
+import DepartmentDeleteDialog from '@/components/dialogs/DepartmentDeleteDialog';
 import DepartmentFormDialog from './DepartmentFormDialog';
 
 const PANEL_RADIUS = 16;

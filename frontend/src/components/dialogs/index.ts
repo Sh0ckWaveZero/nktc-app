@@ -1,0 +1,9 @@
+export { default as StudentDeleteDialog } from './StudentDeleteDialog';
+export { default as StudentGraduationDialog } from './StudentGraduationDialog';
+export { default as StudentBulkGraduationDialog } from './StudentBulkGraduationDialog';
+export { default as StudentIndividualPromotionDialog } from './StudentIndividualPromotionDialog';
+export { default as ClassroomDeleteDialog } from './ClassroomDeleteDialog';
+export { default as ClassroomPromotionDialog } from '@/views/apps/settings/classroom/ClassroomPromotionDialog';
+export { default as DepartmentDeleteDialog } from './DepartmentDeleteDialog';
+export { default as ProgramDeleteDialog } from './ProgramDeleteDialog';
+export { default as TeacherDeleteDialog } from './TeacherDeleteDialog';
