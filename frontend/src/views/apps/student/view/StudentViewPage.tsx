@@ -1,29 +1,40 @@
 'use client';
 
-import { useState, useEffect, SyntheticEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Link from 'next/link';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import Skeleton from '@mui/material/Skeleton';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Avatar from '@mui/material/Avatar';
-import { styled, useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Icon from '@/@core/components/icon';
 
-interface StudentViewPageProps {
-  id: string;
-}
+import Icon from '@/@core/components/icon';
+import CardAward from './CardAward';
+import TimelineBadness from './TimelineBadness';
+import TimelineGoodness from './TimelineGoodness';
+import UserViewLeft from './UserViewLeft';
+
+import { useStudentGoodnessRecords, useDeleteGoodnessRecord } from '@/hooks/queries/useGoodness';
+import { useStudentBadnessRecords, useDeleteBadnessRecord } from '@/hooks/queries/useBadness';
+import { useStudent, useStudentTrophyOverview, useStudentClassroomTeachers } from '@/hooks/queries/useStudents';
+import { useAuth } from '@/hooks/useAuth';
+import useImageQuery from '@/hooks/useImageQuery';
+
+import type { StudentData } from '@/types/apps/studentTypes';
+
+// ── Styled tab list ─────────────────────────────────────────────────────────────
 
 const MuiTabList = styled(TabList)(({ theme }) => ({
-  '& .MuiTabs-indicator': {
-    display: 'none',
-  },
+  '& .MuiTabs-indicator': { display: 'none' },
   '& .Mui-selected': {
     backgroundColor: theme.palette.primary.main,
     color: `${theme.palette.common.white} !important`,
@@ -34,177 +45,267 @@ const MuiTabList = styled(TabList)(({ theme }) => ({
     paddingTop: theme.spacing(2.5),
     paddingBottom: theme.spacing(2.5),
     borderRadius: theme.shape.borderRadius,
-    [theme.breakpoints.up('sm')]: {
-      minWidth: 130,
-    },
+    [theme.breakpoints.up('sm')]: { minWidth: 130 },
   },
 }));
 
-const StudentViewPage = ({ id }: StudentViewPageProps) => {
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+// ── Helpers ─────────────────────────────────────────────────────────────────────
 
-  const router = useRouter();
-  const theme = useTheme();
-  const hideText = useMediaQuery(theme.breakpoints.down('sm'));
+const statusMap: Record<string, { label: string; color: 'success' | 'error' | 'info' | 'default' }> = {
+  active: { label: 'กำลังศึกษา', color: 'success' },
+  inactive: { label: 'ไม่ได้ศึกษา', color: 'error' },
+  graduated: { label: 'สำเร็จการศึกษา', color: 'info' },
+};
 
-  const handleChange = (event: SyntheticEvent, value: string) => {
-    setActiveTab(value);
-  };
+const EmptyState = ({ icon, label }: { icon: string; label: string }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      py: 14,
+      gap: 2,
+      color: 'text.disabled',
+    }}
+  >
+    <Icon icon={icon} fontSize={48} />
+    <Typography variant='body2'>{label}</Typography>
+  </Box>
+);
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <Box sx={{ display: 'flex', mb: 3, gap: 2, alignItems: 'center' }}>
+    <Box sx={{ fontWeight: 600, minWidth: 148, color: 'text.secondary', flexShrink: 0, fontSize: '0.875rem' }}>
+      {label}
+    </Box>
+    <Box sx={{ color: 'text.primary', fontSize: '0.875rem', display: 'flex', alignItems: 'center' }}>
+      {value ?? '-'}
+    </Box>
+  </Box>
+);
 
-  const mockStudentData = {
-    id,
-    studentId: id,
-    title: 'นาย',
-    firstName: 'ทดสอบ',
-    lastName: 'ระบบ',
-    classroom: 'ปวช.1/1',
-    email: 'test@nktc.ac.th',
-    phone: '08-xxxx-xxxx',
-    status: 'active',
+// ── Student detail card ─────────────────────────────────────────────────────────
+
+const StudentDetailCard = ({ student }: { student: StudentData | undefined }) => {
+  if (!student) {
+    return (
+      <Card>
+        <CardContent>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} variant='text' height={28} sx={{ mb: 1.5 }} />
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { user, classroom, program, department, level, studentId, status } = student;
+  const account = user.account;
+
+  const address = [account.addressLine1, account.subdistrict, account.district, account.province, account.postcode]
+    .filter(Boolean)
+    .join(' ');
+
+  const statusInfo = statusMap[status] ?? { label: status, color: 'default' as const };
+
+  const formatDate = (date: string | null) => {
+    if (!date) return null;
+    return new Date(date).toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   return (
+    <Card>
+      <CardContent sx={{ pt: 5, pb: '20px !important' }}>
+        <Typography variant='h6' sx={{ mb: 4 }}>
+          ข้อมูลส่วนตัว
+        </Typography>
+        <Divider sx={{ mb: 4 }} />
+
+        <DetailRow label='รหัสนักเรียน' value={studentId} />
+        <DetailRow
+          label='สถานะ'
+          value={<Chip size='small' label={statusInfo.label} color={statusInfo.color} />}
+        />
+        <DetailRow label='วันเกิด' value={formatDate(account.birthDate)} />
+        <DetailRow label='เลขบัตรประชาชน' value={account.idCard} />
+        <DetailRow label='เบอร์โทรศัพท์' value={account.phone} />
+        <DetailRow label='ที่อยู่' value={address || null} />
+
+        {(program || department || level || classroom) && (
+          <>
+            <Divider sx={{ my: 4 }} />
+            <Typography variant='h6' sx={{ mb: 4 }}>
+              ข้อมูลการศึกษา
+            </Typography>
+            {level && <DetailRow label='ระดับชั้น' value={level.levelFullName} />}
+            {classroom && <DetailRow label='ห้องเรียน' value={classroom.name} />}
+            {program && <DetailRow label='สาขาวิชา' value={program.name} />}
+            {department && <DetailRow label='แผนก' value={department.name} />}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// ── Page ────────────────────────────────────────────────────────────────────────
+
+interface StudentViewPageProps {
+  id: string;
+}
+
+const StudentViewPage = ({ id }: StudentViewPageProps) => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const { user: authUser } = useAuth() as any;
+
+  const { data: student } = useStudent(id);
+  const { data: trophyOverview } = useStudentTrophyOverview(id);
+  const { data: goodnessData } = useStudentGoodnessRecords(id, 0, 30);
+  const { data: badnessData } = useStudentBadnessRecords(id, 0, 30);
+  const { data: teacherClassroom = [] } = useStudentClassroomTeachers(student?.classroom?.classroomId ?? '');
+  const { mutate: deleteGoodness } = useDeleteGoodnessRecord();
+  const { mutate: deleteBadness } = useDeleteBadnessRecord();
+
+  const avatarUrl = student?.user?.account?.avatar ?? '';
+  const { image, isLoading: imageLoading } = useImageQuery(avatarUrl);
+
+  const fullName = student
+    ? `${student.user.account.title}${student.user.account.firstName} ${student.user.account.lastName}`
+    : '';
+
+  const classroomName = student?.classroom
+    ? `${student.classroom.level?.levelName ?? ''} ${student.classroom.name ?? ''}`.trim()
+    : '-';
+
+  const goodnessRecords: any[] = Array.isArray(goodnessData)
+    ? goodnessData
+    : (goodnessData as any)?.data ?? [];
+
+  const badnessRecords: any[] = Array.isArray(badnessData)
+    ? badnessData
+    : (badnessData as any)?.data ?? [];
+
+  const trophy = trophyOverview as any;
+  const isEligibleForAward =
+    (trophy?.totalTrophy ?? 0) > 0 && (trophy?.goodScore ?? 0) > (trophy?.badScore ?? 0);
+
+  return (
     <Grid container spacing={6}>
+      {/* Back button */}
       <Grid size={12}>
-        <Card>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-              <Avatar
-                sx={{ width: 120, height: 120, mr: 4 }}
-                src='/images/avatars/1.png'
-                alt={`${mockStudentData.firstName} ${mockStudentData.lastName}`}
-              />
-              <Box>
-                <Typography variant='h4' sx={{ mb: 2 }}>
-                  {mockStudentData.title}
-                  {mockStudentData.firstName} {mockStudentData.lastName}
-                </Typography>
-                <Typography variant='body1' sx={{ mb: 1 }}>
-                  รหัสนักเรียน: {mockStudentData.studentId}
-                </Typography>
-                <Typography variant='body1' sx={{ mb: 1 }}>
-                  ชั้นเรียน: {mockStudentData.classroom}
-                </Typography>
-                <Typography variant='body1' sx={{ mb: 1 }}>
-                  อีเมล: {mockStudentData.email}
-                </Typography>
-                <Typography variant='body1'>เบอร์โทร: {mockStudentData.phone}</Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+        <Button
+          component={Link}
+          href='/apps/student/list'
+          variant='text'
+          startIcon={<Icon icon='mdi:arrow-left' fontSize={18} />}
+          sx={{ color: 'text.secondary', fontWeight: 500 }}
+        >
+          ย้อนกลับ
+        </Button>
       </Grid>
-      <Grid size={12}>
+
+      {/* Sidebar */}
+      <Grid size={{ xs: 12, md: 4 }}>
+        <UserViewLeft
+          user={student?.user}
+          trophyOverview={trophyOverview}
+          teacherClassroom={teacherClassroom}
+          isLoading={imageLoading}
+          image={image}
+          fullName={fullName}
+          classroomName={classroomName}
+        />
+      </Grid>
+
+      {/* Main content */}
+      <Grid size={{ xs: 12, md: 8 }}>
         <TabContext value={activeTab}>
-          <Grid container spacing={6}>
-            <Grid size={12}>
-              <MuiTabList
-                variant='scrollable'
-                scrollButtons='auto'
-                onChange={handleChange}
-                aria-label='student profile tabs'
-              >
-                <Tab
-                  value='overview'
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', ...(!hideText && { '& svg': { mr: 2 } }) }}>
-                      <Icon fontSize={20} icon='mdi:account-outline' />
-                      {!hideText && 'ภาพรวม'}
-                    </Box>
-                  }
-                />
-                <Tab
-                  value='goodness'
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', ...(!hideText && { '& svg': { mr: 2 } }) }}>
-                      <Icon fontSize={20} icon='mdi:star-outline' />
-                      {!hideText && 'ความดี'}
-                    </Box>
-                  }
-                />
-                <Tab
-                  value='badness'
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', ...(!hideText && { '& svg': { mr: 2 } }) }}>
-                      <Icon fontSize={20} icon='mdi:alert-outline' />
-                      {!hideText && 'ความประพฤติ'}
-                    </Box>
-                  }
-                />
-              </MuiTabList>
-            </Grid>
-            <Grid size={12}>
-              <TabPanel sx={{ p: 0 }} value='overview'>
-                <Card>
-                  <CardContent>
-                    <Typography variant='h6' sx={{ mb: 3 }}>
-                      ข้อมูลส่วนตัว
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                          ชื่อ-นามสกุล:
-                        </Typography>
-                        <Typography variant='body2'>
-                          {mockStudentData.title}
-                          {mockStudentData.firstName} {mockStudentData.lastName}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                          รหัสนักเรียน:
-                        </Typography>
-                        <Typography variant='body2'>{mockStudentData.studentId}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                          ชั้นเรียน:
-                        </Typography>
-                        <Typography variant='body2'>{mockStudentData.classroom}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                          สถานะ:
-                        </Typography>
-                        <Typography variant='body2' sx={{ color: 'success.main' }}>
-                          กำลังศึกษา
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </TabPanel>
-              <TabPanel sx={{ p: 0 }} value='goodness'>
-                <Card>
-                  <CardContent>
-                    <Typography variant='h6' sx={{ mb: 3 }}>
-                      ประวัติความดี
-                    </Typography>
-                    <Typography variant='body2' color='text.secondary'>
-                      ไม่มีข้อมูลประวัติความดี
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </TabPanel>
-              <TabPanel sx={{ p: 0 }} value='badness'>
-                <Card>
-                  <CardContent>
-                    <Typography variant='h6' sx={{ mb: 3 }}>
-                      ประวัติความประพฤติ
-                    </Typography>
-                    <Typography variant='body2' color='text.secondary'>
-                      ไม่มีข้อมูลประวัติความประพฤติ
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </TabPanel>
-            </Grid>
-          </Grid>
+          <MuiTabList
+            variant='scrollable'
+            scrollButtons='auto'
+            onChange={(_, v: string) => setActiveTab(v)}
+            aria-label='student profile tabs'
+          >
+            <Tab
+              value='overview'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Icon fontSize={18} icon='mdi:account-outline' />
+                  ภาพรวม
+                </Box>
+              }
+            />
+            <Tab
+              value='goodness'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Icon fontSize={18} icon='mdi:star-outline' />
+                  ความดี
+                  {goodnessRecords.length > 0 && (
+                    <Chip
+                      size='small'
+                      label={goodnessRecords.length}
+                      color='success'
+                      sx={{ height: 18, fontSize: '0.65rem', ml: 0.5 }}
+                    />
+                  )}
+                </Box>
+              }
+            />
+            <Tab
+              value='badness'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Icon fontSize={18} icon='mdi:alert-outline' />
+                  ความประพฤติ
+                  {badnessRecords.length > 0 && (
+                    <Chip
+                      size='small'
+                      label={badnessRecords.length}
+                      color='error'
+                      sx={{ height: 18, fontSize: '0.65rem', ml: 0.5 }}
+                    />
+                  )}
+                </Box>
+              }
+            />
+          </MuiTabList>
+
+          <Box sx={{ mt: 6 }}>
+            <TabPanel sx={{ p: 0 }} value='overview'>
+              <Grid container spacing={4}>
+                {isEligibleForAward && (
+                  <Grid size={12}>
+                    <CardAward trophyOverview={trophyOverview} fullName={fullName} />
+                  </Grid>
+                )}
+                <Grid size={12}>
+                  <StudentDetailCard student={student} />
+                </Grid>
+              </Grid>
+            </TabPanel>
+
+            <TabPanel sx={{ p: 0 }} value='goodness'>
+              {goodnessRecords.length === 0 ? (
+                <EmptyState icon='mdi:star-outline' label='ยังไม่มีบันทึกความดี' />
+              ) : (
+                <TimelineGoodness info={goodnessRecords} user={authUser} onDeleted={deleteGoodness} />
+              )}
+            </TabPanel>
+
+            <TabPanel sx={{ p: 0 }} value='badness'>
+              {badnessRecords.length === 0 ? (
+                <EmptyState icon='mdi:alert-outline' label='ยังไม่มีบันทึกความประพฤติ' />
+              ) : (
+                <TimelineBadness info={badnessRecords} user={authUser} onDeleted={deleteBadness} />
+              )}
+            </TabPanel>
+          </Box>
         </TabContext>
       </Grid>
     </Grid>

@@ -137,6 +137,21 @@ export const students = new Elysia({ prefix: "/students" })
 					detail: { summary: "Promote all students from one classroom to another" },
 				},
 			)
+			.post(
+				"/graduate-classroom",
+				async ({ body, user, set }) => {
+					if ((user as any)?.roles !== "Admin") {
+						set.status = 403;
+						return { success: false, message: "Forbidden" };
+					}
+					const { classroomId, graduationYear, graduationDate } = body as StudentModel["graduateClassroomBody"];
+					return StudentService.graduateClassroom(classroomId, graduationYear, (user as any).sub, graduationDate);
+				},
+				{
+					body: StudentModel.graduateClassroomBody,
+					detail: { summary: "Graduate all students in a classroom" },
+				},
+			)
 			.get(
 				"/promote-preview",
 				async ({ query, user, set }) => {

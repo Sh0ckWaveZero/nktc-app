@@ -10,12 +10,17 @@ import {
   useStudentsWithParams,
   useDeleteStudent,
   useImportStudents,
+  useGraduateStudent,
+  useGraduateClassroom,
+  usePromoteStudents,
+  usePromotePreview,
   type StudentImportResult,
 } from '@/hooks/queries/useStudents';
 
 interface SearchValue {
   fullName: string;
   studentId: string;
+  studentStatus: string;
 }
 
 interface UseStudentListReturn {
@@ -35,6 +40,29 @@ interface UseStudentListReturn {
   // Delete dialog state
   openDeletedConfirm: boolean;
   deletedStudent: any | null;
+  isDeleting: boolean;
+
+  // Graduation dialog state
+  openGraduationConfirm: boolean;
+  graduationStudent: any | null;
+  isGraduating: boolean;
+
+  // Bulk graduation dialog state
+  openBulkGraduationConfirm: boolean;
+  isGraduatingClassroom: boolean;
+
+  // Promotion dialog state
+  openPromoteConfirm: boolean;
+  promoteSource: any | null;
+  promoteTarget: any | null;
+  promotePreview: any | null;
+  isLoadingPromotePreview: boolean;
+  isPromoting: boolean;
+
+  // Individual promotion dialog state
+  openIndividualPromoteConfirm: boolean;
+  promoteStudent: any | null;
+  promoteStudentTarget: any | null;
 
   // Import state
   openImportResultDialog: boolean;
@@ -51,9 +79,25 @@ interface UseStudentListReturn {
   handleChangeFullName: (e: any, newValue: any) => void;
   handleSearchChange: (event: any, value: any, reason: any) => void;
   handleStudentId: (value: any) => void;
+  handleStatusChange: (status: string) => void;
   handleDeleteClick: (student: any) => void;
-  handleDeleteConfirm: (event: any) => void;
+  handleDeleteConfirm: () => void;
   handleDeleteCancel: () => void;
+  handleGraduationClick: (student: any) => void;
+  handleGraduationConfirm: (graduationDate: Date) => void;
+  handleGraduationCancel: () => void;
+  handleBulkGraduationClick: () => void;
+  handleBulkGraduationConfirm: (graduationDate: Date) => void;
+  handleBulkGraduationCancel: () => void;
+  handlePromoteClick: () => void;
+  handlePromoteSourceChange: (value: any) => void;
+  handlePromoteTargetChange: (value: any) => void;
+  handlePromoteConfirm: () => void;
+  handlePromoteCancel: () => void;
+  handleIndividualPromoteClick: (student: any) => void;
+  handleIndividualPromoteTargetChange: (value: any) => void;
+  handleIndividualPromoteConfirm: () => void;
+  handleIndividualPromoteCancel: () => void;
   handleImportStudents: (file: File | null) => Promise<void>;
   handleCloseImportResultDialog: () => void;
   handleDownloadTemplate: () => Promise<void>;
@@ -105,7 +149,10 @@ export const useStudentList = (): UseStudentListReturn => {
 
   const { data: allClassrooms = [], isLoading: loadingClassroom } = useClassrooms();
   const { mutate: deleteStudent } = useDeleteStudent();
+  const { mutate: graduateStudent } = useGraduateStudent();
+  const { mutate: graduateClassroom } = useGraduateClassroom();
   const { mutateAsync: importStudents, isPending: isImportingStudents } = useImportStudents();
+  const { mutate: promoteStudents, isPending: isPromoting } = usePromoteStudents();
 
   // ─── UI State ────────────────────────────────────────────────────────────────
 
@@ -113,10 +160,26 @@ export const useStudentList = (): UseStudentListReturn => {
   const [currentClassroomId, setCurrentClassroomId] = useState<string | null>(null);
   const classroomInitialized = useRef(false);
   const [currentStudent, setCurrentStudent] = useState<any | null>(null);
-  const [searchValue, setSearchValue] = useState<SearchValue>({ fullName: '', studentId: '' });
+  const [searchValue, setSearchValue] = useState<SearchValue>({ fullName: '', studentId: '', studentStatus: '' });
   const deferredSearchValue = useDeferredValue(searchValue);
   const [openDeletedConfirm, setOpenDeletedConfirm] = useState(false);
   const [deletedStudent, setDeletedStudent] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [openGraduationConfirm, setOpenGraduationConfirm] = useState(false);
+  const [graduationStudent, setGraduationStudent] = useState<any | null>(null);
+  const [isGraduating, setIsGraduating] = useState(false);
+  const [openBulkGraduationConfirm, setOpenBulkGraduationConfirm] = useState(false);
+  const [isGraduatingClassroom, setIsGraduatingClassroom] = useState(false);
+  const [openPromoteConfirm, setOpenPromoteConfirm] = useState(false);
+  const [promoteSource, setPromoteSource] = useState<any | null>(null);
+  const [promoteTarget, setPromoteTarget] = useState<any | null>(null);
+  const [promotePreview, setPromotePreview] = useState<any | null>(null);
+  const { data: promotePreviewData, isLoading: isLoadingPromotePreview } = usePromotePreview(
+    promoteSource?.id ?? null,
+  );
+  const [openIndividualPromoteConfirm, setOpenIndividualPromoteConfirm] = useState(false);
+  const [promoteStudent, setPromoteStudent] = useState<any | null>(null);
+  const [promoteStudentTarget, setPromoteStudentTarget] = useState<any | null>(null);
   const [openImportResultDialog, setOpenImportResultDialog] = useState(false);
   const [importResult, setImportResult] = useState<StudentImportResult | null>(null);
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
@@ -145,12 +208,22 @@ export const useStudentList = (): UseStudentListReturn => {
     classroomInitialized.current = true;
   }, [classrooms, classroom]);
 
+  useEffect(() => {
+    if (promotePreviewData) {
+      setPromotePreview(promotePreviewData);
+    }
+  }, [promotePreviewData]);
+
   // ─── Students via React Query ─────────────────────────────────────────────────
 
-  const { data: students = [], isFetching: loadingStudent } = useStudentsWithParams({
-    classroomId: currentClassroomId,
-    search: deferredSearchValue,
-  });
+  const { data: students = [], isFetching: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
+    {
+      classroomId: currentClassroomId,
+      search: deferredSearchValue,
+      studentStatus: deferredSearchValue.studentStatus || undefined,
+    },
+    { enabled: currentClassroomId !== null },
+  );
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
@@ -195,33 +268,208 @@ export const useStudentList = (): UseStudentListReturn => {
     setSearchValue((prev) => ({ ...prev, studentId: value }));
   }, []);
 
+  const handleStatusChange = useCallback((status: string) => {
+    setSearchValue((prev) => ({ ...prev, studentStatus: status }));
+  }, []);
+
   const handleDeleteClick = useCallback((student: any) => {
     setOpenDeletedConfirm(true);
     setDeletedStudent(student);
   }, []);
 
-  const handleDeleteConfirm = useCallback(
-    (event: any) => {
-      event.stopPropagation();
-      setOpenDeletedConfirm(false);
-      const toastId = toast.info('กำลังลบข้อมูล...', { autoClose: false, hideProgressBar: true });
-      deleteStudent(deletedStudent.id, {
-        onSuccess: () => {
-          toast.dismiss(toastId);
-          toast.success('ลบข้อมูลสำเร็จ');
-        },
-        onError: () => {
-          toast.dismiss(toastId);
-          toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
-        },
-      });
-    },
-    [deletedStudent, deleteStudent],
-  );
+  const handleDeleteConfirm = useCallback(() => {
+    setIsDeleting(true);
+    const toastId = toast.info('กำลังลบข้อมูล...', { autoClose: false, hideProgressBar: true });
+    deleteStudent(deletedStudent.id, {
+      onSuccess: () => {
+        setIsDeleting(false);
+        setOpenDeletedConfirm(false);
+        toast.dismiss(toastId);
+        toast.success('ลบข้อมูลสำเร็จ');
+      },
+      onError: () => {
+        setIsDeleting(false);
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
+      },
+    });
+  }, [deletedStudent, deleteStudent]);
 
   const handleDeleteCancel = useCallback(() => {
     setOpenDeletedConfirm(false);
     setDeletedStudent(null);
+  }, []);
+
+  const handleGraduationClick = useCallback((student: any) => {
+    setOpenGraduationConfirm(true);
+    setGraduationStudent(student);
+  }, []);
+
+  const handleGraduationConfirm = useCallback(
+    (graduationDate: Date) => {
+      setIsGraduating(true);
+      const graduationYear = graduationDate.getFullYear() + 543;
+      const toastId = toast.info('กำลังบันทึกการจบการศึกษา...', { autoClose: false, hideProgressBar: true });
+      graduateStudent(
+        { studentId: graduationStudent.id, graduationYear, graduationDate },
+        {
+          onSuccess: () => {
+            setIsGraduating(false);
+            setOpenGraduationConfirm(false);
+            toast.dismiss(toastId);
+            toast.success('บันทึกการจบการศึกษาสำเร็จ');
+          },
+          onError: () => {
+            setIsGraduating(false);
+            toast.dismiss(toastId);
+            toast.error('เกิดข้อผิดพลาดในการบันทึกการจบการศึกษา');
+          },
+        },
+      );
+    },
+    [graduationStudent, graduateStudent],
+  );
+
+  const handleGraduationCancel = useCallback(() => {
+    setOpenGraduationConfirm(false);
+    setGraduationStudent(null);
+  }, []);
+
+  const handleBulkGraduationClick = useCallback(() => {
+    setOpenBulkGraduationConfirm(true);
+  }, []);
+
+  const handleBulkGraduationConfirm = useCallback(
+    (graduationDate: Date) => {
+      if (!currentClassroomId) return;
+      setIsGraduatingClassroom(true);
+      const graduationYear = graduationDate.getFullYear() + 543;
+      const toastId = toast.info('กำลังบันทึกการจบการศึกษาทั้งห้อง...', { autoClose: false, hideProgressBar: true });
+      graduateClassroom(
+        { classroomId: currentClassroomId, graduationYear, graduationDate },
+        {
+          onSuccess: (result) => {
+            setIsGraduatingClassroom(false);
+            setOpenBulkGraduationConfirm(false);
+            toast.dismiss(toastId);
+            toast.success(`จบการศึกษา ${result.graduated} คน จากห้อง ${result.classroom} สำเร็จ`);
+          },
+          onError: () => {
+            setIsGraduatingClassroom(false);
+            toast.dismiss(toastId);
+            toast.error('เกิดข้อผิดพลาดในการบันทึกการจบการศึกษา');
+          },
+        },
+      );
+    },
+    [currentClassroomId, graduateClassroom],
+  );
+
+  const handleBulkGraduationCancel = useCallback(() => {
+    setOpenBulkGraduationConfirm(false);
+  }, []);
+
+  const handlePromoteClick = useCallback(() => {
+    setOpenPromoteConfirm(true);
+  }, []);
+
+  const handlePromoteSourceChange = useCallback(
+    (value: any) => {
+      setPromoteSource(value);
+      if (promoteTarget?.id === value?.id) {
+        setPromoteTarget(null);
+      }
+      setPromotePreview(null);
+    },
+    [promoteTarget],
+  );
+
+  const handlePromoteTargetChange = useCallback((value: any) => {
+    setPromoteTarget(value);
+  }, []);
+
+  const handlePromoteConfirm = useCallback(() => {
+    if (!promoteSource?.id || !promoteTarget?.id) return;
+
+    const toastId = toast.info('กำลังเลื่อนชั้นนักเรียน...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
+
+    promoteStudents(
+      {
+        sourceClassroomId: promoteSource.id,
+        targetClassroomId: promoteTarget.id,
+      },
+      {
+        onSuccess: (result) => {
+          toast.dismiss(toastId);
+          toast.success(`เลื่อนชั้น ${result.promoted} คน สำเร็จ`);
+          setOpenPromoteConfirm(false);
+          setPromoteSource(null);
+          setPromoteTarget(null);
+          setPromotePreview(null);
+          refetchStudents();
+        },
+        onError: () => {
+          toast.dismiss(toastId);
+          toast.error('เกิดข้อผิดพลาดในการเลื่อนชั้นนักเรียน');
+        },
+      },
+    );
+  }, [promoteSource, promoteTarget, promoteStudents, refetchStudents]);
+
+  const handlePromoteCancel = useCallback(() => {
+    setOpenPromoteConfirm(false);
+    setPromoteSource(null);
+    setPromoteTarget(null);
+    setPromotePreview(null);
+  }, []);
+
+  const handleIndividualPromoteClick = useCallback((student: any) => {
+    setPromoteStudent(student);
+    setOpenIndividualPromoteConfirm(true);
+  }, []);
+
+  const handleIndividualPromoteTargetChange = useCallback((value: any) => {
+    setPromoteStudentTarget(value);
+  }, []);
+
+  const handleIndividualPromoteConfirm = useCallback(() => {
+    if (!promoteStudent?.id || !promoteStudentTarget?.id) return;
+
+    const toastId = toast.info('กำลังเลื่อนชั้นนักเรียน...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
+
+    promoteStudents(
+      {
+        sourceClassroomId: promoteStudent.classroomId,
+        targetClassroomId: promoteStudentTarget.id,
+        studentIds: [promoteStudent.id],
+      },
+      {
+        onSuccess: (result) => {
+          toast.dismiss(toastId);
+          toast.success(`เลื่อนชั้น ${result.promoted} คน สำเร็จ`);
+          setOpenIndividualPromoteConfirm(false);
+          setPromoteStudent(null);
+          setPromoteStudentTarget(null);
+          refetchStudents();
+        },
+        onError: () => {
+          toast.dismiss(toastId);
+          toast.error('เกิดข้อผิดพลาดในการเลื่อนชั้นนักเรียน');
+        },
+      },
+    );
+  }, [promoteStudent, promoteStudentTarget, promoteStudents, refetchStudents]);
+
+  const handleIndividualPromoteCancel = useCallback(() => {
+    setOpenIndividualPromoteConfirm(false);
+    setPromoteStudent(null);
+    setPromoteStudentTarget(null);
   }, []);
 
   const handleCloseImportResultDialog = useCallback(() => {
@@ -371,6 +619,21 @@ export const useStudentList = (): UseStudentListReturn => {
     searchValue,
     openDeletedConfirm,
     deletedStudent,
+    isDeleting,
+    openGraduationConfirm,
+    graduationStudent,
+    isGraduating,
+    openBulkGraduationConfirm,
+    isGraduatingClassroom,
+    openPromoteConfirm,
+    promoteSource,
+    promoteTarget,
+    promotePreview,
+    isLoadingPromotePreview,
+    isPromoting,
+    openIndividualPromoteConfirm,
+    promoteStudent,
+    promoteStudentTarget,
     openImportResultDialog,
     importResult,
     isImportingStudents,
@@ -381,9 +644,25 @@ export const useStudentList = (): UseStudentListReturn => {
     handleChangeFullName,
     handleSearchChange,
     handleStudentId,
+    handleStatusChange,
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
+    handleGraduationClick,
+    handleGraduationConfirm,
+    handleGraduationCancel,
+    handleBulkGraduationClick,
+    handleBulkGraduationConfirm,
+    handleBulkGraduationCancel,
+    handlePromoteClick,
+    handlePromoteSourceChange,
+    handlePromoteTargetChange,
+    handlePromoteConfirm,
+    handlePromoteCancel,
+    handleIndividualPromoteClick,
+    handleIndividualPromoteTargetChange,
+    handleIndividualPromoteConfirm,
+    handleIndividualPromoteCancel,
     handleImportStudents,
     handleCloseImportResultDialog,
     handleDownloadTemplate,

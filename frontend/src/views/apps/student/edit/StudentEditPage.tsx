@@ -21,7 +21,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Controller, useForm } from 'react-hook-form';
 import { useState, useEffect, type ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useStudent, useUpdateStudent } from '@/hooks/queries/useStudents';
@@ -168,7 +168,10 @@ const AnimatedGrid = animated(Grid);
 
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
-  const { back } = useRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const classroomParam = searchParams.get('classroom');
+  const backHref = classroomParam ? `/apps/student/list?classroom=${classroomParam}` : '/apps/student/list';
 
   // React Query hooks
   const { data: studentData, isLoading } = useStudent(id);
@@ -285,7 +288,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       {
         onSuccess: () => {
           toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
-          back();
+          router.push(backHref);
         },
         onError: (error) => {
           console.error('Error updating student:', error);
@@ -717,7 +720,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                     id='student-edit-cancel-btn'
                     variant='outlined'
                     color='secondary'
-                    onClick={() => back()}
+                    onClick={() => router.push(backHref)}
                     sx={{
                       minHeight: 50,
                       px: { xs: 3, sm: 4.5 },

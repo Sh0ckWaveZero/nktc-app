@@ -1,5 +1,6 @@
 'use client';
 
+import { alpha, Box } from '@mui/material';
 import {
   Alert,
   AlertTitle,
@@ -7,9 +8,10 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   Typography,
 } from '@mui/material';
+
+import Icon from '@/@core/components/icon';
 
 import type { ClassroomItem } from '@/hooks/queries/useClassrooms';
 
@@ -24,22 +26,47 @@ interface ClassroomDeleteDialogProps {
 const ClassroomDeleteDialog = ({ open, classroom, isDeleting, onClose, onConfirm }: ClassroomDeleteDialogProps) => {
   return (
     <Dialog open={open} fullWidth maxWidth='xs' onClose={isDeleting ? undefined : onClose}>
-      <DialogTitle>ยืนยันการลบห้องเรียน</DialogTitle>
-      <DialogContent>
-        <Typography variant='body2' sx={{ mb: 3 }}>
-          คุณกำลังจะลบ <strong>{classroom?.name || 'ห้องเรียน'}</strong>{' '}
-          {classroom?.classroomId ? `(${classroom.classroomId})` : ''} ออกจากระบบ
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 6, pt: 6, pb: 2 }}>
+        <Box
+          sx={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
+            color: 'error.main',
+            mb: 3,
+          }}
+        >
+          <Icon icon='tabler:trash' fontSize={28} />
+        </Box>
+        <Typography variant='h6' fontWeight={600} textAlign='center'>
+          ยืนยันการลบห้องเรียน
         </Typography>
-        <Alert severity='warning'>
+      </Box>
+
+      <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.8 }}>
+          {'คุณกำลังจะลบ '}
+          <Box component='strong' sx={{ color: 'text.primary' }}>
+            {classroom?.name || 'ห้องเรียน'}
+            {classroom?.classroomId ? ` (${classroom.classroomId})` : ''}
+          </Box>
+          {' ออกจากระบบ'}
+        </Typography>
+        <Alert severity='warning' sx={{ borderRadius: 2 }}>
           <AlertTitle>ลบแล้วกู้คืนอัตโนมัติไม่ได้</AlertTitle>
           ระบบจะยอมลบได้เฉพาะห้องเรียนที่ยังไม่มีนักเรียน ครู รายวิชา หรือรายงานเชื่อมอยู่เท่านั้น
         </Alert>
       </DialogContent>
-      <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
-        <Button color='secondary' variant='outlined' onClick={onClose} disabled={isDeleting}>
+
+      <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
+        <Button variant='outlined' color='inherit' onClick={onClose} disabled={isDeleting} fullWidth>
           ยกเลิก
         </Button>
-        <Button color='error' variant='contained' onClick={onConfirm} disabled={isDeleting}>
+        <Button variant='contained' color='error' onClick={onConfirm} disabled={isDeleting} fullWidth>
           ลบห้องเรียน
         </Button>
       </DialogActions>

@@ -1,5 +1,5 @@
 import Icon from '@/@core/components/icon';
-import { Autocomplete, Box, FormControl, IconButton, InputAdornment, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { alpha, styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
@@ -22,12 +22,17 @@ interface TableHeaderProps {
   onImportStudents: (file: File | null) => Promise<void>;
   onDownloadTemplate: () => Promise<void>;
   onExportStudents: () => Promise<void>;
+  onBulkGraduate?: () => void;
+  onBulkPromote?: () => void;
+  onStatusChange: (status: string) => void;
+  studentStatus: string;
   studentId: string;
   students: any;
   canImportStudents: boolean;
   isImportingStudents: boolean;
   isDownloadingTemplate: boolean;
   isExportingStudents: boolean;
+  isPromoting?: boolean;
 }
 
 const PANEL_RADIUS = 16;
@@ -156,12 +161,17 @@ const TableHeader = memo((props: TableHeaderProps) => {
     onImportStudents,
     onDownloadTemplate,
     onExportStudents,
+    onBulkGraduate,
+    onBulkPromote,
+    onStatusChange,
+    studentStatus,
     studentId,
     students = [],
     canImportStudents,
     isImportingStudents,
     isDownloadingTemplate,
     isExportingStudents,
+    isPromoting,
   } = props;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -329,6 +339,36 @@ const TableHeader = memo((props: TableHeaderProps) => {
                 </>
               )}
 
+              {onBulkGraduate && (
+                <>
+                  <Tooltip title='จบการศึกษาทั้งห้อง'>
+                    <ToolButtonSlot component='span'>
+                      <ToolButton id='bulk-graduate-button' onClick={onBulkGraduate}>
+                        <Icon icon='tabler:school' />
+                      </ToolButton>
+                    </ToolButtonSlot>
+                  </Tooltip>
+                  <ToolDivider />
+                </>
+              )}
+
+              {onBulkPromote && (
+                <>
+                  <Tooltip title={isPromoting ? 'กำลังเลื่อนชั้น...' : 'เลื่อนชั้นนักเรียน'}>
+                    <ToolButtonSlot component='span'>
+                      <ToolButton
+                        id='bulk-promote-button'
+                        onClick={onBulkPromote}
+                        disabled={isPromoting}
+                      >
+                        <Icon icon='tabler:arrow-up' />
+                      </ToolButton>
+                    </ToolButtonSlot>
+                  </Tooltip>
+                  <ToolDivider />
+                </>
+              )}
+
               <Tooltip title='เพิ่มนักเรียน'>
                 <LinkStyled href='/apps/student/add' passHref>
                   <ToolButtonSlot component='span'>
@@ -342,7 +382,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
           </Box>
 
           <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-            <FilterGrid id='student-list-student-id-filter' size={{ xs: 12, md: 4 }}>
+            <FilterGrid id='student-list-student-id-filter' size={{ xs: 12, md: 3 }}>
               <FormControl id='student-id-form-control' fullWidth>
                 <TextField
                   id='studentId'
@@ -373,7 +413,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
               </FormControl>
             </FilterGrid>
 
-            <FilterGrid id='student-list-student-name-filter' size={{ xs: 12, md: 4 }}>
+            <FilterGrid id='student-list-student-name-filter' size={{ xs: 12, md: 3 }}>
               <FormControl id='student-name-form-control' fullWidth>
                 <Autocomplete
                   id='studentName'
@@ -420,14 +460,20 @@ const TableHeader = memo((props: TableHeaderProps) => {
               </FormControl>
             </FilterGrid>
 
-            <FilterGrid id='student-list-classroom-filter' size={{ xs: 12, md: 4 }}>
+            <FilterGrid id='student-list-classroom-filter' size={{ xs: 12, md: 3 }}>
               <FormControl id='classroom-form-control' fullWidth>
                 <Autocomplete
                   id='classroom'
                   fullWidth
                   disablePortal={false}
                   value={defaultClassroom || null}
-                  options={Array.isArray(classrooms) ? classrooms : []}
+                  options={
+                    Array.isArray(classrooms)
+                      ? [...classrooms].sort((a: any, b: any) =>
+                          (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+                        )
+                      : []
+                  }
                   loading={loading}
                   onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                   getOptionLabel={(option: any) => option?.name ?? ''}
@@ -456,6 +502,33 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   )}
                   noOptionsText='ไม่พบข้อมูล'
                 />
+              </FormControl>
+            </FilterGrid>
+
+            <FilterGrid id='student-list-status-filter' size={{ xs: 12, md: 3 }}>
+              <FormControl fullWidth sx={controlTextFieldSx}>
+                <InputLabel id='student-status-label' shrink>
+                  สถานะนักเรียน
+                </InputLabel>
+                <Select
+                  id='student-status-select'
+                  labelId='student-status-label'
+                  label='สถานะนักเรียน'
+                  value={studentStatus}
+                  onChange={(e) => onStatusChange(e.target.value)}
+                  displayEmpty
+                  notched
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: 'clamp(1rem, 0.96rem + 0.14vw, 1.06rem)',
+                    },
+                  }}
+                >
+                  <MenuItem value=''>ทุกสถานะ</MenuItem>
+                  <MenuItem value='normal'>เรียนอยู่</MenuItem>
+                  <MenuItem value='graduated'>จบการศึกษา</MenuItem>
+                  <MenuItem value='dropout'>ไม่เรียนแล้ว</MenuItem>
+                </Select>
               </FormControl>
             </FilterGrid>
           </Grid>

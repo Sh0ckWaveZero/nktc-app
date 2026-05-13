@@ -223,10 +223,19 @@ export const usePromoteStudents = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ sourceClassroomId, targetClassroomId }: { sourceClassroomId: string; targetClassroomId: string }) => {
+    mutationFn: async ({
+      sourceClassroomId,
+      targetClassroomId,
+      studentIds,
+    }: {
+      sourceClassroomId: string;
+      targetClassroomId: string;
+      studentIds?: string[];
+    }) => {
       const { data } = await httpClient.post(`${authConfig.studentEndpoint}/promote-classroom`, {
         sourceClassroomId,
         targetClassroomId,
+        studentIds,
       });
       return data as PromoteClassroomResult;
     },
@@ -241,7 +250,7 @@ export const usePromoteStudents = () => {
  * Hook to search students with POST params (classroomId + search filters)
  */
 export const useStudentsWithParams = (
-  params: { classroomId: string | null; search: { fullName: string; studentId: string } },
+  params: { classroomId: string | null; search: { fullName: string; studentId: string }; studentStatus?: string },
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
@@ -250,6 +259,7 @@ export const useStudentsWithParams = (
       const { data } = await httpClient.post(`${authConfig.studentEndpoint}/search-with-params`, {
         classroomId: params.classroomId,
         search: params.search,
+        studentStatus: params.studentStatus || undefined,
       });
       return unwrapArrayResponse(data);
     },
@@ -259,17 +269,89 @@ export const useStudentsWithParams = (
   });
 };
 
+export interface GraduateClassroomResult {
+  graduated: number;
+  classroom: string;
+  graduationYear: number;
+}
+
+/**
+ * Hook to graduate all students in a classroom
+ */
+export const useGraduateClassroom = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ classroomId, graduationYear, graduationDate }: { classroomId: string; graduationYear: number; graduationDate: Date }) => {
+      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/graduate-classroom`, {
+        classroomId,
+        graduationYear,
+        graduationDate: graduationDate.toISOString(),
+      });
+      return data as GraduateClassroomResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
+    },
+  });
+};
+
+/**
+ * Hook to mark a student as graduated
+ */
+export const useGraduateStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ studentId, graduationYear, graduationDate }: { studentId: string; graduationYear: number; graduationDate: Date }) => {
+      const { data } = await httpClient.put(`${authConfig.studentEndpoint}/profile/${studentId}`, {
+        isGraduation: true,
+        graduationYear,
+        graduationDate: graduationDate.toISOString(),
+        studentStatus: 'graduated',
+      });
+      return unwrapResponse(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
+    },
+  });
+};
+
 /**
  * Hook to fetch student trophy overview
+ * Backend returns: { goodnessScore, goodnessCount, badnessScore, badnessCount, netScore }
+ * Normalized to: { goodScore, badScore, totalTrophy, netScore }
  */
 export const useStudentTrophyOverview = (studentId: string) => {
   return useQuery({
     queryKey: queryKeys.students.trophy(studentId),
     queryFn: async () => {
       const { data } = await httpClient.get(`${authConfig.studentEndpoint}/trophy-overview/${studentId}`);
-      return unwrapResponse(data);
+      const raw = unwrapResponse<any>(data);
+      return {
+        goodScore: raw?.goodnessScore ?? 0,
+        badScore: raw?.badnessScore ?? 0,
+        totalTrophy: raw?.goodnessCount ?? 0,
+        netScore: raw?.netScore ?? 0,
+      };
     },
     enabled: !!studentId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to fetch teachers for a student's classroom
+ */
+export const useStudentClassroomTeachers = (classroomId: string) => {
+  return useQuery({
+    queryKey: [...queryKeys.students.all, 'classroom-teachers', classroomId] as const,
+    queryFn: async () => {
+      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/classroom/${classroomId}/teacher`);
+      return unwrapArrayResponse<any>(data);
+    },
+    enabled: !!classroomId,
     staleTime: 5 * 60 * 1000,
   });
 };
