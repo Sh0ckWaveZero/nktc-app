@@ -497,14 +497,72 @@ export abstract class TeacherService {
         }
 
         if (existingUser && !existingUser.teacher) {
-          errors.push({
-            row: rowNumber,
-            message: `ชื่อผู้ใช้ ${username} มีอยู่แล้วแต่ยังไม่ผูกกับข้อมูลครู`,
+          if (existingUser.role !== Role.Teacher) {
+            errors.push({
+              row: rowNumber,
+              message: `ชื่อผู้ใช้ ${username} ถูกใช้งานโดยบัญชีประเภทอื่น (ไม่ใช่ครู)`,
+            });
+            continue;
+          }
+
+          await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+              where: { id: existingUser.id },
+              data: {
+                email: normalizedEmail,
+                status: normalizedStatus,
+                updatedBy: createdBy,
+              },
+            });
+
+            if (existingUser.account?.id) {
+              await tx.account.update({
+                where: { id: existingUser.account.id },
+                data: {
+                  title: normalizedTitle,
+                  firstName,
+                  lastName,
+                  idCard: normalizedIdCard,
+                  birthDate,
+                  phone: normalizedPhone,
+                  updatedBy: createdBy,
+                },
+              });
+            } else {
+              await tx.account.create({
+                data: {
+                  userId: existingUser.id,
+                  title: normalizedTitle,
+                  firstName,
+                  lastName,
+                  idCard: normalizedIdCard,
+                  birthDate,
+                  phone: normalizedPhone,
+                  createdBy,
+                  updatedBy: createdBy,
+                },
+              });
+            }
+
+            await tx.teacher.create({
+              data: {
+                userId: existingUser.id,
+                teacherId: normalizedTeacherId,
+                jobTitle: normalizedJobTitle,
+                academicStanding: normalizedAcademicStanding,
+                status: normalizedStatus,
+                createdBy,
+                updatedBy: createdBy,
+              },
+            });
           });
+
+          imported += 1;
           continue;
         }
 
         if (existingUser?.teacher) {
+          const teacherRecordId = existingUser.teacher.id;
           await prisma.$transaction(async (tx) => {
             await tx.user.update({
               where: { id: existingUser.id },
@@ -545,7 +603,7 @@ export abstract class TeacherService {
             }
 
             await tx.teacher.update({
-              where: { id: existingUser.teacher.id },
+              where: { id: teacherRecordId },
               data: {
                 teacherId: normalizedTeacherId,
                 jobTitle: normalizedJobTitle,

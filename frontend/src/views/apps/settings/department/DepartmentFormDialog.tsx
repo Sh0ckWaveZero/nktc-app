@@ -67,10 +67,6 @@ const FORM_ITEM_SX = {
   '& .MuiInputBase-input': {
     letterSpacing: '-0.01em',
   },
-  '& .MuiInputBase-input::placeholder': {
-    color: 'text.secondary',
-    opacity: 1,
-  },
   '& .MuiInputLabel-root': {
     fontSize: '0.92rem',
     fontWeight: 600,

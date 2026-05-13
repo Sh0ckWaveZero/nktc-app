@@ -24,7 +24,7 @@ export const studentAddSchema = z.object({
       department: z.object({ id: z.string(), name: z.string() }).optional(),
       level: z.object({ id: z.string(), levelName: z.string() }).optional(),
     })
-    .nullable(),
+    .refine((val) => val !== null, 'กรุณาเลือกชั้นเรียน'),
   idCard: z
     .string()
     .optional()
@@ -51,6 +51,8 @@ export const useStudentAddForm = () => {
     control,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isDirty, isValid },
   } = useForm<StudentAddFormData>({
     defaultValues: {
@@ -64,7 +66,7 @@ export const useStudentAddForm = () => {
       phone: '',
       addressLine1: '',
     },
-    mode: 'onBlur',
+    mode: 'onSubmit',
     resolver: zodResolver(studentAddSchema),
   });
 
@@ -72,6 +74,8 @@ export const useStudentAddForm = () => {
     control,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     errors,
     isDirty,
     isValid,

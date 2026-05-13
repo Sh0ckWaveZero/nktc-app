@@ -1,24 +1,22 @@
 'use client';
 
-import {
-  Alert,
-  AlertTitle,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardHeader,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { alpha, styled } from '@mui/material/styles';
 import React, { memo, useMemo, useCallback } from 'react';
@@ -468,13 +466,15 @@ const StudentListPage = () => {
                 </Box>
               }
               subheader='ค้นหา จัดการ และนำเข้าข้อมูลนักเรียนได้จากแผงเดียว'
-              subheaderTypographyProps={{
-                sx: {
-                  mt: 1.1,
-                  fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
-                  fontWeight: 500,
-                  letterSpacing: '-0.01em',
-                  color: 'text.secondary',
+              slotProps={{
+                subheader: {
+                  sx: {
+                    mt: 1.1,
+                    fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
+                    fontWeight: 500,
+                    letterSpacing: '-0.01em',
+                    color: 'text.secondary',
+                  },
                 },
               }}
             />

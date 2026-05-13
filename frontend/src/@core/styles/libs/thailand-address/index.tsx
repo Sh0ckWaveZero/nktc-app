@@ -70,86 +70,83 @@ const SuggestionPanel = ({
   );
 };
 
-const AddressInputField = (fieldName: keyof ThailandAddressValue) => {
-  const InputComponent = (
-    innerProps: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & {
-      containerProps?: React.HTMLAttributes<HTMLDivElement> & {
-        ref?: React.Ref<HTMLDivElement>;
-      };
-    },
-  ) => {
-    const {
-      value,
-      searchByField,
-      onInputFieldChange,
-      setSuggestions,
-      suggestions,
-      setShouldDisplaySuggestion,
-      setSuggestionContainerElem,
-      setHighlightedItemIndex,
-      highlightedItemIndex,
-      onValueChange,
-    } = useAddressTypeaheadContext();
-    const onInputChange = useCallback(
-      (evt: React.ChangeEvent<HTMLInputElement>) => {
-        onInputFieldChange(fieldName, evt.currentTarget.value);
-        if (!evt.currentTarget.value) {
-          setSuggestions([]);
-          return;
-        }
-        setSuggestions(searchByField(fieldMap[fieldName], evt.currentTarget.value));
-        setHighlightedItemIndex(-1);
-      },
-      [onInputFieldChange, searchByField, setSuggestions, setHighlightedItemIndex],
-    );
-
-    const suggestPanelContainerRef = useRef<HTMLDivElement>(null);
-
-    const onKeydown = useCallback(
-      (evt: React.KeyboardEvent) => {
-        if (evt.key === 'Escape') {
-          return setShouldDisplaySuggestion(false);
-        } else if (evt.key === 'ArrowUp') {
-          return setHighlightedItemIndex(highlightedItemIndex > 0 ? highlightedItemIndex - 1 : 0);
-        } else if (evt.key === 'ArrowDown') {
-          return setHighlightedItemIndex(
-            highlightedItemIndex < suggestions.length - 1 ? highlightedItemIndex + 1 : suggestions.length - 1,
-          );
-        } else if (evt.key === 'Enter') {
-          onValueChange?.(ThailandAddressValueHelper.fromDataSourceItem(suggestions[highlightedItemIndex]));
-          return setShouldDisplaySuggestion(false);
-        }
-      },
-      [setShouldDisplaySuggestion, setHighlightedItemIndex, highlightedItemIndex, suggestions, onValueChange],
-    );
-    const onBlur = useCallback(() => {
-      setShouldDisplaySuggestion(false);
-    }, [setShouldDisplaySuggestion]);
-    const onFocus = useCallback(() => {
-      setShouldDisplaySuggestion(true);
-      setSuggestionContainerElem(suggestPanelContainerRef.current);
-    }, [setShouldDisplaySuggestion, setSuggestionContainerElem]);
-
-    const { containerProps, ...inputProps } = innerProps;
-
-    return (
-      <div {...containerProps}>
-        <input
-          {...inputProps}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          onChange={onInputChange}
-          value={value[fieldName]}
-          onKeyDown={onKeydown}
-          className={inputProps.className}
-        />
-        <div ref={suggestPanelContainerRef} />
-      </div>
-    );
+type AddressInputComponentProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & {
+  fieldName: keyof ThailandAddressValue;
+  containerProps?: React.HTMLAttributes<HTMLDivElement> & {
+    ref?: React.Ref<HTMLDivElement>;
   };
-  InputComponent.displayName = fieldName + 'InputField';
+};
 
-  return InputComponent;
+const AddressInputComponent = ({ fieldName, containerProps, ...inputProps }: AddressInputComponentProps) => {
+  const {
+    value,
+    searchByField,
+    onInputFieldChange,
+    setSuggestions,
+    suggestions,
+    setShouldDisplaySuggestion,
+    setSuggestionContainerElem,
+    setHighlightedItemIndex,
+    highlightedItemIndex,
+    onValueChange,
+  } = useAddressTypeaheadContext();
+
+  const onInputChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      onInputFieldChange(fieldName, evt.currentTarget.value);
+      if (!evt.currentTarget.value) {
+        setSuggestions([]);
+        return;
+      }
+      setSuggestions(searchByField(fieldMap[fieldName], evt.currentTarget.value));
+      setHighlightedItemIndex(-1);
+    },
+    [fieldName, onInputFieldChange, searchByField, setSuggestions, setHighlightedItemIndex],
+  );
+
+  const suggestPanelContainerRef = useRef<HTMLDivElement>(null);
+
+  const onKeydown = useCallback(
+    (evt: React.KeyboardEvent) => {
+      if (evt.key === 'Escape') {
+        return setShouldDisplaySuggestion(false);
+      } else if (evt.key === 'ArrowUp') {
+        return setHighlightedItemIndex(highlightedItemIndex > 0 ? highlightedItemIndex - 1 : 0);
+      } else if (evt.key === 'ArrowDown') {
+        return setHighlightedItemIndex(
+          highlightedItemIndex < suggestions.length - 1 ? highlightedItemIndex + 1 : suggestions.length - 1,
+        );
+      } else if (evt.key === 'Enter') {
+        onValueChange?.(ThailandAddressValueHelper.fromDataSourceItem(suggestions[highlightedItemIndex]));
+        return setShouldDisplaySuggestion(false);
+      }
+    },
+    [setShouldDisplaySuggestion, setHighlightedItemIndex, highlightedItemIndex, suggestions, onValueChange],
+  );
+
+  const onBlur = useCallback(() => {
+    setShouldDisplaySuggestion(false);
+  }, [setShouldDisplaySuggestion]);
+
+  const onFocus = useCallback(() => {
+    setShouldDisplaySuggestion(true);
+    setSuggestionContainerElem(suggestPanelContainerRef.current);
+  }, [setShouldDisplaySuggestion, setSuggestionContainerElem]);
+
+  return (
+    <div {...containerProps}>
+      <input
+        {...inputProps}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        onChange={onInputChange}
+        value={value[fieldName]}
+        onKeyDown={onKeydown}
+        className={inputProps.className}
+      />
+      <div ref={suggestPanelContainerRef} />
+    </div>
+  );
 };
 
 export type ThailandAddressTypeaheadPropTypes = {
@@ -278,10 +275,19 @@ export const CustomSuggestionPanel = ({ children }: CustomSuggestionPanelPropTyp
   return createPortal(<>{children(ds, shouldDisplaySuggestion, onSuggestionSelected)}</>, suggestionContainerElem);
 };
 
-export const SubdistrictInput = AddressInputField('subdistrict');
-export const ProvinceInput = AddressInputField('province');
-export const DistrictInput = AddressInputField('district');
-export const PostalCodeInput = AddressInputField('postalCode');
+type BoundInputProps = Omit<AddressInputComponentProps, 'fieldName'>;
+
+export const SubdistrictInput = (props: BoundInputProps) => <AddressInputComponent fieldName='subdistrict' {...props} />;
+SubdistrictInput.displayName = 'subdistrictInputField';
+
+export const ProvinceInput = (props: BoundInputProps) => <AddressInputComponent fieldName='province' {...props} />;
+ProvinceInput.displayName = 'provinceInputField';
+
+export const DistrictInput = (props: BoundInputProps) => <AddressInputComponent fieldName='district' {...props} />;
+DistrictInput.displayName = 'districtInputField';
+
+export const PostalCodeInput = (props: BoundInputProps) => <AddressInputComponent fieldName='postalCode' {...props} />;
+PostalCodeInput.displayName = 'postalCodeInputField';
 export const Suggestion = DefaultSuggestionPanel;
 export const CustomSuggestion = CustomSuggestionPanel;
 

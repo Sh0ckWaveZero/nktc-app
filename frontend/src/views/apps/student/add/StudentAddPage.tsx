@@ -17,8 +17,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Controller } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { Controller, useWatch } from 'react-hook-form';
+import { useEffect, useRef, useState } from 'react';
 import {
   ThailandAddressTypeahead,
   ThailandAddressValue,
@@ -26,6 +26,8 @@ import {
 } from '@/@core/styles/libs/thailand-address';
 import { useCreateStudent } from '@/hooks/queries/useStudents';
 import { useClassrooms } from '@/hooks/queries/useClassrooms';
+import httpClient from '@/@core/utils/http';
+import { authConfig } from '@/configs/auth';
 
 import { useSpring, useTrail, animated } from 'react-spring';
 import { FcCalendar } from 'react-icons/fc';
@@ -45,8 +47,13 @@ import type { Classroom } from '@/types/apps/teacherTypes';
 interface ClassroomOption extends Classroom {
   id: string;
   name: string;
-  department?: { id?: string; name?: string };
-  level?: { id?: string; levelName?: string };
+  description?: string | null;
+  status?: string | null;
+  departmentId?: string | null;
+  programId?: string | null;
+  levelId?: string | null;
+  department?: { id?: string; name?: string } | null;
+  level?: { id?: string; levelName?: string } | null;
 }
 
 const PANEL_RADIUS = 16;
@@ -142,11 +149,6 @@ const FORM_CONTROL_SX = {
   '& .MuiInputBase-input': {
     letterSpacing: '-0.01em',
   },
-  '& .MuiInputBase-input::placeholder': {
-    color: 'text.secondary',
-    opacity: 1,
-    fontWeight: 500,
-  },
   '& .MuiInputLabel-root': {
     fontSize: '0.92rem',
     fontWeight: 600,
@@ -155,7 +157,7 @@ const FORM_CONTROL_SX = {
   '& .MuiInputLabel-shrink': {
     fontSize: '0.86rem',
   },
-  '& .MuiFormHelperText-root': {
+  '& .MuiFormHelperText-root:not(.Mui-error)': {
     color: 'text.secondary',
     fontWeight: 500,
   },
@@ -167,7 +169,7 @@ const AnimatedGrid = animated(Grid);
 const StudentAddPage = () => {
   // hooks
   const theme = useTheme();
-  const router = useRouter();
+  const { push } = useRouter();
   const { user } = useAuth();
 
   // React Query hooks
@@ -178,7 +180,7 @@ const StudentAddPage = () => {
   const [classroom, setClassroom] = useState<ClassroomOption[]>([]);
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
   const [loadingImg, setLoadingImg] = useState<boolean>(false);
-  const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(ThailandAddressValueHelper.empty());
+  const [currentAddress, setCurrentAddress] = useState<ThailandAddressValue>(() => ThailandAddressValueHelper.empty());
 
   // Filter classrooms based on user role
   useEffect(() => {
@@ -205,17 +207,70 @@ const StudentAddPage = () => {
   }, [imageCompressed]);
 
   // ** Hook
-  const { reset, control, handleSubmit, errors, isDirty, isValid } = useStudentAddForm();
+  const { reset, control, handleSubmit, errors, isDirty, isValid, setError, clearErrors } = useStudentAddForm();
 
-  const onSubmit = (data: StudentAddFormData) => {
+  const watchedStudentId = useWatch({ control, name: 'studentId' });
+  const [isCheckingStudentId, setIsCheckingStudentId] = useState(false);
+  const checkDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current);
+    if (!watchedStudentId || watchedStudentId.length < 10) {
+      clearErrors('studentId');
+      return;
+    }
+    checkDebounceRef.current = setTimeout(async () => {
+      setIsCheckingStudentId(true);
+      try {
+        const { data } = await httpClient.get(`${authConfig.studentEndpoint}/check-id`, {
+          params: { studentId: watchedStudentId },
+        });
+        if (data?.exists) {
+          setError('studentId', { type: 'manual', message: 'รหัสนักเรียนนี้มีอยู่ในระบบแล้ว' });
+        } else {
+          clearErrors('studentId');
+        }
+      } catch {
+        // silently ignore check errors
+      } finally {
+        setIsCheckingStudentId(false);
+      }
+    }, 600);
+    return () => {
+      if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current);
+    };
+  }, [watchedStudentId, setError, clearErrors]);
+
+  const onSubmit = async (data: StudentAddFormData) => {
+    if (errors.studentId) return;
     if (!data.classroom) return;
 
+    // Double-check studentId before submit (prevent race condition)
+    if (data.studentId && data.studentId.length >= 10) {
+      try {
+        const { data: checkResult } = await httpClient.get(`${authConfig.studentEndpoint}/check-id`, {
+          params: { studentId: data.studentId },
+        });
+        if (checkResult?.exists) {
+          setError('studentId', { type: 'manual', message: 'รหัสนักเรียนนี้มีอยู่ในระบบแล้ว' });
+          return;
+        }
+      } catch {
+        // If check fails, proceed - backend will validate
+      }
+    }
+
     const { classroom: c, ...rest } = data;
+    const classroomFull = c as ClassroomOption;
+    const { postalCode, ...addressRest } = currentAddress;
     const student = {
       ...rest,
-      ...currentAddress,
-      classroom: c.id,
-      level: c.level?.id,
+      ...addressRest,
+      postcode: postalCode,
+      classroomId: c.id,
+      levelId: c.level?.id,
+      departmentId: c.department?.id,
+      programId: classroomFull.programId ?? undefined,
       avatar: imgSrc === '/images/avatars/1.png' ? null : imgSrc,
     };
 
@@ -230,12 +285,12 @@ const StudentAddPage = () => {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('บันทึกข้อมูลสำเร็จ');
-          router.push(`/apps/student/list?classroom=${c.id}`);
+          push(`/apps/student/list?classroom=${c.id}`);
         },
         onError: (error: unknown) => {
           const err = error as { response?: { data?: { error?: string } } };
           toast.dismiss(toastId);
-          toast.error(err?.response?.data?.error || 'เกิดข้อผิดพลาด');
+          toast.error(err?.response?.data?.message || err?.response?.data?.error || 'เกิดข้อผิดพลาด');
         },
       },
     );
@@ -348,14 +403,16 @@ const StudentAddPage = () => {
                 </Box>
               }
               subheader='กรอกข้อมูลพื้นฐาน รูปโปรไฟล์ และที่อยู่ของนักเรียนจากแผงเดียว'
-              subheaderTypographyProps={{
-                sx: {
-                  mt: 1,
-                  maxWidth: '60ch',
-                  fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
-                  fontWeight: 500,
-                  letterSpacing: '-0.01em',
-                  color: 'text.secondary',
+              slotProps={{
+                subheader: {
+                  sx: {
+                    mt: 1,
+                    maxWidth: '60ch',
+                    fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
+                    fontWeight: 500,
+                    letterSpacing: '-0.01em',
+                    color: 'text.secondary',
+                  },
                 },
               }}
               sx={{
@@ -564,7 +621,6 @@ const StudentAddPage = () => {
                         control={control}
                         render={({ field: { value, onChange } }) => (
                           <Autocomplete
-                            disablePortal
                             id='student-add-classroom-autocomplete'
                             value={value ?? null}
                             options={classroom}
@@ -764,7 +820,8 @@ const StudentAddPage = () => {
                           id='student-add-submit-btn'
                           type='submit'
                           variant='contained'
-                          disabled={!isDirty || !isValid}
+                          disabled={!isDirty || !isValid || isCheckingStudentId}
+                          loading={isCheckingStudentId}
                           sx={(theme) => ({
                             minHeight: 50,
                             px: { xs: 3, sm: 4.5 },

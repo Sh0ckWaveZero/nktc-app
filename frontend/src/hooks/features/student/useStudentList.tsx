@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, useDeferredValue } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { useAuth } from '@/hooks/useAuth';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
@@ -97,6 +97,7 @@ const convertFileToBase64 = (file: File): Promise<string> =>
 
 export const useStudentList = (): UseStudentListReturn => {
   const { user } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const classroom = searchParams.get('classroom');
 
@@ -110,6 +111,7 @@ export const useStudentList = (): UseStudentListReturn => {
 
   const [initClassroom, setInitClassroom] = useState<any | null>(null);
   const [currentClassroomId, setCurrentClassroomId] = useState<string | null>(null);
+  const classroomInitialized = useRef(false);
   const [currentStudent, setCurrentStudent] = useState<any | null>(null);
   const [searchValue, setSearchValue] = useState<SearchValue>({ fullName: '', studentId: '' });
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -136,11 +138,12 @@ export const useStudentList = (): UseStudentListReturn => {
   // ─── Set initial classroom once data loads ────────────────────────────────────
 
   useEffect(() => {
-    if (!classrooms.length || currentClassroomId) return;
+    if (!classrooms.length || classroomInitialized.current) return;
     const target = classroom ? (classrooms.find((item: any) => item.id === classroom) ?? classrooms[0]) : classrooms[0];
     setInitClassroom(target ?? null);
     setCurrentClassroomId(target?.id ?? null);
-  }, [classrooms, classroom, currentClassroomId]);
+    classroomInitialized.current = true;
+  }, [classrooms, classroom]);
 
   // ─── Students via React Query ─────────────────────────────────────────────────
 
@@ -153,9 +156,14 @@ export const useStudentList = (): UseStudentListReturn => {
 
   const handleChangeClassroom = useCallback((e: SelectChangeEvent, value: any) => {
     e.preventDefault();
-    setCurrentClassroomId(value?.id);
+    setCurrentClassroomId(value?.id ?? null);
     setInitClassroom(value);
-  }, []);
+    if (value?.id) {
+      router.replace(`/apps/student/list?classroom=${value.id}`, { scroll: false });
+    } else {
+      router.replace('/apps/student/list', { scroll: false });
+    }
+  }, [router]);
 
   const handleChangeFullName = useCallback((e: any, newValue: any) => {
     e.preventDefault();
@@ -198,13 +206,9 @@ export const useStudentList = (): UseStudentListReturn => {
       setOpenDeletedConfirm(false);
       const toastId = toast.info('กำลังลบข้อมูล...', { autoClose: false, hideProgressBar: true });
       deleteStudent(deletedStudent.id, {
-        onSuccess: (res: any) => {
+        onSuccess: () => {
           toast.dismiss(toastId);
-          if (res?.status === 204) {
-            toast.success('ลบข้อมูลสำเร็จ');
-          } else {
-            toast.error(res?.response?.data?.error || 'เกิดข้อผิดพลาด');
-          }
+          toast.success('ลบข้อมูลสำเร็จ');
         },
         onError: () => {
           toast.dismiss(toastId);

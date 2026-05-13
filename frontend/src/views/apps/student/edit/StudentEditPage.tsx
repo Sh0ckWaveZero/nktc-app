@@ -149,11 +149,6 @@ const FORM_ITEM_SX = {
   '& .MuiInputBase-input': {
     letterSpacing: '-0.01em',
   },
-  '& .MuiInputBase-input::placeholder': {
-    color: 'text.secondary',
-    opacity: 1,
-    fontWeight: 500,
-  },
   '& .MuiInputLabel-root': {
     fontSize: '0.92rem',
     fontWeight: 600,
@@ -162,7 +157,7 @@ const FORM_ITEM_SX = {
   '& .MuiInputLabel-shrink': {
     fontSize: '0.86rem',
   },
-  '& .MuiFormHelperText-root': {
+  '& .MuiFormHelperText-root:not(.Mui-error)': {
     color: 'text.secondary',
     fontWeight: 500,
   },
@@ -173,7 +168,7 @@ const AnimatedGrid = animated(Grid);
 
 const StudentEditPage = ({ id }: StudentEditPageProps) => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png');
-  const router = useRouter();
+  const { back } = useRouter();
 
   // React Query hooks
   const { data: studentData, isLoading } = useStudent(id);
@@ -290,7 +285,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       {
         onSuccess: () => {
           toast.success('ข้อมูลนักเรียนได้รับการแก้ไขแล้ว');
-          router.back();
+          back();
         },
         onError: (error) => {
           console.error('Error updating student:', error);
@@ -370,14 +365,16 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
           </Box>
         }
         subheader='อัปเดตข้อมูลส่วนตัว การศึกษา และช่องทางติดต่อของนักเรียนจากแผงเดียว'
-        subheaderTypographyProps={{
-          sx: {
-            mt: 1,
-            maxWidth: '60ch',
-            fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: 'text.secondary',
+        slotProps={{
+          subheader: {
+            sx: {
+              mt: 1,
+              maxWidth: '60ch',
+              fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
+              fontWeight: 500,
+              letterSpacing: '-0.01em',
+              color: 'text.secondary',
+            },
           },
         }}
         sx={{
@@ -554,7 +551,6 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 control={control}
                 render={({ field: { value, onChange } }) => (
                   <Autocomplete
-                    disablePortal
                     id='student-edit-classroom-autocomplete'
                     value={value ?? null}
                     options={classroomsData}
@@ -721,7 +717,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                     id='student-edit-cancel-btn'
                     variant='outlined'
                     color='secondary'
-                    onClick={() => router.back()}
+                    onClick={() => back()}
                     sx={{
                       minHeight: 50,
                       px: { xs: 3, sm: 4.5 },

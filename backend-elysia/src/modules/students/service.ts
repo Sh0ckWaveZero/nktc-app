@@ -1,7 +1,8 @@
 import { prisma } from "@/libs/prisma";
 import { studentInclude, StudentModel } from "./model";
 import { importStudentsFromXLSX, generateStudentTemplate } from "@/libs/xlsx";
-import { NotFoundError } from "@/libs/errors";
+import { ConflictError, NotFoundError } from "@/libs/errors";
+import { Prisma, Role } from "../../../generated/client";
 
 const maskIdCard = (idCard?: string | null) => {
   if (!idCard) return idCard ?? null;
@@ -92,18 +93,18 @@ export abstract class StudentService {
       q,
       search,
       skip = 0,
-      take = 20,
+      take = 1000,
       departmentId,
       programId,
     } = params;
-    
+
     // Support both q (from GET) and search object (from POST)
     const searchQuery = q || search?.studentId || search?.fullName;
     const searchConditions: any[] = [];
-    
+
     if (searchQuery) {
       searchConditions.push({ studentId: { contains: searchQuery, mode: "insensitive" as const } });
-      
+
       // If searchQuery has a space, it might be "firstName lastName"
       const nameParts = searchQuery.split(' ').filter(p => !!p);
       if (nameParts.length > 1) {
@@ -167,21 +168,89 @@ export abstract class StudentService {
     return maskStudentSensitiveFields(student);
   }
 
-  static async create(userId: string, data: StudentModel["createBody"]) {
-    const { graduationDate, ...rest } = data;
-    const student = await prisma.student.create({
-      data: {
-        ...rest,
-        graduationDate: graduationDate
-          ? new Date(graduationDate as any)
-          : graduationDate === null
-            ? null
-            : undefined,
-        userId,
-      },
-      include: studentInclude,
+  static async create(createdBy: string, data: StudentModel["createBody"]) {
+    const {
+      graduationDate, studentId,
+      title, firstName, lastName, idCard, phone, birthDate,
+      addressLine1, subdistrict, district, province, postcode, avatar, email,
+      ...studentData
+    } = data;
+
+    // Check if studentId is already taken
+    const existingStudentId = await prisma.student.findUnique({
+      where: { studentId },
+      select: { id: true },
     });
-    return maskStudentSensitiveFields(student);
+    if (existingStudentId) {
+      throw new ConflictError('รหัสนักเรียนนี้มีอยู่ในระบบแล้ว');
+    }
+
+    // Check if username (studentId) already taken by another account
+    const existingUser = await prisma.user.findFirst({
+      where: { username: studentId },
+      select: { id: true },
+    });
+    if (existingUser) {
+      throw new ConflictError('รหัสนักเรียนนี้ถูกใช้เป็นบัญชีผู้ใช้แล้ว');
+    }
+
+    try {
+      const hashedPassword = await import("bcryptjs").then((m) => m.hash(studentId, 10));
+
+      const student = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            username: studentId,
+            password: hashedPassword,
+            role: Role.Student,
+            email: email || null,
+            createdBy,
+          },
+          select: { id: true },
+        });
+
+        await tx.account.create({
+          data: {
+            userId: user.id,
+            title,
+            firstName,
+            lastName,
+            idCard,
+            phone,
+            birthDate: birthDate ? new Date(birthDate as any) : null,
+            addressLine1,
+            subdistrict,
+            district,
+            province,
+            postcode,
+            avatar,
+            createdBy,
+          },
+        });
+
+        return tx.student.create({
+          data: {
+            ...studentData,
+            studentId,
+            graduationDate: graduationDate
+              ? new Date(graduationDate as any)
+              : graduationDate === null
+                ? null
+                : undefined,
+            userId: user.id,
+            createdBy,
+          },
+          include: studentInclude,
+        });
+      });
+
+      return maskStudentSensitiveFields(student);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        throw new ConflictError('รหัสนักเรียนนี้มีอยู่ในระบบแล้ว');
+      }
+      throw err;
+    }
   }
 
   static async update(id: string, data: StudentModel["updateBody"]) {
@@ -251,7 +320,23 @@ export abstract class StudentService {
   }
 
   static async delete(id: string) {
-    await prisma.student.delete({ where: { id } });
+    const student = await prisma.student.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!student) throw new NotFoundError("Student not found");
+
+    await prisma.$transaction(async (tx) => {
+      await tx.goodnessIndividual.deleteMany({ where: { studentKey: id } });
+      await tx.badnessIndividual.deleteMany({ where: { studentKey: id } });
+      await tx.visitStudent.deleteMany({ where: { studentKey: id } });
+
+      if (student.userId) {
+        await tx.user.delete({ where: { id: student.userId } });
+      } else {
+        await tx.student.delete({ where: { id } });
+      }
+    });
   }
 
   static async getTrophyOverview(id: string) {
@@ -298,6 +383,96 @@ export abstract class StudentService {
         },
       },
     });
+  }
+
+  static async promotePreview(sourceClassroomId: string) {
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: sourceClassroomId },
+      select: { name: true },
+    });
+
+    if (!classroom) throw new NotFoundError("ไม่พบห้องเรียนต้นทาง");
+
+    const students = await prisma.student.findMany({
+      where: {
+        classroomId: sourceClassroomId,
+        OR: [{ studentStatus: { not: "จบการศึกษา" } }, { studentStatus: null }],
+      },
+      select: {
+        id: true,
+        studentId: true,
+        user: {
+          select: {
+            account: {
+              select: { firstName: true, lastName: true, title: true },
+            },
+          },
+        },
+      },
+      orderBy: { studentId: "asc" },
+    });
+
+    return {
+      classroomName: classroom.name,
+      total: students.length,
+      students: students.map((s) => ({
+        id: s.id,
+        studentId: s.studentId,
+        name: [s.user?.account?.title, s.user?.account?.firstName, s.user?.account?.lastName]
+          .filter(Boolean)
+          .join(" ") || s.studentId || "-",
+      })),
+    };
+  }
+
+  static async promoteClassroom(sourceClassroomId: string, targetClassroomId: string, promotedBy: string) {
+    const [source, target] = await Promise.all([
+      prisma.classroom.findUnique({
+        where: { id: sourceClassroomId },
+        select: { id: true, name: true, classroomId: true },
+      }),
+      prisma.classroom.findUnique({
+        where: { id: targetClassroomId },
+        select: { id: true, name: true, classroomId: true, departmentId: true, programId: true, levelId: true },
+      }),
+    ]);
+
+    if (!source) throw new NotFoundError("ไม่พบห้องเรียนต้นทาง");
+    if (!target) throw new NotFoundError("ไม่พบห้องเรียนปลายทาง");
+    if (sourceClassroomId === targetClassroomId) {
+      throw new Error("ห้องเรียนต้นทางและปลายทางต้องไม่เหมือนกัน");
+    }
+
+    const { count } = await prisma.student.updateMany({
+      where: {
+        classroomId: sourceClassroomId,
+        OR: [{ studentStatus: { not: "จบการศึกษา" } }, { studentStatus: null }],
+      },
+      data: {
+        classroomId: targetClassroomId,
+        departmentId: target.departmentId,
+        programId: target.programId,
+        levelId: target.levelId,
+        updatedBy: promotedBy,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "PROMOTE_CLASSROOM",
+        model: "Student",
+        detail: `เลื่อนชั้นนักเรียน ${count} คน จาก "${source.name}" → "${target.name}"`,
+        oldValue: source.classroomId ?? source.id,
+        newValue: target.classroomId ?? target.id,
+        createdBy: promotedBy,
+      },
+    });
+
+    return {
+      promoted: count,
+      sourceClassroom: source.name,
+      targetClassroom: target.name,
+    };
   }
 
   static generateTemplate() {

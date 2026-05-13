@@ -34,6 +34,13 @@ export const classroomInclude = {
   program: true,
   department: true,
   level: true,
+  levelClassrooms: {
+    select: {
+      id: true,
+      programId: true,
+      levelId: true,
+    },
+  },
   _count: {
     select: {
       student: true,

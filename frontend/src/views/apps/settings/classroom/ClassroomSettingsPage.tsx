@@ -1,29 +1,30 @@
 'use client';
 
-import {
-  Alert,
-  AlertTitle,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  MenuItem,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Autocomplete from '@mui/material/Autocomplete';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { alpha, styled } from '@mui/material/styles';
 import { useMemo, useRef, useState, type ChangeEvent } from 'react';
@@ -44,6 +45,7 @@ import {
   type ClassroomPayload,
 } from '@/hooks/queries/useClassrooms';
 import { useDepartments, useLevels, usePrograms } from '@/hooks/queries/useDepartments';
+import { usePromoteStudents, usePromotePreview } from '@/hooks/queries/useStudents';
 
 import ClassroomDeleteDialog from './ClassroomDeleteDialog';
 import ClassroomFormDialog from './ClassroomFormDialog';
@@ -220,6 +222,9 @@ const getErrorMessage = (error: any, fallback: string) => {
 
 const isClassroomActive = (status?: string | null) => status !== 'inactive';
 
+const THAI_DATE_FORMAT = new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' });
+const THAI_TIME_FORMAT = new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' });
+
 const formatThaiDateTimeParts = (value?: string) => {
   if (!value) {
     return { date: '-', time: '' };
@@ -228,8 +233,8 @@ const formatThaiDateTimeParts = (value?: string) => {
   const date = new Date(value);
 
   return {
-    date: new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' }).format(date),
-    time: new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' }).format(date),
+    date: THAI_DATE_FORMAT.format(date),
+    time: THAI_TIME_FORMAT.format(date),
   };
 };
 
@@ -285,6 +290,13 @@ const ClassroomSettingsPage = () => {
   const { mutate: updateClassroom, isPending: isUpdating } = useUpdateClassroom();
   const { mutate: deleteClassroom, isPending: isDeleting } = useDeleteClassroom();
   const { mutate: importClassrooms, isPending: isImporting } = useImportClassrooms();
+  const { mutate: promoteStudents, isPending: isPromoting } = usePromoteStudents();
+
+  const [openPromote, setOpenPromote] = useState(false);
+  const [promoteSource, setPromoteSource] = useState<ClassroomItem | null>(null);
+  const [promoteTarget, setPromoteTarget] = useState<ClassroomItem | null>(null);
+
+  const { data: promotePreview, isFetching: isLoadingPreview } = usePromotePreview(promoteSource?.id ?? '');
 
   const isSubmitting = isCreating || isUpdating;
 
@@ -312,8 +324,14 @@ const ClassroomSettingsPage = () => {
       const active = isClassroomActive(classroom.status);
       const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? active : !active);
       const matchesDepartment = departmentFilter === 'all' || classroom.departmentId === departmentFilter;
-      const matchesProgram = programFilter === 'all' || classroom.programId === programFilter;
-      const matchesLevel = levelFilter === 'all' || classroom.levelId === levelFilter;
+      const matchesProgram =
+        programFilter === 'all' ||
+        classroom.programId === programFilter ||
+        classroom.levelClassrooms?.some((lc) => lc.programId === programFilter) === true;
+      const matchesLevel =
+        levelFilter === 'all' ||
+        classroom.levelId === levelFilter ||
+        classroom.levelClassrooms?.some((lc) => lc.levelId === levelFilter) === true;
 
       return matchesSearch && matchesStatus && matchesDepartment && matchesProgram && matchesLevel;
     });
@@ -335,6 +353,29 @@ const ClassroomSettingsPage = () => {
       { total: 0, active: 0, inactive: 0, students: 0, teachers: 0 },
     );
   }, [classrooms]);
+
+  const handleOpenPromote = () => {
+    setPromoteSource(null);
+    setPromoteTarget(null);
+    setOpenPromote(true);
+  };
+
+  const handleConfirmPromote = () => {
+    if (!promoteSource || !promoteTarget) return;
+
+    promoteStudents(
+      { sourceClassroomId: promoteSource.id, targetClassroomId: promoteTarget.id },
+      {
+        onSuccess: (result) => {
+          toast.success(`เลื่อนชั้นสำเร็จ: ย้ายนักเรียน ${result.promoted} คน จาก "${result.sourceClassroom}" → "${result.targetClassroom}"`);
+          setOpenPromote(false);
+        },
+        onError: (error: any) => {
+          toast.error(getErrorMessage(error, 'ไม่สามารถเลื่อนชั้นได้'));
+        },
+      },
+    );
+  };
 
   const handleOpenCreate = () => {
     setFormMode('create');
@@ -786,6 +827,20 @@ const ClassroomSettingsPage = () => {
 
                         <ToolDivider />
 
+                        <Tooltip title='เลื่อนชั้นนักเรียน'>
+                          <ToolButtonSlot>
+                            <ToolButton
+                              id='promote-students-button'
+                              disabled={isImporting || isDownloadingTemplate || isExporting || isPromoting}
+                              onClick={handleOpenPromote}
+                            >
+                              <Icon icon='tabler:arrow-up' />
+                            </ToolButton>
+                          </ToolButtonSlot>
+                        </Tooltip>
+
+                        <ToolDivider />
+
                         <Tooltip title='เพิ่มห้องเรียน'>
                           <ToolButtonSlot>
                             <ActiveToolButton id='add-classroom-button' onClick={handleOpenCreate}>
@@ -798,6 +853,7 @@ const ClassroomSettingsPage = () => {
                   </Grid>
                   <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
+                      id='classroom-search'
                       fullWidth
                       label='ค้นหาห้องเรียน'
                       placeholder='พิมพ์ชื่อห้องเรียน รหัส หรือคำอธิบาย'
@@ -808,6 +864,7 @@ const ClassroomSettingsPage = () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                     <TextField
+                      id='classroom-department-filter'
                       select
                       fullWidth
                       label='แผนก'
@@ -829,6 +886,7 @@ const ClassroomSettingsPage = () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                     <TextField
+                      id='classroom-program-filter'
                       select
                       fullWidth
                       label='สาขา'
@@ -846,6 +904,7 @@ const ClassroomSettingsPage = () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                     <TextField
+                      id='classroom-level-filter'
                       select
                       fullWidth
                       label='ระดับชั้น'
@@ -863,6 +922,7 @@ const ClassroomSettingsPage = () => {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                     <TextField
+                      id='classroom-status-filter'
                       select
                       fullWidth
                       label='สถานะ'
@@ -1006,7 +1066,7 @@ const ClassroomSettingsPage = () => {
         onConfirm={handleDelete}
       />
 
-      <Dialog open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
+      <Dialog id='import-result-dialog' open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
         <DialogTitle>ผลการนำเข้าข้อมูลห้องเรียน</DialogTitle>
         <DialogContent>
           {importResult && (
@@ -1084,6 +1144,125 @@ const ClassroomSettingsPage = () => {
         <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
           <Button variant='contained' onClick={() => setIsImportResultOpen(false)}>
             ปิด
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        id='promote-students-dialog'
+        open={openPromote}
+        fullWidth
+        maxWidth='sm'
+      >
+        <DialogTitle>เลื่อนชั้นนักเรียน</DialogTitle>
+        <DialogContent sx={{ pt: '16px !important' }}>
+          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+            นักเรียนทุกคนในห้องเรียนต้นทาง (ยกเว้นที่จบการศึกษาแล้ว) จะถูกย้ายไปยังห้องเรียนปลายทาง
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Autocomplete
+              id='promote-source-classroom'
+              options={classrooms.filter((c) => c.id !== promoteTarget?.id)}
+              getOptionLabel={(option) => option.name ?? option.classroomId ?? ''}
+              value={promoteSource}
+              onChange={(_, value) => {
+                setPromoteSource(value);
+                if (promoteTarget?.id === value?.id) setPromoteTarget(null);
+              }}
+              disabled={isPromoting}
+              renderInput={(params) => (
+                <TextField {...params} label='ห้องเรียนต้นทาง' placeholder='พิมพ์เพื่อค้นหา...' sx={CONTROL_SX} />
+              )}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              noOptionsText='ไม่พบห้องเรียน'
+            />
+
+            {promoteSource && (
+              <Box>
+                {isLoadingPreview ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+                    <CircularProgress size={16} />
+                    <Typography variant='body2' color='text.secondary'>กำลังโหลดรายชื่อ...</Typography>
+                  </Box>
+                ) : promotePreview?.total === 0 ? (
+                  <Alert severity='warning' sx={{ borderRadius: 2 }}>
+                    ไม่มีนักเรียนในห้องเรียนนี้ที่จะเลื่อนชั้นได้
+                  </Alert>
+                ) : promotePreview && promotePreview.total > 0 ? (
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant='subtitle2'>
+                        รายชื่อนักเรียนที่จะเลื่อนชั้น
+                      </Typography>
+                      <Chip size='small' label={`${promotePreview.total} คน`} color='primary' variant='outlined' />
+                    </Box>
+                    <Box
+                      sx={{
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                        border: (theme) => `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                      }}
+                    >
+                      <List disablePadding dense>
+                        {promotePreview.students.map((student, index) => (
+                          <ListItem
+                            key={student.id}
+                            divider={index < promotePreview.students.length - 1}
+                            sx={{ py: 0.75 }}
+                          >
+                            <ListItemText
+                              primary={student.name}
+                              secondary={student.studentId ?? '-'}
+                              slotProps={{
+                                primary: { variant: 'body2', fontWeight: 500 },
+                                secondary: { variant: 'caption' },
+                              }}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  </Box>
+                ) : null}
+              </Box>
+            )}
+
+            <Divider />
+
+            <Autocomplete
+              id='promote-target-classroom'
+              options={classrooms.filter((c) => c.id !== promoteSource?.id)}
+              getOptionLabel={(option) => option.name ?? option.classroomId ?? ''}
+              value={promoteTarget}
+              onChange={(_, value) => setPromoteTarget(value)}
+              disabled={isPromoting || !promoteSource || promotePreview?.total === 0}
+              renderInput={(params) => (
+                <TextField {...params} label='ห้องเรียนปลายทาง' placeholder='พิมพ์เพื่อค้นหา...' sx={CONTROL_SX} />
+              )}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              noOptionsText='ไม่พบห้องเรียน'
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
+          <Button
+            id='promote-cancel-button'
+            variant='outlined'
+            color='error'
+            onClick={() => setOpenPromote(false)}
+            disabled={isPromoting}
+          >
+            ยกเลิก
+          </Button>
+          <Button
+            id='promote-confirm-button'
+            variant='contained'
+            color='primary'
+            onClick={handleConfirmPromote}
+            disabled={!promoteSource || !promoteTarget || isPromoting || promotePreview?.total === 0}
+          >
+            {isPromoting ? 'กำลังเลื่อนชั้น...' : 'ยืนยันเลื่อนชั้น'}
           </Button>
         </DialogActions>
       </Dialog>

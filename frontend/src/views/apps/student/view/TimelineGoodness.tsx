@@ -1,9 +1,16 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Typography, Button, Tooltip } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
 import Grid from '@mui/material/Grid';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import Timeline from '@mui/lab/Timeline';
 import { TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineSeparator } from '@mui/lab';
 
-import { CircularProgress } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import { calculateTimeAgo } from '@/utils/datetime';
 import useImageQuery from '@/hooks/useImageQuery';
 import IconifyIcon from '@/@core/components/icon';
@@ -26,11 +33,16 @@ const ImageDisplay = ({ image }: ImageDisplayProps) => {
     <CircularProgress />
   ) : badnessImage ? (
     <div
+      role="button"
+      tabIndex={0}
       style={{
         cursor: 'pointer',
       }}
       onClick={() => {
         window.open(badnessImage, '_blank');
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') window.open(badnessImage, '_blank');
       }}
     >
       <Avatar alt='บันทึกความดี' src={badnessImage as any} sx={{ width: '5.5rem', height: '5.5rem' }} />
@@ -75,7 +87,9 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
         <Card>
           <CardHeader
             title={`รายละเอียดความดี - ${getStudentDisplayName()}`}
-            titleTypographyProps={{ variant: 'h6' }}
+            slotProps={{
+              title: { variant: 'h6' },
+            }}
           />
           <CardContent>
             {isEmpty ? (
@@ -122,11 +136,11 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
                         <Typography variant='body2' sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
                           {goodnessRecord?.goodnessDetail}
                         </Typography>
-                        <Typography variant='caption'>
+                        <Typography variant='caption' suppressHydrationWarning>
                           {goodnessRecord?.goodDate ? calculateTimeAgo(new Date(goodnessRecord?.goodDate)) : ''}
                         </Typography>
                       </Box>
-                      <Typography variant='body2'>
+                      <Typography variant='body2' suppressHydrationWarning>
                         {`ความดี ${goodnessRecord?.goodnessScore} คะแนน `}
                         {goodnessRecord?.goodDate
                           ? `ณ ${new Date(goodnessRecord?.goodDate).toLocaleTimeString('th-TH', {

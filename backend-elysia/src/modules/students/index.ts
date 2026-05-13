@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { StudentService } from "./service";
 import { StudentModel } from "./model";
 import { authGuard } from "@/middleware/auth";
+import { prisma } from "@/libs/prisma";
 import {
 	StudentPlainInputCreate,
 	StudentPlainInputUpdate,
@@ -52,6 +53,17 @@ export const students = new Elysia({ prefix: "/students" })
 					},
 				},
 			)
+			.get("/check-id", async ({ query }) => {
+				const { studentId } = query as { studentId: string };
+				const exists = await prisma.student.findFirst({
+					where: { studentId },
+					select: { id: true },
+				});
+				return { exists: !!exists };
+			}, {
+				query: t.Object({ studentId: t.String() }),
+				detail: { summary: "Check if studentId is already taken" },
+			})
 			.get("/profile/:id", async ({ params: { id } }) => {
 				return StudentService.getById(id);
 			}, {
@@ -110,6 +122,36 @@ export const students = new Elysia({ prefix: "/students" })
 			.get("/download", () => ({
 				message: "Use /statics/:folder/:filename to download files",
 			}))
+			.post(
+				"/promote-classroom",
+				async ({ body, user, set }) => {
+					if ((user as any)?.roles !== "Admin") {
+						set.status = 403;
+						return { success: false, message: "Forbidden" };
+					}
+					const { sourceClassroomId, targetClassroomId } = body as StudentModel["promoteBody"];
+					return StudentService.promoteClassroom(sourceClassroomId, targetClassroomId, (user as any).sub);
+				},
+				{
+					body: StudentModel.promoteBody,
+					detail: { summary: "Promote all students from one classroom to another" },
+				},
+			)
+			.get(
+				"/promote-preview",
+				async ({ query, user, set }) => {
+					if ((user as any)?.roles !== "Admin") {
+						set.status = 403;
+						return { success: false, message: "Forbidden" };
+					}
+					const { sourceClassroomId } = query as { sourceClassroomId: string };
+					return StudentService.promotePreview(sourceClassroomId);
+				},
+				{
+					query: t.Object({ sourceClassroomId: t.String() }),
+					detail: { summary: "Preview students to be promoted from a classroom" },
+				},
+			)
 			.get("/download-template", ({ set }) => {
 				const buffer = StudentService.generateTemplate();
 				set.headers["Content-Type"] =

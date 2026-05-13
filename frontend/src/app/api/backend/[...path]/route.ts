@@ -47,8 +47,9 @@ const proxyRequest = async (
   { params }: { params: Promise<{ path: string[] }> },
 ) => {
   const { path } = await params;
+  const cleanPath = path.filter(Boolean);
 
-  if (!path.length || path.some((segment) => segment.includes('..'))) {
+  if (!cleanPath.length || cleanPath.some((segment) => segment.includes('..'))) {
     return NextResponse.json(
       {
         message: 'Invalid backend path',
@@ -59,7 +60,7 @@ const proxyRequest = async (
     );
   }
 
-  const targetUrl = backendServerConfig.url(path.join('/'), request.nextUrl.search);
+  const targetUrl = backendServerConfig.url(cleanPath.join('/'), request.nextUrl.search);
   const requestInit: RequestInit & { duplex?: 'half' } = {
     headers: buildForwardHeaders(request),
     method: request.method,
