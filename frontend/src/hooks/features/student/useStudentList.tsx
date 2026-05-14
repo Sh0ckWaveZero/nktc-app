@@ -14,6 +14,7 @@ import {
   useGraduateClassroom,
   usePromoteStudents,
   usePromotePreview,
+  useDeleteAllClassroom,
   type StudentImportResult,
 } from '@/hooks/queries/useStudents';
 
@@ -41,6 +42,10 @@ interface UseStudentListReturn {
   openDeletedConfirm: boolean;
   deletedStudent: any | null;
   isDeleting: boolean;
+
+  // Bulk delete dialog state
+  openBulkDeleteConfirm: boolean;
+  isDeletingAll: boolean;
 
   // Graduation dialog state
   openGraduationConfirm: boolean;
@@ -83,6 +88,9 @@ interface UseStudentListReturn {
   handleDeleteClick: (student: any) => void;
   handleDeleteConfirm: () => void;
   handleDeleteCancel: () => void;
+  handleBulkDeleteClick: () => void;
+  handleBulkDeleteConfirm: () => void;
+  handleBulkDeleteCancel: () => void;
   handleGraduationClick: (student: any) => void;
   handleGraduationConfirm: (graduationDate: Date) => void;
   handleGraduationCancel: () => void;
@@ -149,6 +157,7 @@ export const useStudentList = (): UseStudentListReturn => {
 
   const { data: allClassrooms = [], isLoading: loadingClassroom } = useClassrooms();
   const { mutate: deleteStudent } = useDeleteStudent();
+  const { mutate: deleteAllClassroom, isPending: isDeletingAll } = useDeleteAllClassroom();
   const { mutate: graduateStudent } = useGraduateStudent();
   const { mutate: graduateClassroom } = useGraduateClassroom();
   const { mutateAsync: importStudents, isPending: isImportingStudents } = useImportStudents();
@@ -165,6 +174,7 @@ export const useStudentList = (): UseStudentListReturn => {
   const [openDeletedConfirm, setOpenDeletedConfirm] = useState(false);
   const [deletedStudent, setDeletedStudent] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [openBulkDeleteConfirm, setOpenBulkDeleteConfirm] = useState(false);
   const [openGraduationConfirm, setOpenGraduationConfirm] = useState(false);
   const [graduationStudent, setGraduationStudent] = useState<any | null>(null);
   const [isGraduating, setIsGraduating] = useState(false);
@@ -222,7 +232,7 @@ export const useStudentList = (): UseStudentListReturn => {
       search: deferredSearchValue,
       studentStatus: deferredSearchValue.studentStatus || undefined,
     },
-    { enabled: currentClassroomId !== null },
+    { enabled: true },
   );
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
@@ -298,6 +308,34 @@ export const useStudentList = (): UseStudentListReturn => {
   const handleDeleteCancel = useCallback(() => {
     setOpenDeletedConfirm(false);
     setDeletedStudent(null);
+  }, []);
+
+  const handleBulkDeleteClick = useCallback(() => {
+    if (!students.length) {
+      toast.warn('ไม่มีนักเรียนในห้องนี้');
+      return;
+    }
+    setOpenBulkDeleteConfirm(true);
+  }, [students.length]);
+
+  const handleBulkDeleteConfirm = useCallback(() => {
+    if (!currentClassroomId) return;
+    const toastId = toast.info('กำลังลบนักเรียนทั้งหมด...', { autoClose: false, hideProgressBar: true });
+    deleteAllClassroom(currentClassroomId, {
+      onSuccess: (result) => {
+        setOpenBulkDeleteConfirm(false);
+        toast.dismiss(toastId);
+        toast.success(`ลบนักเรียน ${result.deleted} คน จากห้อง ${result.classroom} สำเร็จ`);
+      },
+      onError: () => {
+        toast.dismiss(toastId);
+        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
+      },
+    });
+  }, [currentClassroomId, deleteAllClassroom]);
+
+  const handleBulkDeleteCancel = useCallback(() => {
+    setOpenBulkDeleteConfirm(false);
   }, []);
 
   const handleGraduationClick = useCallback((student: any) => {
@@ -620,6 +658,8 @@ export const useStudentList = (): UseStudentListReturn => {
     openDeletedConfirm,
     deletedStudent,
     isDeleting,
+    openBulkDeleteConfirm,
+    isDeletingAll,
     openGraduationConfirm,
     graduationStudent,
     isGraduating,
@@ -648,6 +688,9 @@ export const useStudentList = (): UseStudentListReturn => {
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
+    handleBulkDeleteClick,
+    handleBulkDeleteConfirm,
+    handleBulkDeleteCancel,
     handleGraduationClick,
     handleGraduationConfirm,
     handleGraduationCancel,

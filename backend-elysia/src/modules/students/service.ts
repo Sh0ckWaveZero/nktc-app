@@ -533,4 +533,54 @@ export abstract class StudentService {
     const buffer = Buffer.from(fileBase64, "base64");
     return importStudentsFromXLSX(buffer, userId);
   }
+
+  static async deleteAllByClassroom(classroomId: string, deletedBy: string) {
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      select: { id: true, name: true },
+    });
+
+    if (!classroom) throw new NotFoundError("ไม่พบห้องเรียน");
+
+    // Get all students in the classroom with their userIds
+    const students = await prisma.student.findMany({
+      where: { classroomId },
+      select: { id: true, userId: true },
+    });
+
+    const studentIds = students.map((s) => s.id);
+    const userIds = students.map((s) => s.userId).filter((id): id is string => id !== null);
+
+    await prisma.$transaction(async (tx) => {
+      // Delete related records
+      await tx.goodnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
+      await tx.badnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
+      await tx.visitStudent.deleteMany({ where: { studentKey: { in: studentIds } } });
+
+      // Delete users (which will cascade delete students and accounts)
+      if (userIds.length > 0) {
+        await tx.user.deleteMany({ where: { id: { in: userIds } } });
+      }
+
+      // Delete any remaining students without userId
+      await tx.student.deleteMany({ where: { id: { in: studentIds } } });
+
+      // Create audit log
+      await tx.auditLog.create({
+        data: {
+          action: "DELETE_ALL_CLASSROOM_STUDENTS",
+          model: "Student",
+          detail: `ลบนักเรียนทั้งหมด ${students.length} คน จากห้อง "${classroom.name}"`,
+          oldValue: classroom.id,
+          newValue: null,
+          createdBy: deletedBy,
+        },
+      });
+    });
+
+    return {
+      deleted: students.length,
+      classroom: classroom.name,
+    };
+  }
 }

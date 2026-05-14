@@ -152,6 +152,19 @@ export const students = new Elysia({ prefix: "/students" })
 					detail: { summary: "Graduate all students in a classroom" },
 				},
 			)
+			.delete(
+				"/classroom/:id",
+				async ({ params: { id }, user, set }) => {
+					if ((user as any)?.roles !== "Admin") {
+						set.status = 403;
+						return { success: false, message: "Forbidden" };
+					}
+					return StudentService.deleteAllByClassroom(id, (user as any).sub);
+				},
+				{
+					detail: { summary: "Delete all students in a classroom" },
+				},
+			)
 			.get(
 				"/promote-preview",
 				async ({ query, user, set }) => {

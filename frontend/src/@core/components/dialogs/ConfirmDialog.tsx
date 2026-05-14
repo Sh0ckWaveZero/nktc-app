@@ -84,7 +84,7 @@ const ConfirmDialog = ({ open, options, onClose, onConfirm, isConfirming = false
             mb: 3,
           }}
         >
-          <IconComponent width={32} height={32} />
+          <IconComponent size={32} />
         </Box>
         <Typography variant='h6' fontWeight={600} textAlign='center' id={`${severity}-confirm-dialog-title`}>
           {title}

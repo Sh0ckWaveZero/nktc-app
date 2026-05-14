@@ -24,6 +24,7 @@ interface TableHeaderProps {
   onExportStudents: () => Promise<void>;
   onBulkGraduate?: () => void;
   onBulkPromote?: () => void;
+  onDeleteAll?: () => void;
   onStatusChange: (status: string) => void;
   studentStatus: string;
   studentId: string;
@@ -33,6 +34,7 @@ interface TableHeaderProps {
   isDownloadingTemplate: boolean;
   isExportingStudents: boolean;
   isPromoting?: boolean;
+  isDeleting?: boolean;
 }
 
 const PANEL_RADIUS = 16;
@@ -163,6 +165,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
     onExportStudents,
     onBulkGraduate,
     onBulkPromote,
+    onDeleteAll,
     onStatusChange,
     studentStatus,
     studentId,
@@ -172,6 +175,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
     isDownloadingTemplate,
     isExportingStudents,
     isPromoting,
+    isDeleting,
   } = props;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -362,6 +366,29 @@ const TableHeader = memo((props: TableHeaderProps) => {
                         disabled={isPromoting}
                       >
                         <Icon icon='tabler:arrow-up' />
+                      </ToolButton>
+                    </ToolButtonSlot>
+                  </Tooltip>
+                  <ToolDivider />
+                </>
+              )}
+
+              {onDeleteAll && (
+                <>
+                  <Tooltip title={isDeleting ? 'กำลังลบ...' : 'ลบนักเรียนทั้งหมดในห้อง'}>
+                    <ToolButtonSlot component='span'>
+                      <ToolButton
+                        id='delete-all-students-button'
+                        onClick={onDeleteAll}
+                        disabled={isDeleting}
+                        sx={{
+                          color: 'error.main',
+                          '&:hover': {
+                            backgroundColor: (theme) => alpha(theme.palette.error.main, 0.12),
+                          },
+                        }}
+                      >
+                        <Icon icon='tabler:trash' />
                       </ToolButton>
                     </ToolButtonSlot>
                   </Tooltip>
