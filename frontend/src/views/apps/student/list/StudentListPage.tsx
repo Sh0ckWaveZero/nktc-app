@@ -29,6 +29,7 @@ import RenderAvatar from '@/@core/components/avatar';
 import TableHeader from '@/views/apps/student/list/TableHeader';
 import ClassroomPromotionDialog from '@/views/apps/settings/classroom/ClassroomPromotionDialog';
 import StudentDeleteDialog from '@/components/dialogs/StudentDeleteDialog';
+import StudentBulkDeleteDialog from '@/components/dialogs/StudentBulkDeleteDialog';
 import StudentGraduationDialog from '@/components/dialogs/StudentGraduationDialog';
 import StudentBulkGraduationDialog from '@/components/dialogs/StudentBulkGraduationDialog';
 import StudentIndividualPromotionDialog from '@/components/dialogs/StudentIndividualPromotionDialog';
@@ -222,6 +223,8 @@ const StudentListPage = () => {
     openDeletedConfirm,
     deletedStudent,
     isDeleting,
+    openBulkDeleteConfirm,
+    isDeletingAll,
     openGraduationConfirm,
     graduationStudent,
     isGraduating,
@@ -251,6 +254,9 @@ const StudentListPage = () => {
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
+    handleBulkDeleteClick,
+    handleBulkDeleteConfirm,
+    handleBulkDeleteCancel,
     handleGraduationClick,
     handleGraduationConfirm,
     handleGraduationCancel,
@@ -519,6 +525,7 @@ const StudentListPage = () => {
               onExportStudents={handleExportStudents}
               onBulkGraduate={isAdmin ? handleBulkGraduationClick : undefined}
               onBulkPromote={isAdmin ? handlePromoteClick : undefined}
+              onDeleteAll={isAdmin ? handleBulkDeleteClick : undefined}
               onStatusChange={handleStatusChange}
               studentStatus={searchValue.studentStatus}
               studentId={searchValue.studentId}
@@ -528,6 +535,7 @@ const StudentListPage = () => {
               isDownloadingTemplate={isDownloadingTemplate}
               isExportingStudents={isExportingStudents}
               isPromoting={isPromoting}
+              isDeleting={isDeletingAll}
             />
             <StyledDataGrid
               rows={students}
@@ -555,6 +563,16 @@ const StudentListPage = () => {
           isDeleting={isDeleting}
           onClose={handleDeleteCancel}
           onConfirm={handleDeleteConfirm}
+        />
+      )}
+      {openBulkDeleteConfirm && (
+        <StudentBulkDeleteDialog
+          open={openBulkDeleteConfirm}
+          classroomName={initClassroom?.name ?? ''}
+          studentCount={students.length}
+          isDeleting={isDeletingAll}
+          onClose={handleBulkDeleteCancel}
+          onConfirm={handleBulkDeleteConfirm}
         />
       )}
       {openGraduationConfirm && (

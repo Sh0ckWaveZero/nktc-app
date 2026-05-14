@@ -296,6 +296,28 @@ export const useGraduateClassroom = () => {
   });
 };
 
+export interface DeleteAllClassroomResult {
+  deleted: number;
+  classroom: string;
+}
+
+/**
+ * Hook to delete all students in a classroom
+ */
+export const useDeleteAllClassroom = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (classroomId: string) => {
+      const { data } = await httpClient.delete(`${authConfig.studentEndpoint}/classroom/${classroomId}`);
+      return data as DeleteAllClassroomResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
+    },
+  });
+};
+
 /**
  * Hook to mark a student as graduated
  */
