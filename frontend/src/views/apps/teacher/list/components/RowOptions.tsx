@@ -2,6 +2,7 @@
 
 import { DeleteOutline, DotsVertical, EyeOutline, PencilOutline } from 'mdi-material-ui';
 import { IconButton, Menu, MenuItem } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import React, { MouseEvent, useState } from 'react';
 import Link from 'next/link';
 import IconifyIcon from '@/@core/components/icon';
@@ -48,6 +49,13 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
         size='small'
         onClick={handleRowOptionsClick}
         aria-label='Row options'
+        sx={{
+          borderRadius: 2,
+          color: 'primary.main',
+          '&:hover': {
+            backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
+          },
+        }}
       >
         <DotsVertical />
       </IconButton>
@@ -66,14 +74,29 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           horizontal: 'right',
         }}
         slotProps={{
-          paper: { sx: { minWidth: '8rem' } },
+          paper: {
+            sx: {
+              minWidth: '11rem',
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.1)}`,
+              boxShadow: (theme) => `0 14px 34px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.12)}`,
+            },
+          },
         }}
       >
         <MenuItem
           id={`teacher-change-password-${row.id}`}
           onClick={handleChangePasswordRow}
+          sx={{
+            '&:hover': {
+              backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+            },
+          }}
         >
-          <IconifyIcon icon='mdi:password-check-outline' fontSize='1.3rem' style={{ marginRight: '10px' }} />
+          <IconifyIcon
+            icon='mdi:password-check-outline'
+            fontSize='1.3rem'
+            style={{ marginRight: '10px', color: 'var(--mui-palette-primary-main)' }}
+          />
           เปลี่ยนรหัสผ่าน
         </MenuItem>
 
@@ -82,7 +105,13 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           component={Link}
           href={`/apps/user/view/${row.id}`}
           onClick={handleRowOptionsClose}
-          sx={{ textDecoration: 'none', color: 'inherit' }}
+          sx={{
+            textDecoration: 'none',
+            color: 'inherit',
+            '&:hover': {
+              backgroundColor: (theme) => alpha(theme.palette.info.main, 0.08),
+            },
+          }}
         >
           <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
           ดู
@@ -90,6 +119,11 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
         <MenuItem
           id={`teacher-edit-${row.id}`}
           onClick={handleEditRow}
+          sx={{
+            '&:hover': {
+              backgroundColor: (theme) => alpha(theme.palette.warning.main, 0.08),
+            },
+          }}
         >
           <PencilOutline fontSize='small' sx={{ mr: 2, color: 'warning.main' }} />
           แก้ไข
@@ -97,6 +131,11 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
         <MenuItem
           id={`teacher-delete-${row.id}`}
           onClick={handleDeleteRow}
+          sx={{
+            '&:hover': {
+              backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
+            },
+          }}
         >
           <DeleteOutline fontSize='small' sx={{ mr: 2, color: 'error.main' }} />
           ลบ
@@ -107,4 +146,3 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
 };
 
 export default RowOptions;
-

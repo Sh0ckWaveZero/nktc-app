@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import Link from 'next/link';
-import { styled, useTheme } from '@mui/material/styles';
+import { alpha, styled, useTheme } from '@mui/material/styles';
 import RenderAvatar from '@/@core/components/avatar';
 import CustomChip from '@/@core/components/mui/chip';
 import IconifyIcon from '@/@core/components/icon';
@@ -34,7 +34,7 @@ interface TeacherMobileCardProps {
 }
 
 const InfoLabel = ({ children }: { children: React.ReactNode }) => (
-  <Typography variant='caption' sx={{ color: 'text.disabled', fontWeight: 500, display: 'block', mb: 0.25 }}>
+  <Typography variant='caption' sx={{ color: 'text.disabled', fontWeight: 600, display: 'block', mb: 0.5 }}>
     {children}
   </Typography>
 );
@@ -63,15 +63,19 @@ const TeacherMobileCard = React.memo(({
     <Card
       sx={{
         mb: 2,
-        p: 3,
-        borderRadius: 2,
+        p: { xs: 2.5, sm: 3 },
+        borderRadius: 3,
         border: '1px solid',
-        borderColor: 'divider',
-        boxShadow: 'none',
+        borderColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.1),
+        background: (theme) =>
+          theme.palette.mode === 'dark'
+            ? `linear-gradient(145deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.98)} 55%)`
+            : `linear-gradient(145deg, ${alpha(theme.palette.primary.main, 0.04)} 0%, ${theme.palette.background.paper} 55%)`,
+        boxShadow: (theme) => `0 10px 24px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
       }}
     >
       {/* Header row: avatar + name + actions */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5, mb: 2.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, minWidth: 0 }}>
           <RenderAvatar row={displayData} />
           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -79,17 +83,18 @@ const TeacherMobileCard = React.memo(({
               <Typography
                 variant='body2'
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: 800,
                   color: 'text.primary',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {fullName}
               </Typography>
             </StyledLink>
-            <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+            <Typography variant='caption' sx={{ color: 'primary.main', fontWeight: 700 }}>
               @{displayData.username}
             </Typography>
           </Box>
@@ -106,11 +111,19 @@ const TeacherMobileCard = React.memo(({
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 2.5,
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 1.5,
         }}
       >
-        <Box>
+        <Box
+          sx={{
+            minHeight: 72,
+            p: 1.75,
+            borderRadius: 2,
+            border: (theme) => `1px solid ${alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.2 : 0.14)}`,
+            bgcolor: (theme) => alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.1 : 0.065),
+          }}
+        >
           <InfoLabel>บทบาท</InfoLabel>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {USER_ROLE_ICONS[roleKey]}
@@ -120,7 +133,15 @@ const TeacherMobileCard = React.memo(({
           </Box>
         </Box>
 
-        <Box>
+        <Box
+          sx={{
+            minHeight: 72,
+            p: 1.75,
+            borderRadius: 2,
+            border: (theme) => `1px solid ${alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.2 : 0.14)}`,
+            bgcolor: (theme) => alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.1 : 0.065),
+          }}
+        >
           <InfoLabel>สถานะ</InfoLabel>
           <CustomChip
             skin='light'
@@ -130,14 +151,34 @@ const TeacherMobileCard = React.memo(({
           />
         </Box>
 
-        <Box>
+        <Box
+          sx={{
+            minHeight: 72,
+            p: 1.75,
+            borderRadius: 2,
+            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
+            bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.1 : 0.055),
+          }}
+        >
           <InfoLabel>เข้าใช้งาน</InfoLabel>
           <Typography variant='body2' sx={{ fontWeight: 600 }}>
             {loginCount} วัน
           </Typography>
         </Box>
 
-        <Box>
+        <Box
+          sx={{
+            minHeight: 72,
+            p: 1.75,
+            borderRadius: 2,
+            border: (theme) =>
+              `1px solid ${alpha(teacherOnClassroom.length > 0 ? theme.palette.success.main : theme.palette.divider, teacherOnClassroom.length > 0 ? (theme.palette.mode === 'dark' ? 0.22 : 0.16) : 1)}`,
+            bgcolor: (theme) =>
+              teacherOnClassroom.length > 0
+                ? alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.12 : 0.075)
+                : alpha(theme.palette.action.disabled, theme.palette.mode === 'dark' ? 0.08 : 0.05),
+          }}
+        >
           <InfoLabel>ครูประจำชั้น</InfoLabel>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Badge
@@ -155,7 +196,14 @@ const TeacherMobileCard = React.memo(({
             <IconButton
               size='small'
               onClick={() => onAddClassroom(teacher)}
-              sx={{ p: 0.75 }}
+              sx={{
+                p: 0.75,
+                border: (theme) => `1px solid ${alpha(theme.palette.success.main, 0.22)}`,
+                bgcolor: (theme) => alpha(theme.palette.success.main, 0.1),
+                '&:hover': {
+                  bgcolor: (theme) => alpha(theme.palette.success.main, 0.16),
+                },
+              }}
               aria-label='เพิ่มห้องที่ปรึกษา'
             >
               <BriefcasePlusOutline fontSize='small' sx={{ color: 'success.main' }} />
