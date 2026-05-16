@@ -7,8 +7,13 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
-const ADMIN_USERNAME = process.env.USER_ADMIN || "Admin01";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@1234";
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+  console.error("❌ ADMIN_USERNAME and ADMIN_PASSWORD environment variables are required for seeding");
+  process.exit(1);
+}
 
 const levelData = [
   { levelId: "L001", levelName: "ปวช.", levelFullName: "ประกาศนียบัตรวิชาชีพ" },

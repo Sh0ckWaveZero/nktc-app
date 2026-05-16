@@ -61,7 +61,7 @@ const clearAuthAndRedirect = () => {
 /**
  * Catch the Unauthorized Request
  */
-const AxiosInterceptor = ({ children }: any) => {
+const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
   const { logout } = useAuth();
   const router = useRouter();
 
@@ -164,6 +164,16 @@ const AxiosInterceptor = ({ children }: any) => {
           await Swal.fire({
             title: 'ไม่มีสิทธิ์เข้าถึง',
             text: 'คุณไม่มีสิทธิ์ในการเข้าถึงส่วนนี้',
+            icon: 'warning',
+            confirmButtonText: 'ตกลง',
+          });
+        }
+
+        if (error?.response?.status === 429) {
+          const retryAfter = (error.response.data as { retryAfter?: number })?.retryAfter;
+          await Swal.fire({
+            title: 'เกินจำนวนที่กำหนด',
+            text: retryAfter ? `กรุณาลองใหม่ใน ${retryAfter} วินาที` : 'กรุณาลองใหม่ภายหลัง',
             icon: 'warning',
             confirmButtonText: 'ตกลง',
           });

@@ -3,20 +3,21 @@ import { jwt } from "@elysiajs/jwt";
 import { AuthService } from "./service";
 import { AuthModel } from "./model";
 import { prisma } from "@/libs/prisma";
-import { UnauthorizedError } from "@/libs/errors";
+import { UnauthorizedError, ForbiddenError } from "@/libs/errors";
+import { loginRateLimiter, refreshRateLimiter, registerRateLimiter, extractIp } from "@/middleware/rate-limiter";
 
 
 export const auth = new Elysia({ prefix: "/auth" })
 	.use(
 		jwt({
 			name: "jwt",
-			secret: process.env.JWT_SECRET || "supersecret",
+			secret: process.env.JWT_SECRET ?? (() => { throw new Error("JWT_SECRET environment variable is required"); })(),
 		}),
 	)
 	.use(
 		jwt({
 			name: "refreshJwt",
-			secret: process.env.JWT_REFRESH_SECRET || "superrefreshsecret",
+			secret: process.env.JWT_REFRESH_SECRET ?? (() => { throw new Error("JWT_REFRESH_SECRET environment variable is required"); })(),
 			exp: "7d",
 		}),
 	)
@@ -24,7 +25,18 @@ export const auth = new Elysia({ prefix: "/auth" })
 		app
 			.post(
 				"/register",
-				async ({ body, set }) => {
+				async ({ body, set, headers }) => {
+					if (process.env.NODE_ENV === "production" && !process.env.ALLOW_REGISTRATION) {
+						throw new ForbiddenError("Registration is disabled in production");
+					}
+
+					const regSecret = headers["x-registration-secret"];
+					if (process.env.REGISTRATION_SECRET && regSecret !== process.env.REGISTRATION_SECRET) {
+						throw new ForbiddenError("Invalid registration secret");
+					}
+
+					registerRateLimiter.checkOrThrow(extractIp(headers), "Too many registration attempts");
+
 					const user = await AuthService.register(body);
 					set.status = 201;
 					return {
@@ -43,7 +55,9 @@ export const auth = new Elysia({ prefix: "/auth" })
 			)
 			.post(
 				"/login",
-				async ({ body, jwt, refreshJwt }) => {
+				async ({ body, jwt, refreshJwt, headers, set }) => {
+					loginRateLimiter.checkOrThrow(extractIp(headers), "Too many login attempts");
+
 					const result = await AuthService.login(body);
 
 					const payload = {
@@ -84,7 +98,9 @@ export const auth = new Elysia({ prefix: "/auth" })
 			)
 			.post(
 				"/refresh",
-				async ({ body, jwt, refreshJwt }) => {
+				async ({ body, jwt, refreshJwt, headers }) => {
+					refreshRateLimiter.checkOrThrow(extractIp(headers), "Too many refresh attempts");
+
 					const { refreshToken } = body;
 
 					const payload = await refreshJwt.verify(refreshToken);
@@ -103,13 +119,24 @@ export const auth = new Elysia({ prefix: "/auth" })
 						roles: result.roles,
 					});
 
-					return { token: newToken };
+					const newRefreshToken = await refreshJwt.sign({
+						sub: result.userId,
+						username: result.username,
+					});
+
+					const hashedNewRefreshToken = await AuthService.hashToken(newRefreshToken);
+					await prisma.user.update({
+						where: { id: result.userId },
+						data: { refreshToken: hashedNewRefreshToken },
+					});
+
+					return { token: newToken, refreshToken: newRefreshToken };
 				},
 				{
 					body: AuthModel.refresh,
 					detail: {
 						summary: "Refresh JWT token",
-						description: "Get a new access token using a valid refresh token",
+						description: "Get a new access token using a valid refresh token. Returns a new refresh token (rotation).",
 					},
 				},
 			)

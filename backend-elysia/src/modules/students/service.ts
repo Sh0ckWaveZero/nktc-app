@@ -138,8 +138,8 @@ export abstract class StudentService {
     }
 
     const statusCondition = studentStatus
-      ? studentStatus === 'graduated'
-        ? { OR: [{ studentStatus: 'graduated' }, { isGraduation: true }] }
+      ? studentStatus === 'จบการศึกษา'
+        ? { OR: [{ studentStatus: 'จบการศึกษา' }, { isGraduation: true }] }
         : { studentStatus }
       : {};
 
@@ -542,45 +542,41 @@ export abstract class StudentService {
 
     if (!classroom) throw new NotFoundError("ไม่พบห้องเรียน");
 
-    // Get all students in the classroom with their userIds
-    const students = await prisma.student.findMany({
-      where: { classroomId },
-      select: { id: true, userId: true },
-    });
+    const deleted = await prisma.$transaction(async (tx) => {
+      const students = await tx.student.findMany({
+        where: { classroomId },
+        select: { id: true, userId: true },
+      });
 
-    const studentIds = students.map((s) => s.id);
-    const userIds = students.map((s) => s.userId).filter((id): id is string => id !== null);
+      const studentIds = students.map((s) => s.id);
+      const userIds = students.map((s) => s.userId).filter((id): id is string => id !== null);
 
-    await prisma.$transaction(async (tx) => {
-      // Delete related records
-      await tx.goodnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
-      await tx.badnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
-      await tx.visitStudent.deleteMany({ where: { studentKey: { in: studentIds } } });
+      await Promise.all([
+        tx.goodnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } }),
+        tx.badnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } }),
+        tx.visitStudent.deleteMany({ where: { studentKey: { in: studentIds } } }),
+      ]);
 
-      // Delete users (which will cascade delete students and accounts)
       if (userIds.length > 0) {
         await tx.user.deleteMany({ where: { id: { in: userIds } } });
       }
 
-      // Delete any remaining students without userId
       await tx.student.deleteMany({ where: { id: { in: studentIds } } });
 
-      // Create audit log
       await tx.auditLog.create({
         data: {
           action: "DELETE_ALL_CLASSROOM_STUDENTS",
           model: "Student",
           detail: `ลบนักเรียนทั้งหมด ${students.length} คน จากห้อง "${classroom.name}"`,
-          oldValue: classroom.id,
+          oldValue: JSON.stringify({ classroomId: classroom.id, studentIds, userIds }),
           newValue: null,
           createdBy: deletedBy,
         },
       });
+
+      return students.length;
     });
 
-    return {
-      deleted: students.length,
-      classroom: classroom.name,
-    };
+    return { deleted, classroom: classroom.name };
   }
 }

@@ -4,7 +4,9 @@
   "description": "NKTC Student Management System - Elysia Backend",
   "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test bun test src/__tests__",
+    "test:watch": "NODE_ENV=test bun test --watch src/__tests__",
+    "test:coverage": "NODE_ENV=test bun test --coverage --coverage-reporter=lcov src/__tests__ && node scripts/coverage-summary.mjs",
     "dev": "bun --hot src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist --target bun --minify",
     "start": "bun dist/index.js",

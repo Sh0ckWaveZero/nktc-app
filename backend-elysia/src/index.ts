@@ -32,6 +32,8 @@ const appLogger = createLogger();
 
 await initializeDatabase();
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const app = new Elysia()
   .use(errorHandler)
   .use(responsePlugin)
@@ -67,43 +69,46 @@ const app = new Elysia()
     }),
   )
   .use(
-    swagger({
-      path: "/swagger",
-      documentation: {
-        info: {
-          title: "NKTC API Documentation",
-          description:
-            "OpenAPI Documentation for NKTC Student Management System",
-          version: "1.0.0",
-        },
-        tags: [
-          { name: "Auth", description: "Authentication and token management" },
-          { name: "Users", description: "User management and profiles" },
-          { name: "Students", description: "Student records and management" },
-          { name: "Teachers", description: "Teacher records and management" },
-          { name: "Classrooms", description: "Classroom and group management" },
-          { name: "Statistics", description: "Data analytics and reports" },
-        ],
-        components: {
-          securitySchemes: {
-            BearerAuth: {
-              type: "http",
-              scheme: "bearer",
-              bearerFormat: "JWT",
+    isDev
+      ? swagger({
+          path: "/swagger",
+          documentation: {
+            info: {
+              title: "NKTC API Documentation",
+              description:
+                "OpenAPI Documentation for NKTC Student Management System",
+              version: "1.0.0",
+            },
+            tags: [
+              { name: "Auth", description: "Authentication and token management" },
+              { name: "Users", description: "User management and profiles" },
+              { name: "Students", description: "Student records and management" },
+              { name: "Teachers", description: "Teacher records and management" },
+              { name: "Classrooms", description: "Classroom and group management" },
+              { name: "Statistics", description: "Data analytics and reports" },
+            ],
+            components: {
+              securitySchemes: {
+                BearerAuth: {
+                  type: "http",
+                  scheme: "bearer",
+                  bearerFormat: "JWT",
+                },
+              },
             },
           },
-        },
-      },
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    }),
+          swaggerOptions: {
+            persistAuthorization: true,
+          },
+        })
+      : new Elysia({ name: "swagger-disabled" }),
   )
 
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "supersecret",
+      secret: process.env.JWT_SECRET ?? (() => { throw new Error("JWT_SECRET environment variable is required"); })(),
+      exp: "15m",
     }),
   )
   .get("/", () => "Hello Elysia!")

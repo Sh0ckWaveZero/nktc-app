@@ -552,9 +552,9 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   }}
                 >
                   <MenuItem value=''>ทุกสถานะ</MenuItem>
-                  <MenuItem value='normal'>เรียนอยู่</MenuItem>
-                  <MenuItem value='graduated'>จบการศึกษา</MenuItem>
-                  <MenuItem value='dropout'>ไม่เรียนแล้ว</MenuItem>
+                  <MenuItem value='กำลังศึกษา'>เรียนอยู่</MenuItem>
+                  <MenuItem value='จบการศึกษา'>จบการศึกษา</MenuItem>
+                  <MenuItem value='ออกก่อนกำหนด'>ไม่เรียนแล้ว</MenuItem>
                 </Select>
               </FormControl>
             </FilterGrid>

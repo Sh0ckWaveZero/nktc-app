@@ -1,12 +1,20 @@
 import { Elysia, t } from "elysia";
 import { StudentService } from "./service";
 import { StudentModel } from "./model";
-import { authGuard } from "@/middleware/auth";
+import { authGuard, type JwtPayload } from "@/middleware/auth";
+import { UnauthorizedError, ForbiddenError } from "@/libs/errors";
 import { prisma } from "@/libs/prisma";
 import {
 	StudentPlainInputCreate,
 	StudentPlainInputUpdate,
 } from "../../../generated/prismabox/Student";
+
+function requireAdmin(user: unknown): JwtPayload {
+	const payload = user as JwtPayload | null;
+	if (!payload) throw new UnauthorizedError();
+	if (payload.roles !== "Admin") throw new ForbiddenError();
+	return payload;
+}
 
 export const students = new Elysia({ prefix: "/students" })
 	.use(authGuard)
@@ -124,13 +132,10 @@ export const students = new Elysia({ prefix: "/students" })
 			}))
 			.post(
 				"/promote-classroom",
-				async ({ body, user, set }) => {
-					if ((user as any)?.roles !== "Admin") {
-						set.status = 403;
-						return { success: false, message: "Forbidden" };
-					}
+				async ({ body, user }) => {
+					const payload = requireAdmin(user);
 					const { sourceClassroomId, targetClassroomId } = body as StudentModel["promoteBody"];
-					return StudentService.promoteClassroom(sourceClassroomId, targetClassroomId, (user as any).sub);
+					return StudentService.promoteClassroom(sourceClassroomId, targetClassroomId, payload.sub);
 				},
 				{
 					body: StudentModel.promoteBody,
@@ -139,13 +144,10 @@ export const students = new Elysia({ prefix: "/students" })
 			)
 			.post(
 				"/graduate-classroom",
-				async ({ body, user, set }) => {
-					if ((user as any)?.roles !== "Admin") {
-						set.status = 403;
-						return { success: false, message: "Forbidden" };
-					}
+				async ({ body, user }) => {
+					const payload = requireAdmin(user);
 					const { classroomId, graduationYear, graduationDate } = body as StudentModel["graduateClassroomBody"];
-					return StudentService.graduateClassroom(classroomId, graduationYear, (user as any).sub, graduationDate);
+					return StudentService.graduateClassroom(classroomId, graduationYear, payload.sub, graduationDate);
 				},
 				{
 					body: StudentModel.graduateClassroomBody,
@@ -154,12 +156,9 @@ export const students = new Elysia({ prefix: "/students" })
 			)
 			.delete(
 				"/classroom/:id",
-				async ({ params: { id }, user, set }) => {
-					if ((user as any)?.roles !== "Admin") {
-						set.status = 403;
-						return { success: false, message: "Forbidden" };
-					}
-					return StudentService.deleteAllByClassroom(id, (user as any).sub);
+				async ({ params: { id }, user }) => {
+					const payload = requireAdmin(user);
+					return StudentService.deleteAllByClassroom(id, payload.sub);
 				},
 				{
 					detail: { summary: "Delete all students in a classroom" },
@@ -167,11 +166,8 @@ export const students = new Elysia({ prefix: "/students" })
 			)
 			.get(
 				"/promote-preview",
-				async ({ query, user, set }) => {
-					if ((user as any)?.roles !== "Admin") {
-						set.status = 403;
-						return { success: false, message: "Forbidden" };
-					}
+				async ({ query, user }) => {
+					requireAdmin(user);
 					const { sourceClassroomId } = query as { sourceClassroomId: string };
 					return StudentService.promotePreview(sourceClassroomId);
 				},
@@ -194,13 +190,10 @@ export const students = new Elysia({ prefix: "/students" })
 			})
 			.post(
 				"/upload",
-				async ({ body, user, set }) => {
-					if ((user as any)?.roles !== "Admin") {
-						set.status = 403;
-						return { success: false, message: "Forbidden" };
-					}
+				async ({ body, user }) => {
+					const payload = requireAdmin(user);
 					const { file } = body as { file: string };
-					const result = await StudentService.importFromXLSX(file, (user as any).sub);
+					const result = await StudentService.importFromXLSX(file, payload.sub);
 					const hasErrors = result.failed > 0;
 					const created = Math.max(result.success - result.updated, 0);
 					const successMessage =

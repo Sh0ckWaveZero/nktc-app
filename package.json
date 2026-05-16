@@ -11,6 +11,7 @@
     "start": "turbo run start",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage --filter=backend-elysia",
     "clean": "turbo run clean",
     "dev:frontend": "turbo run dev --filter=nktc-app",
     "dev:backend": "turbo run dev --filter=backend-elysia",
@@ -29,7 +30,7 @@
     "deploy:pi4:down": "bash ./deploy/deploy.sh pi4 down"
   },
   "devDependencies": {
-    "turbo": "^2.9.12"
+    "turbo": "^2.9.14"
   },
   "packageManager": "bun@1.3.3",
   "engines": {
@@ -42,11 +43,11 @@
   ],
   "dependencies": {
     "body-parser": "^2.2.2",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.28.0",
     "happy-dom": "^20.9.0",
     "minio": "^8.0.7",
     "validator": "^13.15.35",
-    "vitest": "^4.1.5",
+    "vitest": "^4.1.6",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.4.3"
   },

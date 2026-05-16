@@ -41,7 +41,7 @@ import { useAuth } from '@/hooks/useAuth';
 import useImageCompression from '@/hooks/useImageCompression';
 import { useRouter } from 'next/navigation';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-import { useStudentAddForm, type StudentAddFormData } from '@/hooks/features/student';
+import { useStudentAddForm, STUDENT_STATUS_OPTIONS, type StudentAddFormData } from '@/hooks/features/student';
 import type { Classroom } from '@/types/apps/teacherTypes';
 
 interface ClassroomOption extends Classroom {
@@ -324,7 +324,7 @@ const StudentAddPage = () => {
     config: { tension: 280, friction: 22 },
   });
 
-  const trail = useTrail(12, {
+  const trail = useTrail(13, {
     // 12 main sections/fields
     from: { opacity: 0, transform: 'translateY(12px)' },
     to: { opacity: 1, transform: 'translateY(0px)' },
@@ -571,6 +571,32 @@ const StudentAddPage = () => {
                   </AnimatedGrid>
 
                   <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[4]}>
+                    <FormControl fullWidth error={!!errors.studentStatus} sx={FORM_CONTROL_SX}>
+                      <Controller
+                        name='studentStatus'
+                        control={control}
+                        render={({ field }) => (
+                          <>
+                            <InputLabel id='student-add-status-label'>สถานะนักเรียน</InputLabel>
+                            <Select
+                              {...field}
+                              id='student-add-status-select'
+                              labelId='student-add-status-label'
+                              label='สถานะนักเรียน'
+                              sx={FORM_CONTROL_SX}
+                            >
+                              {STUDENT_STATUS_OPTIONS.map((opt) => (
+                                <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                              ))}
+                            </Select>
+                            {!!errors.studentStatus && <FormHelperText>{errors.studentStatus.message}</FormHelperText>}
+                          </>
+                        )}
+                      />
+                    </FormControl>
+                  </AnimatedGrid>
+
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[5]}>
                     <FormControl fullWidth>
                       <Controller
                         name='firstName'
@@ -592,7 +618,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[5]}>
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[6]}>
                     <FormControl fullWidth>
                       <Controller
                         name='lastName'
@@ -614,7 +640,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[6]}>
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[7]}>
                     <FormControl fullWidth>
                       <Controller
                         name='classroom'
@@ -650,7 +676,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[7]}>
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[8]}>
                     <FormControl fullWidth>
                       <Controller
                         name='idCard'
@@ -679,7 +705,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[8]}>
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[9]}>
                     <FormControl fullWidth>
                       <Controller
                         name='birthDate'
@@ -709,7 +735,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[9]}>
+                  <AnimatedGrid size={{ xs: 12, sm: 6 }} style={trail[10]}>
                     <FormControl fullWidth>
                       <Controller
                         name='phone'
@@ -738,7 +764,7 @@ const StudentAddPage = () => {
                     </FormControl>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={12} style={trail[10]} sx={{ pt: { xs: 1, sm: 2 } }}>
+                  <AnimatedGrid size={12} style={trail[11]} sx={{ pt: { xs: 1, sm: 2 } }}>
                     <Box sx={{ mb: 2.5 }}>
                       <SectionTitle>ที่อยู่ปัจจุบัน</SectionTitle>
                       <SectionDescription>ใช้สำหรับข้อมูลติดต่อและเอกสารที่เกี่ยวข้องกับนักเรียน</SectionDescription>
@@ -813,7 +839,7 @@ const StudentAddPage = () => {
                     </ThailandAddressTypeahead>
                   </AnimatedGrid>
 
-                  <AnimatedGrid size={12} style={trail[11]} sx={{ pt: { xs: 1.5, sm: 2.5 } }}>
+                  <AnimatedGrid size={12} style={trail[12]} sx={{ pt: { xs: 1.5, sm: 2.5 } }}>
                     <SectionSurface sx={{ p: { xs: 2, sm: 2.5 } }}>
                       <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 2 }}>
                         <Button
