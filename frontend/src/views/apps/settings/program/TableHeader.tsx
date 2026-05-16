@@ -11,61 +11,53 @@ interface TableHeaderProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
-/**
- * ส่วนหัวของตารางสำหรับจัดการสาขาวิชา
- * @param value - ค่าการค้นหา
- * @param handleFilter - ฟังก์ชันสำหรับจัดการการค้นหา
- * @param handleUploadFile - ฟังก์ชันสำหรับเพิ่มสาขาวิชาใหม่
- * @param handleUpload - ฟังก์ชันสำหรับอัพโหลดไฟล์
- * @param fileInputRef - ตัวอ้างอิงสำหรับ input ไฟล์
- */
 const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, fileInputRef }: TableHeaderProps) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      handleUpload(file);
-    }
+    if (file) handleUpload(file);
   };
 
   return (
-    <Grid container spacing={3} sx={{ alignItems: 'center', pb: 2, px: 4 }}>
-      <Grid
-        size={{
-          xs: 12,
-          sm: 6,
-        }}
-      >
-        <TextField
-          fullWidth
-          size='small'
-          value={value}
-          onChange={(e) => handleFilter(e.target.value)}
-          placeholder='ค้นหา...'
-          variant='outlined'
-        />
-      </Grid>
-      <Grid
-        container
-        spacing={2}
-        sx={{ justifyContent: 'flex-end' }}
-        size={{
-          xs: 12,
-          sm: 6,
-        }}
-      >
-        <Grid>
-          <Button component='label' variant='contained' color='primary' startIcon={<FaFileExcel />}>
-            อัปโหลดไฟล์
-            <input hidden accept='.xlsx, .xls' type='file' ref={fileInputRef} onChange={handleFileChange} />
-          </Button>
+    <Box
+      sx={{
+        px: { xs: 4, sm: 5 },
+        py: { xs: 3, sm: 3.5 },
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+      }}
+    >
+      <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextField
+            fullWidth
+            size='small'
+            value={value}
+            onChange={(e) => handleFilter(e.target.value)}
+            placeholder='ค้นหา...'
+          />
         </Grid>
-        <Grid>
-          <Button variant='contained' color='secondary' startIcon={<Plus />} onClick={handleUploadFile}>
-            เพิ่มสาขาวิชา
-          </Button>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: { sm: 'flex-end' } }}>
+            <Button
+              component='label'
+              variant='outlined'
+              color='success'
+              startIcon={<FaFileExcel />}
+            >
+              อัปโหลดไฟล์
+              <input hidden accept='.xlsx, .xls' type='file' ref={fileInputRef} onChange={handleFileChange} />
+            </Button>
+            <Button
+              variant='contained'
+              disableElevation
+              startIcon={<Plus />}
+              onClick={handleUploadFile}
+            >
+              เพิ่มสาขาวิชา
+            </Button>
+          </Box>
         </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 

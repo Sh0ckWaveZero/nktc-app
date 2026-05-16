@@ -3,6 +3,7 @@
 import {
   Alert,
   AlertTitle,
+  Avatar,
   Box,
   Button,
   Card,
@@ -17,6 +18,8 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { HumanMaleBoard } from 'mdi-material-ui';
 import Grid from '@mui/material/Grid';
 import React, { Fragment, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useResponsive } from '@/@core/hooks/useResponsive';
@@ -258,10 +261,95 @@ const TeacherListPage = () => {
         <Grid size={12}>
           <Card id='teacher-list-card'>
             <CardHeader
-              title='ข้อมูลครู / บุคลากร ทั้งหมด'
+              avatar={
+                <Avatar
+                  sx={{
+                    color: 'primary.main',
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    width: { xs: 42, sm: 48 },
+                    height: { xs: 42, sm: 48 },
+                  }}
+                >
+                  <HumanMaleBoard />
+                </Avatar>
+              }
               sx={{
-                '& .MuiCardHeader-title': {
-                  fontSize: isMobile ? '1.1rem' : '1.25rem',
+                color: 'text.primary',
+                px: { xs: 3, sm: 4, lg: 5 },
+                pt: { xs: 3, sm: 4 },
+                pb: { xs: 2, sm: 2.5 },
+              }}
+              title={
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    flexWrap: 'wrap',
+                    gap: { xs: 0.75, sm: 1.5 },
+                  }}
+                >
+                  <Typography
+                    component='span'
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: { xs: '1.45rem', sm: '1.9rem' },
+                      letterSpacing: { xs: '-0.02em', sm: '-0.03em' },
+                      lineHeight: 1.08,
+                      color: 'text.primary',
+                    }}
+                  >
+                    ครู / บุคลากร
+                  </Typography>
+                  {teachers.length > 0 && (
+                    <Box
+                      component='span'
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'baseline',
+                        gap: 0.75,
+                        px: 1.4,
+                        py: 0.6,
+                        borderRadius: 999,
+                        bgcolor: (theme) =>
+                          alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+                        border: (theme) =>
+                          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
+                        color: 'primary.main',
+                        lineHeight: 1,
+                      }}
+                    >
+                      <Typography
+                        component='span'
+                        sx={{
+                          fontSize: { xs: '1.05rem', sm: '1.15rem' },
+                          fontWeight: 800,
+                          letterSpacing: '-0.02em',
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {teachers.length.toLocaleString('th-TH')}
+                      </Typography>
+                      <Typography
+                        component='span'
+                        sx={{ fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.01em', color: 'text.secondary' }}
+                      >
+                        คน
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              }
+              subheader='ค้นหา จัดการ และนำเข้าข้อมูลครู/บุคลากรได้จากแผงเดียว'
+              slotProps={{
+                subheader: {
+                  sx: {
+                    mt: 1.1,
+                    fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
+                    fontWeight: 500,
+                    letterSpacing: '-0.01em',
+                    color: 'text.secondary',
+                  },
                 },
               }}
             />
@@ -438,38 +526,29 @@ const TeacherListPage = () => {
                   mb: 4,
                 }}
               >
-                <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
-                    ทั้งหมด
-                  </Typography>
-                  <Typography variant='h6'>{importResult.total}</Typography>
-                </Box>
-                <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
-                    สำเร็จ
-                  </Typography>
-                  <Typography variant='h6'>{importResult.imported}</Typography>
-                </Box>
-                <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
-                    อัปเดต
-                  </Typography>
-                  <Typography variant='h6'>{importResult.updated}</Typography>
-                </Box>
-                <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
-                    ไม่สำเร็จ
-                  </Typography>
-                  <Typography variant='h6'>{importResult.failed}</Typography>
-                </Box>
+                {[
+                  { label: 'ทั้งหมด', value: importResult.total, color: 'text.primary' },
+                  { label: 'สำเร็จ', value: importResult.imported, color: 'success.main' },
+                  { label: 'อัปเดต', value: importResult.updated, color: 'info.main' },
+                  { label: 'ไม่สำเร็จ', value: importResult.failed, color: importResult.failed > 0 ? 'error.main' : 'text.secondary' },
+                ].map(({ label, value, color }) => (
+                  <Box
+                    key={label}
+                    sx={{
+                      p: 3,
+                      borderRadius: 2,
+                      border: (theme) => `1px solid ${theme.palette.divider}`,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <Typography variant='h5' sx={{ fontWeight: 700, color, lineHeight: 1.2 }}>
+                      {value}
+                    </Typography>
+                    <Typography variant='caption' sx={{ color: 'text.secondary', mt: 0.5, display: 'block' }}>
+                      {label}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
 
               {importResult.errors.length > 0 && (

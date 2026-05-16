@@ -6,7 +6,6 @@ import {
   Box,
   Card,
   IconButton,
-  Stack,
   Typography,
 } from '@mui/material';
 import React from 'react';
@@ -20,12 +19,11 @@ import { USER_ROLE_ICONS, USER_STATUS_COLORS } from '../constants';
 import { Teacher, getFullName, getTeacherDisplayData } from '../utils/teacherUtils';
 import RowOptions from './RowOptions';
 
-const StyledLink = styled(Link)(({ theme }) => ({
+const StyledLink = styled(Link)({
   display: 'flex',
   alignItems: 'center',
   textDecoration: 'none',
-  marginRight: theme.spacing(8),
-}));
+});
 
 interface TeacherMobileCardProps {
   teacher: Teacher;
@@ -35,12 +33,18 @@ interface TeacherMobileCardProps {
   onAddClassroom: (teacher: Teacher) => void;
 }
 
-const TeacherMobileCard = React.memo(({ 
-  teacher, 
+const InfoLabel = ({ children }: { children: React.ReactNode }) => (
+  <Typography variant='caption' sx={{ color: 'text.disabled', fontWeight: 500, display: 'block', mb: 0.25 }}>
+    {children}
+  </Typography>
+);
+
+const TeacherMobileCard = React.memo(({
+  teacher,
   onEdit,
   onDelete,
   onChangePassword,
-  onAddClassroom 
+  onAddClassroom,
 }: TeacherMobileCardProps) => {
   const theme = useTheme();
   const displayData = getTeacherDisplayData(teacher);
@@ -50,42 +54,33 @@ const TeacherMobileCard = React.memo(({
   const role = teacher.user?.role || '';
   const roleKey = role.toLowerCase();
   const status = typeof teacher.status === 'string' ? teacher.status.toLowerCase() : '';
-  
-  // Calculate icon color based on theme mode
-  const iconColor = teacherOnClassroom.length > 0
+
+  const classroomColor = teacherOnClassroom.length > 0
     ? theme.palette.success.main
-    : theme.palette.mode === 'dark'
-      ? 'rgba(255, 255, 255, 0.68)'
-      : 'rgba(58, 53, 65, 0.68)';
+    : theme.palette.action.disabled;
 
   return (
     <Card
       sx={{
         mb: 2,
-        p: 2.5,
+        p: 3,
         borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
-        '&:active': {
-          boxShadow: 2,
-          transform: 'scale(0.98)',
-          transition: 'all 0.2s',
-        },
+        boxShadow: 'none',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+      {/* Header row: avatar + name + actions */}
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, minWidth: 0 }}>
           <RenderAvatar row={displayData} />
-          <Box sx={{ ml: 2, flex: 1, minWidth: 0 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <StyledLink href={`/apps/user/view/${teacher.id}`} passHref>
               <Typography
-                variant='body1'
+                variant='body2'
                 sx={{
                   fontWeight: 600,
                   color: 'text.primary',
-                  textDecoration: 'none',
-                  mb: 0.5,
-                  fontSize: '0.95rem',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -94,147 +89,94 @@ const TeacherMobileCard = React.memo(({
                 {fullName}
               </Typography>
             </StyledLink>
-            <StyledLink href={`/apps/user/view/${teacher.id}`} passHref>
-              <Typography
-                variant='caption'
-                sx={{ color: 'text.secondary', textDecoration: 'none', fontSize: '0.75rem' }}
-              >
-                @{displayData.username}
-              </Typography>
-            </StyledLink>
+            <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+              @{displayData.username}
+            </Typography>
           </Box>
         </Box>
-        <Box sx={{ ml: 1 }}>
-          <RowOptions
-            row={teacher}
-            handleEdit={onEdit}
-            handleDelete={onDelete}
-            handleChangePassword={onChangePassword}
-          />
-        </Box>
+        <RowOptions
+          row={teacher}
+          handleEdit={onEdit}
+          handleDelete={onDelete}
+          handleChangePassword={onChangePassword}
+        />
       </Box>
 
-      <Stack spacing={2}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 1,
-            borderRadius: 1,
-            bgcolor: 'action.hover',
-          }}
-        >
-          <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem', fontWeight: 500 }}>
-            บทบาท
-          </Typography>
+      {/* Info grid: 2 columns */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 2.5,
+        }}
+      >
+        <Box>
+          <InfoLabel>บทบาท</InfoLabel>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {USER_ROLE_ICONS[roleKey]}
-            <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '0.85rem' }}>
+            <Typography variant='body2' sx={{ fontWeight: 600 }}>
               {userRoleType[role] ?? 'ไม่ระบุ'}
             </Typography>
           </Box>
         </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 1,
-            borderRadius: 1,
-            bgcolor: 'action.hover',
-          }}
-        >
-          <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem', fontWeight: 500 }}>
-            สถานะ
-          </Typography>
+        <Box>
+          <InfoLabel>สถานะ</InfoLabel>
           <CustomChip
             skin='light'
             size='small'
             label={userStatusType[teacher.status as string]}
-            color={USER_STATUS_COLORS[status as string]}
-            sx={{ fontSize: '0.75rem', height: 24 }}
+            color={USER_STATUS_COLORS[status]}
           />
         </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 1,
-            borderRadius: 1,
-            bgcolor: 'action.hover',
-          }}
-        >
-          <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem', fontWeight: 500 }}>
-            ลงชื่อเข้าใช้งาน
-          </Typography>
-          <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '0.85rem' }}>
+        <Box>
+          <InfoLabel>เข้าใช้งาน</InfoLabel>
+          <Typography variant='body2' sx={{ fontWeight: 600 }}>
             {loginCount} วัน
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 1,
-            borderRadius: 1,
-            bgcolor: 'action.hover',
-          }}
-        >
-          <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem', fontWeight: 500 }}>
-            ครูประจำชั้น
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box>
+          <InfoLabel>ครูประจำชั้น</InfoLabel>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Badge
               badgeContent={teacherOnClassroom.length > 0 ? teacherOnClassroom.length : '0'}
-              color={teacherOnClassroom.length > 0 ? 'error' : 'secondary'}
+              color={teacherOnClassroom.length > 0 ? 'primary' : 'secondary'}
               sx={{ '& .MuiBadge-badge': { fontSize: 8, height: 16, minWidth: 16 } }}
             >
               <IconifyIcon
-                icon={'mdi:school-outline'}
-                width={22}
-                height={22}
-                style={{ color: iconColor }}
+                icon='mdi:school-outline'
+                width={20}
+                height={20}
+                style={{ color: classroomColor }}
               />
             </Badge>
             <IconButton
               size='small'
               onClick={() => onAddClassroom(teacher)}
-              sx={{
-                p: 1,
-                minWidth: 40,
-                minHeight: 40,
-                '&:active': {
-                  transform: 'scale(0.95)',
-                },
-              }}
+              sx={{ p: 0.75 }}
               aria-label='เพิ่มห้องที่ปรึกษา'
             >
               <BriefcasePlusOutline fontSize='small' sx={{ color: 'success.main' }} />
             </IconButton>
           </Box>
         </Box>
-      </Stack>
+      </Box>
     </Card>
   );
 }, (prevProps, nextProps) => {
-  // Only re-render if teacher data actually changed
   const prevDisplay = getTeacherDisplayData(prevProps.teacher);
   const nextDisplay = getTeacherDisplayData(nextProps.teacher);
-  
+
   return prevDisplay.id === nextDisplay.id &&
-         prevDisplay.avatar === nextDisplay.avatar &&
-         prevDisplay.firstName === nextDisplay.firstName &&
-         prevDisplay.lastName === nextDisplay.lastName &&
-         prevDisplay.role === nextDisplay.role &&
-         prevDisplay.status === nextDisplay.status &&
-         JSON.stringify(prevProps.teacher.teacherOnClassroom) === JSON.stringify(nextProps.teacher.teacherOnClassroom) &&
-         prevProps.teacher.loginCountByUser?.length === nextProps.teacher.loginCountByUser?.length;
+    prevDisplay.avatar === nextDisplay.avatar &&
+    prevDisplay.firstName === nextDisplay.firstName &&
+    prevDisplay.lastName === nextDisplay.lastName &&
+    prevDisplay.role === nextDisplay.role &&
+    prevDisplay.status === nextDisplay.status &&
+    JSON.stringify(prevProps.teacher.teacherOnClassroom) === JSON.stringify(nextProps.teacher.teacherOnClassroom) &&
+    prevProps.teacher.loginCountByUser?.length === nextProps.teacher.loginCountByUser?.length;
 });
 
 TeacherMobileCard.displayName = 'TeacherMobileCard';

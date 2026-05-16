@@ -142,7 +142,7 @@ export const getColumns = ({
                 >
                   <Badge
                     badgeContent={teacherOnClassroom.length > 0 ? teacherOnClassroom.length : '0'}
-                    color={teacherOnClassroom.length > 0 ? 'error' : 'secondary'}
+                    color={teacherOnClassroom.length > 0 ? 'primary' : 'secondary'}
                     sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}
                   >
                     <IconifyIcon
@@ -211,7 +211,7 @@ export const getColumns = ({
   {
     flex: 0.15,
     minWidth: isMobile ? 100 : 130,
-    headerName: 'ลงชื่อเข้าใช้งานสะสม',
+    headerName: 'เข้าใช้งาน (วัน)',
     field: 'totalLogin',
     editable: false,
     sortable: false,

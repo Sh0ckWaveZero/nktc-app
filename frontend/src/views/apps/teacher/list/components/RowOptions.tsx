@@ -3,6 +3,7 @@
 import { DeleteOutline, DotsVertical, EyeOutline, PencilOutline } from 'mdi-material-ui';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import React, { MouseEvent, useState } from 'react';
+import Link from 'next/link';
 import IconifyIcon from '@/@core/components/icon';
 import { Teacher } from '../utils/teacherUtils';
 
@@ -76,7 +77,13 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           เปลี่ยนรหัสผ่าน
         </MenuItem>
 
-        <MenuItem id={`teacher-view-${row.id}`}>
+        <MenuItem
+          id={`teacher-view-${row.id}`}
+          component={Link}
+          href={`/apps/user/view/${row.id}`}
+          onClick={handleRowOptionsClose}
+          sx={{ textDecoration: 'none', color: 'inherit' }}
+        >
           <EyeOutline fontSize='small' sx={{ mr: 2, color: 'info.main' }} />
           ดู
         </MenuItem>
