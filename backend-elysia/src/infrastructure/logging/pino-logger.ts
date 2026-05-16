@@ -13,9 +13,31 @@ export class PinoLogger implements ILogger {
     const environment = options.environment ?? process.env.NODE_ENV ?? "development";
     const level = options.level ?? (environment === "test" ? "silent" : "info");
 
+    const redactPaths = [
+      "password",
+      "secret",
+      "token",
+      "apiKey",
+      "authorization",
+      "*.password",
+      "*.secret",
+      "*.token",
+      "*.apiKey",
+      "*.authorization",
+      "process.env",
+      "process.env.*",
+      "env",
+      "env.*",
+    ];
+
     if (environment === "development") {
       this.logger = pino({
         level,
+        redact: {
+          paths: redactPaths,
+          censor: "[REDACTED]",
+          remove: false,
+        },
         transport: {
           target: "pino-pretty",
           options: {
@@ -26,7 +48,14 @@ export class PinoLogger implements ILogger {
         },
       });
     } else {
-      this.logger = pino({ level });
+      this.logger = pino({
+        level,
+        redact: {
+          paths: redactPaths,
+          censor: "[REDACTED]",
+          remove: false,
+        },
+      });
     }
   }
 

@@ -138,5 +138,5 @@ const app = new Elysia()
 appLogger.info("🦊 Server started", {
   url: `http://${app.server?.hostname}:${app.server?.port}`,
   port: app.server?.port,
-  environment: process.env.NODE_ENV || "development",
+  environment: isDev ? "development" : "production",
 });
