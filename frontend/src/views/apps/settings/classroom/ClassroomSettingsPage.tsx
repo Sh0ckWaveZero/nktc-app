@@ -560,7 +560,13 @@ const ClassroomSettingsPage = () => {
           >
             {row.name || '-'}
           </Typography>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
+          <Typography
+            variant='caption'
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+              mt: 0.25
+            }}>
             {row.classroomId || 'ยังไม่กำหนดรหัสห้องเรียน'}
           </Typography>
         </Box>
@@ -575,7 +581,13 @@ const ClassroomSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
           <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
+          <Typography
+            variant='caption'
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+              mt: 0.25
+            }}>
             {row.program?.name || 'ไม่ระบุสาขา'} • {row.level?.levelName || 'ไม่ระบุระดับ'}
           </Typography>
         </Box>
@@ -590,7 +602,9 @@ const ClassroomSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
           <Typography variant='body2'>นักเรียน {row._count?.student ?? 0} คน</Typography>
-          <Typography variant='caption' color='text.secondary'>
+          <Typography variant='caption' sx={{
+            color: 'text.secondary'
+          }}>
             ครู {row._count?.teachers ?? 0} • รายวิชา {row._count?.course ?? 0}
           </Typography>
         </Box>
@@ -624,11 +638,15 @@ const ClassroomSettingsPage = () => {
 
         return (
           <Box sx={{ py: 1.5 }}>
-            <Typography variant='body2' color='text.secondary'>
+            <Typography variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               {formatted.date}
             </Typography>
             {formatted.time ? (
-              <Typography variant='caption' color='text.secondary'>
+              <Typography variant='caption' sx={{
+                color: 'text.secondary'
+              }}>
                 {formatted.time}
               </Typography>
             ) : null}
@@ -739,7 +757,12 @@ const ClassroomSettingsPage = () => {
                   >
                     จัดการชั้นเรียน
                   </Typography>
-                  <Typography variant='body1' color='text.secondary' sx={{ mt: 0.75 }}>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 0.75
+                    }}>
                     ดูแลรหัสห้องเรียน ชื่อห้องเรียน และความเชื่อมโยงกับแผนก สาขา และระดับชั้นให้พร้อมใช้งาน
                   </Typography>
                 </Box>
@@ -748,7 +771,7 @@ const ClassroomSettingsPage = () => {
 
             <CardContent sx={{ px: { xs: 4, sm: 5, md: 6 }, pt: 2, pb: { xs: 4, sm: 5 } }}>
               <SectionSurface sx={{ p: { xs: 3, sm: 3.5 }, mb: 4 }}>
-                <Grid container spacing={3} alignItems='flex-end'>
+                <Grid container spacing={3} sx={{ alignItems: 'flex-end' }}>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <SectionTitle>ค้นหาและกรอง</SectionTitle>
                     <SectionDescription>
@@ -981,14 +1004,18 @@ const ClassroomSettingsPage = () => {
                         >
                           <Icon icon={item.icon} fontSize='1.2rem' />
                         </Avatar>
-                        <Typography variant='body2' color='text.secondary'>
+                        <Typography variant='body2' sx={{
+                          color: 'text.secondary'
+                        }}>
                           {item.label}
                         </Typography>
                       </Box>
                       <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
                         {item.value}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography variant='caption' sx={{
+                        color: 'text.secondary'
+                      }}>
                         {item.hint}
                       </Typography>
                     </SectionSurface>
@@ -1043,7 +1070,6 @@ const ClassroomSettingsPage = () => {
           </Card>
         </Grid>
       </Grid>
-
       <ClassroomFormDialog
         open={openForm}
         mode={formMode}
@@ -1055,7 +1081,6 @@ const ClassroomSettingsPage = () => {
         onClose={handleCloseForm}
         onSubmit={handleSubmitForm}
       />
-
       <ClassroomDeleteDialog
         open={Boolean(deletingClassroom)}
         classroom={deletingClassroom}
@@ -1063,7 +1088,6 @@ const ClassroomSettingsPage = () => {
         onClose={() => setDeletingClassroom(null)}
         onConfirm={handleDelete}
       />
-
       <Dialog id='import-result-dialog' open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
         <DialogTitle>ผลการนำเข้าข้อมูลห้องเรียน</DialogTitle>
         <DialogContent>
@@ -1088,25 +1112,33 @@ const ClassroomSettingsPage = () => {
                 }}
               >
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ทั้งหมด
                   </Typography>
                   <Typography variant='h6'>{importResult.total}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.imported}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     อัปเดต
                   </Typography>
                   <Typography variant='h6'>{importResult.updated}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ไม่สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.failed}</Typography>
@@ -1145,8 +1177,6 @@ const ClassroomSettingsPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-
       <ClassroomPromotionDialog
         open={openPromote}
         classrooms={classrooms}

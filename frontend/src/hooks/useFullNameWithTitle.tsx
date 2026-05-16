@@ -10,7 +10,7 @@ const useGetFullNameWithTitle = (props: Props) => {
 
   useEffect(() => {
     const { title, firstName, lastName } = props?.user?.account || {};
-    setFullName(`${title}${firstName} ${lastName}`);
+    setFullName(`${title ?? ''}${firstName ?? ''} ${lastName ?? ''}`.trim());
 
     return () => {
       setFullName('');

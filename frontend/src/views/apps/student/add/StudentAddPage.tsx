@@ -234,7 +234,13 @@ const StudentProfileUpload = ({ imgSrc, isCompressing, onImageChange, onReset }:
             รีเซ็ต
           </Button>
         </Box>
-        <Typography variant='body2' color='text.secondary' sx={{ mt: 2, fontWeight: 500 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mt: 2,
+            fontWeight: 500
+          }}>
           อนุญาต PNG, JPEG หรือ WEBP ขนาดไม่เกิน 2MB
         </Typography>
       </Box>
@@ -356,7 +362,7 @@ const StudentPersonalInfoSection = ({
             <Autocomplete
               id='student-add-classroom-autocomplete'
               value={value ?? null}
-              options={classrooms}
+              options={Array.isArray(classrooms) ? [...classrooms].sort((a, b) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
               loading={isClassroomLoading}
               onChange={(_, newValue) => onChange(newValue)}
               getOptionLabel={(option) => option.name || ''}

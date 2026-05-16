@@ -497,7 +497,13 @@ const ProgramSettingsPage = () => {
           >
             {row.name || '-'}
           </Typography>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
+          <Typography
+            variant='caption'
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+              mt: 0.25
+            }}>
             {row.programId || 'ยังไม่กำหนดรหัสสาขา'}
           </Typography>
         </Box>
@@ -512,7 +518,9 @@ const ProgramSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
           <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
-          <Typography variant='caption' color='text.secondary'>
+          <Typography variant='caption' sx={{
+            color: 'text.secondary'
+          }}>
             {row.level?.levelName || 'ไม่ระบุระดับชั้น'}
           </Typography>
         </Box>
@@ -527,7 +535,9 @@ const ProgramSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
           <Typography variant='body2'>นักเรียน {row._count?.student ?? 0} คน</Typography>
-          <Typography variant='caption' color='text.secondary'>
+          <Typography variant='caption' sx={{
+            color: 'text.secondary'
+          }}>
             ห้องเรียน {row._count?.classroom ?? 0} • ครู {row._count?.teacher ?? 0}
           </Typography>
         </Box>
@@ -561,11 +571,15 @@ const ProgramSettingsPage = () => {
 
         return (
           <Box sx={{ py: 1.5 }}>
-            <Typography variant='body2' color='text.secondary'>
+            <Typography variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               {formatted.date}
             </Typography>
             {formatted.time ? (
-              <Typography variant='caption' color='text.secondary'>
+              <Typography variant='caption' sx={{
+                color: 'text.secondary'
+              }}>
                 {formatted.time}
               </Typography>
             ) : null}
@@ -681,7 +695,12 @@ const ProgramSettingsPage = () => {
                   >
                     จัดการหลักสูตร / สาขาวิชา
                   </Typography>
-                  <Typography variant='body1' color='text.secondary' sx={{ mt: 0.75 }}>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 0.75
+                    }}>
                     ดูแลรหัสสาขา ชื่อสาขา แผนก และระดับชั้นให้พร้อมใช้งานต่อกับห้องเรียนและข้อมูลนักเรียน
                   </Typography>
                 </Box>
@@ -690,7 +709,7 @@ const ProgramSettingsPage = () => {
 
             <CardContent sx={{ px: { xs: 4, sm: 5, md: 6 }, pt: 2, pb: { xs: 4, sm: 5 } }}>
               <SectionSurface sx={{ p: { xs: 3, sm: 3.5 }, mb: 4 }}>
-                <Grid container spacing={3} alignItems='flex-end'>
+                <Grid container spacing={3} sx={{ alignItems: 'flex-end' }}>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <SectionTitle>ค้นหาและกรอง</SectionTitle>
                     <SectionDescription>
@@ -864,14 +883,18 @@ const ProgramSettingsPage = () => {
                         >
                           <Icon icon={item.icon} fontSize='1.2rem' />
                         </Avatar>
-                        <Typography variant='body2' color='text.secondary'>
+                        <Typography variant='body2' sx={{
+                          color: 'text.secondary'
+                        }}>
                           {item.label}
                         </Typography>
                       </Box>
                       <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
                         {item.value}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography variant='caption' sx={{
+                        color: 'text.secondary'
+                      }}>
                         {item.hint}
                       </Typography>
                     </SectionSurface>
@@ -926,7 +949,6 @@ const ProgramSettingsPage = () => {
           </Card>
         </Grid>
       </Grid>
-
       <ProgramFormDialog
         open={openForm}
         mode={formMode}
@@ -937,7 +959,6 @@ const ProgramSettingsPage = () => {
         onClose={handleCloseForm}
         onSubmit={handleSubmitForm}
       />
-
       <ProgramDeleteDialog
         open={Boolean(deletingProgram)}
         program={deletingProgram}
@@ -945,7 +966,6 @@ const ProgramSettingsPage = () => {
         onClose={() => setDeletingProgram(null)}
         onConfirm={handleDelete}
       />
-
       <Dialog open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
         <DialogTitle>ผลการนำเข้าข้อมูลสาขา</DialogTitle>
         <DialogContent>
@@ -970,25 +990,33 @@ const ProgramSettingsPage = () => {
                 }}
               >
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ทั้งหมด
                   </Typography>
                   <Typography variant='h6'>{importResult.total}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.imported}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     อัปเดต
                   </Typography>
                   <Typography variant='h6'>{importResult.updated}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ไม่สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.failed}</Typography>
@@ -1027,7 +1055,6 @@ const ProgramSettingsPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       <input ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
     </>
   );

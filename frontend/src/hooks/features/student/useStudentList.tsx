@@ -119,13 +119,13 @@ const STUDENT_EXPORT_HEADERS = [
   'คำนำหน้า',
   'ชื่อ',
   'นามสกุล',
-  'สถานะนักเรียน',
   'รหัสห้องเรียน',
   'รหัสสาขา',
   'รหัสแผนก',
   'รหัสระดับ',
   'เบอร์โทร',
   'อีเมล',
+  'สถานะนักเรียน',
 ] as const;
 
 const convertFileToBase64 = (file: File): Promise<string> =>
@@ -525,7 +525,7 @@ export const useStudentList = (): UseStudentListReturn => {
       });
       const contentType =
         response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      const blob = new Blob([response.data], { type: contentType });
+      const blob = new Blob([response.data], { type: String(contentType) });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
 
@@ -569,13 +569,13 @@ export const useStudentList = (): UseStudentListReturn => {
           คำนำหน้า: account?.title ?? '',
           ชื่อ: account?.firstName ?? '',
           นามสกุล: account?.lastName ?? '',
-          สถานะนักเรียน: student?.studentStatus ?? 'กำลังศึกษา',
           รหัสห้องเรียน: classroom?.classroomId ?? '',
           รหัสสาขา: program?.programId ?? '',
           รหัสแผนก: department?.departmentId ?? '',
           รหัสระดับ: level?.levelId ?? '',
           เบอร์โทร: account?.phone ?? '',
           อีเมล: student?.user?.email ?? '',
+          สถานะนักเรียน: student?.studentStatus ?? 'กำลังศึกษา',
         };
       });
 

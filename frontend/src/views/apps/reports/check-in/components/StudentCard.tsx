@@ -73,10 +73,14 @@ const StudentCard = ({
             >
               {student.title + '' + student.firstName + ' ' + student.lastName}
             </Typography>
-            <Typography id={`checkin-student-id-${student.id}`} variant='body2' color='text.secondary'>
+            <Typography id={`checkin-student-id-${student.id}`} variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               @{student.studentId}
             </Typography>
-            <Typography id={`checkin-student-class-${student.id}`} variant='body2' color='text.secondary'>
+            <Typography id={`checkin-student-class-${student.id}`} variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               {student.classroom?.name || student.classroom}
             </Typography>
           </Box>

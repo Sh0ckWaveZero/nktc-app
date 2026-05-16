@@ -486,7 +486,9 @@ const ActivityCheckInReportPage = () => {
               {/* Empty State */}
               {!loading && (!classrooms || !classrooms.length) && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography color='text.secondary'>ไม่พบข้อมูลห้องเรียน</Typography>
+                  <Typography sx={{
+                    color: 'text.secondary'
+                  }}>ไม่พบข้อมูลห้องเรียน</Typography>
                 </Box>
               )}
 
@@ -632,7 +634,7 @@ const ActivityCheckInReportPage = () => {
                 </>
               ) : (
                 /* Desktop View */
-                <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                (<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <ActivityCheckInDataGrid
                     students={currentStudents}
                     loading={loading}
@@ -655,7 +657,7 @@ const ActivityCheckInReportPage = () => {
                     onCellClick={handleCellClick}
                     onColumnHeaderClick={handleColumnHeaderClick}
                   />
-                </Box>
+                </Box>)
               )}
             </Box>
           </Box>

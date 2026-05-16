@@ -228,7 +228,9 @@ const ActivityCheckInDataGrid = ({
                   align='center'
                   sx={{ height: 400 }}
                 >
-                  <Typography variant='body2' color='text.secondary'>
+                  <Typography variant='body2' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ไม่พบข้อมูลนักเรียน
                   </Typography>
                 </TableCellCustom>
@@ -344,7 +346,6 @@ const ActivityCheckInDataGrid = ({
           </TableBodyCustom>
         </TableCustom>
       </TableContainerCustom>
-
       {/* Pagination */}
       <TablePaginationCustom
         id='activity-checkin-students-table-pagination'

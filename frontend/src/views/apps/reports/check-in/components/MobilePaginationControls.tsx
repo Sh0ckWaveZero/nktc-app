@@ -111,14 +111,14 @@ const MobilePaginationControls = ({
           <br />
           <Typography
             variant='caption'
-            color='text.secondary'
             sx={{
+              color: 'text.secondary',
               fontSize: '0.65rem',
+
               '@media (min-width: 400px)': {
                 fontSize: '0.75rem',
-              },
-            }}
-          >
+              }
+            }}>
             ({startIndex + 1}-{endIndex} จาก {totalItems})
           </Typography>
         </Typography>
@@ -160,7 +160,6 @@ const MobilePaginationControls = ({
           »
         </Button>
       </Box>
-
       <Box
         sx={{
           display: 'flex',

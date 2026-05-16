@@ -302,7 +302,9 @@ export default function DialogClassroomGoodnessGroup({
               <Typography
                 id='dialog-classroom-group-empty-message'
                 variant='body2'
-                color='text.secondary'
+                sx={{
+                  color: 'text.secondary'
+                }}
               >
                 กรุณาเลือกห้องเรียนเพื่อแสดงรายชื่อนักเรียน
               </Typography>
@@ -322,7 +324,9 @@ export default function DialogClassroomGoodnessGroup({
                 <Typography
                   id='dialog-classroom-group-selection-count'
                   variant='body2'
-                  color='text.secondary'
+                  sx={{
+                    color: 'text.secondary'
+                  }}
                 >
                   เลือกแล้ว {currentClassroomSelectedCount} คน
                 </Typography>

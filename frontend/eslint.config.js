@@ -6,6 +6,9 @@ import tsParser from '@typescript-eslint/parser';
 
 export default [
   {
+    ignores: ['.next/**', 'node_modules/**', 'dist/**', 'build/**', 'coverage/**'],
+  },
+  {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parser: tsParser,
@@ -123,7 +126,7 @@ export default [
     },
     settings: {
       react: {
-        version: 'detect',
+        version: '19.2.0',
       },
     },
   },

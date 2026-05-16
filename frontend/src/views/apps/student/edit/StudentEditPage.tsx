@@ -19,14 +19,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type DefaultValues } from 'react-hook-form';
 import { useState, useEffect, type ChangeEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useStudent, useUpdateStudent } from '@/hooks/queries/useStudents';
-import { useClassrooms } from '@/hooks/queries/useClassrooms';
-import type { Classroom } from '@/types/apps/teacherTypes';
+import { useClassrooms, type ClassroomItem } from '@/hooks/queries/useClassrooms';
 import { useSpring, animated } from 'react-spring';
 import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 import Icon from '@/@core/components/icon';
@@ -103,9 +102,9 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   display: 'inline-flex',
   alignItems: 'center',
   gap: theme.spacing(1),
-  fontSize: 'clamp(0.92rem, 0.86rem + 0.16vw, 1rem)',
+  fontSize: 'clamp(1rem, 0.96rem + 0.18vw, 1.1rem)',
   fontWeight: 800,
-  letterSpacing: '-0.01em',
+  letterSpacing: '-0.02em',
   color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.88 : 0.82),
   '&::before': {
     content: '""',
@@ -123,8 +122,8 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
 const SectionDescription = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(0.5),
   maxWidth: '58ch',
-  fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
-  fontWeight: 500,
+  fontSize: 'clamp(0.84rem, 0.82rem + 0.08vw, 0.9rem)',
+  fontWeight: 400,
   lineHeight: 1.6,
   color: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.8) : theme.palette.text.secondary,
 }));
@@ -148,18 +147,30 @@ const FORM_ITEM_SX = {
   },
   '& .MuiInputBase-input': {
     letterSpacing: '-0.01em',
+    '&::placeholder': {
+      opacity: 0.38,
+      fontWeight: 400,
+      letterSpacing: 0,
+    },
   },
   '& .MuiInputLabel-root': {
     fontSize: '0.92rem',
     fontWeight: 600,
     letterSpacing: '-0.01em',
+    color: 'text.secondary',
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: 'primary.main',
   },
   '& .MuiInputLabel-shrink': {
     fontSize: '0.86rem',
+    fontWeight: 700,
+    letterSpacing: '-0.015em',
   },
   '& .MuiFormHelperText-root:not(.Mui-error)': {
     color: 'text.secondary',
-    fontWeight: 500,
+    fontWeight: 400,
+    fontSize: '0.78rem',
   },
 } as const;
 
@@ -197,7 +208,7 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
       phone: '',
       addressLine1: '',
       status: 'normal',
-    },
+    } as DefaultValues<FormDataType>,
   });
 
   // Animations
@@ -373,9 +384,9 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
             sx: {
               mt: 1,
               maxWidth: '60ch',
-              fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.04rem)',
-              fontWeight: 500,
-              letterSpacing: '-0.01em',
+              fontSize: 'clamp(0.84rem, 0.82rem + 0.08vw, 0.9rem)',
+              fontWeight: 400,
+              letterSpacing: '-0.005em',
               color: 'text.secondary',
             },
           },
@@ -419,8 +430,8 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                       boxShadow: (theme) =>
                         `0 12px 28px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
                     }}
-                    imgProps={{
-                      onError: () => setImgSrc('/images/avatars/1.png'),
+                    slotProps={{
+                      img: { onError: () => setImgSrc('/images/avatars/1.png') },
                     }}
                   />
                   <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -555,13 +566,13 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                 render={({ field: { value, onChange } }) => (
                   <Autocomplete
                     id='student-edit-classroom-autocomplete'
-                    value={value ?? null}
-                    options={classroomsData}
+                    value={(value as ClassroomItem) ?? null}
+                    options={Array.isArray(classroomsData) ? [...classroomsData].sort((a, b) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
                     loading={isClassroomLoading}
                     onChange={(_, newValue) => onChange(newValue)}
                     getOptionLabel={(option) => option.name || ''}
                     isOptionEqualToValue={(option, val) => option.id === val.id}
-                    groupBy={(option: Classroom) => option.department?.name || ''}
+                    groupBy={(option: ClassroomItem) => option.department?.name || ''}
                     renderInput={(params) => (
                       <TextField
                         {...params}

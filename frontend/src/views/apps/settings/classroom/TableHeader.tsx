@@ -36,21 +36,23 @@ const TableHeader = (props: TableHeaderProps) => {
           sx={{ mr: 4, mb: 2 }}
           placeholder='ค้นชื่อห้องเรียน'
           onChange={(e) => handleOnChange(e)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position='end'>
-                {keyword && (
-                  <IconButton
-                    onClick={() => {
-                      setKeyword('');
-                      handleFilter('');
-                    }}
-                  >
-                    <IconifyIcon icon='uil:times' width={20} height={20} />
-                  </IconButton>
-                )}
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position='end'>
+                  {keyword && (
+                    <IconButton
+                      onClick={() => {
+                        setKeyword('');
+                        handleFilter('');
+                      }}
+                    >
+                      <IconifyIcon icon='uil:times' width={20} height={20} />
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ),
+            },
           }}
         />
 

@@ -202,7 +202,9 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
               {currentRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
-                    <Typography color='text.secondary'>ไม่พบกิจกรรมของครูตามเงื่อนไขที่เลือก</Typography>
+                    <Typography sx={{
+                      color: 'text.secondary'
+                    }}>ไม่พบกิจกรรมของครูตามเงื่อนไขที่เลือก</Typography>
                   </TableCell>
                 </TableRow>
               ) : (

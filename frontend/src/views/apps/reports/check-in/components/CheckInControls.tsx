@@ -129,10 +129,12 @@ const CheckInControls = ({
             size={responsiveConfig.formSize}
             displayEmpty
             MenuProps={{
-              PaperProps: {
-                sx: {
-                  backgroundColor: 'background.paper',
-                  zIndex: 1300,
+              slotProps: {
+                paper: {
+                  sx: {
+                    backgroundColor: 'background.paper',
+                    zIndex: 1300,
+                  },
                 },
               },
             }}

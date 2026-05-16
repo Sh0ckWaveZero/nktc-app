@@ -16,8 +16,6 @@ const UserIcon = (props: UserIconProps) => {
 
   const IconTag: any = icon;
 
-  let styles: any;
-
   if (componentType === 'search') {
     // Conditional Props based on component type, like have different font size or icon color
     /* styles = {
@@ -40,7 +38,7 @@ const UserIcon = (props: UserIconProps) => {
     return null;
   }
 
-  return <IconTag {...iconProps} style={{ ...styles }} />;
+  return <IconTag {...iconProps} />;
 };
 
 export default UserIcon;

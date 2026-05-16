@@ -71,13 +71,13 @@ export async function importStudentsFromXLSX(
     "คำนำหน้า": "title",
     "ชื่อ": "firstName",
     "นามสกุล": "lastName",
-    "สถานะนักเรียน": "studentStatus",
     "รหัสห้องเรียน": "classroomId",
     "รหัสสาขา": "programId",
     "รหัสแผนก": "departmentId",
     "รหัสระดับ": "levelId",
     "เบอร์โทร": "phone",
     "อีเมล": "email",
+    "สถานะนักเรียน": "studentStatus",
   };
 
   const { rows, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
@@ -391,7 +391,7 @@ export async function importStudentsFromXLSX(
 
 export function generateStudentTemplate(): Buffer {
   const headers = [
-    ["รหัสนักเรียน*", "คำนำหน้า", "ชื่อ", "นามสกุล", "สถานะนักเรียน", "รหัสห้องเรียน", "รหัสสาขา", "รหัสแผนก", "รหัสระดับ", "เบอร์โทร", "อีเมล"],
+    ["รหัสนักเรียน*", "คำนำหน้า", "ชื่อ", "นามสกุล", "รหัสห้องเรียน", "รหัสสาขา", "รหัสแผนก", "รหัสระดับ", "เบอร์โทร", "อีเมล", "สถานะนักเรียน"],
   ];
 
   const worksheet = XLSX.utils.aoa_to_sheet(headers);

@@ -84,13 +84,24 @@ const StudentIndividualPromotionDialog = memo(
           >
             <RiArrowUpLine size={28} />
           </Box>
-          <Typography variant='h6' fontWeight={600} textAlign='center' id='individual-promotion-dialog-title'>
+          <Typography
+            variant='h6'
+            id='individual-promotion-dialog-title'
+            sx={{
+              fontWeight: 600,
+              textAlign: 'center'
+            }}>
             เลื่อนชั้นนักเรียน
           </Typography>
         </Box>
-
         <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 1, lineHeight: 1.8 }}>
+          <Typography
+            variant='body2'
+            sx={{
+              color: 'text.secondary',
+              mb: 1,
+              lineHeight: 1.8
+            }}>
             {'ย้าย '}
             <Typography component='span' sx={{ color: 'text.primary', fontWeight: 600 }}>
               {fullName}
@@ -116,7 +127,6 @@ const StudentIndividualPromotionDialog = memo(
             sx={{ mt: 3 }}
           />
         </DialogContent>
-
         <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
           <Button
             variant='outlined'

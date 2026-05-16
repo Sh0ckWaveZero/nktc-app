@@ -101,10 +101,9 @@ export const getColumns = ({
       return (
         <Stack
           direction='row'
-          alignItems='center'
-          justifyContent='center'
           spacing={3}
           divider={<Divider orientation='vertical' flexItem />}
+          sx={{ alignItems: 'center', justifyContent: 'center' }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip

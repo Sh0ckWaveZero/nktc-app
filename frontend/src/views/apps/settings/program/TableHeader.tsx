@@ -28,7 +28,7 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
   };
 
   return (
-    <Grid container spacing={3} alignItems='center' sx={{ pb: 2, px: 4 }}>
+    <Grid container spacing={3} sx={{ alignItems: 'center', pb: 2, px: 4 }}>
       <Grid
         size={{
           xs: 12,
@@ -46,8 +46,8 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
       </Grid>
       <Grid
         container
-        justifyContent='flex-end'
         spacing={2}
+        sx={{ justifyContent: 'flex-end' }}
         size={{
           xs: 12,
           sm: 6,

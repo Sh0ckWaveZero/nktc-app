@@ -42,20 +42,33 @@ const maskStudentSensitiveFields = <
 
 export abstract class StudentService {
   static async getList(skip: number = 0, take: number = 20) {
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
+    const where = { userId: { in: studentUserIds } };
     const data = await prisma.student.findMany({
+      where,
       skip,
       take,
       include: studentInclude,
       orderBy: { studentId: "asc" },
     });
-    const total = await prisma.student.count();
+    const total = await prisma.student.count({ where });
     return { data: data.map(maskStudentSensitiveFields), total, skip, take };
   }
 
   static async search(params: StudentModel["searchParams"]) {
     const { q, classroomId, departmentId, programId } = params;
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
     const students = await prisma.student.findMany({
       where: {
+        userId: { in: studentUserIds },
         ...(classroomId ? { classroomId } : {}),
         ...(departmentId ? { departmentId } : {}),
         ...(programId ? { programId } : {}),
@@ -143,7 +156,14 @@ export abstract class StudentService {
         : { studentStatus }
       : {};
 
+    // Get userId list of users with Student role only
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
     const whereCondition = {
+      userId: { in: studentUserIds },
       ...(classroomId ? { classroomId } : {}),
       ...(departmentId ? { departmentId } : {}),
       ...(programId ? { programId } : {}),

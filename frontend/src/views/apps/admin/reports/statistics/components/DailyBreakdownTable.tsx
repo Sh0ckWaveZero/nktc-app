@@ -157,7 +157,9 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
               {currentRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align='center' sx={{ py: 8 }}>
-                    <Typography color='text.secondary'>ไม่พบข้อมูลรายวันในช่วงวันที่นี้</Typography>
+                    <Typography sx={{
+                      color: 'text.secondary'
+                    }}>ไม่พบข้อมูลรายวันในช่วงวันที่นี้</Typography>
                   </TableCell>
                 </TableRow>
               ) : (

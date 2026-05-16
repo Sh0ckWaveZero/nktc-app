@@ -591,11 +591,10 @@ const ActivityCheckInDailyReportPage = () => {
           <React.Fragment>
             <Dialog
               open={openDeletedConfirm}
-              disableEscapeKeyDown
               aria-labelledby='alert-dialog-title'
               aria-describedby='alert-dialog-description'
               onClose={(event, reason) => {
-                if (reason !== 'backdropClick') {
+                if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
                   setOpenDeletedConfirm(false);
                 }
               }}

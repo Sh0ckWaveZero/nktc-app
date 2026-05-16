@@ -42,7 +42,7 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
   useEffect(() => {
     if (value) {
       const account = value?.user?.account || value?.account;
-      let displayName = '';
+      let displayName: string;
       if (account) {
         const { title = '', firstName = '', lastName = '' } = account;
         displayName = `${title}${firstName} ${lastName}`.trim();
@@ -106,7 +106,7 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
       renderOption={(props, option: any) => {
         const { key, ...optionProps } = props;
         const account = option?.user?.account || option?.account;
-        let displayText = '';
+        let displayText: string;
         if (account) {
           const { title = '', firstName = '', lastName = '' } = account;
           displayText = `${title}${firstName} ${lastName}`.trim();
@@ -123,7 +123,9 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
                 <Typography variant='body2' sx={{ fontWeight: 600 }}>
                   {displayText}
                 </Typography>
-                <Typography variant='caption' color='text.secondary'>
+                <Typography variant='caption' sx={{
+                  color: 'text.secondary'
+                }}>
                   {option.studentId || ''}
                 </Typography>
               </Box>
@@ -142,11 +144,11 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
           placeholder='ระบุชื่อ หรือ รหัสประจำตัว'
           slotProps={{
             input: {
-              ...params.InputProps,
+              ...(params.slotProps?.input ?? {}),
               startAdornment: (
                 <>
                   <Icon icon='mdi:account-search-outline' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
-                  {params.InputProps.startAdornment}
+                  {params.slotProps.input.startAdornment}
                 </>
               ),
               sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
@@ -219,12 +221,13 @@ const TableHeader = (props: TableHeaderProps) => {
           <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: -0.5, lineHeight: 1.2 }}>
             ตัวกรองข้อมูล
           </Typography>
-          <Typography variant='caption' color='text.secondary'>
+          <Typography variant='caption' sx={{
+            color: 'text.secondary'
+          }}>
             ค้นหาและสรุปรายงานความดีรายบุคคล/รายห้อง
           </Typography>
         </Box>
       </Box>
-
       <Grid container spacing={6} sx={{ alignItems: 'flex-start' }}>
         <Grid size={{ xs: 12, md: 3.5 }}>
           <FormControl fullWidth>
@@ -274,7 +277,7 @@ const TableHeader = (props: TableHeaderProps) => {
                       placeholder='เลือกชั้นเรียน'
                       slotProps={{
                         input: {
-                          ...params.InputProps,
+                          ...(params.slotProps?.input ?? {}),
                           startAdornment: (
                             <Icon
                               icon='mdi:google-classroom'

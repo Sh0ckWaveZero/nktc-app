@@ -49,6 +49,15 @@ const UserThemeOptions = (): ThemeOptions => {
         styleOverrides: {
           root: {
             textTransform: 'none',
+            '&.MuiButton-text.MuiButton-sizeSmall': {
+              padding: '7px 12px',
+            },
+            '&.MuiButton-text.MuiButton-sizeMedium': {
+              padding: '9px 16px',
+            },
+            '&.MuiButton-text.MuiButton-sizeLarge': {
+              padding: '12px 16px',
+            },
           },
           sizeSmall: {
             padding: '6px 16px',
@@ -58,15 +67,6 @@ const UserThemeOptions = (): ThemeOptions => {
           },
           sizeLarge: {
             padding: '11px 24px',
-          },
-          textSizeSmall: {
-            padding: '7px 12px',
-          },
-          textSizeMedium: {
-            padding: '9px 16px',
-          },
-          textSizeLarge: {
-            padding: '12px 16px',
           },
         },
       },

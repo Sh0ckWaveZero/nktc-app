@@ -67,10 +67,14 @@ const ActivityStudentCard = ({
             >
               {(student?.user?.account?.title ?? student?.title) + '' + (student?.user?.account?.firstName ?? student?.firstName) + ' ' + (student?.user?.account?.lastName ?? student?.lastName)}
             </Typography>
-            <Typography id={`activity-checkin-student-id-${student.id}`} variant='body2' color='text.secondary'>
+            <Typography id={`activity-checkin-student-id-${student.id}`} variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               @{student.studentId}
             </Typography>
-            <Typography id={`activity-checkin-student-class-${student.id}`} variant='body2' color='text.secondary'>
+            <Typography id={`activity-checkin-student-class-${student.id}`} variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               {student.classroom?.name || student.classroom}
             </Typography>
           </Box>

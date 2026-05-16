@@ -1,3 +1,5 @@
+import type { PaletteColor, PaletteColorOptions } from '@mui/material/styles';
+
 declare module '@mui/material/styles' {
   interface Palette {
     customColors: {
@@ -11,6 +13,7 @@ declare module '@mui/material/styles' {
       primaryGradient: string;
       headerText: string;
     };
+    other: PaletteColor;
   }
   interface PaletteOptions {
     customColors?: {
@@ -24,6 +27,7 @@ declare module '@mui/material/styles' {
       primaryGradient?: string;
       headerText?: string;
     };
+    other?: PaletteColorOptions;
   }
 }
 

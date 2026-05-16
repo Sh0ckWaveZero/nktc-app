@@ -38,13 +38,15 @@ const ServerSideToolbar = (props: Props) => {
         value={props.value}
         onChange={props.onChange}
         placeholder='ค้นหา…'
-        InputProps={{
-          startAdornment: <Magnify fontSize='small' />,
-          endAdornment: (
-            <IconButton size='small' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
-              <Close fontSize='small' />
-            </IconButton>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: <Magnify fontSize='small' />,
+            endAdornment: (
+              <IconButton size='small' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
+                <Close fontSize='small' />
+              </IconButton>
+            ),
+          },
         }}
         sx={{
           width: {

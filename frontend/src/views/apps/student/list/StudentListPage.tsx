@@ -90,7 +90,7 @@ const StudentNameCell = memo(({ row }: { row: any }) => (
           color: 'text.primary',
         }}
       >
-        {row.user?.account?.title + '' + row.user?.account?.firstName + ' ' + row.user?.account?.lastName}
+        {`${row.user?.account?.title ?? ''}${row.user?.account?.firstName ?? ''} ${row.user?.account?.lastName ?? ''}`.trim()}
       </Typography>
       <Typography
         noWrap
@@ -140,7 +140,9 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
 
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 2, mb: 4 }}>
           <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-            <Typography variant='caption' color='text.secondary'>
+            <Typography variant='caption' sx={{
+              color: 'text.secondary'
+            }}>
               ทั้งหมด
             </Typography>
             <Typography variant='h6'>{result.total}</Typography>
@@ -153,7 +155,9 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
               border: (theme) => `1px solid ${theme.palette.success.light}`,
             }}
           >
-            <Typography variant='caption' color='text.secondary'>
+            <Typography variant='caption' sx={{
+              color: 'text.secondary'
+            }}>
               {processedLabel}
             </Typography>
             <Typography variant='h6'>{result.imported}</Typography>
@@ -167,7 +171,9 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
                 result.failed > 0 ? `1px solid ${theme.palette.error.light}` : `1px solid ${theme.palette.divider}`,
             }}
           >
-            <Typography variant='caption' color='text.secondary'>
+            <Typography variant='caption' sx={{
+              color: 'text.secondary'
+            }}>
               ไม่สำเร็จ
             </Typography>
             <Typography variant='h6'>{result.failed}</Typography>

@@ -127,16 +127,13 @@ const Logo = () => (
       component='img'
       src={LOGO_CONFIG.src}
       alt={LOGO_CONFIG.alt}
-      width={160}
-      height={160}
       sx={{
         width: LOGO_CONFIG.size,
         height: LOGO_CONFIG.size,
         objectFit: 'contain',
         maxWidth: '100%',
-        display: 'block',
-      }}
-    />
+        display: 'block'
+      }} />
   </Box>
 );
 

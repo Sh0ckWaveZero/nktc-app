@@ -136,7 +136,12 @@ const ProgramFormDialog = ({
     <Dialog open={open} fullWidth maxWidth='sm' onClose={isSubmitting ? undefined : onClose}>
       <DialogTitle>{mode === 'create' ? 'เพิ่มสาขาวิชาใหม่' : 'แก้ไขข้อมูลสาขาวิชา'}</DialogTitle>
       <DialogContent>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mb: 4
+          }}>
           {mode === 'create'
             ? 'กำหนดรหัสสาขา ชื่อสาขา แผนก และระดับชั้นเพื่อให้พร้อมใช้งานในระบบ'
             : 'อัปเดตรายละเอียดสาขาวิชาโดยยังคงรหัสสาขาเดิมไว้เป็นคีย์อ้างอิง'}

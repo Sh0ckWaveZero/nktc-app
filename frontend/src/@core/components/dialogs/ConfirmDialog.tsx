@@ -86,13 +86,23 @@ const ConfirmDialog = ({ open, options, onClose, onConfirm, isConfirming = false
         >
           <IconComponent size={32} />
         </Box>
-        <Typography variant='h6' fontWeight={600} textAlign='center' id={`${severity}-confirm-dialog-title`}>
+        <Typography
+          variant='h6'
+          id={`${severity}-confirm-dialog-title`}
+          sx={{
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
           {title}
         </Typography>
       </Box>
-
       <DialogContent sx={{ px: 6, pt: 2, pb: showWarning ? 3 : 4, textAlign: 'center' }}>
-        <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.8 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            lineHeight: 1.8
+          }}>
           {message}
         </Typography>
         {showWarning && warningMessage && (
@@ -101,7 +111,6 @@ const ConfirmDialog = ({ open, options, onClose, onConfirm, isConfirming = false
           </Alert>
         )}
       </DialogContent>
-
       <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
         <Button
           variant='outlined'

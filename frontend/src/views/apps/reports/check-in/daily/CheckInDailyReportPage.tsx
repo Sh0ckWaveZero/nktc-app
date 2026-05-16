@@ -208,7 +208,9 @@ const StudentCard = ({ student, isMobile, isPresentCheck, isAbsentCheck, onHandl
           <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ fontWeight: 600 }}>
             {student?.title} {student?.firstName} {student?.lastName}
           </Typography>
-          <Typography variant='body2' color='text.secondary'>
+          <Typography variant='body2' sx={{
+            color: 'text.secondary'
+          }}>
             @{student?.studentId}
           </Typography>
         </Box>
@@ -352,7 +354,7 @@ const CheckInDesktopGrid = ({
             <Typography noWrap variant='body2' sx={{ fontWeight: 600, color: 'text.primary', textDecoration: 'none' }}>
               {row?.title + '' + row?.firstName + ' ' + row?.lastName}
             </Typography>
-            <Stack direction='row' alignItems='center' gap={1}>
+            <Stack direction='row' spacing={1} sx={{ alignItems: 'center' }}>
               <Typography
                 noWrap
                 variant='caption'
@@ -479,8 +481,12 @@ const CheckInDesktopGrid = ({
         }}
         onCellClick={handleCellClick}
         onColumnHeaderClick={handleColumnHeaderClick}
-        onRowMouseEnter={handlePopperOpen}
-        onRowMouseLeave={handlePopperClose}
+        slotProps={{
+          row: {
+            onMouseEnter: handlePopperOpen,
+            onMouseLeave: handlePopperClose,
+          },
+        }}
         paginationModel={{ page: currentPage, pageSize: pageSize }}
         onPaginationModelChange={(model) => onPaginationChange({ page: model.page, pageSize: model.pageSize })}
         initialState={{
@@ -514,7 +520,12 @@ const CheckInDesktopGrid = ({
       >
         {() => (
           <Paper sx={{ transform: 'translateX(-140px)', zIndex: 100 }}>
-            <Typography color='primary.main' variant='subtitle1' sx={{ p: 2 }}>
+            <Typography
+              variant='subtitle1'
+              sx={{
+                color: 'primary.main',
+                p: 2
+              }}>
               ฝึกงาน
             </Typography>
           </Paper>

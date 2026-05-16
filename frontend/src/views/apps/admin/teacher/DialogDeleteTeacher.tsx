@@ -37,13 +37,22 @@ const DialogDeleteTeacher = (props: Props) => {
         >
           <IconifyIcon icon='tabler:trash' fontSize={28} />
         </Box>
-        <Typography variant='h6' fontWeight={600} textAlign='center'>
+        <Typography
+          variant='h6'
+          sx={{
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
           ยืนยันการลบข้อมูลครู / บุคลากร
         </Typography>
       </Box>
-
       <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
-        <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.8 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            lineHeight: 1.8
+          }}>
           {'คุณต้องการลบข้อมูลของ '}
           <Box component='strong' sx={{ color: 'text.primary' }}>
             {fullName}
@@ -51,7 +60,6 @@ const DialogDeleteTeacher = (props: Props) => {
           {' ใช่หรือไม่?'}
         </Typography>
       </DialogContent>
-
       <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
         <Button variant='outlined' color='inherit' onClick={onClose} fullWidth>
           ยกเลิก

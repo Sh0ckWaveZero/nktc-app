@@ -415,7 +415,6 @@ const TeacherListPage = () => {
           />
         </Box>
       )}
-
       <Dialog open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
         <DialogTitle>ผลการนำเข้าข้อมูลครูและบุคลากร</DialogTitle>
         <DialogContent>
@@ -440,25 +439,33 @@ const TeacherListPage = () => {
                 }}
               >
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ทั้งหมด
                   </Typography>
                   <Typography variant='h6'>{importResult.total}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.imported}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     อัปเดต
                   </Typography>
                   <Typography variant='h6'>{importResult.updated}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant='caption' sx={{
+                    color: 'text.secondary'
+                  }}>
                     ไม่สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.failed}</Typography>
@@ -497,7 +504,6 @@ const TeacherListPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       <input ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
     </Fragment>
   );

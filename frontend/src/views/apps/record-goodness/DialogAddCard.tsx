@@ -154,7 +154,7 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   );
 
   return (
-    <Dialog fullWidth open={show} maxWidth='sm' scroll='body' onClose={handleClose} TransitionComponent={Transition}>
+    <Dialog fullWidth open={show} maxWidth='sm' scroll='body' onClose={handleClose} slots={{ transition: Transition }}>
       <DialogContent sx={{ pb: 8, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
         <IconButton size='small' onClick={handleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
           <Icon icon='mdi:close' />

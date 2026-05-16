@@ -42,13 +42,23 @@ const ProgramDeleteDialog = ({ open, program, isDeleting, onClose, onConfirm }: 
         >
           <Icon icon='tabler:trash' fontSize={28} />
         </Box>
-        <Typography variant='h6' fontWeight={600} textAlign='center'>
+        <Typography
+          variant='h6'
+          sx={{
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
           ยืนยันการลบสาขาวิชา
         </Typography>
       </Box>
-
       <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.8 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mb: 3,
+            lineHeight: 1.8
+          }}>
           {'คุณกำลังจะลบ '}
           <Box component='strong' sx={{ color: 'text.primary' }}>
             {program?.name || 'สาขาวิชา'}
@@ -61,7 +71,6 @@ const ProgramDeleteDialog = ({ open, program, isDeleting, onClose, onConfirm }: 
           ระบบจะยอมลบได้เฉพาะสาขาที่ยังไม่มีนักเรียน ครู ห้องเรียน หรือรายวิชาเชื่อมอยู่เท่านั้น
         </Alert>
       </DialogContent>
-
       <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
         <Button variant='outlined' color='inherit' onClick={onClose} disabled={isDeleting} fullWidth>
           ยกเลิก

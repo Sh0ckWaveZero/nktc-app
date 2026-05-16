@@ -42,13 +42,23 @@ const ClassroomDeleteDialog = ({ open, classroom, isDeleting, onClose, onConfirm
         >
           <Icon icon='tabler:trash' fontSize={28} />
         </Box>
-        <Typography variant='h6' fontWeight={600} textAlign='center'>
+        <Typography
+          variant='h6'
+          sx={{
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
           ยืนยันการลบห้องเรียน
         </Typography>
       </Box>
-
       <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.8 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mb: 3,
+            lineHeight: 1.8
+          }}>
           {'คุณกำลังจะลบ '}
           <Box component='strong' sx={{ color: 'text.primary' }}>
             {classroom?.name || 'ห้องเรียน'}
@@ -61,7 +71,6 @@ const ClassroomDeleteDialog = ({ open, classroom, isDeleting, onClose, onConfirm
           ระบบจะยอมลบได้เฉพาะห้องเรียนที่ยังไม่มีนักเรียน ครู รายวิชา หรือรายงานเชื่อมอยู่เท่านั้น
         </Alert>
       </DialogContent>
-
       <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
         <Button variant='outlined' color='inherit' onClick={onClose} disabled={isDeleting} fullWidth>
           ยกเลิก

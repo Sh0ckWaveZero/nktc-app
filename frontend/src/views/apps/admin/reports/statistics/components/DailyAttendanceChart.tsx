@@ -45,7 +45,7 @@ const DailyAttendanceChart = ({ dailyData }: DailyAttendanceChartProps) => {
           </Typography>
         </Box>
 
-        <Stack spacing={0.5} alignItems='flex-end'>
+        <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
           <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
             จำนวนวันที่มีข้อมูล
           </Typography>

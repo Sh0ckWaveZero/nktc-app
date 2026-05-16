@@ -93,7 +93,9 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     hideSortIcons: true,
     filterable: false,
     renderCell: ({ row }: CellType) => (
-      <Typography variant='body2' color='text.secondary' noWrap>
+      <Typography variant='body2' noWrap sx={{
+        color: 'text.secondary'
+      }}>
         {new Date(row.createdAt).toLocaleString('th-TH', {
           day: 'numeric',
           month: 'short',
@@ -115,7 +117,9 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     filterable: false,
     renderCell: ({ row }: CellType) => (
       <Tooltip title={row.detail} placement='bottom-start' arrow>
-        <Typography noWrap variant='body2' color='text.secondary'>
+        <Typography noWrap variant='body2' sx={{
+          color: 'text.secondary'
+        }}>
           {row.detail}
         </Typography>
       </Tooltip>
@@ -133,7 +137,9 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     renderCell: ({ row }: CellType) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <IconifyIcon icon='material-symbols:lan-outline-rounded' fontSize={16} color='text.secondary' />
-        <Typography variant='body2' fontFamily='monospace'>
+        <Typography variant='body2' sx={{
+          fontFamily: 'monospace'
+        }}>
           {row.ipAddr ?? '-'}
         </Typography>
       </Box>
@@ -229,10 +235,18 @@ const HistoryPage = () => {
         <Card>
           <CardHeader
             title={
-              <Typography variant='h6' fontWeight={600}>
+              <Typography variant='h6' sx={{
+                fontWeight: 600
+              }}>
                 ประวัติการใช้งาน
                 {fullName && (
-                  <Typography component='span' variant='body2' color='text.secondary' sx={{ ml: 1 }}>
+                  <Typography
+                    component='span'
+                    variant='body2'
+                    sx={{
+                      color: 'text.secondary',
+                      ml: 1
+                    }}>
                     — {fullName}
                   </Typography>
                 )}

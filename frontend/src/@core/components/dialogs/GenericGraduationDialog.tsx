@@ -30,11 +30,10 @@ const GenericGraduationDialog = memo(
     return (
       <Dialog
         open={open}
-        disableEscapeKeyDown
         maxWidth='xs'
         fullWidth
         onClose={(_, reason) => {
-          if (reason !== 'backdropClick') onClose();
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') onClose();
         }}
         aria-labelledby='graduation-dialog-title'
       >
@@ -54,13 +53,24 @@ const GenericGraduationDialog = memo(
           >
             <RiGraduationCapLine size={28} />
           </Box>
-          <Typography variant='h6' fontWeight={600} textAlign='center' id='graduation-dialog-title'>
+          <Typography
+            variant='h6'
+            id='graduation-dialog-title'
+            sx={{
+              fontWeight: 600,
+              textAlign: 'center'
+            }}>
             {title}
           </Typography>
         </Box>
-
         <DialogContent sx={{ px: 6, pt: 2, pb: 4, textAlign: 'center' }}>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 4, lineHeight: 1.8 }}>
+          <Typography
+            variant='body2'
+            sx={{
+              color: 'text.secondary',
+              mb: 4,
+              lineHeight: 1.8
+            }}>
             {'บันทึกการจบการศึกษาของ '}
             <Typography component='span' sx={{ color: 'text.primary', fontWeight: 600 }}>
               {entityName}
@@ -73,7 +83,6 @@ const GenericGraduationDialog = memo(
             onChange={(date) => setGraduationDate(date)}
           />
         </DialogContent>
-
         <DialogActions sx={{ px: 6, pb: 6, gap: 2 }}>
           <Button
             variant='outlined'
