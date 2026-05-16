@@ -662,7 +662,7 @@ const DepartmentSettingsPage = () => {
 
             <CardContent sx={{ px: { xs: 4, sm: 5, md: 6 }, pt: 2, pb: { xs: 4, sm: 5 } }}>
               <SectionSurface sx={{ p: { xs: 3, sm: 3.5 }, mb: 4 }}>
-                <Grid container spacing={3} alignItems='flex-end'>
+                <Grid container spacing={3} sx={{ alignItems: 'flex-end' }}>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <SectionTitle>ค้นหาและกรอง</SectionTitle>
                     <SectionDescription>ค้นหาจากชื่อแผนก รหัสแผนก หรือกรองตามสถานะก่อนจัดการรายการ</SectionDescription>

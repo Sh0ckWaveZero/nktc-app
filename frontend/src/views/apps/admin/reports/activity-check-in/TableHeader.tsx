@@ -1,9 +1,6 @@
-// ** MUI Imports
+import { Box, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-// ** Icons Imports
 import { FaFileExcel } from 'react-icons/fa';
 
 interface TableHeaderProps {
@@ -11,42 +8,40 @@ interface TableHeaderProps {
   handleSelectedDate: (newDate: Date | null) => any;
 }
 
-const TableHeader = (props: TableHeaderProps) => {
-  // ** Props
-  const { selectedDate, handleSelectedDate } = props;
-
-  // ** Hooks
+const TableHeader = ({ selectedDate, handleSelectedDate }: TableHeaderProps) => {
   const theme = useTheme();
 
   return (
-    <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 2,
+        px: { xs: 4, sm: 5 },
+        py: { xs: 3, sm: 3.5 },
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+      }}
+    >
       <Button
-        sx={{
-          mr: 4,
-          mb: 2,
-          height: 55,
-          borderColor: 'success.main',
-          color: 'secondary.main',
-          '&:hover': { borderColor: 'success.dark', color: 'secondary.dark' },
-        }}
-        color='secondary'
         variant='outlined'
+        color='success'
         startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
       >
         ดาวน์โหลด
       </Button>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <ThaiDatePicker
-          label='เลือกวันที่'
-          value={selectedDate}
-          onChange={handleSelectedDate}
-          format='dd MMMM yyyy'
-          minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
-          maxDate={new Date()}
-          placeholder='วัน เดือน ปี (พ.ศ.)'
-          sx={{ mr: 4, mb: 2, width: 250 }}
-        />
-      </Box>
+
+      <ThaiDatePicker
+        label='เลือกวันที่'
+        value={selectedDate}
+        onChange={handleSelectedDate}
+        format='dd MMMM yyyy'
+        minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+        maxDate={new Date()}
+        placeholder='วัน เดือน ปี (พ.ศ.)'
+        sx={{ width: 250 }}
+      />
     </Box>
   );
 };

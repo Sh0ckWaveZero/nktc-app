@@ -301,9 +301,6 @@ export interface DeleteAllClassroomResult {
   classroom: string;
 }
 
-/**
- * Hook to delete all students in a classroom
- */
 export const useDeleteAllClassroom = () => {
   const queryClient = useQueryClient();
 

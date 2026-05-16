@@ -63,7 +63,9 @@ export const BadnessReportMobileView = ({
                     <Typography variant='h6' sx={{ fontWeight: 700, fontSize: '1.1rem' }}>
                       {student.fullName}
                     </Typography>
-                    <Typography variant='body2' color='text.secondary'>
+                    <Typography variant='body2' sx={{
+                      color: 'text.secondary'
+                    }}>
                       {student.studentId}
                     </Typography>
                   </Box>
@@ -86,7 +88,9 @@ export const BadnessReportMobileView = ({
                           width: '40%',
                         }}
                       >
-                        <Typography variant='body2' color='text.secondary'>
+                        <Typography variant='body2' sx={{
+                          color: 'text.secondary'
+                        }}>
                           ชั้นเรียน
                         </Typography>
                       </TableCell>
@@ -105,7 +109,9 @@ export const BadnessReportMobileView = ({
                           verticalAlign: 'top',
                         }}
                       >
-                        <Typography variant='body2' color='text.secondary'>
+                        <Typography variant='body2' sx={{
+                          color: 'text.secondary'
+                        }}>
                           คะแนนรวม
                         </Typography>
                       </TableCell>
@@ -147,11 +153,17 @@ export const BadnessReportMobileView = ({
               px: 2,
             }}
           >
-            <Icon icon='mdi:file-search-outline' fontSize='4rem' color='text.disabled' sx={{ mb: 2, opacity: 0.5 }} />
-            <Typography variant='h6' color='text.secondary' gutterBottom>
+            <Box sx={{ mb: 2, opacity: 0.5, color: 'text.disabled' }}>
+              <Icon icon='mdi:file-search-outline' fontSize='4rem' />
+            </Box>
+            <Typography variant='h6' gutterBottom sx={{
+              color: 'text.secondary'
+            }}>
               ไม่พบข้อมูล
             </Typography>
-            <Typography variant='body2' color='text.disabled'>
+            <Typography variant='body2' sx={{
+              color: 'text.disabled'
+            }}>
               ลองปรับเงื่อนไขการค้นหาและลองใหม่
             </Typography>
           </Box>
@@ -160,7 +172,9 @@ export const BadnessReportMobileView = ({
         {/* Pagination */}
         {totalItems > 0 && (
           <Box id='badness-report-pagination' sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mt: 4, flexWrap: 'wrap' }}>
-            <Typography variant='body2' color='text.secondary'>
+            <Typography variant='body2' sx={{
+              color: 'text.secondary'
+            }}>
               หน้า {currentPage + 1} จาก {totalPages}
             </Typography>
             <Pagination
@@ -168,10 +182,7 @@ export const BadnessReportMobileView = ({
               page={currentPage + 1}
               onChange={(_event, page) => onPageChange(page - 1)}
               renderItem={(item) => (
-                <PaginationItem
-                  components={{ previous: ChevronLeft, next: ChevronRight }}
-                  {...item}
-                />
+                <PaginationItem slots={{ previous: ChevronLeft, next: ChevronRight }} {...item} />
               )}
               shape='rounded'
               size={window.innerWidth < 600 ? 'small' : 'medium'}

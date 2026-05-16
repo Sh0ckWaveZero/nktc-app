@@ -310,7 +310,7 @@ const RecordGoodnessIndividualPage = () => {
                                         fontSize: '0.9375rem',
                                       }}
                                     >
-                                      {account?.title + '' + account?.firstName + ' ' + account?.lastName}
+                                      {`${account?.title ?? ''}${account?.firstName ?? ''} ${account?.lastName ?? ''}`.trim()}
                                     </Typography>
                                   </LinkStyled>
                                   <LinkStyled href={`/apps/student/view/${id}`} passHref>

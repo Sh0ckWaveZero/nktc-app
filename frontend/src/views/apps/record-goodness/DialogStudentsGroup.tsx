@@ -155,7 +155,7 @@ function DialogStudentGroup({
                 placeholder='เพิ่มรายชื่อนักเรียน'
                 slotProps={{
                   input: {
-                    ...params.InputProps,
+                    ...(params.slotProps?.input ?? {}),
                   },
                   inputLabel: {
                     shrink: true,

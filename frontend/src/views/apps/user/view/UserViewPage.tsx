@@ -76,7 +76,9 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
               <Typography variant="h6" color="error">
                 ไม่พบข้อมูลผู้ใช้งาน
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 ไม่สามารถค้นหาผู้ใช้งานด้วย ID/Username: {id}
               </Typography>
             </CardContent>
@@ -119,12 +121,10 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
           </Button>
         </LinkStyled>
       </Grid>
-
       {/* Left sidebar with user info */}
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
         <UserViewLeft user={user} isLoading={imageLoading} image={image || undefined} fullName={fullName} />
       </Grid>
-
       {/* Right content area with tabs */}
       <Grid size={{ xs: 12, md: 7, lg: 8 }}>
         <TabContext value={activeTab}>
@@ -200,7 +200,9 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
                     <Typography variant='h6' sx={{ mb: 3 }}>
                       ความปลอดภัย
                     </Typography>
-                    <Typography variant='body2' color='text.secondary'>
+                    <Typography variant='body2' sx={{
+                      color: 'text.secondary'
+                    }}>
                       ข้อมูลความปลอดภัยและการตั้งค่าบัญชีผู้ใช้
                     </Typography>
                   </CardContent>

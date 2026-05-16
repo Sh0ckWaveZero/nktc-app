@@ -1,6 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type DefaultValues, type UseFormHandleSubmit } from 'react-hook-form';
 import { z } from 'zod';
+
+export const STUDENT_STATUS_OPTIONS = [
+  { value: 'กำลังศึกษา', label: 'กำลังศึกษา' },
+  { value: 'จบการศึกษา', label: 'จบการศึกษา' },
+  { value: 'ออกก่อนกำหนด', label: 'ออกก่อนกำหนด' },
+] as const;
 
 export const studentAddSchema = z.object({
   studentId: z
@@ -42,6 +48,7 @@ export const studentAddSchema = z.object({
     .optional()
     .refine((val) => !val || /^\d{10}$/.test(val), 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก'),
   addressLine1: z.string().optional(),
+  studentStatus: z.string(),
 });
 
 export type StudentAddFormData = z.infer<typeof studentAddSchema>;
@@ -65,14 +72,15 @@ export const useStudentAddForm = () => {
       birthDate: null,
       phone: '',
       addressLine1: '',
-    },
+      studentStatus: 'กำลังศึกษา',
+    } as unknown as DefaultValues<StudentAddFormData>,
     mode: 'onSubmit',
     resolver: zodResolver(studentAddSchema),
   });
 
   return {
     control,
-    handleSubmit,
+    handleSubmit: handleSubmit as unknown as UseFormHandleSubmit<StudentAddFormData>,
     reset,
     setError,
     clearErrors,

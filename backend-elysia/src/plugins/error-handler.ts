@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { AppError } from "@/libs/errors";
+import { AppError, TooManyRequestsError } from "@/libs/errors";
 import { logger } from "@/infrastructure/logging";
 
 const PrismaErrorMap: Record<string, { status: number; message: string }> = {
@@ -15,6 +15,7 @@ const CodeStatusMap: Record<string, number> = {
 	VALIDATION: 422,
 	NOT_FOUND: 404,
 	PARSE: 400,
+	RATE_LIMITED: 429,
 	INTERNAL_SERVER_ERROR: 500,
 	UNKNOWN: 500,
 };
@@ -28,6 +29,7 @@ function parseElysiaValidationErrors(error: unknown) {
 }
 
 export const errorHandler = new Elysia({ name: "error-handler" }).onError(
+	{ as: "global" },
 	({ error, code, path, request, set }) => {
 		const meta = {
 			timestamp: new Date().toISOString(),
@@ -44,6 +46,9 @@ export const errorHandler = new Elysia({ name: "error-handler" }).onError(
 				message: error.message,
 				errorCode: error.errorCode,
 				...(error.errors?.length ? { errors: error.errors } : {}),
+				...(error instanceof TooManyRequestsError && error.retryAfter !== undefined
+					? { retryAfter: error.retryAfter }
+					: {}),
 				meta,
 			};
 		}

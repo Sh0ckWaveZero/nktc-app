@@ -124,7 +124,12 @@ const DepartmentFormDialog = ({
     <Dialog open={open} fullWidth maxWidth='sm' onClose={isSubmitting ? undefined : onClose}>
       <DialogTitle>{mode === 'create' ? 'เพิ่มแผนกวิชาใหม่' : 'แก้ไขข้อมูลแผนกวิชา'}</DialogTitle>
       <DialogContent>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mb: 4
+          }}>
           {mode === 'create'
             ? 'กำหนดรหัส ชื่อ และสถานะของแผนกวิชาให้พร้อมใช้งานในระบบ'
             : 'อัปเดตรายละเอียดของแผนกวิชาโดยไม่กระทบกับภาษาออกแบบและการใช้งานเดิม'}

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePickerProps } from './types';
 import { FcCalendar } from 'react-icons/fc';
 import { TextField } from '@mui/material';
@@ -36,7 +36,6 @@ const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
         slotProps={{
           textField: {
             fullWidth: true,
-            placeholder: 'วัน เดือน ปี',
           },
         }}
       />

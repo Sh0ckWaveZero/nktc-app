@@ -98,14 +98,18 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
             <Typography
               id={`goodness-student-id-${student.id || student.studentId}`}
               variant='body2'
-              color='text.secondary'
+              sx={{
+                color: 'text.secondary'
+              }}
             >
               @{studentInfo.id}
             </Typography>
             <Typography
               id={`goodness-student-class-${student.id || student.studentId}`}
               variant='body2'
-              color='text.secondary'
+              sx={{
+                color: 'text.secondary'
+              }}
             >
               {studentInfo.classroom}
             </Typography>

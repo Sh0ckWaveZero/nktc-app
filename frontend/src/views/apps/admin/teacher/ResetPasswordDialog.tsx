@@ -87,7 +87,7 @@ const ResetPasswordDialog = ({ show, data, onClose, onSubmitForm }: DialogEditUs
   };
 
   return (
-    <Dialog fullWidth open={show} maxWidth='sm' scroll='body' onClose={onClose} TransitionComponent={Transition}>
+    <Dialog fullWidth open={show} maxWidth='sm' scroll='body' onClose={onClose} slots={{ transition: Transition }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent
           sx={{

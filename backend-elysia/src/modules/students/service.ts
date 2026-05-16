@@ -42,20 +42,33 @@ const maskStudentSensitiveFields = <
 
 export abstract class StudentService {
   static async getList(skip: number = 0, take: number = 20) {
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
+    const where = { userId: { in: studentUserIds } };
     const data = await prisma.student.findMany({
+      where,
       skip,
       take,
       include: studentInclude,
       orderBy: { studentId: "asc" },
     });
-    const total = await prisma.student.count();
+    const total = await prisma.student.count({ where });
     return { data: data.map(maskStudentSensitiveFields), total, skip, take };
   }
 
   static async search(params: StudentModel["searchParams"]) {
     const { q, classroomId, departmentId, programId } = params;
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
     const students = await prisma.student.findMany({
       where: {
+        userId: { in: studentUserIds },
         ...(classroomId ? { classroomId } : {}),
         ...(departmentId ? { departmentId } : {}),
         ...(programId ? { programId } : {}),
@@ -138,12 +151,19 @@ export abstract class StudentService {
     }
 
     const statusCondition = studentStatus
-      ? studentStatus === 'graduated'
-        ? { OR: [{ studentStatus: 'graduated' }, { isGraduation: true }] }
+      ? studentStatus === 'จบการศึกษา'
+        ? { OR: [{ studentStatus: 'จบการศึกษา' }, { isGraduation: true }] }
         : { studentStatus }
       : {};
 
+    // Get userId list of users with Student role only
+    const studentUserIds = await prisma.user.findMany({
+      where: { role: Role.Student },
+      select: { id: true },
+    }).then(users => users.map(u => u.id));
+
     const whereCondition = {
+      userId: { in: studentUserIds },
       ...(classroomId ? { classroomId } : {}),
       ...(departmentId ? { departmentId } : {}),
       ...(programId ? { programId } : {}),
@@ -542,45 +562,41 @@ export abstract class StudentService {
 
     if (!classroom) throw new NotFoundError("ไม่พบห้องเรียน");
 
-    // Get all students in the classroom with their userIds
-    const students = await prisma.student.findMany({
-      where: { classroomId },
-      select: { id: true, userId: true },
-    });
+    const deleted = await prisma.$transaction(async (tx) => {
+      const students = await tx.student.findMany({
+        where: { classroomId },
+        select: { id: true, userId: true },
+      });
 
-    const studentIds = students.map((s) => s.id);
-    const userIds = students.map((s) => s.userId).filter((id): id is string => id !== null);
+      const studentIds = students.map((s) => s.id);
+      const userIds = students.map((s) => s.userId).filter((id): id is string => id !== null);
 
-    await prisma.$transaction(async (tx) => {
-      // Delete related records
-      await tx.goodnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
-      await tx.badnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } });
-      await tx.visitStudent.deleteMany({ where: { studentKey: { in: studentIds } } });
+      await Promise.all([
+        tx.goodnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } }),
+        tx.badnessIndividual.deleteMany({ where: { studentKey: { in: studentIds } } }),
+        tx.visitStudent.deleteMany({ where: { studentKey: { in: studentIds } } }),
+      ]);
 
-      // Delete users (which will cascade delete students and accounts)
       if (userIds.length > 0) {
         await tx.user.deleteMany({ where: { id: { in: userIds } } });
       }
 
-      // Delete any remaining students without userId
       await tx.student.deleteMany({ where: { id: { in: studentIds } } });
 
-      // Create audit log
       await tx.auditLog.create({
         data: {
           action: "DELETE_ALL_CLASSROOM_STUDENTS",
           model: "Student",
           detail: `ลบนักเรียนทั้งหมด ${students.length} คน จากห้อง "${classroom.name}"`,
-          oldValue: classroom.id,
+          oldValue: JSON.stringify({ classroomId: classroom.id, studentIds, userIds }),
           newValue: null,
           createdBy: deletedBy,
         },
       });
+
+      return students.length;
     });
 
-    return {
-      deleted: students.length,
-      classroom: classroom.name,
-    };
+    return { deleted, classroom: classroom.name };
   }
 }

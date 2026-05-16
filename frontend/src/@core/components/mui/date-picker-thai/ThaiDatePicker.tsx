@@ -61,6 +61,8 @@ const ThaiDatePicker = ({
     [localeText],
   );
 
+  const { textField: callerTextField, ...restSlotProps } = slotProps ?? {};
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={th}>
       <DatePicker
@@ -79,9 +81,9 @@ const ThaiDatePicker = ({
             placeholder,
             error,
             helperText,
-            ...slotProps?.textField,
+            ...callerTextField,
           },
-          ...slotProps,
+          ...restSlotProps,
         }}
         {...props}
       />

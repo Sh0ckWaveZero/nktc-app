@@ -64,6 +64,8 @@ export async function importStudentsFromXLSX(
   buffer: Buffer,
   createdBy: string
 ): Promise<{ total: number; success: number; failed: number; updated: number; errors: Array<{ row: number; message: string }> }> {
+  const VALID_STUDENT_STATUSES = ["กำลังศึกษา", "จบการศึกษา", "ออกก่อนกำหนด"];
+
   const schema: Record<string, string> = {
     "รหัสนักเรียน*": "studentId",
     "คำนำหน้า": "title",
@@ -75,6 +77,7 @@ export async function importStudentsFromXLSX(
     "รหัสระดับ": "levelId",
     "เบอร์โทร": "phone",
     "อีเมล": "email",
+    "สถานะนักเรียน": "studentStatus",
   };
 
   const { rows, errors } = parseXLSX<Record<string, unknown>>(buffer, schema);
@@ -104,6 +107,9 @@ export async function importStudentsFromXLSX(
       const programCode = typeof row.programId === "string" ? row.programId.trim() : undefined;
       const departmentCode = typeof row.departmentId === "string" ? row.departmentId.trim() : undefined;
       const levelCode = typeof row.levelId === "string" ? row.levelId.trim() : undefined;
+      const studentStatus = typeof row.studentStatus === "string" && VALID_STUDENT_STATUSES.includes(row.studentStatus.trim())
+        ? row.studentStatus.trim()
+        : "กำลังศึกษา";
 
       if (!studentId) {
         importErrors.push({ row: rowNumber, message: "รหัสนักเรียนห้ามว่าง" });
@@ -252,6 +258,7 @@ export async function importStudentsFromXLSX(
             data: {
               userId: user.id,
               studentId,
+              studentStatus,
               classroomId: resolvedClassroomId,
               programId: resolvedProgramId,
               departmentId: resolvedDepartmentId,
@@ -298,6 +305,7 @@ export async function importStudentsFromXLSX(
               where: { id: existingStudent.id },
               data: {
                 studentId,
+                studentStatus,
                 classroomId: resolvedClassroomId,
                 programId: resolvedProgramId,
                 departmentId: resolvedDepartmentId,
@@ -310,6 +318,7 @@ export async function importStudentsFromXLSX(
               data: {
                 userId: user.id,
                 studentId,
+                studentStatus,
                 classroomId: resolvedClassroomId,
                 programId: resolvedProgramId,
                 departmentId: resolvedDepartmentId,
@@ -352,6 +361,7 @@ export async function importStudentsFromXLSX(
           data: {
             userId: user.id,
             studentId,
+            studentStatus,
             classroomId: resolvedClassroomId,
             programId: resolvedProgramId,
             departmentId: resolvedDepartmentId,
@@ -381,7 +391,7 @@ export async function importStudentsFromXLSX(
 
 export function generateStudentTemplate(): Buffer {
   const headers = [
-    ["รหัสนักเรียน*", "คำนำหน้า", "ชื่อ", "นามสกุล", "รหัสห้องเรียน", "รหัสสาขา", "รหัสแผนก", "รหัสระดับ", "เบอร์โทร", "อีเมล"],
+    ["รหัสนักเรียน*", "คำนำหน้า", "ชื่อ", "นามสกุล", "รหัสห้องเรียน", "รหัสสาขา", "รหัสแผนก", "รหัสระดับ", "เบอร์โทร", "อีเมล", "สถานะนักเรียน"],
   ];
 
   const worksheet = XLSX.utils.aoa_to_sheet(headers);

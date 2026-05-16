@@ -1,18 +1,6 @@
-// ** MUI Imports
 import Chip from '@/@core/components/mui/chip';
-import {
-  Button,
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
-
-// ** Icons Imports
+import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { RiFileEditLine } from 'react-icons/ri';
 
 interface TableHeaderProps {
@@ -25,82 +13,66 @@ interface TableHeaderProps {
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
+  slotProps: {
+    paper: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
     },
   },
 };
 
-const TableHeader = (props: TableHeaderProps) => {
-  // ** Props
-  const { value, defaultValue, handleChange, handleSubmit } = props;
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
+const TableHeader = ({ value, defaultValue, handleChange, handleSubmit }: TableHeaderProps) => {
   return (
     <Box
       sx={{
-        p: isMobile ? 3 : 5,
-        pb: 3,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: isMobile ? 'center' : 'flex-end',
-        gap: isMobile ? 2 : 4,
+        px: { xs: 4, sm: 5 },
+        py: { xs: 3, sm: 3.5 },
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
-      <FormControl
-        sx={{
-          mb: 2,
-          width: isMobile ? '100%' : 300,
-          maxWidth: isMobile ? 'none' : 300,
-        }}
-      >
-        <InputLabel id='demo-multiple-name-label'>ห้องเรียน</InputLabel>
-        <Select
-          labelId='demo-multiple-name-label'
-          id='demo-multiple-name'
-          displayEmpty
-          defaultValue={defaultValue || ''}
-          value={defaultValue || ''}
-          onChange={handleChange}
-          input={<OutlinedInput id='select-multiple-chip' label='ห้องเรียน' />}
-          renderValue={(selected: any) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{selected && <Chip label={selected} />}</Box>
-          )}
-          MenuProps={MenuProps}
-          size={isMobile ? 'small' : 'medium'}
-        >
-          <MenuItem disabled value=''>
-            <em>ห้องเรียน</em>
-          </MenuItem>
-
-          {value
-            ? value.map((item: any) => (
+      <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <FormControl fullWidth size='small'>
+            <InputLabel id='classroom-select-label'>ห้องเรียน</InputLabel>
+            <Select
+              labelId='classroom-select-label'
+              id='classroom-select'
+              displayEmpty
+              defaultValue={defaultValue || ''}
+              value={defaultValue || ''}
+              onChange={handleChange}
+              input={<OutlinedInput id='select-multiple-chip' label='ห้องเรียน' />}
+              renderValue={(selected: any) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{selected && <Chip label={selected} />}</Box>
+              )}
+              MenuProps={MenuProps}
+            >
+              <MenuItem disabled value=''>
+                <em>ห้องเรียน</em>
+              </MenuItem>
+              {value?.map((item: any) => (
                 <MenuItem key={item.id} value={item.name}>
                   {item.name}
                 </MenuItem>
-              ))
-            : null}
-        </Select>
-      </FormControl>
-      <Button
-        startIcon={<RiFileEditLine />}
-        sx={{
-          mb: 2,
-          height: isMobile ? 48 : 56,
-          fontSize: isMobile ? '0.875rem' : '1rem',
-          minWidth: isMobile ? 'auto' : 200,
-        }}
-        variant='contained'
-        onClick={handleSubmit}
-        size={isMobile ? 'small' : 'medium'}
-        fullWidth={isMobile}
-      >
-        บันทึกการเช็คชื่อ
-      </Button>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 'auto' }}>
+          <Button
+            fullWidth
+            variant='contained'
+            disableElevation
+            startIcon={<RiFileEditLine />}
+            onClick={handleSubmit}
+          >
+            บันทึกการเช็คชื่อ
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

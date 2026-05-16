@@ -411,7 +411,7 @@ const TermStatisticsPage = () => {
                     </Box>
                   </Box>
 
-                  <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
+                  <Stack direction='row' spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                     {scopeChips.map((chip) => (
                       <Chip
                         key={chip}
@@ -658,7 +658,7 @@ const TermStatisticsPage = () => {
           </Grid>
 
           <Grid size={12}>
-            <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
+            <Stack direction='row' spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
               {bestAndWorstDay.bestDay ? (
                 <Chip
                   label={`ดีที่สุด ${formatThaiDate(new Date(bestAndWorstDay.bestDay.date))} · ${bestAndWorstDay.bestDay.attendanceRate.toFixed(2)}%`}

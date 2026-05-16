@@ -125,6 +125,7 @@ const STUDENT_EXPORT_HEADERS = [
   'รหัสระดับ',
   'เบอร์โทร',
   'อีเมล',
+  'สถานะนักเรียน',
 ] as const;
 
 const convertFileToBase64 = (file: File): Promise<string> =>
@@ -226,7 +227,7 @@ export const useStudentList = (): UseStudentListReturn => {
 
   // ─── Students via React Query ─────────────────────────────────────────────────
 
-  const { data: students = [], isFetching: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
+  const { data: students = [], isLoading: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
     {
       classroomId: currentClassroomId,
       search: deferredSearchValue,
@@ -524,7 +525,7 @@ export const useStudentList = (): UseStudentListReturn => {
       });
       const contentType =
         response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      const blob = new Blob([response.data], { type: contentType });
+      const blob = new Blob([response.data], { type: String(contentType) });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
 
@@ -574,6 +575,7 @@ export const useStudentList = (): UseStudentListReturn => {
           รหัสระดับ: level?.levelId ?? '',
           เบอร์โทร: account?.phone ?? '',
           อีเมล: student?.user?.email ?? '',
+          สถานะนักเรียน: student?.studentStatus ?? 'กำลังศึกษา',
         };
       });
 

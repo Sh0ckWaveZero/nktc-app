@@ -535,7 +535,7 @@ const TabTeacherAccount = () => {
                 multiple={true}
                 limitTags={15}
                 value={classroomSelected}
-                options={Array.isArray(classrooms) ? classrooms : []}
+                options={Array.isArray(classrooms) ? [...classrooms].sort((a: any, b: any) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
@@ -552,16 +552,18 @@ const TabTeacherAccount = () => {
                   return (
                     <TextField
                       {...params}
-                      label='ครูที่ปรึกษาระดับชั้น'
-                      placeholder='เลือกห้องเรียน'
-                      slotProps={{
-                        input: {
-                          ref: undefined,
-                        },
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
+	                      label='ครูที่ปรึกษาระดับชั้น'
+	                      placeholder='เลือกห้องเรียน'
+	                      slotProps={{
+	                        ...params.slotProps,
+	                        input: {
+	                          ...params.slotProps?.input,
+	                        },
+	                        inputLabel: {
+	                          ...params.slotProps?.inputLabel,
+	                          shrink: true,
+	                        },
+	                      }}
                     />
                   );
                 }}
@@ -594,12 +596,12 @@ const TabTeacherAccount = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          inputProps: {
-                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
-                          },
-                          input: {
-                            endAdornment: <FcCalendar />,
-                          },
+                        },
+                        htmlInput: {
+                          placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                        },
+                        input: {
+                          endAdornment: <FcCalendar />,
                         },
                       }}
                     />

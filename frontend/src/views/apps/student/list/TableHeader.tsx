@@ -1,11 +1,11 @@
 import Icon from '@/@core/components/icon';
-import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { alpha, styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import { Close } from '@mui/icons-material';
 import Link from 'next/link';
-import { ChangeEvent, memo, useRef } from 'react';
+import { ChangeEvent, memo, useMemo, useRef } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,7 +128,7 @@ const ToolButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const ToolButtonSlot = styled(Box)({
+const ToolButtonSlot = styled('span')({
   display: 'flex',
   flex: '1 1 0',
   minWidth: 0,
@@ -178,6 +178,16 @@ const TableHeader = memo((props: TableHeaderProps) => {
     isDeleting,
   } = props;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const sortedClassrooms = useMemo(
+    () =>
+      Array.isArray(classrooms)
+        ? [...classrooms].sort((a: any, b: any) =>
+            (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+          )
+        : [],
+    [classrooms],
+  );
 
   const getStudentLabel = (option: any) => {
     if (typeof option === 'string') return option;
@@ -296,7 +306,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
               {canImportStudents && (
                 <>
                   <Tooltip title={isDownloadingTemplate ? 'กำลังดาวน์โหลด Template' : 'ดาวน์โหลด Template'}>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton
                         id='download-student-template-button'
                         disabled={isDownloadingTemplate || isImportingStudents || isExportingStudents}
@@ -310,7 +320,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   <ToolDivider />
 
                   <Tooltip title={isExportingStudents ? 'กำลัง Export ข้อมูล' : 'Export ข้อมูลนักเรียน'}>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton
                         id='export-student-button'
                         disabled={
@@ -328,7 +338,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   <input ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleFileChange} />
 
                   <Tooltip title={isImportingStudents ? 'กำลัง Import ไฟล์' : 'Import ไฟล์ XLSX'}>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton
                         id='import-student-button'
                         disabled={isImportingStudents || isDownloadingTemplate || isExportingStudents}
@@ -346,7 +356,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
               {onBulkGraduate && (
                 <>
                   <Tooltip title='จบการศึกษาทั้งห้อง'>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton id='bulk-graduate-button' onClick={onBulkGraduate}>
                         <Icon icon='tabler:school' />
                       </ToolButton>
@@ -359,7 +369,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
               {onBulkPromote && (
                 <>
                   <Tooltip title={isPromoting ? 'กำลังเลื่อนชั้น...' : 'เลื่อนชั้นนักเรียน'}>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton
                         id='bulk-promote-button'
                         onClick={onBulkPromote}
@@ -376,7 +386,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
               {onDeleteAll && (
                 <>
                   <Tooltip title={isDeleting ? 'กำลังลบ...' : 'ลบนักเรียนทั้งหมดในห้อง'}>
-                    <ToolButtonSlot component='span'>
+                    <ToolButtonSlot>
                       <ToolButton
                         id='delete-all-students-button'
                         onClick={onDeleteAll}
@@ -398,7 +408,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
 
               <Tooltip title='เพิ่มนักเรียน'>
                 <LinkStyled href='/apps/student/add' passHref>
-                  <ToolButtonSlot component='span'>
+                  <ToolButtonSlot>
                     <ActiveToolButton id='add-student-button'>
                       <Icon icon='line-md:account-add' />
                     </ActiveToolButton>
@@ -452,7 +462,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   onInputChange={onSearchChange}
                   onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
                   sx={{
-                    '& .MuiAutocomplete-clearIndicator': { visibility: 'visible' },
+                    '& .MuiAutocomplete-clearIndicator': { visibility: fullName ? 'visible' : 'hidden' },
                   }}
                   getOptionLabel={getStudentLabel}
                   isOptionEqualToValue={(option: any, value: any) => {
@@ -474,9 +484,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                       placeholder='ค้นหาชื่อหรือนามสกุล'
                       slotProps={{
                         ...params.slotProps,
-                        input: {
-                          ...params.InputProps,
-                        },
+                        input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
                         inputLabel: { shrink: true },
                       }}
                       sx={controlTextFieldSx}
@@ -494,13 +502,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   fullWidth
                   disablePortal={false}
                   value={defaultClassroom || null}
-                  options={
-                    Array.isArray(classrooms)
-                      ? [...classrooms].sort((a: any, b: any) =>
-                          (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
-                        )
-                      : []
-                  }
+                  options={sortedClassrooms}
                   loading={loading}
                   onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                   getOptionLabel={(option: any) => option?.name ?? ''}
@@ -509,6 +511,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                     return option.id === value.id;
                   }}
                   groupBy={(option: any) => option.department?.name}
+                  sx={{ '& .MuiAutocomplete-clearIndicator': { visibility: defaultClassroom ? 'visible' : 'hidden' } }}
                   renderInput={(params: any) => (
                     <TextField
                       id='classroom-input'
@@ -519,9 +522,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                       helperText={(!classrooms || classrooms.length === 0) && !loading ? 'ไม่พบข้อมูลห้องเรียน' : ''}
                       slotProps={{
                         ...params.slotProps,
-                        input: {
-                          ...params.InputProps,
-                        },
+                        input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
                         inputLabel: { shrink: true },
                       }}
                       sx={controlTextFieldSx}
@@ -540,11 +541,30 @@ const TableHeader = memo((props: TableHeaderProps) => {
                 <Select
                   id='student-status-select'
                   labelId='student-status-label'
-                  label='สถานะนักเรียน'
                   value={studentStatus}
                   onChange={(e) => onStatusChange(e.target.value)}
                   displayEmpty
-                  notched
+                  input={
+                    <OutlinedInput
+                      label='สถานะนักเรียน'
+                      notched
+                      endAdornment={
+                        studentStatus ? (
+                          <InputAdornment position='end' sx={{ mr: 1.5 }}>
+                            <IconButton
+                              id='clear-student-status-button'
+                              size='small'
+                              edge='end'
+                              onClick={() => onStatusChange('')}
+                              aria-label='clear student status'
+                            >
+                              <Close fontSize='small' />
+                            </IconButton>
+                          </InputAdornment>
+                        ) : undefined
+                      }
+                    />
+                  }
                   sx={{
                     '& .MuiSelect-select': {
                       fontSize: 'clamp(1rem, 0.96rem + 0.14vw, 1.06rem)',
@@ -552,9 +572,9 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   }}
                 >
                   <MenuItem value=''>ทุกสถานะ</MenuItem>
-                  <MenuItem value='normal'>เรียนอยู่</MenuItem>
-                  <MenuItem value='graduated'>จบการศึกษา</MenuItem>
-                  <MenuItem value='dropout'>ไม่เรียนแล้ว</MenuItem>
+                  <MenuItem value='กำลังศึกษา'>เรียนอยู่</MenuItem>
+                  <MenuItem value='จบการศึกษา'>จบการศึกษา</MenuItem>
+                  <MenuItem value='ออกก่อนกำหนด'>ไม่เรียนแล้ว</MenuItem>
                 </Select>
               </FormControl>
             </FilterGrid>

@@ -1,10 +1,9 @@
-import Box from '@mui/material/Box';
+import Box, { type BoxProps } from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
-import type { GridNoRowsOverlayProps } from '@mui/x-data-grid';
 import React from 'react';
 
-const StyledGridOverlay = styled('div')(({ theme }) => ({
+const StyledGridOverlay = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -44,7 +43,7 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
   },
 }));
 
-const CustomNoRowsOverlay = React.forwardRef<HTMLDivElement, GridNoRowsOverlayProps>(
+const CustomNoRowsOverlay = React.forwardRef<HTMLDivElement, BoxProps>(
   (props, ref) => {
     return (
       <StyledGridOverlay ref={ref} {...props} sx={{ p: 1, ...props.sx }}>
@@ -75,9 +74,10 @@ const CustomNoRowsOverlay = React.forwardRef<HTMLDivElement, GridNoRowsOverlayPr
             </g>
           </g>
         </svg>
-
         <Box sx={{ mt: 1, pb: 1 }}>
-          <Typography variant='body2' color='text.secondary'>
+          <Typography variant='body2' sx={{
+            color: 'text.secondary'
+          }}>
             ไม่พบข้อมูล
           </Typography>
         </Box>
@@ -130,7 +130,9 @@ export const TableEmptyState = ({ text }: { text?: string }) => {
           </g>
         </svg>
         <Box sx={{ mt: 1, pb: 1 }}>
-          <Typography variant='body2' color='text.secondary'>
+          <Typography variant='body2' sx={{
+            color: 'text.secondary'
+          }}>
             {text || 'ไม่พบข้อมูล'}
           </Typography>
         </Box>

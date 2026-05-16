@@ -149,7 +149,12 @@ const ClassroomFormDialog = ({
     <Dialog open={open} fullWidth maxWidth='sm' onClose={isSubmitting ? undefined : onClose}>
       <DialogTitle>{mode === 'create' ? 'เพิ่มห้องเรียนใหม่' : 'แก้ไขข้อมูลห้องเรียน'}</DialogTitle>
       <DialogContent>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mb: 4
+          }}>
           {mode === 'create'
             ? 'กำหนดรหัส ชื่อ ห้องเรียน และความสัมพันธ์กับแผนก สาขา และระดับชั้นให้พร้อมใช้งาน'
             : 'อัปเดตรายละเอียดของห้องเรียนโดยยังคงรหัสห้องเรียนเดิมไว้เป็นคีย์อ้างอิง'}

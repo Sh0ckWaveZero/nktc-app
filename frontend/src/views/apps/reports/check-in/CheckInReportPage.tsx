@@ -144,7 +144,9 @@ const CheckInReportPage = () => {
               {/* Empty State */}
               {!classroomLoading && !classroomError && !classrooms.length && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography color='text.secondary'>ไม่พบข้อมูลห้องเรียน</Typography>
+                  <Typography sx={{
+                    color: 'text.secondary'
+                  }}>ไม่พบข้อมูลห้องเรียน</Typography>
                 </Box>
               )}
 
@@ -301,7 +303,7 @@ const CheckInReportPage = () => {
                 </>
               ) : (
                 /* Desktop View */
-                <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                (<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <CheckInDataGrid
                     students={currentStudents}
                     loading={classroomLoading}
@@ -322,7 +324,7 @@ const CheckInReportPage = () => {
                     onCellClick={handleCellClick}
                     onColumnHeaderClick={handleColumnHeaderClick}
                   />
-                </Box>
+                </Box>)
               )}
             </Box>
           </Box>

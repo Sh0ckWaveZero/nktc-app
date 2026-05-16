@@ -124,7 +124,10 @@ const AddClassroomForm = memo(
     }, [defaultValuesKey]);
 
     // Ensure classrooms is always an array - memoized
-    const classrooms = useMemo(() => normalizeClassroomsData(classroomsData), [classroomsData]);
+    const classrooms = useMemo(() => {
+      const data = normalizeClassroomsData(classroomsData);
+      return [...data].sort((a, b) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'));
+    }, [classroomsData]);
 
     // Memoize enable state computation
     const enable = useMemo(() => !isEmpty(values), [values]);
@@ -148,9 +151,9 @@ const AddClassroomForm = memo(
 
     // Memoize render option function to prevent recreation on every render
     const renderOption = useCallback(
-      (props: React.HTMLAttributes<HTMLLIElement> & { key?: string }, option: Classroom, { selected }: { selected: boolean }) => {
+      (props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, option: Classroom, { selected }: { selected: boolean }) => {
         const { key, ...otherProps } = props;
-        const optionId = option.id || option.classroomId || key || '';
+        const optionId = option.id || option.classroomId || String(key ?? '') || '';
         return (
           <li key={key} id={`classroom-option-${optionId}`} {...otherProps}>
             <Checkbox
