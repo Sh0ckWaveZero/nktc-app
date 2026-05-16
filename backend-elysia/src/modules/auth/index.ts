@@ -6,18 +6,23 @@ import { prisma } from "@/libs/prisma";
 import { UnauthorizedError, ForbiddenError } from "@/libs/errors";
 import { loginRateLimiter, refreshRateLimiter, registerRateLimiter, extractIp } from "@/middleware/rate-limiter";
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) throw new Error("JWT_SECRET environment variable is required");
+
+const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+if (!jwtRefreshSecret) throw new Error("JWT_REFRESH_SECRET environment variable is required");
 
 export const auth = new Elysia({ prefix: "/auth" })
 	.use(
 		jwt({
 			name: "jwt",
-			secret: process.env.JWT_SECRET ?? (() => { throw new Error("JWT_SECRET environment variable is required"); })(),
+			secret: jwtSecret,
 		}),
 	)
 	.use(
 		jwt({
 			name: "refreshJwt",
-			secret: process.env.JWT_REFRESH_SECRET ?? (() => { throw new Error("JWT_REFRESH_SECRET environment variable is required"); })(),
+			secret: jwtRefreshSecret,
 			exp: "7d",
 		}),
 	)

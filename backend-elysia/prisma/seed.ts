@@ -73,7 +73,6 @@ async function seedAdmin() {
   });
 
   if (existing) {
-    console.log(`⏭️  Admin user "${ADMIN_USERNAME}" already exists, skipping`);
     return;
   }
 
@@ -94,8 +93,6 @@ async function seedAdmin() {
       },
     },
   });
-
-  console.log(`✅ Admin user "${ADMIN_USERNAME}" created`);
 }
 
 async function main() {

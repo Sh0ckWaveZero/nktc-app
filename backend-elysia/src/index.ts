@@ -32,6 +32,9 @@ const appLogger = createLogger();
 
 await initializeDatabase();
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) throw new Error("JWT_SECRET environment variable is required");
+
 const isDev = process.env.NODE_ENV !== "production";
 
 const app = new Elysia()
@@ -107,7 +110,7 @@ const app = new Elysia()
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET ?? (() => { throw new Error("JWT_SECRET environment variable is required"); })(),
+      secret: jwtSecret,
       exp: "15m",
     }),
   )

@@ -5,7 +5,7 @@ import { alpha, styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import { Close } from '@mui/icons-material';
 import Link from 'next/link';
-import { ChangeEvent, memo, useRef } from 'react';
+import { ChangeEvent, memo, useMemo, useRef } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -178,6 +178,16 @@ const TableHeader = memo((props: TableHeaderProps) => {
     isDeleting,
   } = props;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const sortedClassrooms = useMemo(
+    () =>
+      Array.isArray(classrooms)
+        ? [...classrooms].sort((a: any, b: any) =>
+            (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+          )
+        : [],
+    [classrooms],
+  );
 
   const getStudentLabel = (option: any) => {
     if (typeof option === 'string') return option;
@@ -492,13 +502,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   fullWidth
                   disablePortal={false}
                   value={defaultClassroom || null}
-                  options={
-                    Array.isArray(classrooms)
-                      ? [...classrooms].sort((a: any, b: any) =>
-                          (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
-                        )
-                      : []
-                  }
+                  options={sortedClassrooms}
                   loading={loading}
                   onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                   getOptionLabel={(option: any) => option?.name ?? ''}

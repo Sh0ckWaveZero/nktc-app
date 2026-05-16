@@ -227,7 +227,7 @@ export const useStudentList = (): UseStudentListReturn => {
 
   // ─── Students via React Query ─────────────────────────────────────────────────
 
-  const { data: students = [], isFetching: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
+  const { data: students = [], isLoading: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
     {
       classroomId: currentClassroomId,
       search: deferredSearchValue,

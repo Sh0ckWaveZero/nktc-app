@@ -19,15 +19,15 @@ export class PinoLogger implements ILogger {
       "token",
       "apiKey",
       "authorization",
+      "accessKey",
+      "secretKey",
       "*.password",
       "*.secret",
       "*.token",
       "*.apiKey",
       "*.authorization",
-      "process.env",
-      "process.env.*",
-      "env",
-      "env.*",
+      "*.accessKey",
+      "*.secretKey",
     ];
 
     if (environment === "development") {
