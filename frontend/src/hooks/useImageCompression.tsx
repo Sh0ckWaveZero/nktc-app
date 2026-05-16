@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 
-const useImageCompression = () => {
+const useImageCompression = (onComplete?: (dataUrl: string) => void) => {
   const [imageCompressed, setImageCompressed] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
 
@@ -18,9 +18,10 @@ const useImageCompression = () => {
       const compressedFile = await imageCompression(imageFile, options);
       const image64Base = await imageCompression.getDataUrlFromFile(compressedFile);
       setImageCompressed(image64Base);
-      setIsCompressing(false);
+      onComplete?.(image64Base);
     } catch (error) {
       console.error(error);
+    } finally {
       setIsCompressing(false);
     }
   };
