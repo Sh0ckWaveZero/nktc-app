@@ -107,8 +107,8 @@ export default function CustomDay(props: TableHeaderProps) {
         textField: {
           fullWidth: true,
           placeholder: 'วัน เดือน ปี (พ.ศ.)',
-          inputProps: { value: weekRangeLabel },
         },
+        htmlInput: { value: weekRangeLabel },
       }}
       format='dd/MM/yyyy'
     />

@@ -278,12 +278,12 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      inputProps: {
-                        placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
-                      },
-                      InputProps: {
-                        endAdornment: <FcCalendar />,
-                      },
+                    },
+                    htmlInput: {
+                      placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                    },
+                    input: {
+                      endAdornment: <FcCalendar />,
                     },
                   }}
                 />

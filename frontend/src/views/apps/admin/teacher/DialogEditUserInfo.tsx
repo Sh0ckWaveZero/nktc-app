@@ -196,12 +196,12 @@ const DialogEditUserInfo = ({ show, data, onClose, onSubmitForm }: DialogEditUse
                           fullWidth: true,
                           error: Boolean(errors.birthDate),
                           helperText: errors.birthDate?.message,
-                          inputProps: {
-                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
-                          },
-                          input: {
-                            endAdornment: <FcCalendar />,
-                          },
+                        },
+                        htmlInput: {
+                          placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                        },
+                        input: {
+                          endAdornment: <FcCalendar />,
                         },
                       }}
                     />

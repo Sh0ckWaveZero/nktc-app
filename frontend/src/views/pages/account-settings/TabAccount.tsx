@@ -544,12 +544,12 @@ const TabAccount = () => {
                         textField: {
                           id: 'birthDate',
                           fullWidth: true,
-                          inputProps: {
-                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
-                          },
-                          input: {
-                            endAdornment: <FcCalendar />,
-                          },
+                        },
+                        htmlInput: {
+                          placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                        },
+                        input: {
+                          endAdornment: <FcCalendar />,
                         },
                       }}
                     />

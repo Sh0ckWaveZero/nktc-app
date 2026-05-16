@@ -596,12 +596,12 @@ const TabTeacherAccount = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          inputProps: {
-                            placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
-                          },
-                          input: {
-                            endAdornment: <FcCalendar />,
-                          },
+                        },
+                        htmlInput: {
+                          placeholder: 'วัน/เดือน/ปี (พ.ศ.)',
+                        },
+                        input: {
+                          endAdornment: <FcCalendar />,
                         },
                       }}
                     />
