@@ -717,6 +717,7 @@ const DepartmentSettingsPage = () => {
                     rows={filteredDepartments}
                     columns={columns}
                     loading={isLoading}
+                    getRowHeight={() => 'auto'}
                     disableRowSelectionOnClick
                     disableColumnMenu
                     hideFooterSelectedRowCount
