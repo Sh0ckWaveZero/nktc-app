@@ -1,6 +1,9 @@
 // ** React Imports
 import { ElementType } from 'react';
 
+// ** Navigation Components
+import NavMenuText from './NavMenuText';
+
 // ** Next Imports
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,7 +12,6 @@ import { usePathname } from 'next/navigation';
 import Chip from '@mui/material/Chip';
 import ListItem from '@mui/material/ListItem';
 import { styled } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
 import Box, { BoxProps } from '@mui/material/Box';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
@@ -23,7 +25,6 @@ import { NavLink, NavGroup } from '@/@core/layouts/types';
 import { Settings } from '@/@core/context/settingsContext';
 
 // ** Custom Components Imports
-import Translations from '@/layouts/components/Translations';
 import CanViewNavLink from '@/layouts/components/acl/CanViewNavLink';
 
 interface Props {
@@ -58,6 +59,15 @@ const MenuNavLink = styled(ListItemButton)<
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
       color: `${theme.palette.common.white} !important`,
     },
+  },
+  '& .nav-text-inner': {
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    transform: 'translateX(0)',
+    transition: 'transform 1.5s ease-in-out',
+  },
+  '&:hover .nav-text-inner': {
+    transform: 'translateX(var(--nav-scroll-dist, 0px))',
   },
 }));
 
@@ -182,13 +192,7 @@ const VerticalNavLink = ({
               ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }),
             }}
           >
-            <Typography
-              {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
-                noWrap: true,
-              })}
-            >
-              <Translations text={item.title} />
-            </Typography>
+            <NavMenuText text={item.title} collapsed={navCollapsed && !navHover} />
             {item.badgeContent ? (
               <Chip
                 label={item.badgeContent}

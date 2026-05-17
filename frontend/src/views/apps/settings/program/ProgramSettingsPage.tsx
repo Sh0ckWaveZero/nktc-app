@@ -1,37 +1,38 @@
 'use client';
 
-import {
-  Alert,
-  AlertTitle,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  MenuItem,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { alpha, styled } from '@mui/material/styles';
+import { type GridColDef } from '@mui/x-data-grid';
+import { alpha } from '@mui/material/styles';
+import { AppSettingsDataGrid } from '@/@core/components/data-grid/AppListDataGrid';
+import { SectionBox, SectionTitle, SectionDescription } from '@/@core/components/filter-panel';
+import { AppFilterTextField, AppContainedButton } from '@/@core/components/form';
+import { ToolButton, ToolButtonSlot, ToolDivider, ActiveToolButton } from '@/@core/components/toolbar';
 import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { toast } from 'react-toastify';
 
 import httpClient from '@/@core/utils/http';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import Icon from '@/@core/components/icon';
+import Icon, { ColorIcon } from '@/@core/components/icon';
 import { authConfig } from '@/configs/auth';
 import {
   useCreateProgram,
@@ -49,163 +50,11 @@ import {
 import ProgramDeleteDialog from '@/components/dialogs/ProgramDeleteDialog';
 import ProgramFormDialog from './ProgramFormDialog';
 
-const PANEL_RADIUS = 16;
-const SECTION_RADIUS = 14;
-const TOOLBAR_RADIUS = 14;
-const CONTROL_RADIUS = 12;
-
 const STATUS_OPTIONS = [
   { value: 'all', label: 'ทุกสถานะ' },
   { value: 'active', label: 'เปิดใช้งาน' },
   { value: 'inactive', label: 'ปิดใช้งาน' },
 ] as const;
-
-const getPanelBorderColor = (theme: any) =>
-  alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1);
-const getPanelShadowColor = (theme: any) =>
-  theme.palette.mode === 'dark' ? alpha(theme.palette.common.black, 0.24) : alpha(theme.palette.primary.main, 0.05);
-const getSurfaceBackground = (theme: any) =>
-  theme.palette.mode === 'dark'
-    ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 0.985)} 18%, ${alpha(theme.palette.background.paper, 0.995)} 100%)`
-    : `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.028)} 0%, ${alpha(theme.palette.background.paper, 0.992)} 16%, ${theme.palette.background.paper} 100%)`;
-const getSectionSurfaceBackground = (theme: any) =>
-  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.76 : 0.9);
-const getControlSurfaceColor = (theme: any) =>
-  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.96 : 0.88);
-const getToolbarSurfaceColor = (theme: any) =>
-  theme.palette.mode === 'dark'
-    ? alpha(theme.palette.background.paper, 0.04)
-    : alpha(theme.palette.background.paper, 0.98);
-
-const SectionSurface = styled(Box)(({ theme }) => ({
-  borderRadius: SECTION_RADIUS,
-  border: `1px solid ${getPanelBorderColor(theme)}`,
-  backgroundColor: getSectionSurfaceBackground(theme),
-  boxShadow:
-    theme.palette.mode === 'dark'
-      ? `inset 0 1px 0 ${alpha(theme.palette.common.white, 0.03)}`
-      : `0 10px 22px ${alpha(theme.palette.primary.main, 0.03)}`,
-}));
-
-const SectionTitle = styled(Typography)(({ theme }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: theme.spacing(1),
-  fontSize: 'clamp(0.92rem, 0.88rem + 0.14vw, 1rem)',
-  fontWeight: 800,
-  letterSpacing: '-0.01em',
-  color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.88 : 0.82),
-  '&::before': {
-    content: '""',
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.72 : 0.64),
-    boxShadow:
-      theme.palette.mode === 'dark'
-        ? `0 0 0 6px ${alpha(theme.palette.primary.main, 0.08)}`
-        : `0 0 0 5px ${alpha(theme.palette.primary.main, 0.08)}`,
-  },
-}));
-
-const SectionDescription = styled(Typography)(({ theme }) => ({
-  marginTop: theme.spacing(0.5),
-  maxWidth: '60ch',
-  fontSize: 'clamp(0.94rem, 0.9rem + 0.16vw, 1rem)',
-  fontWeight: 500,
-  lineHeight: 1.6,
-  color: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.8) : theme.palette.text.secondary,
-}));
-
-const ToolButton = styled(IconButton)(({ theme }) => ({
-  width: '100%',
-  minWidth: 54,
-  height: 52,
-  borderRadius: 0,
-  border: 0,
-  backgroundColor: 'transparent',
-  color: theme.palette.primary.main,
-  boxShadow: 'none',
-  transition: 'background-color 180ms ease, color 180ms ease',
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.08),
-  },
-}));
-
-const ToolButtonSlot = styled(Box)({
-  display: 'flex',
-  flex: '1 1 0',
-  minWidth: 0,
-});
-
-const ToolDivider = styled(Box)(({ theme }) => ({
-  width: 1,
-  alignSelf: 'stretch',
-  backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.16),
-}));
-
-const ActiveToolButton = styled(ToolButton)(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.12),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.16),
-  },
-}));
-
-const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-  border: 0,
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.04),
-    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    fontWeight: 700,
-    color: theme.palette.text.primary,
-  },
-  '& .MuiDataGrid-row': {
-    transition: 'background-color 180ms ease',
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, 0.04),
-    },
-  },
-  '& .MuiDataGrid-cell': {
-    display: 'flex',
-    alignItems: 'center',
-    whiteSpace: 'normal',
-    lineHeight: 'unset !important',
-  },
-  '& .MuiDataGrid-footerContainer': {
-    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-    backgroundColor: alpha(theme.palette.background.paper, 0.72),
-  },
-}));
-
-const CONTROL_SX = {
-  '& .MuiOutlinedInput-root': {
-    borderRadius: `${CONTROL_RADIUS}px`,
-    backgroundColor: (theme: any) => getControlSurfaceColor(theme),
-    '& fieldset': {
-      borderColor: (theme: any) => alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.16 : 0.12),
-    },
-    '&:hover fieldset': {
-      borderColor: (theme: any) => alpha(theme.palette.primary.main, 0.28),
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: 'primary.main',
-    },
-  },
-  '& .MuiInputBase-input': {
-    letterSpacing: '-0.01em',
-  },
-  '& .MuiInputLabel-root': {
-    fontSize: '0.92rem',
-    fontWeight: 600,
-    letterSpacing: '-0.01em',
-  },
-  '& .MuiInputLabel-shrink': {
-    fontSize: '0.86rem',
-  },
-} as const;
 
 const getErrorMessage = (error: any, fallback: string) => {
   if (typeof error?.response?.data?.message === 'string') {
@@ -497,15 +346,25 @@ const ProgramSettingsPage = () => {
           >
             {row.name || '-'}
           </Typography>
-          <Typography
-            variant='caption'
+          <Box
+            component='span'
             sx={{
-              color: 'text.secondary',
-              display: 'block',
-              mt: 0.25
-            }}>
-            {row.programId || 'ยังไม่กำหนดรหัสสาขา'}
-          </Typography>
+              display: 'inline-block',
+              mt: 0.5,
+              px: 0.75,
+              py: 0.1,
+              borderRadius: 1,
+              fontSize: '0.72rem',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+              color: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.9 : 0.75),
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+            }}
+          >
+            {row.programId || '—'}
+          </Box>
         </Box>
       ),
     },
@@ -516,13 +375,17 @@ const ProgramSettingsPage = () => {
       minWidth: 190,
       sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
-          <Typography variant='caption' sx={{
-            color: 'text.secondary'
-          }}>
-            {row.level?.levelName || 'ไม่ระบุระดับชั้น'}
-          </Typography>
+        <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <ColorIcon icon='tabler:building' color='info' fontSize='0.9rem' />
+            <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <ColorIcon icon='tabler:school' color='primary' fontSize='0.85rem' opacity={0.65} />
+            <Typography variant='caption' color='text.secondary'>
+              {row.level?.levelName || 'ไม่ระบุระดับชั้น'}
+            </Typography>
+          </Box>
         </Box>
       ),
     },
@@ -533,13 +396,24 @@ const ProgramSettingsPage = () => {
       minWidth: 175,
       sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>นักเรียน {row._count?.student ?? 0} คน</Typography>
-          <Typography variant='caption' sx={{
-            color: 'text.secondary'
-          }}>
-            ห้องเรียน {row._count?.classroom ?? 0} • ครู {row._count?.teacher ?? 0}
-          </Typography>
+        <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <ColorIcon icon='tabler:users' color='success' fontSize='0.9rem' opacity={0.85} />
+            <Typography variant='body2'>
+              นักเรียน <strong>{row._count?.student ?? 0}</strong> คน
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <ColorIcon icon='tabler:door' color='warning' fontSize='0.85rem' opacity={0.75} />
+              <Typography variant='caption' color='text.secondary'>ห้อง {row._count?.classroom ?? 0}</Typography>
+            </Box>
+            <Typography variant='caption' color='text.disabled'>·</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <ColorIcon icon='tabler:user-star' color='primary' fontSize='0.85rem' opacity={0.75} />
+              <Typography variant='caption' color='text.secondary'>ครู {row._count?.teacher ?? 0}</Typography>
+            </Box>
+          </Box>
         </Box>
       ),
     },
@@ -570,19 +444,14 @@ const ProgramSettingsPage = () => {
         const formatted = formatThaiDateTimeParts(row.updatedAt);
 
         return (
-          <Box sx={{ py: 1.5 }}>
-            <Typography variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
-              {formatted.date}
-            </Typography>
-            {formatted.time ? (
-              <Typography variant='caption' sx={{
-                color: 'text.secondary'
-              }}>
-                {formatted.time}
-              </Typography>
-            ) : null}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, py: 0.5 }}>
+            <Icon icon='tabler:calendar-event' fontSize='0.95rem' style={{ opacity: 0.45, flexShrink: 0, marginTop: 2 }} />
+            <Box>
+              <Typography variant='body2' color='text.secondary'>{formatted.date}</Typography>
+              {formatted.time ? (
+                <Typography variant='caption' color='text.secondary'>{formatted.time}</Typography>
+              ) : null}
+            </Box>
           </Box>
         );
       },
@@ -655,10 +524,16 @@ const ProgramSettingsPage = () => {
         <Grid size={12}>
           <Card
             sx={{
-              borderRadius: `${PANEL_RADIUS}px`,
-              border: (theme) => `1px solid ${getPanelBorderColor(theme)}`,
-              background: (theme) => getSurfaceBackground(theme),
-              boxShadow: (theme) => `0 22px 44px ${getPanelShadowColor(theme)}`,
+              borderRadius: 6,
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
+              background: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 0.985)} 18%, ${alpha(theme.palette.background.paper, 0.995)} 100%)`
+                  : `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.028)} 0%, ${alpha(theme.palette.background.paper, 0.992)} 16%, ${theme.palette.background.paper} 100%)`,
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? `0 22px 44px ${alpha(theme.palette.common.black, 0.24)}`
+                  : `0 22px 44px ${alpha(theme.palette.primary.main, 0.05)}`,
             }}
           >
             <CardHeader
@@ -708,7 +583,7 @@ const ProgramSettingsPage = () => {
             />
 
             <CardContent sx={{ px: { xs: 4, sm: 5, md: 6 }, pt: 2, pb: { xs: 4, sm: 5 } }}>
-              <SectionSurface sx={{ p: { xs: 3, sm: 3.5 }, mb: 4 }}>
+              <SectionBox sx={{ p: { xs: 3, sm: 3.5 }, mb: 4 }}>
                 <Grid container spacing={3} sx={{ alignItems: 'flex-end' }}>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <SectionTitle>ค้นหาและกรอง</SectionTitle>
@@ -729,8 +604,11 @@ const ProgramSettingsPage = () => {
                           display: 'inline-flex',
                           alignItems: 'stretch',
                           overflow: 'hidden',
-                          borderRadius: TOOLBAR_RADIUS,
-                          bgcolor: (theme) => getToolbarSurfaceColor(theme),
+                          borderRadius: 14,
+                          bgcolor: (theme) =>
+                            theme.palette.mode === 'dark'
+                              ? alpha(theme.palette.background.paper, 0.04)
+                              : alpha(theme.palette.background.paper, 0.98),
                           border: (theme) =>
                             `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.24 : 0.18)}`,
                           boxShadow: (theme) =>
@@ -795,23 +673,21 @@ const ProgramSettingsPage = () => {
                     </Box>
                   </Grid>
                   <Grid size={{ xs: 12, md: 5 }}>
-                    <TextField
+                    <AppFilterTextField
                       fullWidth
                       label='ค้นหาสาขา'
                       placeholder='พิมพ์ชื่อสาขา รหัสสาขา หรือคำอธิบาย'
                       value={searchText}
                       onChange={(event) => setSearchText(event.target.value)}
-                      sx={CONTROL_SX}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 3.5 }}>
-                    <TextField
+                    <AppFilterTextField
                       select
                       fullWidth
                       label='แผนก'
                       value={departmentFilter}
                       onChange={(event) => setDepartmentFilter(event.target.value)}
-                      sx={CONTROL_SX}
                     >
                       <MenuItem value='all'>ทุกแผนก</MenuItem>
                       {departments.map((department) => (
@@ -819,56 +695,37 @@ const ProgramSettingsPage = () => {
                           {department.name}
                         </MenuItem>
                       ))}
-                    </TextField>
+                    </AppFilterTextField>
                   </Grid>
                   <Grid size={{ xs: 12, md: 3.5 }}>
-                    <TextField
+                    <AppFilterTextField
                       select
                       fullWidth
                       label='สถานะ'
                       value={statusFilter}
                       onChange={(event) => setStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
-                      sx={CONTROL_SX}
                     >
                       {STATUS_OPTIONS.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.label}
                         </MenuItem>
                       ))}
-                    </TextField>
+                    </AppFilterTextField>
                   </Grid>
                 </Grid>
-              </SectionSurface>
+              </SectionBox>
 
               <Grid container spacing={3} sx={{ mb: 4 }}>
-                {[
-                  {
-                    label: 'สาขาทั้งหมด',
-                    value: summary.total,
-                    hint: `${summary.active} เปิดใช้งาน`,
-                    icon: 'tabler:books',
-                  },
-                  {
-                    label: 'ปิดใช้งาน',
-                    value: summary.inactive,
-                    hint: 'พักใช้งานชั่วคราว',
-                    icon: 'tabler:book-off',
-                  },
-                  {
-                    label: 'นักเรียนที่ผูกอยู่',
-                    value: summary.students,
-                    hint: 'รวมทั้งระบบ',
-                    icon: 'tabler:users',
-                  },
-                  {
-                    label: 'ห้องเรียนที่ผูกอยู่',
-                    value: summary.classrooms,
-                    hint: 'พร้อมใช้งานต่อในระบบ',
-                    icon: 'tabler:door',
-                  },
-                ].map((item) => (
+                {(
+                  [
+                    { label: 'สาขาทั้งหมด', value: summary.total, hint: `${summary.active} เปิดใช้งาน`, icon: 'tabler:books', colorKey: 'primary' },
+                    { label: 'ปิดใช้งาน', value: summary.inactive, hint: 'พักใช้งานชั่วคราว', icon: 'tabler:book-off', colorKey: 'warning' },
+                    { label: 'นักเรียนที่ผูกอยู่', value: summary.students, hint: 'รวมทั้งระบบ', icon: 'tabler:users', colorKey: 'info' },
+                    { label: 'ห้องเรียนที่ผูกอยู่', value: summary.classrooms, hint: 'พร้อมใช้งานต่อในระบบ', icon: 'tabler:door', colorKey: 'success' },
+                  ] as Array<{ label: string; value: number; hint: string; icon: string; colorKey: 'primary' | 'warning' | 'info' | 'success' }>
+                ).map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
-                    <SectionSurface sx={{ p: 3, height: '100%' }}>
+                    <SectionBox sx={{ p: 3, height: '100%' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                         <Avatar
                           variant='rounded'
@@ -877,32 +734,28 @@ const ProgramSettingsPage = () => {
                             height: 40,
                             borderRadius: 2.5,
                             bgcolor: (theme) =>
-                              alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
-                            color: 'primary.main',
+                              alpha(theme.palette[item.colorKey].main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                            color: `${item.colorKey}.main`,
                           }}
                         >
                           <Icon icon={item.icon} fontSize='1.2rem' />
                         </Avatar>
-                        <Typography variant='body2' sx={{
-                          color: 'text.secondary'
-                        }}>
+                        <Typography variant='body2' color='text.secondary'>
                           {item.label}
                         </Typography>
                       </Box>
                       <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
                         {item.value}
                       </Typography>
-                      <Typography variant='caption' sx={{
-                        color: 'text.secondary'
-                      }}>
+                      <Typography variant='caption' color='text.secondary'>
                         {item.hint}
                       </Typography>
-                    </SectionSurface>
+                    </SectionBox>
                   </Grid>
                 ))}
               </Grid>
 
-              <SectionSurface sx={{ p: { xs: 2, sm: 2.5 } }}>
+              <SectionBox sx={{ p: { xs: 2, sm: 2.5 } }}>
                 <Box
                   sx={{
                     px: { xs: 1, sm: 1.5 },
@@ -924,7 +777,7 @@ const ProgramSettingsPage = () => {
                 </Box>
 
                 <Box sx={{ width: '100%' }}>
-                  <StyledDataGrid
+                  <AppSettingsDataGrid
                     autoHeight
                     rows={filteredPrograms}
                     columns={columns}
@@ -944,7 +797,7 @@ const ProgramSettingsPage = () => {
                     pageSizeOptions={[10, 25, 50]}
                   />
                 </Box>
-              </SectionSurface>
+              </SectionBox>
             </CardContent>
           </Card>
         </Grid>

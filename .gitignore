@@ -135,7 +135,7 @@ Thumbs.db
 .eslintcache
 .stylelintcache
 .parcel-cache/
-.next-env.d.ts
+next-env.d.ts
 
 # ===== LEGACY/OLD FILES =====
 web/
@@ -163,3 +163,4 @@ $RECYCLE.BIN/
 .Trash-*
 backend/src/database/generated/*
 .claude/settings.local.json
+.claude/scheduled_tasks.lock

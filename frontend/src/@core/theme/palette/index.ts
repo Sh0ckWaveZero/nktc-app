@@ -26,11 +26,11 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
 
   const defaultBgColor = () => {
     if (skin === 'bordered' && mode === 'light') {
-      return '#FFF';
+      return '#F0F1F8';
     } else if (skin === 'bordered' && mode === 'dark') {
       return '#2a1f3d';
     } else if (mode === 'light') {
-      return '#F4F5FA';
+      return '#ECEEF6';
     } else return '#1a1625';
   };
 
@@ -40,10 +40,10 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       main: mainColor,
       light: lightColor,
       darkBg: '#1a1625',
-      lightBg: '#F4F5FA',
+      lightBg: '#ECEEF6',
       primaryGradient: primaryGradient(),
-      bodyBg: mode === 'light' ? '#F4F5FA' : '#1a1625', // Same as palette.background.default but doesn't consider bordered skin
-      tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#2a1f3d',
+      bodyBg: mode === 'light' ? '#ECEEF6' : '#1a1625', // Same as palette.background.default but doesn't consider bordered skin
+      tableHeaderBg: mode === 'light' ? '#E8EAF4' : '#2a1f3d',
       headerText: '#637381', // Header subtitle text color
     },
     common: {
@@ -116,7 +116,7 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
     },
     divider: `rgba(${mainColor}, 0.12)`,
     background: {
-      paper: mode === 'light' ? '#FFF' : '#2a1f3d',
+      paper: mode === 'light' ? '#F7F8FD' : '#2a1f3d',
       default: defaultBgColor(),
     },
     action: {

@@ -2,11 +2,8 @@
 
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -16,11 +13,15 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { alpha, styled } from '@mui/material/styles';
+import { GridColDef } from '@mui/x-data-grid';
+import { alpha } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
+import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
+import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import React, { memo, useMemo, useCallback } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine, RiGraduationCapLine, RiArrowUpLine } from 'react-icons/ri';
 import { AccountEditOutline } from 'mdi-material-ui';
@@ -36,78 +37,46 @@ import StudentIndividualPromotionDialog from '@/components/dialogs/StudentIndivi
 import { useStudentList } from '@/hooks/features/student';
 import type { StudentImportResult } from '@/hooks/queries/useStudents';
 
-// ─── Styled Components ────────────────────────────────────────────────────────
-
-const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-  border: 0,
-  '& .MuiDataGrid-row': {
-    maxHeight: 'none !important',
-    transition: 'background-color 180ms ease',
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, 0.04),
-    },
-  },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.04),
-    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    fontWeight: 700,
-    color: theme.palette.text.primary,
-  },
-  '& .MuiDataGrid-cell': {
-    display: 'flex',
-    alignItems: 'center',
-    lineHeight: 'unset !important',
-    maxHeight: 'none !important',
-    overflow: 'visible',
-    whiteSpace: 'normal',
-    wordWrap: 'break-word',
-  },
-  '& .MuiDataGrid-renderingZone': {
-    maxHeight: 'none !important',
-  },
-  '& .MuiDataGrid-footerContainer': {
-    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-    backgroundColor: alpha(theme.palette.background.paper, 0.7),
-  },
-}));
-
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const StudentNameCell = memo(({ row }: { row: any }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.75 }}>
-    <RenderAvatar row={row.user?.account} />
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', minWidth: 0 }}>
-      <Typography
-        noWrap
-        variant='body2'
-        sx={{
-          fontWeight: 700,
-          fontSize: '1rem',
-          letterSpacing: '-0.02em',
-          color: 'text.primary',
-        }}
-      >
-        {`${row.user?.account?.title ?? ''}${row.user?.account?.firstName ?? ''} ${row.user?.account?.lastName ?? ''}`.trim()}
-      </Typography>
-      <Typography
-        noWrap
-        variant='caption'
-        sx={{
-          mt: 0.25,
-          fontSize: '0.84rem',
-          fontWeight: 600,
-          letterSpacing: '0.01em',
-          color: 'text.secondary',
-        }}
-      >
-        @{row.user?.username}
-      </Typography>
-    </Box>
-  </Box>
-));
+const StudentNameCell = memo(({ row }: { row: any }) => {
+  const isGrad =
+    row.isGraduation === true || row.studentStatus === 'graduated' || row.studentStatus === 'จบการศึกษา';
+  const isDropped = row.studentStatus === 'ออกก่อนกำหนด';
+
+  return (
+    <Stack direction='row' sx={{ alignItems: 'center', gap: 1.75 }}>
+      <RenderAvatar row={row.user?.account} />
+      <Stack sx={{ minWidth: 0 }}>
+        <Typography
+          noWrap
+          variant='body2'
+          sx={{ fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em', color: 'text.primary' }}
+        >
+          {`${row.user?.account?.title ?? ''}${row.user?.account?.firstName ?? ''} ${row.user?.account?.lastName ?? ''}`.trim()}
+        </Typography>
+        <Stack direction='row' sx={{ alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+          <Typography
+            noWrap
+            variant='caption'
+            sx={{ fontSize: '0.84rem', fontWeight: 600, letterSpacing: '0.01em', color: 'text.secondary' }}
+          >
+            @{row.user?.username}
+          </Typography>
+          {(isGrad || isDropped) && (
+            <Chip
+              label={isGrad ? 'จบการศึกษา' : 'ออกก่อนกำหนด'}
+              size='small'
+              color={isGrad ? 'warning' : 'error'}
+              variant='outlined'
+              sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, '& .MuiChip-label': { px: 0.75 } }}
+            />
+          )}
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+});
 
 interface StudentImportResultDialogProps {
   open: boolean;
@@ -130,7 +99,7 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
   const processedLabel = result.updated && result.updated > 0 ? 'สำเร็จ' : 'นำเข้าได้';
 
   return (
-    <Dialog open={open} fullWidth maxWidth='sm' aria-labelledby='student-import-result-title' onClose={onClose}>
+    <Dialog id='student-import-result-dialog' open={open} fullWidth maxWidth='sm' aria-labelledby='student-import-result-title' onClose={onClose}>
       <DialogTitle id='student-import-result-title'>ผลการนำเข้าข้อมูลนักเรียน</DialogTitle>
       <DialogContent>
         <Alert severity={alertSeverity} sx={{ mb: 4 }}>
@@ -289,6 +258,38 @@ const StudentListPage = () => {
     [setPageSize],
   );
 
+  const activeStudentCount = useMemo(
+    () =>
+      students.filter(
+        (s: any) =>
+          !s.isGraduation &&
+          s.studentStatus !== 'graduated' &&
+          s.studentStatus !== 'จบการศึกษา' &&
+          s.studentStatus !== 'ออกก่อนกำหนด',
+      ).length,
+    [students],
+  );
+  const graduatedCount = useMemo(
+    () =>
+      students.filter(
+        (s: any) => s.isGraduation === true || s.studentStatus === 'graduated' || s.studentStatus === 'จบการศึกษา',
+      ).length,
+    [students],
+  );
+  const droppedCount = useMemo(
+    () => students.filter((s: any) => s.studentStatus === 'ออกก่อนกำหนด').length,
+    [students],
+  );
+
+  const studentSummaryItems = useMemo<ListSummaryItem[]>(() => {
+    const items: ListSummaryItem[] = [
+      { label: 'กำลังศึกษา', value: activeStudentCount, color: 'success' },
+      { label: 'จบการศึกษา', value: graduatedCount, color: 'warning' },
+    ];
+    if (droppedCount > 0) items.push({ label: 'ออกก่อนกำหนด', value: droppedCount, color: 'error' });
+    return items;
+  }, [activeStudentCount, graduatedCount, droppedCount]);
+
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -311,11 +312,29 @@ const StudentListPage = () => {
         sortable: false,
         hideSortIcons: true,
         filterable: false,
-        renderCell: ({ row }) => (
-          <Typography noWrap variant='body2'>
-            {row.classroom?.name}
-          </Typography>
-        ),
+        renderCell: ({ row }) =>
+          row.classroom?.name ? (
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 1.25,
+                py: 0.35,
+                borderRadius: 1.5,
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+                border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
+                maxWidth: '100%',
+              }}
+            >
+              <Typography noWrap variant='body2' sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                {row.classroom.name}
+              </Typography>
+            </Box>
+          ) : (
+            <Typography variant='body2' sx={{ color: 'text.disabled' }}>
+              —
+            </Typography>
+          ),
       },
       {
         flex: 0.24,
@@ -348,14 +367,23 @@ const StudentListPage = () => {
           });
 
           return (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}>
+            <Stack
+              id={`student-actions-${row?.id}`}
+              direction='row'
+              sx={{ alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}
+            >
               <Tooltip title='ดูรายละเอียด'>
-                <IconButton href={`/apps/student/view/${row?.id}`} sx={getActionIconSx('info')}>
+                <IconButton
+                  id={`view-student-${row?.id}`}
+                  href={`/apps/student/view/${row?.id}`}
+                  sx={getActionIconSx('info')}
+                >
                   <RiUserSearchLine fontSize='1rem' />
                 </IconButton>
               </Tooltip>
               <Tooltip title='แก้ไข'>
                 <IconButton
+                  id={`edit-student-${row?.id}`}
                   href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`}
                   sx={getActionIconSx('warning')}
                 >
@@ -364,6 +392,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title='เลื่อนชั้น'>
                 <IconButton
+                  id={`promote-student-${row?.id}`}
                   disabled={isGraduated}
                   sx={getActionIconSx('primary')}
                   onClick={(e) => {
@@ -376,6 +405,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title={isGraduated ? 'จบแล้ว' : 'จบการศึกษา'}>
                 <IconButton
+                  id={`graduate-student-${row?.id}`}
                   disabled={isGraduated}
                   sx={getActionIconSx('success')}
                   onClick={(e) => {
@@ -388,6 +418,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title='ลบข้อมูล'>
                 <IconButton
+                  id={`delete-student-${row?.id}`}
                   sx={getActionIconSx('error')}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -397,7 +428,7 @@ const StudentListPage = () => {
                   <RiUserUnfollowLine fontSize='1rem' />
                 </IconButton>
               </Tooltip>
-            </Box>
+            </Stack>
           );
         },
       },
@@ -407,114 +438,17 @@ const StudentListPage = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={6}>
+      <Grid id='student-list-container' container spacing={6}>
         <Grid size={12}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-              boxShadow: (theme) => `0 18px 42px ${alpha(theme.palette.primary.main, 0.08)}`,
-              background: (theme) =>
-                `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.03)} 0%, ${theme.palette.background.paper} 16%)`,
-            }}
-          >
-            <CardHeader
-              avatar={
-                <Avatar
-                  sx={{
-                    color: 'primary.main',
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                    width: { xs: 42, sm: 48 },
-                    height: { xs: 42, sm: 48 },
-                  }}
-                  aria-label='recipe'
-                >
-                  <RiContactsBookLine />
-                </Avatar>
-              }
-              sx={{
-                color: 'text.primary',
-                px: { xs: 3, sm: 4, lg: 5 },
-                pt: { xs: 3, sm: 4 },
-                pb: { xs: 2, sm: 2.5 },
-              }}
-              title={
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    flexWrap: 'wrap',
-                    gap: { xs: 0.75, sm: 1.5 },
-                  }}
-                >
-                  <Typography
-                    component='span'
-                    sx={{
-                      fontWeight: 800,
-                      fontSize: { xs: '1.45rem', sm: '1.9rem' },
-                      letterSpacing: { xs: '-0.02em', sm: '-0.03em' },
-                      lineHeight: 1.08,
-                      color: 'text.primary',
-                    }}
-                  >
-                    รายชื่อนักเรียนทั้งหมด
-                  </Typography>
-                  <Box
-                    component='span'
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'baseline',
-                      gap: 0.75,
-                      px: 1.4,
-                      py: 0.6,
-                      borderRadius: 999,
-                      bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
-                      border: (theme) =>
-                        `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
-                      color: 'primary.main',
-                      lineHeight: 1,
-                    }}
-                  >
-                    <Typography
-                      component='span'
-                      sx={{
-                        fontSize: { xs: '1.05rem', sm: '1.15rem' },
-                        fontWeight: 800,
-                        letterSpacing: '-0.02em',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {(students?.length ?? 0).toLocaleString('th-TH')}
-                    </Typography>
-                    <Typography
-                      component='span'
-                      sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.01em',
-                        color: 'text.secondary',
-                      }}
-                    >
-                      คน
-                    </Typography>
-                  </Box>
-                </Box>
-              }
-              subheader='ค้นหา จัดการ และนำเข้าข้อมูลนักเรียนได้จากแผงเดียว'
-              slotProps={{
-                subheader: {
-                  sx: {
-                    mt: 1.1,
-                    fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
-                    fontWeight: 500,
-                    letterSpacing: '-0.01em',
-                    color: 'text.secondary',
-                  },
-                },
-              }}
+          <AppListCard id='student-list-card'>
+            <AppListCardHeader
+              id='student-list-card-header'
+              icon={<RiContactsBookLine />}
+              title='รายชื่อนักเรียนทั้งหมด'
+              count={students.length}
+              countUnit='คน'
+              description='ค้นหา จัดการ และนำเข้าข้อมูลนักเรียนได้จากแผงเดียว'
+              summaryItems={studentSummaryItems}
             />
             <TableHeader
               classrooms={classrooms}
@@ -543,23 +477,25 @@ const StudentListPage = () => {
               isPromoting={isPromoting}
               isDeleting={isDeletingAll}
             />
-            <StyledDataGrid
-              rows={students}
-              columns={columns}
-              loading={loadingStudent}
-              disableRowSelectionOnClick
-              disableColumnMenu
-              getRowHeight={() => 'auto'}
-              initialState={{
-                pagination: {
-                  paginationModel: { pageSize, page: 0 },
-                },
-              }}
-              pageSizeOptions={[10, 25, 50]}
-              onPaginationModelChange={handlePaginationModelChange}
-              slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-            />
-          </Card>
+            <Box id='student-list-data-grid'>
+              <AppListDataGrid
+                rows={students}
+                columns={columns}
+                loading={loadingStudent}
+                disableRowSelectionOnClick
+                disableColumnMenu
+                getRowHeight={() => 'auto'}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[10, 25, 50]}
+                onPaginationModelChange={handlePaginationModelChange}
+                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+              />
+            </Box>
+          </AppListCard>
         </Grid>
       </Grid>
       {openDeletedConfirm && (

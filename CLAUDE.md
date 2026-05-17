@@ -34,11 +34,11 @@ nktc-app/
 - **Next.js 16.0.1** with App Router and Turbopack bundler
 - **React 19.2.0** with functional components and hooks
 - **TypeScript 5.9.3** for type safety
-- **Material-UI 7.3.5** as primary UI framework
-  - MUI Icons Material 7.3.5
-  - MUI Lab 7.0.1-beta.19
-  - MUI X Data Grid 8.17.0
-  - MUI X Date Pickers 8.17.0
+- **Material-UI 9.0.1** as primary UI framework (MUI v9)
+  - MUI Icons Material 9.0.1
+  - MUI Lab 9.0.0-beta.3
+  - MUI X Data Grid 8.28.6
+  - MUI X Date Pickers 9.2.0
 - **Zustand 5.0.8** for global state management
 - **React Query 5.90.7** (@tanstack/react-query) for server state management
 - **React Hook Form 7.66.0 + Yup 1.7.1** for form handling and validation
@@ -319,6 +319,7 @@ When working with frontend state:
 - Material-UI components over custom HTML elements
 - Consistent naming: PascalCase for components, camelCase for functions
 - File naming: kebab-case for files and directories
+- **Every interactive HTML element and MUI component must have an `id` prop** — buttons, inputs, selects, dialogs, forms, toolbars, data grids, etc. Use kebab-case descriptive IDs (e.g., `id='add-student-button'`, `id='student-search-input'`)
 
 ### Styling Approach
 
@@ -412,7 +413,7 @@ MINIO_PORT=9000
 ### MCP Servers
 
 - **MUI MCP**: Material-UI documentation and component reference via Model Context Protocol
-  - Provides AI assistants with direct access to official MUI v7 documentation
+  - Provides AI assistants with direct access to official MUI v9 documentation
   - Installation: `claude mcp add mui-mcp -- npx -y @mui/mcp@latest`
   - Status: ✓ Connected (Project-scoped)
   - Usage: Automatically available when working with MUI components

@@ -4,6 +4,7 @@ import { describe, it, expect, mock, beforeEach } from "bun:test";
 const mockStudentFindMany = mock();
 const mockStudentCount = mock();
 const mockStudentFindUnique = mock();
+const mockUserFindMany = mock();
 const mockUserFindFirst = mock();
 const mockGoodnessAggregate = mock();
 const mockBadnessAggregate = mock();
@@ -45,7 +46,7 @@ mock.module("@/libs/prisma", () => ({
       findUnique: mockStudentFindUnique,
       updateMany: mockStudentUpdateMany,
     },
-    user: { findFirst: mockUserFindFirst },
+    user: { findMany: mockUserFindMany, findFirst: mockUserFindFirst },
     goodnessIndividual: { aggregate: mockGoodnessAggregate },
     badnessIndividual: { aggregate: mockBadnessAggregate },
     teacherOnClassroom: { findMany: mockTeacherOnClassroomFindMany },
@@ -92,7 +93,7 @@ const STUDENT_NULL_USER = { id: "s4", userId: null, user: null };
 
 function resetAll() {
   for (const m of [
-    mockStudentFindMany, mockStudentCount, mockStudentFindUnique, mockUserFindFirst,
+    mockStudentFindMany, mockStudentCount, mockStudentFindUnique, mockUserFindMany, mockUserFindFirst,
     mockGoodnessAggregate, mockBadnessAggregate, mockTeacherOnClassroomFindMany,
     mockTeacherFindMany, mockClassroomFindUnique, mockStudentUpdateMany, mockAuditLogCreate,
     mockGoodnesDeleteMany, mockBadnessDeleteMany, mockVisitDeleteMany,
@@ -103,6 +104,7 @@ function resetAll() {
   ]) m.mockReset();
 
   mockTransaction.mockImplementation(async (fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx));
+  mockUserFindMany.mockResolvedValue([]);
   mockGoodnesDeleteMany.mockResolvedValue({ count: 0 });
   mockBadnessDeleteMany.mockResolvedValue({ count: 0 });
   mockVisitDeleteMany.mockResolvedValue({ count: 0 });
@@ -207,11 +209,11 @@ describe("StudentService.searchWithParams", () => {
     expect(result.data).toHaveLength(1);
   });
 
-  it("applies studentStatus filter for 'graduated'", async () => {
+  it("applies studentStatus filter for 'จบการศึกษา'", async () => {
     mockStudentFindMany.mockResolvedValueOnce([]);
     mockStudentCount.mockResolvedValueOnce(0);
 
-    await StudentService.searchWithParams({ studentStatus: "graduated" } as any);
+    await StudentService.searchWithParams({ studentStatus: "จบการศึกษา" } as any);
     const callArg = mockStudentFindMany.mock.calls[0][0] as any;
     expect(callArg.where.OR).toBeDefined();
   });

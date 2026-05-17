@@ -1,6 +1,12 @@
-import { Box, Button, TextField } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { Plus } from 'mdi-material-ui';
+'use client';
+
+import IconifyIcon from '@/@core/components/icon';
+import { SectionBox } from '@/@core/components/filter-panel';
+import { AppSearchTextField, AppContainedButton } from '@/@core/components/form';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import Stack from '@mui/material/Stack';
 import { FaFileExcel } from 'react-icons/fa';
 
 interface TableHeaderProps {
@@ -18,45 +24,67 @@ const TableHeader = ({ value, handleFilter, handleUploadFile, handleUpload, file
   };
 
   return (
-    <Box
-      sx={{
-        px: { xs: 4, sm: 5 },
-        py: { xs: 3, sm: 3.5 },
-        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-      }}
-    >
-      <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
+    <Box sx={{ px: { xs: 3, sm: 4, lg: 5 }, pb: { xs: 3, sm: 4 } }}>
+      <SectionBox id='program-list-toolbar-surface'>
+        <Stack
+          id='program-list-toolbar-row'
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: { xs: 1.75, sm: 2 },
+          }}
+        >
+          <AppSearchTextField
+            id='program-search-input'
             size='small'
             value={value}
+            placeholder='ค้นหาสาขาวิชา...'
             onChange={(e) => handleFilter(e.target.value)}
-            placeholder='ค้นหา...'
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <IconifyIcon icon='tabler:search' fontSize='1.1rem' />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ width: { xs: '100%', md: 280 }, flex: { xs: '1 1 auto', md: '0 1 280px' } }}
           />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: { sm: 'flex-end' } }}>
+
+          <Stack direction='row' sx={{ gap: 1.5, width: { xs: '100%', sm: 'auto' } }}>
             <Button
+              id='upload-program-file-button'
               component='label'
               variant='outlined'
               color='success'
               startIcon={<FaFileExcel />}
+              sx={{ flex: { xs: 1, sm: 'none' } }}
             >
               อัปโหลดไฟล์
-              <input hidden accept='.xlsx, .xls' type='file' ref={fileInputRef} onChange={handleFileChange} />
+              <input
+                id='program-file-input'
+                hidden
+                accept='.xlsx, .xls'
+                type='file'
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
             </Button>
-            <Button
+            <AppContainedButton
+              id='add-program-button'
               variant='contained'
               disableElevation
-              startIcon={<Plus />}
+              startIcon={<IconifyIcon icon='tabler:plus' />}
               onClick={handleUploadFile}
+              sx={{ flex: { xs: 1, sm: 'none' } }}
             >
               เพิ่มสาขาวิชา
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+            </AppContainedButton>
+          </Stack>
+        </Stack>
+      </SectionBox>
     </Box>
   );
 };

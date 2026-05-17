@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import { prisma } from "@/libs/prisma";
+import { UnauthorizedError } from "@/libs/errors";
 
 export type JwtPayload = { sub: string; username: string; roles: string };
 
@@ -43,4 +44,7 @@ export const authGuard = new Elysia({ name: "auth-guard" })
     const user: JwtPayload = { sub: dbUser.id, username: dbUser.username, roles: dbUser.role as string };
     userCache.set(sub, { user, expiresAt: Date.now() + CACHE_TTL_MS });
     return { user };
+  })
+  .onBeforeHandle({ as: "global" }, ({ user }) => {
+    if (!user) throw new UnauthorizedError();
   });
