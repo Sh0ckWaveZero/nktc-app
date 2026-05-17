@@ -1,5 +1,5 @@
 import Icon from '@/@core/components/icon';
-import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { alpha, styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
@@ -259,17 +259,16 @@ const TableHeader = memo((props: TableHeaderProps) => {
       container
       spacing={3}
       sx={{
-        px: { xs: 2.25, sm: 4, lg: 5 },
+        px: { xs: 3, sm: 4, lg: 5 },
         pb: { xs: 3, sm: 4 },
       }}
     >
       <Grid size={12}>
         <SectionBox id='student-list-filter-surface'>
-          <Box
+          <Stack
             id='student-list-toolbar-row'
+            direction={{ xs: 'column', sm: 'row' }}
             sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
               alignItems: { xs: 'stretch', sm: 'flex-start', lg: 'center' },
               justifyContent: 'space-between',
               gap: { xs: 1.75, sm: 2 },
@@ -416,7 +415,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                 </LinkStyled>
               </Tooltip>
             </Box>
-          </Box>
+          </Stack>
 
           <Grid container spacing={{ xs: 1.5, sm: 2 }}>
             <FilterGrid id='student-list-student-id-filter' size={{ xs: 12, md: 3 }}>

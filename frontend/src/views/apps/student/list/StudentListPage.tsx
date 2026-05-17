@@ -16,6 +16,8 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -71,43 +73,72 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   '& .MuiDataGrid-footerContainer': {
     borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
     backgroundColor: alpha(theme.palette.background.paper, 0.7),
+    paddingRight: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingRight: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingRight: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-columnHeader[data-field="actions"]': {
+    paddingRight: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingRight: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingRight: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-cell[data-field="fullName"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-cell[data-field="actions"]': {
+    paddingRight: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingRight: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingRight: theme.spacing(5) },
   },
 }));
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const StudentNameCell = memo(({ row }: { row: any }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.75 }}>
-    <RenderAvatar row={row.user?.account} />
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', minWidth: 0 }}>
-      <Typography
-        noWrap
-        variant='body2'
-        sx={{
-          fontWeight: 700,
-          fontSize: '1rem',
-          letterSpacing: '-0.02em',
-          color: 'text.primary',
-        }}
-      >
-        {`${row.user?.account?.title ?? ''}${row.user?.account?.firstName ?? ''} ${row.user?.account?.lastName ?? ''}`.trim()}
-      </Typography>
-      <Typography
-        noWrap
-        variant='caption'
-        sx={{
-          mt: 0.25,
-          fontSize: '0.84rem',
-          fontWeight: 600,
-          letterSpacing: '0.01em',
-          color: 'text.secondary',
-        }}
-      >
-        @{row.user?.username}
-      </Typography>
-    </Box>
-  </Box>
-));
+const StudentNameCell = memo(({ row }: { row: any }) => {
+  const isGrad =
+    row.isGraduation === true || row.studentStatus === 'graduated' || row.studentStatus === 'จบการศึกษา';
+  const isDropped = row.studentStatus === 'ออกก่อนกำหนด';
+
+  return (
+    <Stack direction='row' sx={{ alignItems: 'center', gap: 1.75 }}>
+      <RenderAvatar row={row.user?.account} />
+      <Stack sx={{ minWidth: 0 }}>
+        <Typography
+          noWrap
+          variant='body2'
+          sx={{ fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em', color: 'text.primary' }}
+        >
+          {`${row.user?.account?.title ?? ''}${row.user?.account?.firstName ?? ''} ${row.user?.account?.lastName ?? ''}`.trim()}
+        </Typography>
+        <Stack direction='row' sx={{ alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+          <Typography
+            noWrap
+            variant='caption'
+            sx={{ fontSize: '0.84rem', fontWeight: 600, letterSpacing: '0.01em', color: 'text.secondary' }}
+          >
+            @{row.user?.username}
+          </Typography>
+          {(isGrad || isDropped) && (
+            <Chip
+              label={isGrad ? 'จบการศึกษา' : 'ออกก่อนกำหนด'}
+              size='small'
+              color={isGrad ? 'warning' : 'error'}
+              variant='outlined'
+              sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, '& .MuiChip-label': { px: 0.75 } }}
+            />
+          )}
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+});
 
 interface StudentImportResultDialogProps {
   open: boolean;
@@ -130,7 +161,7 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
   const processedLabel = result.updated && result.updated > 0 ? 'สำเร็จ' : 'นำเข้าได้';
 
   return (
-    <Dialog open={open} fullWidth maxWidth='sm' aria-labelledby='student-import-result-title' onClose={onClose}>
+    <Dialog id='student-import-result-dialog' open={open} fullWidth maxWidth='sm' aria-labelledby='student-import-result-title' onClose={onClose}>
       <DialogTitle id='student-import-result-title'>ผลการนำเข้าข้อมูลนักเรียน</DialogTitle>
       <DialogContent>
         <Alert severity={alertSeverity} sx={{ mb: 4 }}>
@@ -289,6 +320,39 @@ const StudentListPage = () => {
     [setPageSize],
   );
 
+  const activeStudentCount = useMemo(
+    () =>
+      students.filter(
+        (s: any) =>
+          !s.isGraduation &&
+          s.studentStatus !== 'graduated' &&
+          s.studentStatus !== 'จบการศึกษา' &&
+          s.studentStatus !== 'ออกก่อนกำหนด',
+      ).length,
+    [students],
+  );
+  const graduatedCount = useMemo(
+    () =>
+      students.filter(
+        (s: any) => s.isGraduation === true || s.studentStatus === 'graduated' || s.studentStatus === 'จบการศึกษา',
+      ).length,
+    [students],
+  );
+  const droppedCount = useMemo(
+    () => students.filter((s: any) => s.studentStatus === 'ออกก่อนกำหนด').length,
+    [students],
+  );
+
+  type StudentSummaryColor = 'success' | 'warning' | 'error';
+  const studentSummaryItems = useMemo(() => {
+    const items: { label: string; value: number; color: StudentSummaryColor }[] = [
+      { label: 'กำลังศึกษา', value: activeStudentCount, color: 'success' },
+      { label: 'จบการศึกษา', value: graduatedCount, color: 'warning' },
+    ];
+    if (droppedCount > 0) items.push({ label: 'ออกก่อนกำหนด', value: droppedCount, color: 'error' });
+    return items;
+  }, [activeStudentCount, graduatedCount, droppedCount]);
+
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -311,11 +375,29 @@ const StudentListPage = () => {
         sortable: false,
         hideSortIcons: true,
         filterable: false,
-        renderCell: ({ row }) => (
-          <Typography noWrap variant='body2'>
-            {row.classroom?.name}
-          </Typography>
-        ),
+        renderCell: ({ row }) =>
+          row.classroom?.name ? (
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 1.25,
+                py: 0.35,
+                borderRadius: 1.5,
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+                border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
+                maxWidth: '100%',
+              }}
+            >
+              <Typography noWrap variant='body2' sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                {row.classroom.name}
+              </Typography>
+            </Box>
+          ) : (
+            <Typography variant='body2' sx={{ color: 'text.disabled' }}>
+              —
+            </Typography>
+          ),
       },
       {
         flex: 0.24,
@@ -348,14 +430,23 @@ const StudentListPage = () => {
           });
 
           return (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}>
+            <Stack
+              id={`student-actions-${row?.id}`}
+              direction='row'
+              sx={{ alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}
+            >
               <Tooltip title='ดูรายละเอียด'>
-                <IconButton href={`/apps/student/view/${row?.id}`} sx={getActionIconSx('info')}>
+                <IconButton
+                  id={`view-student-${row?.id}`}
+                  href={`/apps/student/view/${row?.id}`}
+                  sx={getActionIconSx('info')}
+                >
                   <RiUserSearchLine fontSize='1rem' />
                 </IconButton>
               </Tooltip>
               <Tooltip title='แก้ไข'>
                 <IconButton
+                  id={`edit-student-${row?.id}`}
                   href={`/apps/student/edit/${row?.id}?classroom=${currentClassroomId}`}
                   sx={getActionIconSx('warning')}
                 >
@@ -364,6 +455,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title='เลื่อนชั้น'>
                 <IconButton
+                  id={`promote-student-${row?.id}`}
                   disabled={isGraduated}
                   sx={getActionIconSx('primary')}
                   onClick={(e) => {
@@ -376,6 +468,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title={isGraduated ? 'จบแล้ว' : 'จบการศึกษา'}>
                 <IconButton
+                  id={`graduate-student-${row?.id}`}
                   disabled={isGraduated}
                   sx={getActionIconSx('success')}
                   onClick={(e) => {
@@ -388,6 +481,7 @@ const StudentListPage = () => {
               </Tooltip>
               <Tooltip title='ลบข้อมูล'>
                 <IconButton
+                  id={`delete-student-${row?.id}`}
                   sx={getActionIconSx('error')}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -397,7 +491,7 @@ const StudentListPage = () => {
                   <RiUserUnfollowLine fontSize='1rem' />
                 </IconButton>
               </Tooltip>
-            </Box>
+            </Stack>
           );
         },
       },
@@ -407,46 +501,64 @@ const StudentListPage = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={6}>
+      <Grid id='student-list-container' container spacing={6}>
         <Grid size={12}>
           <Card
+            id='student-list-card'
             sx={{
               borderRadius: 3,
               overflow: 'hidden',
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-              boxShadow: (theme) => `0 18px 42px ${alpha(theme.palette.primary.main, 0.08)}`,
+              border: (theme) =>
+                `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.08)}`,
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? `0 18px 42px ${alpha(theme.palette.common.black, 0.24)}`
+                  : `0 18px 42px ${alpha(theme.palette.primary.main, 0.08)}`,
               background: (theme) =>
-                `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.03)} 0%, ${theme.palette.background.paper} 16%)`,
+                theme.palette.mode === 'dark'
+                  ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.98)} 32%)`
+                  : `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${theme.palette.background.paper} 32%)`,
             }}
           >
             <CardHeader
+              id='student-list-card-header'
               avatar={
                 <Avatar
                   sx={{
-                    color: 'primary.main',
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    color: (theme) => theme.palette.primary.dark,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.12),
+                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.22)}`,
                     width: { xs: 42, sm: 48 },
                     height: { xs: 42, sm: 48 },
+                    boxShadow: (theme) => `0 10px 24px ${alpha(theme.palette.primary.main, 0.16)}`,
                   }}
-                  aria-label='recipe'
+                  aria-label='student-list'
                 >
                   <RiContactsBookLine />
                 </Avatar>
               }
               sx={{
                 color: 'text.primary',
+                alignItems: 'flex-start',
                 px: { xs: 3, sm: 4, lg: 5 },
-                pt: { xs: 3, sm: 4 },
-                pb: { xs: 2, sm: 2.5 },
+                pt: { xs: 3, sm: 4.25 },
+                pb: { xs: 2.5, sm: 3 },
+                '& .MuiCardHeader-avatar': {
+                  mt: 0.25,
+                  mr: { xs: 2, sm: 2.5 },
+                },
+                '& .MuiCardHeader-content': {
+                  minWidth: 0,
+                },
               }}
               title={
-                <Box
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
                   sx={{
-                    display: 'flex',
                     alignItems: { xs: 'flex-start', sm: 'center' },
-                    flexDirection: { xs: 'column', sm: 'row' },
                     flexWrap: 'wrap',
-                    gap: { xs: 0.75, sm: 1.5 },
+                    columnGap: { xs: 1, sm: 1.5 },
+                    rowGap: 0.75,
                   }}
                 >
                   <Typography
@@ -461,58 +573,112 @@ const StudentListPage = () => {
                   >
                     รายชื่อนักเรียนทั้งหมด
                   </Typography>
-                  <Box
-                    component='span'
+                  {students.length > 0 && (
+                    <Box
+                      component='span'
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'baseline',
+                        gap: 0.75,
+                        px: 1.4,
+                        py: 0.6,
+                        borderRadius: 999,
+                        bgcolor: (theme) =>
+                          alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+                        border: (theme) =>
+                          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
+                        color: 'primary.main',
+                        lineHeight: 1,
+                      }}
+                    >
+                      <Typography
+                        component='span'
+                        sx={{
+                          fontSize: { xs: '1.05rem', sm: '1.15rem' },
+                          fontWeight: 800,
+                          letterSpacing: '-0.02em',
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {students.length.toLocaleString('th-TH')}
+                      </Typography>
+                      <Typography
+                        component='span'
+                        sx={{ fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.01em', color: 'text.secondary' }}
+                      >
+                        คน
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+              }
+              subheader={
+                <Box>
+                  <Typography
+                    component='p'
                     sx={{
-                      display: 'inline-flex',
-                      alignItems: 'baseline',
-                      gap: 0.75,
-                      px: 1.4,
-                      py: 0.6,
-                      borderRadius: 999,
-                      bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
-                      border: (theme) =>
-                        `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
-                      color: 'primary.main',
-                      lineHeight: 1,
+                      mt: 1.1,
+                      fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
+                      fontWeight: 500,
+                      letterSpacing: '-0.01em',
+                      color: 'text.secondary',
                     }}
                   >
-                    <Typography
-                      component='span'
-                      sx={{
-                        fontSize: { xs: '1.05rem', sm: '1.15rem' },
-                        fontWeight: 800,
-                        letterSpacing: '-0.02em',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {(students?.length ?? 0).toLocaleString('th-TH')}
-                    </Typography>
-                    <Typography
-                      component='span'
-                      sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.01em',
-                        color: 'text.secondary',
-                      }}
-                    >
-                      คน
-                    </Typography>
+                    ค้นหา จัดการ และนำเข้าข้อมูลนักเรียนได้จากแผงเดียว
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: { xs: 0.75, sm: 1 },
+                      mt: 2.25,
+                      maxWidth: 760,
+                    }}
+                  >
+                    {studentSummaryItems.map((item) => (
+                      <Box
+                        key={item.label}
+                        component='span'
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.75,
+                          px: 1.35,
+                          py: 0.7,
+                          minHeight: 30,
+                          borderRadius: 999,
+                          border: (theme) =>
+                            `1px solid ${alpha(theme.palette[item.color].main, theme.palette.mode === 'dark' ? 0.26 : 0.18)}`,
+                          bgcolor: (theme) =>
+                            alpha(theme.palette[item.color].main, theme.palette.mode === 'dark' ? 0.11 : 0.075),
+                        }}
+                      >
+                        <Typography
+                          component='span'
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                            lineHeight: 1,
+                            color: `${item.color}.dark`,
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                        >
+                          {item.value.toLocaleString('th-TH')}
+                        </Typography>
+                        <Typography
+                          component='span'
+                          sx={{ fontSize: '0.78rem', fontWeight: 700, lineHeight: 1, color: 'text.secondary' }}
+                        >
+                          {item.label}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
               }
-              subheader='ค้นหา จัดการ และนำเข้าข้อมูลนักเรียนได้จากแผงเดียว'
               slotProps={{
                 subheader: {
-                  sx: {
-                    mt: 1.1,
-                    fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
-                    fontWeight: 500,
-                    letterSpacing: '-0.01em',
-                    color: 'text.secondary',
-                  },
+                  component: 'div',
                 },
               }}
             />
@@ -543,6 +709,7 @@ const StudentListPage = () => {
               isPromoting={isPromoting}
               isDeleting={isDeletingAll}
             />
+            <Box id='student-list-data-grid'>
             <StyledDataGrid
               rows={students}
               columns={columns}
@@ -559,6 +726,7 @@ const StudentListPage = () => {
               onPaginationModelChange={handlePaginationModelChange}
               slots={{ noRowsOverlay: CustomNoRowsOverlay }}
             />
+            </Box>
           </Card>
         </Grid>
       </Grid>
