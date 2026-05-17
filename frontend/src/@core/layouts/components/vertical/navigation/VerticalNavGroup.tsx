@@ -10,7 +10,6 @@ import { usePathname } from 'next/navigation';
 import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
 import ListItem from '@mui/material/ListItem';
-import Typography from '@mui/material/Typography';
 import Box, { BoxProps } from '@mui/material/Box';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { styled, useTheme } from '@mui/material/styles';
@@ -36,7 +35,7 @@ import { Settings } from '@/@core/context/settingsContext';
 // ** Custom Components Imports
 import VerticalNavItems from './VerticalNavItems';
 import UserIcon from '@/layouts/components/UserIcon';
-import Translations from '@/layouts/components/Translations';
+import NavMenuText from './NavMenuText';
 import CanViewNavGroup from '@/layouts/components/acl/CanViewNavGroup';
 import React from 'react';
 
@@ -258,6 +257,15 @@ const VerticalNavGroup = (props: Props) => {
               transition: 'padding-left .25s ease-in-out',
               pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,
               pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5,
+              '& .nav-text-inner': {
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                transform: 'translateX(0)',
+                transition: 'transform 1.5s ease-in-out',
+              },
+              '&:hover .nav-text-inner': {
+                transform: 'translateX(var(--nav-scroll-dist, 0px))',
+              },
             }}
           >
             {isSubToSub ? null : (
@@ -285,13 +293,7 @@ const VerticalNavGroup = (props: Props) => {
                 ...(isSubToSub ? { ml: 9 } : {}),
               }}
             >
-              <Typography
-                {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
-                  noWrap: true,
-                })}
-              >
-                <Translations text={item.title} />
-              </Typography>
+              <NavMenuText text={item.title} collapsed={navCollapsed && !navHover} />
               <Box className='menu-item-meta' sx={{ ml: 0.8, display: 'flex', alignItems: 'center' }}>
                 {item.badgeContent ? (
                   <Chip
