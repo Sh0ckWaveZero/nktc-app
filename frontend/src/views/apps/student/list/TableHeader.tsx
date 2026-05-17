@@ -1,15 +1,13 @@
 import Icon from '@/@core/components/icon';
 import { FilterGrid, SectionBox, SectionDescription, SectionTitle } from '@/@core/components/filter-panel';
-import { AppFilterTextField, AppFilterFormControl } from '@/@core/components/form';
+import { AppFilterTextField, AppFilterFormControl, AppFilterAutocomplete, AppFilterSelect } from '@/@core/components/form';
 import { ActiveToolButton, ToolButton, ToolButtonSlot, ToolDivider } from '@/@core/components/toolbar';
-import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
@@ -324,84 +322,80 @@ const TableHeader = memo((props: TableHeaderProps) => {
             </FilterGrid>
 
             <FilterGrid id='student-list-student-name-filter' size={{ xs: 12, md: 3 }}>
-              <FormControl id='student-name-form-control' fullWidth>
-                <Autocomplete
-                  id='studentName'
-                  fullWidth
-                  disablePortal={false}
-                  value={fullName || null}
-                  options={Array.isArray(students) ? students : []}
-                  loading={loadingStudents}
-                  onInputChange={onSearchChange}
-                  onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
-                  sx={{
-                    '& .MuiAutocomplete-clearIndicator': { visibility: fullName ? 'visible' : 'hidden' },
-                  }}
-                  getOptionLabel={getStudentLabel}
-                  isOptionEqualToValue={(option: any, value: any) => {
-                    if (typeof option === 'string' || typeof value === 'string') {
-                      return option === value;
-                    }
-                    return option?.id === value?.id;
-                  }}
-                  renderOption={(props, option: any) => (
-                    <li {...props} key={option.id}>
-                      {getStudentLabel(option)}
-                    </li>
-                  )}
-                  renderInput={(params: any) => (
-                    <AppFilterTextField
-                      id='student-name-input'
-                      {...params}
-                      label='ชื่อ-สกุล นักเรียน'
-                      placeholder='ค้นหาชื่อหรือนามสกุล'
-                      slotProps={{
-                        ...params.slotProps,
-                        input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
-                        inputLabel: { shrink: true },
-                      }}
-                    />
-                  )}
-                  noOptionsText='ไม่พบข้อมูล'
-                />
-              </FormControl>
+              <AppFilterAutocomplete
+                id='studentName'
+                fullWidth
+                disablePortal={false}
+                value={fullName || null}
+                options={Array.isArray(students) ? students : []}
+                loading={loadingStudents}
+                onInputChange={onSearchChange}
+                onChange={(_, newValue: any) => onHandleChangeStudent(_, newValue)}
+                sx={{
+                  '& .MuiAutocomplete-clearIndicator': { visibility: fullName ? 'visible' : 'hidden' },
+                }}
+                getOptionLabel={getStudentLabel}
+                isOptionEqualToValue={(option: any, value: any) => {
+                  if (typeof option === 'string' || typeof value === 'string') {
+                    return option === value;
+                  }
+                  return option?.id === value?.id;
+                }}
+                renderOption={(props: any, option: any) => (
+                  <li {...props} key={option.id}>
+                    {getStudentLabel(option)}
+                  </li>
+                )}
+                renderInput={(params: any) => (
+                  <AppFilterTextField
+                    id='student-name-input'
+                    {...params}
+                    label='ชื่อ-สกุล นักเรียน'
+                    placeholder='ค้นหาชื่อหรือนามสกุล'
+                    slotProps={{
+                      ...params.slotProps,
+                      input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
+                      inputLabel: { shrink: true },
+                    }}
+                  />
+                )}
+                noOptionsText='ไม่พบข้อมูล'
+              />
             </FilterGrid>
 
             <FilterGrid id='student-list-classroom-filter' size={{ xs: 12, md: 3 }}>
-              <FormControl id='classroom-form-control' fullWidth>
-                <Autocomplete
-                  id='classroom'
-                  fullWidth
-                  disablePortal={false}
-                  value={defaultClassroom || null}
-                  options={sortedClassrooms}
-                  loading={loading}
-                  onChange={(_, newValue: any) => onHandleChange(_, newValue)}
-                  getOptionLabel={(option: any) => option?.name ?? ''}
-                  isOptionEqualToValue={(option: any, value: any) => {
-                    if (!option || !value) return false;
-                    return option.id === value.id;
-                  }}
-                  groupBy={(option: any) => option.department?.name}
-                  sx={{ '& .MuiAutocomplete-clearIndicator': { visibility: defaultClassroom ? 'visible' : 'hidden' } }}
-                  renderInput={(params: any) => (
-                    <AppFilterTextField
-                      id='classroom-input'
-                      {...params}
-                      label='ห้องเรียน'
-                      placeholder='เลือกห้องเรียน'
-                      error={(!classrooms || classrooms.length === 0) && !loading}
-                      helperText={(!classrooms || classrooms.length === 0) && !loading ? 'ไม่พบข้อมูลห้องเรียน' : ''}
-                      slotProps={{
-                        ...params.slotProps,
-                        input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
-                        inputLabel: { shrink: true },
-                      }}
-                    />
-                  )}
-                  noOptionsText='ไม่พบข้อมูล'
-                />
-              </FormControl>
+              <AppFilterAutocomplete
+                id='classroom'
+                fullWidth
+                disablePortal={false}
+                value={defaultClassroom || null}
+                options={sortedClassrooms}
+                loading={loading}
+                onChange={(_, newValue: any) => onHandleChange(_, newValue)}
+                getOptionLabel={(option: any) => option?.name ?? ''}
+                isOptionEqualToValue={(option: any, value: any) => {
+                  if (!option || !value) return false;
+                  return option.id === value.id;
+                }}
+                groupBy={(option: any) => option.department?.name}
+                sx={{ '& .MuiAutocomplete-clearIndicator': { visibility: defaultClassroom ? 'visible' : 'hidden' } }}
+                renderInput={(params: any) => (
+                  <AppFilterTextField
+                    id='classroom-input'
+                    {...params}
+                    label='ห้องเรียน'
+                    placeholder='เลือกห้องเรียน'
+                    error={(!classrooms || classrooms.length === 0) && !loading}
+                    helperText={(!classrooms || classrooms.length === 0) && !loading ? 'ไม่พบข้อมูลห้องเรียน' : ''}
+                    slotProps={{
+                      ...params.slotProps,
+                      input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
+                      inputLabel: { shrink: true },
+                    }}
+                  />
+                )}
+                noOptionsText='ไม่พบข้อมูล'
+              />
             </FilterGrid>
 
             <FilterGrid id='student-list-status-filter' size={{ xs: 12, md: 3 }}>
@@ -409,11 +403,11 @@ const TableHeader = memo((props: TableHeaderProps) => {
                 <InputLabel id='student-status-label' shrink>
                   สถานะนักเรียน
                 </InputLabel>
-                <Select
+                <AppFilterSelect
                   id='student-status-select'
                   labelId='student-status-label'
                   value={studentStatus}
-                  onChange={(e) => onStatusChange(e.target.value)}
+                  onChange={(e) => onStatusChange(e.target.value as string)}
                   displayEmpty
                   input={
                     <OutlinedInput
@@ -436,17 +430,12 @@ const TableHeader = memo((props: TableHeaderProps) => {
                       }
                     />
                   }
-                  sx={{
-                    '& .MuiSelect-select': {
-                      fontSize: 'clamp(1rem, 0.96rem + 0.14vw, 1.06rem)',
-                    },
-                  }}
                 >
                   <MenuItem value=''>ทุกสถานะ</MenuItem>
                   <MenuItem value='กำลังศึกษา'>เรียนอยู่</MenuItem>
                   <MenuItem value='จบการศึกษา'>จบการศึกษา</MenuItem>
                   <MenuItem value='ออกก่อนกำหนด'>ไม่เรียนแล้ว</MenuItem>
-                </Select>
+                </AppFilterSelect>
               </AppFilterFormControl>
             </FilterGrid>
           </Grid>
