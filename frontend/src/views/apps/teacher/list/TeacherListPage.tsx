@@ -3,11 +3,8 @@
 import {
   Alert,
   AlertTitle,
-  Avatar,
   Box,
   Button,
-  Card,
-  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,12 +15,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { alpha, styled } from '@mui/material/styles';
 import { HumanMaleBoard } from 'mdi-material-ui';
 import Grid from '@mui/material/Grid';
 import React, { Fragment, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useResponsive } from '@/@core/hooks/useResponsive';
-import { DataGrid } from '@mui/x-data-grid';
+import AppDataGrid from '@/@core/components/data-grid/AppDataGrid';
+import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import { toast } from 'react-toastify';
 
 import AddTeacherDrawer from '@/views/apps/teacher/list/AddUserDrawer';
@@ -41,6 +39,36 @@ import { PAGE_SIZE_OPTIONS } from '@/views/apps/teacher/list/constants';
 import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
 import { useImportTeachers, type TeacherImportResult } from '@/hooks/queries';
+
+const StyledDataGrid = styled(AppDataGrid)(({ theme }) => ({
+  '& .MuiDataGrid-row': {
+    '&:nth-of-type(even)': {
+      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.035 : 0.02),
+    },
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.055),
+    },
+  },
+  '& .MuiDataGrid-columnHeaders': {
+    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
+    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
+    borderBottom: `2px solid ${alpha(theme.palette.primary.main, 0.22)}`,
+  },
+  '& .MuiDataGrid-columnHeaderTitle': {
+    fontSize: '0.8rem',
+    letterSpacing: '0.02em',
+  },
+  '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-cell[data-field="fullName"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+}));
 
 const getErrorMessage = (error: any, fallback: string) => {
   if (typeof error?.response?.data?.message === 'string') {
@@ -85,8 +113,6 @@ const formatExportBirthDate = (value?: Date | string | null) => {
 
   return date.toISOString().slice(0, 10);
 };
-
-type TeacherSummaryColor = 'success' | 'primary' | 'warning';
 
 const TeacherListPage = () => {
   const { isMobile, isTablet } = useResponsive();
@@ -144,14 +170,14 @@ const TeacherListPage = () => {
     [teachers],
   );
   const importToolIsBusy = isDownloadingTemplate || isExporting || isImporting;
-  const teacherSummaryItems = useMemo(
+  const teacherSummaryItems = useMemo<ListSummaryItem[]>(
     () => [
-      { label: 'เปิดใช้งาน', value: activeTeacherCount, color: 'success' as TeacherSummaryColor },
-      { label: 'มีห้องที่ปรึกษา', value: classroomAssignedCount, color: 'primary' as TeacherSummaryColor },
+      { label: 'เปิดใช้งาน', value: activeTeacherCount, color: 'success' },
+      { label: 'มีห้องที่ปรึกษา', value: classroomAssignedCount, color: 'primary' },
       {
         label: importToolIsBusy ? 'กำลังประมวลผลไฟล์' : 'พร้อมนำเข้าไฟล์',
         value: importToolIsBusy ? '...' : '.xlsx',
-        color: 'warning' as TeacherSummaryColor,
+        color: 'warning',
       },
     ],
     [activeTeacherCount, classroomAssignedCount, importToolIsBusy],
@@ -282,186 +308,15 @@ const TeacherListPage = () => {
     <Fragment>
       <Grid container spacing={{ xs: 3, md: 5 }} id='teacher-list-container'>
         <Grid size={12}>
-          <Card
-            id='teacher-list-card'
-            sx={{
-              overflow: 'hidden',
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.12)}`,
-              background: (theme) =>
-                theme.palette.mode === 'dark'
-                  ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.98)} 32%)`
-                  : `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${theme.palette.background.paper} 32%)`,
-              boxShadow: (theme) =>
-                theme.palette.mode === 'dark'
-                  ? `0 18px 42px ${alpha(theme.palette.common.black, 0.24)}`
-                  : `0 18px 42px ${alpha(theme.palette.primary.main, 0.08)}`,
-            }}
-          >
-            <CardHeader
+          <AppListCard id='teacher-list-card'>
+            <AppListCardHeader
               id='teacher-list-card-header'
-              avatar={
-                <Avatar
-                  sx={{
-                    color: (theme) => theme.palette.primary.dark,
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.12),
-                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.22)}`,
-                    width: { xs: 42, sm: 48 },
-                    height: { xs: 42, sm: 48 },
-                    boxShadow: (theme) => `0 10px 24px ${alpha(theme.palette.primary.main, 0.16)}`,
-                  }}
-                >
-                  <HumanMaleBoard />
-                </Avatar>
-              }
-              sx={{
-                color: 'text.primary',
-                alignItems: 'flex-start',
-                px: { xs: 3, sm: 4, lg: 5 },
-                pt: { xs: 3, sm: 4.25 },
-                pb: { xs: 2.5, sm: 3 },
-                background: (theme) =>
-                  theme.palette.mode === 'dark'
-                    ? alpha(theme.palette.primary.main, 0.07)
-                    : alpha(theme.palette.primary.main, 0.03),
-                '& .MuiCardHeader-avatar': {
-                  mt: 0.25,
-                  mr: { xs: 2, sm: 2.5 },
-                },
-                '& .MuiCardHeader-content': {
-                  minWidth: 0,
-                },
-              }}
-              title={
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    flexWrap: 'wrap',
-                    columnGap: { xs: 1, sm: 1.5 },
-                    rowGap: 0.75,
-                  }}
-                >
-                  <Typography
-                    component='span'
-                    sx={{
-                      fontWeight: 800,
-                      fontSize: { xs: '1.45rem', sm: '1.9rem' },
-                      letterSpacing: { xs: '-0.02em', sm: '-0.03em' },
-                      lineHeight: 1.08,
-                      color: 'text.primary',
-                    }}
-                  >
-                    ครู / บุคลากร
-                  </Typography>
-                  {teachers.length > 0 && (
-                    <Box
-                      component='span'
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'baseline',
-                        gap: 0.75,
-                        px: 1.4,
-                        py: 0.6,
-                        borderRadius: 999,
-                        bgcolor: (theme) =>
-                          alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
-                        border: (theme) =>
-                          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
-                        color: 'primary.main',
-                        lineHeight: 1,
-                      }}
-                    >
-                      <Typography
-                        component='span'
-                        sx={{
-                          fontSize: { xs: '1.05rem', sm: '1.15rem' },
-                          fontWeight: 800,
-                          letterSpacing: '-0.02em',
-                          fontVariantNumeric: 'tabular-nums',
-                        }}
-                      >
-                        {teachers.length.toLocaleString('th-TH')}
-                      </Typography>
-                      <Typography
-                        component='span'
-                        sx={{ fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.01em', color: 'text.secondary' }}
-                      >
-                        คน
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              }
-              subheader={
-                <Box>
-                  <Typography
-                    component='p'
-                    sx={{
-                      mt: 1.1,
-                      fontSize: 'clamp(0.98rem, 0.94rem + 0.16vw, 1.06rem)',
-                      fontWeight: 500,
-                      letterSpacing: '-0.01em',
-                      color: 'text.secondary',
-                    }}
-                  >
-                    ค้นหา จัดการ และนำเข้าข้อมูลครู/บุคลากรได้จากแผงเดียว
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: { xs: 0.75, sm: 1 },
-                      mt: 2.25,
-                      maxWidth: 760,
-                    }}
-                  >
-                    {teacherSummaryItems.map((item) => (
-                      <Box
-                        key={item.label}
-                        component='span'
-                        sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 0.75,
-                          px: 1.35,
-                          py: 0.7,
-                          minHeight: 30,
-                          borderRadius: 999,
-                          border: (theme) =>
-                            `1px solid ${alpha(theme.palette[item.color].main, theme.palette.mode === 'dark' ? 0.26 : 0.18)}`,
-                          bgcolor: (theme) =>
-                            alpha(theme.palette[item.color].main, theme.palette.mode === 'dark' ? 0.11 : 0.075),
-                        }}
-                      >
-                        <Typography
-                          component='span'
-                          sx={{
-                            fontSize: '0.8rem',
-                            fontWeight: 800,
-                            lineHeight: 1,
-                            color: `${item.color}.dark`,
-                            fontVariantNumeric: 'tabular-nums',
-                          }}
-                        >
-                          {typeof item.value === 'number' ? item.value.toLocaleString('th-TH') : item.value}
-                        </Typography>
-                        <Typography
-                          component='span'
-                          sx={{ fontSize: '0.78rem', fontWeight: 700, lineHeight: 1, color: 'text.secondary' }}
-                        >
-                          {item.label}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              }
-              slotProps={{
-                subheader: {
-                  component: 'div',
-                },
-              }}
+              icon={<HumanMaleBoard />}
+              title='ครู / บุคลากร'
+              count={teachers.length}
+              countUnit='คน'
+              description='ค้นหา จัดการ และนำเข้าข้อมูลครู/บุคลากรได้จากแผงเดียว'
+              summaryItems={teacherSummaryItems}
             />
             <TableHeader
               value={searchValue}
@@ -540,19 +395,14 @@ const TeacherListPage = () => {
             ) : (
               <Box
                 id='teacher-data-grid-container'
-                sx={{
-                  px: { md: 0 },
-                  '& .MuiDataGrid-root': {
-                    minHeight: 440,
-                  },
-                }}
+                sx={{ '& .MuiDataGrid-root': { minHeight: 440 } }}
               >
-                <DataGrid
+                <StyledDataGrid
                   disableColumnMenu
                   rows={teachers}
                   loading={isLoadingTeachers}
                   getRowHeight={() => 'auto'}
-                  columns={columns}
+                  columns={columns as any}
                   initialState={{
                     pagination: {
                       paginationModel: { pageSize, page: 0 },
@@ -561,9 +411,7 @@ const TeacherListPage = () => {
                   pageSizeOptions={PAGE_SIZE_OPTIONS}
                   onPaginationModelChange={(model) => setPageSize(model.pageSize)}
                   disableRowSelectionOnClick
-                  localeText={{
-                    noRowsLabel: 'ไม่มีข้อมูล',
-                  }}
+                  localeText={{ noRowsLabel: 'ไม่มีข้อมูล' }}
                   slotProps={{
                     pagination: {
                       labelRowsPerPage: 'แถวต่อหน้า',
@@ -572,37 +420,7 @@ const TeacherListPage = () => {
                     },
                   }}
                   sx={{
-                    border: 0,
-                    backgroundColor: 'transparent',
-                    '& .MuiDataGrid-row': {
-                      transition: 'background-color 180ms ease',
-                      '&:nth-of-type(even)': {
-                        backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.035 : 0.02),
-                      },
-                      '&:hover': {
-                        backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.055),
-                      },
-                      maxHeight: 'none !important',
-                    },
-                    '& .MuiDataGrid-columnHeaders': {
-                      backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
-                      borderTop: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
-                      borderBottom: (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.22)}`,
-                    },
-                    '& .MuiDataGrid-columnHeaderTitle': {
-                      color: 'text.primary',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                      letterSpacing: '0.02em',
-                    },
                     '& .MuiDataGrid-cell': {
-                      display: 'flex',
-                      alignItems: 'center',
-                      lineHeight: 'unset !important',
-                      maxHeight: 'none !important',
-                      overflow: 'visible',
-                      whiteSpace: 'normal',
-                      wordWrap: 'break-word',
                       fontSize: isTablet ? '0.8rem' : '0.875rem',
                       px: isTablet ? 1.5 : 2.5,
                       py: isTablet ? 1.25 : 2,
@@ -612,30 +430,11 @@ const TeacherListPage = () => {
                       px: isTablet ? 1.5 : 2.5,
                       py: 1.5,
                     },
-                    '& .MuiDataGrid-footerContainer': {
-                      borderTop: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-                      backgroundColor: (theme) => alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.5 : 0.74),
-                    },
-                    '& .MuiDataGrid-renderingZone': {
-                      maxHeight: 'none !important',
-                    },
-                    '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
-                      pl: { xs: 3, sm: 4, lg: 5 },
-                    },
-                    '& .MuiDataGrid-columnHeader[data-field="actions"]': {
-                      pr: { xs: 3, sm: 4, lg: 5 },
-                    },
-                    '& .MuiDataGrid-cell[data-field="fullName"]': {
-                      pl: { xs: 3, sm: 4, lg: 5 },
-                    },
-                    '& .MuiDataGrid-cell[data-field="actions"]': {
-                      pr: { xs: 3, sm: 4, lg: 5 },
-                    },
                   }}
                 />
               </Box>
             )}
-          </Card>
+          </AppListCard>
         </Grid>
         {addUserOpen && (
           <AddTeacherDrawer
