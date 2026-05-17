@@ -322,12 +322,28 @@ const DepartmentSettingsPage = () => {
       minWidth: 260,
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2' sx={{ fontWeight: 700, fontSize: '0.98rem' }}>
+          <Typography variant='body2' sx={{ fontWeight: 700, fontSize: '0.98rem', lineHeight: 1.4 }}>
             {row.name || '-'}
           </Typography>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.25 }}>
-            {row.departmentId || 'ยังไม่กำหนดรหัสแผนก'}
-          </Typography>
+          <Box
+            component='span'
+            sx={{
+              display: 'inline-block',
+              mt: 0.5,
+              px: 0.75,
+              py: 0.1,
+              borderRadius: 1,
+              fontSize: '0.72rem',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+              color: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.9 : 0.75),
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+            }}
+          >
+            {row.departmentId || '—'}
+          </Box>
         </Box>
       ),
     },
@@ -337,18 +353,28 @@ const DepartmentSettingsPage = () => {
       flex: 0.28,
       minWidth: 220,
       renderCell: ({ row }) => (
-        <Typography
-          variant='body2'
-          color='text.secondary'
-          sx={{
-            display: '-webkit-box',
-            overflow: 'hidden',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-          }}
-        >
-          {row.description || 'ยังไม่มีคำอธิบาย'}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, py: 0.5 }}>
+          <Icon
+            icon='tabler:info-circle'
+            fontSize='0.95rem'
+            style={{ marginTop: 2, flexShrink: 0, opacity: 0.45 }}
+          />
+          <Typography
+            variant='body2'
+            color='text.secondary'
+            sx={{
+              display: '-webkit-box',
+              overflow: 'hidden',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              lineHeight: 1.5,
+              fontStyle: row.description ? 'normal' : 'italic',
+              opacity: row.description ? 1 : 0.55,
+            }}
+          >
+            {row.description || 'ยังไม่มีคำอธิบาย'}
+          </Typography>
+        </Box>
       ),
     },
     {
@@ -358,11 +384,28 @@ const DepartmentSettingsPage = () => {
       minWidth: 190,
       sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>สาขา {row._count?.program ?? 0} รายการ</Typography>
-          <Typography variant='caption' color='text.secondary'>
-            ห้องเรียน {row._count?.classroom ?? 0} • นักเรียน {row._count?.student ?? 0}
-          </Typography>
+        <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <Icon icon='tabler:books' fontSize='0.9rem' style={{ opacity: 0.6, flexShrink: 0 }} />
+            <Typography variant='body2'>
+              สาขา <strong>{row._count?.program ?? 0}</strong> รายการ
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon icon='tabler:door' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Typography variant='caption' color='text.secondary'>
+                {row._count?.classroom ?? 0} ห้อง
+              </Typography>
+            </Box>
+            <Typography variant='caption' color='text.disabled'>·</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon icon='tabler:users' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Typography variant='caption' color='text.secondary'>
+                {row._count?.student ?? 0} คน
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       ),
     },
@@ -388,11 +431,14 @@ const DepartmentSettingsPage = () => {
       field: 'updatedAt',
       headerName: 'อัปเดตล่าสุด',
       flex: 0.18,
-      minWidth: 180,
+      minWidth: 170,
       renderCell: ({ row }) => (
-        <Typography variant='body2' color='text.secondary'>
-          {formatThaiDateTime(row.updatedAt)}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <Icon icon='tabler:calendar-event' fontSize='0.95rem' style={{ opacity: 0.45, flexShrink: 0 }} />
+          <Typography variant='body2' color='text.secondary'>
+            {formatThaiDateTime(row.updatedAt)}
+          </Typography>
+        </Box>
       ),
     },
     {
