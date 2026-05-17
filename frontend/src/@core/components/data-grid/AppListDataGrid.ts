@@ -23,6 +23,20 @@ const AppListDataGrid = styled(AppDataGrid)(({ theme }) => ({
 
 export default AppListDataGrid;
 
+// Settings-variant: first column is "name" (department/program/classroom)
+export const AppSettingsDataGrid = styled(AppDataGrid)(({ theme }) => ({
+  '& .MuiDataGrid-columnHeader[data-field="name"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+  '& .MuiDataGrid-cell[data-field="name"]': {
+    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
+    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
+  },
+}));
+
 // Teacher-variant: zebra rows + stronger column header accents
 export const AppTeacherDataGrid = styled(AppListDataGrid)(({ theme }) => ({
   '& .MuiDataGrid-row': {
