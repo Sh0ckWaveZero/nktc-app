@@ -411,15 +411,25 @@ const ClassroomSettingsPage = () => {
           >
             {row.name || '-'}
           </Typography>
-          <Typography
-            variant='caption'
+          <Box
+            component='span'
             sx={{
-              color: 'text.secondary',
-              display: 'block',
-              mt: 0.25
-            }}>
-            {row.classroomId || 'ยังไม่กำหนดรหัสห้องเรียน'}
-          </Typography>
+              display: 'inline-block',
+              mt: 0.5,
+              px: 0.75,
+              py: 0.1,
+              borderRadius: 1,
+              fontSize: '0.72rem',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+              color: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.9 : 0.75),
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+            }}
+          >
+            {row.classroomId || '—'}
+          </Box>
         </Box>
       ),
     },
@@ -430,17 +440,17 @@ const ClassroomSettingsPage = () => {
       minWidth: 220,
       sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
-          <Typography
-            variant='caption'
-            sx={{
-              color: 'text.secondary',
-              display: 'block',
-              mt: 0.25
-            }}>
-            {row.program?.name || 'ไม่ระบุสาขา'} • {row.level?.levelName || 'ไม่ระบุระดับ'}
-          </Typography>
+        <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <Icon icon='tabler:building' fontSize='0.9rem' style={{ opacity: 0.55, flexShrink: 0 }} />
+            <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <Icon icon='tabler:books' fontSize='0.85rem' style={{ opacity: 0.45, flexShrink: 0 }} />
+            <Typography variant='caption' color='text.secondary'>
+              {row.program?.name || 'ไม่ระบุสาขา'} • {row.level?.levelName || 'ไม่ระบุระดับ'}
+            </Typography>
+          </Box>
         </Box>
       ),
     },
@@ -451,13 +461,24 @@ const ClassroomSettingsPage = () => {
       minWidth: 190,
       sortable: false,
       renderCell: ({ row }) => (
-        <Box sx={{ py: 1.5 }}>
-          <Typography variant='body2'>นักเรียน {row._count?.student ?? 0} คน</Typography>
-          <Typography variant='caption' sx={{
-            color: 'text.secondary'
-          }}>
-            ครู {row._count?.teachers ?? 0} • รายวิชา {row._count?.course ?? 0}
-          </Typography>
+        <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+            <Icon icon='tabler:users' fontSize='0.9rem' style={{ opacity: 0.6, flexShrink: 0 }} />
+            <Typography variant='body2'>
+              นักเรียน <strong>{row._count?.student ?? 0}</strong> คน
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon icon='tabler:user-star' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Typography variant='caption' color='text.secondary'>ครู {row._count?.teachers ?? 0}</Typography>
+            </Box>
+            <Typography variant='caption' color='text.disabled'>·</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon icon='tabler:book' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Typography variant='caption' color='text.secondary'>วิชา {row._count?.course ?? 0}</Typography>
+            </Box>
+          </Box>
         </Box>
       ),
     },
@@ -488,19 +509,14 @@ const ClassroomSettingsPage = () => {
         const formatted = formatThaiDateTimeParts(row.updatedAt);
 
         return (
-          <Box sx={{ py: 1.5 }}>
-            <Typography variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
-              {formatted.date}
-            </Typography>
-            {formatted.time ? (
-              <Typography variant='caption' sx={{
-                color: 'text.secondary'
-              }}>
-                {formatted.time}
-              </Typography>
-            ) : null}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, py: 0.5 }}>
+            <Icon icon='tabler:calendar-event' fontSize='0.95rem' style={{ opacity: 0.45, flexShrink: 0, marginTop: 2 }} />
+            <Box>
+              <Typography variant='body2' color='text.secondary'>{formatted.date}</Typography>
+              {formatted.time ? (
+                <Typography variant='caption' color='text.secondary'>{formatted.time}</Typography>
+              ) : null}
+            </Box>
           </Box>
         );
       },
@@ -817,32 +833,14 @@ const ClassroomSettingsPage = () => {
               </SectionBox>
 
               <Grid container spacing={3} sx={{ mb: 4 }}>
-                {[
-                  {
-                    label: 'ห้องเรียนทั้งหมด',
-                    value: summary.total,
-                    hint: `${summary.active} เปิดใช้งาน`,
-                    icon: 'tabler:door',
-                  },
-                  {
-                    label: 'ปิดใช้งาน',
-                    value: summary.inactive,
-                    hint: 'พักใช้งานชั่วคราว',
-                    icon: 'tabler:door-off',
-                  },
-                  {
-                    label: 'นักเรียนที่ผูกอยู่',
-                    value: summary.students,
-                    hint: 'รวมทั้งระบบ',
-                    icon: 'tabler:users',
-                  },
-                  {
-                    label: 'ครูที่ผูกอยู่',
-                    value: summary.teachers,
-                    hint: 'พร้อมใช้งานต่อในระบบ',
-                    icon: 'tabler:user-star',
-                  },
-                ].map((item) => (
+                {(
+                  [
+                    { label: 'ห้องเรียนทั้งหมด', value: summary.total, hint: `${summary.active} เปิดใช้งาน`, icon: 'tabler:door', colorKey: 'primary' },
+                    { label: 'ปิดใช้งาน', value: summary.inactive, hint: 'พักใช้งานชั่วคราว', icon: 'tabler:door-off', colorKey: 'warning' },
+                    { label: 'นักเรียนที่ผูกอยู่', value: summary.students, hint: 'รวมทั้งระบบ', icon: 'tabler:users', colorKey: 'info' },
+                    { label: 'ครูที่ผูกอยู่', value: summary.teachers, hint: 'พร้อมใช้งานต่อในระบบ', icon: 'tabler:user-star', colorKey: 'success' },
+                  ] as Array<{ label: string; value: number; hint: string; icon: string; colorKey: 'primary' | 'warning' | 'info' | 'success' }>
+                ).map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
                     <SectionBox sx={{ p: 3, height: '100%' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
@@ -853,24 +851,20 @@ const ClassroomSettingsPage = () => {
                             height: 40,
                             borderRadius: 2.5,
                             bgcolor: (theme) =>
-                              alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
-                            color: 'primary.main',
+                              alpha(theme.palette[item.colorKey].main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                            color: `${item.colorKey}.main`,
                           }}
                         >
                           <Icon icon={item.icon} fontSize='1.2rem' />
                         </Avatar>
-                        <Typography variant='body2' sx={{
-                          color: 'text.secondary'
-                        }}>
+                        <Typography variant='body2' color='text.secondary'>
                           {item.label}
                         </Typography>
                       </Box>
                       <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
                         {item.value}
                       </Typography>
-                      <Typography variant='caption' sx={{
-                        color: 'text.secondary'
-                      }}>
+                      <Typography variant='caption' color='text.secondary'>
                         {item.hint}
                       </Typography>
                     </SectionBox>

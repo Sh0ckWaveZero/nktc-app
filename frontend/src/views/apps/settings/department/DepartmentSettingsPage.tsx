@@ -679,32 +679,14 @@ const DepartmentSettingsPage = () => {
               </SectionBox>
 
               <Grid container spacing={3} sx={{ mb: 4 }}>
-                {[
-                  {
-                    label: 'แผนกทั้งหมด',
-                    value: summary.total,
-                    hint: `${summary.active} เปิดใช้งาน`,
-                    icon: 'tabler:building-community',
-                  },
-                  {
-                    label: 'ปิดใช้งาน',
-                    value: summary.inactive,
-                    hint: 'รอตรวจสอบหรือพักใช้งาน',
-                    icon: 'tabler:building-off',
-                  },
-                  {
-                    label: 'สาขาที่ผูกอยู่',
-                    value: summary.programs,
-                    hint: 'รวมทั้งระบบ',
-                    icon: 'tabler:school',
-                  },
-                  {
-                    label: 'ห้องเรียนที่ผูกอยู่',
-                    value: summary.classrooms,
-                    hint: 'พร้อมใช้งานต่อในระบบ',
-                    icon: 'tabler:door',
-                  },
-                ].map((item) => (
+                {(
+                  [
+                    { label: 'แผนกทั้งหมด', value: summary.total, hint: `${summary.active} เปิดใช้งาน`, icon: 'tabler:building-community', colorKey: 'primary' },
+                    { label: 'ปิดใช้งาน', value: summary.inactive, hint: 'รอตรวจสอบหรือพักใช้งาน', icon: 'tabler:building-off', colorKey: 'warning' },
+                    { label: 'สาขาที่ผูกอยู่', value: summary.programs, hint: 'รวมทั้งระบบ', icon: 'tabler:school', colorKey: 'info' },
+                    { label: 'ห้องเรียนที่ผูกอยู่', value: summary.classrooms, hint: 'พร้อมใช้งานต่อในระบบ', icon: 'tabler:door', colorKey: 'success' },
+                  ] as Array<{ label: string; value: number; hint: string; icon: string; colorKey: 'primary' | 'warning' | 'info' | 'success' }>
+                ).map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
                     <SectionBox sx={{ p: 3, height: '100%' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
@@ -715,8 +697,8 @@ const DepartmentSettingsPage = () => {
                             height: 40,
                             borderRadius: 2.5,
                             bgcolor: (theme) =>
-                              alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
-                            color: 'primary.main',
+                              alpha(theme.palette[item.colorKey].main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                            color: `${item.colorKey}.main`,
                           }}
                         >
                           <Icon icon={item.icon} fontSize='1.2rem' />

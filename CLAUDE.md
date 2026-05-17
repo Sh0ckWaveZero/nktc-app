@@ -319,6 +319,7 @@ When working with frontend state:
 - Material-UI components over custom HTML elements
 - Consistent naming: PascalCase for components, camelCase for functions
 - File naming: kebab-case for files and directories
+- **Every interactive HTML element and MUI component must have an `id` prop** — buttons, inputs, selects, dialogs, forms, toolbars, data grids, etc. Use kebab-case descriptive IDs (e.g., `id='add-student-button'`, `id='student-search-input'`)
 
 ### Styling Approach
 
