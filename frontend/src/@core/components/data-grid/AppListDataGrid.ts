@@ -35,6 +35,23 @@ export const AppSettingsDataGrid = styled(AppDataGrid)(({ theme }) => ({
     [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
     [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
   },
+  '& .MuiDataGrid-row': {
+    '&:nth-of-type(even)': {
+      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.035 : 0.02),
+    },
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.1 : 0.045),
+    },
+  },
+  '& .MuiDataGrid-columnHeaders': {
+    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.06),
+    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+    borderBottom: `2px solid ${alpha(theme.palette.primary.main, 0.18)}`,
+  },
+  '& .MuiDataGrid-columnHeaderTitle': {
+    fontSize: '0.8rem',
+    letterSpacing: '0.02em',
+  },
 }));
 
 // Teacher-variant: zebra rows + stronger column header accents

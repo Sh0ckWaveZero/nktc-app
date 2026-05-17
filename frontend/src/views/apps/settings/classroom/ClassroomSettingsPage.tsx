@@ -442,11 +442,15 @@ const ClassroomSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-            <Icon icon='tabler:building' fontSize='0.9rem' style={{ opacity: 0.55, flexShrink: 0 }} />
+            <Box component='span' sx={{ color: 'info.main', display: 'inline-flex', flexShrink: 0, opacity: 0.8 }}>
+              <Icon icon='tabler:building' fontSize='0.9rem' />
+            </Box>
             <Typography variant='body2'>{row.department?.name || 'ไม่ระบุแผนก'}</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-            <Icon icon='tabler:books' fontSize='0.85rem' style={{ opacity: 0.45, flexShrink: 0 }} />
+            <Box component='span' sx={{ color: 'info.main', display: 'inline-flex', flexShrink: 0, opacity: 0.6 }}>
+              <Icon icon='tabler:books' fontSize='0.85rem' />
+            </Box>
             <Typography variant='caption' color='text.secondary'>
               {row.program?.name || 'ไม่ระบุสาขา'} • {row.level?.levelName || 'ไม่ระบุระดับ'}
             </Typography>
@@ -463,19 +467,25 @@ const ClassroomSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-            <Icon icon='tabler:users' fontSize='0.9rem' style={{ opacity: 0.6, flexShrink: 0 }} />
+            <Box component='span' sx={{ color: 'success.main', display: 'inline-flex', flexShrink: 0, opacity: 0.85 }}>
+              <Icon icon='tabler:users' fontSize='0.9rem' />
+            </Box>
             <Typography variant='body2'>
               นักเรียน <strong>{row._count?.student ?? 0}</strong> คน
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Icon icon='tabler:user-star' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Box component='span' sx={{ color: 'primary.main', display: 'inline-flex', flexShrink: 0, opacity: 0.75 }}>
+                <Icon icon='tabler:user-star' fontSize='0.85rem' />
+              </Box>
               <Typography variant='caption' color='text.secondary'>ครู {row._count?.teachers ?? 0}</Typography>
             </Box>
             <Typography variant='caption' color='text.disabled'>·</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Icon icon='tabler:book' fontSize='0.85rem' style={{ opacity: 0.5, flexShrink: 0 }} />
+              <Box component='span' sx={{ color: 'info.main', display: 'inline-flex', flexShrink: 0, opacity: 0.7 }}>
+                <Icon icon='tabler:book' fontSize='0.85rem' />
+              </Box>
               <Typography variant='caption' color='text.secondary'>วิชา {row._count?.course ?? 0}</Typography>
             </Box>
           </Box>
