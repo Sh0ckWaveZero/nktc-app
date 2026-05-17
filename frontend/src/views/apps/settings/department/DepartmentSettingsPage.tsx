@@ -32,7 +32,7 @@ import { toast } from 'react-toastify';
 
 import httpClient from '@/@core/utils/http';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
-import Icon from '@/@core/components/icon';
+import Icon, { ColorIcon } from '@/@core/components/icon';
 import { authConfig } from '@/configs/auth';
 import {
   useCreateDepartment,
@@ -386,27 +386,21 @@ const DepartmentSettingsPage = () => {
       renderCell: ({ row }) => (
         <Box sx={{ py: 1.5, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-            <Box component='span' sx={{ color: 'info.main', display: 'inline-flex', flexShrink: 0, opacity: 0.8 }}>
-              <Icon icon='tabler:books' fontSize='0.9rem' />
-            </Box>
+            <ColorIcon icon='tabler:books' color='info' fontSize='0.9rem' />
             <Typography variant='body2'>
               สาขา <strong>{row._count?.program ?? 0}</strong> รายการ
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box component='span' sx={{ color: 'warning.main', display: 'inline-flex', flexShrink: 0, opacity: 0.75 }}>
-                <Icon icon='tabler:door' fontSize='0.85rem' />
-              </Box>
+              <ColorIcon icon='tabler:door' color='warning' fontSize='0.85rem' opacity={0.75} />
               <Typography variant='caption' color='text.secondary'>
                 {row._count?.classroom ?? 0} ห้อง
               </Typography>
             </Box>
             <Typography variant='caption' color='text.disabled'>·</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box component='span' sx={{ color: 'success.main', display: 'inline-flex', flexShrink: 0, opacity: 0.8 }}>
-                <Icon icon='tabler:users' fontSize='0.85rem' />
-              </Box>
+              <ColorIcon icon='tabler:users' color='success' fontSize='0.85rem' />
               <Typography variant='caption' color='text.secondary'>
                 {row._count?.student ?? 0} คน
               </Typography>
