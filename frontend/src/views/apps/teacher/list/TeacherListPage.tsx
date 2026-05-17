@@ -1,26 +1,23 @@
 'use client';
 
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { alpha, styled } from '@mui/material/styles';
-import { HumanMaleBoard } from 'mdi-material-ui';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
+import { alpha, useTheme } from '@mui/material/styles';
+import { HumanMaleBoard } from 'mdi-material-ui';
 import React, { Fragment, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useResponsive } from '@/@core/hooks/useResponsive';
-import AppDataGrid from '@/@core/components/data-grid/AppDataGrid';
+import { AppTeacherDataGrid } from '@/@core/components/data-grid/AppListDataGrid';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import { toast } from 'react-toastify';
 
@@ -39,36 +36,6 @@ import { PAGE_SIZE_OPTIONS } from '@/views/apps/teacher/list/constants';
 import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
 import { useImportTeachers, type TeacherImportResult } from '@/hooks/queries';
-
-const StyledDataGrid = styled(AppDataGrid)(({ theme }) => ({
-  '& .MuiDataGrid-row': {
-    '&:nth-of-type(even)': {
-      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.035 : 0.02),
-    },
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.055),
-    },
-  },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
-    borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
-    borderBottom: `2px solid ${alpha(theme.palette.primary.main, 0.22)}`,
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    fontSize: '0.8rem',
-    letterSpacing: '0.02em',
-  },
-  '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
-    paddingLeft: theme.spacing(3),
-    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
-    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
-  },
-  '& .MuiDataGrid-cell[data-field="fullName"]': {
-    paddingLeft: theme.spacing(3),
-    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
-    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
-  },
-}));
 
 const getErrorMessage = (error: any, fallback: string) => {
   if (typeof error?.response?.data?.message === 'string') {
@@ -397,7 +364,7 @@ const TeacherListPage = () => {
                 id='teacher-data-grid-container'
                 sx={{ '& .MuiDataGrid-root': { minHeight: 440 } }}
               >
-                <StyledDataGrid
+                <AppTeacherDataGrid
                   disableColumnMenu
                   rows={teachers}
                   loading={isLoadingTeachers}
@@ -484,8 +451,8 @@ const TeacherListPage = () => {
           />
         </Box>
       )}
-      <Dialog open={isImportResultOpen} fullWidth maxWidth='sm' onClose={() => setIsImportResultOpen(false)}>
-        <DialogTitle>ผลการนำเข้าข้อมูลครูและบุคลากร</DialogTitle>
+      <Dialog id='teacher-import-result-dialog' open={isImportResultOpen} fullWidth maxWidth='sm' aria-labelledby='teacher-import-result-title' onClose={() => setIsImportResultOpen(false)}>
+        <DialogTitle id='teacher-import-result-title'>ผลการนำเข้าข้อมูลครูและบุคลากร</DialogTitle>
         <DialogContent>
           {importResult && (
             <>
@@ -562,12 +529,12 @@ const TeacherListPage = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
-          <Button variant='contained' onClick={() => setIsImportResultOpen(false)}>
+          <Button id='teacher-import-result-close-button' variant='contained' onClick={() => setIsImportResultOpen(false)}>
             ปิด
           </Button>
         </DialogActions>
       </Dialog>
-      <input ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
+      <input id='teacher-import-file-input' ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
     </Fragment>
   );
 };

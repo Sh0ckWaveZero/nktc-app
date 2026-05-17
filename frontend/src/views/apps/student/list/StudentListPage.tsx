@@ -18,9 +18,9 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { GridColDef } from '@mui/x-data-grid';
-import { alpha, styled } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
-import AppDataGrid from '@/@core/components/data-grid/AppDataGrid';
+import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import React, { memo, useMemo, useCallback } from 'react';
 import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine, RiGraduationCapLine, RiArrowUpLine } from 'react-icons/ri';
@@ -36,21 +36,6 @@ import StudentBulkGraduationDialog from '@/components/dialogs/StudentBulkGraduat
 import StudentIndividualPromotionDialog from '@/components/dialogs/StudentIndividualPromotionDialog';
 import { useStudentList } from '@/hooks/features/student';
 import type { StudentImportResult } from '@/hooks/queries/useStudents';
-
-// ─── Styled Components ────────────────────────────────────────────────────────
-
-const StyledDataGrid = styled(AppDataGrid)(({ theme }) => ({
-  '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
-    paddingLeft: theme.spacing(3),
-    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
-    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
-  },
-  '& .MuiDataGrid-cell[data-field="fullName"]': {
-    paddingLeft: theme.spacing(3),
-    [theme.breakpoints.up('sm')]: { paddingLeft: theme.spacing(4) },
-    [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(5) },
-  },
-}));
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -493,7 +478,7 @@ const StudentListPage = () => {
               isDeleting={isDeletingAll}
             />
             <Box id='student-list-data-grid'>
-              <StyledDataGrid
+              <AppListDataGrid
                 rows={students}
                 columns={columns}
                 loading={loadingStudent}
