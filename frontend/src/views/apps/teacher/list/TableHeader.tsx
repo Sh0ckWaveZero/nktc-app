@@ -2,12 +2,11 @@
 
 import IconifyIcon from '@/@core/components/icon';
 import { SectionBox } from '@/@core/components/filter-panel';
+import { AppSearchTextField, AppContainedButton } from '@/@core/components/form';
 import { ToolButton, ToolButtonSlot, ToolDivider } from '@/@core/components/toolbar';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { alpha } from '@mui/material/styles';
 
@@ -52,7 +51,7 @@ const TableHeader = ({
             gap: { xs: 1.75, sm: 2 },
           }}
         >
-          <TextField
+          <AppSearchTextField
             id='teacher-search-input'
             size='small'
             value={value}
@@ -70,25 +69,6 @@ const TableHeader = ({
             sx={{
               width: { xs: '100%', md: 360 },
               flex: { xs: '1 1 auto', md: '0 1 360px' },
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2.5,
-                backgroundColor: (theme) =>
-                  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.9 : 0.96),
-                transition: 'border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease',
-                '& .MuiInputAdornment-root': { color: 'primary.main' },
-                '& fieldset': {
-                  borderColor: (theme) =>
-                    alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.16),
-                },
-                '&:hover fieldset': {
-                  borderColor: (theme) => alpha(theme.palette.primary.main, 0.38),
-                },
-                '&.Mui-focused': {
-                  backgroundColor: 'background.paper',
-                  boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.1)}`,
-                },
-                '&.Mui-focused fieldset': { borderColor: 'primary.main' },
-              },
             }}
           />
 
@@ -168,27 +148,16 @@ const TableHeader = ({
               </Tooltip>
             </Box>
 
-            <Button
+            <AppContainedButton
               id='add-teacher-button'
               variant='contained'
               disableElevation
               onClick={toggle}
               startIcon={<IconifyIcon icon='tabler:user-plus' />}
-              sx={{
-                borderRadius: 2.5,
-                whiteSpace: 'nowrap',
-                px: 3,
-                py: 1,
-                minHeight: 40,
-                width: { xs: '100%', sm: 'auto' },
-                boxShadow: (theme) => `0 8px 18px ${alpha(theme.palette.primary.main, 0.24)}`,
-                '&:hover': {
-                  boxShadow: (theme) => `0 10px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
-                },
-              }}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               เพิ่มครู / บุคลากร
-            </Button>
+            </AppContainedButton>
           </Stack>
         </Stack>
       </SectionBox>

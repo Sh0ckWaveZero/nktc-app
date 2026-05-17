@@ -1,10 +1,19 @@
 import Icon from '@/@core/components/icon';
 import { FilterGrid, SectionBox, SectionDescription, SectionTitle } from '@/@core/components/filter-panel';
+import { AppFilterTextField, AppFilterFormControl } from '@/@core/components/form';
 import { ActiveToolButton, ToolButton, ToolButtonSlot, ToolDivider } from '@/@core/components/toolbar';
-import { Autocomplete, Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack, Tooltip } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import { alpha, styled } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
 import { Close } from '@mui/icons-material';
 import Link from 'next/link';
 import { ChangeEvent, memo, useMemo, useRef } from 'react';
@@ -40,14 +49,11 @@ interface TableHeaderProps {
 }
 
 const TOOLBAR_RADIUS = 14;
-const CONTROL_RADIUS = 12;
 
 const getToolbarSurfaceColor = (theme: any) =>
   theme.palette.mode === 'dark'
     ? alpha(theme.palette.background.paper, 0.04)
     : alpha(theme.palette.background.paper, 0.98);
-const getControlSurfaceColor = (theme: any) =>
-  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.96 : 0.82);
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
@@ -123,42 +129,6 @@ const TableHeader = memo((props: TableHeaderProps) => {
     void onImportStudents(file);
     event.target.value = '';
   };
-
-  const controlTextFieldSx = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: `${CONTROL_RADIUS}px`,
-      backgroundColor: (theme: any) => getControlSurfaceColor(theme),
-      color: 'text.primary',
-      fontSize: 'clamp(1rem, 0.96rem + 0.14vw, 1.06rem)',
-      '& fieldset': {
-        borderColor: (theme: any) => alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.16 : 0.12),
-      },
-      '&:hover fieldset': {
-        borderColor: (theme: any) => alpha(theme.palette.primary.main, 0.28),
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'primary.main',
-      },
-    },
-    '& .MuiInputBase-input': {
-      letterSpacing: '-0.01em',
-    },
-    '& .MuiInputLabel-root': {
-      fontSize: '0.9rem',
-      fontWeight: 600,
-      letterSpacing: '-0.01em',
-    },
-    '& .MuiInputLabel-shrink': {
-      fontSize: '0.86rem',
-    },
-    '& .MuiSvgIcon-root': {
-      color: 'text.secondary',
-    },
-    '& .MuiFormHelperText-root:not(.Mui-error)': {
-      color: 'text.secondary',
-      fontWeight: 500,
-    },
-  } as const;
 
   return (
     <Grid
@@ -326,34 +296,31 @@ const TableHeader = memo((props: TableHeaderProps) => {
 
           <Grid container spacing={{ xs: 1.5, sm: 2 }}>
             <FilterGrid id='student-list-student-id-filter' size={{ xs: 12, md: 3 }}>
-              <FormControl id='student-id-form-control' fullWidth>
-                <TextField
-                  id='studentId'
-                  fullWidth
-                  label='รหัสนักเรียน'
-                  placeholder='เช่น 654230001'
-                  value={studentId}
-                  onChange={(e) => onHandleStudentId(e.target.value)}
-                  slotProps={{
-                    input: {
-                      endAdornment: studentId && (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            id='clear-student-id-button'
-                            size='small'
-                            edge='end'
-                            onClick={() => onHandleStudentId('')}
-                            aria-label='clear student id'
-                          >
-                            <Close fontSize='small' />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                  sx={controlTextFieldSx}
-                />
-              </FormControl>
+              <AppFilterTextField
+                id='studentId'
+                fullWidth
+                label='รหัสนักเรียน'
+                placeholder='เช่น 654230001'
+                value={studentId}
+                onChange={(e) => onHandleStudentId(e.target.value)}
+                slotProps={{
+                  input: {
+                    endAdornment: studentId && (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          id='clear-student-id-button'
+                          size='small'
+                          edge='end'
+                          onClick={() => onHandleStudentId('')}
+                          aria-label='clear student id'
+                        >
+                          <Close fontSize='small' />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
             </FilterGrid>
 
             <FilterGrid id='student-list-student-name-filter' size={{ xs: 12, md: 3 }}>
@@ -383,7 +350,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                     </li>
                   )}
                   renderInput={(params: any) => (
-                    <TextField
+                    <AppFilterTextField
                       id='student-name-input'
                       {...params}
                       label='ชื่อ-สกุล นักเรียน'
@@ -393,7 +360,6 @@ const TableHeader = memo((props: TableHeaderProps) => {
                         input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
                         inputLabel: { shrink: true },
                       }}
-                      sx={controlTextFieldSx}
                     />
                   )}
                   noOptionsText='ไม่พบข้อมูล'
@@ -419,7 +385,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   groupBy={(option: any) => option.department?.name}
                   sx={{ '& .MuiAutocomplete-clearIndicator': { visibility: defaultClassroom ? 'visible' : 'hidden' } }}
                   renderInput={(params: any) => (
-                    <TextField
+                    <AppFilterTextField
                       id='classroom-input'
                       {...params}
                       label='ห้องเรียน'
@@ -431,7 +397,6 @@ const TableHeader = memo((props: TableHeaderProps) => {
                         input: { ...params.slotProps?.input, ...(params.slotProps?.input ?? {}) },
                         inputLabel: { shrink: true },
                       }}
-                      sx={controlTextFieldSx}
                     />
                   )}
                   noOptionsText='ไม่พบข้อมูล'
@@ -440,7 +405,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
             </FilterGrid>
 
             <FilterGrid id='student-list-status-filter' size={{ xs: 12, md: 3 }}>
-              <FormControl fullWidth sx={controlTextFieldSx}>
+              <AppFilterFormControl fullWidth>
                 <InputLabel id='student-status-label' shrink>
                   สถานะนักเรียน
                 </InputLabel>
@@ -482,7 +447,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                   <MenuItem value='จบการศึกษา'>จบการศึกษา</MenuItem>
                   <MenuItem value='ออกก่อนกำหนด'>ไม่เรียนแล้ว</MenuItem>
                 </Select>
-              </FormControl>
+              </AppFilterFormControl>
             </FilterGrid>
           </Grid>
         </SectionBox>
