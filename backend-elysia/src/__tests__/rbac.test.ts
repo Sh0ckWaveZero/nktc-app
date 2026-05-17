@@ -43,9 +43,9 @@ describe("requireRoles", () => {
     mockFindUnique.mockReset();
   });
 
-  it("returns 403 when no Authorization header (null user)", async () => {
+  it("returns 401 when no Authorization header (unauthenticated)", async () => {
     const res = await adminApp.handle(new Request("http://localhost/admin"));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it("returns 403 when user role does not match", async () => {
