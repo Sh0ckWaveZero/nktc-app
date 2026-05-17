@@ -298,6 +298,7 @@ const TeacherListPage = () => {
             }}
           >
             <CardHeader
+              id='teacher-list-card-header'
               avatar={
                 <Avatar
                   sx={{
@@ -617,6 +618,18 @@ const TeacherListPage = () => {
                     },
                     '& .MuiDataGrid-renderingZone': {
                       maxHeight: 'none !important',
+                    },
+                    '& .MuiDataGrid-columnHeader[data-field="fullName"]': {
+                      pl: { xs: 3, sm: 4, lg: 5 },
+                    },
+                    '& .MuiDataGrid-columnHeader[data-field="actions"]': {
+                      pr: { xs: 3, sm: 4, lg: 5 },
+                    },
+                    '& .MuiDataGrid-cell[data-field="fullName"]': {
+                      pl: { xs: 3, sm: 4, lg: 5 },
+                    },
+                    '& .MuiDataGrid-cell[data-field="actions"]': {
+                      pr: { xs: 3, sm: 4, lg: 5 },
                     },
                   }}
                 />
