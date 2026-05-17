@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
+import { PickerDay as PickersDay, PickerDayProps as PickersDayProps } from '@mui/x-date-pickers/PickerDay';
 import { isSameDay, startOfWeek, addDays, isWithinInterval, format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { BUDDHIST_ERA_OFFSET } from '@/@core/utils/constants';
