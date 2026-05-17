@@ -135,7 +135,7 @@ Thumbs.db
 .eslintcache
 .stylelintcache
 .parcel-cache/
-.next-env.d.ts
+next-env.d.ts
 
 # ===== LEGACY/OLD FILES =====
 web/
