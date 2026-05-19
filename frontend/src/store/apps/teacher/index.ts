@@ -61,7 +61,8 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   updateProfile: async (teacher: any) => {
     set({ teacherLoading: true });
     try {
-      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${teacher.id}/profile`, teacher);
+      const { id, ...body } = teacher;
+      const { data } = await httpClient.put(`${authConfig.teacherEndpoint}/${id}/profile`, body);
       set({ teacherLoading: false, hasErrors: false });
       return await data;
     } catch {

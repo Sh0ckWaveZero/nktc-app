@@ -1,7 +1,7 @@
 import { prisma } from "@/libs/prisma";
 import { classroomInclude } from "./model";
 import * as XLSX from "xlsx";
-import { BadRequestError, ConflictError, NotFoundError } from "@/libs/errors";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "@/libs/errors";
 
 export abstract class ClassroomService {
   static async getAll() {
@@ -33,6 +33,87 @@ export abstract class ClassroomService {
       },
       include: classroomInclude,
     });
+  }
+
+  static async createAsTeacher(
+    userId: string,
+    data: {
+      classroomId: string;
+      name: string;
+      description?: string;
+      programId?: string;
+      levelId?: string;
+      status?: string;
+    },
+  ) {
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId },
+      select: { id: true, departmentId: true },
+    });
+    if (!teacher) {
+      throw new ForbiddenError();
+    }
+
+    if (data.programId) {
+      const program = await prisma.program.findUnique({
+        where: { id: data.programId },
+        select: { departmentId: true },
+      });
+      if (!program || program.departmentId !== teacher.departmentId) {
+        throw new BadRequestError(
+          "สาขาวิชาต้องอยู่ในแผนกของครู",
+          "programId",
+        );
+      }
+    }
+
+    const payload = await this.normalizePayload(
+      { ...data, departmentId: teacher.departmentId ?? undefined },
+      { requireClassroomId: true },
+    );
+    await this.ensureUnique(payload);
+
+    const classroom = await prisma.classroom.create({
+      data: {
+        ...payload,
+        createdBy: userId,
+        updatedBy: userId,
+      },
+      include: classroomInclude,
+    });
+
+    await prisma.teacherOnClassroom.create({
+      data: {
+        teacherId: teacher.id,
+        classroomId: classroom.id,
+        createdBy: userId,
+        updatedBy: userId,
+      },
+    });
+
+    return classroom;
+  }
+
+  static async validateTeacherOwnsClassroom(
+    userId: string,
+    classroomId: string,
+  ) {
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!teacher) throw new ForbiddenError();
+
+    const assignment = await prisma.teacherOnClassroom.findUnique({
+      where: {
+        teacherOnClassroomKey: {
+          teacherId: teacher.id,
+          classroomId,
+        },
+      },
+      select: { classroomId: true },
+    });
+    if (!assignment) throw new ForbiddenError();
   }
 
   static async getById(id: string) {

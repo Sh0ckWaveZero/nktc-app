@@ -29,20 +29,32 @@ export const classrooms = new Elysia({ prefix: "/classrooms" })
         .post(
           "/",
           async ({ body, user, set }) => {
-            if ((user as any)?.roles !== "Admin") {
-              throw new ForbiddenError();
+            const role = (user as any)?.roles;
+            const userId = (user as any).sub;
+            if (role === "Admin") {
+              const classroom = await ClassroomService.create({
+                ...(body as ClassroomModel["body"]),
+                createdBy: userId,
+              });
+              set.status = 201;
+              return classroom;
             }
-            const classroom = await ClassroomService.create({
-              ...(body as ClassroomModel["body"]),
-              createdBy: (user as any).sub,
-            });
-            set.status = 201;
-            return classroom;
+            if (role === "Teacher") {
+              const { departmentId: _ignored, ...teacherBody } =
+                body as ClassroomModel["body"] & { departmentId?: string };
+              const classroom = await ClassroomService.createAsTeacher(
+                userId,
+                teacherBody,
+              );
+              set.status = 201;
+              return classroom;
+            }
+            throw new ForbiddenError();
           },
           {
             body: ClassroomModel.body,
             detail: {
-              summary: "Create a new classroom",
+              summary: "Create classroom (Admin: full, Teacher: scoped to own department)",
             },
           },
         )
@@ -60,18 +72,22 @@ export const classrooms = new Elysia({ prefix: "/classrooms" })
         .patch(
           "/:id",
           async ({ params: { id }, body, user }) => {
-            if ((user as any)?.roles !== "Admin") {
+            const role = (user as any)?.roles;
+            const userId = (user as any).sub;
+            if (role === "Teacher") {
+              await ClassroomService.validateTeacherOwnsClassroom(userId, id);
+            } else if (role !== "Admin") {
               throw new ForbiddenError();
             }
             return ClassroomService.update(id, {
               ...(body as ClassroomModel["partial"]),
-              updatedBy: (user as any).sub,
+              updatedBy: userId,
             });
           },
           {
             body: ClassroomModel.partial,
             detail: {
-              summary: "Update a classroom",
+              summary: "Update classroom (Admin: any, Teacher: own classrooms only)",
             },
           },
         )

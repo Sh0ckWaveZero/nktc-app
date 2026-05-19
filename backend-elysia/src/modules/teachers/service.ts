@@ -199,26 +199,42 @@ export abstract class TeacherService {
   static async updateProfile(id: string, data: any) {
     log.info("[TeacherService] updateProfile", { id });
 
+    const { teacher: teacherData, account: accountData, classrooms } = data as {
+      teacher: { id: string; jobTitle?: string; academicStanding?: string; departmentId?: string; status?: string };
+      account: { title?: string; firstName?: string; lastName?: string; birthDate?: string | null; idCard?: string; avatar?: string | null };
+      classrooms?: string[];
+    };
+
     await prisma.$transaction(async (tx) => {
-      const teacher = await tx.teacher.findUnique({
+      const existing = await tx.teacher.findUnique({
         where: { id },
         select: { userId: true },
       });
-      if (teacher?.userId) {
+
+      if (existing?.userId && accountData) {
+        const { id: _accountId, ...accountFields } = accountData as any;
         await tx.account.update({
-          where: { userId: teacher.userId },
-          data,
+          where: { userId: existing.userId },
+          data: {
+            ...accountFields,
+            birthDate: accountFields.birthDate ? new Date(accountFields.birthDate) : null,
+          },
         });
-        log.debug("[TeacherService] updateProfile - account updated", {
-          userId: teacher.userId,
-        });
+        log.debug("[TeacherService] updateProfile - account updated", { userId: existing.userId });
+      }
+
+      if (teacherData) {
+        const { id: _teacherId, ...teacherFields } = teacherData as any;
+        await tx.teacher.update({ where: { id }, data: teacherFields });
+        log.debug("[TeacherService] updateProfile - teacher updated", { id });
       }
     });
 
-    const updated = await prisma.teacher.findUnique({
-      where: { id },
-      include: teacherInclude,
-    });
+    if (classrooms !== undefined) {
+      await this.updateClassrooms(id, classrooms);
+    }
+
+    const updated = await prisma.teacher.findUnique({ where: { id }, include: teacherInclude });
     log.info("[TeacherService] updateProfile success", { id });
     return updated ? stripSensitive(updated) : null;
   }

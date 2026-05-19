@@ -17,7 +17,10 @@ import {
 import Button, { ButtonProps } from '@mui/material/Button';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { useClassroomStore, useDepartmentStore, useUserStore } from '@/store/index';
+import { useClassroomStore, useDepartmentStore } from '@/store/index';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { queryKeys } from '@/libs/react-query/queryKeys';
 
 import { FcCalendar } from 'react-icons/fc';
 import Icon from '@/@core/components/icon';
@@ -65,13 +68,9 @@ const schema = z.object({
 
 const TabTeacherAccount = () => {
   // Hooks
-  const { getMe }: any = useUserStore(
-    (state) => ({
-      getMe: state.getMe,
-    }),
-    shallow,
-  );
   const auth = useAuth();
+  const queryClient = useQueryClient();
+  const { refetch: refetchCurrentUser } = useCurrentUser();
 
   const { fetchClassroom }: any = useClassroomStore(
     (state) => ({ classroom: state.classroom, fetchClassroom: state.fetchClassroom }),
@@ -96,7 +95,7 @@ const TabTeacherAccount = () => {
     lastName: auth?.user?.account?.lastName ?? '',
     jobTitle: auth?.user?.teacher?.jobTitle ?? '',
     academicStanding: auth?.user?.teacher?.academicStanding ?? '',
-    department: auth?.user?.teacher?.department?.id ?? '',
+    department: '',
     teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
     avatar: auth?.user?.account?.avatar ?? '',
     birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
@@ -121,18 +120,14 @@ const TabTeacherAccount = () => {
         const departments = await fetchDepartment();
         setDepartmentValues(Array.isArray(departments) ? departments : []);
 
-        // Validate and reset department value if it doesn't exist in the loaded options
-        if (auth?.user?.teacher?.department?.id) {
-          const currentDeptId = auth.user.teacher.department.id;
-          const deptExists = Array.isArray(departments) && departments.some((dept: any) => dept.id === currentDeptId);
-          if (!deptExists) {
-            // Reset department field to empty if current department not found in options
-            reset({
-              ...defaultValues,
-              department: '',
-            });
-          }
-        }
+        const currentDeptId = auth?.user?.teacher?.department?.id ?? '';
+        const deptExists = currentDeptId
+          ? Array.isArray(departments) && departments.some((dept: any) => dept.id === currentDeptId)
+          : false;
+        reset({
+          ...defaultValues,
+          department: deptExists ? currentDeptId : '',
+        });
 
         // Load classrooms
         setLoading(true);
@@ -195,42 +190,40 @@ const TabTeacherAccount = () => {
     const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
 
     const profile = {
-      id: auth?.user?.id,
-      teacherInfo: auth?.user?.teacher?.id,
-      accountId: auth?.user?.account?.id,
-      title: data.title,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      jobTitle: data.jobTitle,
-      academicStanding: data.academicStanding,
-      department: data.department,
-      avatar: image ? image : null,
-      birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
-      idCard: data.idCard,
+      id: auth?.user?.teacher?.id,
+      user: { id: auth?.user?.id },
+      teacher: {
+        id: auth?.user?.teacher?.id,
+        jobTitle: data.jobTitle,
+        academicStanding: data.academicStanding,
+        departmentId: data.department,
+      },
+      account: {
+        id: auth?.user?.account?.id,
+        title: data.title,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate).toISOString() : null,
+        idCard: data.idCard,
+        avatar: image ? image : null,
+      },
       classrooms: classroomSelected.map((item: any) => item.id),
     };
 
-    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
+    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.dismiss(toastId);
-        toast.success('บันทึกข้อมูลสำเร็จ');
-
-        await getMe().then(async (data: any) => {
-          auth?.setUser({ ...(await data) });
-          window.localStorage.setItem('userData', JSON.stringify(data));
-          setTimeout(() => {
-            location.reload();
-          }, 1000);
-        });
+        const { data: updatedUser } = await refetchCurrentUser();
+        if (updatedUser) {
+          auth?.setUser(updatedUser);
+          window.localStorage.setItem('userData', JSON.stringify(updatedUser));
+          queryClient.setQueryData(queryKeys.users.current(), updatedUser);
+        }
+        toast.update(toastId, { render: 'บันทึกข้อมูลสำเร็จ', type: 'success', isLoading: false, autoClose: 3000 });
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.dismiss(toastId);
-        toast.error(message || 'เกิดข้อผิดพลาด');
+        toast.update(toastId, { render: message || 'เกิดข้อผิดพลาด', type: 'error', isLoading: false, autoClose: 5000 });
       }
     });
   };
