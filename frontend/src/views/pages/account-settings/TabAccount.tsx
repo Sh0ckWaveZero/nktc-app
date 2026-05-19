@@ -37,6 +37,8 @@ import useImageCompression from '@/hooks/useImageCompression';
 import { useClassroomStore, useDepartmentStore } from '@/store/index';
 import { useTeacherStore } from '@/store/apps/teacher';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/libs/react-query/queryKeys';
 import { shallow } from 'zustand/shallow';
 import { isEmpty } from '@/@core/utils/utils';
 import { generateErrorMessages } from '@/utils/event';
@@ -75,6 +77,7 @@ const schema = z.object({
 const TabAccount = () => {
   // Hooks
   const auth = useAuth();
+  const queryClient = useQueryClient();
   const { refetch: refetchCurrentUser } = useCurrentUser();
 
   const { fetchClassroom }: any = useClassroomStore(
@@ -94,13 +97,43 @@ const TabAccount = () => {
   const { imageCompressed, handleInputImageChange, isCompressing } = useImageCompression();
   const { isLoading, image } = useImageQuery(imgSrc);
 
+  const defaultValues = {
+    title: auth?.user?.account?.title ?? '',
+    firstName: auth?.user?.account?.firstName ?? '',
+    lastName: auth?.user?.account?.lastName ?? '',
+    jobTitle: auth?.user?.teacher?.jobTitle ?? '',
+    academicStanding: auth?.user?.teacher?.academicStanding ?? '',
+    department: '',
+    teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
+    avatar: auth?.user?.account?.avatar ?? '',
+    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
+    idCard: auth?.user?.account?.idCard ?? '',
+  };
+
+  const {
+    reset,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+    resolver: zodResolver(schema),
+  });
+
   useEffect(() => {
     (async () => {
       await fetchDepartment().then(async (data: any) => {
-        setDepartmentValues(await data);
+        const departments = await data;
+        setDepartmentValues(departments);
+        const currentDeptId = auth?.user?.teacher?.department?.id ?? '';
+        const deptExists = currentDeptId
+          ? Array.isArray(departments) && departments.some((d: any) => d.id === currentDeptId)
+          : false;
+        reset((prev) => ({ ...prev, department: deptExists ? currentDeptId : '' }));
       });
     })();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (imageCompressed) {
@@ -119,31 +152,7 @@ const TabAccount = () => {
         setLoading(false);
       });
     })();
-  }, [departmentValues]);
-
-  const defaultValues = {
-    title: auth?.user?.account?.title ?? '',
-    firstName: auth?.user?.account?.firstName ?? '',
-    lastName: auth?.user?.account?.lastName ?? '',
-    jobTitle: auth?.user?.teacher?.jobTitle ?? '',
-    academicStanding: auth?.user?.teacher?.academicStanding ?? '',
-    department: auth?.user?.teacher?.department?.id ?? '',
-    teacherOnClassroom: auth?.user?.teacherOnClassroom ?? [],
-    avatar: auth?.user?.account?.avatar ?? '',
-    birthDate: auth?.user?.account?.birthDate ? new Date(auth?.user?.account?.birthDate) : null,
-    idCard: auth?.user?.account?.idCard ?? '',
-  };
-
-  const {
-    reset,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues,
-    mode: 'onChange',
-    resolver: zodResolver(schema),
-  });
+  }, [departmentValues]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onHandleChange = (event: any, value: any) => {
     event.preventDefault();
@@ -159,44 +168,40 @@ const TabAccount = () => {
     const image = imgSrc === '/images/avatars/1.png' ? data?.account?.avatar : imgSrc;
 
     const profile = {
-      id: auth?.user?.id,
-      teacherInfo: auth?.user?.teacher?.id,
-      accountId: auth?.user?.account?.id,
-      title: data.title,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      jobTitle: data.jobTitle,
-      academicStanding: data.academicStanding,
-      department: data.department,
-      avatar: image ? image : null,
-      birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate) : null,
-      idCard: data.idCard,
+      id: auth?.user?.teacher?.id,
+      user: { id: auth?.user?.id },
+      teacher: {
+        id: auth?.user?.teacher?.id,
+        jobTitle: data.jobTitle,
+        academicStanding: data.academicStanding,
+        departmentId: data.department,
+      },
+      account: {
+        id: auth?.user?.account?.id,
+        title: data.title,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        birthDate: data.birthDate === '' ? null : data.birthDate ? new Date(data.birthDate).toISOString() : null,
+        idCard: data.idCard,
+        avatar: image ? image : null,
+      },
       classrooms: classroomSelected.map((item: any) => item.id),
     };
 
-    const toastId = toast.info('กำลังบันทึกข้อมูล...', {
-      autoClose: false,
-      hideProgressBar: true,
-    });
+    const toastId = toast.loading('กำลังบันทึกข้อมูล...');
     await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
-        toast.dismiss(toastId);
-        toast.success('บันทึกข้อมูลสำเร็จ');
-
-        // Refetch current user data
         const { data: updatedUser } = await refetchCurrentUser();
         if (updatedUser) {
           auth?.setUser(updatedUser);
           window.localStorage.setItem('userData', JSON.stringify(updatedUser));
-          setTimeout(() => {
-            location.reload();
-          }, 1000);
+          queryClient.setQueryData(queryKeys.users.current(), updatedUser);
         }
+        toast.update(toastId, { render: 'บันทึกข้อมูลสำเร็จ', type: 'success', isLoading: false, autoClose: 3000 });
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.dismiss(toastId);
-        toast.error(message || 'เกิดข้อผิดพลาด');
+        toast.update(toastId, { render: message || 'เกิดข้อผิดพลาด', type: 'error', isLoading: false, autoClose: 5000 });
       }
     });
   };

@@ -41,19 +41,21 @@ export const TeacherModel = {
     }),
     teacher: t.Object({
       id: t.String(),
-      firstName: t.Optional(t.String()),
-      lastName: t.Optional(t.String()),
-      title: t.Optional(t.String()),
-      idCard: t.Optional(t.String()),
-      birthDate: t.Optional(t.Union([t.String(), t.Null()])),
       jobTitle: t.Optional(t.String()),
+      academicStanding: t.Optional(t.String()),
+      departmentId: t.Optional(t.String()),
       status: t.Optional(t.String()),
     }),
-    account: t.Optional(
-      t.Object({
-        id: t.Optional(t.String()),
-      }),
-    ),
+    account: t.Object({
+      id: t.Optional(t.String()),
+      title: t.Optional(t.String()),
+      firstName: t.Optional(t.String()),
+      lastName: t.Optional(t.String()),
+      birthDate: t.Optional(t.Union([t.String(), t.Null()])),
+      idCard: t.Optional(t.String()),
+      avatar: t.Optional(t.Union([t.String(), t.Null()])),
+    }),
+    classrooms: t.Optional(t.Array(t.String())),
   }),
 } as const;
 
