@@ -23,7 +23,7 @@ const readFileAsDataUrl = (file: File): Promise<string> =>
 
 const loadImage = (dataUrl: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
-    const image = new Image();
+    const image = new window.Image();
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error('ไม่สามารถโหลดไฟล์รูปภาพได้'));
     image.src = dataUrl;
