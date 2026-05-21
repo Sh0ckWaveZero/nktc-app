@@ -11,8 +11,13 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('App Error:', error);
+    const errorName = error?.name?.trim() || 'Error';
+    const errorMessage = error?.message?.trim() || 'Unknown error';
+    const digestSuffix = error?.digest ? ` (digest: ${error.digest})` : '';
+
+    // Avoid passing the raw error object here because Next.js dev overlay can
+    // throw while formatting certain boundary errors under Turbopack.
+    console.error(`[App Error] ${errorName}: ${errorMessage}${digestSuffix}`);
   }, [error]);
 
   return (

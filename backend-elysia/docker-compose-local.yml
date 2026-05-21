@@ -1,8 +1,7 @@
-version: "3.8"
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: postgres
+    container_name: ${BACKEND_DB_CONTAINER_NAME:-backend1-postgres}
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,7 +15,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5434}:5432"
     healthcheck:
       test:
         [
@@ -31,19 +30,19 @@ services:
       timeout: 20s
       retries: 3
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
     networks:
-      - app-net
+      - nktc-network
 
   minio:
     image: pgsty/minio:latest
-    container_name: minio
+    container_name: ${MINIO_CONTAINER_NAME:-backend1-minio}
     restart: always
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
-      MINIO_SERVER_URL: http://localhost:9000
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:${MINIO_CONSOLE_PORT:-9011}
+      MINIO_SERVER_URL: http://localhost:${MINIO_API_PORT:-9010}
       TZ: Asia/Bangkok
     logging:
       options:
@@ -53,8 +52,8 @@ services:
       - .env
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${MINIO_API_PORT:-9010}:9000"
+      - "${MINIO_CONSOLE_PORT:-9011}:9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -63,11 +62,11 @@ services:
     volumes:
       - minio-data:/data
     networks:
-      - app-net
+      - nktc-network
 
   minio-init:
     image: minio/mc
-    container_name: minio-init
+    container_name: ${MINIO_INIT_CONTAINER_NAME:-backend1-minio-init}
     depends_on:
       minio:
         condition: service_healthy
@@ -75,17 +74,22 @@ services:
       - .env
     volumes:
       - ./scripts/minio-init.sh:/scripts/minio-init.sh:ro
-    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    entrypoint:
+      - /bin/sh
+      - -c
+      - "tr -d '\\r' </scripts/minio-init.sh | /bin/sh"
     restart: on-failure
     networks:
-      - app-net
+      - nktc-network
 
   portainer:
     image: portainer/portainer-ce:latest
-    container_name: portainer
+    container_name: ${PORTAINER_CONTAINER_NAME:-backend1-portainer}
     privileged: true
+    profiles:
+      - tools
     ports:
-      - "9100:9000"
+      - "${PORTAINER_PORT:-9100}:9000"
     volumes:
       - portainer-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -99,14 +103,17 @@ services:
       retries: 3
       start_period: 120s
     networks:
-      - app-net
+      - nktc-network
 
 volumes:
-  postgres-data: {}
-  minio-data: {}
-  portainer-data: {}
+  postgres-data:
+    name: ${POSTGRES_VOLUME_NAME:-backend1-postgres-data}
+  minio-data:
+    name: ${MINIO_VOLUME_NAME:-backend1-minio-data}
+  portainer-data:
+    name: ${PORTAINER_VOLUME_NAME:-backend1-portainer-data}
 
 networks:
-  app-net:
-    external: true
-    name: app-net
+  nktc-network:
+    name: ${DOCKER_NETWORK_NAME:-backend1-network}
+    driver: bridge

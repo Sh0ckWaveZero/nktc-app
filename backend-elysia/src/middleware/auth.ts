@@ -36,7 +36,9 @@ export const authGuard = new Elysia({ name: "auth-guard" })
       select: { id: true, username: true, role: true, status: true },
     });
 
-    if (!dbUser || (dbUser.status !== null && dbUser.status !== "active")) {
+    const normalizedStatus = dbUser?.status?.trim().toLowerCase();
+
+    if (!dbUser || (normalizedStatus && normalizedStatus !== "active")) {
       userCache.delete(sub);
       return { user: null };
     }

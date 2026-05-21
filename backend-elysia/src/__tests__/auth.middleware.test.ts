@@ -97,6 +97,25 @@ describe("authGuard", () => {
     expect(body.user.roles).toBe("Admin");
   });
 
+  it("returns 200 with user on legacy capitalized Active status", async () => {
+    const token = await signToken({ sub: "legacy-active-1", username: "legacy", roles: "Teacher" });
+    mockFindUnique.mockResolvedValueOnce({
+      id: "legacy-active-1",
+      username: "legacy",
+      role: "Teacher",
+      status: "Active",
+    });
+
+    const res = await testApp.handle(
+      new Request("http://localhost/me", { headers: { Authorization: `Bearer ${token}` } }),
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json() as { user: { sub: string; username: string; roles: string } };
+    expect(body.user.sub).toBe("legacy-active-1");
+    expect(body.user.username).toBe("legacy");
+    expect(body.user.roles).toBe("Teacher");
+  });
+
   it("returns fresh role from DB, not from JWT payload", async () => {
     // JWT says "User" but DB has "Admin"
     const token = await signToken({ sub: "role-mismatch", username: "charlie", roles: "User" });

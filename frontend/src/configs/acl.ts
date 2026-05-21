@@ -27,6 +27,7 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'admin-report-check-in-monthly-page');
     can(['read'], 'admin-report-check-in-page');
     can(['read'], 'admin-report-check-in-weekly-page');
+    can(['read'], 'admin-visit-report-page');
     can(['read'], 'history-page');
     can(['read'], 'home-page');
     can(['read'], 'manage-data');
