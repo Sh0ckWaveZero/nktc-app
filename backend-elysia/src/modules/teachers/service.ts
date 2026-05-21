@@ -80,9 +80,13 @@ export abstract class TeacherService {
     const { user, teacher } = data;
     const hashedPassword = await hash(teacher.password || "password123", 12);
 
-    let status = teacher.status || "Active";
-    if (status === "true") status = "Active";
-    if (status === "false") status = "Inactive";
+    const status = this.normalizeStatus(
+      teacher.status === "true"
+        ? "active"
+        : teacher.status === "false"
+          ? "inactive"
+          : teacher.status,
+    );
 
     try {
       const existingUser = await prisma.user.findUnique({
@@ -141,6 +145,10 @@ export abstract class TeacherService {
     const { user, teacher, account } = data;
     log.info("[TeacherService] update", { id });
 
+    const normalizedStatus = teacher?.status
+      ? this.normalizeStatus(teacher.status)
+      : undefined;
+
     await prisma.$transaction(async (tx) => {
       if (teacher && account?.id) {
         await tx.account.update({
@@ -159,11 +167,28 @@ export abstract class TeacherService {
         });
       }
 
+      if (normalizedStatus) {
+        const existingTeacher = await tx.teacher.findUnique({
+          where: { id },
+          select: { userId: true },
+        });
+
+        if (existingTeacher?.userId) {
+          await tx.user.update({
+            where: { id: existingTeacher.userId },
+            data: {
+              status: normalizedStatus,
+              updatedBy: user?.id,
+            },
+          });
+        }
+      }
+
       await tx.teacher.update({
         where: { id },
         data: {
           jobTitle: teacher?.jobTitle,
-          status: teacher?.status,
+          status: normalizedStatus,
         },
       });
     });

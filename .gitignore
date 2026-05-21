@@ -36,6 +36,7 @@ backend/build/
 .cache/
 .temp/
 .tmp/
+.dev/
 *.tsbuildinfo
 *.buildinfo
 

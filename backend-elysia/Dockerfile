@@ -1,16 +1,17 @@
-FROM oven/bun:1.3.3-alpine AS base
+FROM oven/bun:1.3.10-alpine AS base
 WORKDIR /app
 
 # Install dependencies
 FROM base AS deps
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production=false
+RUN bun install --ignore-scripts --no-save
 
 # Generate Prisma client
 FROM deps AS prisma
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-RUN bunx prisma generate
+ENV DATABASE_URL=postgresql://build:build@localhost:5432/build?schema=public
+RUN bunx --bun prisma generate
 
 # Build
 FROM prisma AS builder
@@ -19,7 +20,7 @@ COPY tsconfig.json ./
 RUN bun build src/index.ts --outdir ./dist --target bun --minify
 
 # Production image
-FROM oven/bun:1.3.3-alpine AS runner
+FROM oven/bun:1.3.10-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

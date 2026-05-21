@@ -85,7 +85,10 @@ bun install --cwd backend
 ### การรันโปรเจกต์
 
 ```bash
-# รันทั้งสองโปรเจกต์พร้อมกัน (stream mode - สามารถ copy text ได้)
+# รัน frontend + backend local พร้อมกัน
+# backend local จะใช้ port 3001 ก่อน และถ้าชนจะขยับไป port ถัดไปอัตโนมัติ
+# frontend proxy จะชี้ไป backend port ที่ถูกเลือกให้อัตโนมัติ
+# ต้องมี PostgreSQL/MinIO ของ backend1 stack รันอยู่ที่ 5434 และ 9010/9011
 bun run dev
 
 # รันแบบ TUI (Terminal User Interface - สวยงามแต่ copy text ยาก)
@@ -94,7 +97,7 @@ bun run dev:tui
 # รันแบบ stream (แสดงผล log แบบ text ธรรมดา - copy text ได้ง่าย)
 bun run dev:stream
 
-# รัน frontend เท่านั้น (http://localhost:3000)
+# รัน frontend เท่านั้น (เหมาะเมื่อ backend Docker รันอยู่แล้วที่ localhost:3001)
 bun run dev:frontend
 
 # รัน backend เท่านั้น (http://localhost:3001)

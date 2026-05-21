@@ -292,6 +292,13 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
+      title: 'รายงานการเยี่ยมบ้าน',
+      icon: 'mdi:home-search-outline',
+      path: '/apps/admin/reports/visit',
+      action: 'read',
+      subject: 'admin-visit-report-page',
+    },
+    {
       title: 'สถิติการใช้งานระบบ',
       icon: 'carbon:analytics',
       path: '/apps/admin/reports/statistics',

@@ -112,6 +112,9 @@ const AuthProvider = ({ children }: Props) => {
       // Save token
       if (isBrowser) {
         window.localStorage.setItem('accessToken', data.token);
+        if (data.refreshToken) {
+          window.localStorage.setItem('refreshToken', data.refreshToken);
+        }
         // Save user data
         window.localStorage.setItem('userData', JSON.stringify(data));
       }

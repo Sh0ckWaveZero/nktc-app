@@ -22,6 +22,11 @@ let failedQueue: Array<{
   reject: (err: unknown) => void;
 }> = [];
 
+type RefreshResponse = {
+  token?: string;
+  refreshToken?: string;
+};
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -31,6 +36,41 @@ const processQueue = (error: unknown, token: string | null = null) => {
     }
   });
   failedQueue = [];
+};
+
+const persistAuthTokens = (token: string, refreshToken?: string) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem('accessToken', token);
+
+  if (refreshToken) {
+    window.localStorage.setItem('refreshToken', refreshToken);
+  }
+};
+
+const refreshAccessToken = async () => {
+  const refreshToken = typeof window !== 'undefined' ? window.localStorage.getItem('refreshToken') : null;
+
+  if (!refreshToken) {
+    throw new Error('Missing refresh token');
+  }
+
+  const response = await httpClient.post<RefreshResponse>(authConfig.refreshEndpoint as string, {
+    refreshToken,
+  });
+
+  const newToken = response.data?.token;
+  const newRefreshToken = response.data?.refreshToken;
+
+  if (!newToken || !newRefreshToken) {
+    throw new Error('Invalid refresh response');
+  }
+
+  persistAuthTokens(newToken, newRefreshToken);
+
+  return newToken;
 };
 
 // Request interceptor for adding auth token
@@ -95,11 +135,10 @@ const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
             requestUrl.includes('/auth/login') ||
             (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
 
-          const isMeEndpoint = fullUrl.includes('/auth/me') || requestUrl.includes('/auth/me');
           const isRefreshEndpoint = fullUrl.includes('/auth/refresh') || requestUrl.includes('/auth/refresh');
 
-          // For login, me, and refresh endpoints - just reject, don't try to refresh
-          if (isLoginEndpoint || isMeEndpoint || isRefreshEndpoint) {
+          // For login and refresh endpoints - just reject, don't try to refresh
+          if (isLoginEndpoint || isRefreshEndpoint) {
             return Promise.reject(error);
           }
 
@@ -127,24 +166,8 @@ const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
 
           isRefreshing = true;
 
-          const refreshToken = typeof window !== 'undefined' ? window.localStorage.getItem('refreshToken') : null;
-
-          if (!refreshToken) {
-            isRefreshing = false;
-            clearAuthAndRedirect();
-            return Promise.reject(error);
-          }
-
           try {
-            const response = await httpClient.post(authConfig.refreshEndpoint as string, {
-              refreshToken,
-            });
-
-            const newToken = response.data?.token;
-
-            if (typeof window !== 'undefined') {
-              window.localStorage.setItem('accessToken', newToken);
-            }
+            const newToken = await refreshAccessToken();
 
             processQueue(null, newToken);
 
