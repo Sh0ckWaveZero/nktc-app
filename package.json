@@ -6,6 +6,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "bun ./scripts/dev.ts",
+    "pr": "bun ./scripts/pr.ts",
+    "pr:create": "bun ./scripts/pr.ts --create",
     "dev:stream": "turbo run dev --ui=stream",
     "dev:tui": "turbo run dev --ui=tui",
     "start": "turbo run start",

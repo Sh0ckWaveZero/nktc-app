@@ -4,15 +4,12 @@ import { useMemo } from 'react';
 import {
   Avatar,
   Box,
-  Chip,
   Grid,
   Typography,
   useTheme,
 } from '@mui/material';
 import { HiFlag } from 'react-icons/hi';
 import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
-import StudentCard from './components/StudentCard';
-import MobilePaginationControls from './components/MobilePaginationControls';
 import CheckInControls from './components/CheckInControls';
 import CheckInDataGrid from './components/CheckInDataGrid';
 
@@ -38,8 +35,6 @@ const CheckInReportPage = () => {
     classroomError,
     pageSize,
     currentPage,
-    mobilePage,
-    mobilePageSize,
     isPresentCheck,
     isPresentCheckAll,
     isAbsentCheck,
@@ -56,13 +51,7 @@ const CheckInReportPage = () => {
     handleCellClick,
     handleColumnHeaderClick,
     handleSaveCheckIn,
-    handleMobilePageChange,
-    handleMobilePageSizeChange,
     handlePaginationModelChange,
-    getPaginatedStudents,
-    getTotalMobilePages,
-    getStudentStatus,
-    onHandleToggle,
   } = useCheckInReport();
 
   return (
@@ -188,144 +177,28 @@ const CheckInReportPage = () => {
                 </Box>
               )}
 
-              {/* Floating Count Display for Mobile */}
-              {responsiveConfig.isMobile && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 100,
-                    right: 16,
-                    zIndex: 1100,
-                  }}
-                >
-                  <Chip
-                    label={`${isPresentCheck.length + isAbsentCheck.length + isLateCheck.length + isLeaveCheck.length + isInternshipCheck.length}`}
-                    color={
-                      isPresentCheck.length +
-                        isAbsentCheck.length +
-                        isLateCheck.length +
-                        isLeaveCheck.length +
-                        isInternshipCheck.length ===
-                        (currentStudents?.length ?? 0) && (currentStudents?.length ?? 0) > 0
-                        ? 'success'
-                        : 'warning'
-                    }
-                    variant='filled'
-                    sx={{
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      height: '36px',
-                      minWidth: '36px',
-                      borderRadius: '50%',
-                      boxShadow: '0 3px 12px rgba(0, 0, 0, 0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      '& .MuiChip-label': {
-                        px: 0,
-                        py: 0,
-                      },
-                    }}
-                  />
-                </Box>
-              )}
-
-              {/* Scrollable Mobile View */}
-              {responsiveConfig.isMobile ? (
-                <>
-                  <Box
-                    id='checkin-mobile-scroll-container'
-                    sx={{
-                      overflow: 'auto',
-                      p: responsiveConfig.cardPadding,
-                      pb: '270px', // Add padding for pagination and floating badge
-                      scrollBehavior: 'smooth',
-                    }}
-                  >
-                    <Box
-                      id='checkin-mobile-view'
-                      sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(1, 1fr)',
-                        gap: responsiveConfig.isSmallMobile ? 1 : 1.5,
-                      }}
-                    >
-                      {getPaginatedStudents().map((student: any) => {
-                        const { status, color } = getStudentStatus(student.id);
-
-                        return (
-                          <StudentCard
-                            key={student.id}
-                            student={student}
-                            status={status}
-                            color={color}
-                            isPresentCheck={isPresentCheck}
-                            isAbsentCheck={isAbsentCheck}
-                            isLateCheck={isLateCheck}
-                            isLeaveCheck={isLeaveCheck}
-                            isInternshipCheck={isInternshipCheck}
-                            hasSavedCheckIn={hasSavedCheckIn}
-                            onCheckboxChange={(studentId: string, status: string) => {
-                              const student = currentStudents.find((s: any) => s.id === studentId);
-                              if (student) {
-                                onHandleToggle(status, student);
-                              }
-                            }}
-                          />
-                        );
-                      })}
-                    </Box>
-                  </Box>
-
-                  {/* Mobile Pagination - Fixed at bottom */}
-                  <Box
-                    sx={{
-                      position: 'fixed',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      backgroundColor: 'background.paper',
-                      borderTop: 1,
-                      borderColor: 'divider',
-                      zIndex: 1000,
-                      p: 1.5,
-                    }}
-                  >
-                    <MobilePaginationControls
-                      currentPage={mobilePage}
-                      totalPages={getTotalMobilePages()}
-                      pageSize={mobilePageSize}
-                      totalItems={currentStudents?.length ?? 0}
-                      onPageChange={handleMobilePageChange}
-                      onPageSizeChange={handleMobilePageSizeChange}
-                    />
-                  </Box>
-                </>
-              ) : (
-                /* Desktop View */
-                (<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CheckInDataGrid
-                    students={currentStudents}
-                    loading={classroomLoading}
-                    pageSize={pageSize}
-                    currentPage={currentPage}
-                    isPresentCheckAll={isPresentCheckAll}
-                    isAbsentCheckAll={isAbsentCheckAll}
-                    isLateCheckAll={isLateCheckAll}
-                    isLeaveCheckAll={isLeaveCheckAll}
-                    isInternshipCheckAll={isInternshipCheckAll}
-                    isPresentCheck={isPresentCheck}
-                    isAbsentCheck={isAbsentCheck}
-                    isLateCheck={isLateCheck}
-                    isLeaveCheck={isLeaveCheck}
-                    isInternshipCheck={isInternshipCheck}
-                    hasSavedCheckIn={hasSavedCheckIn}
-                    onPaginationModelChange={handlePaginationModelChange}
-                    onCellClick={handleCellClick}
-                    onColumnHeaderClick={handleColumnHeaderClick}
-                  />
-                </Box>)
-              )}
+              <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <CheckInDataGrid
+                  students={currentStudents}
+                  loading={classroomLoading}
+                  pageSize={pageSize}
+                  currentPage={currentPage}
+                  isPresentCheckAll={isPresentCheckAll}
+                  isAbsentCheckAll={isAbsentCheckAll}
+                  isLateCheckAll={isLateCheckAll}
+                  isLeaveCheckAll={isLeaveCheckAll}
+                  isInternshipCheckAll={isInternshipCheckAll}
+                  isPresentCheck={isPresentCheck}
+                  isAbsentCheck={isAbsentCheck}
+                  isLateCheck={isLateCheck}
+                  isLeaveCheck={isLeaveCheck}
+                  isInternshipCheck={isInternshipCheck}
+                  hasSavedCheckIn={hasSavedCheckIn}
+                  onPaginationModelChange={handlePaginationModelChange}
+                  onCellClick={handleCellClick}
+                  onColumnHeaderClick={handleColumnHeaderClick}
+                />
+              </Box>
             </Box>
           </Box>
         </Grid>
