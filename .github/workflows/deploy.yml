@@ -20,7 +20,7 @@ jobs:
         run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Run backend tests
         run: bun run test
