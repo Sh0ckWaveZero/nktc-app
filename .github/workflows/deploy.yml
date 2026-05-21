@@ -29,7 +29,7 @@ jobs:
           DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
 
       - name: Run backend tests
-        run: bun run test
+        run: bun run test --reporter verbose
         working-directory: backend-elysia
 
   deploy:
