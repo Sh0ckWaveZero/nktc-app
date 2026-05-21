@@ -14,6 +14,7 @@ import ActivityCheckInDataGrid from './components/ActivityCheckInDataGrid';
 import { useRouter } from 'next/navigation';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 import { toApiDate } from '@/utils/datetime';
+import { sortClassroomStudentsByStudentId, sortStudentsByStudentId } from '@/utils/student-sort';
 
 const ActivityCheckInReportPage = () => {
   // ** Hooks
@@ -42,7 +43,6 @@ const ActivityCheckInReportPage = () => {
   const {
     data: activityCheckInData,
     isLoading: isLoadingCheckIn,
-    refetch: refetchCheckIn,
   } = useActivityCheckIn({
     teacher: teacherId,
     classroom: defaultClassroom?.id || '',
@@ -91,6 +91,7 @@ const ActivityCheckInReportPage = () => {
   const [isPresentCheck, setIsPresentCheck] = useState<any>([]);
   const [isAbsentCheck, setIsAbsentCheck] = useState<any>([]);
   const [hasSavedCheckIn, setHasSavedCheckIn] = useState<boolean>(false);
+  const selectableStudentCount = normalStudents.length;
 
   // Combine loading states
   const loading = isLoadingTeacherData || isLoadingCheckIn;
@@ -153,24 +154,39 @@ const ActivityCheckInReportPage = () => {
   // Process teacher data when available
   useEffect(() => {
     if (!teacherData?.classrooms || !teacherData.classrooms.length) {
+      setDefaultClassroom(null);
+      setClassrooms([]);
+      setCurrentStudents([]);
+      setNormalStudents([]);
+      setPageSize(10);
+      setCurrentPage(0);
+      setMobilePage(0);
       return;
     }
 
-    const [classroom] = teacherData.classrooms;
+    const sortedClassrooms = sortClassroomStudentsByStudentId(teacherData.classrooms);
+    const [classroom] = sortedClassrooms;
 
     if (!classroom) {
       return;
     }
 
-    const { students } = classroom;
+    const students = sortStudentsByStudentId(classroom.students);
 
-    if (!students || !students.length) {
+    if (!students.length) {
+      setDefaultClassroom(classroom);
+      setClassrooms(sortedClassrooms);
+      setCurrentStudents([]);
+      setNormalStudents([]);
+      setPageSize(10);
+      setCurrentPage(0);
+      setMobilePage(0);
       return;
     }
 
     // Initialize state with first classroom
     setDefaultClassroom(classroom);
-    setClassrooms(teacherData.classrooms);
+    setClassrooms(sortedClassrooms);
     setCurrentStudents(students);
     setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
 
@@ -359,7 +375,7 @@ const ActivityCheckInReportPage = () => {
     };
 
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
-    if (totalStudents === currentStudents.length && !hasSavedCheckIn) {
+    if (totalStudents === selectableStudentCount && selectableStudentCount > 0 && !hasSavedCheckIn) {
       try {
         await addCheckInMutation.mutateAsync(data);
         onClearAll('');
@@ -372,7 +388,7 @@ const ActivityCheckInReportPage = () => {
     }
   };
 
-  const handleSelectChange = async (event: any) => {
+  const handleSelectChange = (event: any) => {
     event.preventDefault();
     const {
       target: { value },
@@ -380,12 +396,14 @@ const ActivityCheckInReportPage = () => {
     const classroomObj: any = classrooms.find((item: any) => item.name === value);
 
     if (classroomObj) {
-      setCurrentStudents(classroomObj.students || []);
-      setNormalStudents((classroomObj.students || []).filter((student: any) => student?.status !== 'internship'));
+      const students = sortStudentsByStudentId(classroomObj.students || []);
+
+      setCurrentStudents(students);
+      setNormalStudents(students.filter((student: any) => student?.status !== 'internship'));
       setDefaultClassroom(classroomObj);
 
       // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
-      const studentCount = classroomObj.students?.length || 0;
+      const studentCount = students.length;
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 5;
       const closestSize = validPageSizes.find((size) => size >= calculatedSize) || validPageSizes[0];
@@ -393,8 +411,7 @@ const ActivityCheckInReportPage = () => {
       setCurrentPage(0);
       setMobilePage(0);
 
-      // Refetch check-in data for new classroom
-      await refetchCheckIn();
+      setHasSavedCheckIn(false);
       onClearAll('');
     }
   };
@@ -509,8 +526,8 @@ const ActivityCheckInReportPage = () => {
                     defaultClassroom={defaultClassroom}
                     currentStudentsCount={currentStudents?.length ?? 0}
                     isComplete={
-                      isPresentCheck.length + isAbsentCheck.length === (currentStudents?.length ?? 0) &&
-                      (currentStudents?.length ?? 0) > 0
+                      isPresentCheck.length + isAbsentCheck.length === selectableStudentCount &&
+                      selectableStudentCount > 0
                     }
                     loading={false}
                     hasSavedCheckIn={hasSavedCheckIn}
@@ -539,8 +556,8 @@ const ActivityCheckInReportPage = () => {
                   <Chip
                     label={`${isPresentCheck.length + isAbsentCheck.length}`}
                     color={
-                      isPresentCheck.length + isAbsentCheck.length === (currentStudents?.length ?? 0) &&
-                      (currentStudents?.length ?? 0) > 0
+                      isPresentCheck.length + isAbsentCheck.length === selectableStudentCount &&
+                      selectableStudentCount > 0
                         ? 'success'
                         : 'warning'
                     }

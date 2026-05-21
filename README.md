@@ -398,7 +398,7 @@ git checkout -b feature/new-feature
 
 # Commit การเปลี่ยนแปลง
 git add .
-git commit -m "feat: add new feature"
+git commit -m "..."
 
 # Push branch ปัจจุบันและเปิดหน้า PR จาก origin -> upstream
 bun run pr
