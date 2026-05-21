@@ -183,7 +183,7 @@ const MobilePaginationControls = ({
         >
           แสดง:
         </Typography>
-        {[5, 10, 20].map((size) => (
+        {[5, 15, 30, 50].map((size) => (
           <Button
             key={size}
             id={`mobile-page-size-${size}`}

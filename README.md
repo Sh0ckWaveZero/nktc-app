@@ -400,9 +400,14 @@ git checkout -b feature/new-feature
 git add .
 git commit -m "feat: add new feature"
 
-# Push และสร้าง PR
-git push origin feature/new-feature
+# Push branch ปัจจุบันและเปิดหน้า PR จาก origin -> upstream
+bun run pr
+
+# หรือสร้าง PR ตรงผ่าน GitHub CLI โดยใช้ commit ล่าสุดมาเติม title/body
+bun run pr:create
 ```
+
+สคริปต์นี้จะอ่าน `origin` และ `upstream` จาก git remote ปัจจุบันโดยอัตโนมัติ ถ้า `gh` login อยู่คนละบัญชีกับ owner ของ `origin` สคริปต์จะให้สลับบัญชีผ่าน browser ก่อน push และจะเปิด PR เดิมถ้ายังเปิดอยู่ หาก branch ถูก merge ไปแล้วหรือยังไม่มี commit ใหม่เหนือ `upstream/main` สคริปต์จะหยุดและบอกขั้นตอนถัดไปแทนการเปิดหน้า compare ว่าง
 
 ### Code Style
 
