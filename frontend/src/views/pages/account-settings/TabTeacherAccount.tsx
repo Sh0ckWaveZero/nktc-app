@@ -214,11 +214,23 @@ const TabTeacherAccount = () => {
     await updateProfile(profile).then(async (res: any) => {
       if (res?.name !== 'AxiosError') {
         const { data: updatedUser } = await refetchCurrentUser();
-        if (updatedUser) {
-          auth?.setUser(updatedUser);
-          window.localStorage.setItem('userData', JSON.stringify(updatedUser));
-          queryClient.setQueryData(queryKeys.users.current(), updatedUser);
+        const currentUser = updatedUser?.data ?? updatedUser;
+
+        if (currentUser) {
+          auth?.setUser(currentUser);
+          window.localStorage.setItem('userData', JSON.stringify(currentUser));
+          queryClient.setQueryData(queryKeys.users.current(), currentUser);
         }
+
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: queryKeys.visits.all }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.students.all }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.teachers.all }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.classrooms.all }),
+          auth?.user?.teacher?.id
+            ? queryClient.invalidateQueries({ queryKey: [auth.user.teacher.id, 'teacher-classrooms-students'] })
+            : Promise.resolve(),
+        ]);
         toast.update(toastId, { render: 'บันทึกข้อมูลสำเร็จ', type: 'success', isLoading: false, autoClose: 3000 });
       } else {
         const { data } = res?.response || {};
@@ -545,18 +557,18 @@ const TabTeacherAccount = () => {
                   return (
                     <TextField
                       {...params}
-	                      label='ครูที่ปรึกษาระดับชั้น'
-	                      placeholder='เลือกห้องเรียน'
-	                      slotProps={{
-	                        ...params.slotProps,
-	                        input: {
-	                          ...params.slotProps?.input,
-	                        },
-	                        inputLabel: {
-	                          ...params.slotProps?.inputLabel,
-	                          shrink: true,
-	                        },
-	                      }}
+                      label='ครูที่ปรึกษาระดับชั้น'
+                      placeholder='เลือกห้องเรียน'
+                      slotProps={{
+                        ...params.slotProps,
+                        input: {
+                          ...params.slotProps?.input,
+                        },
+                        inputLabel: {
+                          ...params.slotProps?.inputLabel,
+                          shrink: true,
+                        },
+                      }}
                     />
                   );
                 }}

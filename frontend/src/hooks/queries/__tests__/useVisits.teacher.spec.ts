@@ -65,4 +65,65 @@ describe('useTeacherVisitStudents', () => {
     });
     expect(result.current.data).toEqual(mockRows);
   });
+
+  it('refetches teacher-scoped rows when advisor classrooms change', async () => {
+    const firstRows = [
+      {
+        id: 'student-1',
+        studentKey: 'student-1',
+        studentId: '67001',
+        fullName: 'เธเธฒเธขเธ•เนเธ เธเธฅเนเธฒ',
+        classroomId: 'class-1',
+        classroomName: 'เธเธงเธ.1/1',
+        visitId: null,
+        visitDate: null,
+        visitNo: null,
+        academicYear: '2569',
+        visitStatus: 'pending',
+        images: [],
+      },
+    ];
+    const updatedRows = [
+      ...firstRows,
+      {
+        id: 'student-2',
+        studentKey: 'student-2',
+        studentId: '67002',
+        fullName: 'เธเธฒเธเธชเธฒเธงเธเนเธฒ เธเธฅเนเธฒ',
+        classroomId: 'class-2',
+        classroomName: 'เธเธงเธ.1/2',
+        visitId: null,
+        visitDate: null,
+        visitNo: null,
+        academicYear: '2569',
+        visitStatus: 'pending',
+        images: [],
+      },
+    ];
+
+    vi.mocked(httpClient.get)
+      .mockResolvedValueOnce({ data: firstRows } as never)
+      .mockResolvedValueOnce({ data: updatedRows } as never);
+
+    const { result, rerender } = renderHook(
+      ({ advisorClassroomIds }: { advisorClassroomIds: string[] }) =>
+        useTeacherVisitStudents(undefined, { advisorClassroomIds }),
+      {
+        wrapper: createWrapper(),
+        initialProps: { advisorClassroomIds: ['class-1'] },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(firstRows);
+    });
+
+    rerender({ advisorClassroomIds: ['class-1', 'class-2'] });
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(updatedRows);
+    });
+
+    expect(httpClient.get).toHaveBeenCalledTimes(2);
+  });
 });

@@ -67,6 +67,11 @@ export interface VisitPayload {
   visitMap?: string | null;
 }
 
+interface TeacherVisitStudentsOptions {
+  enabled?: boolean;
+  advisorClassroomIds?: readonly string[];
+}
+
 const unwrapVisitArrayResponse = <T,>(response: unknown): T[] => {
   if (Array.isArray(response)) {
     return response as T[];
@@ -78,6 +83,9 @@ const unwrapVisitArrayResponse = <T,>(response: unknown): T[] => {
 
   return [];
 };
+
+const getStableClassroomIds = (classroomIds?: readonly string[]) =>
+  Array.from(new Set((classroomIds ?? []).filter(Boolean))).sort((left, right) => left.localeCompare(right));
 
 /**
  * Hook to fetch visits list
@@ -101,10 +109,12 @@ export const useVisits = (params?: VisitQuery) => {
  */
 export const useTeacherVisitStudents = (
   params?: Pick<VisitQuery, 'classroomId' | 'academicYear'>,
-  options?: { enabled?: boolean },
+  options?: TeacherVisitStudentsOptions,
 ) => {
+  const advisorClassroomIds = getStableClassroomIds(options?.advisorClassroomIds);
+
   return useQuery({
-    queryKey: queryKeys.visits.list({ ...params, scope: 'teacher-students' }),
+    queryKey: queryKeys.visits.list({ ...params, scope: 'teacher-students', advisorClassroomIds }),
     queryFn: async () => {
       const { data } = await httpClient.get(`${authConfig.visitEndpoint}/teacher/students`, {
         params,
