@@ -38,6 +38,7 @@ import {
 } from '@/hooks/queries/useVisits';
 import { useStudent } from '@/hooks/queries/useStudents';
 import { resizeImageToDataUrl } from '@/utils/resize-image';
+import { sortStudentsByStudentId } from '@/utils/student-sort';
 import { toast } from 'react-toastify';
 
 const RESIZE_TARGET = { width: 800, height: 600 } as const;
@@ -1252,7 +1253,7 @@ const VisitListPage = () => {
   const filteredRows = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
-    return advisorStudents.filter((row) => {
+    return sortStudentsByStudentId(advisorStudents).filter((row) => {
       const matchesClassroom = selectedClassroomId ? row.classroomId === selectedClassroomId : true;
       const matchesSearch =
         !normalizedSearch ||

@@ -140,7 +140,7 @@ const Home = () => {
       icon: <BsClipboardData />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
-        path: '/apps/reports/check-in/daily',
+        path: '/apps/reports/activity-check-in/daily',
         action: 'read',
         subject: 'report-check-in-daily-page',
       },
@@ -166,9 +166,9 @@ const Home = () => {
       icon: <TbChartBar />,
       navLink: {
         title: 'Report เช็คชื่อนหน้าเสาธง',
-        path: '/apps/reports/activity-check-in/daily',
+        path: '/apps/reports/check-in/daily',
         action: 'read',
-        subject: 'activity-check-in-page',
+        subject: 'daily-check-in-report-activity-page',
       },
       badge: 'bi:calendar2-date',
     },

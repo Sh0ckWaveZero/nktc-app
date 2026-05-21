@@ -2,6 +2,8 @@
 
 import { Box, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
+import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+
 interface CheckInControlsProps {
   isMobile: boolean;
   isTablet: boolean;
@@ -12,6 +14,7 @@ interface CheckInControlsProps {
   isComplete: boolean;
   loading: boolean;
   hasSavedCheckIn: boolean;
+  selectedDate?: Date | null;
   formSize: 'small' | 'medium';
   inputFontSize: string;
   inputPadding: string;
@@ -19,6 +22,7 @@ interface CheckInControlsProps {
   buttonMinWidth: string;
   buttonFontSize: string;
   onClassroomChange: (event: any) => void;
+  onDateChange?: (date: Date | null) => void;
   onSaveCheckIn: () => void;
 }
 
@@ -32,6 +36,7 @@ const CheckInControls = ({
   isComplete,
   loading,
   hasSavedCheckIn,
+  selectedDate,
   formSize,
   inputFontSize,
   inputPadding,
@@ -39,6 +44,7 @@ const CheckInControls = ({
   buttonMinWidth,
   buttonFontSize,
   onClassroomChange,
+  onDateChange,
   onSaveCheckIn,
 }: CheckInControlsProps) => {
   // Responsive configuration
@@ -191,7 +197,40 @@ const CheckInControls = ({
         </FormControl>
       </Box>
 
-      {/* ปุ่มบันทึกการเช็คชื่อ */}
+      {onDateChange && (
+        <Box
+          id='checkin-date-controls'
+          sx={{
+            flex: responsiveConfig.isMobile ? '1 1 auto' : '0 0 240px',
+            width: '100%',
+          }}
+        >
+          <ThaiDatePicker
+            label='วันที่เช็คชื่อ'
+            value={selectedDate ?? null}
+            onChange={onDateChange}
+            format='dd-MM-yyyy'
+            minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
+            maxDate={new Date()}
+            placeholder='วัน/เดือน/ปี (พ.ศ.)'
+            slotProps={{
+              textField: {
+                size: responsiveConfig.formSize,
+                sx: {
+                  '& .MuiInputBase-root': {
+                    height: responsiveConfig.isMobile ? '48px' : '44px',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: responsiveConfig.inputFontSize,
+                  },
+                },
+              },
+            }}
+          />
+        </Box>
+      )}
+
+      {/* Save button */}
       <Button
         id='checkin-save-button'
         variant='contained'

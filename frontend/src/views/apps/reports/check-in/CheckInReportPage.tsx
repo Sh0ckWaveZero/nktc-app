@@ -16,16 +16,6 @@ import CheckInDataGrid from './components/CheckInDataGrid';
 const CheckInReportPage = () => {
   const theme = useTheme();
 
-  // Memoize current date to avoid calling Date.now() during render
-  const currentDateString = useMemo(() => {
-    return new Date().toLocaleDateString('th-TH', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, []);
-
   const {
     responsiveConfig,
     currentStudents,
@@ -46,13 +36,24 @@ const CheckInReportPage = () => {
     isInternshipCheck,
     isInternshipCheckAll,
     hasSavedCheckIn,
+    selectedDate,
     isSaving,
     handleSelectChange,
     handleCellClick,
     handleColumnHeaderClick,
     handleSaveCheckIn,
+    handleDateChange,
     handlePaginationModelChange,
   } = useCheckInReport();
+
+  const currentDateString = useMemo(() => {
+    return (selectedDate ?? new Date()).toLocaleDateString('th-TH', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }, [selectedDate]);
 
   return (
     <div 
@@ -165,6 +166,7 @@ const CheckInReportPage = () => {
                     }
                     loading={isSaving}
                     hasSavedCheckIn={hasSavedCheckIn}
+                    selectedDate={selectedDate}
                     formSize={responsiveConfig.formSize}
                     inputFontSize={responsiveConfig.inputFontSize}
                     inputPadding={responsiveConfig.inputPadding}
@@ -172,6 +174,7 @@ const CheckInReportPage = () => {
                     buttonMinWidth={responsiveConfig.buttonMinWidth}
                     buttonFontSize={responsiveConfig.buttonFontSize}
                     onClassroomChange={handleSelectChange}
+                    onDateChange={handleDateChange}
                     onSaveCheckIn={handleSaveCheckIn}
                   />
                 </Box>

@@ -11,7 +11,7 @@ export default function CheckInDailyReport() {
     <AclGuard
       aclAbilities={{
         action: 'read',
-        subject: 'report-check-in-daily-page',
+        subject: 'daily-check-in-report-activity-page',
       }}
       guestGuard={false}
     >

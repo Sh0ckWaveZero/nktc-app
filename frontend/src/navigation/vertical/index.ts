@@ -184,7 +184,7 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'report-category',
     },
     {
-      title: 'รายงานเช็คชื่อ-เช้า',
+      title: 'รายงานเช็คชื่อหน้าเสาธง',
       icon: BsClipboardData,
       action: 'read',
       subject: 'report-check-in-page',
@@ -193,8 +193,8 @@ const navigation = (): VerticalNavItemsType => {
           title: 'รายวัน',
           icon: 'bi:calendar2-date',
           action: 'read',
-          subject: 'report-check-in-page',
-          path: '/apps/reports/check-in/daily',
+          subject: 'report-check-in-daily-page',
+          path: '/apps/reports/activity-check-in/daily',
         },
         {
           title: 'รายงานสรุป',
@@ -250,8 +250,8 @@ const navigation = (): VerticalNavItemsType => {
           title: 'รายวัน',
           icon: 'bi:calendar2-date',
           action: 'read',
-          subject: 'activity-check-in-page',
-          path: '/apps/reports/activity-check-in/daily',
+          subject: 'daily-check-in-report-activity-page',
+          path: '/apps/reports/check-in/daily',
         },
         {
           title: 'รายงานสรุป',

@@ -43,6 +43,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useRouter } from 'next/navigation';
 import { toApiDate } from '@/utils/datetime';
+import { sortClassroomStudentsByStudentId, sortStudentsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -156,6 +157,7 @@ function checkInReducer(state: CheckInState, action: CheckInAction): CheckInStat
       return {
         ...state,
         currentStudents: action.payload.students,
+        normalStudents: action.payload.students.filter((s: any) => s?.status !== 'internship'),
         defaultClassroom: action.payload.classroom,
         currentPage: 0,
         openAlert: true,
@@ -579,7 +581,7 @@ const CheckInDailyReportPage = () => {
   };
 
   useEffectOnce(() => {
-    if (!ability?.can('read', 'report-check-in-daily-page') || (auth?.user?.role as string) === 'Admin') {
+    if (!ability?.can('read', 'daily-check-in-report-activity-page') || (auth?.user?.role as string) === 'Admin') {
       push('/401');
     }
   });
@@ -606,7 +608,8 @@ const CheckInDailyReportPage = () => {
       if (actualData?.data) actualData = actualData.data;
     }
 
-    const classroomList = Array.isArray(actualData) ? actualData : (actualData?.classrooms || []);
+    const rawClassroomList: any[] = Array.isArray(actualData) ? actualData : (actualData?.classrooms || []);
+    const classroomList = sortClassroomStudentsByStudentId(rawClassroomList);
     if (!classroomList?.length) {
       dispatch({ type: 'SET_LOADING', payload: false });
       return;
@@ -620,8 +623,8 @@ const CheckInDailyReportPage = () => {
 
     getCheckInStatus(auth?.user?.teacher?.id as string, classroom.id);
 
-    const { students } = classroom;
-    if (!students?.length) {
+    const students = sortStudentsByStudentId(classroom.students || []);
+    if (!students.length) {
       dispatch({ type: 'SET_LOADING', payload: false });
       return;
     }
@@ -670,7 +673,7 @@ const CheckInDailyReportPage = () => {
   const onHandleSubmit = async (event: any) => {
     event.preventDefault();
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
-    if (totalStudents === currentStudents.length && (!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id)) {
+    if (totalStudents === normalStudents.length && (!reportCheckIn || isEmpty(reportCheckIn) || !reportCheckIn.id)) {
       const toastId = toast.info('กำลังบันทึกเช็คชื่อ...', { autoClose: false, hideProgressBar: true });
       try {
         await addActivityCheckIn({
@@ -678,7 +681,7 @@ const CheckInDailyReportPage = () => {
           classroomId: defaultClassroom.id,
           present: isPresentCheck,
           absent: isAbsentCheck,
-          checkInDate: new Date(),
+          checkInDate: new Date().toISOString(),
           status: '1',
         });
         toast.dismiss(toastId);
@@ -699,7 +702,7 @@ const CheckInDailyReportPage = () => {
     const { target: { value } } = event;
     const classroomObj: any = classrooms.filter((item: any) => item.name === value)[0];
     await getCheckInStatus(auth?.user?.teacher?.id as string, classroomObj?.id);
-    const flatStudents = (classroomObj.students || []).map((s: any) => {
+    const flatStudents = sortStudentsByStudentId(classroomObj.students || []).map((s: any) => {
       const account = s?.user?.account || {};
       return { ...s, firstName: account.firstName ?? s.firstName, lastName: account.lastName ?? s.lastName, title: account.title ?? s.title, avatar: account.avatar ?? s.avatar };
     });
@@ -709,7 +712,7 @@ const CheckInDailyReportPage = () => {
   const isCheckedIn = Boolean(reportCheckIn && !isEmpty(reportCheckIn) && reportCheckIn.id);
   const visibleStudents = isCheckedIn ? [] : (currentStudents ?? []);
 
-  if (!ability?.can('read', 'report-check-in-daily-page') || (auth?.user?.role as string) === 'Admin') return null;
+  if (!ability?.can('read', 'daily-check-in-report-activity-page') || (auth?.user?.role as string) === 'Admin') return null;
 
   return (
     <Fragment>
