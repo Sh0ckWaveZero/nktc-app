@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Add bun to PATH
+        run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
