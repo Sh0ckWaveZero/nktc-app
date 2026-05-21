@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherClassroomsAndStudents, useSaveCheckIn, useCheckInReports } from '@/hooks/queries/useCheckIn';
 import { toApiDate } from '@/utils/datetime';
+import { sortClassroomStudentsByStudentId, sortStudentsByStudentId } from '@/utils/student-sort';
 
 interface UseCheckInReportReturn {
   // Responsive config
@@ -185,7 +186,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
 
     // Backend returns a plain array directly; also support { classrooms: [...] } wrapper
-    const classrooms = Array.isArray(actualData) ? actualData : (actualData?.classrooms || []);
+    const classrooms = sortClassroomStudentsByStudentId(Array.isArray(actualData) ? actualData : actualData?.classrooms || []);
     
     if (!classrooms || !classrooms.length) {
       console.log('No classrooms found:', { 
@@ -224,7 +225,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       const studentCount = classroom.students?.length || 0;
       setDefaultClassroom(classroom);
       setClassrooms(classrooms);
-      setCurrentStudents(classroom.students.map(flattenStudent));
+      setCurrentStudents(sortStudentsByStudentId(classroom.students).map(flattenStudent));
       // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 10;
@@ -308,7 +309,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     const classroomObj: any = classrooms.find((item: any) => item.name === value);
 
     if (classroomObj) {
-      setCurrentStudents((classroomObj.students || []).map(flattenStudent));
+      setCurrentStudents(sortStudentsByStudentId(classroomObj.students || []).map(flattenStudent));
       setDefaultClassroom(classroomObj);
       // Reset saved check-in status when changing classroom
       setHasSavedCheckIn(false);

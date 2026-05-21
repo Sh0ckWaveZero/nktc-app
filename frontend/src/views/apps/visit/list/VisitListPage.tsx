@@ -45,6 +45,21 @@ const EMPTY_IMAGE_SLOTS = ['', '', ''];
 const GOOGLE_MAPS_URL = 'https://www.google.com/maps';
 const MAP_COORDINATE_PRECISION = 6;
 
+const getAdvisorClassroomId = (value: unknown) => {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const classroom = value as { id?: unknown; classroomId?: unknown };
+  const classroomId = classroom.id ?? classroom.classroomId;
+
+  return typeof classroomId === 'string' ? classroomId : null;
+};
+
 const formatVisitDate = (value: string | Date | null) => {
   if (!value) {
     return '-';
@@ -1201,7 +1216,14 @@ const VisitListPage = () => {
   const [selectedRow, setSelectedRow] = useState<TeacherVisitStudentRow | null>(null);
 
   const isTeacher = user?.role?.toLowerCase() === 'teacher';
-  const hasAdvisorClassrooms = Array.isArray(user?.teacherOnClassroom) && user.teacherOnClassroom.length > 0;
+  const advisorClassroomIds = useMemo(() => {
+    const teacherOnClassroom = Array.isArray(user?.teacherOnClassroom) ? user.teacherOnClassroom : [];
+
+    return teacherOnClassroom
+      .map(getAdvisorClassroomId)
+      .filter((classroomId): classroomId is string => Boolean(classroomId));
+  }, [user?.teacherOnClassroom]);
+  const hasAdvisorClassrooms = advisorClassroomIds.length > 0;
 
   const {
     data: advisorStudents = [],
@@ -1209,6 +1231,7 @@ const VisitListPage = () => {
     isFetching,
   } = useTeacherVisitStudents(undefined, {
     enabled: Boolean(isInitialized && !loading && isTeacher),
+    advisorClassroomIds,
   });
 
   const classroomOptions = useMemo(() => {
@@ -1420,10 +1443,9 @@ const VisitListPage = () => {
 
               <Box id='visit-list-datagrid-container' sx={{ px: { xs: 1.5, sm: 2.5, lg: 3 }, pb: { xs: 2.5, sm: 3.5 } }}>
                 <AppListDataGrid
-                  id='visit-list-datagrid'
                   autoHeight
                   rows={filteredRows}
-                  columns={columns}
+                  columns={columns as GridColDef[]}
                   loading={isLoading || isFetching}
                   disableRowSelectionOnClick
                   disableColumnMenu

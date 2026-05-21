@@ -70,6 +70,8 @@ const ActivityCheckInDataGrid = ({
     present: { checkAll: isPresentCheckAll, checks: isPresentCheck },
     absent: { checkAll: isAbsentCheckAll, checks: isAbsentCheck },
   };
+  const selectableStudentIds = new Set(students.filter((student) => student?.status !== 'internship').map((student) => student.id));
+  const selectableStudentCount = selectableStudentIds.size;
 
   const getStudentStatus = (studentId: any) => {
     for (const column of CHECKBOX_COLUMNS) {
@@ -150,7 +152,9 @@ const ActivityCheckInDataGrid = ({
               {/* Checkbox Columns */}
               {CHECKBOX_COLUMNS.map((column) => {
                 const state = checkStates[column.field as keyof typeof checkStates];
-                const isAllChecked = state.checks.length === students.length;
+                const selectedCount = state.checks.filter((studentId) => selectableStudentIds.has(studentId)).length;
+                const isAllChecked = selectableStudentCount > 0 && selectedCount === selectableStudentCount;
+                const isDisabled = hasSavedCheckIn || isEmpty || selectableStudentCount === 0;
 
                 return (
                   <TableCellHeaderCustom
@@ -159,9 +163,9 @@ const ActivityCheckInDataGrid = ({
                     align='right'
                     sx={{
                       minWidth: 110,
-                      cursor: hasSavedCheckIn ? 'default' : 'pointer',
+                      cursor: isDisabled ? 'default' : 'pointer',
                     }}
-                    onClick={() => !hasSavedCheckIn && handleHeaderClick(column.field)}
+                    onClick={() => !isDisabled && handleHeaderClick(column.field)}
                   >
                     <Box
                       id={`activity-checkin-${column.field}-header`}
@@ -179,9 +183,9 @@ const ActivityCheckInDataGrid = ({
                       <CheckboxStyled
                         id={`activity-checkin-${column.field}-select-all`}
                         color={column.color}
-                        checked={state.checkAll || false}
-                        indeterminate={!isAllChecked && state.checkAll}
-                        disabled={hasSavedCheckIn}
+                        checked={isAllChecked}
+                        indeterminate={selectedCount > 0 && !isAllChecked}
+                        disabled={isDisabled}
                       />
                     </Box>
                   </TableCellHeaderCustom>
