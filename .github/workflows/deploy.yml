@@ -14,7 +14,7 @@ jobs:
     name: Test
     runs-on: [self-hosted, Linux, X64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Add bun to PATH
         run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
@@ -32,7 +32,7 @@ jobs:
     needs: test
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Write env files
         run: |
