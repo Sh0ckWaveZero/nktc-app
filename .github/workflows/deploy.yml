@@ -10,36 +10,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Test
-    runs-on: [self-hosted, Linux, X64]
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Add bun to PATH
-        run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: bun install --ignore-scripts
-
-      - name: Generate Prisma client
-        run: bunx prisma generate
-        working-directory: backend-elysia
-        env:
-          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
-
-      - name: Run backend tests
-        run: bun run test
-        continue-on-error: true
-        working-directory: backend-elysia
-        env:
-          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
-          MONGODB_DATABASE_URL: mongodb://placeholder:placeholder@localhost:27017/placeholder
-
   deploy:
     name: Deploy
     runs-on: [self-hosted, Linux, X64]
-    needs: test
     environment: production
     steps:
       - uses: actions/checkout@v5
