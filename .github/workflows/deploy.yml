@@ -20,7 +20,13 @@ jobs:
         run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --ignore-scripts
+
+      - name: Generate Prisma client
+        run: bunx prisma generate
+        working-directory: backend-elysia
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
 
       - name: Run backend tests
         run: bun run test
