@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
 import CustomChip from '@/@core/components/mui/chip';
-import { useActivityCheckInStore } from '@/store/index';
+import { useReportCheckInStore } from '@/store/index';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { toast } from 'react-toastify';
@@ -36,7 +36,7 @@ import {
   AccountLockOutline,
   AlertOctagramOutline,
 } from 'mdi-material-ui';
-import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/EditCheckInDrawer';
+import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import React from 'react';
@@ -51,6 +51,8 @@ type StudentStatus = 'present' | 'absent' | 'late' | 'leave' | 'internship';
 const checkInStatueIcon: any = {
   present: <AccountCheckOutline />,
   absent: <AccountCancelOutline />,
+  late: <AlertOctagramOutline />,
+  leave: <AccountCancelOutline />,
   notCheckIn: <AlertOctagramOutline />,
   none: <AlertOctagramOutline />,
   internship: <AccountLockOutline />,
@@ -59,14 +61,18 @@ const checkInStatueIcon: any = {
 const checkInStatueColor: any = {
   present: 'success',
   absent: 'error',
+  late: 'warning',
+  leave: 'info',
   notCheckIn: 'error',
   none: 'error',
   internship: 'secondary',
 };
 
 const checkInStatueName: any = {
-  present: 'เข้าร่วม',
-  absent: 'ไม่เข้าร่วม',
+  present: 'มาเรียน',
+  absent: 'ขาด',
+  late: 'มาสาย',
+  leave: 'ลา',
   notCheckIn: 'ยังไม่เช็คชื่อ',
   none: 'ยังไม่เช็คชื่อ',
   internship: 'นักศึกษาฝึกงาน',
@@ -103,6 +109,8 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 const ActivityCheckInDailyReportPage = () => {
   const isPresentCheckRef = useRef<any[]>([]);
   const isAbsentCheckRef = useRef<any[]>([]);
+  const isLateCheckRef = useRef<any[]>([]);
+  const isLeaveCheckRef = useRef<any[]>([]);
   const isInternshipCheckRef = useRef<any[]>([]);
 
   const auth = useAuth();
@@ -116,14 +124,13 @@ const ActivityCheckInDailyReportPage = () => {
     isLoading: isLoadingTeacherData,
   } = useTeacherStudents(teacherId);
 
-  const { getActivityCheckIn, findDailyReport, updateActivityCheckIn, removeActivityCheckIn, addActivityCheckIn }: any =
-    useActivityCheckInStore(
+  const { findDailyReport, updateReportCheckIn, removeReportCheckIn, addReportCheckIn }: any =
+    useReportCheckInStore(
       (state) => ({
-        getActivityCheckIn: state.getActivityCheckIn,
         findDailyReport: state.findDailyReport,
-        updateActivityCheckIn: state.updateActivityCheckIn,
-        removeActivityCheckIn: state.removeActivityCheckIn,
-        addActivityCheckIn: state.addActivityCheckIn,
+        updateReportCheckIn: state.updateReportCheckIn,
+        removeReportCheckIn: state.removeReportCheckIn,
+        addReportCheckIn: state.addReportCheckIn,
       }),
       shallow,
     );
@@ -161,12 +168,6 @@ const ActivityCheckInDailyReportPage = () => {
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
-      const dateStr = toApiDate(dateInfo as Date | string);
-      getActivityCheckIn({
-        teacher: auth?.user?.teacher?.id,
-        classroom: classroomInfo,
-        date: dateStr,
-      });
     } catch (error) {
       console.error(error);
       toast.error('เกิดข้อผิดพลาด');
@@ -177,7 +178,7 @@ const ActivityCheckInDailyReportPage = () => {
 
   // Authorization check
   useEffectOnce(() => {
-    if (!ability?.can('read', 'daily-check-in-report-activity-page') || (auth?.user?.role as string) === 'Admin') {
+    if (!ability?.can('read', 'report-check-in-daily-page') || (auth?.user?.role as string) === 'Admin') {
       router.push('/401');
       return;
     }
@@ -223,6 +224,12 @@ const ActivityCheckInDailyReportPage = () => {
       case 'absent':
         handleToggleAbsent(param);
         break;
+      case 'late':
+        handleToggleLate(param);
+        break;
+      case 'leave':
+        handleToggleLeave(param);
+        break;
       case 'internship':
         handleToggleInternship(param);
         break;
@@ -237,6 +244,14 @@ const ActivityCheckInDailyReportPage = () => {
 
   const handleToggleAbsent = (param: any): void => {
     isAbsentCheckRef.current.push(...onSetToggle(isAbsentCheckRef.current, param));
+  };
+
+  const handleToggleLate = (param: any): void => {
+    isLateCheckRef.current.push(...onSetToggle(isLateCheckRef.current, param));
+  };
+
+  const handleToggleLeave = (param: any): void => {
+    isLeaveCheckRef.current.push(...onSetToggle(isLeaveCheckRef.current, param));
   };
 
   const handleToggleInternship = (param: any): void => {
@@ -262,15 +277,33 @@ const ActivityCheckInDailyReportPage = () => {
     switch (action) {
       case 'present':
         onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
         onHandleInternshipChecked(param);
         break;
       case 'absent':
         onHandlePresentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
+        break;
+      case 'late':
+        onHandlePresentChecked(param);
+        onHandleAbsentChecked(param);
+        onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
+        break;
+      case 'leave':
+        onHandlePresentChecked(param);
+        onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
         onHandleInternshipChecked(param);
         break;
       case 'internship':
         onHandlePresentChecked(param);
         onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
         break;
       default:
         break;
@@ -288,6 +321,20 @@ const ActivityCheckInDailyReportPage = () => {
     const studentRecordId = param?.student?.id || param.id;
     if (isAbsentCheckRef.current.includes(studentRecordId)) {
       isAbsentCheckRef.current = onRemoveToggle(isAbsentCheckRef.current, studentRecordId);
+    }
+  };
+
+  const onHandleLateChecked = (param: any): void => {
+    const studentRecordId = param?.student?.id || param.id;
+    if (isLateCheckRef.current.includes(studentRecordId)) {
+      isLateCheckRef.current = onRemoveToggle(isLateCheckRef.current, studentRecordId);
+    }
+  };
+
+  const onHandleLeaveChecked = (param: any): void => {
+    const studentRecordId = param?.student?.id || param.id;
+    if (isLeaveCheckRef.current.includes(studentRecordId)) {
+      isLeaveCheckRef.current = onRemoveToggle(isLeaveCheckRef.current, studentRecordId);
     }
   };
 
@@ -311,6 +358,9 @@ const ActivityCheckInDailyReportPage = () => {
   const onClearAll = (): void => {
     isPresentCheckRef.current = [];
     isAbsentCheckRef.current = [];
+    isLateCheckRef.current = [];
+    isLeaveCheckRef.current = [];
+    isInternshipCheckRef.current = [];
   };
 
   const handleOpenEditCheckIn = (param: any): void => {
@@ -322,20 +372,29 @@ const ActivityCheckInDailyReportPage = () => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
     const { reportCheckInData } = values?.data || {};
-    const { present = [], absent = [] } = reportCheckInData || {};
+    const { present = [], absent = [], late = [], leave = [], internship = [] } = reportCheckInData || {};
 
     isPresentCheckRef.current.push(...present);
     isAbsentCheckRef.current.push(...absent);
+    isLateCheckRef.current.push(...late);
+    isLeaveCheckRef.current.push(...leave);
+    isInternshipCheckRef.current.push(...internship);
 
     onHandleToggle(values?.isCheckInStatus, values?.data);
 
     isPresentCheckRef.current = [...new Set(isPresentCheckRef.current)];
     isAbsentCheckRef.current = [...new Set(isAbsentCheckRef.current)];
+    isLateCheckRef.current = [...new Set(isLateCheckRef.current)];
+    isLeaveCheckRef.current = [...new Set(isLeaveCheckRef.current)];
+    isInternshipCheckRef.current = [...new Set(isInternshipCheckRef.current)];
 
     const updated = {
       ...reportCheckInData,
       present: isPresentCheckRef.current,
       absent: isAbsentCheckRef.current,
+      late: isLateCheckRef.current,
+      leave: isLeaveCheckRef.current,
+      internship: isInternshipCheckRef.current,
       updateBy: auth?.user?.id,
     };
 
@@ -344,21 +403,23 @@ const ActivityCheckInDailyReportPage = () => {
       classroomId,
       present: isPresentCheckRef.current,
       absent: isAbsentCheckRef.current,
-      checkInDate: selectedDate,
-      status: '1',
+      late: isLateCheckRef.current,
+      leave: isLeaveCheckRef.current,
+      internship: isInternshipCheckRef.current,
+      checkInDate: toApiDate(selectedDate as Date | string),
     };
 
     const options = {
-      loading: 'กำลังบันทึก...',
+      pending: 'กำลังบันทึก...',
       success: 'บันทึกสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
     };
 
     try {
       if (reportCheckInData) {
-        await toast.promise(updateActivityCheckIn(updated), options);
+        await toast.promise(updateReportCheckIn(updated), options);
       } else {
-        await toast.promise(addActivityCheckIn(created), options);
+        await toast.promise(addReportCheckIn(created), options);
       }
       await fetchDailyReport(selectedDate, classroomId);
       toggleCloseEditCheckIn();
@@ -392,8 +453,8 @@ const ActivityCheckInDailyReportPage = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeActivityCheckIn(reportCheckInData?.id), {
-      loading: 'กำลังลบการเช็คชื่อ...',
+    toast.promise(removeReportCheckIn(reportCheckInData?.id), {
+      pending: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
     });
@@ -517,7 +578,7 @@ const ActivityCheckInDailyReportPage = () => {
   ];
 
   return (
-    ability?.can('read', 'daily-check-in-report-activity-page') &&
+    ability?.can('read', 'report-check-in-daily-page') &&
     auth?.user?.role !== 'Admin' && (
       <React.Fragment>
         <Grid container spacing={6}>
@@ -530,7 +591,7 @@ const ActivityCheckInDailyReportPage = () => {
                   </Avatar>
                 }
                 sx={{ color: 'text.primary' }}
-                title={`รายงานการเช็คชื่อการเข้าร่วมกิจกรรม`}
+                title={`รายงานการเช็คชื่อ-เช้ารายวัน`}
                 subheader={`${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
                   weekday: 'long',
                   year: 'numeric',

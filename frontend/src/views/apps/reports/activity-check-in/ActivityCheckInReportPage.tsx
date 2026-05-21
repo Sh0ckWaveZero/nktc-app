@@ -102,7 +102,7 @@ const ActivityCheckInReportPage = () => {
     hasCheckedAuth.current = true;
 
     const isInRole = (auth?.user?.role as string) === 'Admin';
-    if (!ability?.can('read', 'check-in-page') || isInRole) {
+    if (!ability?.can('read', 'activity-check-in-page') || isInRole) {
       router.push('/401');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -417,7 +417,7 @@ const ActivityCheckInReportPage = () => {
   };
 
   const isInRole = (auth?.user?.role as string) === 'Admin';
-  if (!ability?.can('read', 'check-in-page') || isInRole) {
+  if (!ability?.can('read', 'activity-check-in-page') || isInRole) {
     router.push('/401');
     return null;
   }

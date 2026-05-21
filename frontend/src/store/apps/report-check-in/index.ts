@@ -24,8 +24,9 @@ export const useReportCheckInStore = createWithEqualityFn<UserState>()((set) => 
   hasReportCheckInErrors: false,
   getReportCheckIn: async (param: any) => {
     try {
+      const dateParam = param.date ? `?date=${param.date}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.reportCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}`,
+        `${authConfig.reportCheckInEndpoint}/teacher/${param.teacher}/classroom/${param.classroom}${dateParam}`,
       );
       return await data;
     } catch (err) {

@@ -56,6 +56,7 @@ interface UseCheckInReportReturn {
   isInternshipCheck: any[];
   isInternshipCheckAll: boolean;
   hasSavedCheckIn: boolean;
+  selectedDate: Date | null;
 
   // Loading states
   isSaving: boolean;
@@ -65,6 +66,7 @@ interface UseCheckInReportReturn {
   handleCellClick: (params: any) => void;
   handleColumnHeaderClick: (params: any) => void;
   handleSaveCheckIn: () => void;
+  handleDateChange: (date: Date | null) => void;
   handleMobilePageChange: (newPage: number) => void;
   handleMobilePageSizeChange: (newPageSize: number) => void;
   handlePaginationModelChange: (model: { page: number; pageSize: number }) => void;
@@ -135,7 +137,8 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [mobilePage, setMobilePage] = useState<number>(0);
   const [mobilePageSize, setMobilePageSize] = useState<number>(5);
-  const [checkInDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const checkInDate = useMemo(() => toApiDate(selectedDate ?? new Date()), [selectedDate]);
   const [classroomDropdownOpen, setClassroomDropdownOpen] = useState<boolean>(false);
 
   // Check-in status states
@@ -236,9 +239,8 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
   }, [classroomData, classroomLoading, classroomError, auth.user?.teacher?.id]);
 
-  // Load saved check-in status when report data is available
-  // dependency: checkInReport และ defaultClassroom?.id เท่านั้น
-  // ไม่ใส่ currentStudents?.length เพราะจะทำให้ effect re-run แล้ว reset state ผิดเวลา
+  // Load saved check-in status when report data is available for the selected date.
+  // Avoid depending on currentStudents length because it can re-run and reset state at the wrong time.
   useEffect(() => {
     if (!defaultClassroom?.id) {
       setHasSavedCheckIn(false);
@@ -264,12 +266,12 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     // Normalize nested structure: { data: { present: [] } } หรือ { present: [] }
     const reportData = checkInReport?.data ?? checkInReport;
 
-    // ตรวจสอบว่า checkInDate ของ record ตรงกับวันนี้จริงๆ
-    // backend อาจส่งข้อมูลวันเก่ากลับมาถ้ายังไม่ filter date ฝั่ง server
+    // Verify the record date matches the selected date.
+    // The backend may return a stale record if the date filter is not applied server-side.
     const recordDate = reportData?.checkInDate
       ? toApiDate(reportData.checkInDate)
       : null;
-    const isToday = recordDate === checkInDate;
+    const isSelectedDate = recordDate === checkInDate;
 
     const present     = Array.isArray(reportData?.present)     ? reportData.present     : [];
     const absent      = Array.isArray(reportData?.absent)      ? reportData.absent      : [];
@@ -277,8 +279,8 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     const leave       = Array.isArray(reportData?.leave)       ? reportData.leave       : [];
     const internship  = Array.isArray(reportData?.internship)  ? reportData.internship  : [];
 
-    // มีข้อมูล AND เป็นวันนี้เท่านั้น จึงถือว่าเช็คชื่อไปแล้ว
-    const hasData = isToday &&
+    // Only treat the page as saved when the returned record belongs to the selected date.
+    const hasData = isSelectedDate &&
       present.length + absent.length + late.length + leave.length + internship.length > 0;
 
     if (hasData) {
@@ -298,7 +300,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     } else {
       setHasSavedCheckIn(false);
     }
-  }, [checkInReport, defaultClassroom?.id]);
+  }, [checkInReport, defaultClassroom?.id, checkInDate]);
 
   // Handle classroom selection change
   const handleSelectChange = async (event: any) => {
@@ -598,19 +600,22 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
   };
 
+  const handleDateChange = (date: Date | null): void => {
+    setSelectedDate(date ?? new Date());
+    setHasSavedCheckIn(false);
+    onClearAll('');
+  };
+
   const handleSaveCheckIn = () => {
     if (!auth.user?.teacher?.id || !defaultClassroom?.id) {
       toast.error('กรุณาเลือกห้องเรียนและเข้าสู่ระบบ');
       return;
     }
 
-    // Convert checkInDate string to Date object for backend
-    const checkInDateObj = checkInDate ? new Date(checkInDate) : new Date();
-    
     const checkInData = {
       teacherId: auth.user.teacher.id,
       classroomId: defaultClassroom.id,
-      checkInDate: checkInDateObj.toISOString(),
+      checkInDate: new Date(checkInDate).toISOString(),
       present: isPresentCheck || [],
       absent: isAbsentCheck || [],
       late: isLateCheck || [],
@@ -697,11 +702,13 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     isInternshipCheck,
     isInternshipCheckAll,
     hasSavedCheckIn,
+    selectedDate,
     isSaving,
     handleSelectChange,
     handleCellClick,
     handleColumnHeaderClick,
     handleSaveCheckIn,
+    handleDateChange,
     handleMobilePageChange,
     handleMobilePageSizeChange,
     handlePaginationModelChange,
