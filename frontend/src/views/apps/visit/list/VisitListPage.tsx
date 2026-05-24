@@ -539,7 +539,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             sx={{
               flexShrink: 0,
               color: 'text.secondary',
-              border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.14)}`,
               '&:hover': { bgcolor: 'action.hover' },
             }}
           >
@@ -592,11 +592,19 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                       id={stat.id}
                       sx={{
                         p: { xs: 1.5, sm: 2 },
-                        borderRadius: 2.5,
-                        border: (theme) =>
-                          `1px solid ${alpha(theme.palette[(stat.color as 'success' | 'primary' | 'info') ?? 'primary']?.main ?? theme.palette.divider, 0.18)}`,
-                        bgcolor: (theme) =>
-                          alpha(theme.palette[(stat.color as 'success' | 'primary' | 'info') ?? 'primary']?.main ?? theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                        borderRadius: 2,
+                        border: (theme) => {
+                          const paletteColor = stat.color !== 'default'
+                            ? theme.palette[stat.color as 'success' | 'primary' | 'info' | 'warning'].main
+                            : theme.palette.primary.main;
+                          return `1px solid ${alpha(paletteColor, 0.16)}`;
+                        },
+                        bgcolor: (theme) => {
+                          const paletteColor = stat.color !== 'default'
+                            ? theme.palette[stat.color as 'success' | 'primary' | 'info' | 'warning'].main
+                            : theme.palette.primary.main;
+                          return alpha(paletteColor, theme.palette.mode === 'dark' ? 0.12 : 0.06);
+                        },
                         textAlign: 'center',
                       }}
                     >
@@ -634,8 +642,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                 sx={{
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
-                  borderRadius: 2.5,
-                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                  borderRadius: 2,
+                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
                   bgcolor: 'background.paper',
                 }}
               >
@@ -659,8 +667,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                 sx={{
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
-                  borderRadius: 2.5,
-                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                  borderRadius: 2,
+                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
                   bgcolor: 'background.paper',
                 }}
               >
@@ -733,8 +741,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
               <Box
                 sx={{
                   p: { xs: 2, sm: 2.5 },
-                  borderRadius: 2.5,
-                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                  borderRadius: 2,
+                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
                   bgcolor: 'background.paper',
                 }}
               >
@@ -748,9 +756,9 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                         <Box
                           sx={{
                             position: 'relative',
-                            borderRadius: 2,
+                            borderRadius: 1.5,
                             overflow: 'hidden',
-                            border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
                             '&:hover .img-overlay': { opacity: 1 },
                           }}
                         >
