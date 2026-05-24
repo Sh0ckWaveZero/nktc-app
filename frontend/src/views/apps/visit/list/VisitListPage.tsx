@@ -25,6 +25,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import HomeOutline from 'mdi-material-ui/HomeOutline';
 import PencilOutline from 'mdi-material-ui/PencilOutline';
 import EyeOutline from 'mdi-material-ui/EyeOutline';
+import AccountOutline from 'mdi-material-ui/AccountOutline';
+import MapMarkerOutline from 'mdi-material-ui/MapMarkerOutline';
+import ImageOutline from 'mdi-material-ui/ImageOutline';
+import CalendarCheckOutline from 'mdi-material-ui/CalendarCheckOutline';
+import Close from 'mdi-material-ui/Close';
+import OpenInNew from 'mdi-material-ui/OpenInNew';
 import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
@@ -377,30 +383,48 @@ const VisitImagePreviewCell = memo(({ row }: { row: TeacherVisitStudentRow }) =>
   );
 });
 
-const VisitInfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => {
-  return (
+const VisitInfoRow = memo(({ label, value }: { label: string; value: React.ReactNode }) => (
+  <Box
+    sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: '1fr', sm: '130px 1fr' },
+      gap: { xs: 0.25, sm: 1 },
+      py: 1.25,
+      borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+      '&:last-of-type': { borderBottom: 'none', pb: 0 },
+    }}
+  >
+    <Typography variant='body2' sx={{ color: 'text.disabled', fontWeight: 600, fontSize: '0.8rem' }}>
+      {label}
+    </Typography>
+    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600, wordBreak: 'break-word' }}>
+      {value ?? '-'}
+    </Typography>
+  </Box>
+));
+
+const DetailSectionTitle = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
+  <Stack direction='row' spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
     <Box
       sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', sm: '140px 1fr' },
-        gap: 1,
-        py: 1.25,
-        borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}`,
-        '&:last-of-type': {
-          borderBottom: 'none',
-          pb: 0,
-        },
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 30,
+        height: 30,
+        borderRadius: 1.5,
+        bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.1),
+        color: 'primary.main',
+        flexShrink: 0,
       }}
     >
-      <Typography variant='body2' sx={{ color: 'text.secondary', fontWeight: 600 }}>
-        {label}
-      </Typography>
-      <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600, wordBreak: 'break-word' }}>
-        {value ?? '-'}
-      </Typography>
+      {icon}
     </Box>
-  );
-};
+    <Typography variant='subtitle2' sx={{ fontWeight: 800, fontSize: '0.92rem', letterSpacing: '-0.01em' }}>
+      {children}
+    </Typography>
+  </Stack>
+);
 
 interface VisitDetailDialogProps {
   open: boolean;
@@ -410,7 +434,6 @@ interface VisitDetailDialogProps {
 
 const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
   const { data: student, isLoading, error } = useStudent(open && row ? row.studentKey : '');
-  const [isMapPreviewOpen, setIsMapPreviewOpen] = useState(false);
 
   const studentAccount = student?.user?.account;
   const visitMapData = row ? getVisitMapData(row.visitDetail, row.visitMap) : null;
@@ -425,10 +448,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
     : row?.fullName ?? '-';
   const studentAvatar = studentAccount?.avatar ?? undefined;
   const studentAddress = formatStudentAddress(studentAccount);
-
-  useEffect(() => {
-    setIsMapPreviewOpen(false);
-  }, [open, row?.id]);
+  const isRecorded = row?.visitStatus === 'recorded';
 
   return (
     <Dialog
@@ -436,247 +456,334 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth='lg'
+      maxWidth='md'
       aria-labelledby='visit-detail-dialog-title'
+      sx={{ '& .MuiDialog-paper': { borderRadius: { xs: 0, sm: 3 }, m: { xs: 0, sm: 2 }, maxHeight: { xs: '100dvh', sm: 'calc(100dvh - 32px)' } } }}
     >
-      <DialogTitle id='visit-detail-dialog-title'>ข้อมูลนักเรียนและการเยี่ยมบ้าน</DialogTitle>
-      <DialogContent dividers>
+      {/* ── Header ── */}
+      <Box
+        sx={{
+          px: { xs: 2.5, sm: 3.5 },
+          pt: { xs: 2.5, sm: 3 },
+          pb: 2,
+          background: (theme) =>
+            theme.palette.mode === 'dark'
+              ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.18)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`
+              : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.07)} 0%, ${theme.palette.background.paper} 100%)`,
+          borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}`,
+        }}
+      >
+        <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, minWidth: 0, flex: 1 }}>
+            <Avatar
+              id='visit-detail-student-avatar'
+              src={studentAvatar}
+              sx={{
+                width: { xs: 52, sm: 64 },
+                height: { xs: 52, sm: 64 },
+                bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.3 : 0.15),
+                color: 'primary.main',
+                fontSize: { xs: '1.1rem', sm: '1.3rem' },
+                fontWeight: 800,
+                flexShrink: 0,
+                border: (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              }}
+            >
+              {getNameInitials(studentFullName)}
+            </Avatar>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                id='visit-detail-dialog-title'
+                variant='h6'
+                sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.15rem' }, letterSpacing: '-0.02em', lineHeight: 1.3 }}
+              >
+                {studentFullName}
+              </Typography>
+              <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.4, fontWeight: 600 }}>
+                รหัสนักเรียน {row?.studentId}
+              </Typography>
+              <Stack direction='row' spacing={0.75} sx={{ flexWrap: 'wrap', mt: 1, rowGap: 0.75 }}>
+                <Chip
+                  id='visit-detail-classroom-chip'
+                  size='small'
+                  label={row?.classroomName}
+                  color='info'
+                  variant='outlined'
+                  sx={{ fontWeight: 700, height: 22, fontSize: '0.72rem' }}
+                />
+                <Chip
+                  id='visit-detail-status-chip'
+                  size='small'
+                  color={isRecorded ? 'success' : 'warning'}
+                  label={isRecorded ? 'บันทึกแล้ว' : 'ยังไม่บันทึก'}
+                  variant={isRecorded ? 'filled' : 'outlined'}
+                  sx={{ fontWeight: 700, height: 22, fontSize: '0.72rem' }}
+                />
+                {row?.visitNo ? (
+                  <Chip
+                    id='visit-detail-visit-no-chip'
+                    size='small'
+                    label={`ครั้งที่ ${row.visitNo}`}
+                    color='primary'
+                    variant='filled'
+                    sx={{ fontWeight: 700, height: 22, fontSize: '0.72rem' }}
+                  />
+                ) : null}
+              </Stack>
+            </Box>
+          </Stack>
+          <IconButton
+            id='visit-detail-close-icon-button'
+            size='small'
+            onClick={onClose}
+            sx={{
+              flexShrink: 0,
+              color: 'text.secondary',
+              border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+          >
+            <Close fontSize='small' />
+          </IconButton>
+        </Stack>
+      </Box>
+
+      <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
         {!row ? null : isLoading ? (
-          <Box sx={{ minHeight: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box sx={{ minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgress id='visit-detail-loading' size={30} />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, sm: 2.5 }}>
             {error ? (
               <Grid size={12}>
-                <Alert severity='warning' id='visit-detail-error-alert'>
-                  {getErrorMessage(error)}
-                </Alert>
+                <Alert severity='warning' id='visit-detail-error-alert'>{getErrorMessage(error)}</Alert>
               </Grid>
             ) : null}
+
+            {/* ── Visit stat cards ── */}
             <Grid size={12}>
-              <Stack
-                direction={{ xs: 'column', md: 'row' }}
-                spacing={2.5}
-                sx={{
-                  alignItems: { xs: 'flex-start', md: 'center' },
-                  p: { xs: 2.25, md: 3 },
-                  borderRadius: 3,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.05),
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-                }}
-              >
-                <Avatar
-                  id='visit-detail-student-avatar'
-                  src={studentAvatar}
-                  sx={{
-                    width: 72,
-                    height: 72,
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.28 : 0.14),
-                    color: 'primary.main',
-                    fontSize: '1.2rem',
-                    fontWeight: 800,
-                  }}
-                >
-                  {getNameInitials(studentFullName)}
-                </Avatar>
-                <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography variant='h6' sx={{ fontWeight: 800, color: 'text.primary' }}>
-                    {studentFullName}
-                  </Typography>
-                  <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5 }}>
-                    รหัสนักเรียน {row.studentId}
-                  </Typography>
-                  <Stack direction='row' spacing={1} sx={{ flexWrap: 'wrap', mt: 1.5, rowGap: 1 }}>
-                    <Chip id='visit-detail-classroom-chip' size='small' label={row.classroomName} color='info' variant='outlined' />
-                    <VisitStatusChip row={row} />
-                    <Chip
-                      id='visit-detail-visit-no-chip'
-                      size='small'
-                      label={row.visitNo ? `เยี่ยมบ้านครั้งที่ ${row.visitNo}` : 'ยังไม่เคยบันทึกเยี่ยมบ้าน'}
-                      color={row.visitNo ? 'primary' : 'default'}
-                      variant={row.visitNo ? 'filled' : 'outlined'}
-                    />
-                  </Stack>
-                </Box>
-              </Stack>
+              <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                {[
+                  {
+                    id: 'visit-stat-status',
+                    label: 'สถานะ',
+                    value: isRecorded ? 'บันทึกแล้ว' : 'ยังไม่บันทึก',
+                    color: isRecorded ? 'success' : 'warning',
+                    icon: <CalendarCheckOutline sx={{ fontSize: '1.25rem' }} />,
+                  },
+                  {
+                    id: 'visit-stat-date',
+                    label: 'วันที่เยี่ยมบ้าน',
+                    value: formatVisitDate(row.visitDate),
+                    color: 'primary',
+                    icon: <HomeOutline sx={{ fontSize: '1.25rem' }} />,
+                  },
+                  {
+                    id: 'visit-stat-images',
+                    label: 'รูปบ้าน',
+                    value: row.images.length ? `${row.images.length} รูป` : 'ยังไม่มีรูป',
+                    color: row.images.length ? 'info' : 'default',
+                    icon: <ImageOutline sx={{ fontSize: '1.25rem' }} />,
+                  },
+                ].map((stat) => (
+                  <Grid key={stat.id} size={{ xs: 4 }}>
+                    <Box
+                      id={stat.id}
+                      sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        borderRadius: 2.5,
+                        border: (theme) =>
+                          `1px solid ${alpha(theme.palette[(stat.color as 'success' | 'primary' | 'info') ?? 'primary']?.main ?? theme.palette.divider, 0.18)}`,
+                        bgcolor: (theme) =>
+                          alpha(theme.palette[(stat.color as 'success' | 'primary' | 'info') ?? 'primary']?.main ?? theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                        textAlign: 'center',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          color: `${stat.color === 'default' ? 'text.secondary' : `${stat.color}.main`}`,
+                          mb: 0.5,
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {stat.icon}
+                      </Box>
+                      <Typography
+                        variant='caption'
+                        sx={{ display: 'block', color: 'text.disabled', fontWeight: 600, fontSize: '0.7rem', mb: 0.25 }}
+                      >
+                        {stat.label}
+                      </Typography>
+                      <Typography
+                        variant='body2'
+                        sx={{ fontWeight: 800, fontSize: { xs: '0.75rem', sm: '0.85rem' }, lineHeight: 1.2 }}
+                      >
+                        {stat.value}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 7 }}>
+            {/* ── Student info ── */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box
                 sx={{
                   height: '100%',
-                  p: { xs: 2.25, md: 3 },
-                  borderRadius: 3,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                  p: { xs: 2, sm: 2.5 },
+                  borderRadius: 2.5,
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                   bgcolor: 'background.paper',
                 }}
               >
-                <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
+                <DetailSectionTitle icon={<AccountOutline sx={{ fontSize: '1rem' }} />}>
                   ข้อมูลนักเรียน
-                </Typography>
+                </DetailSectionTitle>
                 <VisitInfoRow label='ชื่อ-นามสกุล' value={studentFullName} />
                 <VisitInfoRow label='รหัสนักเรียน' value={row.studentId} />
                 <VisitInfoRow label='เบอร์โทรศัพท์' value={studentAccount?.phone || '-'} />
-                <VisitInfoRow label='เลขบัตรประชาชน' value={studentAccount?.idCard || '-'} />
                 <VisitInfoRow label='วันเกิด' value={formatVisitDate(studentAccount?.birthDate ?? null)} />
                 <VisitInfoRow label='ที่อยู่' value={studentAddress} />
                 <VisitInfoRow label='ห้องเรียน' value={student?.classroom?.name || row.classroomName} />
                 <VisitInfoRow label='ระดับชั้น' value={student?.level?.levelFullName || '-'} />
                 <VisitInfoRow label='สาขาวิชา' value={student?.program?.name || '-'} />
-                <VisitInfoRow label='แผนก' value={student?.department?.name || '-'} />
               </Box>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Stack spacing={3} sx={{ height: '100%' }}>
-                <Box
-                  sx={{
-                    p: { xs: 2.25, md: 3 },
-                    borderRadius: 3,
-                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                    bgcolor: 'background.paper',
-                  }}
-                >
-                  <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                    ข้อมูลการเยี่ยมบ้าน
-                  </Typography>
-                  <VisitInfoRow
-                    label='สถานะบันทึก'
-                    value={row.visitStatus === 'recorded' ? 'บันทึกแล้ว' : 'ยังไม่บันทึก'}
-                  />
-                  <VisitInfoRow label='วันที่เยี่ยมบ้าน' value={formatVisitDate(row.visitDate)} />
-                  <VisitInfoRow label='จำนวนรูปบ้าน' value={row.images.length ? `${row.images.length} รูป` : '-'} />
-                </Box>
-
-                <Box
-                  sx={{
-                    p: { xs: 2.25, md: 3 },
-                    borderRadius: 3,
-                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                    bgcolor: 'background.paper',
-                  }}
-                >
-                  <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                    ข้อมูลแผนที่บ้าน
-                  </Typography>
-                  {visitMapData ? (
-                    <>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 2.25 }}>
-                        {visitEmbedUrl ? (
-                          <Button
-                            id='visit-detail-toggle-map-preview-button'
-                            variant={isMapPreviewOpen ? 'contained' : 'outlined'}
-                            color='success'
-                            onClick={() => setIsMapPreviewOpen((current) => !current)}
-                          >
-                            {isMapPreviewOpen ? 'ซ่อนตัวอย่างแผนที่' : 'ดูตัวอย่างแผนที่'}
-                          </Button>
-                        ) : null}
-                        {visitMapUrl ? (
-                          <Button
-                            id='visit-detail-open-map-button'
-                            component='a'
-                            href={visitMapUrl}
-                            target='_blank'
-                            rel='noreferrer'
-                            variant='outlined'
-                            color='primary'
-                          >
-                            เปิดใน Google Maps
-                          </Button>
-                        ) : null}
-                      </Stack>
-                      {visitEmbedUrl ? (
-                        <Collapse in={isMapPreviewOpen} timeout='auto' unmountOnExit>
-                          <Box
-                            sx={{
-                              mb: 2.25,
-                              p: 1,
-                              borderRadius: 2.5,
-                              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
-                            }}
-                          >
-                            <Box
-                              component='iframe'
-                              title='visit-detail-map-preview'
-                              src={visitEmbedUrl}
-                              loading='lazy'
-                              referrerPolicy='no-referrer-when-downgrade'
-                              sx={{
-                                width: '100%',
-                                height: { xs: 240, md: 280 },
-                                border: 0,
-                                borderRadius: 2,
-                                display: 'block',
-                              }}
-                            />
-                          </Box>
-                        </Collapse>
-                      ) : null}
-                      <VisitInfoRow label='พิกัดบ้าน' value={visitMapData.coordinates || '-'} />
-                      <VisitInfoRow label='Latitude' value={visitMapData.latitude ?? '-'} />
-                      <VisitInfoRow label='Longitude' value={visitMapData.longitude ?? '-'} />
-                      <VisitInfoRow label='ชื่อจุดหมุด' value={visitMapData.placeLabel || '-'} />
-                      <VisitInfoRow label='จุดสังเกต' value={visitMapData.landmark || '-'} />
-                      <VisitInfoRow label='หมายเหตุการเดินทาง' value={visitMapData.travelNote || '-'} />
-                    </>
-                  ) : (
-                    <Alert severity='info' id='visit-detail-no-map-alert'>
-                      นักเรียนคนนี้ยังไม่มีข้อมูลพิกัดบ้านจาก Google Maps
-                    </Alert>
-                  )}
-                </Box>
-              </Stack>
-            </Grid>
-
-            <Grid size={12}>
+            {/* ── Map ── */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box
                 sx={{
-                  p: { xs: 2.25, md: 3 },
-                  borderRadius: 3,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                  height: '100%',
+                  p: { xs: 2, sm: 2.5 },
+                  borderRadius: 2.5,
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                   bgcolor: 'background.paper',
                 }}
               >
-                <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
+                <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                  <DetailSectionTitle icon={<MapMarkerOutline sx={{ fontSize: '1rem' }} />}>
+                    แผนที่บ้าน
+                  </DetailSectionTitle>
+                  {visitMapUrl ? (
+                    <Button
+                      id='visit-detail-open-map-button'
+                      component='a'
+                      href={visitMapUrl}
+                      target='_blank'
+                      rel='noreferrer'
+                      size='small'
+                      variant='outlined'
+                      color='primary'
+                      endIcon={<OpenInNew sx={{ fontSize: '0.85rem !important' }} />}
+                      sx={{ flexShrink: 0, ml: 1, height: 30, fontSize: '0.75rem' }}
+                    >
+                      Google Maps
+                    </Button>
+                  ) : null}
+                </Stack>
+
+                {visitMapData ? (
+                  <>
+                    {visitEmbedUrl ? (
+                      <Box
+                        sx={{
+                          mb: 2,
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                        }}
+                      >
+                        <Box
+                          component='iframe'
+                          title='visit-detail-map-preview'
+                          src={visitEmbedUrl}
+                          loading='lazy'
+                          referrerPolicy='no-referrer-when-downgrade'
+                          sx={{ width: '100%', height: { xs: 180, sm: 200 }, border: 0, display: 'block' }}
+                        />
+                      </Box>
+                    ) : null}
+                    {visitMapData.coordinates ? (
+                      <VisitInfoRow label='พิกัดบ้าน' value={visitMapData.coordinates} />
+                    ) : null}
+                    {visitMapData.placeLabel ? (
+                      <VisitInfoRow label='ชื่อจุดหมุด' value={visitMapData.placeLabel} />
+                    ) : null}
+                    {visitMapData.landmark ? (
+                      <VisitInfoRow label='จุดสังเกต' value={visitMapData.landmark} />
+                    ) : null}
+                    {visitMapData.travelNote ? (
+                      <VisitInfoRow label='หมายเหตุ' value={visitMapData.travelNote} />
+                    ) : null}
+                  </>
+                ) : (
+                  <Alert severity='info' id='visit-detail-no-map-alert' sx={{ fontSize: '0.82rem' }}>
+                    ยังไม่มีพิกัดบ้านในระบบ
+                  </Alert>
+                )}
+              </Box>
+            </Grid>
+
+            {/* ── Images ── */}
+            <Grid size={12}>
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  borderRadius: 2.5,
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <DetailSectionTitle icon={<ImageOutline sx={{ fontSize: '1rem' }} />}>
                   รูปบ้านที่อัปโหลด
-                </Typography>
+                </DetailSectionTitle>
                 {row.images.length ? (
-                  <Grid container spacing={2}>
+                  <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                     {row.images.map((image, index) => (
-                      <Grid key={`${row.id}-detail-image-${index}`} size={{ xs: 12, sm: 6, md: 4 }}>
+                      <Grid key={`${row.id}-detail-image-${index}`} size={{ xs: 4 }}>
                         <Box
                           sx={{
-                            p: 1.5,
-                            borderRadius: 2.5,
-                            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                            bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
+                            position: 'relative',
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                            '&:hover .img-overlay': { opacity: 1 },
                           }}
                         >
                           <Box
                             component='img'
                             src={image}
                             alt={`visit-detail-home-${index + 1}`}
-                            sx={{
-                              width: '100%',
-                              aspectRatio: '4 / 3',
-                              objectFit: 'cover',
-                              display: 'block',
-                              borderRadius: 2,
-                            }}
+                            sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
                           />
-                          <Typography variant='body2' sx={{ mt: 1.25, fontWeight: 700, color: 'text.primary' }}>
-                            รูปบ้าน {index + 1}
-                          </Typography>
+                          <Box
+                            className='img-overlay'
+                            sx={{
+                              position: 'absolute',
+                              inset: 0,
+                              display: 'flex',
+                              alignItems: 'flex-end',
+                              p: 1,
+                              background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)',
+                              opacity: 0,
+                              transition: 'opacity 200ms ease',
+                            }}
+                          >
+                            <Typography variant='caption' sx={{ color: 'white', fontWeight: 700 }}>
+                              รูปบ้าน {index + 1}
+                            </Typography>
+                          </Box>
                         </Box>
                       </Grid>
                     ))}
                   </Grid>
                 ) : (
-                  <Alert severity='info' id='visit-detail-no-images-alert'>
-                    นักเรียนคนนี้ยังไม่มีรูปบ้านที่อัปโหลดในระบบ
+                  <Alert severity='info' id='visit-detail-no-images-alert' sx={{ fontSize: '0.82rem' }}>
+                    ยังไม่มีรูปบ้านในระบบ
                   </Alert>
                 )}
               </Box>
@@ -684,8 +791,9 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
           </Grid>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button id='visit-detail-close-button' variant='outlined' onClick={onClose}>
+
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 }, borderTop: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}` }}>
+        <Button id='visit-detail-close-button' variant='contained' onClick={onClose} sx={{ minWidth: 80 }}>
           ปิด
         </Button>
       </DialogActions>
