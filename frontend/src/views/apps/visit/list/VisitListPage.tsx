@@ -387,17 +387,17 @@ const VisitInfoRow = memo(({ label, value }: { label: string; value: React.React
   <Box
     sx={{
       display: 'grid',
-      gridTemplateColumns: { xs: '1fr', sm: '130px 1fr' },
-      gap: { xs: 0.25, sm: 1 },
-      py: 1.25,
-      borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+      gridTemplateColumns: { xs: '110px 1fr', sm: '120px 1fr' },
+      gap: 1,
+      py: 0.9,
+      borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.25)}`,
       '&:last-of-type': { borderBottom: 'none', pb: 0 },
     }}
   >
-    <Typography variant='body2' sx={{ color: 'text.disabled', fontWeight: 600, fontSize: '0.8rem' }}>
+    <Typography variant='body2' sx={{ color: 'text.disabled', fontWeight: 500, fontSize: '0.78rem', pt: 0.1 }}>
       {label}
     </Typography>
-    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600, wordBreak: 'break-word' }}>
+    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 700, wordBreak: 'break-word', fontSize: '0.85rem' }}>
       {value ?? '-'}
     </Typography>
   </Box>
@@ -548,7 +548,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 3 }, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'background.default' : alpha(theme.palette.primary.main, 0.01) }}>
         {!row ? null : isLoading ? (
           <Box sx={{ minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgress id='visit-detail-loading' size={30} />
@@ -591,19 +591,13 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                     <Box
                       id={stat.id}
                       sx={{
-                        p: { xs: 1.5, sm: 2 },
+                        p: { xs: 1.25, sm: 1.75 },
                         borderRadius: 2,
-                        border: (theme) => {
-                          const paletteColor = stat.color !== 'default'
-                            ? theme.palette[stat.color as 'success' | 'primary' | 'info' | 'warning'].main
-                            : theme.palette.primary.main;
-                          return `1px solid ${alpha(paletteColor, 0.16)}`;
-                        },
                         bgcolor: (theme) => {
-                          const paletteColor = stat.color !== 'default'
+                          const c = stat.color !== 'default'
                             ? theme.palette[stat.color as 'success' | 'primary' | 'info' | 'warning'].main
                             : theme.palette.primary.main;
-                          return alpha(paletteColor, theme.palette.mode === 'dark' ? 0.12 : 0.06);
+                          return alpha(c, theme.palette.mode === 'dark' ? 0.12 : 0.07);
                         },
                         textAlign: 'center',
                       }}
@@ -643,8 +637,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
-                  bgcolor: 'background.paper',
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
                 }}
               >
                 <DetailSectionTitle icon={<AccountOutline sx={{ fontSize: '1rem' }} />}>
@@ -668,8 +662,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
-                  bgcolor: 'background.paper',
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
                 }}
               >
                 <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
@@ -742,8 +736,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                 sx={{
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
-                  bgcolor: 'background.paper',
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
                 }}
               >
                 <DetailSectionTitle icon={<ImageOutline sx={{ fontSize: '1rem' }} />}>
@@ -758,7 +752,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                             position: 'relative',
                             borderRadius: 1.5,
                             overflow: 'hidden',
-                            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
+                            boxShadow: (theme) => `0 2px 8px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.3 : 0.1)}`,
                             '&:hover .img-overlay': { opacity: 1 },
                           }}
                         >
