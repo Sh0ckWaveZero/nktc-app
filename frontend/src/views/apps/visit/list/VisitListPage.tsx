@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -13,19 +13,23 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { alpha, useTheme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Autocomplete from '@mui/material/Autocomplete';
 import HomeOutline from 'mdi-material-ui/HomeOutline';
 import PencilOutline from 'mdi-material-ui/PencilOutline';
+import EyeOutline from 'mdi-material-ui/EyeOutline';
 import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import TableHeader from '@/views/apps/visit/list/TableHeader';
 import { useAuth } from '@/hooks/useAuth';
 import {
   type VisitDetailData,
@@ -323,7 +327,7 @@ const getErrorMessage = (error: unknown) => {
   return 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
 };
 
-const VisitStatusChip = ({ row }: { row: TeacherVisitStudentRow }) => {
+const VisitStatusChip = memo(({ row }: { row: TeacherVisitStudentRow }) => {
   const isRecorded = row.visitStatus === 'recorded';
 
   return (
@@ -336,9 +340,9 @@ const VisitStatusChip = ({ row }: { row: TeacherVisitStudentRow }) => {
       sx={{ fontWeight: 700 }}
     />
   );
-};
+});
 
-const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
+const VisitImagePreviewCell = memo(({ row }: { row: TeacherVisitStudentRow }) => {
   if (!row.images.length) {
     return (
       <Chip
@@ -371,7 +375,7 @@ const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
       ))}
     </Stack>
   );
-};
+});
 
 const VisitInfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => {
   return (
@@ -1213,8 +1217,37 @@ const VisitListPage = () => {
 
   const [selectedClassroomId, setSelectedClassroomId] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [visitStatusFilter, setVisitStatusFilter] = useState<'all' | 'recorded' | 'pending'>('all');
   const [detailRow, setDetailRow] = useState<TeacherVisitStudentRow | null>(null);
   const [selectedRow, setSelectedRow] = useState<TeacherVisitStudentRow | null>(null);
+
+  const handleClassroomChange = useCallback((value: { id: string; name: string } | null) => {
+    setSelectedClassroomId(value?.id ?? null);
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
+
+  const handleVisitStatusChange = useCallback((value: 'all' | 'recorded' | 'pending') => {
+    setVisitStatusFilter(value);
+  }, []);
+
+  const handleOpenDetail = useCallback((row: TeacherVisitStudentRow) => {
+    setDetailRow(row);
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailRow(null);
+  }, []);
+
+  const handleOpenRecord = useCallback((row: TeacherVisitStudentRow) => {
+    setSelectedRow(row);
+  }, []);
+
+  const handleCloseRecord = useCallback(() => {
+    setSelectedRow(null);
+  }, []);
 
   const isTeacher = user?.role?.toLowerCase() === 'teacher';
   const advisorClassroomIds = useMemo(() => {
@@ -1258,10 +1291,14 @@ const VisitListPage = () => {
       const matchesSearch =
         !normalizedSearch ||
         [row.studentId, row.fullName, row.classroomName].some((value) => value?.toLowerCase().includes(normalizedSearch));
+      const matchesStatus =
+        visitStatusFilter === 'all' ||
+        (visitStatusFilter === 'recorded' && row.visitStatus === 'recorded') ||
+        (visitStatusFilter === 'pending' && row.visitStatus !== 'recorded');
 
-      return matchesClassroom && matchesSearch;
+      return matchesClassroom && matchesSearch && matchesStatus;
     });
-  }, [advisorStudents, searchValue, selectedClassroomId]);
+  }, [advisorStudents, searchValue, selectedClassroomId, visitStatusFilter]);
 
   const summaryItems = useMemo<ListSummaryItem[]>(() => {
     const recordedCount = filteredRows.filter((row) => row.visitStatus === 'recorded').length;
@@ -1274,6 +1311,22 @@ const VisitListPage = () => {
       { label: 'รอบันทึก', value: pendingCount, color: 'warning' },
     ];
   }, [filteredRows]);
+
+  const getActionIconSx = useCallback(
+    (color: 'info' | 'warning' | 'primary') => ({
+      width: 32,
+      height: 32,
+      borderRadius: 1.5,
+      border: (theme: Theme) => `1px solid ${alpha(theme.palette[color].main, 0.24)}`,
+      backgroundColor: (theme: Theme) => alpha(theme.palette[color].main, 0.12),
+      color: `${color}.dark`,
+      transition: 'all 160ms ease',
+      '&:hover': {
+        backgroundColor: (theme: Theme) => alpha(theme.palette[color].main, 0.2),
+      },
+    }),
+    [],
+  );
 
   const columns = useMemo<GridColDef<TeacherVisitStudentRow>[]>(
     () => [
@@ -1316,6 +1369,24 @@ const VisitListPage = () => {
         field: 'classroomName',
         headerName: 'ห้องเรียน',
         sortable: false,
+        renderCell: ({ row }: GridRenderCellParams<TeacherVisitStudentRow>) => (
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              px: 1.25,
+              py: 0.35,
+              borderRadius: 1.5,
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.14)}`,
+              maxWidth: '100%',
+            }}
+          >
+            <Typography noWrap variant='body2' sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+              {row.classroomName}
+            </Typography>
+          </Box>
+        ),
       },
       {
         flex: 0.14,
@@ -1346,39 +1417,42 @@ const VisitListPage = () => {
         renderCell: ({ row }: GridRenderCellParams<TeacherVisitStudentRow>) => <VisitImagePreviewCell row={row} />,
       },
       {
-        flex: 0.16,
-        minWidth: 200,
+        flex: 0.14,
+        minWidth: 160,
         field: 'actions',
-        headerName: 'การทำรายการ',
+        headerName: 'การดำเนินการ',
         sortable: false,
         align: 'center',
         headerAlign: 'center',
         renderCell: ({ row }: GridRenderCellParams<TeacherVisitStudentRow>) => (
-          <Stack spacing={1} sx={{ width: '100%', py: 1 }}>
-            <Button
-              id={`visit-view-button-${row.id}`}
-              variant='outlined'
-              color='info'
-              size='small'
-              onClick={() => setDetailRow(row)}
-            >
-              ดูข้อมูล
-            </Button>
-            <Button
-              id={`visit-action-button-${row.id}`}
-              variant={row.visitId ? 'outlined' : 'contained'}
-              color={row.visitId ? 'warning' : 'primary'}
-              size='small'
-              startIcon={row.visitId ? <PencilOutline /> : <HomeOutline />}
-              onClick={() => setSelectedRow(row)}
-            >
-              {row.visitId ? 'แก้ไข' : 'บันทึก'}
-            </Button>
+          <Stack
+            id={`visit-actions-${row.id}`}
+            direction='row'
+            sx={{ alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}
+          >
+            <Tooltip title='ดูข้อมูล'>
+              <IconButton
+                id={`visit-view-button-${row.id}`}
+                sx={getActionIconSx('info')}
+                onClick={() => handleOpenDetail(row)}
+              >
+                <EyeOutline fontSize='small' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={row.visitId ? 'แก้ไขบันทึก' : 'บันทึกเยี่ยมบ้าน'}>
+              <IconButton
+                id={`visit-action-button-${row.id}`}
+                sx={getActionIconSx(row.visitId ? 'warning' : 'primary')}
+                onClick={() => handleOpenRecord(row)}
+              >
+                {row.visitId ? <PencilOutline fontSize='small' /> : <HomeOutline fontSize='small' />}
+              </IconButton>
+            </Tooltip>
           </Stack>
         ),
       },
     ],
-    [],
+    [getActionIconSx, handleOpenDetail, handleOpenRecord],
   );
 
   return (
@@ -1409,38 +1483,15 @@ const VisitListPage = () => {
             </Box>
           ) : (
             <>
-              <Box sx={{ px: { xs: 3, sm: 4, lg: 5 }, pb: 3 }}>
-                <Grid container spacing={2.5}>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Autocomplete
-                      id='visit-list-classroom-filter'
-                      options={classroomOptions}
-                      value={classroomOptions.find((option) => option.id === selectedClassroomId) ?? null}
-                      onChange={(_, newValue) => setSelectedClassroomId(newValue?.id ?? null)}
-                      getOptionLabel={(option) => option.name}
-                      isOptionEqualToValue={(option, value) => option.id === value.id}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id='visit-list-classroom-input'
-                          label='กรองตามห้องเรียน'
-                          placeholder='เลือกห้องที่รับผิดชอบ'
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 8 }}>
-                    <TextField
-                      id='visit-list-search-input'
-                      fullWidth
-                      label='ค้นหานักเรียน'
-                      placeholder='ค้นหาจากรหัสนักเรียน ชื่อ-นามสกุล หรือห้องเรียน'
-                      value={searchValue}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
+              <TableHeader
+                classroomOptions={classroomOptions}
+                selectedClassroomId={selectedClassroomId}
+                searchValue={searchValue}
+                visitStatusFilter={visitStatusFilter}
+                onClassroomChange={handleClassroomChange}
+                onSearchChange={handleSearchChange}
+                onVisitStatusChange={handleVisitStatusChange}
+              />
 
               <Box id='visit-list-datagrid-container' sx={{ px: { xs: 1.5, sm: 2.5, lg: 3 }, pb: { xs: 2.5, sm: 3.5 } }}>
                 <AppListDataGrid
@@ -1482,12 +1533,12 @@ const VisitListPage = () => {
         </AppListCard>
       </Grid>
 
-      <VisitDetailDialog open={Boolean(detailRow)} row={detailRow} onClose={() => setDetailRow(null)} />
+      <VisitDetailDialog open={Boolean(detailRow)} row={detailRow} onClose={handleCloseDetail} />
 
       <VisitDialog
         open={Boolean(selectedRow)}
         row={selectedRow}
-        onClose={() => setSelectedRow(null)}
+        onClose={handleCloseRecord}
       />
     </Grid>
   );
