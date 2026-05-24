@@ -809,8 +809,14 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
-        <Button id='visit-detail-close-button' variant='contained' onClick={onClose} fullWidth sx={{ maxWidth: { xs: '100%', sm: 120 } }}>
+      <DialogActions sx={{ px: { xs: 2.5, sm: 3.5 }, py: { xs: 2, sm: 2.5 } }}>
+        <Button
+          id='visit-detail-close-button'
+          variant='contained'
+          onClick={onClose}
+          fullWidth
+          sx={{ maxWidth: { xs: '100%', sm: 160 }, py: 1.1 }}
+        >
           ปิด
         </Button>
       </DialogActions>
