@@ -1,5 +1,5 @@
 import type { Metadata } from 'next/types';
-import { Prompt } from 'next/font/google';
+import { Kanit } from 'next/font/google';
 
 // ** Config Imports
 import themeConfig from '@/configs/themeConfig';
@@ -14,11 +14,11 @@ import '@/styles/globals.css';
 export const dynamic = 'force-dynamic';
 
 // ** Google Fonts
-const prompt = Prompt({
+const kanit = Kanit({
   subsets: ['latin', 'thai'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
-  variable: '--font-prompt',
+  variable: '--font-kanit',
 });
 
 export const metadata: Metadata = {
@@ -75,7 +75,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='th' suppressHydrationWarning>
-      <body className={`${prompt.variable} ${prompt.className}`} suppressHydrationWarning>
+      <body className={`${kanit.variable} ${kanit.className}`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

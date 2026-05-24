@@ -44,9 +44,6 @@ const Dialog = (theme: Theme, skin: Skin) => {
           '& + .MuiDialogContent-root': {
             paddingTop: 0,
           },
-          '& + .MuiDialogActions-root': {
-            paddingTop: 0,
-          },
 
           // Styling for Mobile Date Picker starts
           '& .PrivatePickersToolbar-root': {
@@ -101,7 +98,6 @@ const Dialog = (theme: Theme, skin: Skin) => {
     MuiDialogActions: {
       styleOverrides: {
         root: {
-          padding: theme.spacing(5),
           '&.dialog-actions-dense': {
             padding: theme.spacing(2.5),
             paddingTop: 0,

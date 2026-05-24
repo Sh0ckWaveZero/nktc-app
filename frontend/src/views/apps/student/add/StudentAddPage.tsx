@@ -56,9 +56,9 @@ interface ClassroomOption {
 }
 
 const DEFAULT_IMG = '/images/avatars/1.png';
-const PANEL_RADIUS = 16;
-const SECTION_RADIUS = 14;
-const CONTROL_RADIUS = 12;
+const PANEL_RADIUS = 14;
+const SECTION_RADIUS = 12;
+const CONTROL_RADIUS = 10;
 
 const getPanelBorderColor = (theme: any) =>
   alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1);

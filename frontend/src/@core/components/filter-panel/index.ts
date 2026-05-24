@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { alpha, styled } from '@mui/material/styles';
 
-const PANEL_RADIUS = 16;
+const PANEL_RADIUS = 14;
 
 const getPanelBorderColor = (theme: any) =>
   alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1);
