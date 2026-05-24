@@ -394,7 +394,7 @@ const VisitInfoRow = memo(({ label, value }: { label: string; value: React.React
       '&:last-of-type': { borderBottom: 'none', pb: 0 },
     }}
   >
-    <Typography variant='body2' sx={{ color: 'text.disabled', fontWeight: 500, fontSize: '0.78rem', pt: 0.1 }}>
+    <Typography variant='body2' sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '0.8rem', pt: 0.1 }}>
       {label}
     </Typography>
     <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 700, wordBreak: 'break-word', fontSize: '0.85rem' }}>
@@ -462,15 +462,15 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
     >
       {/* ── Header ── */}
       <Box
+        id='visit-detail-header'
         sx={{
           px: { xs: 2.5, sm: 3.5 },
           pt: { xs: 2.5, sm: 3 },
-          pb: 2,
+          pb: 2.5,
           background: (theme) =>
             theme.palette.mode === 'dark'
               ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.18)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`
-              : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.07)} 0%, ${theme.palette.background.paper} 100%)`,
-          borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}`,
+              : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.06)} 0%, ${theme.palette.background.paper} 100%)`,
         }}
       >
         <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5 }}>
@@ -604,7 +604,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                     >
                       <Box
                         sx={{
-                          color: `${stat.color === 'default' ? 'text.secondary' : `${stat.color}.main`}`,
+                          color: stat.color === 'default' ? 'text.secondary' : `${stat.color}.dark`,
                           mb: 0.5,
                           display: 'flex',
                           justifyContent: 'center',
@@ -614,13 +614,13 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                       </Box>
                       <Typography
                         variant='caption'
-                        sx={{ display: 'block', color: 'text.disabled', fontWeight: 600, fontSize: '0.7rem', mb: 0.25 }}
+                        sx={{ display: 'block', color: 'text.secondary', fontWeight: 600, fontSize: '0.72rem', mb: 0.3 }}
                       >
                         {stat.label}
                       </Typography>
                       <Typography
                         variant='body2'
-                        sx={{ fontWeight: 800, fontSize: { xs: '0.75rem', sm: '0.85rem' }, lineHeight: 1.2 }}
+                        sx={{ fontWeight: 800, fontSize: { xs: '0.8rem', sm: '0.88rem' }, lineHeight: 1.2, color: 'text.primary' }}
                       >
                         {stat.value}
                       </Typography>
@@ -633,12 +633,13 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             {/* ── Student info ── */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Box
+                id='visit-detail-student-info-section'
                 sx={{
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
-                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.055),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.1)}`,
                 }}
               >
                 <DetailSectionTitle icon={<AccountOutline sx={{ fontSize: '1rem' }} />}>
@@ -658,12 +659,13 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             {/* ── Map ── */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Box
+                id='visit-detail-map-section'
                 sx={{
                   height: '100%',
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
-                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.055),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.1)}`,
                 }}
               >
                 <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
@@ -692,6 +694,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                   <>
                     {visitEmbedUrl ? (
                       <Box
+                        id='visit-detail-map-embed-wrapper'
                         sx={{
                           mb: 2,
                           borderRadius: 2,
@@ -700,6 +703,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                         }}
                       >
                         <Box
+                          id='visit-detail-map-iframe'
                           component='iframe'
                           title='visit-detail-map-preview'
                           src={visitEmbedUrl}
@@ -733,11 +737,12 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             {/* ── Images ── */}
             <Grid size={12}>
               <Box
+                id='visit-detail-images-section'
                 sx={{
                   p: { xs: 2, sm: 2.5 },
                   borderRadius: 2,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.06 : 0.03),
-                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.07)}`,
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.055),
+                  boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.1)}`,
                 }}
               >
                 <DetailSectionTitle icon={<ImageOutline sx={{ fontSize: '1rem' }} />}>
@@ -748,6 +753,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                     {row.images.map((image, index) => (
                       <Grid key={`${row.id}-detail-image-${index}`} size={{ xs: 4 }}>
                         <Box
+                          id={`visit-detail-image-${row.id}-${index + 1}`}
                           sx={{
                             position: 'relative',
                             borderRadius: 1.5,
@@ -794,8 +800,8 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 }, borderTop: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}` }}>
-        <Button id='visit-detail-close-button' variant='contained' onClick={onClose} sx={{ minWidth: 80 }}>
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+        <Button id='visit-detail-close-button' variant='contained' onClick={onClose} fullWidth sx={{ maxWidth: { xs: '100%', sm: 120 } }}>
           ปิด
         </Button>
       </DialogActions>
@@ -1049,6 +1055,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
             </Grid>
             <Grid size={12}>
               <Box
+                id='visit-record-map-section'
                 sx={{
                   p: { xs: 2.25, md: 3 },
                   borderRadius: 3,
@@ -1193,6 +1200,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                 {mapEmbedUrl ? (
                   <Collapse in={isMapPreviewOpen} timeout='auto' unmountOnExit>
                     <Box
+                      id='visit-map-preview-wrapper'
                       sx={{
                         mt: 2.5,
                         p: 1,
@@ -1202,6 +1210,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                       }}
                     >
                       <Box
+                        id='visit-map-preview-iframe'
                         component='iframe'
                         title='visit-map-preview'
                         src={mapEmbedUrl}
@@ -1228,6 +1237,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                   return (
                     <Grid key={`visit-image-slot-${index}`} size={{ xs: 12, md: 4 }}>
                       <Box
+                        id={`visit-image-slot-${index + 1}`}
                         sx={{
                           height: '100%',
                           p: 2,
@@ -1240,6 +1250,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                           รูปภาพประกอบ {index + 1}
                         </Typography>
                         <Box
+                          id={`visit-image-preview-box-${index + 1}`}
                           sx={{
                             height: 180,
                             borderRadius: 2,

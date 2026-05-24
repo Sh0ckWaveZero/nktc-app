@@ -127,7 +127,7 @@ const TableHeader = memo(({
             </FilterGrid>
 
             <FilterGrid id='visit-list-status-filter' size={{ xs: 12, md: 3 }}>
-              <AppFilterFormControl fullWidth>
+              <AppFilterFormControl id='visit-status-form-control' fullWidth>
                 <InputLabel id='visit-status-label' shrink>
                   สถานะบันทึก
                 </InputLabel>
