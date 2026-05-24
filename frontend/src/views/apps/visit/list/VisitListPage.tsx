@@ -384,20 +384,14 @@ const VisitImagePreviewCell = memo(({ row }: { row: TeacherVisitStudentRow }) =>
 });
 
 const VisitInfoRow = memo(({ label, value }: { label: string; value: React.ReactNode }) => (
-  <Box
-    sx={{
-      display: 'grid',
-      gridTemplateColumns: { xs: '110px 1fr', sm: '120px 1fr' },
-      gap: 1,
-      py: 0.9,
-      borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.45)}`,
-      '&:last-of-type': { borderBottom: 'none', pb: 0 },
-    }}
-  >
-    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.82rem', pt: 0.1, opacity: 0.65 }}>
+  <Box sx={{ mb: 1.5, '&:last-of-type': { mb: 0 } }}>
+    <Typography
+      variant='caption'
+      sx={{ display: 'block', color: 'text.secondary', fontWeight: 600, fontSize: '0.72rem', mb: 0.2, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+    >
       {label}
     </Typography>
-    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 700, wordBreak: 'break-word', fontSize: '0.88rem' }}>
+    <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 700, wordBreak: 'break-word', fontSize: '0.9rem' }}>
       {value ?? '-'}
     </Typography>
   </Box>
