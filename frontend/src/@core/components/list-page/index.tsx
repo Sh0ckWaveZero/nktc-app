@@ -12,13 +12,10 @@ import type { ReactNode } from 'react';
 // ─── AppListCard ──────────────────────────────────────────────────────────────
 
 export const AppListCard = styled(Card)(({ theme }) => ({
-  borderRadius: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius * 1.5,
   overflow: 'hidden',
   border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.08)}`,
-  boxShadow:
-    theme.palette.mode === 'dark'
-      ? `0 18px 42px ${alpha(theme.palette.common.black, 0.24)}`
-      : `0 18px 42px ${alpha(theme.palette.primary.main, 0.08)}`,
+  boxShadow: 'none',
   background:
     theme.palette.mode === 'dark'
       ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.98)} 32%)`

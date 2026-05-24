@@ -34,7 +34,7 @@ interface ProgramFormDialogProps {
   onSubmit: (payload: ProgramPayload) => void;
 }
 
-const CONTROL_RADIUS = 12;
+const CONTROL_RADIUS = 10;
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'เปิดใช้งาน' },

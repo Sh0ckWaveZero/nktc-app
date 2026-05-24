@@ -35,9 +35,9 @@ const themeOptions = (settings: Settings): ThemeOptions => {
         fontFamily:
           userFontFamily ||
           [
-            'Prompt',
-            'Sarabun',
+            'Kanit',
             'Noto Sans Thai',
+            'Sarabun',
             'sans-serif',
             '-apple-system',
             'BlinkMacSystemFont',
