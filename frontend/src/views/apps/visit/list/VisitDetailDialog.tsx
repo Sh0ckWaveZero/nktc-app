@@ -668,15 +668,17 @@ const VisitDetailDialog = ({ open, row, onClose, onRecord }: VisitDetailDialogPr
         onClose={() => setLightboxSrc(null)}
         maxWidth='md'
         fullWidth
-        slotProps={{ backdrop: { sx: { backgroundColor: 'rgba(0,0,0,0.85)' } } }}
-        PaperProps={{
-          sx: {
-            background: 'transparent',
-            boxShadow: 'none',
-            overflow: 'visible',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        slotProps={{
+          backdrop: { sx: { backgroundColor: 'rgba(0,0,0,0.85)' } },
+          paper: {
+            sx: {
+              background: 'transparent',
+              boxShadow: 'none',
+              overflow: 'visible',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
           },
         }}
       >
