@@ -2,14 +2,7 @@
 
 import { ReactNode } from 'react';
 import { alpha, Box } from '@mui/material';
-import {
-  Alert,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Typography,
-} from '@mui/material';
+import { Alert, Button, Dialog, DialogActions, DialogContent, Typography } from '@mui/material';
 import { RiDeleteBinLine, RiAlertLine, RiInformationLine, RiCheckLine } from 'react-icons/ri';
 
 export interface ConfirmDialogOptions {
@@ -91,8 +84,9 @@ const ConfirmDialog = ({ open, options, onClose, onConfirm, isConfirming = false
           id={`${severity}-confirm-dialog-title`}
           sx={{
             fontWeight: 600,
-            textAlign: 'center'
-          }}>
+            textAlign: 'center',
+          }}
+        >
           {title}
         </Typography>
       </Box>
@@ -101,8 +95,9 @@ const ConfirmDialog = ({ open, options, onClose, onConfirm, isConfirming = false
           variant='body2'
           sx={{
             color: 'text.secondary',
-            lineHeight: 1.8
-          }}>
+            lineHeight: 1.8,
+          }}
+        >
           {message}
         </Typography>
         {showWarning && warningMessage && (

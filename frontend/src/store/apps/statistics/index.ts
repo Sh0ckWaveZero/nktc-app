@@ -42,9 +42,7 @@ export const useStatisticsStore = createWithEqualityFn<StatisticsState>()((set) 
         ...(params.programId && { programId: params.programId }),
       });
 
-      const { data } = await httpClient.get(
-        `${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`,
-      );
+      const { data } = await httpClient.get(`${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`);
 
       set({ termStatistics: data, statisticsLoading: false });
       return data;

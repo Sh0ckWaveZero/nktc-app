@@ -51,13 +51,10 @@ export const useStudentStore = createWithEqualityFn<StudentState>()((set) => ({
   },
   fetchStudentsWithParams: async (params: any) => {
     try {
-      const { data } = await httpClient.post(
-        `${authConfig.studentEndpoint}/search-with-params`,
-        {
-          classroomId: params?.classroomId || null,
-          search: params?.search || null,
-        }
-      );
+      const { data } = await httpClient.post(`${authConfig.studentEndpoint}/search-with-params`, {
+        classroomId: params?.classroomId || null,
+        search: params?.search || null,
+      });
       return await data;
     } catch (err) {
       return null;

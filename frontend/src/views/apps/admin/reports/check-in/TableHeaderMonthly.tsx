@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { useTheme } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, OutlinedInput, Select, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
@@ -11,11 +11,16 @@ interface TableHeaderProps {
   value?: any;
   selectedDate: Date | null;
   handleSelectedDate: (newDate: Date | null) => any;
+  activityType?: string;
+  handleActivityTypeChange?: (event: any) => void;
+  activityTypes?: { value: string; label: string }[];
+  onExport?: () => void | Promise<void>;
+  isExportDisabled?: boolean;
 }
 
 const TableHeaderMonthly = (props: TableHeaderProps) => {
   // ** Props
-  const { selectedDate, handleSelectedDate } = props;
+  const { selectedDate, handleSelectedDate, activityType, handleActivityTypeChange, activityTypes, onExport, isExportDisabled } = props;
 
   // ** Hooks
   const theme = useTheme();
@@ -33,12 +38,34 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
         }}
         color='secondary'
         variant='outlined'
+        id='admin-checkin-monthly-download-button'
         startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
+        onClick={() => void onExport?.()}
+        disabled={Boolean(onExport) ? isExportDisabled : false}
       >
         ดาวน์โหลด
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        {activityTypes && handleActivityTypeChange && (
+          <FormControl sx={{ mr: 4, mb: 2, width: 300 }}>
+            <InputLabel id='admin-checkin-monthly-activity-type-label'>ประเภทกิจกรรม</InputLabel>
+            <Select
+              labelId='admin-checkin-monthly-activity-type-label'
+              id='admin-checkin-monthly-activity-type-select'
+              value={activityType || ''}
+              onChange={handleActivityTypeChange}
+              input={<OutlinedInput id='admin-checkin-monthly-activity-type-input' label='ประเภทกิจกรรม' />}
+            >
+              {activityTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <ThaiDatePicker
+          id='admin-checkin-monthly-date-picker'
           label='เลือกเดือน'
           value={selectedDate}
           onChange={handleSelectedDate}

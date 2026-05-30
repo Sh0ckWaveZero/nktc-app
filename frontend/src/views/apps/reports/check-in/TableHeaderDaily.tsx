@@ -12,26 +12,68 @@ interface TableHeaderProps {
   selectedDate: Date | null;
   handleClickOpen: () => void;
   isDisabled: boolean;
+  activityType?: string;
+  onActivityTypeChange?: (event: any) => void;
+  activityTypes?: { value: string; label: string }[];
 }
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
-  slotProps: { paper: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
+  slotProps: {
+    paper: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
     },
-  },
   },
 };
 
 const TableHeaderDaily = (props: TableHeaderProps) => {
   // ** Props
-  const { value, defaultValue, handleChange, selectedDate, handleDateChange, handleClickOpen, isDisabled } = props;
+  const {
+    value,
+    defaultValue,
+    handleChange,
+    selectedDate,
+    handleDateChange,
+    handleClickOpen,
+    isDisabled,
+    activityType,
+    onActivityTypeChange,
+    activityTypes,
+  } = props;
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
+      {activityTypes && onActivityTypeChange && (
+        <FormControl sx={{ mr: 4, mb: 2, width: 300 }}>
+          <InputLabel id='select-activity-type-label'>ประเภทกิจกรรม</InputLabel>
+          <Select
+            labelId='select-activity-type-label'
+            id='select-activity-type'
+            value={activityType || ''}
+            onChange={onActivityTypeChange}
+            input={<OutlinedInput id='select-activity-type-chip' label='ประเภทกิจกรรม' />}
+            renderValue={(selected: any) => {
+              const label = activityTypes.find((t) => t.value === selected)?.label || selected;
+              return (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Chip label={label} />
+                </Box>
+              );
+            }}
+            MenuProps={MenuProps}
+          >
+            {activityTypes.map((type) => (
+              <MenuItem key={type.value} value={type.value}>
+                {type.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
       <ThaiDatePicker
         label='เลือกวันที่'
         value={selectedDate}

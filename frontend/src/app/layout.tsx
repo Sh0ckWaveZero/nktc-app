@@ -32,10 +32,7 @@ export const metadata: Metadata = {
   creator: 'Midseelee',
   publisher: 'NKTC',
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon.ico', type: 'image/x-icon' },
-    ],
+    icon: [{ url: '/favicon.ico' }, { url: '/icon.ico', type: 'image/x-icon' }],
     shortcut: '/favicon.ico',
     apple: '/favicon.ico',
   },

@@ -20,12 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MuiAutocomplete, { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
 // ** Icons Imports
-import {
-  Close,
-  FileRemoveOutline,
-  Magnify,
-  SubdirectoryArrowLeft,
-} from 'mdi-material-ui';
+import { Close, FileRemoveOutline, Magnify, SubdirectoryArrowLeft } from 'mdi-material-ui';
 
 // ** Types Imports
 import { Settings } from '@/@core/context/settingsContext';

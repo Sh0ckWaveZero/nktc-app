@@ -16,7 +16,6 @@ import useBgColor, { UseBgColorType } from '@/@core/hooks/useBgColor';
 import { Badge } from '@mui/material';
 import IconifyIcon from '../../icon';
 
- 
 const Avatar = forwardRef<HTMLDivElement, CustomAvatarProps>((props, ref) => {
   // ** Props
   const { sx, src, skin = 'filled', color = 'primary', badge = '' } = props;

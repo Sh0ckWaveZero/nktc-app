@@ -279,10 +279,7 @@ const RecordBadnessIndividualPage = () => {
                             });
 
                         return (
-                          <TableRowCustom
-                            key={id}
-                            id={`record-badness-individual-table-row-${id}`}
-                          >
+                          <TableRowCustom key={id} id={`record-badness-individual-table-row-${id}`}>
                             <TableCellCustom
                               id={`record-badness-individual-table-cell-fullname-${id}`}
                               isLastRow={isLastRow}

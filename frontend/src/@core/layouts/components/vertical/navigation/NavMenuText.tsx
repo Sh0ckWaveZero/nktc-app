@@ -38,7 +38,7 @@ const NavMenuText = ({ text, collapsed }: Props) => {
 
   return (
     <Box ref={containerRef} sx={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
-      <Box ref={textRef} component="span" className="nav-text-inner">
+      <Box ref={textRef} component='span' className='nav-text-inner'>
         <Translations text={text} />
       </Box>
     </Box>

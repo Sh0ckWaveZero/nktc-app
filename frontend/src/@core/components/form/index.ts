@@ -11,8 +11,7 @@ import type { Theme } from '@mui/material/styles';
 const filterBorderColor = (theme: Theme) =>
   alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.16 : 0.12);
 
-const filterBg = (theme: Theme) =>
-  alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.96 : 0.82);
+const filterBg = (theme: Theme) => alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.96 : 0.82);
 
 const filterLabelStyles = (theme: Theme) => ({
   '& .MuiInputLabel-root': {

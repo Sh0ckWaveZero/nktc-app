@@ -77,8 +77,10 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           paper: {
             sx: {
               minWidth: '11rem',
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.1)}`,
-              boxShadow: (theme) => `0 14px 34px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.12)}`,
+              border: (theme) =>
+                `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.1)}`,
+              boxShadow: (theme) =>
+                `0 14px 34px ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.12)}`,
             },
           },
         }}

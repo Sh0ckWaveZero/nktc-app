@@ -62,13 +62,7 @@ const TableHeader = ({ value, defaultValue, handleChange, handleSubmit }: TableH
         </Grid>
 
         <Grid size={{ xs: 12, sm: 'auto' }}>
-          <Button
-            fullWidth
-            variant='contained'
-            disableElevation
-            startIcon={<RiFileEditLine />}
-            onClick={handleSubmit}
-          >
+          <Button fullWidth variant='contained' disableElevation startIcon={<RiFileEditLine />} onClick={handleSubmit}>
             บันทึกการเช็คชื่อ
           </Button>
         </Grid>

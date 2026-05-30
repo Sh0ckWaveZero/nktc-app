@@ -567,7 +567,13 @@ const StudentEditPage = ({ id }: StudentEditPageProps) => {
                   <Autocomplete
                     id='student-edit-classroom-autocomplete'
                     value={(value as ClassroomItem) ?? null}
-                    options={Array.isArray(classroomsData) ? [...classroomsData].sort((a, b) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
+                    options={
+                      Array.isArray(classroomsData)
+                        ? [...classroomsData].sort((a, b) =>
+                            (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+                          )
+                        : []
+                    }
                     loading={isClassroomLoading}
                     onChange={(_, newValue) => onChange(newValue)}
                     getOptionLabel={(option) => option.name || ''}

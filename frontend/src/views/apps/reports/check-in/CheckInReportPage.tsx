@@ -1,13 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  Avatar,
-  Box,
-  Grid,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Avatar, Box, Grid, Typography, useTheme } from '@mui/material';
 import { HiFlag } from 'react-icons/hi';
 import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
 import CheckInControls from './components/CheckInControls';
@@ -56,17 +50,14 @@ const CheckInReportPage = () => {
   }, [selectedDate]);
 
   return (
-    <div 
-      id='checkin-page-fragment'
-      style={{ borderRadius: '8px', overflow: 'hidden' }}
-    >
+    <div id='checkin-page-fragment' style={{ borderRadius: '8px', overflow: 'hidden' }}>
       <Grid id='checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
           <Box
             id='checkin-main-container-box'
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
               backgroundColor: 'background.paper',
             }}
           >
@@ -134,9 +125,13 @@ const CheckInReportPage = () => {
               {/* Empty State */}
               {!classroomLoading && !classroomError && !classrooms.length && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography sx={{
-                    color: 'text.secondary'
-                  }}>ไม่พบข้อมูลห้องเรียน</Typography>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
+                    ไม่พบข้อมูลห้องเรียน
+                  </Typography>
                 </Box>
               )}
 

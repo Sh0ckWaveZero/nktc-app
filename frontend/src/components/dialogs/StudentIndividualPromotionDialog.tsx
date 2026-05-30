@@ -3,15 +3,7 @@
 import { memo } from 'react';
 import { alpha, Box } from '@mui/material';
 import { RiArrowUpLine } from 'react-icons/ri';
-import {
-  Autocomplete,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, TextField, Typography } from '@mui/material';
 
 interface ClassroomOption {
   id: string;
@@ -89,8 +81,9 @@ const StudentIndividualPromotionDialog = memo(
             id='individual-promotion-dialog-title'
             sx={{
               fontWeight: 600,
-              textAlign: 'center'
-            }}>
+              textAlign: 'center',
+            }}
+          >
             เลื่อนชั้นนักเรียน
           </Typography>
         </Box>
@@ -100,8 +93,9 @@ const StudentIndividualPromotionDialog = memo(
             sx={{
               color: 'text.secondary',
               mb: 1,
-              lineHeight: 1.8
-            }}>
+              lineHeight: 1.8,
+            }}
+          >
             {'ย้าย '}
             <Typography component='span' sx={{ color: 'text.primary', fontWeight: 600 }}>
               {fullName}
@@ -119,9 +113,7 @@ const StudentIndividualPromotionDialog = memo(
             value={targetClassroom}
             onChange={(_, value) => onTargetChange(value)}
             disabled={isPromoting}
-            renderInput={(params) => (
-              <TextField {...params} label='ห้องเรียนปลายทาง' placeholder='เลือกห้องเรียน...' />
-            )}
+            renderInput={(params) => <TextField {...params} label='ห้องเรียนปลายทาง' placeholder='เลือกห้องเรียน...' />}
             isOptionEqualToValue={(option, value) => option?.id === value?.id}
             noOptionsText='ไม่พบห้องเรียน'
             sx={{ mt: 3 }}

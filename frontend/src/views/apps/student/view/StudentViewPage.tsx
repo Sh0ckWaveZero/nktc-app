@@ -127,10 +127,7 @@ const StudentDetailCard = ({ student }: { student: StudentData | undefined }) =>
         <Divider sx={{ mb: 4 }} />
 
         <DetailRow label='รหัสนักเรียน' value={studentId} />
-        <DetailRow
-          label='สถานะ'
-          value={<Chip size='small' label={statusInfo.label} color={statusInfo.color} />}
-        />
+        <DetailRow label='สถานะ' value={<Chip size='small' label={statusInfo.label} color={statusInfo.color} />} />
         <DetailRow label='วันเกิด' value={formatDate(account.birthDate)} />
         <DetailRow label='เลขบัตรประชาชน' value={account.idCard} />
         <DetailRow label='เบอร์โทรศัพท์' value={account.phone} />
@@ -182,17 +179,12 @@ const StudentViewPage = ({ id }: StudentViewPageProps) => {
     ? `${student.classroom.level?.levelName ?? ''} ${student.classroom.name ?? ''}`.trim()
     : '-';
 
-  const goodnessRecords: any[] = Array.isArray(goodnessData)
-    ? goodnessData
-    : (goodnessData as any)?.data ?? [];
+  const goodnessRecords: any[] = Array.isArray(goodnessData) ? goodnessData : ((goodnessData as any)?.data ?? []);
 
-  const badnessRecords: any[] = Array.isArray(badnessData)
-    ? badnessData
-    : (badnessData as any)?.data ?? [];
+  const badnessRecords: any[] = Array.isArray(badnessData) ? badnessData : ((badnessData as any)?.data ?? []);
 
   const trophy = trophyOverview as any;
-  const isEligibleForAward =
-    (trophy?.totalTrophy ?? 0) > 0 && (trophy?.goodScore ?? 0) > (trophy?.badScore ?? 0);
+  const isEligibleForAward = (trophy?.totalTrophy ?? 0) > 0 && (trophy?.goodScore ?? 0) > (trophy?.badScore ?? 0);
 
   return (
     <Grid container spacing={6}>

@@ -1,6 +1,11 @@
 import Icon from '@/@core/components/icon';
 import { FilterGrid, SectionBox, SectionDescription, SectionTitle } from '@/@core/components/filter-panel';
-import { AppFilterTextField, AppFilterFormControl, AppFilterAutocomplete, AppFilterSelect } from '@/@core/components/form';
+import {
+  AppFilterTextField,
+  AppFilterFormControl,
+  AppFilterAutocomplete,
+  AppFilterSelect,
+} from '@/@core/components/form';
 import { ActiveToolButton, ToolButton, ToolButtonSlot, ToolDivider } from '@/@core/components/toolbar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -244,11 +249,7 @@ const TableHeader = memo((props: TableHeaderProps) => {
                 <>
                   <Tooltip title={isPromoting ? 'กำลังเลื่อนชั้น...' : 'เลื่อนชั้นนักเรียน'}>
                     <ToolButtonSlot>
-                      <ToolButton
-                        id='bulk-promote-button'
-                        onClick={onBulkPromote}
-                        disabled={isPromoting}
-                      >
+                      <ToolButton id='bulk-promote-button' onClick={onBulkPromote} disabled={isPromoting}>
                         <Icon icon='tabler:arrow-up' />
                       </ToolButton>
                     </ToolButtonSlot>

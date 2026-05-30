@@ -50,7 +50,9 @@ const TableHeader = ({ classrooms, defaultValue, handleChange, visitNo, handleVi
               input={<OutlinedInput id='select-multiple-chip-visit-no' label='ครั้งการเยี่ยม' />}
               renderValue={(selected: any) => {
                 const label = selectedVisit.find((item) => item.value === selected)?.label;
-                return <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{label && <Chip label={label} />}</Box>;
+                return (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{label && <Chip label={label} />}</Box>
+                );
               }}
               MenuProps={MenuProps}
             >

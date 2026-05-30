@@ -50,7 +50,9 @@ const ImageDisplay = ({ image }: ImageDisplayProps) => {
 };
 
 const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
-  if (!info || info.length === 0) {
+  const infoArray = Array.isArray(info) ? info : info ? [info] : [];
+
+  if (infoArray.length === 0) {
     return (
       <Grid container spacing={6}>
         <Grid size={12}>
@@ -70,10 +72,7 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
     <Grid container spacing={6}>
       <Grid size={12}>
         <Card>
-          <CardHeader
-            title='บันทึกความดี'
-            slotProps={{ title: { variant: 'h6' } }}
-          />
+          <CardHeader title='บันทึกความดี' slotProps={{ title: { variant: 'h6' } }} />
           <CardContent>
             <Timeline
               sx={{
@@ -87,7 +86,7 @@ const TimelineGoodness = ({ info, user, onDeleted }: Props) => {
                 },
               }}
             >
-              {info.map((record: any) => (
+              {infoArray.map((record: any) => (
                 <TimelineItem key={record?.id}>
                   <TimelineSeparator>
                     <TimelineDot color='success' />

@@ -133,12 +133,9 @@ const AddClassroomForm = memo(
     const enable = useMemo(() => !isEmpty(values), [values]);
 
     // Memoize change handler to prevent unnecessary re-renders
-    const onHandleChange = useCallback(
-      (_event: unknown, newValue: Classroom[]) => {
-        setValues(newValue);
-      },
-      []
-    );
+    const onHandleChange = useCallback((_event: unknown, newValue: Classroom[]) => {
+      setValues(newValue);
+    }, []);
 
     // Memoize form submit handler
     const handleSubmit = useCallback(
@@ -146,12 +143,16 @@ const AddClassroomForm = memo(
         event.preventDefault();
         onSubmitted(event, values);
       },
-      [onSubmitted, values]
+      [onSubmitted, values],
     );
 
     // Memoize render option function to prevent recreation on every render
     const renderOption = useCallback(
-      (props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, option: Classroom, { selected }: { selected: boolean }) => {
+      (
+        props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
+        option: Classroom,
+        { selected }: { selected: boolean },
+      ) => {
         const { key, ...otherProps } = props;
         const optionId = option.id || option.classroomId || String(key ?? '') || '';
         return (
@@ -169,7 +170,7 @@ const AddClassroomForm = memo(
           </li>
         );
       },
-      []
+      [],
     );
 
     // Memoize render input function
@@ -184,7 +185,7 @@ const AddClassroomForm = memo(
           placeholder='เลือกห้องที่ปรึกษา'
         />
       ),
-      [values]
+      [values],
     );
 
     // Show loading state after all hooks are called
@@ -226,7 +227,7 @@ const AddClassroomForm = memo(
         </Box>
       </form>
     );
-  }
+  },
 );
 
 AddClassroomForm.displayName = 'AddClassroomForm';

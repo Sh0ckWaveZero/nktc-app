@@ -42,6 +42,24 @@ const ImageDisplay = ({ image }: ImageDisplayProps) => {
 };
 
 const TimelineBadness = ({ info, user, onDeleted }: Props) => {
+  const infoArray = Array.isArray(info) ? info : info ? [info] : [];
+
+  if (infoArray.length === 0) {
+    return (
+      <Grid container spacing={6}>
+        <Grid size={12}>
+          <Card>
+            <CardContent>
+              <Typography variant='body2' sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+                ไม่พบข้อมูลความประพฤติ
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid size={12}>
@@ -64,7 +82,7 @@ const TimelineBadness = ({ info, user, onDeleted }: Props) => {
                 },
               }}
             >
-              {info.map((item) => (
+              {infoArray.map((item) => (
                 <TimelineItem key={item?.id}>
                   <TimelineSeparator>
                     <TimelineDot color='error' />

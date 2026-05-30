@@ -41,9 +41,9 @@ const ActivityStudentCard = ({
   return (
     <Card
       id={`activity-checkin-student-card-${student.id}`}
-      sx={{ 
-        mb: responsiveConfig.isSmallMobile ? 1 : 1.5, 
-        border: 1, 
+      sx={{
+        mb: responsiveConfig.isSmallMobile ? 1 : 1.5,
+        border: 1,
         borderColor: 'divider',
         backgroundColor: 'background.paper',
       }}
@@ -65,16 +65,28 @@ const ActivityStudentCard = ({
               variant={responsiveConfig.isMobile ? 'subtitle1' : 'h6'}
               sx={{ fontWeight: 600 }}
             >
-              {(student?.user?.account?.title ?? student?.title) + '' + (student?.user?.account?.firstName ?? student?.firstName) + ' ' + (student?.user?.account?.lastName ?? student?.lastName)}
+              {(student?.user?.account?.title ?? student?.title) +
+                '' +
+                (student?.user?.account?.firstName ?? student?.firstName) +
+                ' ' +
+                (student?.user?.account?.lastName ?? student?.lastName)}
             </Typography>
-            <Typography id={`activity-checkin-student-id-${student.id}`} variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              id={`activity-checkin-student-id-${student.id}`}
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               @{student.studentId}
             </Typography>
-            <Typography id={`activity-checkin-student-class-${student.id}`} variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              id={`activity-checkin-student-class-${student.id}`}
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {student.classroom?.name || student.classroom}
             </Typography>
           </Box>
@@ -133,4 +145,3 @@ const ActivityStudentCard = ({
 };
 
 export default ActivityStudentCard;
-

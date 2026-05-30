@@ -14,21 +14,23 @@ interface DepartmentDeleteDialogProps {
   onConfirm: () => void;
 }
 
-const DepartmentDeleteDialog = memo(({ open, department, isDeleting, onClose, onConfirm }: DepartmentDeleteDialogProps) => {
-  const name = department?.name || 'สาขาวิชา';
+const DepartmentDeleteDialog = memo(
+  ({ open, department, isDeleting, onClose, onConfirm }: DepartmentDeleteDialogProps) => {
+    const name = department?.name || 'สาขาวิชา';
 
-  return (
-    <GenericDeleteDialog
-      open={open}
-      title='ยืนยันการลบสาขาวิชา'
-      itemName={name}
-      isDeleting={isDeleting}
-      onClose={onClose}
-      onConfirm={onConfirm}
-      warningMessage='ลบแล้วกู้คืนอัตโนมัติไม่ได้'
-    />
-  );
-});
+    return (
+      <GenericDeleteDialog
+        open={open}
+        title='ยืนยันการลบสาขาวิชา'
+        itemName={name}
+        isDeleting={isDeleting}
+        onClose={onClose}
+        onConfirm={onConfirm}
+        warningMessage='ลบแล้วกู้คืนอัตโนมัติไม่ได้'
+      />
+    );
+  },
+);
 
 DepartmentDeleteDialog.displayName = 'DepartmentDeleteDialog';
 

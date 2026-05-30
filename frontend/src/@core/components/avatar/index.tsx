@@ -10,7 +10,6 @@ interface RenderAvatarProps {
   customStyle?: any;
 }
 
-
 const RenderAvatar = memo((props: RenderAvatarProps) => {
   const {
     row,
@@ -34,9 +33,9 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
   const avatarUrl = useMemo(() => row?.avatar || '', [row?.avatar]);
   const initials = useMemo(
     () => getInitials((row?.firstName || '') + ' ' + (row?.lastName || '')),
-    [row?.firstName, row?.lastName]
+    [row?.firstName, row?.lastName],
   );
-  
+
   // Get avatar color from theme - use row.avatarColor if provided, otherwise generate from ID/name
   const avatarColor = useMemo(() => {
     if (row?.avatarColor) {
@@ -50,18 +49,17 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
   // Also check client-side cache to prevent duplicate requests
   const normalizedUrl = useMemo(() => {
     if (!avatarUrl) return null;
-    
+
     // Allow data URLs
     if (avatarUrl.startsWith('data:image/')) return avatarUrl;
-    
+
     // Extract statics path from URL
     let staticsPath: string | null = null;
-    
+
     // Handle relative URLs
     if (avatarUrl.startsWith('/statics/')) {
       staticsPath = avatarUrl.replace('/statics/', '');
-    }
-    else if (avatarUrl.startsWith(`${apiConfig.basePath}/statics/`)) {
+    } else if (avatarUrl.startsWith(`${apiConfig.basePath}/statics/`)) {
       staticsPath = avatarUrl.replace(`${apiConfig.basePath}/statics/`, '');
     }
     // Handle absolute URLs
@@ -77,17 +75,17 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
         // If parsing fails, continue with original URL
       }
     }
-    
+
     // If we found a statics path, use Next.js API route for caching
     if (staticsPath) {
       const proxyUrl = `/api/avatar-proxy/statics/${staticsPath}`;
-      
+
       // Use browser's native caching instead of manual cache
       // The API route sets Cache-Control headers, so browser will handle caching
       // We only track failed requests to prevent spam retries
       return proxyUrl;
     }
-    
+
     // Fallback to original URL handling
     if (avatarUrl.startsWith('/')) {
       if (avatarUrl.startsWith('/statics/')) {
@@ -96,7 +94,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
 
       return avatarUrl;
     }
-    
+
     // Use absolute URL as-is for other cases
     return avatarUrl;
   }, [avatarUrl]);
@@ -108,7 +106,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
     }
-    
+
     // Reset states when avatar URL changes
     setImageError(false);
     setImageLoaded(false);
@@ -141,7 +139,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
         root: null,
         rootMargin: '50px', // Start loading 50px before entering viewport
         threshold: 0.01, // Trigger as soon as any part is visible
-      }
+      },
     );
 
     observerRef.current.observe(containerRef.current);
@@ -182,10 +180,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
   // Show initials immediately, then fade in image when loaded
   // Only load image when it's in viewport (lazy loading)
   return (
-    <Box 
-      ref={containerRef}
-      sx={{ position: 'relative', display: 'inline-block', ...customStyle }}
-    >
+    <Box ref={containerRef} sx={{ position: 'relative', display: 'inline-block', ...customStyle }}>
       {/* Show initials as fallback (always visible behind image) */}
       <CustomAvatar
         skin='light'
@@ -199,7 +194,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
         }}
       >
         {initials}
-    </CustomAvatar>
+      </CustomAvatar>
       {/* Show image when loaded with fade-in effect - only load when in viewport */}
       {!imageError && isInView && (
         <CustomAvatar
@@ -218,11 +213,11 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
               ref: imgRef,
               onError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 const img = e.currentTarget;
-                
+
                 // Silently handle errors - don't let browser show error in console
                 // Check if it's a 404 by examining the image element
                 const is404 = img.naturalWidth === 0 && img.naturalHeight === 0;
-                
+
                 // For 404 (file doesn't exist), show initials immediately without retry
                 // This is expected behavior, not an error - handle silently
                 if (is404) {
@@ -238,7 +233,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
                   img.srcset = '';
                   return;
                 }
-                
+
                 // Don't retry if retries exhausted
                 if (retryCount >= 3) {
                   setImageError(true);
@@ -251,10 +246,10 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
                   img.srcset = '';
                   return;
                 }
-                
+
                 // Retry with exponential backoff for network errors (not 404)
                 const delay = Math.min(1000 * Math.pow(2, retryCount), 10000); // Max 10 seconds
-                
+
                 retryTimeoutRef.current = setTimeout(() => {
                   setRetryCount((prev) => prev + 1);
                   setImageError(false);
@@ -263,7 +258,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
               },
               onLoad: (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 const img = e.currentTarget;
-                
+
                 // Check if loaded image is placeholder (1x1 transparent GIF)
                 // API returns placeholder for 404 or 429 (rate limited), so we need to detect it
                 if (img.naturalWidth === 1 && img.naturalHeight === 1) {
@@ -278,7 +273,7 @@ const RenderAvatar = memo((props: RenderAvatarProps) => {
                   }
                   return;
                 }
-                
+
                 setImageLoaded(true);
                 setImageError(false);
                 setRetryCount(0);

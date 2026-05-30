@@ -13,6 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -22,6 +23,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Autocomplete from '@mui/material/Autocomplete';
 import HomeOutline from 'mdi-material-ui/HomeOutline';
 import PencilOutline from 'mdi-material-ui/PencilOutline';
+import Close from 'mdi-material-ui/Close';
 import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
@@ -37,6 +39,7 @@ import {
   useUpdateVisit,
 } from '@/hooks/queries/useVisits';
 import { useStudent } from '@/hooks/queries/useStudents';
+import { getAdvisorClassroomIds } from '@/utils/advisor-classrooms';
 import { resizeImageToDataUrl } from '@/utils/resize-image';
 import { sortStudentsByStudentId } from '@/utils/student-sort';
 import { toast } from 'react-toastify';
@@ -45,21 +48,6 @@ const RESIZE_TARGET = { width: 800, height: 600 } as const;
 const EMPTY_IMAGE_SLOTS = ['', '', ''];
 const GOOGLE_MAPS_URL = 'https://www.google.com/maps';
 const MAP_COORDINATE_PRECISION = 6;
-
-const getAdvisorClassroomId = (value: unknown) => {
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-
-  const classroom = value as { id?: unknown; classroomId?: unknown };
-  const classroomId = classroom.id ?? classroom.classroomId;
-
-  return typeof classroomId === 'string' ? classroomId : null;
-};
 
 const formatVisitDate = (value: string | Date | null) => {
   if (!value) {
@@ -90,7 +78,11 @@ const getNameInitials = (fullName: string) => {
     return '?';
   }
 
-  return segments.slice(0, 2).map((segment) => segment.charAt(0)).join('').toUpperCase();
+  return segments
+    .slice(0, 2)
+    .map((segment) => segment.charAt(0))
+    .join('')
+    .toUpperCase();
 };
 
 const formatStudentAddress = (row?: {
@@ -162,7 +154,10 @@ const buildGoogleMapsEmbedUrl = (mapData?: VisitMapData | null) => {
 
   const query =
     mapData.coordinates?.trim() ||
-    (mapData.latitude !== null && mapData.latitude !== undefined && mapData.longitude !== null && mapData.longitude !== undefined
+    (mapData.latitude !== null &&
+    mapData.latitude !== undefined &&
+    mapData.longitude !== null &&
+    mapData.longitude !== undefined
       ? buildCoordinateText(mapData.latitude, mapData.longitude)
       : '') ||
     mapData.placeLabel?.trim() ||
@@ -225,7 +220,9 @@ const extractCoordinatesFromMapInput = (value: string) => {
 };
 
 const getVisitDetailData = (value: VisitDetailData | null | undefined) => {
-  return isRecord(value) ? (value as VisitDetailData & Record<string, unknown>) : ({} as VisitDetailData & Record<string, unknown>);
+  return isRecord(value)
+    ? (value as VisitDetailData & Record<string, unknown>)
+    : ({} as VisitDetailData & Record<string, unknown>);
 };
 
 const getVisitMapData = (visitDetail?: VisitDetailData | null, visitMap?: string | null): VisitMapData | null => {
@@ -240,16 +237,9 @@ const getVisitMapData = (visitDetail?: VisitDetailData | null, visitMap?: string
     visitMap ??
     (latitude !== null && longitude !== null ? buildGoogleMapsUrl(latitude, longitude) : null);
   const coordinates =
-    mapData?.coordinates ??
-    (latitude !== null && longitude !== null ? buildCoordinateText(latitude, longitude) : null);
+    mapData?.coordinates ?? (latitude !== null && longitude !== null ? buildCoordinateText(latitude, longitude) : null);
 
-  if (
-    !googleMapsUrl &&
-    !coordinates &&
-    !mapData?.placeLabel &&
-    !mapData?.landmark &&
-    !mapData?.travelNote
-  ) {
+  if (!googleMapsUrl && !coordinates && !mapData?.placeLabel && !mapData?.landmark && !mapData?.travelNote) {
     return null;
   }
 
@@ -265,12 +255,7 @@ const getVisitMapData = (visitDetail?: VisitDetailData | null, visitMap?: string
   };
 };
 
-const buildVisitMapPayload = (
-  mapInput: string,
-  placeLabel: string,
-  landmark: string,
-  travelNote: string,
-) => {
+const buildVisitMapPayload = (mapInput: string, placeLabel: string, landmark: string, travelNote: string) => {
   const trimmed = mapInput.trim();
 
   if (!trimmed) {
@@ -286,7 +271,11 @@ const buildVisitMapPayload = (
 
   const latitude = coordinates?.latitude ?? null;
   const longitude = coordinates?.longitude ?? null;
-  const googleMapsUrl = isUrl ? trimmed : latitude !== null && longitude !== null ? buildGoogleMapsUrl(latitude, longitude) : trimmed;
+  const googleMapsUrl = isUrl
+    ? trimmed
+    : latitude !== null && longitude !== null
+      ? buildGoogleMapsUrl(latitude, longitude)
+      : trimmed;
 
   return {
     visitMap: googleMapsUrl,
@@ -339,7 +328,9 @@ const VisitStatusChip = ({ row }: { row: TeacherVisitStudentRow }) => {
 };
 
 const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
-  if (!row.images.length) {
+  const validImages = row.images.filter((image) => typeof image === 'string' && image.trim() !== '');
+
+  if (validImages.length === 0) {
     return (
       <Chip
         id={`visit-images-empty-chip-${row.id}`}
@@ -353,7 +344,7 @@ const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
 
   return (
     <Stack direction='row' spacing={1} sx={{ alignItems: 'center' }}>
-      {row.images.slice(0, 3).map((image, index) => (
+      {validImages.slice(0, 3).map((image, index) => (
         <Box
           key={`${row.id}-image-${index}`}
           component='img'
@@ -365,7 +356,14 @@ const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
             borderRadius: 1.5,
             objectFit: 'cover',
             border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-            boxShadow: (theme) => `0 8px 18px ${alpha(theme.palette.common.black, 0.12)}`,
+            boxShadow: (theme) => `0 4px 10px ${alpha(theme.palette.common.black, 0.15)}`,
+            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            cursor: 'zoom-in',
+            '&:hover': {
+              transform: 'scale(1.35) translateY(-2px)',
+              zIndex: 10,
+              boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.common.black, 0.22)}`,
+            },
           }}
         />
       ))}
@@ -373,25 +371,22 @@ const VisitImagePreviewCell = ({ row }: { row: TeacherVisitStudentRow }) => {
   );
 };
 
-const VisitInfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => {
+const VisitInfoRow = ({ label, value, id }: { label: string; value: React.ReactNode; id?: string }) => {
   return (
     <Box
       sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', sm: '140px 1fr' },
-        gap: 1,
-        py: 1.25,
-        borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}`,
+        py: 1.5,
+        borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.5)}`,
         '&:last-of-type': {
           borderBottom: 'none',
           pb: 0,
         },
       }}
     >
-      <Typography variant='body2' sx={{ color: 'text.secondary', fontWeight: 600 }}>
+      <Typography variant='caption' color='text.secondary' sx={{ display: 'block', fontWeight: 500, mb: 0.5 }}>
         {label}
       </Typography>
-      <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600, wordBreak: 'break-word' }}>
+      <Typography id={id} variant='body2' color='text.primary' sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
         {value ?? '-'}
       </Typography>
     </Box>
@@ -413,14 +408,18 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
   const visitEmbedUrl = buildGoogleMapsEmbedUrl(visitMapData);
   const visitMapUrl =
     visitMapData?.googleMapsUrl ??
-    (visitMapData?.latitude !== null && visitMapData?.latitude !== undefined && visitMapData?.longitude !== null && visitMapData?.longitude !== undefined
+    (visitMapData?.latitude !== null &&
+    visitMapData?.latitude !== undefined &&
+    visitMapData?.longitude !== null &&
+    visitMapData?.longitude !== undefined
       ? buildGoogleMapsUrl(visitMapData.latitude, visitMapData.longitude)
       : null);
   const studentFullName = student
     ? `${student.user.account?.title ?? ''}${student.user.account?.firstName ?? ''} ${student.user.account?.lastName ?? ''}`.trim()
-    : row?.fullName ?? '-';
+    : (row?.fullName ?? '-');
   const studentAvatar = studentAccount?.avatar ?? undefined;
   const studentAddress = formatStudentAddress(studentAccount);
+  const validImages = row ? row.images.filter((image) => typeof image === 'string' && image.trim() !== '') : [];
 
   useEffect(() => {
     setIsMapPreviewOpen(false);
@@ -434,9 +433,41 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
       fullWidth
       maxWidth='lg'
       aria-labelledby='visit-detail-dialog-title'
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: 3,
+          boxShadow: (theme) =>
+            theme.palette.mode === 'dark'
+              ? `0 24px 48px ${alpha(theme.palette.common.black, 0.4)}`
+              : `0 24px 48px ${alpha(theme.palette.primary.main, 0.16)}`,
+        },
+      }}
     >
-      <DialogTitle id='visit-detail-dialog-title'>ข้อมูลนักเรียนและการเยี่ยมบ้าน</DialogTitle>
-      <DialogContent dividers>
+      <DialogTitle id='visit-detail-dialog-title' sx={{ p: 5 }}>
+        <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant='h6' sx={{ color: 'text.primary', fontWeight: 600 }}>
+              ข้อมูลนักเรียนและการเยี่ยมบ้าน
+            </Typography>
+            <Typography variant='caption' color='text.secondary'>
+              รายละเอียดประวัตินักเรียนและข้อมูลแผนที่บ้านสำหรับการเยี่ยมบ้านของครูที่ปรึกษา
+            </Typography>
+          </Box>
+          <IconButton
+            id='visit-detail-close-header-button'
+            aria-label='close'
+            onClick={onClose}
+            sx={{
+              color: 'text.secondary',
+              p: 1.5,
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+      <DialogContent id='visit-detail-dialog-content' sx={{ px: 5, py: 0 }}>
         {!row ? null : isLoading ? (
           <Box sx={{ minHeight: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgress id='visit-detail-loading' size={30} />
@@ -453,46 +484,79 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             <Grid size={12}>
               <Stack
                 direction={{ xs: 'column', md: 'row' }}
-                spacing={2.5}
+                spacing={4}
                 sx={{
                   alignItems: { xs: 'flex-start', md: 'center' },
-                  p: { xs: 2.25, md: 3 },
+                  p: 5,
                   borderRadius: 3,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.05),
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.primary.main, 0.08)
+                      : alpha(theme.palette.primary.main, 0.03),
+                  background: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${alpha(theme.palette.background.paper, 0.6)} 100%)`
+                      : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+                  border: (theme) =>
+                    `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.22 : 0.08)}`,
+                  boxShadow: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? `0 10px 30px ${alpha(theme.palette.common.black, 0.2)}`
+                      : `0 10px 30px ${alpha(theme.palette.primary.main, 0.04)}`,
                 }}
               >
                 <Avatar
                   id='visit-detail-student-avatar'
                   src={studentAvatar}
                   sx={{
-                    width: 72,
-                    height: 72,
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.28 : 0.14),
+                    width: 80,
+                    height: 80,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
                     color: 'primary.main',
-                    fontSize: '1.2rem',
+                    fontSize: '1.5rem',
                     fontWeight: 800,
+                    border: (theme) => `2px solid ${theme.palette.primary.main}`,
+                    boxShadow: (theme) => `0 8px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
                   }}
                 >
                   {getNameInitials(studentFullName)}
                 </Avatar>
                 <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography variant='h6' sx={{ fontWeight: 800, color: 'text.primary' }}>
+                  <Typography variant='h5' sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
                     {studentFullName}
                   </Typography>
-                  <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5 }}>
-                    รหัสนักเรียน {row.studentId}
+                  <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1, fontWeight: 500 }}>
+                    รหัสนักเรียน: <span style={{ fontWeight: 700 }}>{row.studentId}</span>
                   </Typography>
-                  <Stack direction='row' spacing={1} sx={{ flexWrap: 'wrap', mt: 1.5, rowGap: 1 }}>
-                    <Chip id='visit-detail-classroom-chip' size='small' label={row.classroomName} color='info' variant='outlined' />
-                    <VisitStatusChip row={row} />
+                  <Stack direction='row' spacing={2} sx={{ flexWrap: 'wrap', mt: 2, rowGap: 1.5 }}>
                     <Chip
-                      id='visit-detail-visit-no-chip'
+                      id='visit-detail-classroom-chip'
                       size='small'
-                      label={row.visitNo ? `เยี่ยมบ้านครั้งที่ ${row.visitNo}` : 'ยังไม่เคยบันทึกเยี่ยมบ้าน'}
-                      color={row.visitNo ? 'primary' : 'default'}
-                      variant={row.visitNo ? 'filled' : 'outlined'}
+                      label={row.classroomName}
+                      color='primary'
+                      variant='outlined'
+                      sx={{ fontWeight: 600 }}
                     />
+                    <VisitStatusChip row={row} />
+                    {row.visitNo ? (
+                      <Chip
+                        id='visit-detail-visit-no-chip'
+                        size='small'
+                        label={`เยี่ยมบ้านครั้งที่ ${row.visitNo}`}
+                        color='success'
+                        variant='filled'
+                        sx={{ fontWeight: 700, color: 'common.white' }}
+                      />
+                    ) : (
+                      <Chip
+                        id='visit-detail-visit-no-chip'
+                        size='small'
+                        label='ยังไม่เคยบันทึกเยี่ยมบ้าน'
+                        color='default'
+                        variant='outlined'
+                        sx={{ fontWeight: 600 }}
+                      />
+                    )}
                   </Stack>
                 </Box>
               </Stack>
@@ -502,71 +566,152 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
               <Box
                 sx={{
                   height: '100%',
-                  p: { xs: 2.25, md: 3 },
+                  p: 5,
                   borderRadius: 3,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                   bgcolor: 'background.paper',
+                  boxShadow: (theme) => `0 4px 18px ${alpha(theme.palette.common.black, 0.03)}`,
                 }}
               >
-                <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                  ข้อมูลนักเรียน
+                <Typography
+                  variant='subtitle2'
+                  color='text.secondary'
+                  sx={{ fontWeight: 700, mb: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                >
+                  ข้อมูลประวัตินักเรียน
                 </Typography>
-                <VisitInfoRow label='ชื่อ-นามสกุล' value={studentFullName} />
-                <VisitInfoRow label='รหัสนักเรียน' value={row.studentId} />
-                <VisitInfoRow label='เบอร์โทรศัพท์' value={studentAccount?.phone || '-'} />
-                <VisitInfoRow label='เลขบัตรประชาชน' value={studentAccount?.idCard || '-'} />
-                <VisitInfoRow label='วันเกิด' value={formatVisitDate(studentAccount?.birthDate ?? null)} />
-                <VisitInfoRow label='ที่อยู่' value={studentAddress} />
-                <VisitInfoRow label='ห้องเรียน' value={student?.classroom?.name || row.classroomName} />
-                <VisitInfoRow label='ระดับชั้น' value={student?.level?.levelFullName || '-'} />
-                <VisitInfoRow label='สาขาวิชา' value={student?.program?.name || '-'} />
-                <VisitInfoRow label='แผนก' value={student?.department?.name || '-'} />
+                <Grid container spacing={2.5}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow label='ชื่อ-นามสกุล' value={studentFullName} id='detail-info-fullname' />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow label='รหัสนักเรียน' value={row.studentId} id='detail-info-student-id' />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow label='เบอร์โทรศัพท์' value={studentAccount?.phone || '-'} id='detail-info-phone' />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow
+                      label='เลขบัตรประชาชน'
+                      value={studentAccount?.idCard || '-'}
+                      id='detail-info-idcard'
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow
+                      label='วันเกิด'
+                      value={formatVisitDate(studentAccount?.birthDate ?? null)}
+                      id='detail-info-birthdate'
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow
+                      label='ห้องเรียน'
+                      value={student?.classroom?.name || row.classroomName}
+                      id='detail-info-classroom'
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow
+                      label='ระดับชั้น'
+                      value={student?.level?.levelFullName || '-'}
+                      id='detail-info-level'
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <VisitInfoRow label='สาขาวิชา' value={student?.program?.name || '-'} id='detail-info-program' />
+                  </Grid>
+                  <Grid size={12}>
+                    <VisitInfoRow
+                      label='แผนกวิชา'
+                      value={student?.department?.name || '-'}
+                      id='detail-info-department'
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <VisitInfoRow
+                      label='ที่อยู่ตามทะเบียนบ้าน/ที่พักอาศัย'
+                      value={studentAddress}
+                      id='detail-info-address'
+                    />
+                  </Grid>
+                </Grid>
               </Box>
             </Grid>
 
             <Grid size={{ xs: 12, md: 5 }}>
-              <Stack spacing={3} sx={{ height: '100%' }}>
+              <Stack spacing={4} sx={{ height: '100%' }}>
                 <Box
                   sx={{
-                    p: { xs: 2.25, md: 3 },
+                    p: 5,
                     borderRadius: 3,
-                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                    border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                     bgcolor: 'background.paper',
+                    boxShadow: (theme) => `0 4px 18px ${alpha(theme.palette.common.black, 0.03)}`,
                   }}
                 >
-                  <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                    ข้อมูลการเยี่ยมบ้าน
+                  <Typography
+                    variant='subtitle2'
+                    color='text.secondary'
+                    sx={{ fontWeight: 700, mb: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  >
+                    สรุปการตรวจเยี่ยม
                   </Typography>
-                  <VisitInfoRow
-                    label='สถานะบันทึก'
-                    value={row.visitStatus === 'recorded' ? 'บันทึกแล้ว' : 'ยังไม่บันทึก'}
-                  />
-                  <VisitInfoRow label='วันที่เยี่ยมบ้าน' value={formatVisitDate(row.visitDate)} />
-                  <VisitInfoRow label='จำนวนรูปบ้าน' value={row.images.length ? `${row.images.length} รูป` : '-'} />
+                  <Grid container spacing={2.5}>
+                    <Grid size={6}>
+                      <VisitInfoRow
+                        label='สถานะการเยี่ยมบ้าน'
+                        value={row.visitStatus === 'recorded' ? 'เยี่ยมบ้านแล้ว' : 'รอบันทึกข้อมูล'}
+                        id='detail-visit-status'
+                      />
+                    </Grid>
+                    <Grid size={6}>
+                      <VisitInfoRow
+                        label='วันที่ลงพื้นที่เยี่ยมบ้าน'
+                        value={formatVisitDate(row.visitDate)}
+                        id='detail-visit-date'
+                      />
+                    </Grid>
+                    <Grid size={12}>
+                      <VisitInfoRow
+                        label='จำนวนรูปถ่ายหลักฐาน'
+                        value={validImages.length ? `${validImages.length} รูปถ่าย` : 'ไม่มีรูปถ่าย'}
+                        id='detail-visit-image-count'
+                      />
+                    </Grid>
+                  </Grid>
                 </Box>
 
                 <Box
                   sx={{
-                    p: { xs: 2.25, md: 3 },
+                    p: 5,
                     borderRadius: 3,
-                    border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                    border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                     bgcolor: 'background.paper',
+                    boxShadow: (theme) => `0 4px 18px ${alpha(theme.palette.common.black, 0.03)}`,
                   }}
                 >
-                  <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                    ข้อมูลแผนที่บ้าน
+                  <Typography
+                    variant='subtitle2'
+                    color='text.secondary'
+                    sx={{ fontWeight: 700, mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  >
+                    พิกัดตำแหน่งและแผนที่บ้าน
                   </Typography>
                   {visitMapData ? (
                     <>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 2.25 }}>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.5} sx={{ mb: 4 }}>
                         {visitEmbedUrl ? (
                           <Button
                             id='visit-detail-toggle-map-preview-button'
                             variant={isMapPreviewOpen ? 'contained' : 'outlined'}
                             color='success'
+                            fullWidth
+                            size='small'
                             onClick={() => setIsMapPreviewOpen((current) => !current)}
+                            sx={{ px: 3, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                           >
-                            {isMapPreviewOpen ? 'ซ่อนตัวอย่างแผนที่' : 'ดูตัวอย่างแผนที่'}
+                            {isMapPreviewOpen ? 'ซ่อนแผนที่' : 'แสดงแผนที่'}
                           </Button>
                         ) : null}
                         {visitMapUrl ? (
@@ -578,6 +723,9 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                             rel='noreferrer'
                             variant='outlined'
                             color='primary'
+                            fullWidth
+                            size='small'
+                            sx={{ px: 3, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                           >
                             เปิดใน Google Maps
                           </Button>
@@ -587,11 +735,12 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                         <Collapse in={isMapPreviewOpen} timeout='auto' unmountOnExit>
                           <Box
                             sx={{
-                              mb: 2.25,
-                              p: 1,
+                              mb: 4,
+                              p: 1.5,
                               borderRadius: 2.5,
-                              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
+                              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                              bgcolor: (theme) =>
+                                alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
                             }}
                           >
                             <Box
@@ -611,15 +760,38 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                           </Box>
                         </Collapse>
                       ) : null}
-                      <VisitInfoRow label='พิกัดบ้าน' value={visitMapData.coordinates || '-'} />
-                      <VisitInfoRow label='Latitude' value={visitMapData.latitude ?? '-'} />
-                      <VisitInfoRow label='Longitude' value={visitMapData.longitude ?? '-'} />
-                      <VisitInfoRow label='ชื่อจุดหมุด' value={visitMapData.placeLabel || '-'} />
-                      <VisitInfoRow label='จุดสังเกต' value={visitMapData.landmark || '-'} />
-                      <VisitInfoRow label='หมายเหตุการเดินทาง' value={visitMapData.travelNote || '-'} />
+                      <Grid container spacing={2.5}>
+                        <Grid size={12}>
+                          <VisitInfoRow
+                            label='ชื่อจุดหมุด/ชื่อเรียกตำแหน่งบ้าน'
+                            value={visitMapData.placeLabel || '-'}
+                            id='detail-map-label'
+                          />
+                        </Grid>
+                        <Grid size={6}>
+                          <VisitInfoRow label='Latitude' value={visitMapData.latitude ?? '-'} id='detail-map-lat' />
+                        </Grid>
+                        <Grid size={6}>
+                          <VisitInfoRow label='Longitude' value={visitMapData.longitude ?? '-'} id='detail-map-lng' />
+                        </Grid>
+                        <Grid size={12}>
+                          <VisitInfoRow
+                            label='จุดสังเกตเด่นใกล้บ้าน'
+                            value={visitMapData.landmark || '-'}
+                            id='detail-map-landmark'
+                          />
+                        </Grid>
+                        <Grid size={12}>
+                          <VisitInfoRow
+                            label='หมายเหตุการเดินทาง'
+                            value={visitMapData.travelNote || '-'}
+                            id='detail-map-note'
+                          />
+                        </Grid>
+                      </Grid>
                     </>
                   ) : (
-                    <Alert severity='info' id='visit-detail-no-map-alert'>
+                    <Alert severity='info' id='visit-detail-no-map-alert' sx={{ mt: 2 }}>
                       นักเรียนคนนี้ยังไม่มีข้อมูลพิกัดบ้านจาก Google Maps
                     </Alert>
                   )}
@@ -630,25 +802,38 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
             <Grid size={12}>
               <Box
                 sx={{
-                  p: { xs: 2.25, md: 3 },
+                  p: 5,
                   borderRadius: 3,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
                   bgcolor: 'background.paper',
+                  boxShadow: (theme) => `0 4px 18px ${alpha(theme.palette.common.black, 0.03)}`,
                 }}
               >
-                <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 2.25 }}>
-                  รูปบ้านที่อัปโหลด
+                <Typography
+                  variant='subtitle2'
+                  color='text.secondary'
+                  sx={{ fontWeight: 700, mb: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                >
+                  รูปถ่ายบ้านที่เยี่ยมเยียน
                 </Typography>
-                {row.images.length ? (
-                  <Grid container spacing={2}>
-                    {row.images.map((image, index) => (
+                {validImages.length ? (
+                  <Grid container spacing={3}>
+                    {validImages.map((image, index) => (
                       <Grid key={`${row.id}-detail-image-${index}`} size={{ xs: 12, sm: 6, md: 4 }}>
                         <Box
                           sx={{
-                            p: 1.5,
+                            p: 2,
                             borderRadius: 2.5,
-                            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                            bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
+                            border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                            bgcolor: (theme) =>
+                              theme.palette.mode === 'dark'
+                                ? alpha(theme.palette.primary.main, 0.05)
+                                : alpha(theme.palette.primary.main, 0.02),
+                            transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                            '&:hover': {
+                              transform: 'translateY(-4px)',
+                              boxShadow: (theme) => `0 12px 28px ${alpha(theme.palette.common.black, 0.15)}`,
+                            },
                           }}
                         >
                           <Box
@@ -661,10 +846,14 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                               objectFit: 'cover',
                               display: 'block',
                               borderRadius: 2,
+                              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
                             }}
                           />
-                          <Typography variant='body2' sx={{ mt: 1.25, fontWeight: 700, color: 'text.primary' }}>
-                            รูปบ้าน {index + 1}
+                          <Typography
+                            variant='body2'
+                            sx={{ mt: 2, fontWeight: 700, color: 'text.primary', textAlign: 'center' }}
+                          >
+                            ภาพประกอบหลักฐานที่ {index + 1}
                           </Typography>
                         </Box>
                       </Grid>
@@ -672,7 +861,7 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
                   </Grid>
                 ) : (
                   <Alert severity='info' id='visit-detail-no-images-alert'>
-                    นักเรียนคนนี้ยังไม่มีรูปบ้านที่อัปโหลดในระบบ
+                    นักเรียนคนนี้ยังไม่มีรูปถ่ายบ้านที่อัปโหลดเข้าสู่ระบบ
                   </Alert>
                 )}
               </Box>
@@ -680,9 +869,14 @@ const VisitDetailDialog = ({ open, row, onClose }: VisitDetailDialogProps) => {
           </Grid>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button id='visit-detail-close-button' variant='outlined' onClick={onClose}>
-          ปิด
+      <DialogActions sx={{ p: 5, pt: 3 }}>
+        <Button
+          id='visit-detail-close-button'
+          variant='outlined'
+          onClick={onClose}
+          sx={{ px: 5.5, py: 1.875, borderRadius: '5px', fontWeight: 600 }}
+        >
+          ปิดหน้าต่าง
         </Button>
       </DialogActions>
     </Dialog>
@@ -814,7 +1008,9 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
 
     const hasMapNotes = [mapPlaceLabel, mapLandmark, mapTravelNote].some((value) => value.trim());
     const currentVisitDetail = getVisitDetailData(row.visitDetail);
-    const mapResult = mapInput.trim() ? buildVisitMapPayload(mapInput, mapPlaceLabel, mapLandmark, mapTravelNote) : null;
+    const mapResult = mapInput.trim()
+      ? buildVisitMapPayload(mapInput, mapPlaceLabel, mapLandmark, mapTravelNote)
+      : null;
 
     if ((mapInput.trim() || hasMapNotes) && !mapResult) {
       const message = 'กรุณาวางลิงก์ Google Maps หรือกรอกพิกัดรูปแบบ lat,lng';
@@ -854,7 +1050,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
         await createVisit.mutateAsync(payload);
       }
 
-      toast.success(row.visitId ? 'อัปเดตข้อมูลเยี่ยมบ้านสำเร็จ' : 'บันทึกข้อมูลเยี่ยมบ้านสำเร็จ');
+      toast.success(row.visitStatus === 'recorded' ? 'อัปเดตข้อมูลเยี่ยมบ้านสำเร็จ' : 'บันทึกข้อมูลเยี่ยมบ้านสำเร็จ');
       onClose();
     } catch (error) {
       const message = getErrorMessage(error);
@@ -871,16 +1067,48 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
       fullWidth
       maxWidth='lg'
       aria-labelledby='visit-record-dialog-title'
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: 3,
+          boxShadow: (theme) =>
+            theme.palette.mode === 'dark'
+              ? `0 24px 48px ${alpha(theme.palette.common.black, 0.4)}`
+              : `0 24px 48px ${alpha(theme.palette.primary.main, 0.16)}`,
+        },
+      }}
     >
-      <DialogTitle id='visit-record-dialog-title'>
-        {row?.visitId ? 'แก้ไขบันทึกเยี่ยมบ้าน' : 'บันทึกเยี่ยมบ้าน'}
+      <DialogTitle id='visit-record-dialog-title' sx={{ p: 5 }}>
+        <Stack direction='row' sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant='h6' sx={{ color: 'text.primary', fontWeight: 600 }}>
+              {row?.visitStatus === 'recorded' ? 'แก้ไขข้อมูลการเยี่ยมบ้าน' : 'บันทึกผลการเยี่ยมบ้านนักเรียน'}
+            </Typography>
+            <Typography variant='caption' color='text.secondary'>
+              กรอกข้อมูลพิกัดสถานที่บ้านและอัปโหลดรูปภาพถ่ายหลักฐานเพื่อบันทึกการลงพื้นที่จริงของครูที่ปรึกษา
+            </Typography>
+          </Box>
+          <IconButton
+            id='visit-record-close-header-button'
+            aria-label='close'
+            onClick={onClose}
+            disabled={isSaving}
+            sx={{
+              color: 'text.secondary',
+              p: 1.5,
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </Stack>
       </DialogTitle>
-      <DialogContent dividers>
+      <DialogContent id='visit-record-dialog-content' sx={{ px: 5, py: 0 }}>
         {row ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={5}>
             <Grid size={12}>
               <Alert severity='info' id='visit-record-dialog-info'>
-                ระบบจะปรับรูปภาพประกอบทุกใบเป็นขนาด 800x600 อัตโนมัติ
+                ระบบรองรับไฟล์รูปภาพทั่วไปและจะทำการปรับขนาดความละเอียดภาพประกอบทุกใบเป็นขนาด 800x600
+                พิกเซลอัตโนมัติเพื่อลดขนาดไฟล์ข้อมูล
               </Alert>
             </Grid>
             {dialogError ? (
@@ -890,77 +1118,99 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                 </Alert>
               </Grid>
             ) : null}
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                id='visit-record-student-id'
-                fullWidth
-                label='รหัสนักเรียน'
-                value={row.studentId}
-                slotProps={{ input: { readOnly: true } }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                id='visit-record-student-name'
-                fullWidth
-                label='ชื่อ-นามสกุล'
-                value={row.fullName}
-                slotProps={{ input: { readOnly: true } }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                id='visit-record-classroom'
-                fullWidth
-                label='ห้องเรียน'
-                value={row.classroomName}
-                slotProps={{ input: { readOnly: true } }}
-              />
-            </Grid>
+
             <Grid size={12}>
-              <ThaiDatePicker
-                label='วันที่เยี่ยมบ้าน'
-                value={visitDate}
-                onChange={setVisitDate}
-                format='dd MMMM yyyy'
-                maxDate={new Date()}
-                placeholder='เลือกวันที่เยี่ยมบ้าน'
-                slotProps={{
-                  textField: {
-                    id: 'visit-record-date',
-                    helperText: 'สามารถแก้ไขวันที่ย้อนหลังได้',
-                  },
-                }}
-              />
+              <Typography variant='subtitle2' color='text.secondary' sx={{ fontWeight: 500, mb: 2 }}>
+                ข้อมูลส่วนตัวนักเรียน
+              </Typography>
+              <Grid container spacing={2.5}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    id='visit-record-student-id'
+                    fullWidth
+                    label='รหัสนักเรียน'
+                    value={row.studentId}
+                    slotProps={{ input: { readOnly: true } }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    id='visit-record-student-name'
+                    fullWidth
+                    label='ชื่อ-นามสกุล'
+                    value={row.fullName}
+                    slotProps={{ input: { readOnly: true } }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    id='visit-record-classroom'
+                    fullWidth
+                    label='ห้องเรียน'
+                    value={row.classroomName}
+                    slotProps={{ input: { readOnly: true } }}
+                  />
+                </Grid>
+              </Grid>
             </Grid>
+
+            <Grid size={12}>
+              <Typography variant='subtitle2' color='text.secondary' sx={{ fontWeight: 500, mb: 2 }}>
+                ข้อมูลการลงพื้นที่เยี่ยมบ้าน
+              </Typography>
+              <Grid container spacing={2.5}>
+                <Grid size={12}>
+                  <ThaiDatePicker
+                    label='วันที่เยี่ยมบ้าน'
+                    value={visitDate}
+                    onChange={setVisitDate}
+                    format='dd MMMM yyyy'
+                    maxDate={new Date()}
+                    placeholder='เลือกวันที่เยี่ยมบ้าน'
+                    slotProps={{
+                      textField: {
+                        id: 'visit-record-date',
+                        helperText: 'สามารถเลือกวันที่ย้อนหลังได้หากเป็นการบันทึกผลลงพื้นที่ย้อนหลัง',
+                      },
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
             <Grid size={12}>
               <Box
                 sx={{
-                  p: { xs: 2.25, md: 3 },
+                  p: 5,
                   borderRadius: 3,
-                  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.03),
+                  border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.primary.main, 0.04)
+                      : alpha(theme.palette.primary.main, 0.01),
                 }}
               >
                 <Stack
                   direction={{ xs: 'column', md: 'row' }}
-                  spacing={2}
-                  sx={{ justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' }, mb: 2.25 }}
+                  spacing={3}
+                  sx={{ justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'flex-start' }, mb: 3 }}
                 >
                   <Box>
-                    <Typography variant='subtitle1' sx={{ fontWeight: 800, color: 'text.primary' }}>
-                      ข้อมูลพิกัดบ้านจาก Google Maps
+                    <Typography variant='subtitle2' color='text.secondary' sx={{ fontWeight: 500, mb: 0.5 }}>
+                      พิกัดตำแหน่งบ้านจาก Google Maps
                     </Typography>
-                    <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5 }}>
-                      วางลิงก์แชร์จาก Google Maps หรือกรอกพิกัดบ้านแบบ lat,lng แล้วให้ระบบอ่านค่าพิกัดให้อัตโนมัติ
+                    <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                      วางลิงก์แชร์จาก Google Maps หรือคัดลอกพิกัดแบบ Latitude, Longitude
+                      จากแอปแผนที่เพื่อดึงข้อมูลอัตโนมัติ
                     </Typography>
                   </Box>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                     <Button
                       id='visit-map-open-google-button'
                       variant='outlined'
                       color='secondary'
                       onClick={handleOpenGoogleMaps}
+                      sx={{ px: 4, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                     >
                       เปิด Google Maps
                     </Button>
@@ -970,6 +1220,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                       color='info'
                       onClick={handleResolveMap}
                       disabled={!mapInput.trim()}
+                      sx={{ px: 4, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                     >
                       อ่านพิกัด
                     </Button>
@@ -979,15 +1230,16 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                         variant={isMapPreviewOpen ? 'contained' : 'outlined'}
                         color='success'
                         onClick={() => setIsMapPreviewOpen((current) => !current)}
+                        sx={{ px: 4, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                       >
-                        {isMapPreviewOpen ? 'ซ่อนตัวอย่างแผนที่' : 'ดูตัวอย่างแผนที่'}
+                        {isMapPreviewOpen ? 'ซ่อนแผนที่' : 'แสดงแผนที่'}
                       </Button>
                     ) : null}
                   </Stack>
                 </Stack>
 
                 {mapError ? (
-                  <Alert severity='warning' id='visit-map-error-alert' sx={{ mb: 2.25 }}>
+                  <Alert severity='warning' id='visit-map-error-alert' sx={{ mb: 3 }}>
                     {mapError}
                   </Alert>
                 ) : null}
@@ -997,7 +1249,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                     <TextField
                       id='visit-map-input'
                       fullWidth
-                      label='ลิงก์ Google Maps หรือพิกัดบ้าน'
+                      label='ลิงก์ Google Maps หรือตัวเลขพิกัด (Lat, Lng)'
                       placeholder='เช่น https://maps.google.com/... หรือ 13.756331,100.501762'
                       value={mapInput}
                       onChange={(event) => {
@@ -1008,28 +1260,28 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                           setMapError('');
                         }
                       }}
-                      helperText='รองรับทั้งลิงก์แชร์จาก Google Maps และพิกัด lat,lng ที่คัดลอกมาจากแอป'
+                      helperText='รองรับรูปแบบลิงก์แชร์ทั้งหมด และตัวเลขพิกัดแบบ Latitude, Longitude'
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <TextField
                       id='visit-map-place-label'
                       fullWidth
-                      label='ชื่อจุดบ้านหรือชื่อหมุด'
+                      label='ชื่อจุดสังเกตหลักหรือชื่อเรียกบ้าน'
                       placeholder='เช่น บ้านน้องต้น ซอย 3'
                       value={mapPlaceLabel}
                       onChange={(event) => setMapPlaceLabel(event.target.value)}
-                      helperText='ใช้เป็นชื่อเรียกตำแหน่งบ้านเวลาค้นในภายหลัง'
+                      helperText='ใช้คีย์หลักในการจดจำตำแหน่งในแถวรายการ'
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <TextField
                       id='visit-map-coordinates'
                       fullWidth
-                      label='พิกัดที่อ่านได้'
+                      label='พิกัดบ้านที่ถอดความได้'
                       value={mapPreview?.coordinates || '-'}
                       slotProps={{ input: { readOnly: true } }}
-                      helperText='ระบบจะแสดงพิกัดหลังจากกดปุ่มอ่านพิกัด'
+                      helperText='คำนวณและแสดงพิกัดโดยระบบอัตโนมัติ'
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
@@ -1056,8 +1308,8 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                       fullWidth
                       multiline
                       minRows={2}
-                      label='จุดสังเกตใกล้บ้าน'
-                      placeholder='เช่น เลยร้านชำมาประมาณ 200 เมตร บ้านสีฟ้าหลังมุม'
+                      label='จุดสังเกตสำคัญในระยะสายตา'
+                      placeholder='เช่น ถัดจากเสาไฟแรงสูงต้นที่สอง หรือตรงข้ามร้านขายยาพอดี'
                       value={mapLandmark}
                       onChange={(event) => setMapLandmark(event.target.value)}
                     />
@@ -1068,8 +1320,8 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                       fullWidth
                       multiline
                       minRows={2}
-                      label='หมายเหตุการเดินทาง'
-                      placeholder='เช่น รถยนต์เข้าซอยได้ถึงหน้าบ้าน หรือควรนัดผู้ปกครองให้ออกมารับ'
+                      label='หมายเหตุ/คำสั่งเดินทาง'
+                      placeholder='เช่น รถบัสหรือรถเก๋งคันใหญ่เข้าไม่ได้ ซอยค่อนข้างแคบ ควรจอดรถด้านนอกแล้วเดินเท้าเข้าไป'
                       value={mapTravelNote}
                       onChange={(event) => setMapTravelNote(event.target.value)}
                     />
@@ -1080,11 +1332,12 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                   <Collapse in={isMapPreviewOpen} timeout='auto' unmountOnExit>
                     <Box
                       sx={{
-                        mt: 2.5,
-                        p: 1,
+                        mt: 4,
+                        p: 1.5,
                         borderRadius: 2.5,
-                        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
                         bgcolor: 'background.paper',
+                        boxShadow: (theme) => `0 6px 18px ${alpha(theme.palette.common.black, 0.05)}`,
                       }}
                     >
                       <Box
@@ -1106,7 +1359,11 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                 ) : null}
               </Box>
             </Grid>
+
             <Grid size={12}>
+              <Typography variant='subtitle2' color='text.secondary' sx={{ fontWeight: 500, mb: 2 }}>
+                รูปถ่ายบรรยากาศการเยี่ยมบ้าน (จำเป็นต้องมีครบ 3 รูป)
+              </Typography>
               <Grid container spacing={3}>
                 {images.map((image, index) => {
                   const isProcessing = resizingSlots.includes(index);
@@ -1116,26 +1373,41 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                       <Box
                         sx={{
                           height: '100%',
-                          p: 2,
+                          p: 4,
                           borderRadius: 3,
-                          border: (theme) => `1px dashed ${alpha(theme.palette.primary.main, 0.22)}`,
-                          bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.035),
+                          border: (theme) => `1px dashed ${alpha(theme.palette.primary.main, 0.25)}`,
+                          bgcolor: (theme) =>
+                            theme.palette.mode === 'dark'
+                              ? alpha(theme.palette.primary.main, 0.06)
+                              : alpha(theme.palette.primary.main, 0.02),
+                          transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            borderColor: 'primary.main',
+                            boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.primary.main, 0.08)}`,
+                          },
                         }}
                       >
-                        <Typography id={`visit-image-slot-title-${index + 1}`} variant='subtitle2' sx={{ fontWeight: 700, mb: 1.5 }}>
-                          รูปภาพประกอบ {index + 1}
+                        <Typography
+                          id={`visit-image-slot-title-${index + 1}`}
+                          variant='subtitle2'
+                          sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}
+                        >
+                          ภาพประกอบการเยี่ยมบ้านใบที่ {index + 1}
                         </Typography>
                         <Box
                           sx={{
                             height: 180,
-                            borderRadius: 2,
+                            borderRadius: 2.5,
                             overflow: 'hidden',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             bgcolor: 'background.paper',
-                            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                            mb: 1.5,
+                            border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                            mb: 2.5,
+                            position: 'relative',
+                            boxShadow: (theme) => `inset 0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`,
                           }}
                         >
                           {isProcessing ? (
@@ -1148,12 +1420,14 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                               sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                           ) : (
-                            <Typography variant='body2' sx={{ color: 'text.secondary', textAlign: 'center', px: 2 }}>
-                              ยังไม่ได้เลือกรูปภาพ
-                            </Typography>
+                            <Box sx={{ textAlign: 'center', px: 3 }}>
+                              <Typography variant='body2' sx={{ color: 'text.disabled', fontWeight: 500 }}>
+                                ยังไม่มีรูปภาพที่อัปโหลด
+                              </Typography>
+                            </Box>
                           )}
                         </Box>
-                        <Stack direction='row' spacing={1.5}>
+                        <Stack direction='row' spacing={2}>
                           <Button
                             id={`visit-image-upload-button-${index + 1}`}
                             component='label'
@@ -1161,8 +1435,9 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                             color='primary'
                             fullWidth
                             disabled={isSaving || isProcessing}
+                            sx={{ px: 3, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                           >
-                            เลือกรูป
+                            อัปโหลด
                             <input
                               id={`visit-image-input-${index + 1}`}
                               hidden
@@ -1181,6 +1456,7 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
                             fullWidth
                             disabled={!image || isSaving || isProcessing}
                             onClick={() => handleClearImage(index)}
+                            sx={{ px: 3, py: 1.5, borderRadius: '5px', fontWeight: 600 }}
                           >
                             ล้างรูป
                           </Button>
@@ -1194,12 +1470,28 @@ const VisitDialog = ({ open, row, onClose }: VisitDialogProps) => {
           </Grid>
         ) : null}
       </DialogContent>
-      <DialogActions>
-        <Button id='visit-record-cancel-button' variant='outlined' onClick={onClose} disabled={isSaving}>
+      <DialogActions sx={{ p: 5, pt: 3 }}>
+        <Button
+          id='visit-record-cancel-button'
+          variant='outlined'
+          onClick={onClose}
+          disabled={isSaving}
+          sx={{ px: 5.5, py: 1.875, borderRadius: '5px', fontWeight: 600 }}
+        >
           ยกเลิก
         </Button>
-        <Button id='visit-record-save-button' variant='contained' onClick={() => void handleSubmit()} disabled={isSaving || resizingSlots.length > 0}>
-          {isSaving ? 'กำลังบันทึก...' : row?.visitId ? 'อัปเดตข้อมูล' : 'บันทึกข้อมูล'}
+        <Button
+          id='visit-record-save-button'
+          variant='contained'
+          onClick={() => void handleSubmit()}
+          disabled={isSaving || resizingSlots.length > 0}
+          sx={{ px: 5.5, py: 1.875, borderRadius: '5px', fontWeight: 600, boxShadow: 3 }}
+        >
+          {isSaving
+            ? 'กำลังบันทึก...'
+            : row?.visitStatus === 'recorded'
+              ? 'อัปเดตข้อมูลเยี่ยมบ้าน'
+              : 'บันทึกข้อมูลเยี่ยมบ้าน'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -1217,13 +1509,10 @@ const VisitListPage = () => {
   const [selectedRow, setSelectedRow] = useState<TeacherVisitStudentRow | null>(null);
 
   const isTeacher = user?.role?.toLowerCase() === 'teacher';
-  const advisorClassroomIds = useMemo(() => {
-    const teacherOnClassroom = Array.isArray(user?.teacherOnClassroom) ? user.teacherOnClassroom : [];
-
-    return teacherOnClassroom
-      .map(getAdvisorClassroomId)
-      .filter((classroomId): classroomId is string => Boolean(classroomId));
-  }, [user?.teacherOnClassroom]);
+  const advisorClassroomIds = useMemo(
+    () => getAdvisorClassroomIds(user),
+    [user?.teacherOnClassroom, user?.teacher?.classrooms],
+  );
   const hasAdvisorClassrooms = advisorClassroomIds.length > 0;
 
   const {
@@ -1234,6 +1523,10 @@ const VisitListPage = () => {
     enabled: Boolean(isInitialized && !loading && isTeacher),
     advisorClassroomIds,
   });
+  const hasAdvisorStudentScope = hasAdvisorClassrooms || advisorStudents.length > 0;
+  const showNoAdvisorScopeAlert = Boolean(
+    isInitialized && !loading && isTeacher && !isLoading && !isFetching && !hasAdvisorStudentScope,
+  );
 
   const classroomOptions = useMemo(() => {
     const classroomMap = new Map<string, { id: string; name: string }>();
@@ -1257,7 +1550,9 @@ const VisitListPage = () => {
       const matchesClassroom = selectedClassroomId ? row.classroomId === selectedClassroomId : true;
       const matchesSearch =
         !normalizedSearch ||
-        [row.studentId, row.fullName, row.classroomName].some((value) => value?.toLowerCase().includes(normalizedSearch));
+        [row.studentId, row.fullName, row.classroomName].some((value) =>
+          value?.toLowerCase().includes(normalizedSearch),
+        );
 
       return matchesClassroom && matchesSearch;
     });
@@ -1332,7 +1627,10 @@ const VisitListPage = () => {
         headerName: 'วันที่เยี่ยมบ้าน',
         sortable: false,
         renderCell: ({ row }: GridRenderCellParams<TeacherVisitStudentRow>) => (
-          <Typography variant='body2' sx={{ color: row.visitDate ? 'text.primary' : 'text.secondary', fontWeight: row.visitDate ? 600 : 500 }}>
+          <Typography
+            variant='body2'
+            sx={{ color: row.visitDate ? 'text.primary' : 'text.secondary', fontWeight: row.visitDate ? 600 : 500 }}
+          >
             {formatVisitDate(row.visitDate)}
           </Typography>
         ),
@@ -1366,13 +1664,13 @@ const VisitListPage = () => {
             </Button>
             <Button
               id={`visit-action-button-${row.id}`}
-              variant={row.visitId ? 'outlined' : 'contained'}
-              color={row.visitId ? 'warning' : 'primary'}
+              variant={row.visitStatus === 'recorded' ? 'outlined' : 'contained'}
+              color={row.visitStatus === 'recorded' ? 'warning' : 'primary'}
               size='small'
-              startIcon={row.visitId ? <PencilOutline /> : <HomeOutline />}
+              startIcon={row.visitStatus === 'recorded' ? <PencilOutline /> : <HomeOutline />}
               onClick={() => setSelectedRow(row)}
             >
-              {row.visitId ? 'แก้ไข' : 'บันทึก'}
+              {row.visitStatus === 'recorded' ? 'แก้ไข' : 'บันทึก'}
             </Button>
           </Stack>
         ),
@@ -1401,10 +1699,11 @@ const VisitListPage = () => {
                 หน้านี้สำหรับครูที่ปรึกษาเท่านั้น
               </Alert>
             </Box>
-          ) : !hasAdvisorClassrooms ? (
+          ) : showNoAdvisorScopeAlert ? (
             <Box sx={{ px: { xs: 3, sm: 4, lg: 5 }, pb: { xs: 3, sm: 4 } }}>
               <Alert severity='warning' id='visit-list-classroom-alert'>
-                ยังไม่พบห้องที่คุณเป็นครูที่ปรึกษาในหน้าตั้งค่าบัญชี กรุณาตรวจสอบหัวข้อครูที่ปรึกษาระดับชั้นก่อนใช้งานหน้านี้
+                ยังไม่พบห้องที่คุณเป็นครูที่ปรึกษา หรือยังไม่มีรายชื่อนักเรียนในห้องที่ดูแล
+                กรุณาตรวจสอบการตั้งค่าครูที่ปรึกษาและข้อมูลนักเรียนอีกครั้ง
               </Alert>
             </Box>
           ) : (
@@ -1442,12 +1741,15 @@ const VisitListPage = () => {
                 </Grid>
               </Box>
 
-              <Box id='visit-list-datagrid-container' sx={{ px: { xs: 1.5, sm: 2.5, lg: 3 }, pb: { xs: 2.5, sm: 3.5 } }}>
+              <Box
+                id='visit-list-datagrid-container'
+                sx={{ px: { xs: 1.5, sm: 2.5, lg: 3 }, pb: { xs: 2.5, sm: 3.5 } }}
+              >
                 <AppListDataGrid
                   autoHeight
                   rows={filteredRows}
                   columns={columns as GridColDef[]}
-                  loading={isLoading || isFetching}
+                  loading={loading || isLoading || isFetching}
                   disableRowSelectionOnClick
                   disableColumnMenu
                   getRowHeight={() => 'auto'}
@@ -1484,11 +1786,7 @@ const VisitListPage = () => {
 
       <VisitDetailDialog open={Boolean(detailRow)} row={detailRow} onClose={() => setDetailRow(null)} />
 
-      <VisitDialog
-        open={Boolean(selectedRow)}
-        row={selectedRow}
-        onClose={() => setSelectedRow(null)}
-      />
+      <VisitDialog open={Boolean(selectedRow)} row={selectedRow} onClose={() => setSelectedRow(null)} />
     </Grid>
   );
 };

@@ -113,9 +113,20 @@ export async function initializeDatabase() {
   await testConnection();
 }
 
+let isDisconnecting = false;
+
 // Graceful shutdown
 process.on("beforeExit", async () => {
+  if (isDisconnecting) return;
+  isDisconnecting = true;
+
   logger.info("Closing database connections");
-  await prisma.$disconnect();
-  await pool.end();
+  try {
+    await prisma.$disconnect();
+    await pool.end();
+  } catch (error) {
+    logger.error("Error during graceful shutdown", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 });

@@ -88,8 +88,7 @@ export const useGoodnessGroupForm = ({
     return students.map((student: any) => ({
       studentId: student.id || student.studentId,
       studentKey: student.studentKey || student.student?.studentKey || student.id,
-      classroomId:
-        student.classroomId || student.classroom?.id || student.student?.classroom?.id,
+      classroomId: student.classroomId || student.classroom?.id || student.student?.classroom?.id,
       goodnessScore: Number(goodTypeScore),
       goodnessDetail: details || undefined,
       image: imgSrc || undefined,
@@ -146,21 +145,13 @@ export const useGoodnessGroupForm = ({
         }
       } catch (error: any) {
         const errorData = error?.response?.data || error?.data;
-        const message =
-          errorData?.message || error?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+        const message = errorData?.message || error?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
         toast.dismiss(toastId);
         toast.error(message);
         setOnSubmit(false);
       }
     },
-    [
-      goodTypeScore,
-      students,
-      transformStudentData,
-      createGoodnessGroupMutation,
-      onSuccess,
-      onClose,
-    ],
+    [goodTypeScore, students, transformStudentData, createGoodnessGroupMutation, onSuccess, onClose],
   );
 
   // Handle dialog close with form reset

@@ -5,12 +5,15 @@ import { AuthModel } from "./model";
 import { prisma } from "@/libs/prisma";
 import { UnauthorizedError, ForbiddenError } from "@/libs/errors";
 import { loginRateLimiter, refreshRateLimiter, registerRateLimiter, extractIp } from "@/middleware/rate-limiter";
+import { createLogger } from "@/infrastructure/logging";
 
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) throw new Error("JWT_SECRET environment variable is required");
 
 const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
 if (!jwtRefreshSecret) throw new Error("JWT_REFRESH_SECRET environment variable is required");
+
+const log = createLogger();
 
 export const auth = new Elysia({ prefix: "/auth" })
 	.use(
@@ -61,7 +64,9 @@ export const auth = new Elysia({ prefix: "/auth" })
 			.post(
 				"/login",
 				async ({ body, jwt, refreshJwt, headers, set }) => {
-					loginRateLimiter.checkOrThrow(extractIp(headers), "Too many login attempts");
+					const clientIp = extractIp(headers);
+
+					loginRateLimiter.checkOrThrow(clientIp, "Too many login attempts");
 
 					const result = await AuthService.login(body);
 
@@ -82,6 +87,26 @@ export const auth = new Elysia({ prefix: "/auth" })
 						where: { id: result.userId },
 						data: { refreshToken: hashedRefreshToken },
 					});
+
+					try {
+						await prisma.auditLog.create({
+							data: {
+								action: "Login",
+								model: "User",
+								recordId: result.userId,
+								detail: `User ${result.username} logged in`,
+								ipAddr: clientIp,
+								browser: headers["user-agent"] ?? null,
+								createdBy: result.username,
+							},
+						});
+					} catch (error) {
+						log.warn("[auth] failed to write login audit log", {
+							userId: result.userId,
+							username: result.username,
+							error,
+						});
+					}
 
 					const { password: _, ...userWithoutPassword } = result.user;
 

@@ -229,11 +229,11 @@ const VerticalNavGroup = (props: Props) => {
       : {
           '&.Mui-selected': {
             backgroundColor: theme.palette.action.hover,
-          '&:hover': {
-            backgroundColor: theme.palette.action.hover,
+            '&:hover': {
+              backgroundColor: theme.palette.action.hover,
+            },
           },
-        },
-      };
+        };
 
   return (
     <CanViewNavGroup navGroup={item}>

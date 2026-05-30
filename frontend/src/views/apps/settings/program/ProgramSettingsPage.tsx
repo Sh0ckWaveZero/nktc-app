@@ -406,12 +406,18 @@ const ProgramSettingsPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <ColorIcon icon='tabler:door' color='warning' fontSize='0.85rem' opacity={0.75} />
-              <Typography variant='caption' color='text.secondary'>ห้อง {row._count?.classroom ?? 0}</Typography>
+              <Typography variant='caption' color='text.secondary'>
+                ห้อง {row._count?.classroom ?? 0}
+              </Typography>
             </Box>
-            <Typography variant='caption' color='text.disabled'>·</Typography>
+            <Typography variant='caption' color='text.disabled'>
+              ·
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <ColorIcon icon='tabler:user-star' color='primary' fontSize='0.85rem' opacity={0.75} />
-              <Typography variant='caption' color='text.secondary'>ครู {row._count?.teacher ?? 0}</Typography>
+              <Typography variant='caption' color='text.secondary'>
+                ครู {row._count?.teacher ?? 0}
+              </Typography>
             </Box>
           </Box>
         </Box>
@@ -445,11 +451,19 @@ const ProgramSettingsPage = () => {
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, py: 0.5 }}>
-            <Icon icon='tabler:calendar-event' fontSize='0.95rem' style={{ opacity: 0.45, flexShrink: 0, marginTop: 2 }} />
+            <Icon
+              icon='tabler:calendar-event'
+              fontSize='0.95rem'
+              style={{ opacity: 0.45, flexShrink: 0, marginTop: 2 }}
+            />
             <Box>
-              <Typography variant='body2' color='text.secondary'>{formatted.date}</Typography>
+              <Typography variant='body2' color='text.secondary'>
+                {formatted.date}
+              </Typography>
               {formatted.time ? (
-                <Typography variant='caption' color='text.secondary'>{formatted.time}</Typography>
+                <Typography variant='caption' color='text.secondary'>
+                  {formatted.time}
+                </Typography>
               ) : null}
             </Box>
           </Box>
@@ -525,7 +539,8 @@ const ProgramSettingsPage = () => {
           <Card
             sx={{
               borderRadius: 6,
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
+              border: (theme) =>
+                `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
               background: (theme) =>
                 theme.palette.mode === 'dark'
                   ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 0.985)} 18%, ${alpha(theme.palette.background.paper, 0.995)} 100%)`
@@ -574,8 +589,9 @@ const ProgramSettingsPage = () => {
                     variant='body1'
                     sx={{
                       color: 'text.secondary',
-                      mt: 0.75
-                    }}>
+                      mt: 0.75,
+                    }}
+                  >
                     ดูแลรหัสสาขา ชื่อสาขา แผนก และระดับชั้นให้พร้อมใช้งานต่อกับห้องเรียนและข้อมูลนักเรียน
                   </Typography>
                 </Box>
@@ -718,11 +734,41 @@ const ProgramSettingsPage = () => {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {(
                   [
-                    { label: 'สาขาทั้งหมด', value: summary.total, hint: `${summary.active} เปิดใช้งาน`, icon: 'tabler:books', colorKey: 'primary' },
-                    { label: 'ปิดใช้งาน', value: summary.inactive, hint: 'พักใช้งานชั่วคราว', icon: 'tabler:book-off', colorKey: 'warning' },
-                    { label: 'นักเรียนที่ผูกอยู่', value: summary.students, hint: 'รวมทั้งระบบ', icon: 'tabler:users', colorKey: 'info' },
-                    { label: 'ห้องเรียนที่ผูกอยู่', value: summary.classrooms, hint: 'พร้อมใช้งานต่อในระบบ', icon: 'tabler:door', colorKey: 'success' },
-                  ] as Array<{ label: string; value: number; hint: string; icon: string; colorKey: 'primary' | 'warning' | 'info' | 'success' }>
+                    {
+                      label: 'สาขาทั้งหมด',
+                      value: summary.total,
+                      hint: `${summary.active} เปิดใช้งาน`,
+                      icon: 'tabler:books',
+                      colorKey: 'primary',
+                    },
+                    {
+                      label: 'ปิดใช้งาน',
+                      value: summary.inactive,
+                      hint: 'พักใช้งานชั่วคราว',
+                      icon: 'tabler:book-off',
+                      colorKey: 'warning',
+                    },
+                    {
+                      label: 'นักเรียนที่ผูกอยู่',
+                      value: summary.students,
+                      hint: 'รวมทั้งระบบ',
+                      icon: 'tabler:users',
+                      colorKey: 'info',
+                    },
+                    {
+                      label: 'ห้องเรียนที่ผูกอยู่',
+                      value: summary.classrooms,
+                      hint: 'พร้อมใช้งานต่อในระบบ',
+                      icon: 'tabler:door',
+                      colorKey: 'success',
+                    },
+                  ] as Array<{
+                    label: string;
+                    value: number;
+                    hint: string;
+                    icon: string;
+                    colorKey: 'primary' | 'warning' | 'info' | 'success';
+                  }>
                 ).map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
                     <SectionBox sx={{ p: 3, height: '100%' }}>
@@ -843,33 +889,45 @@ const ProgramSettingsPage = () => {
                 }}
               >
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     ทั้งหมด
                   </Typography>
                   <Typography variant='h6'>{importResult.total}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.imported}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     อัปเดต
                   </Typography>
                   <Typography variant='h6'>{importResult.updated}</Typography>
                 </Box>
                 <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  <Typography variant='caption' sx={{
-                    color: 'text.secondary'
-                  }}>
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     ไม่สำเร็จ
                   </Typography>
                   <Typography variant='h6'>{importResult.failed}</Typography>

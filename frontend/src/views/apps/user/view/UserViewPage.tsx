@@ -73,12 +73,15 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
         <Grid size={12}>
           <Card>
             <CardContent>
-              <Typography variant="h6" color="error">
+              <Typography variant='h6' color='error'>
                 ไม่พบข้อมูลผู้ใช้งาน
               </Typography>
-              <Typography variant="body2" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant='body2'
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 ไม่สามารถค้นหาผู้ใช้งานด้วย ID/Username: {id}
               </Typography>
             </CardContent>
@@ -94,7 +97,7 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
         <Grid size={12}>
           <Card>
             <CardContent>
-              <Typography variant="h6">กำลังโหลดข้อมูล...</Typography>
+              <Typography variant='h6'>กำลังโหลดข้อมูล...</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -112,11 +115,7 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
       {/* Back button */}
       <Grid size={12}>
         <LinkStyled href='/apps/teacher/list/' passHref>
-          <Button
-            variant='contained'
-            color='secondary'
-            startIcon={<Icon icon='ion:arrow-back-circle-outline' />}
-          >
+          <Button variant='contained' color='secondary' startIcon={<Icon icon='ion:arrow-back-circle-outline' />}>
             ย้อนกลับ
           </Button>
         </LinkStyled>
@@ -200,9 +199,12 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
                     <Typography variant='h6' sx={{ mb: 3 }}>
                       ความปลอดภัย
                     </Typography>
-                    <Typography variant='body2' sx={{
-                      color: 'text.secondary'
-                    }}>
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       ข้อมูลความปลอดภัยและการตั้งค่าบัญชีผู้ใช้
                     </Typography>
                   </CardContent>

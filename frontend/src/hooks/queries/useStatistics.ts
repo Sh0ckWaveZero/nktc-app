@@ -105,7 +105,7 @@ export const useTermStatistics = (params: TermStatisticsParams) => {
       });
 
       const { data } = await httpClient.get<TermStatisticsResponse>(
-        `${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`
+        `${authConfig.statisticsEndpoint}/term?${queryParams.toString()}`,
       );
 
       return data;

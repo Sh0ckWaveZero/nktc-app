@@ -1,13 +1,8 @@
 'use client';
 
-export default function GlobalError({
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <html lang="th">
+    <html lang='th'>
       <body>
         <div
           style={{
@@ -58,9 +53,7 @@ export default function GlobalError({
               >
                 เกิดข้อผิดพลาด! 🤯
               </h2>
-              <p style={{ color: '#777', margin: '0 0 20px 0' }}>
-                ขออภัย เกิดข้อผิดพลาดในระบบ
-              </p>
+              <p style={{ color: '#777', margin: '0 0 20px 0' }}>ขออภัย เกิดข้อผิดพลาดในระบบ</p>
             </div>
             <button
               onClick={reset}

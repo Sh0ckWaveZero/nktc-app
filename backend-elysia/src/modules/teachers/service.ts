@@ -8,6 +8,38 @@ import { createLogger } from "@/infrastructure/logging";
 import * as XLSX from "xlsx";
 
 const log = createLogger();
+const bangkokDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Bangkok",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+type LoginCountByUserSummary = {
+  date: string;
+  count: number;
+};
+
+const buildLoginCountByUsername = (
+  auditLogs: Array<{ createdAt: Date; createdBy: string | null }>,
+) => {
+  return auditLogs.reduce<Record<string, Record<string, number>>>(
+    (acc, auditLog) => {
+      if (!auditLog.createdBy) {
+        return acc;
+      }
+
+      const dateKey = bangkokDateFormatter.format(auditLog.createdAt);
+      const dateCounts = acc[auditLog.createdBy] ?? {};
+
+      dateCounts[dateKey] = (dateCounts[dateKey] ?? 0) + 1;
+      acc[auditLog.createdBy] = dateCounts;
+
+      return acc;
+    },
+    {},
+  );
+};
 
 const stripSensitive = (teacher: any) => {
   const { user, classrooms, ...rest } = teacher;
@@ -62,6 +94,11 @@ export abstract class TeacherService {
       where: whereCondition,
       skip,
       take,
+      orderBy: {
+        user: {
+          username: "asc",
+        },
+      },
       include: teacherInclude,
     });
 
@@ -69,10 +106,101 @@ export abstract class TeacherService {
       where: whereCondition,
     });
 
+    const usernames = data
+      .map((teacher) => teacher.user?.username)
+      .filter((username): username is string => Boolean(username));
+
+    const loginCountByUsername =
+      usernames.length > 0
+        ? buildLoginCountByUsername(
+            await prisma.auditLog.findMany({
+              where: {
+                createdBy: {
+                  in: usernames,
+                },
+                action: {
+                  equals: "Login",
+                  mode: "insensitive",
+                },
+              },
+              select: {
+                createdAt: true,
+                createdBy: true,
+              },
+            }),
+          )
+        : {};
+
     log.debug("[TeacherService] search result", { count: data.length, total });
     return {
-      data: data.map(stripSensitive),
+      data: data.map((teacher) => {
+        const username = teacher.user?.username;
+        const loginCountByUser: LoginCountByUserSummary[] = username
+          ? Object.entries(loginCountByUsername[username] ?? {})
+              .sort(([leftDate], [rightDate]) => leftDate.localeCompare(rightDate))
+              .map(([date, count]) => ({ date, count }))
+          : [];
+
+        return {
+          ...stripSensitive(teacher),
+          loginCountByUser,
+        };
+      }),
       total,
+    };
+  }
+
+  static async resetAllLoginDays(resetBy: { username: string }) {
+    const teachers = await prisma.teacher.findMany({
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    const usernames = teachers
+      .map((teacher) => teacher.user?.username)
+      .filter((username): username is string => Boolean(username));
+
+    const { count } =
+      usernames.length > 0
+        ? await prisma.auditLog.deleteMany({
+            where: {
+              createdBy: {
+                in: usernames,
+              },
+              action: {
+                equals: "Login",
+                mode: "insensitive",
+              },
+            },
+          })
+        : { count: 0 };
+
+    await prisma.auditLog.create({
+      data: {
+        action: "RESET_ALL_TEACHER_LOGIN_DAYS",
+        model: "Teacher",
+        detail: `Reset login day history for ${usernames.length} teachers`,
+        oldValue: String(count),
+        newValue: "0",
+        createdBy: resetBy.username,
+      },
+    });
+
+    log.info("[TeacherService] reset all login days", {
+      teacherCount: usernames.length,
+      deleted: count,
+      resetBy: resetBy.username,
+    });
+
+    return {
+      deleted: count,
+      teacherCount: usernames.length,
     };
   }
 
@@ -350,6 +478,12 @@ export abstract class TeacherService {
         where: { classroomId: { in: classroomIds } },
         include: {
           user: { select: userMinimalSelect },
+          _count: {
+            select: {
+              goodnessIndividual: true,
+              badnessIndividual: true,
+            },
+          },
         },
       }),
     ]);

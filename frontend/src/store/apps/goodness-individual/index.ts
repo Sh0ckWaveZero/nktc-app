@@ -17,6 +17,7 @@ interface GoodnessIndividualState {
   search: (body: Body) => any;
   summary: (body: any) => any;
   deleteGoodnessIndividualById: (id: string) => any;
+  resetAllGoodnessRecords: () => any;
   fetchGoodnessIndividualById: (body: Body) => any;
 }
 
@@ -63,6 +64,15 @@ export const goodnessIndividualStore = createWithEqualityFn<GoodnessIndividualSt
       return response;
     } catch (err) {
       console.error('Error delete goodness individual:', err);
+      return err;
+    }
+  },
+  resetAllGoodnessRecords: async () => {
+    try {
+      const response = await httpClient.delete(`${authConfig.goodnessIndividualEndpoint}/reset-all`);
+      return response;
+    } catch (err) {
+      console.error('Error resetting all goodness records:', err);
       return err;
     }
   },

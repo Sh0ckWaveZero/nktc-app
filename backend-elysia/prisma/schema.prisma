@@ -390,14 +390,19 @@ model ActivityCheckInReport {
   classroom    Classroom? @relation(fields: [classroomKey], references: [id])
   present      String[]   @default([]) // รหัสนักเรียนที่เข้าร่วมกิจกรรม
   absent       String[]   @default([]) // รหัสนักเรียนที่ไม่เข้าร่วมกิจกรรม
+  activityType String     @default("CLUB") // ประเภทกิจกรรม: CLUB, AST, SCOUT
   checkInDate  DateTime? // วันที่เช็คอิน
   checkInTime  DateTime? // เวลาเช็คอิน
   status       String? // สถานะ 0 = ยังไม่ได้เช็คชื่อ, 1 = ได้เช็คชื่อแล้ว
+  note         String? // หมายเหตุเพิ่มเติม
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   updatedBy    String?
   createdBy    String?
 
+  @@index([teacherId, classroomId, activityType])
+  @@index([classroomId, checkInDate])
+  @@index([checkInDate])
   @@map("activityCheckInReport")
 }
 

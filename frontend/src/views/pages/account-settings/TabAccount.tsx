@@ -201,7 +201,12 @@ const TabAccount = () => {
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.update(toastId, { render: message || 'เกิดข้อผิดพลาด', type: 'error', isLoading: false, autoClose: 5000 });
+        toast.update(toastId, {
+          render: message || 'เกิดข้อผิดพลาด',
+          type: 'error',
+          isLoading: false,
+          autoClose: 5000,
+        });
       }
     });
   };
@@ -486,7 +491,13 @@ const TabAccount = () => {
                 multiple={true}
                 limitTags={15}
                 value={classroomSelected}
-                options={Array.isArray(classrooms) ? [...classrooms].sort((a: any, b: any) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
+                options={
+                  Array.isArray(classrooms)
+                    ? [...classrooms].sort((a: any, b: any) =>
+                        (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+                      )
+                    : []
+                }
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
@@ -505,17 +516,17 @@ const TabAccount = () => {
                       {...params}
                       id='teacherOnClassroom-input'
                       label='ครูที่ปรึกษาระดับชั้น'
-	                      placeholder='เลือกห้องเรียน'
-	                      slotProps={{
-	                        ...params.slotProps,
-	                        input: {
-	                          ...params.slotProps?.input,
-	                        },
-	                        inputLabel: {
-	                          ...params.slotProps?.inputLabel,
-	                          shrink: true,
-	                        },
-	                      }}
+                      placeholder='เลือกห้องเรียน'
+                      slotProps={{
+                        ...params.slotProps,
+                        input: {
+                          ...params.slotProps?.input,
+                        },
+                        inputLabel: {
+                          ...params.slotProps?.inputLabel,
+                          shrink: true,
+                        },
+                      }}
                     />
                   );
                 }}

@@ -203,7 +203,9 @@ const StudentProfileUpload = ({ imgSrc, isCompressing, onImageChange, onReset }:
       <ImgStyled src={imgSrc} alt='Profile Pic' sx={{ width: { xs: 96, sm: 120 }, height: { xs: 96, sm: 120 } }} />
       <Box sx={{ minWidth: 0, flex: 1 }}>
         <SectionTitle>รูปโปรไฟล์</SectionTitle>
-        <SectionDescription>อัปโหลดรูปสำหรับบัญชีนักเรียนเพื่อให้การค้นหาและยืนยันตัวตนทำได้ง่ายขึ้น</SectionDescription>
+        <SectionDescription>
+          อัปโหลดรูปสำหรับบัญชีนักเรียนเพื่อให้การค้นหาและยืนยันตัวตนทำได้ง่ายขึ้น
+        </SectionDescription>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 2.5 }}>
           <Button
             id='student-add-upload-btn'
@@ -222,7 +224,13 @@ const StudentProfileUpload = ({ imgSrc, isCompressing, onImageChange, onReset }:
             }}
           >
             อัปโหลดรูปภาพ
-            <input hidden type='file' onChange={onImageChange} accept='image/png, image/jpeg, image/webp' id='student-profile-upload' />
+            <input
+              hidden
+              type='file'
+              onChange={onImageChange}
+              accept='image/png, image/jpeg, image/webp'
+              id='student-profile-upload'
+            />
           </Button>
           <Button
             id='student-add-image-reset-btn'
@@ -239,8 +247,9 @@ const StudentProfileUpload = ({ imgSrc, isCompressing, onImageChange, onReset }:
           sx={{
             color: 'text.secondary',
             mt: 2,
-            fontWeight: 500
-          }}>
+            fontWeight: 500,
+          }}
+        >
           อนุญาต PNG, JPEG หรือ WEBP ขนาดไม่เกิน 2MB
         </Typography>
       </Box>
@@ -297,8 +306,16 @@ const StudentPersonalInfoSection = ({
           control={control}
           render={({ field }) => (
             <>
-              <InputLabel id='student-add-title-label' required>คำนำหน้า</InputLabel>
-              <Select {...field} id='student-add-title-select' labelId='student-add-title-label' label='คำนำหน้า' sx={FORM_CONTROL_SX}>
+              <InputLabel id='student-add-title-label' required>
+                คำนำหน้า
+              </InputLabel>
+              <Select
+                {...field}
+                id='student-add-title-select'
+                labelId='student-add-title-label'
+                label='คำนำหน้า'
+                sx={FORM_CONTROL_SX}
+              >
                 <MenuItem value='นาย'>นาย</MenuItem>
                 <MenuItem value='น.ส.'>นางสาว</MenuItem>
               </Select>
@@ -362,7 +379,13 @@ const StudentPersonalInfoSection = ({
             <Autocomplete
               id='student-add-classroom-autocomplete'
               value={value ?? null}
-              options={Array.isArray(classrooms) ? [...classrooms].sort((a, b) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
+              options={
+                Array.isArray(classrooms)
+                  ? [...classrooms].sort((a, b) =>
+                      (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+                    )
+                  : []
+              }
               loading={isClassroomLoading}
               onChange={(_, newValue) => onChange(newValue)}
               getOptionLabel={(option) => option.name || ''}
@@ -469,9 +492,17 @@ const StudentPersonalInfoSection = ({
           render={({ field }) => (
             <>
               <InputLabel id='student-add-status-label'>สถานะนักเรียน</InputLabel>
-              <Select {...field} id='student-add-status-select' labelId='student-add-status-label' label='สถานะนักเรียน' sx={FORM_CONTROL_SX}>
+              <Select
+                {...field}
+                id='student-add-status-select'
+                labelId='student-add-status-label'
+                label='สถานะนักเรียน'
+                sx={FORM_CONTROL_SX}
+              >
                 {STUDENT_STATUS_OPTIONS.map((opt) => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </MenuItem>
                 ))}
               </Select>
               {!!errors.studentStatus && <FormHelperText>{errors.studentStatus.message}</FormHelperText>}
@@ -537,16 +568,36 @@ const StudentAddressSection = ({ control, errors, currentAddress, onAddressChang
       <ThailandAddressTypeahead value={currentAddress} onValueChange={onAddressChange}>
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <ThailandAddressTypeahead.SubdistrictInput id='student-add-subdistrict-input' className='sub-district-input' style={addressInputStyle as any} placeholder='ตำบล / แขวง' />
+            <ThailandAddressTypeahead.SubdistrictInput
+              id='student-add-subdistrict-input'
+              className='sub-district-input'
+              style={addressInputStyle as any}
+              placeholder='ตำบล / แขวง'
+            />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <ThailandAddressTypeahead.DistrictInput id='student-add-district-input' className='district-input' style={addressInputStyle as any} placeholder='อำเภอ / เขต' />
+            <ThailandAddressTypeahead.DistrictInput
+              id='student-add-district-input'
+              className='district-input'
+              style={addressInputStyle as any}
+              placeholder='อำเภอ / เขต'
+            />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <ThailandAddressTypeahead.ProvinceInput id='student-add-province-input' className='province-input' style={addressInputStyle as any} placeholder='จังหวัด' />
+            <ThailandAddressTypeahead.ProvinceInput
+              id='student-add-province-input'
+              className='province-input'
+              style={addressInputStyle as any}
+              placeholder='จังหวัด'
+            />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <ThailandAddressTypeahead.PostalCodeInput id='student-add-postal-code-input' className='postal-code-input' style={addressInputStyle as any} placeholder='รหัสไปรษณีย์' />
+            <ThailandAddressTypeahead.PostalCodeInput
+              id='student-add-postal-code-input'
+              className='postal-code-input'
+              style={addressInputStyle as any}
+              placeholder='รหัสไปรษณีย์'
+            />
           </Grid>
         </Grid>
         <style>{`
@@ -644,21 +695,34 @@ const StudentAddPage = () => {
 
   const checkDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => { if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current);
+    },
+    [],
+  );
 
   const handleStudentIdChange = useCallback(
     (value: string, fieldOnChange: (v: string) => void) => {
       fieldOnChange(value);
       if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current);
-      if (!value || value.length < 10) { clearErrors('studentId'); return; }
+      if (!value || value.length < 10) {
+        clearErrors('studentId');
+        return;
+      }
       checkDebounceRef.current = setTimeout(async () => {
         setIsCheckingStudentId(true);
         try {
-          const { data } = await httpClient.get(`${authConfig.studentEndpoint}/check-id`, { params: { studentId: value } });
+          const { data } = await httpClient.get(`${authConfig.studentEndpoint}/check-id`, {
+            params: { studentId: value },
+          });
           if (data?.exists) setError('studentId', { type: 'manual', message: 'รหัสนักเรียนนี้มีอยู่ในระบบแล้ว' });
           else clearErrors('studentId');
-        } catch { /* silently ignore check errors */ }
-        finally { setIsCheckingStudentId(false); }
+        } catch {
+          /* silently ignore check errors */
+        } finally {
+          setIsCheckingStudentId(false);
+        }
       }, 600);
     },
     [clearErrors, setError],
@@ -676,7 +740,9 @@ const StudentAddPage = () => {
           setError('studentId', { type: 'manual', message: 'รหัสนักเรียนนี้มีอยู่ในระบบแล้ว' });
           return;
         }
-      } catch { /* proceed — backend will validate */ }
+      } catch {
+        /* proceed — backend will validate */
+      }
     }
 
     const { classroom: c, ...rest } = data;
@@ -833,7 +899,9 @@ const StudentAddPage = () => {
                 <AnimatedGrid size={12} style={trail[1]} sx={{ pt: { xs: 1, sm: 2 } }}>
                   <Box>
                     <SectionTitle>ข้อมูลส่วนตัว</SectionTitle>
-                    <SectionDescription>กรอกข้อมูลหลักที่ใช้สร้างบัญชีและผูกนักเรียนเข้ากับห้องเรียน</SectionDescription>
+                    <SectionDescription>
+                      กรอกข้อมูลหลักที่ใช้สร้างบัญชีและผูกนักเรียนเข้ากับห้องเรียน
+                    </SectionDescription>
                   </Box>
                 </AnimatedGrid>
 

@@ -16,6 +16,7 @@ interface BadnessIndividualState {
   search: (body: Body) => any;
   summary: (body: any) => any;
   deleteBadnessIndividualById: (id: string) => any;
+  resetAllBadnessRecords: () => any;
   fetchBadnessIndividualById: (body: Body) => any;
 }
 
@@ -62,6 +63,15 @@ export const badnessIndividualStore = createWithEqualityFn<BadnessIndividualStat
       return response;
     } catch (err) {
       console.error('Error deleting badness individual:', err);
+      return err;
+    }
+  },
+  resetAllBadnessRecords: async () => {
+    try {
+      const response = await httpClient.delete(`${authConfig.badnessIndividualEndpoint}/reset-all`);
+      return response;
+    } catch (err) {
+      console.error('Error resetting all badness records:', err);
       return err;
     }
   },

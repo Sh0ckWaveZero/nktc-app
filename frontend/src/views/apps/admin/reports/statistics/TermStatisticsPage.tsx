@@ -2,18 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { alpha, styled, type Theme } from '@mui/material/styles';
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Skeleton,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Alert, Avatar, Box, Button, Card, CardContent, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
@@ -130,7 +119,8 @@ const ChartSurface = styled(Card)(({ theme }) => ({
 const CONTROL_SX = {
   '& .MuiOutlinedInput-root': {
     borderRadius: `${CONTROL_RADIUS}px`,
-    backgroundColor: (theme: Theme) => alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.9 : 0.94),
+    backgroundColor: (theme: Theme) =>
+      alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.9 : 0.94),
     '& fieldset': {
       borderColor: (theme: Theme) => alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.18 : 0.12),
     },
@@ -163,7 +153,8 @@ const formatThaiDateTime = (value: string) =>
 
 const getErrorMessage = (error: unknown) => {
   if (typeof error === 'object' && error !== null) {
-    const response = 'response' in error ? (error as { response?: { data?: { message?: unknown } } }).response : undefined;
+    const response =
+      'response' in error ? (error as { response?: { data?: { message?: unknown } } }).response : undefined;
     if (typeof response?.data?.message === 'string') {
       return response.data.message;
     }
@@ -255,20 +246,15 @@ const TermStatisticsPage = () => {
       departmentId: departmentFilter,
       programId: programFilter,
     }),
-    [departmentFilter, programFilter, termEndDate, termStartDate]
+    [departmentFilter, programFilter, termEndDate, termStartDate],
   );
 
-  const {
-    data: statistics,
-    error,
-    isLoading,
-    isFetching,
-  } = useTermStatistics(queryParams);
+  const { data: statistics, error, isLoading, isFetching } = useTermStatistics(queryParams);
 
   const hasChartData = (statistics?.dailyBreakdown.length ?? 0) > 0;
   const bestAndWorstDay = useMemo(
     () => findBestAndWorstDay(statistics?.dailyBreakdown ?? []),
-    [statistics?.dailyBreakdown]
+    [statistics?.dailyBreakdown],
   );
 
   const scopeChips = useMemo(() => {
@@ -277,9 +263,7 @@ const TermStatisticsPage = () => {
     }
 
     return [
-      statistics.summary.scope.departmentName
-        ? `แผนก ${statistics.summary.scope.departmentName}`
-        : 'ทุกแผนก',
+      statistics.summary.scope.departmentName ? `แผนก ${statistics.summary.scope.departmentName}` : 'ทุกแผนก',
       statistics.summary.scope.programName ? `สาขา ${statistics.summary.scope.programName}` : 'ทุกสาขา',
       `นักเรียน ${statistics.summary.scope.totalStudents.toLocaleString()} คน`,
       `ครู ${statistics.summary.scope.totalTeachers.toLocaleString()} คน`,
@@ -307,7 +291,11 @@ const TermStatisticsPage = () => {
       ['จำนวนรายการที่ถูกเช็คชื่อ', studentCheckInStats.checkedRecords],
       ['อัตราเข้าแถวเฉลี่ย', `${studentCheckInStats.averageAttendanceRate.toFixed(2)}%`],
       ['มาเข้าแถว', studentCheckInStats.studentsCheckedIn, `${studentCheckInStats.checkInPercentage.toFixed(2)}%`],
-      ['ไม่มาตามปกติ', studentCheckInStats.studentsNotCheckedIn, `${studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`],
+      [
+        'ไม่มาตามปกติ',
+        studentCheckInStats.studentsNotCheckedIn,
+        `${studentCheckInStats.notCheckedInPercentage.toFixed(2)}%`,
+      ],
       [],
       ['แยกตามสถานะ'],
       ['มาเข้าแถว', studentCheckInStats.totals.present],
@@ -356,7 +344,7 @@ const TermStatisticsPage = () => {
 
     XLSX.writeFile(
       workbook,
-      `สถิติการใช้งานระบบ_${formatDateForAPI(termStartDate)}_${formatDateForAPI(termEndDate)}.xlsx`
+      `สถิติการใช้งานระบบ_${formatDateForAPI(termStartDate)}_${formatDateForAPI(termEndDate)}.xlsx`,
     );
   };
 
@@ -377,7 +365,8 @@ const TermStatisticsPage = () => {
                       sx={{
                         width: { xs: 58, md: 66 },
                         height: { xs: 58, md: 66 },
-                        bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                        bgcolor: (theme) =>
+                          alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
                         color: 'primary.main',
                       }}
                     >
@@ -419,7 +408,8 @@ const TermStatisticsPage = () => {
                         size='small'
                         sx={{
                           borderRadius: 999,
-                          bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.15 : 0.08),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.15 : 0.08),
                           color: 'text.primary',
                           fontWeight: 700,
                         }}
@@ -431,7 +421,8 @@ const TermStatisticsPage = () => {
                         size='small'
                         sx={{
                           borderRadius: 999,
-                          bgcolor: (theme) => alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.18 : 0.1),
                           color: 'warning.main',
                           fontWeight: 700,
                         }}
@@ -452,7 +443,8 @@ const TermStatisticsPage = () => {
                           borderRadius: 2.5,
                           p: 1.55,
                           borderTop: (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.38)}`,
-                          backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                          backgroundColor: (theme) =>
+                            alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
                         }}
                       >
                         <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
@@ -467,7 +459,8 @@ const TermStatisticsPage = () => {
                           borderRadius: 2.5,
                           p: 1.55,
                           borderTop: (theme) => `2px solid ${alpha(theme.palette.success.main, 0.38)}`,
-                          backgroundColor: (theme) => alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                          backgroundColor: (theme) =>
+                            alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
                         }}
                       >
                         <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
@@ -482,7 +475,8 @@ const TermStatisticsPage = () => {
                           borderRadius: 2.5,
                           p: 1.55,
                           borderTop: (theme) => `2px solid ${alpha(theme.palette.info.main, 0.38)}`,
-                          backgroundColor: (theme) => alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                          backgroundColor: (theme) =>
+                            alpha(theme.palette.info.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
                         }}
                       >
                         <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
@@ -497,7 +491,8 @@ const TermStatisticsPage = () => {
                           borderRadius: 2.5,
                           p: 1.55,
                           borderTop: (theme) => `2px solid ${alpha(theme.palette.warning.main, 0.38)}`,
-                          backgroundColor: (theme) => alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
+                          backgroundColor: (theme) =>
+                            alpha(theme.palette.warning.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
                         }}
                       >
                         <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 700 }}>
@@ -740,7 +735,8 @@ const TermStatisticsPage = () => {
                     ยังไม่มีข้อมูลการเช็คชื่อในช่วงวันที่นี้
                   </Typography>
                   <Typography sx={{ mt: 1.25, maxWidth: 560, mx: 'auto', color: 'text.secondary', lineHeight: 1.7 }}>
-                    ระบบยังคงแสดงขอบเขตของนักเรียนและครูให้ แต่จะไม่มีกราฟและตารางรายวันจนกว่าจะมีการบันทึกเช็คชื่อหน้าธง
+                    ระบบยังคงแสดงขอบเขตของนักเรียนและครูให้
+                    แต่จะไม่มีกราฟและตารางรายวันจนกว่าจะมีการบันทึกเช็คชื่อหน้าธง
                   </Typography>
                 </CardContent>
               </EmptyStateCard>

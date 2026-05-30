@@ -50,11 +50,11 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
 
   const departments = useMemo(
     () => Array.from(new Set(teachers.map((teacher) => teacher.department).filter(Boolean) as string[])).sort(),
-    [teachers]
+    [teachers],
   );
   const programs = useMemo(
     () => Array.from(new Set(teachers.map((teacher) => teacher.program).filter(Boolean) as string[])).sort(),
-    [teachers]
+    [teachers],
   );
 
   const filteredTeachers = useMemo(() => {
@@ -66,9 +66,7 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
       const matchesDepartment = department === 'all' || teacher.department === department;
       const matchesProgram = program === 'all' || teacher.program === program;
       const matchesStatus =
-        status === 'all' ||
-        (status === 'active' && teacher.isActive) ||
-        (status === 'inactive' && !teacher.isActive);
+        status === 'all' || (status === 'active' && teacher.isActive) || (status === 'inactive' && !teacher.isActive);
 
       return matchesSearch && matchesDepartment && matchesProgram && matchesStatus;
     });
@@ -76,7 +74,7 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
 
   const currentRows = useMemo(
     () => filteredTeachers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [filteredTeachers, page, rowsPerPage]
+    [filteredTeachers, page, rowsPerPage],
   );
 
   const handleChangePage = (_event: unknown, nextPage: number) => {
@@ -92,7 +90,8 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
     <Card
       sx={{
         borderRadius: 3,
-        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+        border: (theme) =>
+          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
       }}
     >
       <CardHeader
@@ -174,7 +173,8 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
         <TableContainer
           sx={{
             borderRadius: 2.5,
-            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
+            border: (theme) =>
+              `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
             overflowX: 'auto',
           }}
         >
@@ -187,7 +187,8 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
                     fontWeight: 800,
                     color: 'text.primary',
                     borderBottom: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                    backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                    backgroundColor: (theme) =>
+                      alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
                   },
                 }}
               >
@@ -202,9 +203,13 @@ const TeacherActivityTable = ({ teachers }: TeacherActivityTableProps) => {
               {currentRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
-                    <Typography sx={{
-                      color: 'text.secondary'
-                    }}>ไม่พบกิจกรรมของครูตามเงื่อนไขที่เลือก</Typography>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      ไม่พบกิจกรรมของครูตามเงื่อนไขที่เลือก
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : (

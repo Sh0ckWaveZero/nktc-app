@@ -14,20 +14,23 @@ interface StudentGraduationDialogProps {
   onConfirm: (graduationDate: Date) => void;
 }
 
-const StudentGraduationDialog = memo(({ open, student, isGraduating, onClose, onConfirm }: StudentGraduationDialogProps) => {
-  const fullName = `${student?.user?.account?.title ?? ''}${student?.user?.account?.firstName ?? ''} ${student?.user?.account?.lastName ?? ''}`.trim();
+const StudentGraduationDialog = memo(
+  ({ open, student, isGraduating, onClose, onConfirm }: StudentGraduationDialogProps) => {
+    const fullName =
+      `${student?.user?.account?.title ?? ''}${student?.user?.account?.firstName ?? ''} ${student?.user?.account?.lastName ?? ''}`.trim();
 
-  return (
-    <GenericGraduationDialog
-      open={open}
-      title='ยืนยันการจบการศึกษา'
-      entityName={fullName}
-      isGraduating={isGraduating}
-      onClose={onClose}
-      onConfirm={onConfirm}
-    />
-  );
-});
+    return (
+      <GenericGraduationDialog
+        open={open}
+        title='ยืนยันการจบการศึกษา'
+        entityName={fullName}
+        isGraduating={isGraduating}
+        onClose={onClose}
+        onConfirm={onConfirm}
+      />
+    );
+  },
+);
 
 StudentGraduationDialog.displayName = 'StudentGraduationDialog';
 

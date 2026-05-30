@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { GoodnessService } from "./service";
 import { GoodnessModel } from "./model";
 import { authGuard } from "@/middleware/auth";
+import { ForbiddenError } from "@/libs/errors";
 
 export const goodnessIndividual = new Elysia({ prefix: "/goodness-individual" })
 	.use(authGuard)
@@ -12,6 +13,21 @@ export const goodnessIndividual = new Elysia({ prefix: "/goodness-individual" })
 		},
 	}, (app) =>
 		app
+			.delete(
+				"/reset-all",
+				async ({ user }) => {
+					if ((user as any)?.roles !== "Admin") {
+						throw new ForbiddenError();
+					}
+
+					return GoodnessService.resetAllRecords((user as any).username);
+				},
+				{
+					detail: {
+						summary: "Reset all goodness records",
+					},
+				},
+			)
 			.get(
 				"/:studentId",
 				async ({ params: { studentId }, query }) => {

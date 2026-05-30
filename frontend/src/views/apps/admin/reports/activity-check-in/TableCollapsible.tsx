@@ -21,6 +21,7 @@ import React, { Fragment, useId, useState } from 'react';
 
 import Icon from '@/@core/components/icon';
 import { isEmpty } from '@/@core/utils/utils';
+import { formatLongDateThai } from '@/utils/datetime';
 
 interface Row {
   absent: number;
@@ -157,7 +158,32 @@ const RowDaily = (prop: any) => {
                     .filter((item: any) => item?.level?.levelName === levelRow)
                     .map((row: any) => (
                       <StyledTableRow hover key={row.id}>
-                        <StyledTableCell>{row.name}</StyledTableCell>
+                        <StyledTableCell>
+                          <TableCellText>{row.name}</TableCellText>
+                          <Box sx={{ mt: 0.75, display: 'flex', flexDirection: 'column', gap: 0.5, maxWidth: 360 }}>
+                            <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                              หมายเหตุรายวัน
+                            </Typography>
+                            {row.noteEntries?.length ? (
+                              row.noteEntries.map((entry: any, index: number) => (
+                                <Typography
+                                  key={`${row.id}-note-${entry.date ?? index}`}
+                                  variant='caption'
+                                  sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                                >
+                                  {`${entry.date ? formatLongDateThai(entry.date) : '-'}: ${entry.note?.trim() || '-'}`}
+                                </Typography>
+                              ))
+                            ) : (
+                              <Typography
+                                variant='caption'
+                                sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                              >
+                                ไม่มีบันทึกหมายเหตุ
+                              </Typography>
+                            )}
+                          </Box>
+                        </StyledTableCell>
                         <StyledTableCell align='right'>
                           <TableCellText sx={{ color: theme.palette.success.dark }}>{row.present}</TableCellText>
                         </StyledTableCell>

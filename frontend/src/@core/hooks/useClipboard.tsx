@@ -47,13 +47,16 @@ const useClipboard = (options: UseClipboardOptions = {}): ClipboardAPI => {
     copy(text).then(handleSuccess).catch(handleError);
   };
 
-  const copyHandler = useCallback((text?: string | HTMLElement) => {
-    if (typeof text === 'string') {
-      clipboardCopy(text);
-    } else if (targetRef.current) {
-      clipboardCopy(targetRef.current.value);
-    }
-  }, [clipboardCopy]);
+  const copyHandler = useCallback(
+    (text?: string | HTMLElement) => {
+      if (typeof text === 'string') {
+        clipboardCopy(text);
+      } else if (targetRef.current) {
+        clipboardCopy(targetRef.current.value);
+      }
+    },
+    [clipboardCopy],
+  );
 
   return {
     copy: copyHandler,

@@ -45,7 +45,11 @@ const clientSideEmotionCache = createEmotionCache();
 const emptySubscribe = () => () => {};
 
 const ClientOnlyDevTools = () => {
-  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   if (!isClient) return null;
   return <ReactQueryDevtools initialIsOpen={false} position='bottom' />;
 };
@@ -63,9 +67,7 @@ const ACLProvider = ({ children }: { children: ReactNode }) => {
   // Type assertion to handle React 19 compatibility with CASL
   const Provider = AbilityContext.Provider as React.ComponentType<{ value: any; children: ReactNode }>;
 
-  return (
-    <Provider value={ability}>{children}</Provider>
-  );
+  return <Provider value={ability}>{children}</Provider>;
 };
 
 // ** Settings Inner Provider Component
@@ -75,9 +77,7 @@ const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeComponent settings={settings}>
       <ToastContainerWrapper>
-        <WindowWrapper>
-          {children}
-        </WindowWrapper>
+        <WindowWrapper>{children}</WindowWrapper>
       </ToastContainerWrapper>
     </ThemeComponent>
   );
@@ -85,10 +85,14 @@ const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
 
 // ** Toast Container Wrapper Component
 const ToastContainerWrapper = ({ children }: { children: ReactNode }) => {
-  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const { mode } = useColorScheme();
   const toastTheme = isClient && mode === 'dark' ? 'dark' : 'light';
-  
+
   return (
     <>
       {children}
@@ -129,7 +133,7 @@ export default function Providers({ children, emotionCache = clientSideEmotionCa
             retry: 1, // Retry failed mutations once
           },
         },
-      })
+      }),
   );
 
   return (
@@ -140,9 +144,7 @@ export default function Providers({ children, emotionCache = clientSideEmotionCa
             <ACLProvider>
               <AxiosInterceptor>
                 <SettingsProvider>
-                  <SettingsInnerProvider>
-                    {children}
-                  </SettingsInnerProvider>
+                  <SettingsInnerProvider>{children}</SettingsInnerProvider>
                 </SettingsProvider>
               </AxiosInterceptor>
             </ACLProvider>

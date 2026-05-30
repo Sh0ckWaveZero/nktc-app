@@ -104,20 +104,20 @@ const VerticalNavLink = ({
     if (!item.path) {
       return false;
     }
-    
+
     // Normalize paths by removing trailing slashes (except root)
     const normalizePath = (path: string) => {
       return path === '/' ? path : path.replace(/\/$/, '');
     };
-    
+
     const normalizedPathname = normalizePath(pathname);
     const normalizedItemPath = normalizePath(item.path);
-    
+
     // Exact match
     if (normalizedPathname === normalizedItemPath) {
       return true;
     }
-    
+
     // Check if pathname starts with item.path for nested routes
     // Make sure we're matching full path segments, not just substrings
     if (normalizedItemPath !== '/' && normalizedPathname.startsWith(normalizedItemPath)) {
@@ -130,7 +130,7 @@ const VerticalNavLink = ({
         return true;
       }
     }
-    
+
     return false;
   };
 

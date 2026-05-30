@@ -282,7 +282,15 @@ export const useGraduateClassroom = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ classroomId, graduationYear, graduationDate }: { classroomId: string; graduationYear: number; graduationDate: Date }) => {
+    mutationFn: async ({
+      classroomId,
+      graduationYear,
+      graduationDate,
+    }: {
+      classroomId: string;
+      graduationYear: number;
+      graduationDate: Date;
+    }) => {
       const { data } = await httpClient.post(`${authConfig.studentEndpoint}/graduate-classroom`, {
         classroomId,
         graduationYear,
@@ -322,7 +330,15 @@ export const useGraduateStudent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ studentId, graduationYear, graduationDate }: { studentId: string; graduationYear: number; graduationDate: Date }) => {
+    mutationFn: async ({
+      studentId,
+      graduationYear,
+      graduationDate,
+    }: {
+      studentId: string;
+      graduationYear: number;
+      graduationDate: Date;
+    }) => {
       const { data } = await httpClient.put(`${authConfig.studentEndpoint}/profile/${studentId}`, {
         isGraduation: true,
         graduationYear,

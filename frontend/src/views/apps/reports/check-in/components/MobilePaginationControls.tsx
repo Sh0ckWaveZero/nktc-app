@@ -117,8 +117,9 @@ const MobilePaginationControls = ({
 
               '@media (min-width: 400px)': {
                 fontSize: '0.75rem',
-              }
-            }}>
+              },
+            }}
+          >
             ({startIndex + 1}-{endIndex} จาก {totalItems})
           </Typography>
         </Typography>
