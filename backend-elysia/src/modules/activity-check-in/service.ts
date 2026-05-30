@@ -3,29 +3,33 @@ import { ConflictError } from "@/libs/errors";
 
 export abstract class ActivityCheckInService {
 	static async create(data: any) {
-		const { teacherId, classroomId, checkInDate, ...rest } = data;
+		const { teacherId, classroomId, checkInDate, activityType, ...rest } = data;
+		const actType = activityType ?? "CLUB";
 		const existing = await prisma.activityCheckInReport.findFirst({
-			where: { teacherId, classroomId, checkInDate: new Date(checkInDate) },
+			where: { teacherId, classroomId, checkInDate: new Date(checkInDate), activityType: actType },
 		});
 		if (existing) {
 			throw new ConflictError("Activity check-in already exists for this date");
 		}
 		return prisma.activityCheckInReport.create({
-			data: { teacherId, classroomId, checkInDate: new Date(checkInDate), ...rest },
+			data: { teacherId, classroomId, checkInDate: new Date(checkInDate), activityType: actType, ...rest },
 		});
 	}
 
-	static async getByTeacherAndClassroom(teacherId: string, classroomId: string, date?: string) {
+	static async getByTeacherAndClassroom(teacherId: string, classroomId: string, date?: string, activityType?: string) {
 		// ถ้ามี date ให้กรองเฉพาะวันนั้น ไม่เช่นนั้นจะส่งข้อมูลวันเก่ากลับมาผิดๆ
+		const actType = activityType ?? "CLUB";
+		const baseWhere: any = { teacherId, classroomId, activityType: actType };
+		
 		const where = date
 			? (() => {
 				const start = new Date(date);
 				const end = new Date(date);
 				start.setHours(0, 0, 0, 0);
 				end.setHours(23, 59, 59, 999);
-				return { teacherId, classroomId, checkInDate: { gte: start, lte: end } };
+				return { ...baseWhere, checkInDate: { gte: start, lte: end } };
 			})()
-			: { teacherId, classroomId };
+			: baseWhere;
 
 		const record = await prisma.activityCheckInReport.findFirst({
 			where,
@@ -34,7 +38,7 @@ export abstract class ActivityCheckInService {
 		return record ?? {};
 	}
 
-	static async getByDate(teacherId: string, classroomId: string, date: string) {
+	static async getByDate(teacherId: string, classroomId: string, date: string, activityType?: string) {
 		const startDate = new Date(date);
 		const endDate = new Date(date);
 		startDate.setHours(0, 0, 0, 0);
@@ -62,6 +66,7 @@ export abstract class ActivityCheckInService {
 				teacherId,
 				classroomId,
 				checkInDate: { gte: startDate, lte: endDate },
+				activityType: activityType ?? "CLUB",
 			},
 		});
 
@@ -93,11 +98,12 @@ export abstract class ActivityCheckInService {
 		return [{ ...classroom, reportCheckIn: reportCheckIn ?? null, students }];
 	}
 
-	static async getByDateRange(startDate: string, endDate: string) {
+	static async getByDateRange(startDate: string, endDate: string, activityType?: string) {
 		const start = new Date(startDate);
 		const end = new Date(endDate);
 		start.setHours(0, 0, 0, 0);
 		end.setHours(23, 59, 59, 999);
+		const selectedActivityType = activityType ?? "CLUB";
 
 		const classrooms = await prisma.classroom.findMany({
 			select: {
@@ -147,16 +153,20 @@ export abstract class ActivityCheckInService {
 
 		const checkIn = await Promise.all(
 			sortedClassrooms.map(async (classroom) => {
-				const report = await prisma.activityCheckInReport.findFirst({
+				const records = await prisma.activityCheckInReport.findMany({
 					where: {
 						classroomId: classroom.id,
 						checkInDate: { gte: start, lte: end },
+						activityType: selectedActivityType,
 					},
+					orderBy: { checkInDate: "asc" },
 				});
 
-				const checkInBy = report?.createdBy
+				const latest = records[records.length - 1] ?? null;
+
+				const checkInBy = latest?.createdBy
 					? await prisma.user.findFirst({
-						where: { teacher: { id: report.createdBy } },
+						where: { teacher: { id: latest.createdBy } },
 						select: {
 							id: true,
 							username: true,
@@ -173,8 +183,15 @@ export abstract class ActivityCheckInService {
 					})
 					: null;
 
-				const present = report ? report.present.length : 0;
-				const absent = report ? report.absent.length : 0;
+				const presentIds = new Set(records.flatMap((record) => record.present ?? []));
+				const absentIds = new Set(records.flatMap((record) => record.absent ?? []));
+				const noteEntries = records.map((record) => ({
+					date: record.checkInDate?.toISOString() ?? null,
+					note: record.note ?? null,
+				}));
+
+				const present = presentIds.size;
+				const absent = absentIds.size;
 				const total = present + absent;
 				const pct = (n: number) => (total > 0 ? Math.round((n / total) * 10000) / 100 : 0);
 
@@ -185,7 +202,10 @@ export abstract class ActivityCheckInService {
 					absent,
 					absentPercent: pct(absent),
 					total,
-					checkInDate: report?.checkInDate ?? null,
+					checkInDate: latest?.checkInDate ?? null,
+					note: latest?.note ?? null,
+					noteEntries,
+					activityType: latest?.activityType ?? selectedActivityType,
 					...(checkInBy ? { checkInBy } : {}),
 				};
 			}),
@@ -194,7 +214,7 @@ export abstract class ActivityCheckInService {
 		return { students: totalStudents, checkIn };
 	}
 
-	static async getSummary(teacherId: string, classroomId: string) {
+	static async getSummary(teacherId: string, classroomId: string, activityType?: string) {
 		const studentsInfo = await prisma.user.findMany({
 			where: { student: { classroomId } },
 			select: {
@@ -218,7 +238,7 @@ export abstract class ActivityCheckInService {
 		});
 
 		const checkIns = await prisma.activityCheckInReport.findMany({
-			where: { teacherId, classroomId },
+			where: { teacherId, classroomId, activityType: activityType ?? "CLUB" },
 			orderBy: { checkInDate: "asc" },
 		});
 

@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import {
-  Box,
-  Card,
-  CardHeader,
-  Chip,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Card, CardHeader, Chip, Skeleton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
@@ -29,7 +21,10 @@ type KnownAction = 'CheckIn' | 'Login';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ACTION_MAP: Record<KnownAction, { label: string; icon: string; color: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'default' }> = {
+const ACTION_MAP: Record<
+  KnownAction,
+  { label: string; icon: string; color: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'default' }
+> = {
   Login: {
     label: 'เข้าสู่ระบบ',
     icon: 'material-symbols:login-rounded',
@@ -93,9 +88,13 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     hideSortIcons: true,
     filterable: false,
     renderCell: ({ row }: CellType) => (
-      <Typography variant='body2' noWrap sx={{
-        color: 'text.secondary'
-      }}>
+      <Typography
+        variant='body2'
+        noWrap
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {new Date(row.createdAt).toLocaleString('th-TH', {
           day: 'numeric',
           month: 'short',
@@ -117,9 +116,13 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     filterable: false,
     renderCell: ({ row }: CellType) => (
       <Tooltip title={row.detail} placement='bottom-start' arrow>
-        <Typography noWrap variant='body2' sx={{
-          color: 'text.secondary'
-        }}>
+        <Typography
+          noWrap
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {row.detail}
         </Typography>
       </Tooltip>
@@ -137,9 +140,12 @@ const buildColumns = (): GridColDef<AuditLog>[] => [
     renderCell: ({ row }: CellType) => (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <IconifyIcon icon='material-symbols:lan-outline-rounded' fontSize={16} color='text.secondary' />
-        <Typography variant='body2' sx={{
-          fontFamily: 'monospace'
-        }}>
+        <Typography
+          variant='body2'
+          sx={{
+            fontFamily: 'monospace',
+          }}
+        >
           {row.ipAddr ?? '-'}
         </Typography>
       </Box>
@@ -211,23 +217,14 @@ const HistoryPage = () => {
   const auditLogs = data?.data ?? [];
   const total = data?.total ?? 0;
 
-  const fullName = [
-    user?.account?.title,
-    user?.account?.firstName,
-    user?.account?.lastName,
-  ]
-    .filter(Boolean)
-    .join('');
+  const fullName = [user?.account?.title, user?.account?.firstName, user?.account?.lastName].filter(Boolean).join('');
 
   const columns = buildColumns();
 
-  const handlePaginationChange = useCallback(
-    (model: { page: number; pageSize: number }) => {
-      setPage(model.page);
-      setPageSize(model.pageSize);
-    },
-    [],
-  );
+  const handlePaginationChange = useCallback((model: { page: number; pageSize: number }) => {
+    setPage(model.page);
+    setPageSize(model.pageSize);
+  }, []);
 
   return (
     <Grid container spacing={6}>
@@ -235,9 +232,12 @@ const HistoryPage = () => {
         <Card>
           <CardHeader
             title={
-              <Typography variant='h6' sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant='h6'
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 ประวัติการใช้งาน
                 {fullName && (
                   <Typography
@@ -245,8 +245,9 @@ const HistoryPage = () => {
                     variant='body2'
                     sx={{
                       color: 'text.secondary',
-                      ml: 1
-                    }}>
+                      ml: 1,
+                    }}
+                  >
                     — {fullName}
                   </Typography>
                 )}

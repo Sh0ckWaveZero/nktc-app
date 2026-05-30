@@ -18,9 +18,7 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
     },
   },
   '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: theme.palette.mode === 'dark' 
-      ? theme.palette.grey[800] 
-      : theme.palette.grey[200],
+    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
     fontSize: '0.9375rem',
     minHeight: '64px !important',
     borderBottom: 'none',
@@ -109,4 +107,3 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 }));
 
 export default DataGridCustom;
-

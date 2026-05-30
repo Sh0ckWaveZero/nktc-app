@@ -6,12 +6,16 @@ import httpClient from '@/@core/utils/http';
  * Provides better caching, error handling, and integration with React Query
  */
 const useGetPDF = (url: string) => {
-  const { data: PDF = null, isLoading, error } = useQuery({
+  const {
+    data: PDF = null,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['pdf', url],
     queryFn: async () => {
       if (!url) return null;
       const response = await httpClient.get(url, {
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
       });
       return response.data;
     },

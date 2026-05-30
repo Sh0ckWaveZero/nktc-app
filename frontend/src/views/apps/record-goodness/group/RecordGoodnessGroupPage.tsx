@@ -34,7 +34,6 @@ export interface DialogTitleProps {
   onClose: () => void;
 }
 
-
 const RecordGoodnessGroupPage = () => {
   // ** Hooks
   const auth = useAuth();
@@ -60,15 +59,11 @@ const RecordGoodnessGroupPage = () => {
   // Extract actual data arrays from API responses
   // API returns: { success, statusCode, message, data: [...], meta }
   const classroomsArray = React.useMemo(() => {
-    return Array.isArray(classrooms)
-      ? classrooms
-      : (classrooms as any)?.data || [];
+    return Array.isArray(classrooms) ? classrooms : (classrooms as any)?.data || [];
   }, [classrooms]);
 
   const studentsArray = React.useMemo(() => {
-    return Array.isArray(studentsList) 
-      ? studentsList 
-      : (studentsList as any)?.data || [];
+    return Array.isArray(studentsList) ? studentsList : (studentsList as any)?.data || [];
   }, [studentsList]);
 
   // Show error toast if queries fail
@@ -111,7 +106,7 @@ const RecordGoodnessGroupPage = () => {
 
   const handleAddStudents = useCallback(() => {
     handleCloseSelectStudents();
-const selectedIds = selectStudents.map((student: any) => student.id);
+    const selectedIds = selectStudents.map((student: any) => student.id);
     const uniqueStudents = students.filter((student: any) => !selectedIds.includes(student.id));
     setStudents([...uniqueStudents, ...selectStudents]);
   }, [students, selectStudents]);
@@ -157,9 +152,7 @@ const selectedIds = selectStudents.map((student: any) => student.id);
     handleCloseClassroom();
     setDefaultClassroom(null);
 
-    const validSelectedStudents = Array.isArray(selectClassrooms)
-      ? selectClassrooms.filter((s: any) => s && s.id)
-      : [];
+    const validSelectedStudents = Array.isArray(selectClassrooms) ? selectClassrooms.filter((s: any) => s && s.id) : [];
 
     const selectedIds = validSelectedStudents.map((student: any) => student.id);
 

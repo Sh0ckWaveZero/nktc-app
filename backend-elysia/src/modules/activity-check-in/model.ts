@@ -3,6 +3,7 @@ import { t, type UnwrapSchema } from "elysia";
 export const ActivityCheckInModel = {
 	teacherClassroomQuery: t.Object({
 		date: t.Optional(t.String({ description: "Filter by date YYYY-MM-DD" })),
+		activityType: t.Optional(t.String({ description: "Filter by activity type (CLUB, AST, SCOUT)" })),
 	}),
 	activityBody: t.Object({
 		teacherId: t.String(),
@@ -11,11 +12,14 @@ export const ActivityCheckInModel = {
 		checkInTime: t.Optional(t.String()),
 		present: t.Optional(t.Array(t.String())),
 		absent: t.Optional(t.Array(t.String())),
+		activityType: t.Optional(t.String()),
+		note: t.Optional(t.Nullable(t.String())),
 	}),
 	updateBody: t.Object({
 		present: t.Optional(t.Array(t.String())),
 		absent: t.Optional(t.Array(t.String())),
 		status: t.Optional(t.Nullable(t.String())),
+		note: t.Optional(t.Nullable(t.String())),
 		updatedBy: t.Optional(t.Nullable(t.String())),
 		updateBy: t.Optional(t.Nullable(t.String())),
 	}),

@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { ActivityCheckInService } from "./service";
 import { ActivityCheckInModel } from "./model";
 import { authGuard } from "@/middleware/auth";
@@ -29,45 +29,54 @@ export const activityCheckIn = new Elysia({ prefix: "/activity-check-in" })
 			.get(
 				"/teacher/:teacherId/classroom/:classroomId",
 				async ({ params: { teacherId, classroomId }, query }) => {
-					return ActivityCheckInService.getByTeacherAndClassroom(teacherId, classroomId, query.date);
+					return ActivityCheckInService.getByTeacherAndClassroom(teacherId, classroomId, query.date, query.activityType);
 				},
 				{
 					query: ActivityCheckInModel.teacherClassroomQuery,
 					detail: {
-						summary: "Get activity check-in by teacher and classroom (filter by ?date=YYYY-MM-DD)",
+						summary: "Get activity check-in by teacher and classroom (filter by ?date=YYYY-MM-DD&activityType=CLUB)",
 					},
 				},
 			)
 			.get(
 				"/teacher/:teacherId/classroom/:classroomId/start-date/:date/daily-report",
-				async ({ params: { teacherId, classroomId, date } }) => {
-					return ActivityCheckInService.getByDate(teacherId, classroomId, date);
+				async ({ params: { teacherId, classroomId, date }, query }) => {
+					return ActivityCheckInService.getByDate(teacherId, classroomId, date, query?.activityType);
 				},
 				{
+					query: t.Object({
+						activityType: t.Optional(t.String()),
+					}),
 					detail: {
-						summary: "Get daily activity report by date",
+						summary: "Get daily activity report by date (filter by ?activityType=CLUB)",
 					},
 				},
 			)
 			.get(
 				"/start-date/:startDate/end-date/:endDate/admin-daily-report",
-				async ({ params: { startDate, endDate } }) => {
-					return ActivityCheckInService.getByDateRange(startDate, endDate);
+				async ({ params: { startDate, endDate }, query }) => {
+					return ActivityCheckInService.getByDateRange(startDate, endDate, query?.activityType);
 				},
 				{
+					query: t.Object({
+						activityType: t.Optional(t.String()),
+					}),
 					detail: {
-						summary: "Get admin daily report for date range",
+						summary: "Get admin daily report for date range (filter by ?activityType=CLUB)",
 					},
 				},
 			)
 			.get(
 				"/teacher/:teacherId/classroom/:classroomId/summary-report",
-				async ({ params: { teacherId, classroomId } }) => {
-					return ActivityCheckInService.getSummary(teacherId, classroomId);
+				async ({ params: { teacherId, classroomId }, query }) => {
+					return ActivityCheckInService.getSummary(teacherId, classroomId, query?.activityType);
 				},
 				{
+					query: t.Object({
+						activityType: t.Optional(t.String()),
+					}),
 					detail: {
-						summary: "Get activity check-in summary",
+						summary: "Get activity check-in summary (filter by ?activityType=CLUB)",
 					},
 				},
 			)

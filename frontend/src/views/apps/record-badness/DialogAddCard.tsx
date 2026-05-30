@@ -82,7 +82,8 @@ const DialogAddCard = (props: DialogAddCardProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const avatar = data?.account?.avatar;
-  const fullName = (data?.account?.title ?? '') + (data?.account?.firstName ?? '') + ' ' + (data?.account?.lastName ?? '');
+  const fullName =
+    (data?.account?.title ?? '') + (data?.account?.firstName ?? '') + ' ' + (data?.account?.lastName ?? '');
   const classroom = data.student?.classroom?.name;
 
   const { imageCompressed, handleInputImageChange } = useImageCompression();

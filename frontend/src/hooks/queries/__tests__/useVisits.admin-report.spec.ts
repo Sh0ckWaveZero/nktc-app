@@ -37,6 +37,7 @@ describe('useAdminVisitSummaryReport', () => {
         id: 'teacher-1:2026-05-21:department-1',
         teacherName: 'อาจารย์สมชาย ใจดี',
         visitDate: '2026-05-21',
+        latestRecordedAt: '2026-05-21',
         departmentName: 'ช่างยนต์',
         classroomName: 'ปวช.1/1',
         recordedStudentCount: 3,
@@ -54,7 +55,7 @@ describe('useAdminVisitSummaryReport', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(httpClient.get).toHaveBeenCalledWith('/api/backend/visits/report/summary', {
+    expect(httpClient.get).toHaveBeenCalledWith('/visits/report/summary', {
       params: { academicYear: '2569', departmentId: 'dep-1' },
     });
     expect(result.current.data).toEqual(mockRows);

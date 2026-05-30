@@ -185,9 +185,7 @@ export const useStudentList = (): UseStudentListReturn => {
   const [promoteSource, setPromoteSource] = useState<any | null>(null);
   const [promoteTarget, setPromoteTarget] = useState<any | null>(null);
   const [promotePreview, setPromotePreview] = useState<any | null>(null);
-  const { data: promotePreviewData, isLoading: isLoadingPromotePreview } = usePromotePreview(
-    promoteSource?.id ?? null,
-  );
+  const { data: promotePreviewData, isLoading: isLoadingPromotePreview } = usePromotePreview(promoteSource?.id ?? null);
   const [openIndividualPromoteConfirm, setOpenIndividualPromoteConfirm] = useState(false);
   const [promoteStudent, setPromoteStudent] = useState<any | null>(null);
   const [promoteStudentTarget, setPromoteStudentTarget] = useState<any | null>(null);
@@ -227,7 +225,11 @@ export const useStudentList = (): UseStudentListReturn => {
 
   // ─── Students via React Query ─────────────────────────────────────────────────
 
-  const { data: students = [], isLoading: loadingStudent, refetch: refetchStudents } = useStudentsWithParams(
+  const {
+    data: students = [],
+    isLoading: loadingStudent,
+    refetch: refetchStudents,
+  } = useStudentsWithParams(
     {
       classroomId: currentClassroomId,
       search: deferredSearchValue,
@@ -238,16 +240,19 @@ export const useStudentList = (): UseStudentListReturn => {
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
-  const handleChangeClassroom = useCallback((e: SelectChangeEvent, value: any) => {
-    e.preventDefault();
-    setCurrentClassroomId(value?.id ?? null);
-    setInitClassroom(value);
-    if (value?.id) {
-      router.replace(`/apps/student/list?classroom=${value.id}`, { scroll: false });
-    } else {
-      router.replace('/apps/student/list', { scroll: false });
-    }
-  }, [router]);
+  const handleChangeClassroom = useCallback(
+    (e: SelectChangeEvent, value: any) => {
+      e.preventDefault();
+      setCurrentClassroomId(value?.id ?? null);
+      setInitClassroom(value);
+      if (value?.id) {
+        router.replace(`/apps/student/list?classroom=${value.id}`, { scroll: false });
+      } else {
+        router.replace('/apps/student/list', { scroll: false });
+      }
+    },
+    [router],
+  );
 
   const handleChangeFullName = useCallback((e: any, newValue: any) => {
     e.preventDefault();

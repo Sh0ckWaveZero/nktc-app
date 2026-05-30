@@ -65,7 +65,7 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
 
   const currentRows = useMemo(
     () => dailyData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [dailyData, page, rowsPerPage]
+    [dailyData, page, rowsPerPage],
   );
 
   const handleChangePage = (_event: unknown, nextPage: number) => {
@@ -81,7 +81,8 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
     <Card
       sx={{
         borderRadius: 3,
-        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+        border: (theme) =>
+          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
       }}
     >
       <CardHeader
@@ -114,9 +115,7 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
             backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.04),
           }}
         >
-          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
-            ตารางคะแนนรายวัน
-          </Typography>
+          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>ตารางคะแนนรายวัน</Typography>
           <Typography variant='body2' sx={{ color: 'text.secondary' }}>
             แยก มาเข้าแถว ขาด สาย ลา และฝึกงาน ต่อวัน
           </Typography>
@@ -125,7 +124,8 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
         <TableContainer
           sx={{
             borderRadius: 2.5,
-            border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
+            border: (theme) =>
+              `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)}`,
             overflowX: 'auto',
           }}
         >
@@ -138,7 +138,8 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
                     fontWeight: 800,
                     color: 'text.primary',
                     borderBottom: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                    backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
+                    backgroundColor: (theme) =>
+                      alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
                   },
                 }}
               >
@@ -157,9 +158,13 @@ const DailyBreakdownTable = ({ dailyData }: DailyBreakdownTableProps) => {
               {currentRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align='center' sx={{ py: 8 }}>
-                    <Typography sx={{
-                      color: 'text.secondary'
-                    }}>ไม่พบข้อมูลรายวันในช่วงวันที่นี้</Typography>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      ไม่พบข้อมูลรายวันในช่วงวันที่นี้
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : (

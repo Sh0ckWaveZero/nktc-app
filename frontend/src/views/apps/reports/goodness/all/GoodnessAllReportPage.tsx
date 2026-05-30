@@ -159,6 +159,7 @@ const GoodnessAllReportPage = () => {
                       onSubmit={handleSearchClick}
                       onSearchChange={handleSearchChange}
                       students={studentsListData}
+                      showDatePicker={false}
                     />
                   </Box>
 

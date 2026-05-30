@@ -17,12 +17,16 @@ interface TableHeaderProps {
   toggle: () => void;
   handleFilter: (val: string) => void;
   onDownloadTemplate: () => void;
+  onResetLoginDays: () => void;
   onExport: () => void;
   onImportClick: () => void;
   isDownloadingTemplate: boolean;
+  isResettingLoginDays: boolean;
   isExporting: boolean;
   isImporting: boolean;
+  showResetLoginDays: boolean;
   canExport: boolean;
+  canResetLoginDays: boolean;
 }
 
 const TableHeader = ({
@@ -30,14 +34,18 @@ const TableHeader = ({
   toggle,
   handleFilter,
   onDownloadTemplate,
+  onResetLoginDays,
   onExport,
   onImportClick,
   isDownloadingTemplate,
+  isResettingLoginDays,
   isExporting,
   isImporting,
+  showResetLoginDays,
   canExport,
+  canResetLoginDays,
 }: TableHeaderProps) => {
-  const busy = isDownloadingTemplate || isExporting || isImporting;
+  const busy = isDownloadingTemplate || isResettingLoginDays || isExporting || isImporting;
 
   return (
     <Box sx={{ px: { xs: 3, sm: 4, lg: 5 }, pb: { xs: 3, sm: 4 } }}>
@@ -72,10 +80,7 @@ const TableHeader = ({
             }}
           />
 
-          <Stack
-            direction='row'
-            sx={{ alignItems: 'center', gap: 1.5, ml: { sm: 'auto' } }}
-          >
+          <Stack direction='row' sx={{ alignItems: 'center', gap: 1.5, ml: { sm: 'auto' } }}>
             <Box
               id='teacher-list-tools-surface'
               sx={{
@@ -109,16 +114,38 @@ const TableHeader = ({
                 </ToolButtonSlot>
               </Tooltip>
 
+              {showResetLoginDays && (
+                <>
+                  <ToolDivider />
+
+                  <Tooltip
+                    title={
+                      isResettingLoginDays
+                        ? 'กำลังรีเซตวันเข้าใช้งาน...'
+                        : !canResetLoginDays
+                          ? 'ไม่มีข้อมูลครูสำหรับรีเซต'
+                          : 'รีเซตวันเข้าใช้งานของครูทั้งหมด'
+                    }
+                  >
+                    <ToolButtonSlot>
+                      <ToolButton
+                        id='reset-teacher-login-days-button'
+                        size='small'
+                        disabled={busy || !canResetLoginDays}
+                        onClick={onResetLoginDays}
+                      >
+                        <IconifyIcon icon='mdi:calendar-refresh-outline' width={18} />
+                      </ToolButton>
+                    </ToolButtonSlot>
+                  </Tooltip>
+                </>
+              )}
+
               <ToolDivider />
 
               <Tooltip title={isImporting ? 'กำลังนำเข้า...' : 'นำเข้าข้อมูล (.xlsx)'}>
                 <ToolButtonSlot>
-                  <ToolButton
-                    id='import-teacher-button'
-                    size='small'
-                    disabled={busy}
-                    onClick={onImportClick}
-                  >
+                  <ToolButton id='import-teacher-button' size='small' disabled={busy} onClick={onImportClick}>
                     <IconifyIcon icon='tabler:file-import' width={18} />
                   </ToolButton>
                 </ToolButtonSlot>
@@ -128,20 +155,11 @@ const TableHeader = ({
 
               <Tooltip
                 title={
-                  isExporting
-                    ? 'กำลัง export...'
-                    : !canExport
-                      ? 'ไม่มีข้อมูลสำหรับ export'
-                      : 'Export ข้อมูล (.xlsx)'
+                  isExporting ? 'กำลัง export...' : !canExport ? 'ไม่มีข้อมูลสำหรับ export' : 'Export ข้อมูล (.xlsx)'
                 }
               >
                 <ToolButtonSlot>
-                  <ToolButton
-                    id='export-teacher-button'
-                    size='small'
-                    disabled={busy || !canExport}
-                    onClick={onExport}
-                  >
+                  <ToolButton id='export-teacher-button' size='small' disabled={busy || !canExport} onClick={onExport}>
                     <IconifyIcon icon='tabler:database-export' width={18} />
                   </ToolButton>
                 </ToolButtonSlot>

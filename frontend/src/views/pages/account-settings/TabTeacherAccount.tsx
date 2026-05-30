@@ -235,7 +235,12 @@ const TabTeacherAccount = () => {
       } else {
         const { data } = res?.response || {};
         const message = generateErrorMessages[data?.message] || data?.message;
-        toast.update(toastId, { render: message || 'เกิดข้อผิดพลาด', type: 'error', isLoading: false, autoClose: 5000 });
+        toast.update(toastId, {
+          render: message || 'เกิดข้อผิดพลาด',
+          type: 'error',
+          isLoading: false,
+          autoClose: 5000,
+        });
       }
     });
   };
@@ -540,7 +545,13 @@ const TabTeacherAccount = () => {
                 multiple={true}
                 limitTags={15}
                 value={classroomSelected}
-                options={Array.isArray(classrooms) ? [...classrooms].sort((a: any, b: any) => (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th')) : []}
+                options={
+                  Array.isArray(classrooms)
+                    ? [...classrooms].sort((a: any, b: any) =>
+                        (a.department?.name ?? '').localeCompare(b.department?.name ?? '', 'th'),
+                      )
+                    : []
+                }
                 loading={loading}
                 onChange={(_, newValue: any) => onHandleChange(_, newValue)}
                 getOptionLabel={(option: any) => option?.name ?? ''}
@@ -615,12 +626,7 @@ const TabTeacherAccount = () => {
               </FormControl>
             </Grid>
             <Grid size={12}>
-              <Button
-                id={'submit-account'}
-                variant='contained'
-                sx={{ mr: 3.5 }}
-                type='submit'
-              >
+              <Button id={'submit-account'} variant='contained' sx={{ mr: 3.5 }} type='submit'>
                 บันทึกการเปลี่ยนแปลง
               </Button>
               <Button type='reset' variant='outlined' color='secondary' onClick={() => reset()}>

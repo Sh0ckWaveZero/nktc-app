@@ -70,9 +70,7 @@ export default function Error({ error, reset }: ErrorProps) {
           >
             เกิดข้อผิดพลาด! 🤯
           </h2>
-          <p style={{ color: '#777', margin: '0 0 20px 0' }}>
-            ขออภัย เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง
-          </p>
+          <p style={{ color: '#777', margin: '0 0 20px 0' }}>ขออภัย เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง</p>
         </div>
         <button
           onClick={reset}

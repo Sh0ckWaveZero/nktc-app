@@ -15,7 +15,8 @@ interface StudentDeleteDialogProps {
 }
 
 const StudentDeleteDialog = memo(({ open, student, isDeleting, onClose, onConfirm }: StudentDeleteDialogProps) => {
-  const fullName = `${student?.user?.account?.title ?? ''}${student?.user?.account?.firstName ?? ''} ${student?.user?.account?.lastName ?? ''}`.trim();
+  const fullName =
+    `${student?.user?.account?.title ?? ''}${student?.user?.account?.firstName ?? ''} ${student?.user?.account?.lastName ?? ''}`.trim();
 
   return (
     <GenericDeleteDialog

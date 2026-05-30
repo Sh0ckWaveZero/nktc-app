@@ -95,14 +95,21 @@ const ClassroomPromotionDialog = ({
           <RiArrowUpLine size={24} />
         </Box>
         <Box>
-          <Typography variant='h6' id='promotion-dialog-title' sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant='h6'
+            id='promotion-dialog-title'
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             เลื่อนชั้นนักเรียน
           </Typography>
-          <Typography variant='body2' sx={{
-            color: 'text.secondary'
-          }}>
+          <Typography
+            variant='body2'
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             นักเรียนทุกคนในห้องเรียนต้นทาง (ยกเว้นที่จบการศึกษาแล้ว) จะถูกย้ายไปยังห้องเรียนปลายทาง
           </Typography>
         </Box>
@@ -127,9 +134,12 @@ const ClassroomPromotionDialog = ({
               >
                 1
               </Box>
-              <Typography variant='subtitle2' sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant='subtitle2'
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 เลือกห้องเรียนต้นทาง
               </Typography>
             </Box>
@@ -160,9 +170,14 @@ const ClassroomPromotionDialog = ({
                 {isLoadingPreview ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
                     <CircularProgress size={16} />
-                    <Typography variant='body2' sx={{
-                      color: 'text.secondary'
-                    }}>กำลังโหลดรายชื่อ...</Typography>
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      กำลังโหลดรายชื่อ...
+                    </Typography>
                   </Box>
                 ) : promotePreview?.total === 0 ? (
                   <Alert severity='warning' sx={{ borderRadius: 2 }}>
@@ -171,9 +186,12 @@ const ClassroomPromotionDialog = ({
                 ) : promotePreview && promotePreview.total > 0 ? (
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-                      <Typography variant='subtitle2' sx={{
-                        fontWeight: 600
-                      }}>
+                      <Typography
+                        variant='subtitle2'
+                        sx={{
+                          fontWeight: 600,
+                        }}
+                      >
                         นักเรียนที่จะเลื่อนชั้น
                       </Typography>
                       <Chip
@@ -257,9 +275,12 @@ const ClassroomPromotionDialog = ({
               >
                 2
               </Box>
-              <Typography variant='subtitle2' sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant='subtitle2'
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 เลือกห้องเรียนปลายทาง
               </Typography>
             </Box>

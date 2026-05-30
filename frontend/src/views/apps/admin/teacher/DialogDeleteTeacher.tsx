@@ -1,10 +1,5 @@
 import { alpha, Box, Typography } from '@mui/material';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent } from '@mui/material';
 import React from 'react';
 
 import IconifyIcon from '@/@core/components/icon';
@@ -41,8 +36,9 @@ const DialogDeleteTeacher = (props: Props) => {
           variant='h6'
           sx={{
             fontWeight: 600,
-            textAlign: 'center'
-          }}>
+            textAlign: 'center',
+          }}
+        >
           ยืนยันการลบข้อมูลครู / บุคลากร
         </Typography>
       </Box>
@@ -51,8 +47,9 @@ const DialogDeleteTeacher = (props: Props) => {
           variant='body2'
           sx={{
             color: 'text.secondary',
-            lineHeight: 1.8
-          }}>
+            lineHeight: 1.8,
+          }}
+        >
           {'คุณต้องการลบข้อมูลของ '}
           <Box component='strong' sx={{ color: 'text.primary' }}>
             {fullName}

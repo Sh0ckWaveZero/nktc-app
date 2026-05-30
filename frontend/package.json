@@ -9,10 +9,11 @@
     "export": "next export",
     "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "prepare": "husky"
+    "test": "bun ./node_modules/vitest/vitest.mjs",
+    "test:ui": "bun ./node_modules/vitest/vitest.mjs --ui",
+    "test:coverage": "bun ./node_modules/vitest/vitest.mjs --coverage",
+    "prepare": "husky",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@casl/ability": "^6.8.1",
@@ -101,6 +102,7 @@
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.3",
+    "react-doctor": "^0.2.11",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   },

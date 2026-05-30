@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useState, Fragment, useEffect, useRef } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import {
   Typography,
   CardHeader,
@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
 import CustomChip from '@/@core/components/mui/chip';
-import { useReportCheckInStore } from '@/store/index';
+import { useActivityCheckInStore } from '@/store/apps/activity-check-in';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { toast } from 'react-toastify';
@@ -46,8 +46,6 @@ interface CellType {
   row: any;
 }
 
-type StudentStatus = 'present' | 'absent' | 'late' | 'leave' | 'internship';
-
 const checkInStatueIcon: any = {
   present: <AccountCheckOutline />,
   absent: <AccountCancelOutline />,
@@ -69,8 +67,8 @@ const checkInStatueColor: any = {
 };
 
 const checkInStatueName: any = {
-  present: 'มาเรียน',
-  absent: 'ขาด',
+  present: 'เข้าร่วม',
+  absent: 'ไม่เข้าร่วม',
   late: 'มาสาย',
   leave: 'ลา',
   notCheckIn: 'ยังไม่เช็คชื่อ',
@@ -107,30 +105,21 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 }));
 
 const ActivityCheckInDailyReportPage = () => {
-  const isPresentCheckRef = useRef<any[]>([]);
-  const isAbsentCheckRef = useRef<any[]>([]);
-  const isLateCheckRef = useRef<any[]>([]);
-  const isLeaveCheckRef = useRef<any[]>([]);
-  const isInternshipCheckRef = useRef<any[]>([]);
-
   const auth = useAuth();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
   // ** React Query - Fetch teacher's students and classrooms
   const teacherId = auth?.user?.teacher?.id as string;
-  const {
-    data: teacherData,
-    isLoading: isLoadingTeacherData,
-  } = useTeacherStudents(teacherId);
+  const { data: teacherData, isLoading: isLoadingTeacherData } = useTeacherStudents(teacherId);
 
-  const { findDailyReport, updateReportCheckIn, removeReportCheckIn, addReportCheckIn }: any =
-    useReportCheckInStore(
+  const { findDailyReport, updateActivityCheckIn, removeActivityCheckIn, addActivityCheckIn }: any =
+    useActivityCheckInStore(
       (state) => ({
         findDailyReport: state.findDailyReport,
-        updateReportCheckIn: state.updateReportCheckIn,
-        removeReportCheckIn: state.removeReportCheckIn,
-        addReportCheckIn: state.addReportCheckIn,
+        updateActivityCheckIn: state.updateActivityCheckIn,
+        removeActivityCheckIn: state.removeActivityCheckIn,
+        addActivityCheckIn: state.addActivityCheckIn,
       }),
       shallow,
     );
@@ -140,6 +129,7 @@ const ActivityCheckInDailyReportPage = () => {
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
+  const [activityType, setActivityType] = useState<string>('CLUB');
   const [loading, setLoading] = useState<boolean>(true);
   const [openEditDrawer, setOpenEditDrawer] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -149,17 +139,24 @@ const ActivityCheckInDailyReportPage = () => {
   // Combine loading states from React Query and local state
   const isLoading = isLoadingTeacherData || loading;
 
-  // Fetch daily report - must be declared before useEffect that uses it
-  const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
+  // Fetch daily report
+  const fetchDailyReport = async (date: Date | null = null, classroom: any = '', selectedActivity: string = '') => {
     setLoading(true);
-    const classroomInfo = classroom || defaultClassroom.id;
+    const classroomInfo = classroom || defaultClassroom?.id;
     const dateInfo = date || selectedDate;
+    const activityInfo = selectedActivity || activityType;
+
+    if (!classroomInfo) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const data = await findDailyReport({
         teacherId: auth?.user?.teacher?.id,
         classroomId: classroomInfo,
-        startDate: dateInfo,
+        startDate: toApiDate(dateInfo as Date),
+        activityType: activityInfo,
       });
 
       const dataArray = Array.isArray(data) ? data : [];
@@ -213,155 +210,8 @@ const ActivityCheckInDailyReportPage = () => {
     setClassrooms(classrooms);
 
     // Fetch daily report for this classroom
-    fetchDailyReport(null, classroom.id);
+    fetchDailyReport(null, classroom.id, activityType);
   }, [teacherData, isLoadingTeacherData]);
-
-  const onHandleToggle = (action: StudentStatus, param: any): void => {
-    switch (action) {
-      case 'present':
-        handleTogglePresent(param);
-        break;
-      case 'absent':
-        handleToggleAbsent(param);
-        break;
-      case 'late':
-        handleToggleLate(param);
-        break;
-      case 'leave':
-        handleToggleLeave(param);
-        break;
-      case 'internship':
-        handleToggleInternship(param);
-        break;
-    }
-
-    onRemoveToggleOthers(action, param);
-  };
-
-  const handleTogglePresent = (param: any): void => {
-    isPresentCheckRef.current.push(...onSetToggle(isPresentCheckRef.current, param));
-  };
-
-  const handleToggleAbsent = (param: any): void => {
-    isAbsentCheckRef.current.push(...onSetToggle(isAbsentCheckRef.current, param));
-  };
-
-  const handleToggleLate = (param: any): void => {
-    isLateCheckRef.current.push(...onSetToggle(isLateCheckRef.current, param));
-  };
-
-  const handleToggleLeave = (param: any): void => {
-    isLeaveCheckRef.current.push(...onSetToggle(isLeaveCheckRef.current, param));
-  };
-
-  const handleToggleInternship = (param: any): void => {
-    isInternshipCheckRef.current.push(...onSetToggle(isInternshipCheckRef.current, param));
-  };
-
-  const onSetToggle = (prevState: any, param: any): any => {
-    const studentRecordId = param?.student?.id || param.id;
-    const index = prevState.indexOf(studentRecordId);
-
-    let newSelection = [...prevState];
-
-    if (index === -1) {
-      newSelection.push(studentRecordId);
-    } else {
-      newSelection = newSelection.filter((item) => item !== studentRecordId);
-    }
-
-    return newSelection;
-  };
-
-  const onRemoveToggleOthers = (action: StudentStatus, param: any): void => {
-    switch (action) {
-      case 'present':
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'absent':
-        onHandlePresentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'late':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLeaveChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'leave':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleInternshipChecked(param);
-        break;
-      case 'internship':
-        onHandlePresentChecked(param);
-        onHandleAbsentChecked(param);
-        onHandleLateChecked(param);
-        onHandleLeaveChecked(param);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onHandlePresentChecked = (param: any): void => {
-    const studentRecordId = param?.student?.id || param.id;
-    if (isPresentCheckRef.current.includes(studentRecordId)) {
-      isPresentCheckRef.current = onRemoveToggle(isPresentCheckRef.current, studentRecordId);
-    }
-  };
-
-  const onHandleAbsentChecked = (param: any): void => {
-    const studentRecordId = param?.student?.id || param.id;
-    if (isAbsentCheckRef.current.includes(studentRecordId)) {
-      isAbsentCheckRef.current = onRemoveToggle(isAbsentCheckRef.current, studentRecordId);
-    }
-  };
-
-  const onHandleLateChecked = (param: any): void => {
-    const studentRecordId = param?.student?.id || param.id;
-    if (isLateCheckRef.current.includes(studentRecordId)) {
-      isLateCheckRef.current = onRemoveToggle(isLateCheckRef.current, studentRecordId);
-    }
-  };
-
-  const onHandleLeaveChecked = (param: any): void => {
-    const studentRecordId = param?.student?.id || param.id;
-    if (isLeaveCheckRef.current.includes(studentRecordId)) {
-      isLeaveCheckRef.current = onRemoveToggle(isLeaveCheckRef.current, studentRecordId);
-    }
-  };
-
-  const onHandleInternshipChecked = (param: any): void => {
-    const studentRecordId = param?.student?.id || param.id;
-    if (isInternshipCheckRef.current.includes(studentRecordId)) {
-      isInternshipCheckRef.current = onRemoveToggle(isInternshipCheckRef.current, studentRecordId);
-    }
-  };
-
-  const onRemoveToggle = (prevState: any, studentRecordId: string): any => {
-    const index = prevState.indexOf(studentRecordId);
-
-    if (index === -1) {
-      return prevState;
-    }
-
-    return [...prevState.slice(0, index), ...prevState.slice(index + 1)];
-  };
-
-  const onClearAll = (): void => {
-    isPresentCheckRef.current = [];
-    isAbsentCheckRef.current = [];
-    isLateCheckRef.current = [];
-    isLeaveCheckRef.current = [];
-    isInternshipCheckRef.current = [];
-  };
 
   const handleOpenEditCheckIn = (param: any): void => {
     setSelectedStudent(param);
@@ -372,41 +222,39 @@ const ActivityCheckInDailyReportPage = () => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
     const { reportCheckInData } = values?.data || {};
-    const { present = [], absent = [], late = [], leave = [], internship = [] } = reportCheckInData || {};
+    let present = Array.isArray(reportCheckInData?.present) ? [...reportCheckInData.present] : [];
+    let absent = Array.isArray(reportCheckInData?.absent) ? [...reportCheckInData.absent] : [];
 
-    isPresentCheckRef.current.push(...present);
-    isAbsentCheckRef.current.push(...absent);
-    isLateCheckRef.current.push(...late);
-    isLeaveCheckRef.current.push(...leave);
-    isInternshipCheckRef.current.push(...internship);
+    const studentRecordId = values?.data?.student?.id || values?.data?.id;
 
-    onHandleToggle(values?.isCheckInStatus, values?.data);
-
-    isPresentCheckRef.current = [...new Set(isPresentCheckRef.current)];
-    isAbsentCheckRef.current = [...new Set(isAbsentCheckRef.current)];
-    isLateCheckRef.current = [...new Set(isLateCheckRef.current)];
-    isLeaveCheckRef.current = [...new Set(isLeaveCheckRef.current)];
-    isInternshipCheckRef.current = [...new Set(isInternshipCheckRef.current)];
+    if (values?.isCheckInStatus === 'present') {
+      if (!present.includes(studentRecordId)) {
+        present.push(studentRecordId);
+      }
+      absent = absent.filter((id) => id !== studentRecordId);
+    } else if (values?.isCheckInStatus === 'absent') {
+      if (!absent.includes(studentRecordId)) {
+        absent.push(studentRecordId);
+      }
+      present = present.filter((id) => id !== studentRecordId);
+    }
 
     const updated = {
       ...reportCheckInData,
-      present: isPresentCheckRef.current,
-      absent: isAbsentCheckRef.current,
-      late: isLateCheckRef.current,
-      leave: isLeaveCheckRef.current,
-      internship: isInternshipCheckRef.current,
+      present,
+      absent,
+      activityType: activityType,
       updateBy: auth?.user?.id,
     };
 
     const created = {
       teacherId: auth?.user?.teacher?.id,
       classroomId,
-      present: isPresentCheckRef.current,
-      absent: isAbsentCheckRef.current,
-      late: isLateCheckRef.current,
-      leave: isLeaveCheckRef.current,
-      internship: isInternshipCheckRef.current,
+      present,
+      absent,
+      activityType: activityType,
       checkInDate: toApiDate(selectedDate as Date | string),
+      status: '1',
     };
 
     const options = {
@@ -417,22 +265,20 @@ const ActivityCheckInDailyReportPage = () => {
 
     try {
       if (reportCheckInData) {
-        await toast.promise(updateReportCheckIn(updated), options);
+        await toast.promise(updateActivityCheckIn(updated), options);
       } else {
-        await toast.promise(addReportCheckIn(created), options);
+        await toast.promise(addActivityCheckIn(created), options);
       }
-      await fetchDailyReport(selectedDate, classroomId);
+      await fetchDailyReport(selectedDate, classroomId, activityType);
       toggleCloseEditCheckIn();
     } catch (error) {
       console.error('Save failed:', error);
-    } finally {
-      onClearAll();
     }
   };
 
   const handleDateChange = async (date: Date | null) => {
     setDateSelected(date);
-    await fetchDailyReport(date);
+    await fetchDailyReport(date, defaultClassroom?.id, activityType);
   };
 
   const handleSelectChange = async (event: any) => {
@@ -443,7 +289,7 @@ const ActivityCheckInDailyReportPage = () => {
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
     setDefaultClassroom(classroomName);
-    await fetchDailyReport(null, classroomName.id);
+    await fetchDailyReport(selectedDate, classroomName.id, activityType);
   };
 
   const toggleCloseEditCheckIn = () => setOpenEditDrawer(!openEditDrawer);
@@ -453,7 +299,7 @@ const ActivityCheckInDailyReportPage = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeReportCheckIn(reportCheckInData?.id), {
+    toast.promise(removeActivityCheckIn(reportCheckInData?.id), {
       pending: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
@@ -461,7 +307,7 @@ const ActivityCheckInDailyReportPage = () => {
 
     setOpenDeletedConfirm(false);
     setTimeout(() => {
-      fetchDailyReport(selectedDate, '');
+      fetchDailyReport(selectedDate, defaultClassroom?.id, activityType);
     }, 200);
   };
 
@@ -591,7 +437,7 @@ const ActivityCheckInDailyReportPage = () => {
                   </Avatar>
                 }
                 sx={{ color: 'text.primary' }}
-                title={`รายงานการเช็คชื่อ-เช้ารายวัน`}
+                title='รายงานการเช็คชื่อหน้าเสาธง'
                 subheader={`${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
                   weekday: 'long',
                   year: 'numeric',
@@ -602,6 +448,11 @@ const ActivityCheckInDailyReportPage = () => {
               <CardContent>
                 {!isEmpty(currentStudents) && (
                   <Typography variant='subtitle1'>{`ชั้น ${defaultClassroom?.name} จำนวน ${currentStudents.length} คน`}</Typography>
+                )}
+                {reportCheckInData?.note?.trim() && (
+                  <Typography variant='body2' sx={{ mt: 1, color: 'text.secondary', whiteSpace: 'pre-wrap' }}>
+                    {`หมายเหตุ: ${reportCheckInData.note.trim()}`}
+                  </Typography>
                 )}
               </CardContent>
               <TableHeaderDaily
@@ -660,10 +511,10 @@ const ActivityCheckInDailyReportPage = () => {
                 }
               }}
             >
-              <DialogTitle id='alert-dialog-title'>ยืนยันการลบเช็คชื่อหน้าเสาธง?</DialogTitle>
+              <DialogTitle id='alert-dialog-title'>ยืนยันการลบข้อมูลการเช็คชื่อหน้าเสาธง?</DialogTitle>
               <DialogContent>
                 <DialogContentText id='alert-dialog-description'>
-                  {`คุณต้องการลบข้อมูลการเช็คชื่อของ
+                  {`คุณต้องการลบข้อมูลการเช็คชื่อหน้าเสาธง ของวันที่
                   ${new Date(selectedDate as Date).toLocaleDateString('th-TH', {
                     weekday: 'long',
                     year: 'numeric',

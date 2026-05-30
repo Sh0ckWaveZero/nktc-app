@@ -5,9 +5,7 @@ const trimTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
 const normalizePath = (value: string): string => value.replace(/^\/+/, '');
 
 const INTERNAL_URL = trimTrailingSlash(
-  process.env.BACKEND_INTERNAL_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    DEFAULT_BACKEND_INTERNAL_URL,
+  process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_INTERNAL_URL,
 );
 
 export const backendServerConfig = {

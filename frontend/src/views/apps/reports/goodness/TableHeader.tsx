@@ -34,6 +34,7 @@ interface TableHeaderProps {
   onSubmit: () => void;
   onSearchChange: (event: any, value: string, reason: string) => void;
   students: any[];
+  showDatePicker?: boolean;
 }
 
 const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStudents, onSearchChange }: any) => {
@@ -123,9 +124,12 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
                 <Typography variant='body2' sx={{ fontWeight: 600 }}>
                   {displayText}
                 </Typography>
-                <Typography variant='caption' sx={{
-                  color: 'text.secondary'
-                }}>
+                <Typography
+                  variant='caption'
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {option.studentId || ''}
                 </Typography>
               </Box>
@@ -137,29 +141,39 @@ const StudentAutocomplete = React.memo(({ value, onChange, students, loadingStud
         listbox: { sx: { maxHeight: 400, p: 2 } },
         popper: { sx: { zIndex: 1300 } },
       }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label='ค้นหารายชื่อนักเรียน'
-          placeholder='ระบุชื่อ หรือ รหัสประจำตัว'
-          slotProps={{
-            input: {
-              ...(params.slotProps?.input ?? {}),
-              startAdornment: (
-                <>
-                  <Icon icon='mdi:account-search-outline' fontSize='1.25rem' style={{ marginRight: 8, opacity: 0.6 }} />
-                  {params.slotProps.input.startAdornment}
-                </>
-              ),
-              sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
-            },
-            inputLabel: {
-              shrink: true,
-              sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
-            },
-          }}
-        />
-      )}
+      renderInput={(params) => {
+        const startAdornment = params.slotProps?.input?.startAdornment;
+
+        return (
+          <TextField
+            {...params}
+            label='ค้นหารายชื่อนักเรียน'
+            placeholder='ระบุชื่อ หรือ รหัสประจำตัว'
+            slotProps={{
+              ...params.slotProps,
+              input: {
+                ...(params.slotProps?.input ?? {}),
+                startAdornment: (
+                  <>
+                    <Icon
+                      icon='mdi:account-search-outline'
+                      fontSize='1.25rem'
+                      style={{ marginRight: 8, opacity: 0.6 }}
+                    />
+                    {startAdornment}
+                  </>
+                ),
+                sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
+              },
+              inputLabel: {
+                ...(params.slotProps?.inputLabel ?? {}),
+                shrink: true,
+                sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
+              },
+            }}
+          />
+        );
+      }}
       noOptionsText='ไม่พบรายชื่อนักเรียน'
     />
   );
@@ -179,6 +193,7 @@ const TableHeader = (props: TableHeaderProps) => {
     onSubmit,
     onSearchChange,
     students,
+    showDatePicker = true,
   } = props;
 
   return (
@@ -221,15 +236,18 @@ const TableHeader = (props: TableHeaderProps) => {
           <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: -0.5, lineHeight: 1.2 }}>
             ตัวกรองข้อมูล
           </Typography>
-          <Typography variant='caption' sx={{
-            color: 'text.secondary'
-          }}>
+          <Typography
+            variant='caption'
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             ค้นหาและสรุปรายงานความดีรายบุคคล/รายห้อง
           </Typography>
         </Box>
       </Box>
       <Grid container spacing={6} sx={{ alignItems: 'flex-start' }}>
-        <Grid size={{ xs: 12, md: 3.5 }}>
+        <Grid size={{ xs: 12, md: showDatePicker ? 3.5 : 5 }}>
           <FormControl fullWidth>
             <Controller
               name='student'
@@ -247,7 +265,7 @@ const TableHeader = (props: TableHeaderProps) => {
           </FormControl>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: showDatePicker ? 3 : 4 }}>
           <FormControl fullWidth>
             <Controller
               name='classroom'
@@ -270,30 +288,39 @@ const TableHeader = (props: TableHeaderProps) => {
                     </li>
                   )}
                   slotProps={{ popper: { sx: { zIndex: 1300 } } }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label='ชั้นเรียน'
-                      placeholder='เลือกชั้นเรียน'
-                      slotProps={{
-                        input: {
-                          ...(params.slotProps?.input ?? {}),
-                          startAdornment: (
-                            <Icon
-                              icon='mdi:google-classroom'
-                              fontSize='1.25rem'
-                              style={{ marginRight: 8, opacity: 0.6 }}
-                            />
-                          ),
-                          sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
-                        },
-                        inputLabel: {
-                          shrink: true,
-                          sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
-                        },
-                      }}
-                    />
-                  )}
+                  renderInput={(params) => {
+                    const startAdornment = params.slotProps?.input?.startAdornment;
+
+                    return (
+                      <TextField
+                        {...params}
+                        label='ชั้นเรียน'
+                        placeholder='เลือกชั้นเรียน'
+                        slotProps={{
+                          ...params.slotProps,
+                          input: {
+                            ...(params.slotProps?.input ?? {}),
+                            startAdornment: (
+                              <>
+                                <Icon
+                                  icon='mdi:google-classroom'
+                                  fontSize='1.25rem'
+                                  style={{ marginRight: 8, opacity: 0.6 }}
+                                />
+                                {startAdornment}
+                              </>
+                            ),
+                            sx: { height: { xs: 44, sm: 48 }, borderRadius: 2, bgcolor: 'background.paper' },
+                          },
+                          inputLabel: {
+                            ...(params.slotProps?.inputLabel ?? {}),
+                            shrink: true,
+                            sx: { fontWeight: 600, transform: 'translate(14px, -9px) scale(0.75)' },
+                          },
+                        }}
+                      />
+                    );
+                  }}
                   noOptionsText='ไม่พบข้อมูลชั้นเรียน'
                 />
               )}
@@ -301,49 +328,51 @@ const TableHeader = (props: TableHeaderProps) => {
           </FormControl>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 2.5 }}>
-          <FormControl fullWidth>
-            <Controller
-              name={datePickLabel.includes('ดี') ? 'goodDate' : 'badDate'}
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <ThaiDatePicker
-                  label={datePickLabel}
-                  value={value}
-                  onChange={onChange}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      placeholder: 'ระบุวันที่',
-                      sx: {
-                        '& .MuiOutlinedInput-root': {
-                          height: { xs: 44, sm: 48 },
-                          borderRadius: 2,
-                          bgcolor: 'background.paper',
+        {showDatePicker && (
+          <Grid size={{ xs: 12, md: 2.5 }}>
+            <FormControl fullWidth>
+              <Controller
+                name={datePickLabel.includes('ดี') ? 'goodDate' : 'badDate'}
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <ThaiDatePicker
+                    label={datePickLabel}
+                    value={value}
+                    onChange={onChange}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        placeholder: 'ระบุวันที่',
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            height: { xs: 44, sm: 48 },
+                            borderRadius: 2,
+                            bgcolor: 'background.paper',
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontWeight: 600,
+                            transform: 'translate(14px, -9px) scale(0.75)',
+                          },
                         },
-                        '& .MuiInputLabel-root': {
-                          fontWeight: 600,
-                          transform: 'translate(14px, -9px) scale(0.75)',
+                        slotProps: {
+                          input: {
+                            startAdornment: (
+                              <Icon
+                                icon='mdi:calendar-range'
+                                fontSize='1.25rem'
+                                style={{ marginRight: 8, opacity: 0.6 }}
+                              />
+                            ),
+                          },
                         },
                       },
-                      slotProps: {
-                        input: {
-                          startAdornment: (
-                            <Icon
-                              icon='mdi:calendar-range'
-                              fontSize='1.25rem'
-                              style={{ marginRight: 8, opacity: 0.6 }}
-                            />
-                          ),
-                        },
-                      },
-                    },
-                  }}
-                />
-              )}
-            />
-          </FormControl>
-        </Grid>
+                    }}
+                  />
+                )}
+              />
+            </FormControl>
+          </Grid>
+        )}
 
         <Grid size={{ xs: 12, md: 3 }}>
           <Box sx={{ display: 'flex', gap: 3 }}>

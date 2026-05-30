@@ -66,7 +66,7 @@ const RecordGoodnessIndividualPage = () => {
     if (allStudents.length === 0) {
       return [];
     }
-    
+
     // Admin can see all students
     if (user?.role?.toLowerCase() === 'admin') {
       return allStudents;
@@ -284,10 +284,7 @@ const RecordGoodnessIndividualPage = () => {
                             });
 
                         return (
-                          <TableRowCustom
-                            key={id}
-                            id={`record-goodness-individual-table-row-${id}`}
-                          >
+                          <TableRowCustom key={id} id={`record-goodness-individual-table-row-${id}`}>
                             <TableCellCustom
                               id={`record-goodness-individual-table-cell-fullname-${id}`}
                               isLastRow={isLastRow}

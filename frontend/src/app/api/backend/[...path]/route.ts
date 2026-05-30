@@ -42,10 +42,7 @@ const buildResponseHeaders = (response: Response): Headers => {
   return headers;
 };
 
-const proxyRequest = async (
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) => {
+const proxyRequest = async (request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) => {
   const { path } = await params;
   const cleanPath = path.filter(Boolean);
 

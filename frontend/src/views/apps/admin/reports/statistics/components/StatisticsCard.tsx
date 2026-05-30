@@ -43,7 +43,8 @@ const StatisticsCard = ({ title, value, caption, insight, icon, tone = 'primary'
         height: '100%',
         borderRadius: 3,
         overflow: 'hidden',
-        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
+        border: (theme) =>
+          `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.08)}`,
         background: (theme) =>
           theme.palette.mode === 'dark'
             ? `linear-gradient(180deg, ${alpha(theme.palette.background.paper, 0.92)} 0%, ${alpha(theme.palette.background.default, 0.96)} 100%)`

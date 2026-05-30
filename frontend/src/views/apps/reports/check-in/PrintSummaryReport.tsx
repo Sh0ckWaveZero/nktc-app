@@ -86,12 +86,7 @@ const PrintSummaryReport = memo(({ value, classroom, ref }: Props) => {
                 key={row.student.studentId}
                 sx={{ fontSize: 8, '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <TableCell
-                  align='center'
-                  component='th'
-                  scope='row'
-                  sx={{ fontSize: 8, fontWeight: 400 }}
-                >
+                <TableCell align='center' component='th' scope='row' sx={{ fontSize: 8, fontWeight: 400 }}>
                   {row.student.studentId}
                 </TableCell>
                 <TableCell

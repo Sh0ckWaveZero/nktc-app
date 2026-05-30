@@ -132,8 +132,9 @@ const Logo = () => (
         height: LOGO_CONFIG.size,
         objectFit: 'contain',
         maxWidth: '100%',
-        display: 'block'
-      }} />
+        display: 'block',
+      }}
+    />
   </Box>
 );
 
@@ -293,11 +294,7 @@ const PasswordField = ({
                   },
                 }}
               >
-                {showPassword ? (
-                  <EyeOutline aria-hidden='true' />
-                ) : (
-                  <EyeOffOutline aria-hidden='true' />
-                )}
+                {showPassword ? <EyeOutline aria-hidden='true' /> : <EyeOffOutline aria-hidden='true' />}
               </IconButton>
             </InputAdornment>
           }
@@ -509,12 +506,7 @@ const LoginPage = () => {
                   flexDirection: 'column',
                 }}
               >
-                <UsernameField
-                  control={control}
-                  errors={errors}
-                  inputRef={usernameRef}
-                  shouldAutoFocus={isDesktop}
-                />
+                <UsernameField control={control} errors={errors} inputRef={usernameRef} shouldAutoFocus={isDesktop} />
                 <PasswordField
                   control={control}
                   errors={errors}

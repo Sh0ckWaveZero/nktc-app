@@ -10,14 +10,8 @@ const alphanumericRegex = /^[A-Za-z0-9]+$/;
 const numericRegex = /^[0-9]+$/;
 
 export const editTeacherSchema = z.object({
-  firstName: z
-    .string()
-    .min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร')
-    .regex(thaiTextRegex, 'กรุณากรอกภาษาไทยเท่านั้น'),
-  lastName: z
-    .string()
-    .min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร')
-    .regex(thaiTextRegex, 'กรุณากรอกภาษาไทยเท่านั้น'),
+  firstName: z.string().min(3, 'ชื่อต้องมีอย่างน้อย 3 ตัวอักษร').regex(thaiTextRegex, 'กรุณากรอกภาษาไทยเท่านั้น'),
+  lastName: z.string().min(3, 'นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร').regex(thaiTextRegex, 'กรุณากรอกภาษาไทยเท่านั้น'),
   username: z
     .string()
     .min(3, 'ชื่อผู้ใช้งานต้องมีอย่างน้อย 3 ตัวอักษร')

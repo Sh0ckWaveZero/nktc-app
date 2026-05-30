@@ -30,11 +30,13 @@ export const useTeacherList = () => {
   const [openDialogEdit, setOpenDialogEdit] = useState(false);
   const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
+  const [openResetLoginDays, setOpenResetLoginDays] = useState(false);
   const [currentTeacher, setCurrentTeacher] = useState<Teacher | null>(null);
   const [teachers, setTeachers] = useState<TeacherArray>([]);
   const [isSubmittingClassroom, setIsSubmittingClassroom] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
+  const [isResettingLoginDays, setIsResettingLoginDays] = useState(false);
 
   // ** Infinite scroll state for mobile
   const [displayedTeachers, setDisplayedTeachers] = useState<TeacherArray>([]);
@@ -43,6 +45,7 @@ export const useTeacherList = () => {
 
   // ** Hooks
   const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const { isMobile } = useResponsive();
 
   const { resetPasswordByAdmin } = useUserStore(
@@ -52,11 +55,12 @@ export const useTeacherList = () => {
     shallow,
   );
 
-  const { addTeacher, removeTeacher, update, updateClassroom, fetchTeacher } = useTeacherStore(
+  const { addTeacher, removeTeacher, resetAllLoginDays, update, updateClassroom, fetchTeacher } = useTeacherStore(
     (state) => ({
       addTeacher: state.addTeacher,
       fetchTeacher: state.fetchTeacher,
       removeTeacher: state.removeTeacher,
+      resetAllLoginDays: state.resetAllLoginDays,
       update: state.update,
       updateClassroom: state.updateClassroom,
     }),
@@ -211,6 +215,10 @@ export const useTeacherList = () => {
     setOpenChangePassword(true);
   }, []);
 
+  const handleOpenResetLoginDays = useCallback(() => {
+    setOpenResetLoginDays(true);
+  }, []);
+
   const onHandleEditClose = useCallback(() => {
     setOpenDialogEdit(false);
   }, []);
@@ -222,6 +230,12 @@ export const useTeacherList = () => {
   const handleDeleteClose = useCallback(() => {
     setOpenDialogDelete(false);
   }, []);
+
+  const handleResetLoginDaysClose = useCallback(() => {
+    if (!isResettingLoginDays) {
+      setOpenResetLoginDays(false);
+    }
+  }, [isResettingLoginDays]);
 
   const handleEditTeacher = useCallback(
     async (data: Teacher) => {
@@ -390,6 +404,41 @@ export const useTeacherList = () => {
     }
   }, [currentTeacher, removeTeacher]);
 
+  const handleResetLoginDaysConfirm = useCallback(async () => {
+    if (teachers.length === 0) {
+      toast.error('ไม่พบข้อมูลครู');
+      return;
+    }
+
+    setIsResettingLoginDays(true);
+
+    const toastId = toast.info('กำลังรีเซตวันเข้าใช้งานของครูทั้งหมด...', {
+      autoClose: false,
+      hideProgressBar: true,
+    });
+
+    try {
+      const res = await resetAllLoginDays();
+
+      if (res?.name !== 'AxiosError') {
+        toast.dismiss(toastId);
+        toast.success('รีเซตวันเข้าใช้งานของครูทั้งหมดสำเร็จ');
+        setOpenResetLoginDays(false);
+        setRefreshTrigger((prev) => prev + 1);
+      } else {
+        const { data: errorData } = res?.response || {};
+        const message = generateErrorMessages[errorData?.message] || errorData?.message;
+        toast.dismiss(toastId);
+        toast.error(message || 'เกิดข้อผิดพลาด');
+      }
+    } catch {
+      toast.dismiss(toastId);
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setIsResettingLoginDays(false);
+    }
+  }, [teachers.length, resetAllLoginDays]);
+
   const handleAddClassroom = useCallback((teacher: Teacher) => {
     setAddClassroomOpen(true);
     setCurrentData(teacher);
@@ -419,12 +468,15 @@ export const useTeacherList = () => {
     openDialogEdit,
     openDialogDelete,
     openChangePassword,
+    openResetLoginDays,
     currentTeacher,
     teachers,
     isSubmittingClassroom,
     isLoadingTeachers,
     displayedTeachers,
     isLoadingMore,
+    isResettingLoginDays,
+    isAdmin,
     defaultValue,
 
     // Actions
@@ -436,13 +488,16 @@ export const useTeacherList = () => {
     handleEdit,
     handleDelete,
     handleChangePassword,
+    handleOpenResetLoginDays,
     onHandleEditClose,
     onHandleChangePasswordClose,
     handleDeleteClose,
+    handleResetLoginDaysClose,
     handleEditTeacher,
     handleChangePasswordTeacher,
     onHandleAddTeacher,
     handleDeleteConfirm,
+    handleResetLoginDaysConfirm,
     handleAddClassroom,
     handleLoadMore,
     refreshTeachers,

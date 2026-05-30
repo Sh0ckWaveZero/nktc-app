@@ -34,7 +34,11 @@ const AppBarContent = (props: Props) => {
         gap: 2,
       }}
     >
-      <Box id='appbar-actions-left' className='actions-left' sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+      <Box
+        id='appbar-actions-left'
+        className='actions-left'
+        sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}
+      >
         {hidden ? (
           <IconButton id='menu-toggle-button' color='inherit' sx={{ ml: 1, mr: 1 }} onClick={toggleNavVisibility}>
             <MenuIcon />
@@ -42,7 +46,11 @@ const AppBarContent = (props: Props) => {
         ) : null}
         <Autocomplete hidden={hidden} settings={settings} />
       </Box>
-      <Box id='appbar-actions-right' className='actions-right' sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+      <Box
+        id='appbar-actions-right'
+        className='actions-right'
+        sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
+      >
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <UserDropdown settings={settings} />
       </Box>

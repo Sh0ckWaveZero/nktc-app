@@ -51,6 +51,7 @@ type AdminVisitReportRow = {
 	id: string;
 	teacherName: string;
 	visitDate: string;
+	latestRecordedAt: string;
 	departmentName: string;
 	classroomName: string;
 	recordedStudentCount: number;
@@ -60,7 +61,7 @@ type AdminVisitReportRow = {
 export abstract class VisitService {
 	static async getAll(params: VisitListParams) {
 		const { classroomId, academicYear, visitNo } = params;
-		return prisma.visitStudent.findMany({
+		const visits = await prisma.visitStudent.findMany({
 			where: {
 				...(classroomId ? { classroomId } : {}),
 				...(academicYear ? { academicYear } : {}),
@@ -69,6 +70,9 @@ export abstract class VisitService {
 			include: VISIT_INCLUDE,
 			orderBy: [{ visitDate: "desc" }, { updatedAt: "desc" }],
 		});
+		return visits.filter(
+			(visit) => visit.images && visit.images.length > 0 && visit.images.some((img) => img && img.trim() !== "")
+		);
 	}
 
 	static async getAdminVisitSummaryReport(params: VisitListParams): Promise<AdminVisitReportRow[]> {
@@ -84,9 +88,13 @@ export abstract class VisitService {
 				id: true,
 				studentKey: true,
 				visitDate: true,
+				createdAt: true,
+				updatedAt: true,
 				createdBy: true,
+				images: true,
 				classroom: {
 					select: {
+						id: true,
 						name: true,
 						departmentId: true,
 						_count: {
@@ -103,10 +111,16 @@ export abstract class VisitService {
 					},
 				},
 			},
-			orderBy: [{ visitDate: "desc" }, { updatedAt: "desc" }],
+			orderBy: [{ updatedAt: "desc" }, { visitDate: "desc" }],
 		});
 
-		const creatorIds = [...new Set(visits.map((visit) => visit.createdBy).filter((createdBy): createdBy is string => Boolean(createdBy)))];
+		const realVisits = visits.filter(
+			(visit) => visit.images && visit.images.length > 0 && visit.images.some((img) => img && img.trim() !== "")
+		);
+
+		const creatorIds = [
+			...new Set(realVisits.map((visit) => visit.createdBy).filter((createdBy): createdBy is string => Boolean(createdBy))),
+		];
 
 		const teachers = creatorIds.length
 			? await prisma.teacher.findMany({
@@ -215,7 +229,7 @@ export abstract class VisitService {
 			string,
 			{
 				teacherName: string;
-				visitDate: string;
+				latestRecordedAt: string;
 				departmentName: string;
 				classroomName: string;
 				recordedStudentKeys: Set<string>;
@@ -223,46 +237,60 @@ export abstract class VisitService {
 			}
 		>();
 
-		for (const visit of visits) {
-			if (!visit.visitDate) {
+		for (const visit of realVisits) {
+			const latestRecordedAtSource = visit.updatedAt ?? visit.createdAt;
+
+			if (!latestRecordedAtSource) {
 				continue;
 			}
 
-			const visitDate = visit.visitDate.toISOString().slice(0, 10);
+			const latestRecordedAt = latestRecordedAtSource.toISOString().slice(0, 10);
 			const teacherInfo = (visit.createdBy && teacherByUserId.get(visit.createdBy)) || null;
 			const teacherName = teacherInfo?.teacherName || "-";
-			const scopedAdvisorClassrooms = (teacherInfo?.advisorClassrooms ?? []).filter(
-				(advisorClassroom) => !departmentId || advisorClassroom.departmentId === departmentId,
-			);
-			const fallbackDepartmentId = teacherInfo?.departmentId || visit.classroom?.departmentId || visit.classroom?.department?.id || null;
+			const advisorClassrooms = teacherInfo?.advisorClassrooms ?? [];
+			const scopedAdvisorClassrooms = departmentId
+				? advisorClassrooms.filter((advisorClassroom) => advisorClassroom.departmentId === departmentId)
+				: advisorClassrooms;
+			const matchedAdvisorClassroom = visit.classroom?.id
+				? scopedAdvisorClassrooms.find((advisorClassroom) => advisorClassroom.id === visit.classroom?.id)
+				: null;
 
-			if (departmentId && scopedAdvisorClassrooms.length === 0 && fallbackDepartmentId !== departmentId) {
+			if (scopedAdvisorClassrooms.length === 0 || !matchedAdvisorClassroom) {
 				continue;
 			}
 
-			const departmentName =
-				scopedAdvisorClassrooms[0]?.departmentName ||
-				teacherInfo?.departmentName ||
-				visit.classroom?.department?.name?.trim() ||
-				"-";
-			const resolvedDepartmentId = scopedAdvisorClassrooms[0]?.departmentId || fallbackDepartmentId;
-			const classroomName =
-				scopedAdvisorClassrooms.length > 0
-					? [...new Set(scopedAdvisorClassrooms.map((advisorClassroom) => advisorClassroom.name))]
-						.sort((left, right) => left.localeCompare(right, "th"))
-						.join(", ")
-					: visit.classroom?.name?.trim() || "-";
-			const studentCount =
-				scopedAdvisorClassrooms.length > 0
-					? scopedAdvisorClassrooms.reduce((sum, advisorClassroom) => sum + advisorClassroom.studentCount, 0)
-					: visit.classroom?._count?.student ?? 0;
+			const departmentName = matchedAdvisorClassroom.departmentName;
+			const resolvedDepartmentId = matchedAdvisorClassroom.departmentId || departmentName;
+			const classroomName = [...new Set(scopedAdvisorClassrooms.map((advisorClassroom) => advisorClassroom.name))]
+				.sort((left, right) => left.localeCompare(right, "th"))
+				.join(", ");
+			const studentCount = scopedAdvisorClassrooms.reduce(
+				(sum, advisorClassroom) => sum + advisorClassroom.studentCount,
+				0,
+			);
 
-			const summaryKey = `${visit.createdBy ?? "unknown"}:${visitDate}:${resolvedDepartmentId ?? departmentName}`;
+			const summaryKey = `${visit.createdBy ?? "unknown"}:${resolvedDepartmentId ?? departmentName}`;
 			const existingSummary = summaryMap.get(summaryKey);
 
 			if (existingSummary) {
 				if (visit.studentKey) {
 					existingSummary.recordedStudentKeys.add(visit.studentKey);
+				}
+
+				if (latestRecordedAt > existingSummary.latestRecordedAt) {
+					existingSummary.latestRecordedAt = latestRecordedAt;
+				}
+
+				if (existingSummary.studentCount === 0 && studentCount > 0) {
+					existingSummary.studentCount = studentCount;
+				}
+
+				if (existingSummary.departmentName === "-" && departmentName !== "-") {
+					existingSummary.departmentName = departmentName;
+				}
+
+				if (existingSummary.classroomName === "-" && classroomName !== "-") {
+					existingSummary.classroomName = classroomName;
 				}
 
 				continue;
@@ -276,7 +304,7 @@ export abstract class VisitService {
 
 			summaryMap.set(summaryKey, {
 				teacherName,
-				visitDate,
+				latestRecordedAt,
 				departmentName,
 				classroomName,
 				recordedStudentKeys,
@@ -286,17 +314,18 @@ export abstract class VisitService {
 
 		return [...summaryMap.values()]
 			.map((item) => ({
-				id: `${item.teacherName}:${item.visitDate}:${item.departmentName}:${item.classroomName}`,
+				id: `${item.teacherName}:${item.departmentName}:${item.classroomName}`,
 				teacherName: item.teacherName,
-				visitDate: item.visitDate,
+				visitDate: item.latestRecordedAt,
+				latestRecordedAt: item.latestRecordedAt,
 				departmentName: item.departmentName,
 				classroomName: item.classroomName,
 				recordedStudentCount: item.recordedStudentKeys.size,
 				studentCount: item.studentCount,
 			}))
 			.sort((left, right) => {
-				if (left.visitDate !== right.visitDate) {
-					return right.visitDate.localeCompare(left.visitDate);
+				if (left.latestRecordedAt !== right.latestRecordedAt) {
+					return right.latestRecordedAt.localeCompare(left.latestRecordedAt);
 				}
 
 				if (left.departmentName !== right.departmentName) {
@@ -348,20 +377,93 @@ export abstract class VisitService {
 			orderBy: [{ visitDate: "desc" }, { updatedAt: "desc" }],
 		});
 
-		const latestVisitByStudent = new Map<string, (typeof visits)[number]>();
-
+		// Group visits by studentKey
+		const visitsByStudent = new Map<string, typeof visits>();
 		for (const visit of visits) {
-			if (!latestVisitByStudent.has(visit.studentKey)) {
-				latestVisitByStudent.set(visit.studentKey, visit);
-			}
+			const list = visitsByStudent.get(visit.studentKey) ?? [];
+			list.push(visit);
+			visitsByStudent.set(visit.studentKey, list);
 		}
 
 		return students
 			.map((student) => {
-				const visit = latestVisitByStudent.get(student.id);
+				const studentVisits = visitsByStudent.get(student.id) ?? [];
+
+				// Find if there is any real home visit (has non-empty images)
+				const realVisit = studentVisits.find(
+					(v) => v.images && v.images.length > 0 && v.images.some((img) => img && img.trim() !== "")
+				);
+
+				// Collect all SDQ assessments from all visits of this student
+				const allSdqAssessments: any[] = [];
+				for (const v of studentVisits) {
+					const detail = v.visitDetail as any;
+					if (detail && Array.isArray(detail.sdqAssessments)) {
+						allSdqAssessments.push(...detail.sdqAssessments);
+					}
+				}
+
+				// Sort allSdqAssessments by submittedAt descending to ensure chronological order
+				allSdqAssessments.sort((a, b) => {
+					const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+					const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+					return dateB - dateA;
+				});
+
 				const account = student.user?.account;
 				const fullName = `${account?.title ?? ""}${account?.firstName ?? ""} ${account?.lastName ?? ""}`.trim();
 
+				if (realVisit) {
+					const mergedDetail = {
+						...(realVisit.visitDetail as any || {}),
+						sdqAssessments: allSdqAssessments.length > 0 ? allSdqAssessments : null,
+					};
+
+					return {
+						id: student.id,
+						studentKey: student.id,
+						studentId: student.studentId ?? "-",
+						fullName: fullName || student.user?.username || "-",
+						classroomId: student.classroomId,
+						classroomName: student.classroom?.name ?? "-",
+						visitId: realVisit.id,
+						visitDate: realVisit.visitDate,
+						visitNo: realVisit.visitNo,
+						academicYear: realVisit.academicYear ?? params.academicYear ?? this.getCurrentAcademicYear(),
+						visitStatus: "recorded" as const,
+						images: realVisit.images,
+						visitDetail: mergedDetail,
+						visitMap: realVisit.visitMap,
+					};
+				}
+
+				// If no real visit, check if there is an SDQ-only visit
+				const sdqVisit = studentVisits[0]; // Take the latest visit record as fallback
+				if (sdqVisit) {
+					const mergedDetail = {
+						...(sdqVisit.visitDetail as any || {}),
+						sdqAssessments: allSdqAssessments.length > 0 ? allSdqAssessments : null,
+					};
+
+					return {
+						id: student.id,
+						studentKey: student.id,
+						studentId: student.studentId ?? "-",
+						fullName: fullName || student.user?.username || "-",
+						classroomId: student.classroomId,
+						classroomName: student.classroom?.name ?? "-",
+						visitId: sdqVisit.id,
+						visitDate: sdqVisit.visitDate,
+						visitNo: sdqVisit.visitNo,
+						academicYear: sdqVisit.academicYear ?? params.academicYear ?? this.getCurrentAcademicYear(),
+						visitStatus: "pending" as const,
+						images: sdqVisit.images,
+						visitDetail: mergedDetail,
+						visitMap: sdqVisit.visitMap,
+					};
+				}
+
+				// No visit record at all
 				return {
 					id: student.id,
 					studentKey: student.id,
@@ -369,14 +471,14 @@ export abstract class VisitService {
 					fullName: fullName || student.user?.username || "-",
 					classroomId: student.classroomId,
 					classroomName: student.classroom?.name ?? "-",
-					visitId: visit?.id ?? null,
-					visitDate: visit?.visitDate ?? null,
-					visitNo: visit?.visitNo ?? null,
-					academicYear: visit?.academicYear ?? params.academicYear ?? this.getCurrentAcademicYear(),
-					visitStatus: visit ? "recorded" : "pending",
-					images: visit?.images ?? [],
-					visitDetail: visit?.visitDetail ?? null,
-					visitMap: visit?.visitMap ?? null,
+					visitId: null,
+					visitDate: null,
+					visitNo: null,
+					academicYear: params.academicYear ?? this.getCurrentAcademicYear(),
+					visitStatus: "pending" as const,
+					images: [],
+					visitDetail: null,
+					visitMap: null,
 				};
 			})
 			.sort((left, right) => {

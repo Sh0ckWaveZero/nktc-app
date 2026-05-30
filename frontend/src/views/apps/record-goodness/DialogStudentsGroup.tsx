@@ -71,7 +71,6 @@ function getStudentDisplayName(option: any): string {
   return option?.studentId || option?.id || '';
 }
 
-
 function DialogStudentGroup({
   handleCloseSelectStudents,
   onAddStudents,
@@ -129,7 +128,9 @@ function DialogStudentGroup({
               if (typeof option === 'string' || typeof value === 'string') {
                 return option === value;
               }
-              return (option?.id && option.id === value?.id) || (option?.studentId && option.studentId === value?.studentId);
+              return (
+                (option?.id && option.id === value?.id) || (option?.studentId && option.studentId === value?.studentId)
+              );
             }}
             renderOption={(props: any, option: any, { selected }) => {
               const { key, ...optionProps } = props;
@@ -154,10 +155,12 @@ function DialogStudentGroup({
                 label='รายชื่อนักเรียน'
                 placeholder='เพิ่มรายชื่อนักเรียน'
                 slotProps={{
+                  ...params.slotProps,
                   input: {
                     ...(params.slotProps?.input ?? {}),
                   },
                   inputLabel: {
+                    ...(params.slotProps?.inputLabel ?? {}),
                     shrink: true,
                   },
                 }}

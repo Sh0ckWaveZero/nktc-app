@@ -11,6 +11,7 @@ const mockGetUser = mock(() => Promise.resolve({ id: "u1", username: "admin" }))
 const mockLogout = mock(() => Promise.resolve());
 const mockUpdatePassword = mock(() => Promise.resolve());
 const mockUserUpdate = mock(() => Promise.resolve({}));
+const mockAuditLogCreate = mock(() => Promise.resolve({}));
 
 mock.module("@/modules/auth/service", () => ({
   AuthService: {
@@ -25,7 +26,10 @@ mock.module("@/modules/auth/service", () => ({
 }));
 
 mock.module("@/libs/prisma", () => ({
-  prisma: { user: { update: mockUserUpdate, findUnique: mock(() => Promise.resolve(null)) } },
+  prisma: {
+    user: { update: mockUserUpdate, findUnique: mock(() => Promise.resolve(null)) },
+    auditLog: { create: mockAuditLogCreate },
+  },
 }));
 
 mock.module("@/infrastructure/logging", () => ({
@@ -117,7 +121,9 @@ describe("auth routes: login", () => {
   beforeEach(() => {
     mockLogin.mockReset();
     mockUserUpdate.mockReset();
+    mockAuditLogCreate.mockReset();
     mockUserUpdate.mockResolvedValue({});
+    mockAuditLogCreate.mockResolvedValue({});
   });
 
   it("returns 200 with token and refreshToken on valid credentials", async () => {
@@ -159,6 +165,40 @@ describe("auth routes: login", () => {
     );
     const body = await res.json() as { data: Record<string, unknown> };
     expect(body.data.password).toBeUndefined();
+  });
+
+  it("creates a login audit log on successful login", async () => {
+    mockLogin.mockResolvedValueOnce({
+      userId: "u1",
+      username: "admin",
+      roles: "Admin",
+      user: { id: "u1", username: "admin", password: "hashed", role: "Admin" },
+    });
+
+    const res = await app.handle(
+      new Request("http://localhost/auth/login", {
+        method: "POST",
+        headers: {
+          ...JSON_HEADERS,
+          "x-forwarded-for": "203.0.113.9",
+          "user-agent": "BunTest/1.0",
+        },
+        body: VALID_LOGIN_BODY,
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockAuditLogCreate).toHaveBeenCalledWith({
+      data: {
+        action: "Login",
+        model: "User",
+        recordId: "u1",
+        detail: "User admin logged in",
+        ipAddr: "203.0.113.9",
+        browser: "BunTest/1.0",
+        createdBy: "admin",
+      },
+    });
   });
 });
 

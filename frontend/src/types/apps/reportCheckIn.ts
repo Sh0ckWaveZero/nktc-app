@@ -24,6 +24,11 @@ export type CheckInBy = {
   account: CheckInAccount;
 };
 
+export type CheckInNoteEntry = {
+  date: string | null;
+  note: string | null;
+};
+
 export type CheckInClassroom = {
   id: string;
   name: string;
@@ -41,6 +46,9 @@ export type CheckInClassroom = {
   internshipPercent: number;
   total: number;
   checkInDate: string | null;
+  note?: string | null;
+  activityType?: string | null;
+  noteEntries?: CheckInNoteEntry[];
   checkInBy?: CheckInBy;
 };
 

@@ -1,12 +1,12 @@
 import { useMemo, useCallback } from 'react';
 
-interface UseClassroomSelectionParams {
+export interface UseClassroomSelectionParams {
   studentsList: any[];
   selectClassrooms: any[];
   onSelectionModelChange: (newSelection: any[]) => void;
 }
 
-interface UseClassroomSelectionReturn {
+export interface UseClassroomSelectionReturn {
   rowSelectionModel: {
     type: 'include';
     ids: Set<string>;

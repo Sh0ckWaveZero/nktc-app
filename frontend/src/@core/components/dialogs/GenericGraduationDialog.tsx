@@ -6,13 +6,7 @@ import { RiGraduationCapLine } from 'react-icons/ri';
 
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Typography,
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, Typography } from '@mui/material';
 
 interface GenericGraduationDialogProps {
   open: boolean;
@@ -58,8 +52,9 @@ const GenericGraduationDialog = memo(
             id='graduation-dialog-title'
             sx={{
               fontWeight: 600,
-              textAlign: 'center'
-            }}>
+              textAlign: 'center',
+            }}
+          >
             {title}
           </Typography>
         </Box>
@@ -69,8 +64,9 @@ const GenericGraduationDialog = memo(
             sx={{
               color: 'text.secondary',
               mb: 4,
-              lineHeight: 1.8
-            }}>
+              lineHeight: 1.8,
+            }}
+          >
             {'บันทึกการจบการศึกษาของ '}
             <Typography component='span' sx={{ color: 'text.primary', fontWeight: 600 }}>
               {entityName}

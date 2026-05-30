@@ -8,9 +8,7 @@ const getPanelBorderColor = (theme: any) =>
   alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1);
 
 const getPanelShadowColor = (theme: any) =>
-  theme.palette.mode === 'dark'
-    ? alpha(theme.palette.common.black, 0.28)
-    : alpha(theme.palette.primary.main, 0.06);
+  theme.palette.mode === 'dark' ? alpha(theme.palette.common.black, 0.28) : alpha(theme.palette.primary.main, 0.06);
 
 export const SectionBox = styled(Box)(({ theme }) => ({
   width: '100%',
@@ -38,8 +36,7 @@ export const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   letterSpacing: '-0.01em',
   color: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.88 : 0.82),
-  textShadow:
-    theme.palette.mode === 'dark' ? `0 1px 10px ${alpha(theme.palette.primary.main, 0.12)}` : 'none',
+  textShadow: theme.palette.mode === 'dark' ? `0 1px 10px ${alpha(theme.palette.primary.main, 0.12)}` : 'none',
   '&::before': {
     content: '""',
     width: 10,
@@ -55,10 +52,7 @@ export const SectionTitle = styled(Typography)(({ theme }) => ({
 
 export const SectionDescription = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(0.5),
-  color:
-    theme.palette.mode === 'dark'
-      ? alpha(theme.palette.text.primary, 0.82)
-      : theme.palette.text.secondary,
+  color: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.82) : theme.palette.text.secondary,
   maxWidth: '62ch',
   fontSize: 'clamp(0.94rem, 0.9rem + 0.18vw, 1.06rem)',
   fontWeight: 500,

@@ -101,7 +101,6 @@ interface TableHeaderProps {
 }
 
 const RowDaily = ({ values, levelRow }: { values: CheckInClassroom[]; levelRow: string }) => {
-
   // ** Hook
   const theme = useTheme();
   const id = useId();

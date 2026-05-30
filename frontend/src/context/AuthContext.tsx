@@ -101,7 +101,6 @@ const AuthProvider = ({ children }: Props) => {
     };
 
     initAuth();
-   
   }, [isBrowser]);
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
@@ -119,18 +118,18 @@ const AuthProvider = ({ children }: Props) => {
         window.localStorage.setItem('userData', JSON.stringify(data));
       }
 
-    // Force synchronous state commit so auth.user is available before router.replace fires
-    flushSync(() => {
-      setUser(data?.data);
-    });
-    
-    // Return user data for success handling in components
-    return data?.data;
-  } catch (err: any) {
-    if (errorCallback) errorCallback(err);
-    throw err;
-  }
-};
+      // Force synchronous state commit so auth.user is available before router.replace fires
+      flushSync(() => {
+        setUser(data?.data);
+      });
+
+      // Return user data for success handling in components
+      return data?.data;
+    } catch (err: any) {
+      if (errorCallback) errorCallback(err);
+      throw err;
+    }
+  };
 
   const handleLogout = async () => {
     try {

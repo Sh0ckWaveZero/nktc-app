@@ -9,11 +9,7 @@ interface BadnessReportHeaderProps {
   totalItems: number;
 }
 
-export const BadnessReportHeader = ({
-  selectedClassroomName,
-  selectedDate,
-  totalItems,
-}: BadnessReportHeaderProps) => {
+export const BadnessReportHeader = ({ selectedClassroomName, selectedDate, totalItems }: BadnessReportHeaderProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -43,7 +39,7 @@ export const BadnessReportHeader = ({
           alignItems: 'center',
           gap: 4,
           flexDirection: isMobile ? 'column' : 'row',
-          textAlign: isMobile ? 'center' : 'left'
+          textAlign: isMobile ? 'center' : 'left',
         }}
       >
         <Box
@@ -54,7 +50,7 @@ export const BadnessReportHeader = ({
             bgcolor: (theme) => hexToRGBA(theme.palette.error.main, 0.12),
             color: 'error.main',
             display: 'flex',
-            boxShadow: (theme) => `0 4px 12px ${hexToRGBA(theme.palette.error.main, 0.2)}`
+            boxShadow: (theme) => `0 4px 12px ${hexToRGBA(theme.palette.error.main, 0.2)}`,
           }}
         >
           <HiThumbDown fontSize='2rem' />
@@ -67,7 +63,7 @@ export const BadnessReportHeader = ({
               fontWeight: 800,
               mb: 1,
               letterSpacing: -1,
-              color: 'text.primary'
+              color: 'text.primary',
             }}
           >
             รายงานการบันทึกพฤติกรรมที่ไม่เหมาะสม
@@ -91,21 +87,31 @@ export const BadnessReportHeader = ({
                   bgcolor: (theme) => hexToRGBA(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                   fontSize: '0.8125rem',
-                  fontWeight: 700
+                  fontWeight: 700,
                 }}
               >
                 ชั้น {selectedClassroomName}
               </Box>
             )}
 
-            <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}>
-              <Box component='span' sx={{ display: 'flex' }}><Icon icon='mdi:account-group-outline' fontSize='1.1rem' /></Box>
+            <Typography
+              variant='body2'
+              sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}
+            >
+              <Box component='span' sx={{ display: 'flex' }}>
+                <Icon icon='mdi:account-group-outline' fontSize='1.1rem' />
+              </Box>
               จำนวน {totalItems} รายการ
             </Typography>
 
             {selectedDate && (
-              <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}>
-                <Box component='span' sx={{ display: 'flex' }}><Icon icon='mdi:calendar-check-outline' fontSize='1.1rem' /></Box>
+              <Typography
+                variant='body2'
+                sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}
+              >
+                <Box component='span' sx={{ display: 'flex' }}>
+                  <Icon icon='mdi:calendar-check-outline' fontSize='1.1rem' />
+                </Box>
                 {selectedDate instanceof Date
                   ? selectedDate.toLocaleDateString('th-TH', {
                       year: 'numeric',
@@ -124,7 +130,7 @@ export const BadnessReportHeader = ({
                 mt: 1,
                 display: 'block',
                 color: 'text.disabled',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
               }}
             >
               * กรุณาเลือกเงื่อนไขการค้นหาเพื่อแสดงข้อมูลที่ต้องการ

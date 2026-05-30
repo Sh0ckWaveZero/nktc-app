@@ -4,7 +4,7 @@ import { memo } from 'react';
 
 import { GenericDeleteDialog } from '@/@core/components/dialogs';
 
-import type { ProgramItem } from '@/hooks/queries/usePrograms';
+import type { ProgramItem } from '@/hooks/queries/useDepartments';
 
 interface ProgramDeleteDialogProps {
   open: boolean;

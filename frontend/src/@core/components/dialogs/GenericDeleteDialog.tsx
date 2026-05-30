@@ -17,7 +17,16 @@ interface GenericDeleteDialogProps {
 }
 
 const GenericDeleteDialog = memo(
-  ({ open, title, itemName, itemIdentifier, isDeleting, onClose, onConfirm, warningMessage }: GenericDeleteDialogProps) => {
+  ({
+    open,
+    title,
+    itemName,
+    itemIdentifier,
+    isDeleting,
+    onClose,
+    onConfirm,
+    warningMessage,
+  }: GenericDeleteDialogProps) => {
     const options: ConfirmDialogOptions = {
       title,
       message: (
@@ -44,7 +53,9 @@ const GenericDeleteDialog = memo(
       warningMessage,
     };
 
-    return <ConfirmDialog open={open} options={options} onClose={onClose} onConfirm={onConfirm} isConfirming={isDeleting} />;
+    return (
+      <ConfirmDialog open={open} options={options} onClose={onClose} onConfirm={onConfirm} isConfirming={isDeleting} />
+    );
   },
 );
 
