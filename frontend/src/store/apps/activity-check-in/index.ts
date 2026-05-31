@@ -52,9 +52,11 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   },
   findDailyReport: async (param: any) => {
     try {
-      const activityTypeParam = param.activityType ? `?activityType=${param.activityType}` : '';
+      const qs = new URLSearchParams();
+      if (param.activityType) qs.set('activityType', param.activityType);
+      const query = qs.toString() ? `?${qs.toString()}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report${activityTypeParam}`,
+        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/start-date/${param.startDate}/daily-report${query}`,
       );
       return await data;
     } catch (err) {
@@ -63,9 +65,11 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
   },
   findSummaryReport: async (param: any) => {
     try {
-      const activityTypeParam = param.activityType ? `?activityType=${param.activityType}` : '';
+      const qs = new URLSearchParams();
+      if (param.activityType) qs.set('activityType', param.activityType);
+      const query = qs.toString() ? `?${qs.toString()}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report${activityTypeParam}`,
+        `${authConfig.activityCheckInEndpoint}/teacher/${param.teacherId}/classroom/${param.classroomId}/summary-report${query}`,
       );
       return await data;
     } catch (err) {
@@ -89,9 +93,11 @@ export const useActivityCheckInStore = createWithEqualityFn<UserState>()((set) =
         const dd = String(d.getDate()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}`;
       };
-      const activityTypeParam = param.activityType ? `?activityType=${param.activityType}` : '';
+      const qs = new URLSearchParams();
+      if (param.activityType) qs.set('activityType', param.activityType);
+      const query = qs.toString() ? `?${qs.toString()}` : '';
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/start-date/${toISODate(param.startDate)}/end-date/${toISODate(param.endDate)}/admin-daily-report${activityTypeParam}`,
+        `${authConfig.activityCheckInEndpoint}/start-date/${toISODate(param.startDate)}/end-date/${toISODate(param.endDate)}/admin-daily-report${query}`,
       );
       return await data;
     } catch (err) {

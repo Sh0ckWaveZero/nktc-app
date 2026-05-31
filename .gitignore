@@ -138,6 +138,12 @@ Thumbs.db
 .parcel-cache/
 next-env.d.ts
 
+# ===== AI TOOL CONFIGS (local developer files) =====
+.antigravitycli/
+.tmp-build-check/
+frontend/.agents/
+frontend/.windsurf/
+
 # ===== LEGACY/OLD FILES =====
 web/
 old/
