@@ -939,11 +939,11 @@ const TeacherHomePage = () => {
   };
 
   const visibleShortcuts = useMemo(() => {
-    let list: (CardMenuProps & { navLink: NavLink & { path: string } })[] = [];
-    if (activeTab === 0) list = categorizedShortcuts.all;
-    else if (activeTab === 1) list = categorizedShortcuts.dailyLogs;
-    else if (activeTab === 2) list = categorizedShortcuts.reports;
-    else list = categorizedShortcuts.settings;
+    const list: (CardMenuProps & { navLink: NavLink & { path: string } })[] =
+      activeTab === 0 ? categorizedShortcuts.all
+      : activeTab === 1 ? categorizedShortcuts.dailyLogs
+      : activeTab === 2 ? categorizedShortcuts.reports
+      : categorizedShortcuts.settings;
 
     if (!showAllShortcuts && list.length > 8) {
       return list.slice(0, 8);

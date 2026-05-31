@@ -1,0 +1,4 @@
+-- Baseline migration
+-- This migration represents the initial production database state.
+-- Mark as applied on production without running:
+--   prisma migrate resolve --applied 20260101000000_baseline

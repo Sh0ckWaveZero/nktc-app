@@ -14,7 +14,8 @@ export const getActivityTypeLabel = (activityType?: string) => {
 const sanitizeFileSegment = (value: string) => {
   return value
     .trim()
-    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '-')
+    // eslint-disable-next-line no-control-regex
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '-')
     .replace(/\s+/g, '_');
 };
 
