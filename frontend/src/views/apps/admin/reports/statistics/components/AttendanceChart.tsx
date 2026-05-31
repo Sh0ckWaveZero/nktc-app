@@ -12,11 +12,7 @@ interface AttendanceChartProps {
 
 const COLORS = ['#2F7DFF', '#FF9F43'];
 
-const AttendanceChart = ({
-  studentsCheckedIn,
-  studentsNotCheckedIn,
-  averageAttendanceRate,
-}: AttendanceChartProps) => {
+const AttendanceChart = ({ studentsCheckedIn, studentsNotCheckedIn, averageAttendanceRate }: AttendanceChartProps) => {
   const data = [
     { name: 'มาเข้าแถว', value: studentsCheckedIn },
     { name: 'ไม่มาตามปกติ', value: studentsNotCheckedIn },

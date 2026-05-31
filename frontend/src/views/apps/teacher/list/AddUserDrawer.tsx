@@ -297,7 +297,14 @@ const AddTeacherDrawer = (props: SidebarAddTeacherType) => {
               render={({ field: { value, onChange } }) => (
                 <React.Fragment>
                   <InputLabel id='jobTitle-label'>ตำแหน่ง</InputLabel>
-                  <Select id='jobTitle' labelId='jobTitle-label' label='ตำแหน่ง' defaultValue={value} value={value} onChange={onChange}>
+                  <Select
+                    id='jobTitle'
+                    labelId='jobTitle-label'
+                    label='ตำแหน่ง'
+                    defaultValue={value}
+                    value={value}
+                    onChange={onChange}
+                  >
                     <MenuItem value=''>
                       <em>เลือกตำแหน่ง</em>
                     </MenuItem>

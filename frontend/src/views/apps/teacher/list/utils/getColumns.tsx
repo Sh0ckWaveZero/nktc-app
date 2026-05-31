@@ -1,16 +1,7 @@
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Fragment } from 'react';
 import { BriefcasePlusOutline } from 'mdi-material-ui';
-import {
-  Badge,
-  Box,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-  Theme,
-} from '@mui/material';
+import { Badge, Box, Divider, IconButton, Stack, Tooltip, Typography, Theme } from '@mui/material';
 import Link from 'next/link';
 import { alpha, styled } from '@mui/material/styles';
 import RenderAvatar from '@/@core/components/avatar';
@@ -172,11 +163,12 @@ export const getColumns = ({
                       width={22}
                       height={22}
                       style={{
-                        color: teacherOnClassroom.length > 0
-                          ? theme.palette.success.main
-                          : theme.palette.mode === 'dark'
-                            ? 'rgba(255, 255, 255, 0.68)'
-                            : 'rgba(58, 53, 65, 0.68)',
+                        color:
+                          teacherOnClassroom.length > 0
+                            ? theme.palette.success.main
+                            : theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.68)'
+                              : 'rgba(58, 53, 65, 0.68)',
                       }}
                     />
                   </Badge>
@@ -235,7 +227,8 @@ export const getColumns = ({
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 2,
-            border: (muiTheme) => `1px solid ${alpha(muiTheme.palette.info.main, muiTheme.palette.mode === 'dark' ? 0.2 : 0.14)}`,
+            border: (muiTheme) =>
+              `1px solid ${alpha(muiTheme.palette.info.main, muiTheme.palette.mode === 'dark' ? 0.2 : 0.14)}`,
             bgcolor: (muiTheme) => alpha(muiTheme.palette.info.main, muiTheme.palette.mode === 'dark' ? 0.1 : 0.065),
           }}
         >
@@ -270,7 +263,10 @@ export const getColumns = ({
             borderRadius: 999,
             color: loginCount > 0 ? 'primary.dark' : 'text.secondary',
             bgcolor: (muiTheme) =>
-              alpha(loginCount > 0 ? muiTheme.palette.primary.main : muiTheme.palette.text.primary, loginCount > 0 ? 0.08 : 0.045),
+              alpha(
+                loginCount > 0 ? muiTheme.palette.primary.main : muiTheme.palette.text.primary,
+                loginCount > 0 ? 0.08 : 0.045,
+              ),
           }}
         >
           <Typography variant='body2' noWrap sx={{ fontWeight: 800, textTransform: 'capitalize' }}>

@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { BadnessService } from "./service";
 import { BadnessModel } from "./model";
 import { authGuard } from "@/middleware/auth";
+import { ForbiddenError } from "@/libs/errors";
 
 export const badnessIndividual = new Elysia({ prefix: "/badness-individual" })
 	.use(authGuard)
@@ -12,6 +13,21 @@ export const badnessIndividual = new Elysia({ prefix: "/badness-individual" })
 		},
 	}, (app) =>
 		app
+			.delete(
+				"/reset-all",
+				async ({ user }) => {
+					if ((user as any)?.roles !== "Admin") {
+						throw new ForbiddenError();
+					}
+
+					return BadnessService.resetAllRecords((user as any).username);
+				},
+				{
+					detail: {
+						summary: "Reset all badness records",
+					},
+				},
+			)
 			.get(
 				"/:studentId",
 				async ({ params: { studentId }, query }) => {

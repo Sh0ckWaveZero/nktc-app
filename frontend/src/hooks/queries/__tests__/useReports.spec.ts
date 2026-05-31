@@ -37,10 +37,7 @@ describe('useReports', () => {
       const mockData = { totalPresent: 30, totalAbsent: 5 };
       vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
-      const { result } = renderHook(
-        () => useCheckInSummaryReport({ classroomId: 'C1' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useCheckInSummaryReport({ classroomId: 'C1' }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -55,10 +52,7 @@ describe('useReports', () => {
       const mockData = { totalActivities: 10, averageAttendance: 85 };
       vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
-      const { result } = renderHook(
-        () => useActivityCheckInSummaryReport({ classroomId: 'C1' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useActivityCheckInSummaryReport({ classroomId: 'C1' }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -73,10 +67,7 @@ describe('useReports', () => {
       const mockData = { totalRecords: 50, students: [] };
       vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
-      const { result } = renderHook(
-        () => useGoodnessReport({ classroomId: 'C1' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useGoodnessReport({ classroomId: 'C1' }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -91,10 +82,7 @@ describe('useReports', () => {
       const mockData = { totalRecords: 10, students: [] };
       vi.mocked(httpClient.post).mockResolvedValue({ data: mockData });
 
-      const { result } = renderHook(
-        () => useBadnessReport({ classroomId: 'C1' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useBadnessReport({ classroomId: 'C1' }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -109,10 +97,7 @@ describe('useReports', () => {
       const mockData = { studentId: 'S1', attendance: 95, behavior: 8 };
       vi.mocked(httpClient.get).mockResolvedValue({ data: mockData });
 
-      const { result } = renderHook(
-        () => useStudentSummaryReport('S1'),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useStudentSummaryReport('S1'), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -122,10 +107,7 @@ describe('useReports', () => {
     });
 
     it('should not fetch when studentId is empty', () => {
-      const { result } = renderHook(
-        () => useStudentSummaryReport(''),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useStudentSummaryReport(''), { wrapper });
 
       expect(result.current.isLoading).toBe(false);
     });

@@ -98,16 +98,10 @@ export const classroomKeys = {
 export const checkInKeys = {
   all: ['check-in'] as const,
   reports: () => [...checkInKeys.all, 'report'] as const,
-  report: (params: {
-    teacherId?: string;
-    classroomId?: string;
-    date?: string;
-  }) => [...checkInKeys.reports(), params] as const,
-  daily: (params: {
-    teacherId: string;
-    classroomId: string;
-    date: string;
-  }) => [...checkInKeys.reports(), 'daily', params] as const,
+  report: (params: { teacherId?: string; classroomId?: string; date?: string }) =>
+    [...checkInKeys.reports(), params] as const,
+  daily: (params: { teacherId: string; classroomId: string; date: string }) =>
+    [...checkInKeys.reports(), 'daily', params] as const,
 };
 
 /**
@@ -116,15 +110,10 @@ export const checkInKeys = {
 export const activityCheckInKeys = {
   all: ['activity-check-in'] as const,
   reports: () => [...activityCheckInKeys.all, 'report'] as const,
-  report: (params: {
-    teacher: string;
-    classroom: string;
-  }) => [...activityCheckInKeys.reports(), params] as const,
-  daily: (params: {
-    teacherId: string;
-    classroomId: string;
-    startDate: string;
-  }) => [...activityCheckInKeys.reports(), 'daily', params] as const,
+  report: (params: { teacher: string; classroom: string; date?: string; activityType?: string }) =>
+    [...activityCheckInKeys.reports(), params] as const,
+  daily: (params: { teacherId: string; classroomId: string; startDate: string; activityType?: string }) =>
+    [...activityCheckInKeys.reports(), 'daily', params] as const,
 };
 
 /**

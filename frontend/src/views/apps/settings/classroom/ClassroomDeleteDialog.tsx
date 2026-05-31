@@ -1,15 +1,7 @@
 'use client';
 
 import { alpha, Box } from '@mui/material';
-import {
-  Alert,
-  AlertTitle,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Typography,
-} from '@mui/material';
+import { Alert, AlertTitle, Button, Dialog, DialogActions, DialogContent, Typography } from '@mui/material';
 
 import Icon from '@/@core/components/icon';
 
@@ -46,8 +38,9 @@ const ClassroomDeleteDialog = ({ open, classroom, isDeleting, onClose, onConfirm
           variant='h6'
           sx={{
             fontWeight: 600,
-            textAlign: 'center'
-          }}>
+            textAlign: 'center',
+          }}
+        >
           ยืนยันการลบห้องเรียน
         </Typography>
       </Box>
@@ -57,8 +50,9 @@ const ClassroomDeleteDialog = ({ open, classroom, isDeleting, onClose, onConfirm
           sx={{
             color: 'text.secondary',
             mb: 3,
-            lineHeight: 1.8
-          }}>
+            lineHeight: 1.8,
+          }}
+        >
           {'คุณกำลังจะลบ '}
           <Box component='strong' sx={{ color: 'text.primary' }}>
             {classroom?.name || 'ห้องเรียน'}

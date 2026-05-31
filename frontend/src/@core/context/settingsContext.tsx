@@ -140,7 +140,6 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
     if (pageSettings) {
       setSettings((prev) => ({ ...prev, ...pageSettings }));
     }
-     
   }, [pageSettings]);
 
   const saveSettings = (updatedSettings: Settings) => {

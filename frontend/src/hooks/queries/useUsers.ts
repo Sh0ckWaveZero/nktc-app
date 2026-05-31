@@ -34,8 +34,7 @@ export const useUpdatePasswordForAdmin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & any) =>
-      apiService.put(`/users/update/password/${id}`, data),
+    mutationFn: ({ id, ...data }: { id: string } & any) => apiService.put(`/users/update/password/${id}`, data),
     onSuccess: () => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });

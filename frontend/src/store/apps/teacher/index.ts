@@ -20,6 +20,7 @@ interface TeacherState {
   update(data: any): any;
   addTeacher(data: any): any;
   removeTeacher(id: string): any;
+  resetAllLoginDays(): any;
 }
 
 export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
@@ -89,6 +90,14 @@ export const useTeacherStore = createWithEqualityFn<TeacherState>()((set) => ({
   removeTeacher: async (id: string) => {
     try {
       const { data } = await httpClient.delete(`${authConfig.teacherEndpoint}/${id}`);
+      return await data;
+    } catch (err) {
+      return err;
+    }
+  },
+  resetAllLoginDays: async () => {
+    try {
+      const { data } = await httpClient.delete(`${authConfig.teacherEndpoint}/login-days`);
       return await data;
     } catch (err) {
       return err;

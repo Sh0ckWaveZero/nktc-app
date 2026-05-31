@@ -16,7 +16,7 @@ import { use } from 'react';
 const searchFormSchema = z.object({
   student: z.any().nullable().optional(),
   classroom: z.any().nullable().optional(),
-  goodDate: z.date().nullable().optional(),
+  goodDate: z.any().nullable().optional(),
 });
 
 type SearchFormData = z.infer<typeof searchFormSchema>;
@@ -37,7 +37,7 @@ export const useGoodnessReport = () => {
     defaultValues: {
       student: null,
       classroom: null,
-      goodDate: new Date(),
+      goodDate: null,
     },
   });
 
@@ -61,14 +61,15 @@ export const useGoodnessReport = () => {
   // Compute watchedInputValue inline where it's actually used
   const getWatchedInputValue = useCallback(() => {
     if (!watchedStudent) return '';
-    if (watchedStudent.account) {
-      const { title = '', firstName = '', lastName = '' } = watchedStudent.account;
+    const account = watchedStudent.user?.account || watchedStudent.account;
+    if (account) {
+      const { title = '', firstName = '', lastName = '' } = account;
       return `${title}${firstName} ${lastName}`.trim();
     }
     if (watchedStudent.fullName) {
       return `${watchedStudent.title || ''}${watchedStudent.fullName}`;
     }
-    return '';
+    return watchedStudent.studentId || watchedStudent.id || '';
   }, [watchedStudent]);
 
   const watchedInputValue = getWatchedInputValue();
@@ -163,6 +164,14 @@ export const useGoodnessReport = () => {
     }
   }, [classroomError]);
 
+  // Log validation errors for debugging if any
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.error('Form validation errors:', errors);
+      toast.error('ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
+    }
+  }, [errors]);
+
   useEffect(() => {
     if (studentsError) {
       toast.error((studentsError as any)?.message || 'เกิดข้อผิดพลาดในการค้นหานักเรียน');
@@ -204,21 +213,38 @@ export const useGoodnessReport = () => {
     (data: SearchFormData) => {
       const requestBody: any = {};
 
-      // Build fullName from student object structure or inputValue
+      // Build student filters from student object structure or inputValue
       if (data.student) {
+        // 1. ดึง studentId / id
+        if (data.student.studentId) {
+          requestBody.studentId = data.student.studentId;
+        } else if (data.student.id) {
+          requestBody.studentId = data.student.id;
+        }
+
+        // 2. ดึง fullName
         if (data.student.fullName && typeof data.student.fullName === 'string') {
           requestBody.fullName = data.student.fullName.trim();
-        } else if (data.student.account) {
-          const { firstName = '', lastName = '' } = data.student.account;
-          const fullName = `${firstName} ${lastName}`.trim();
-          if (fullName) {
-            requestBody.fullName = fullName;
+        } else {
+          const account = data.student.user?.account || data.student.account;
+          if (account) {
+            const { firstName = '', lastName = '' } = account;
+            const fullName = `${firstName} ${lastName}`.trim();
+            if (fullName) {
+              requestBody.fullName = fullName;
+            }
           }
         }
       } else {
         const typedName = inputValue?.trim() || watchedInputValue?.trim() || '';
         if (typedName) {
-          requestBody.fullName = typedName;
+          // ตรวจสอบว่าถ้าเป็นตัวเลขล้วน ให้ถือว่าเป็นรหัสนักเรียน (studentId)
+          const isNumeric = /^\d+$/.test(typedName);
+          if (isNumeric) {
+            requestBody.studentId = typedName;
+          } else {
+            requestBody.fullName = typedName;
+          }
         }
       }
 

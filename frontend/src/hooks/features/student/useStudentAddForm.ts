@@ -15,14 +15,8 @@ export const studentAddSchema = z.object({
     .min(10, 'รหัสนักเรียนต้องมีอย่างน้อย 10 ตัวอักษร')
     .max(20, 'รหัสนักเรียนต้องมีไม่เกิน 20 ตัวอักษร'),
   title: z.string().min(1, 'กรุณาเลือกคำนำหน้าชื่อ'),
-  firstName: z
-    .string()
-    .min(2, 'ชื่อต้องมีอย่างน้อย 2 ตัวอักษร')
-    .max(100, 'ชื่อต้องมีไม่เกิน 100 ตัวอักษร'),
-  lastName: z
-    .string()
-    .min(2, 'นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร')
-    .max(100, 'นามสกุลต้องมีไม่เกิน 100 ตัวอักษร'),
+  firstName: z.string().min(2, 'ชื่อต้องมีอย่างน้อย 2 ตัวอักษร').max(100, 'ชื่อต้องมีไม่เกิน 100 ตัวอักษร'),
+  lastName: z.string().min(2, 'นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร').max(100, 'นามสกุลต้องมีไม่เกิน 100 ตัวอักษร'),
   classroom: z
     .object({
       id: z.string(),
@@ -39,10 +33,7 @@ export const studentAddSchema = z.object({
     .date()
     .nullable()
     .refine((date) => !date || date <= new Date(), 'วันเกิดไม่ถูกต้อง')
-    .refine(
-      (date) => !date || new Date().getFullYear() - date.getFullYear() >= 10,
-      'อายุต้องมากกว่า 10 ปี'
-    ),
+    .refine((date) => !date || new Date().getFullYear() - date.getFullYear() >= 10, 'อายุต้องมากกว่า 10 ปี'),
   phone: z
     .string()
     .optional()

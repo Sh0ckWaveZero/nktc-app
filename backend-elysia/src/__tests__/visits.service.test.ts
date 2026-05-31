@@ -72,9 +72,13 @@ describe("VisitService", () => {
 			{
 				id: "visit-1",
 				studentKey: "student-1",
-				visitDate: new Date("2026-05-21T00:00:00.000Z"),
+				visitDate: new Date("2026-05-18T00:00:00.000Z"),
+				createdAt: new Date("2026-05-21T08:30:00.000Z"),
+				updatedAt: new Date("2026-05-21T08:30:00.000Z"),
 				createdBy: "user-1",
+				images: ["img-1", "img-2", "img-3"],
 				classroom: {
+					id: "class-1",
 					name: "ปวช.1/1",
 					departmentId: "dep-1",
 					department: {
@@ -87,9 +91,13 @@ describe("VisitService", () => {
 			{
 				id: "visit-2",
 				studentKey: "student-2",
-				visitDate: new Date("2026-05-21T00:00:00.000Z"),
+				visitDate: new Date("2026-05-10T00:00:00.000Z"),
+				createdAt: new Date("2026-05-22T09:15:00.000Z"),
+				updatedAt: new Date("2026-05-22T09:15:00.000Z"),
 				createdBy: "user-1",
+				images: ["img-4", "img-5", "img-6"],
 				classroom: {
+					id: "class-2",
 					name: "ปวช.1/2",
 					departmentId: "dep-1",
 					department: {
@@ -154,13 +162,125 @@ describe("VisitService", () => {
 
 		expect(result).toEqual([
 			{
-				id: "นายทดสอบ โอเค:2026-05-21:เทคโนโลยีคอมพิวเตอร์:ปวช.1/1-ช่างเทคนิคคอมพิวเตอร์, ปวช.1/2-ช่างเทคนิคคอมพิวเตอร์",
+				id: "นายทดสอบ โอเค:เทคโนโลยีคอมพิวเตอร์:ปวช.1/1-ช่างเทคนิคคอมพิวเตอร์, ปวช.1/2-ช่างเทคนิคคอมพิวเตอร์",
 				teacherName: "นายทดสอบ โอเค",
-				visitDate: "2026-05-21",
+				visitDate: "2026-05-22",
+				latestRecordedAt: "2026-05-22",
 				departmentName: "เทคโนโลยีคอมพิวเตอร์",
 				classroomName: "ปวช.1/1-ช่างเทคนิคคอมพิวเตอร์, ปวช.1/2-ช่างเทคนิคคอมพิวเตอร์",
 				recordedStudentCount: 2,
 				studentCount: 22,
+			},
+		]);
+	});
+
+	it("ignores visit rows created by teachers who are not assigned as advisor teachers", async () => {
+		mockVisitFindMany.mockResolvedValueOnce([
+			{
+				id: "visit-1",
+				studentKey: "student-1",
+				visitDate: new Date("2026-05-18T00:00:00.000Z"),
+				createdAt: new Date("2026-05-21T08:30:00.000Z"),
+				updatedAt: new Date("2026-05-21T08:30:00.000Z"),
+				createdBy: "user-1",
+				images: ["img-1", "img-2", "img-3"],
+				classroom: {
+					id: "class-1",
+					name: "ปวส.2/4-ไฟฟ้า (ม.6)",
+					departmentId: "dep-1",
+					department: {
+						id: "dep-1",
+						name: "ไฟฟ้า",
+					},
+					_count: { student: 20 },
+				},
+			},
+			{
+				id: "visit-2",
+				studentKey: "student-2",
+				visitDate: new Date("2026-05-18T00:00:00.000Z"),
+				createdAt: new Date("2026-05-22T08:30:00.000Z"),
+				updatedAt: new Date("2026-05-22T08:30:00.000Z"),
+				createdBy: "user-2",
+				images: ["img-4", "img-5", "img-6"],
+				classroom: {
+					id: "class-2",
+					name: "ปวส.2/5-ไฟฟ้า (ม.6)",
+					departmentId: "dep-1",
+					department: {
+						id: "dep-1",
+						name: "ไฟฟ้า",
+					},
+					_count: { student: 23 },
+				},
+			},
+		]);
+
+		mockTeacherFindMany.mockResolvedValueOnce([
+			{
+				id: "teacher-1",
+				userId: "user-1",
+				department: {
+					id: "dep-1",
+					name: "ไฟฟ้า",
+				},
+				user: {
+					username: "teacher1",
+					account: {
+						title: "นาง",
+						firstName: "กรรณิกา",
+						lastName: "สายสิญจน์",
+						avatar: null,
+					},
+				},
+			},
+			{
+				id: "teacher-2",
+				userId: "user-2",
+				department: {
+					id: "dep-1",
+					name: "ไฟฟ้า",
+				},
+				user: {
+					username: "teacher2",
+					account: {
+						title: "นาย",
+						firstName: "ไม่ใช่",
+						lastName: "ที่ปรึกษา",
+						avatar: null,
+					},
+				},
+			},
+		]);
+
+		mockTeacherOnClassroomFindMany.mockResolvedValueOnce([
+			{
+				teacherId: "teacher-1",
+				classroom: {
+					id: "class-1",
+					name: "ปวส.2/4-ไฟฟ้า (ม.6)",
+					departmentId: "dep-1",
+					department: {
+						id: "dep-1",
+						name: "ไฟฟ้า",
+					},
+					_count: { student: 20 },
+				},
+			},
+		]);
+
+		const result = await VisitService.getAdminVisitSummaryReport({});
+
+		expect(result).toEqual([
+			{
+				id: "นางกรรณิกา สายสิญจน์:ไฟฟ้า:ปวส.2/4-ไฟฟ้า (ม.6)",
+				teacherName: "นางกรรณิกา สายสิญจน์",
+				visitDate: "2026-05-21",
+				latestRecordedAt: "2026-05-21",
+				departmentName: "ไฟฟ้า",
+				classroomName: "ปวส.2/4-ไฟฟ้า (ม.6)",
+				recordedStudentCount: 1,
+				studentCount: 20,
 			},
 		]);
 	});
@@ -191,7 +311,7 @@ describe("VisitService", () => {
 				visitNo: 1,
 				academicYear: "2569",
 				images: ["img-1", "img-2", "img-3"],
-				visitDetail: { note: "ok" },
+				visitDetail: { note: "ok", sdqAssessments: null },
 				visitMap: null,
 			},
 		]);
@@ -212,7 +332,7 @@ describe("VisitService", () => {
 				academicYear: "2569",
 				visitStatus: "recorded",
 				images: ["img-1", "img-2", "img-3"],
-				visitDetail: { note: "ok" },
+				visitDetail: { note: "ok", sdqAssessments: null },
 				visitMap: null,
 			},
 		]);

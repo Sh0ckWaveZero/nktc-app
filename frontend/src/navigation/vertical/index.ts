@@ -176,6 +176,13 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'visit-student-list-page',
         },
+        {
+          title: 'ประเมินคัดกรอง SDQ',
+          icon: 'mdi:clipboard-pulse-outline',
+          path: '/apps/visit/sdq',
+          action: 'read',
+          subject: 'visit-student-list-page',
+        },
       ],
     },
     {
@@ -211,7 +218,7 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'admin-category',
     },
     {
-      title: 'เช็คชื่อเช้า-ผู้ดูแลระบบ',
+      title: 'รายงาน-เช็คชื่อหน้าเสาธง',
       icon: BsClipboardData,
       action: 'read',
       subject: 'admin-report-check-in-page',
@@ -263,7 +270,7 @@ const navigation = (): VerticalNavItemsType => {
       ],
     },
     {
-      title: 'เช็คชื่อกิจกรรม-ผู้ดูแลระบบ',
+      title: 'รายงาน-เช็คชื่อกิจกรรม',
       icon: TbChartBar,
       action: 'read',
       subject: 'admin-activity-check-in-page',

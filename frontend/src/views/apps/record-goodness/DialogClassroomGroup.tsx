@@ -154,7 +154,7 @@ export default function DialogClassroomGoodnessGroup({
   // Get IDs of students from current classroom only
   const currentClassroomIds = useMemo(() => {
     if (!studentsList || !Array.isArray(studentsList)) return new Set<string>();
-    return new Set(studentsList.filter(s => s?.id).map(s => String(s.id)));
+    return new Set(studentsList.filter((s) => s?.id).map((s) => String(s.id)));
   }, [studentsList]);
 
   const currentClassroomSelectedCount = localSelection.length;
@@ -175,38 +175,41 @@ export default function DialogClassroomGoodnessGroup({
   }, [defaultClassroom, studentsList]);
 
   // Handle selection changes - updates both local state and global state
-  const handleSelectionChange = useCallback((newSelection: any) => {
-    let idArray: string[];
+  const handleSelectionChange = useCallback(
+    (newSelection: any) => {
+      let idArray: string[];
 
-    if (Array.isArray(newSelection)) {
-      idArray = newSelection.map((id) => String(id));
-    } else if (typeof newSelection === 'object' && 'ids' in newSelection) {
-      if (newSelection.type === 'exclude') {
-        // 'exclude' = all rows except listed ids; empty ids = select all
-        const excludedIds = new Set(Array.from(newSelection.ids || []).map(String));
-        idArray = rows.filter(row => !excludedIds.has(String(row.id))).map(row => row.id);
+      if (Array.isArray(newSelection)) {
+        idArray = newSelection.map((id) => String(id));
+      } else if (typeof newSelection === 'object' && 'ids' in newSelection) {
+        if (newSelection.type === 'exclude') {
+          // 'exclude' = all rows except listed ids; empty ids = select all
+          const excludedIds = new Set(Array.from(newSelection.ids || []).map(String));
+          idArray = rows.filter((row) => !excludedIds.has(String(row.id))).map((row) => row.id);
+        } else {
+          idArray = Array.from(newSelection.ids || []).map((id) => String(id));
+        }
       } else {
-        idArray = Array.from(newSelection.ids || []).map((id) => String(id));
+        idArray = [];
       }
-    } else {
-      idArray = [];
-    }
 
-    setLocalSelection(idArray);
+      setLocalSelection(idArray);
 
-    const otherRoomsSelected = Array.isArray(selectClassrooms)
-      ? selectClassrooms.filter((s: any) => {
-          if (!s || !s.id) return false;
-          return !currentClassroomIds.has(String(s.id));
-        })
-      : [];
+      const otherRoomsSelected = Array.isArray(selectClassrooms)
+        ? selectClassrooms.filter((s: any) => {
+            if (!s || !s.id) return false;
+            return !currentClassroomIds.has(String(s.id));
+          })
+        : [];
 
-    const currentRoomStudents = Array.isArray(studentsList)
-      ? studentsList.filter((s) => s && s.id && idArray.includes(String(s.id)))
-      : [];
+      const currentRoomStudents = Array.isArray(studentsList)
+        ? studentsList.filter((s) => s && s.id && idArray.includes(String(s.id)))
+        : [];
 
-    onSelectionModelChange([...otherRoomsSelected, ...currentRoomStudents]);
-  }, [currentClassroomIds, selectClassrooms, studentsList, rows, onSelectionModelChange]);
+      onSelectionModelChange([...otherRoomsSelected, ...currentRoomStudents]);
+    },
+    [currentClassroomIds, selectClassrooms, studentsList, rows, onSelectionModelChange],
+  );
 
   // Sort classrooms by department name to prevent duplicate headers in Autocomplete groupBy
   const sortedClassrooms = useMemo(() => {
@@ -303,7 +306,7 @@ export default function DialogClassroomGoodnessGroup({
                 id='dialog-classroom-group-empty-message'
                 variant='body2'
                 sx={{
-                  color: 'text.secondary'
+                  color: 'text.secondary',
                 }}
               >
                 กรุณาเลือกห้องเรียนเพื่อแสดงรายชื่อนักเรียน
@@ -325,7 +328,7 @@ export default function DialogClassroomGoodnessGroup({
                   id='dialog-classroom-group-selection-count'
                   variant='body2'
                   sx={{
-                    color: 'text.secondary'
+                    color: 'text.secondary',
                   }}
                 >
                   เลือกแล้ว {currentClassroomSelectedCount} คน
@@ -337,7 +340,7 @@ export default function DialogClassroomGoodnessGroup({
                     variant='outlined'
                     color='primary'
                     onClick={() => {
-                      const allIds = rows.map(row => row.id);
+                      const allIds = rows.map((row) => row.id);
                       handleSelectionChange({ type: 'include', ids: new Set(allIds) });
                     }}
                     disabled={rows.length === 0}
@@ -359,51 +362,51 @@ export default function DialogClassroomGoodnessGroup({
                 </Box>
               </Box>
               <DataGrid
-              key={`datagrid-${defaultClassroom?.id || 'none'}`}
-              autoHeight
-              checkboxSelection
-              columns={columns}
-              rows={rows}
-              disableColumnMenu
-              loading={studentLoading}
-              getRowId={(row) => String(row.id)}
-              getRowHeight={() => 'auto'}
-              paginationModel={{ pageSize: pageSize, page: 0 }}
-              pageSizeOptions={[10, 20, 50, 100]}
-              onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-              rowSelectionModel={{ type: 'include' as const, ids: new Set(localSelection) }}
-              onRowSelectionModelChange={handleSelectionChange}
-              slots={{
-                noRowsOverlay: CustomNoRowsOverlay,
-              }}
-              slotProps={{
-                pagination: {
-                  labelRowsPerPage: 'แสดง:',
-                },
-              }}
-              sx={{
-                minHeight: 300,
-                my: 2,
-                '& .MuiDataGrid-row': {
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
+                key={`datagrid-${defaultClassroom?.id || 'none'}`}
+                autoHeight
+                checkboxSelection
+                columns={columns}
+                rows={rows}
+                disableColumnMenu
+                loading={studentLoading}
+                getRowId={(row) => String(row.id)}
+                getRowHeight={() => 'auto'}
+                paginationModel={{ pageSize: pageSize, page: 0 }}
+                pageSizeOptions={[10, 20, 50, 100]}
+                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                rowSelectionModel={{ type: 'include' as const, ids: new Set(localSelection) }}
+                onRowSelectionModelChange={handleSelectionChange}
+                slots={{
+                  noRowsOverlay: CustomNoRowsOverlay,
+                }}
+                slotProps={{
+                  pagination: {
+                    labelRowsPerPage: 'แสดง:',
                   },
-                  maxHeight: 'none !important',
-                },
-                '& .MuiDataGrid-cell': {
-                  display: 'flex',
-                  alignItems: 'center',
-                  lineHeight: 'unset !important',
-                  maxHeight: 'none !important',
-                  overflow: 'visible',
-                  whiteSpace: 'normal',
-                  wordWrap: 'break-word',
-                },
-                '& .MuiDataGrid-renderingZone': {
-                  maxHeight: 'none !important',
-                },
-              }}
-            />
+                }}
+                sx={{
+                  minHeight: 300,
+                  my: 2,
+                  '& .MuiDataGrid-row': {
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                    maxHeight: 'none !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    display: 'flex',
+                    alignItems: 'center',
+                    lineHeight: 'unset !important',
+                    maxHeight: 'none !important',
+                    overflow: 'visible',
+                    whiteSpace: 'normal',
+                    wordWrap: 'break-word',
+                  },
+                  '& .MuiDataGrid-renderingZone': {
+                    maxHeight: 'none !important',
+                  },
+                }}
+              />
             </Box>
           )}
         </ViewTransition>

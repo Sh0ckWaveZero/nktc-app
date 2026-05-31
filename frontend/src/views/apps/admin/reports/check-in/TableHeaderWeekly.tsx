@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { FormControl, useTheme } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, OutlinedInput, Select, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
@@ -10,11 +10,16 @@ import CustomDay from './CustomPickersDay';
 interface TableHeaderProps {
   selectedDate: Date | null;
   handleSelectedDate: (newDate: Date | null) => any;
+  activityType?: string;
+  handleActivityTypeChange?: (event: any) => void;
+  activityTypes?: { value: string; label: string }[];
+  onExport?: () => void | Promise<void>;
+  isExportDisabled?: boolean;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   // ** Props
-  const { selectedDate, handleSelectedDate } = props;
+  const { selectedDate, handleSelectedDate, activityType, handleActivityTypeChange, activityTypes, onExport, isExportDisabled } = props;
 
   // ** Hooks
   const theme = useTheme();
@@ -32,11 +37,32 @@ const TableHeader = (props: TableHeaderProps) => {
         }}
         color='secondary'
         variant='outlined'
+        id='admin-checkin-weekly-download-button'
         startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
+        onClick={() => void onExport?.()}
+        disabled={onExport ? isExportDisabled : false}
       >
         ดาวน์โหลด
       </Button>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        {activityTypes && handleActivityTypeChange && (
+          <FormControl sx={{ mr: 4, mb: 2, width: 300 }} size='medium'>
+            <InputLabel id='admin-checkin-weekly-activity-type-label'>ประเภทกิจกรรม</InputLabel>
+            <Select
+              labelId='admin-checkin-weekly-activity-type-label'
+              id='admin-checkin-weekly-activity-type-select'
+              value={activityType || ''}
+              onChange={handleActivityTypeChange}
+              input={<OutlinedInput id='admin-checkin-weekly-activity-type-input' label='ประเภทกิจกรรม' />}
+            >
+              {activityTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <FormControl sx={{ mr: 4, mb: 2, width: 340 }} size='medium'>
           <CustomDay selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
         </FormControl>

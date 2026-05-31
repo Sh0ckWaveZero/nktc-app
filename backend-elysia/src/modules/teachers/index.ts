@@ -44,6 +44,23 @@ export const teachers = new Elysia({ prefix: "/teachers" })
             },
           },
         )
+        .delete(
+          "/login-days",
+          async ({ user }) => {
+            if ((user as any)?.roles !== "Admin") {
+              throw new ForbiddenError();
+            }
+
+            return TeacherService.resetAllLoginDays({
+              username: (user as any).username,
+            });
+          },
+          {
+            detail: {
+              summary: "Reset login day history for all teachers",
+            },
+          },
+        )
         .post(
           "/upload",
           async ({ body, user, set }) => {

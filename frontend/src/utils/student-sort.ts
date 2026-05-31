@@ -24,7 +24,10 @@ const getSortableText = (value: unknown) => (value === null || value === undefin
 
 const getStudentName = (student: StudentSortItem) => {
   const account = student.user?.account;
-  return [account?.firstName ?? student.firstName, account?.lastName ?? student.lastName].map(getSortableText).join(' ').trim();
+  return [account?.firstName ?? student.firstName, account?.lastName ?? student.lastName]
+    .map(getSortableText)
+    .join(' ')
+    .trim();
 };
 
 /**

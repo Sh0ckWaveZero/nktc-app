@@ -70,7 +70,9 @@ const ActivityCheckInDataGrid = ({
     present: { checkAll: isPresentCheckAll, checks: isPresentCheck },
     absent: { checkAll: isAbsentCheckAll, checks: isAbsentCheck },
   };
-  const selectableStudentIds = new Set(students.filter((student) => student?.status !== 'internship').map((student) => student.id));
+  const selectableStudentIds = new Set(
+    students.filter((student) => student?.status !== 'internship').map((student) => student.id),
+  );
   const selectableStudentCount = selectableStudentIds.size;
 
   const getStudentStatus = (studentId: any) => {
@@ -135,18 +137,18 @@ const ActivityCheckInDataGrid = ({
               <TableCellHeaderCustom
                 id='activity-checkin-students-table-header-cell-fullname'
                 sx={{
-      minWidth: 220,
+                  minWidth: 220,
                 }}
               >
-        <Typography
-          sx={{
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            color: 'text.primary',
-          }}
-        >
-          ชื่อ-สกุล
-        </Typography>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '0.9375rem',
+                    color: 'text.primary',
+                  }}
+                >
+                  ชื่อ-สกุล
+                </Typography>
               </TableCellHeaderCustom>
 
               {/* Checkbox Columns */}
@@ -232,9 +234,12 @@ const ActivityCheckInDataGrid = ({
                   align='center'
                   sx={{ height: 400 }}
                 >
-                  <Typography variant='body2' sx={{
-                    color: 'text.secondary'
-                  }}>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     ไม่พบข้อมูลนักเรียน
                   </Typography>
                 </TableCellCustom>
@@ -245,11 +250,8 @@ const ActivityCheckInDataGrid = ({
                 const isLastRow = index === paginatedStudents.length - 1;
                 const account = row?.user?.account ?? row;
 
-        return (
-                  <TableRowCustom
-                    key={row.id}
-                    id={`activity-checkin-students-table-row-${row.id}`}
-                  >
+                return (
+                  <TableRowCustom key={row.id} id={`activity-checkin-students-table-row-${row.id}`}>
                     {/* ชื่อ-สกุล Cell */}
                     <TableCellCustom
                       id={`activity-checkin-students-table-cell-fullname-${row.id}`}
@@ -259,34 +261,34 @@ const ActivityCheckInDataGrid = ({
                         ...(isLastRow && { borderBottom: 'none' }),
                       }}
                     >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RenderAvatar row={{ ...row, ...account }} />
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <RenderAvatar row={{ ...row, ...account }} />
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+                          <Typography
                             noWrap
-                variant='body1'
-                sx={{
-                  fontWeight: 600,
-                  color: 'text.primary',
-                  textDecoration: 'none',
-                  fontSize: '0.9375rem',
-                }}
-              >
-                {account?.title + '' + account?.firstName + ' ' + account?.lastName}
-              </Typography>
-              <Typography
+                            variant='body1'
+                            sx={{
+                              fontWeight: 600,
+                              color: 'text.primary',
+                              textDecoration: 'none',
+                              fontSize: '0.9375rem',
+                            }}
+                          >
+                            {account?.title + '' + account?.firstName + ' ' + account?.lastName}
+                          </Typography>
+                          <Typography
                             noWrap
-                variant='body2'
-                sx={{
-                  textDecoration: 'none',
-                  fontSize: '0.8125rem',
-                  color: 'text.secondary',
-                }}
-              >
-                @{row?.studentId}
-              </Typography>
-            </Box>
-          </Box>
+                            variant='body2'
+                            sx={{
+                              textDecoration: 'none',
+                              fontSize: '0.8125rem',
+                              color: 'text.secondary',
+                            }}
+                          >
+                            @{row?.studentId}
+                          </Typography>
+                        </Box>
+                      </Box>
                     </TableCellCustom>
 
                     {/* Checkbox Cells */}
@@ -300,14 +302,16 @@ const ActivityCheckInDataGrid = ({
                           align='right'
                           isLastRow={isLastRow}
                           sx={{
-      minWidth: 110,
+                            minWidth: 110,
                             cursor: hasSavedCheckIn || row.status === 'internship' ? 'default' : 'pointer',
                             paddingRight: 2.85,
                             ...(isLastRow && { borderBottom: 'none' }),
                           }}
-                          onClick={() => !hasSavedCheckIn && row.status !== 'internship' && handleCellClick(column.field, row)}
+                          onClick={() =>
+                            !hasSavedCheckIn && row.status !== 'internship' && handleCellClick(column.field, row)
+                          }
                         >
-          <CheckboxStyled
+                          <CheckboxStyled
                             id={`activity-checkin-${column.field}-${row.id}`}
                             color={column.color}
                             checked={state.checks.includes(row.id) || false}
@@ -323,25 +327,25 @@ const ActivityCheckInDataGrid = ({
                       id={`activity-checkin-students-table-cell-status-${row.id}`}
                       align='center'
                       isLastRow={isLastRow}
-            sx={{
-      minWidth: 110,
+                      sx={{
+                        minWidth: 110,
                         ...(isLastRow && { borderBottom: 'none' }),
                       }}
                     >
-          <Chip
-            id={`activity-checkin-status-${row.id}`}
-            label={status}
-            color={color as any}
-            size='small'
-            sx={{
-              fontSize: '0.8125rem',
-              height: 'auto',
-              '& .MuiChip-label': {
-                px: 1,
-                py: 0.5,
-              },
-            }}
-          />
+                      <Chip
+                        id={`activity-checkin-status-${row.id}`}
+                        label={status}
+                        color={color as any}
+                        size='small'
+                        sx={{
+                          fontSize: '0.8125rem',
+                          height: 'auto',
+                          '& .MuiChip-label': {
+                            px: 1,
+                            py: 0.5,
+                          },
+                        }}
+                      />
                     </TableCellCustom>
                   </TableRowCustom>
                 );

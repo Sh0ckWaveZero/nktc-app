@@ -22,7 +22,7 @@ export const useAppbarStore = createWithEqualityFn<AppbarState>()(
         fetchAppbar: async (params: string = '', token?: string) => {
           try {
             const response = await httpClient.get(authConfig.appbarEndpoint as string, {
-              params: { q: params }
+              params: { q: params },
             });
 
             // Handle wrapped response { success, data, meta }
@@ -58,4 +58,7 @@ export const useAppbarStore = createWithEqualityFn<AppbarState>()(
       }),
       {
         name: 'appbar-store',
-      })));
+      },
+    ),
+  ),
+);

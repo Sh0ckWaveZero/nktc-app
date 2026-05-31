@@ -3,6 +3,8 @@ import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
 
+const BADNESS_INDIVIDUAL_ENDPOINT = authConfig.badnessIndividualEndpoint as string;
+
 interface BadnessQuery {
   fullName?: string;
   classroomId?: string;
@@ -20,10 +22,7 @@ export const useBadnessRecords = (params?: BadnessQuery) => {
   return useQuery({
     queryKey: queryKeys.badness.list(params),
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.badnessIndividualEndpoint}/search`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${BADNESS_INDIVIDUAL_ENDPOINT}/search`, params || {});
       return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -37,10 +36,7 @@ export const useBadnessSearch = (params?: BadnessQuery) => {
   return useQuery({
     queryKey: queryKeys.badness.list(params),
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.badnessIndividualEndpoint}/search`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${BADNESS_INDIVIDUAL_ENDPOINT}/search`, params || {});
       return data;
     },
     enabled: !!(params?.fullName || params?.classroomId || params?.studentId),
@@ -55,9 +51,7 @@ export const useStudentBadnessRecords = (studentId: string, skip: number = 0, ta
   return useQuery({
     queryKey: queryKeys.badness.student(studentId),
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.badnessIndividualEndpoint}/${studentId}?skip=${skip}&take=${take}`
-      );
+      const { data } = await httpClient.get(`${BADNESS_INDIVIDUAL_ENDPOINT}/${studentId}?skip=${skip}&take=${take}`);
       return data;
     },
     enabled: !!studentId,
@@ -72,10 +66,7 @@ export const useBadnessSummary = (params?: any) => {
   return useQuery({
     queryKey: [...queryKeys.badness.all, 'summary', params],
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.badnessIndividualEndpoint}/summary`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${BADNESS_INDIVIDUAL_ENDPOINT}/summary`, params || {});
       return data;
     },
     enabled: !!params,
@@ -91,7 +82,7 @@ export const useCreateBadnessRecord = () => {
 
   return useMutation({
     mutationFn: async (params: any) => {
-      const { data } = await httpClient.post(authConfig.badnessIndividualEndpoint, params);
+      const { data } = await httpClient.post(BADNESS_INDIVIDUAL_ENDPOINT, params);
       return data;
     },
     onSuccess: () => {
@@ -108,10 +99,7 @@ export const useCreateBadnessGroup = () => {
 
   return useMutation({
     mutationFn: async (params: any) => {
-      const { data } = await httpClient.post(
-        `${authConfig.badnessIndividualEndpoint}/group`,
-        params
-      );
+      const { data } = await httpClient.post(`${BADNESS_INDIVIDUAL_ENDPOINT}/group`, params);
       return data;
     },
     onSuccess: () => {
@@ -128,7 +116,7 @@ export const useDeleteBadnessRecord = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      return await httpClient.delete(`${authConfig.badnessIndividualEndpoint}/${id}`);
+      return await httpClient.delete(`${BADNESS_INDIVIDUAL_ENDPOINT}/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.badness.all });

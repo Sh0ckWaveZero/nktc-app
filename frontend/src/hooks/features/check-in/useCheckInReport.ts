@@ -72,7 +72,10 @@ interface UseCheckInReportReturn {
   handlePaginationModelChange: (model: { page: number; pageSize: number }) => void;
   getPaginatedStudents: () => any[];
   getTotalMobilePages: () => number;
-  getStudentStatus: (studentId: any) => { status: string; color: 'success' | 'error' | 'warning' | 'info' | 'secondary' | 'default' };
+  getStudentStatus: (studentId: any) => {
+    status: string;
+    color: 'success' | 'error' | 'warning' | 'info' | 'secondary' | 'default';
+  };
   onHandleToggle: (action: string, param: any) => void;
 }
 
@@ -97,9 +100,11 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // React Query hooks
-  const { data: classroomData, isLoading: classroomLoading, error: classroomError } = useTeacherClassroomsAndStudents(
-    auth.user?.teacher?.id || ''
-  );
+  const {
+    data: classroomData,
+    isLoading: classroomLoading,
+    error: classroomError,
+  } = useTeacherClassroomsAndStudents(auth.user?.teacher?.id || '');
   const { mutate: saveCheckIn, isPending: isSaving } = useSaveCheckIn();
 
   // Memoize responsive values to prevent unnecessary re-renders
@@ -164,7 +169,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   // Initialize classroom data from query
   useEffect(() => {
     if (classroomLoading) return;
-    
+
     if (classroomError) {
       console.error('Error loading classrooms:', classroomError);
       toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูลห้องเรียน');
@@ -189,21 +194,23 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
 
     // Backend returns a plain array directly; also support { classrooms: [...] } wrapper
-    const classrooms = sortClassroomStudentsByStudentId(Array.isArray(actualData) ? actualData : actualData?.classrooms || []);
-    
+    const classrooms = sortClassroomStudentsByStudentId(
+      Array.isArray(actualData) ? actualData : actualData?.classrooms || [],
+    );
+
     if (!classrooms || !classrooms.length) {
-      console.log('No classrooms found:', { 
-        actualData, 
-        hasClassrooms: !!classrooms, 
+      console.log('No classrooms found:', {
+        actualData,
+        hasClassrooms: !!classrooms,
         length: classrooms?.length,
-        teacherId: auth.user?.teacher?.id 
+        teacherId: auth.user?.teacher?.id,
       });
-      
+
       // Reset states when no classrooms found
       setClassrooms([]);
       setCurrentStudents([]);
       setDefaultClassroom(null);
-      
+
       // Only show toast if we have data but no classrooms (not on initial load)
       if (actualData && classrooms && classrooms.length === 0) {
         toast.error('คุณยังไม่มีห้องเรียนที่ได้รับมอบหมาย กรุณาติดต่อผู้ดูแลระบบ');
@@ -232,7 +239,8 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 10;
-      const closestSize = validPageSizes.find(size => size >= calculatedSize) || validPageSizes[validPageSizes.length - 1];
+      const closestSize =
+        validPageSizes.find((size) => size >= calculatedSize) || validPageSizes[validPageSizes.length - 1];
       setPageSize(Math.min(closestSize, studentCount > 0 ? studentCount : 10));
       setCurrentPage(0);
       setMobilePage(0);
@@ -268,20 +276,18 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
 
     // Verify the record date matches the selected date.
     // The backend may return a stale record if the date filter is not applied server-side.
-    const recordDate = reportData?.checkInDate
-      ? toApiDate(reportData.checkInDate)
-      : null;
+    const recordDate = reportData?.checkInDate ? toApiDate(reportData.checkInDate) : null;
     const isSelectedDate = recordDate === checkInDate;
 
-    const present     = Array.isArray(reportData?.present)     ? reportData.present     : [];
-    const absent      = Array.isArray(reportData?.absent)      ? reportData.absent      : [];
-    const late        = Array.isArray(reportData?.late)        ? reportData.late        : [];
-    const leave       = Array.isArray(reportData?.leave)       ? reportData.leave       : [];
-    const internship  = Array.isArray(reportData?.internship)  ? reportData.internship  : [];
+    const present = Array.isArray(reportData?.present) ? reportData.present : [];
+    const absent = Array.isArray(reportData?.absent) ? reportData.absent : [];
+    const late = Array.isArray(reportData?.late) ? reportData.late : [];
+    const leave = Array.isArray(reportData?.leave) ? reportData.leave : [];
+    const internship = Array.isArray(reportData?.internship) ? reportData.internship : [];
 
     // Only treat the page as saved when the returned record belongs to the selected date.
-    const hasData = isSelectedDate &&
-      present.length + absent.length + late.length + leave.length + internship.length > 0;
+    const hasData =
+      isSelectedDate && present.length + absent.length + late.length + leave.length + internship.length > 0;
 
     if (hasData) {
       setHasSavedCheckIn(true);
@@ -292,11 +298,11 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       setIsInternshipCheck(internship);
 
       // อัปเดต check-all โดยใช้ค่า currentStudents ณ ตอนนั้น (ไม่ใช้ใน dependency)
-      setIsPresentCheckAll(prev => prev); // จะถูกคำนวณใหม่ถ้า students โหลดทีหลัง
-      setIsAbsentCheckAll(prev => prev);
-      setIsLateCheckAll(prev => prev);
-      setIsLeaveCheckAll(prev => prev);
-      setIsInternshipCheckAll(prev => prev);
+      setIsPresentCheckAll((prev) => prev); // จะถูกคำนวณใหม่ถ้า students โหลดทีหลัง
+      setIsAbsentCheckAll((prev) => prev);
+      setIsLateCheckAll((prev) => prev);
+      setIsLeaveCheckAll((prev) => prev);
+      setIsInternshipCheckAll((prev) => prev);
     } else {
       setHasSavedCheckIn(false);
     }
@@ -319,7 +325,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       const studentCount = classroomObj.students?.length || 0;
       const validPageSizes = [5, 10, 25, 50, 100];
       const calculatedSize = studentCount > 0 ? Math.min(studentCount, 100) : 5;
-      const closestSize = validPageSizes.find(size => size >= calculatedSize) || validPageSizes[0];
+      const closestSize = validPageSizes.find((size) => size >= calculatedSize) || validPageSizes[0];
       setPageSize(Math.min(closestSize, studentCount > 0 ? studentCount : 5));
       setCurrentPage(0); // Reset to first page when changing classroom
       setMobilePage(0); // Reset mobile page when changing classroom
@@ -633,9 +639,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       },
       onError: (error: any) => {
         console.error('Error saving check-in data:', error);
-        const errorMessage = error?.response?.data?.message 
-          || error?.message 
-          || 'ไม่สามารถบันทึกข้อมูลการเช็คชื่อได้';
+        const errorMessage = error?.response?.data?.message || error?.message || 'ไม่สามารถบันทึกข้อมูลการเช็คชื่อได้';
         toast.error(errorMessage);
       },
     });
@@ -718,4 +722,3 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     onHandleToggle,
   };
 };
-

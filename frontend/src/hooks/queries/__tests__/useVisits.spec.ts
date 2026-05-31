@@ -1,14 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createElement, type ReactNode } from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  useVisits,
-  useVisit,
-  useStudentVisits,
-  useCreateVisit,
-  useUpdateVisit,
-  useDeleteVisit,
-} from '../useVisits';
+import { useVisits, useVisit, useStudentVisits, useCreateVisit, useUpdateVisit, useDeleteVisit } from '../useVisits';
 import httpClient from '@/@core/utils/http';
 
 vi.mock('@/@core/utils/http');
@@ -20,9 +14,15 @@ const queryClient = new QueryClient({
   },
 });
 
-const wrapper = (props: any) => {
-  const { children } = props;
-  return (QueryClientProvider as any)({ client: queryClient, children });
+const wrapper = ({ children }: { children: ReactNode }) =>
+  createElement(QueryClientProvider, { client: queryClient }, children);
+
+const visitPayload = {
+  studentKey: 'student-1',
+  studentId: 'S1',
+  classroomId: 'class-1',
+  visitDate: '2026-05-29',
+  images: ['img-1', 'img-2', 'img-3'],
 };
 
 describe('useVisits', () => {
@@ -95,7 +95,7 @@ describe('useVisits', () => {
 
       const { result } = renderHook(() => useCreateVisit(), { wrapper });
 
-      result.current.mutate({ studentId: 'S1', visitDate: new Date() });
+      result.current.mutate(visitPayload);
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
@@ -112,7 +112,7 @@ describe('useVisits', () => {
 
       const { result } = renderHook(() => useUpdateVisit(), { wrapper });
 
-      result.current.mutate({ visitId: '1', params: { visitDate: new Date() } });
+      result.current.mutate({ visitId: '1', params: visitPayload });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);

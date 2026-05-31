@@ -28,9 +28,12 @@ export const useClassroomStore = createWithEqualityFn<classroomState>()((set) =>
       const { data } = await httpClient.get(authConfig.classroomEndpoint as string);
       const classroomData = await data;
       // Ensure classroom is always an array
-      const classroomArray = Array.isArray(classroomData) 
-        ? classroomData 
-        : (classroomData && typeof classroomData === 'object' && 'data' in classroomData && Array.isArray(classroomData.data))
+      const classroomArray = Array.isArray(classroomData)
+        ? classroomData
+        : classroomData &&
+            typeof classroomData === 'object' &&
+            'data' in classroomData &&
+            Array.isArray(classroomData.data)
           ? classroomData.data
           : [];
       set({ classroom: classroomArray, classroomLoading: false, classroomHasErrors: false });

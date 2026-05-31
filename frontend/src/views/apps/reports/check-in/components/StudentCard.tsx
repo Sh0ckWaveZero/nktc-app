@@ -47,9 +47,9 @@ const StudentCard = ({
   return (
     <Card
       id={`checkin-student-card-${student.id}`}
-      sx={{ 
-        mb: responsiveConfig.isSmallMobile ? 1 : 1.5, 
-        border: 1, 
+      sx={{
+        mb: responsiveConfig.isSmallMobile ? 1 : 1.5,
+        border: 1,
         borderColor: 'divider',
         backgroundColor: 'background.paper',
       }}
@@ -73,14 +73,22 @@ const StudentCard = ({
             >
               {student.title + '' + student.firstName + ' ' + student.lastName}
             </Typography>
-            <Typography id={`checkin-student-id-${student.id}`} variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              id={`checkin-student-id-${student.id}`}
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               @{student.studentId}
             </Typography>
-            <Typography id={`checkin-student-class-${student.id}`} variant='body2' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              id={`checkin-student-class-${student.id}`}
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {student.classroom?.name || student.classroom}
             </Typography>
           </Box>

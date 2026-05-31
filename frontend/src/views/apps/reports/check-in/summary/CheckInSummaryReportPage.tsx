@@ -19,7 +19,6 @@ interface CellType {
   row: any;
 }
 
-
 const CheckInSummaryReportPage = () => {
   // ** Hooks
   const auth = useAuth();

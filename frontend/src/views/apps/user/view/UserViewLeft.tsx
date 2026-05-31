@@ -33,16 +33,16 @@ const UserViewLeft = ({ user, isLoading, image, fullName }: UserViewLeftProps) =
   const departmentDisplay = isTeacher
     ? user.teacher?.department?.name || '-'
     : isStudent
-    ? user.student?.department?.name || '-'
-    : '-';
+      ? user.student?.department?.name || '-'
+      : '-';
 
   const classroomDisplay = isTeacher
     ? user.teacher?.classrooms && Array.isArray(user.teacher.classrooms) && user.teacher.classrooms.length > 0
       ? user.teacher.classrooms.map((c: any) => c.name).join(', ')
       : '-'
     : isStudent
-    ? user.student?.classroom?.name || '-'
-    : '-';
+      ? user.student?.classroom?.name || '-'
+      : '-';
 
   return (
     <Grid container spacing={6}>
@@ -73,7 +73,13 @@ const UserViewLeft = ({ user, isLoading, image, fullName }: UserViewLeftProps) =
             <Typography variant='h6' sx={{ mb: 4 }}>
               {fullName}
             </Typography>
-            <CustomChip skin='light' size='small' label={roleDisplay} color='info' sx={{ textTransform: 'capitalize' }} />
+            <CustomChip
+              skin='light'
+              size='small'
+              label={roleDisplay}
+              color='info'
+              sx={{ textTransform: 'capitalize' }}
+            />
           </CardContent>
 
           <CardContent>

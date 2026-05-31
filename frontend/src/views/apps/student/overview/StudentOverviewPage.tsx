@@ -17,7 +17,6 @@ import { useStudentStore } from '@/store/index';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { useSpring, animated } from 'react-spring';
 
-
 const ConfettiAnimation = ({ width, height }: any) => {
   const [showConfetti, setShowConfetti] = useState(true);
   const props = useSpring({

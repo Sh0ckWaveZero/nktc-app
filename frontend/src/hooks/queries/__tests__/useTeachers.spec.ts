@@ -53,5 +53,4 @@ describe('useTeachers', () => {
       expect(result.current.error).toBeDefined();
     });
   });
-
 });

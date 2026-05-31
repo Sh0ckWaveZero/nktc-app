@@ -17,7 +17,21 @@ interface Props {
   value: any;
   classroom: any;
   ref?: RefObject<HTMLDivElement | null>;
+  activityType?: string;
 }
+
+const getActivityTypeLabel = (type?: string) => {
+  switch (type) {
+    case 'CLUB':
+      return 'กิจกรรมชมรมวิชาชีพ';
+    case 'AST':
+      return 'กิจกรรม อวท.';
+    case 'SCOUT':
+      return 'กิจกรรมลูกเสือ';
+    default:
+      return 'กิจกรรมเช็คชื่อ';
+  }
+};
 
 // Hoisted static JSX — avoids re-creation on every render
 const tableHead = (
@@ -48,7 +62,8 @@ const tableHead = (
   </TableHead>
 );
 
-const PrintSummaryReport = memo(({ value, classroom, ref }: Props) => {
+const PrintSummaryReport = memo(({ value, classroom, ref, activityType }: Props) => {
+  const activityLabel = getActivityTypeLabel(activityType);
   return (
     <Container ref={ref as Ref<HTMLDivElement>} sx={{ pt: 8, pb: 8 }}>
       <Typography
@@ -60,13 +75,13 @@ const PrintSummaryReport = memo(({ value, classroom, ref }: Props) => {
           pb: 3,
         }}
       >
-        {`รายงานสรุปการเช็คชื่อ กิจกรรมหน้าเสาธง ชั้น ${classroom || ''}`}
+        {`รายงานสรุปการเช็คชื่อ ${activityLabel} ชั้น ${classroom || ''}`}
       </Typography>
       <TableContainer component={Paper}>
         <Table
           sx={{ minWidth: 650, fontWeight: 200, textDecoration: 'none' }}
           size='small'
-          aria-label={`รายงานสรุปการเช็คชื่อ กิจกรรมหน้าเสาธง ชั้น ${classroom || ''}`}
+          aria-label={`รายงานสรุปการเช็คชื่อ ${activityLabel} ชั้น ${classroom || ''}`}
         >
           {tableHead}
           <TableBody>
@@ -75,12 +90,7 @@ const PrintSummaryReport = memo(({ value, classroom, ref }: Props) => {
                 key={row.student.studentId}
                 sx={{ fontSize: 8, '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <TableCell
-                  align='center'
-                  component='th'
-                  scope='row'
-                  sx={{ fontSize: 8, fontWeight: 400 }}
-                >
+                <TableCell align='center' component='th' scope='row' sx={{ fontSize: 8, fontWeight: 400 }}>
                   {row.student.studentId}
                 </TableCell>
                 <TableCell

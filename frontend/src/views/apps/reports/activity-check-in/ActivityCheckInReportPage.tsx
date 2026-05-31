@@ -16,6 +16,12 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import { toApiDate } from '@/utils/datetime';
 import { sortClassroomStudentsByStudentId, sortStudentsByStudentId } from '@/utils/student-sort';
 
+const ACTIVITY_TYPES = [
+  { value: 'CLUB', label: 'กิจกรรมชมรมวิชาชีพ' },
+  { value: 'AST', label: 'กิจกรรม อวท.' },
+  { value: 'SCOUT', label: 'กิจกรรมลูกเสือ' },
+];
+
 const ActivityCheckInReportPage = () => {
   // ** Hooks
   const auth = useAuth();
@@ -32,21 +38,19 @@ const ActivityCheckInReportPage = () => {
   const teacherId = auth?.user?.teacher?.id as string;
   const { data: teacherData, isLoading: isLoadingTeacherData } = useTeacherStudents(teacherId);
 
-  // ** Local State for classroom
+  // ** Local State for classroom, activity type and selected date
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
-
-  // วันที่ปัจจุบัน YYYY-MM-DD (local time) — ใช้เปรียบเทียบกับ checkInDate ใน response
-  const todayDate = useMemo(() => toApiDate(), []);
+  const [activityType, setActivityType] = useState<string>('CLUB');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [note, setNote] = useState<string>('');
 
   // ** React Query - Fetch activity check-in data
-  const {
-    data: activityCheckInData,
-    isLoading: isLoadingCheckIn,
-  } = useActivityCheckIn({
+  const { data: activityCheckInData, isLoading: isLoadingCheckIn } = useActivityCheckIn({
     teacher: teacherId,
     classroom: defaultClassroom?.id || '',
-    date: todayDate,
+    date: selectedDate ? toApiDate(selectedDate) : undefined,
+    activityType: activityType,
   });
 
   // ** React Query - Add activity check-in mutation
@@ -116,6 +120,7 @@ const ActivityCheckInReportPage = () => {
       setIsAbsentCheck([]);
       setIsPresentCheckAll(false);
       setIsAbsentCheckAll(false);
+      setNote('');
     };
 
     if (!activityCheckInData) {
@@ -126,14 +131,14 @@ const ActivityCheckInReportPage = () => {
     // Normalize nested structure
     const reportData = activityCheckInData?.data ?? activityCheckInData;
 
-    // ตรวจว่า record นี้เป็นของวันนี้จริงๆ
-    // backend อาจส่งข้อมูลวันเก่ากลับมาถ้ายังไม่ filter date ฝั่ง server
-    const recordDate = reportData?.checkInDate
-      ? toApiDate(reportData.checkInDate)
-      : null;
-    const isToday = recordDate === todayDate;
+    // ตรวจว่า record นี้ตรงกับวันที่เลือกจริงๆ
+    const recordDate = reportData?.checkInDate ? toApiDate(reportData.checkInDate) : null;
+    const targetDateStr = selectedDate ? toApiDate(selectedDate) : toApiDate();
+    const isMatchDate = recordDate === targetDateStr;
+    const isMatchClassroom = reportData?.classroomId === defaultClassroom?.id;
+    const isMatchActivityType = (reportData?.activityType ?? 'CLUB') === activityType;
 
-    if (!isToday) {
+    if (!isMatchDate || !isMatchClassroom || !isMatchActivityType) {
       reset();
       return;
     }
@@ -146,10 +151,11 @@ const ActivityCheckInReportPage = () => {
       setHasSavedCheckIn(true);
       setIsPresentCheck(present);
       setIsAbsentCheck(absent);
+      setNote(reportData?.note ?? '');
     } else {
       reset();
     }
-  }, [activityCheckInData, todayDate]);
+  }, [activityCheckInData, activityType, defaultClassroom?.id, selectedDate]);
 
   // Process teacher data when available
   useEffect(() => {
@@ -158,6 +164,7 @@ const ActivityCheckInReportPage = () => {
       setClassrooms([]);
       setCurrentStudents([]);
       setNormalStudents([]);
+      setNote('');
       setPageSize(10);
       setCurrentPage(0);
       setMobilePage(0);
@@ -178,6 +185,7 @@ const ActivityCheckInReportPage = () => {
       setClassrooms(sortedClassrooms);
       setCurrentStudents([]);
       setNormalStudents([]);
+      setNote('');
       setPageSize(10);
       setCurrentPage(0);
       setMobilePage(0);
@@ -370,8 +378,10 @@ const ActivityCheckInReportPage = () => {
       classroomId: defaultClassroom.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
-      checkInDate: new Date(),
+      checkInDate: selectedDate || new Date(),
       status: '1',
+      activityType: activityType,
+      note: note.trim() || undefined,
     };
 
     const totalStudents = isPresentCheck.concat(isAbsentCheck).length;
@@ -386,6 +396,24 @@ const ActivityCheckInReportPage = () => {
     } else {
       toast.error('กรุณาเช็คชื่อของนักเรียนทุกคนให้ครบถ้วน!');
     }
+  };
+
+  const handleActivityTypeChange = (event: any) => {
+    setActivityType(event.target.value);
+    setNote('');
+    setHasSavedCheckIn(false);
+    onClearAll('');
+  };
+
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    setNote('');
+    setHasSavedCheckIn(false);
+    onClearAll('');
+  };
+
+  const handleNoteChange = (value: string) => {
+    setNote(value);
   };
 
   const handleSelectChange = (event: any) => {
@@ -411,6 +439,7 @@ const ActivityCheckInReportPage = () => {
       setCurrentPage(0);
       setMobilePage(0);
 
+      setNote('');
       setHasSavedCheckIn(false);
       onClearAll('');
     }
@@ -473,7 +502,7 @@ const ActivityCheckInReportPage = () => {
                     <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    {new Date().toLocaleDateString('th-TH', {
+                    {(selectedDate || new Date()).toLocaleDateString('th-TH', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
@@ -493,8 +522,8 @@ const ActivityCheckInReportPage = () => {
                 backgroundColor: 'background.paper',
               }}
             >
-              {/* Loading State */}
-              {loading && (
+              {/* Loading State - Show only during initial loading when there is no student data yet */}
+              {loading && currentStudents.length === 0 && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
                   <Typography>กำลังโหลดข้อมูล...</Typography>
                 </Box>
@@ -503,14 +532,18 @@ const ActivityCheckInReportPage = () => {
               {/* Empty State */}
               {!loading && (!classrooms || !classrooms.length) && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography sx={{
-                    color: 'text.secondary'
-                  }}>ไม่พบข้อมูลห้องเรียน</Typography>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
+                    ไม่พบข้อมูลห้องเรียน
+                  </Typography>
                 </Box>
               )}
 
-              {/* Fixed Controls Section */}
-              {!loading && classrooms && classrooms.length > 0 && (
+              {/* Fixed Controls Section - Always visible to prevent layout shift */}
+              {classrooms && classrooms.length > 0 && (
                 <Box
                   sx={{
                     flexShrink: 0,
@@ -529,8 +562,10 @@ const ActivityCheckInReportPage = () => {
                       isPresentCheck.length + isAbsentCheck.length === selectableStudentCount &&
                       selectableStudentCount > 0
                     }
-                    loading={false}
+                    loading={loading}
                     hasSavedCheckIn={hasSavedCheckIn}
+                    selectedDate={selectedDate}
+                    onDateChange={handleDateChange}
                     formSize={responsiveConfig.formSize}
                     inputFontSize={responsiveConfig.inputFontSize}
                     inputPadding={responsiveConfig.inputPadding}
@@ -539,6 +574,11 @@ const ActivityCheckInReportPage = () => {
                     buttonFontSize={responsiveConfig.buttonFontSize}
                     onClassroomChange={handleSelectChange}
                     onSaveCheckIn={handleSaveCheckIn}
+                    activityType={activityType}
+                    onActivityTypeChange={handleActivityTypeChange}
+                    activityTypes={ACTIVITY_TYPES}
+                    noteValue={note}
+                    onNoteChange={handleNoteChange}
                   />
                 </Box>
               )}
@@ -651,7 +691,7 @@ const ActivityCheckInReportPage = () => {
                 </>
               ) : (
                 /* Desktop View */
-                (<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <ActivityCheckInDataGrid
                     students={currentStudents}
                     loading={loading}
@@ -674,7 +714,7 @@ const ActivityCheckInReportPage = () => {
                     onCellClick={handleCellClick}
                     onColumnHeaderClick={handleColumnHeaderClick}
                   />
-                </Box>)
+                </Box>
               )}
             </Box>
           </Box>

@@ -195,4 +195,22 @@ export abstract class GoodnessService {
   static async delete(id: string) {
     await prisma.goodnessIndividual.delete({ where: { id } });
   }
+
+  static async resetAllRecords(resetBy: string) {
+    const count = await prisma.goodnessIndividual.count();
+    await prisma.$transaction([
+      prisma.goodnessIndividual.deleteMany({}),
+      prisma.auditLog.create({
+        data: {
+          action: "RESET_ALL_GOODNESS_RECORDS",
+          model: "GoodnessIndividual",
+          detail: `Reset all goodness summary records (${count} records)`,
+          oldValue: String(count),
+          newValue: "0",
+          createdBy: resetBy,
+        },
+      }),
+    ]);
+    return { deleted: count };
+  }
 }

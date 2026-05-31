@@ -51,10 +51,9 @@ describe('useTeacherVisitStudents', () => {
 
     vi.mocked(httpClient.get).mockResolvedValue({ data: mockRows } as never);
 
-    const { result } = renderHook(
-      () => useTeacherVisitStudents({ classroomId: 'class-1', academicYear: '2569' }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => useTeacherVisitStudents({ classroomId: 'class-1', academicYear: '2569' }), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);

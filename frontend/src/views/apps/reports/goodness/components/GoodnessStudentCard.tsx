@@ -99,7 +99,7 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
               id={`goodness-student-id-${student.id || student.studentId}`}
               variant='body2'
               sx={{
-                color: 'text.secondary'
+                color: 'text.secondary',
               }}
             >
               @{studentInfo.id}
@@ -108,7 +108,7 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
               id={`goodness-student-class-${student.id || student.studentId}`}
               variant='body2'
               sx={{
-                color: 'text.secondary'
+                color: 'text.secondary',
               }}
             >
               {studentInfo.classroom}
@@ -161,4 +161,3 @@ const GoodnessStudentCard = ({ student, onDetailClick }: GoodnessStudentCardProp
 };
 
 export default GoodnessStudentCard;
-

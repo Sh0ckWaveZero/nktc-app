@@ -78,7 +78,6 @@ export default function CustomDay(props: TableHeaderProps) {
       return (
         <CustomPickersDay
           {...(pickersDayProps as any)}
-          disableMargin
           dayIsBetween={dayIsBetween}
           isFirstDay={isFirstDay}
           isLastDay={isLastDay}

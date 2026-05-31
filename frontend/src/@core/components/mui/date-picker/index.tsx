@@ -28,7 +28,6 @@ const CustomDatePicker = ({ label, value, onChange }: DatePickerProps) => {
         slots={{
           textField: TextField,
           openPickerIcon: (props) => {
-             
             const { ownerState, ...restProps } = props as any;
             return <FcCalendar {...restProps} />;
           },

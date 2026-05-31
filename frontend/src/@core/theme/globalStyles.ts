@@ -78,9 +78,11 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
       '.layout-vertical-nav &': {
         '& .ps__thumb-y': {
           width: 4,
-          backgroundColor: skin === 'semi-dark' ? `${theme.palette.grey[700]} !important` : `${theme.palette.grey[400]} !important`,
+          backgroundColor:
+            skin === 'semi-dark' ? `${theme.palette.grey[700]} !important` : `${theme.palette.grey[400]} !important`,
           ...theme.applyStyles('dark', {
-            backgroundColor: skin === 'semi-dark' ? `${theme.palette.grey[400]} !important` : `${theme.palette.grey[700]} !important`,
+            backgroundColor:
+              skin === 'semi-dark' ? `${theme.palette.grey[400]} !important` : `${theme.palette.grey[700]} !important`,
           }),
         },
         '&:hover, &:focus, &.ps--clicking': {

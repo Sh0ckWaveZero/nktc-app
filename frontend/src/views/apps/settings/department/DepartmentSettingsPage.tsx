@@ -354,11 +354,7 @@ const DepartmentSettingsPage = () => {
       minWidth: 220,
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, py: 0.5 }}>
-          <Icon
-            icon='tabler:info-circle'
-            fontSize='0.95rem'
-            style={{ marginTop: 2, flexShrink: 0, opacity: 0.45 }}
-          />
+          <Icon icon='tabler:info-circle' fontSize='0.95rem' style={{ marginTop: 2, flexShrink: 0, opacity: 0.45 }} />
           <Typography
             variant='body2'
             color='text.secondary'
@@ -398,7 +394,9 @@ const DepartmentSettingsPage = () => {
                 {row._count?.classroom ?? 0} ห้อง
               </Typography>
             </Box>
-            <Typography variant='caption' color='text.disabled'>·</Typography>
+            <Typography variant='caption' color='text.disabled'>
+              ·
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <ColorIcon icon='tabler:users' color='success' fontSize='0.85rem' />
               <Typography variant='caption' color='text.secondary'>
@@ -509,7 +507,8 @@ const DepartmentSettingsPage = () => {
           <Card
             sx={{
               borderRadius: 6,
-              border: (theme) => `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
+              border: (theme) =>
+                `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.18 : 0.1)}`,
               background: (theme) =>
                 theme.palette.mode === 'dark'
                   ? `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 0.985)} 18%, ${alpha(theme.palette.background.paper, 0.995)} 100%)`
@@ -681,11 +680,41 @@ const DepartmentSettingsPage = () => {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {(
                   [
-                    { label: 'แผนกทั้งหมด', value: summary.total, hint: `${summary.active} เปิดใช้งาน`, icon: 'tabler:building-community', colorKey: 'primary' },
-                    { label: 'ปิดใช้งาน', value: summary.inactive, hint: 'รอตรวจสอบหรือพักใช้งาน', icon: 'tabler:building-off', colorKey: 'warning' },
-                    { label: 'สาขาที่ผูกอยู่', value: summary.programs, hint: 'รวมทั้งระบบ', icon: 'tabler:school', colorKey: 'info' },
-                    { label: 'ห้องเรียนที่ผูกอยู่', value: summary.classrooms, hint: 'พร้อมใช้งานต่อในระบบ', icon: 'tabler:door', colorKey: 'success' },
-                  ] as Array<{ label: string; value: number; hint: string; icon: string; colorKey: 'primary' | 'warning' | 'info' | 'success' }>
+                    {
+                      label: 'แผนกทั้งหมด',
+                      value: summary.total,
+                      hint: `${summary.active} เปิดใช้งาน`,
+                      icon: 'tabler:building-community',
+                      colorKey: 'primary',
+                    },
+                    {
+                      label: 'ปิดใช้งาน',
+                      value: summary.inactive,
+                      hint: 'รอตรวจสอบหรือพักใช้งาน',
+                      icon: 'tabler:building-off',
+                      colorKey: 'warning',
+                    },
+                    {
+                      label: 'สาขาที่ผูกอยู่',
+                      value: summary.programs,
+                      hint: 'รวมทั้งระบบ',
+                      icon: 'tabler:school',
+                      colorKey: 'info',
+                    },
+                    {
+                      label: 'ห้องเรียนที่ผูกอยู่',
+                      value: summary.classrooms,
+                      hint: 'พร้อมใช้งานต่อในระบบ',
+                      icon: 'tabler:door',
+                      colorKey: 'success',
+                    },
+                  ] as Array<{
+                    label: string;
+                    value: number;
+                    hint: string;
+                    icon: string;
+                    colorKey: 'primary' | 'warning' | 'info' | 'success';
+                  }>
                 ).map((item) => (
                   <Grid key={item.label} size={{ xs: 12, sm: 6, xl: 3 }}>
                     <SectionBox sx={{ p: 3, height: '100%' }}>

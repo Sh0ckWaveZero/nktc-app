@@ -24,10 +24,14 @@ import Grid from '@mui/material/Grid';
 import { alpha, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import * as XLSX from 'xlsx';
-import { useDepartments } from '@/hooks/queries';
+import { useClassrooms, useDepartments, useTeachers } from '@/hooks/queries';
 import { useAdminVisitSummaryReport, type AdminVisitSummaryRow } from '@/hooks/queries/useVisits';
 
+import { getAdvisorScopeStudentTotal } from './advisor-scope.utils';
+
 const ALL_DEPARTMENTS_VALUE = 'all';
+
+const getRecordedAt = (row: AdminVisitSummaryRow) => row.latestRecordedAt || row.visitDate;
 
 const formatVisitDate = (value: string) => {
   const [year, month, day] = value.split('-').map(Number);
@@ -50,7 +54,12 @@ const formatStudentProgress = (recordedStudentCount: number, totalStudentCount: 
 };
 
 const sanitizeFileSegment = (value: string) => {
-  return value.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '_') || 'all_departments';
+  return (
+    value
+      .trim()
+      .replace(/[\\/:*?"<>|]/g, '-')
+      .replace(/\s+/g, '_') || 'all_departments'
+  );
 };
 
 const MobileVisitSummaryCard = ({ row }: { row: AdminVisitSummaryRow }) => {
@@ -98,17 +107,25 @@ const MobileVisitSummaryCard = ({ row }: { row: AdminVisitSummaryRow }) => {
                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
               }}
             >
-              <Typography id={`admin-visit-report-mobile-card-count-${row.id}`} variant='body2' sx={{ fontWeight: 700 }}>
+              <Typography
+                id={`admin-visit-report-mobile-card-count-${row.id}`}
+                variant='body2'
+                sx={{ fontWeight: 700 }}
+              >
                 {formatStudentProgress(row.recordedStudentCount, row.studentCount)}
               </Typography>
             </Box>
           </Box>
           <Box id={`admin-visit-report-mobile-card-date-section-${row.id}`}>
-            <Typography id={`admin-visit-report-mobile-card-date-label-${row.id}`} variant='caption' color='text.secondary'>
-              วันที่บันทึก
+            <Typography
+              id={`admin-visit-report-mobile-card-date-label-${row.id}`}
+              variant='caption'
+              color='text.secondary'
+            >
+              วันที่บันทึกล่าสุด
             </Typography>
             <Typography id={`admin-visit-report-mobile-card-date-${row.id}`} variant='body1' sx={{ fontWeight: 600 }}>
-              {formatVisitDate(row.visitDate)}
+              {formatVisitDate(getRecordedAt(row))}
             </Typography>
           </Box>
           <Box id={`admin-visit-report-mobile-card-classroom-section-${row.id}`}>
@@ -119,7 +136,11 @@ const MobileVisitSummaryCard = ({ row }: { row: AdminVisitSummaryRow }) => {
             >
               ห้องเรียน
             </Typography>
-            <Typography id={`admin-visit-report-mobile-card-classroom-${row.id}`} variant='body1' sx={{ fontWeight: 600 }}>
+            <Typography
+              id={`admin-visit-report-mobile-card-classroom-${row.id}`}
+              variant='body1'
+              sx={{ fontWeight: 600 }}
+            >
               {row.classroomName}
             </Typography>
           </Box>
@@ -135,11 +156,14 @@ const AdminVisitReportPage = () => {
   const [departmentFilter, setDepartmentFilter] = useState<string>(ALL_DEPARTMENTS_VALUE);
 
   const { data: departments = [], isLoading: isDepartmentsLoading } = useDepartments();
+  const { data: teachers = [] } = useTeachers({ take: 1000 });
 
   const reportQueryParams = useMemo(
     () => (departmentFilter === ALL_DEPARTMENTS_VALUE ? undefined : { departmentId: departmentFilter }),
     [departmentFilter],
   );
+
+  const { data: classrooms = [] } = useClassrooms(reportQueryParams);
 
   const { data = [], isLoading, isFetching, isError, error } = useAdminVisitSummaryReport(reportQueryParams);
 
@@ -152,17 +176,7 @@ const AdminVisitReportPage = () => {
   }, [departmentFilter, departments]);
 
   const metrics = useMemo(() => {
-    const studentCountByAdvisorScope = new Map<string, number>();
-
-    for (const row of data) {
-      const advisorScopeKey = `${row.teacherName}:${row.departmentName}:${row.classroomName}`;
-
-      if (!studentCountByAdvisorScope.has(advisorScopeKey)) {
-        studentCountByAdvisorScope.set(advisorScopeKey, row.studentCount);
-      }
-    }
-
-    const totalStudents = [...studentCountByAdvisorScope.values()].reduce((sum, studentCount) => sum + studentCount, 0);
+    const totalStudents = getAdvisorScopeStudentTotal(teachers, classrooms);
     const uniqueTeachers = new Set(data.map((row) => row.teacherName).filter(Boolean)).size;
 
     return [
@@ -170,13 +184,13 @@ const AdminVisitReportPage = () => {
         id: 'admin-visit-report-total-groups',
         label: 'รายการรายงาน',
         value: numberFormatter.format(data.length),
-        helper: 'สรุปตามครู วันที่ แผนก และห้องเรียน',
+        helper: 'สรุปตามครูที่ปรึกษาและแผนกใน scope ปัจจุบัน',
       },
       {
         id: 'admin-visit-report-total-students',
         label: 'จำนวนนักเรียนรวม',
         value: numberFormatter.format(totalStudents),
-        helper: 'นับรวมตาม scope ห้องเรียนครูที่ปรึกษา',
+        helper: 'อ้างอิงจากครูประจำชั้นในหน้า teacher list',
       },
       {
         id: 'admin-visit-report-total-teachers',
@@ -185,7 +199,7 @@ const AdminVisitReportPage = () => {
         helper: 'จำนวนครูที่มีข้อมูลในรายงาน',
       },
     ];
-  }, [data]);
+  }, [classrooms, data, teachers]);
 
   const errorMessage = error instanceof Error ? error.message : 'ไม่สามารถโหลดรายงานการเยี่ยมบ้านได้';
 
@@ -207,10 +221,10 @@ const AdminVisitReportPage = () => {
         })}`,
       ],
       [],
-      ['ชื่อครู', 'วันที่บันทึก', 'แผนกวิชา', 'ห้องเรียน', 'จำนวนนักเรียนที่บันทึกแล้ว/ทั้งหมด'],
+      ['ชื่อครู', 'วันที่บันทึกล่าสุด', 'แผนกวิชา', 'ห้องเรียน', 'จำนวนนักเรียนที่บันทึกแล้ว/ทั้งหมด'],
       ...data.map((row) => [
         row.teacherName,
-        formatVisitDate(row.visitDate),
+        formatVisitDate(getRecordedAt(row)),
         row.departmentName,
         row.classroomName,
         formatStudentProgress(row.recordedStudentCount, row.studentCount),
@@ -240,7 +254,8 @@ const AdminVisitReportPage = () => {
             รายงานการเยี่ยมบ้าน
           </Typography>
           <Typography id='admin-visit-report-description' variant='body1' color='text.secondary'>
-            สรุปข้อมูลการบันทึกเยี่ยมบ้านของครู โดยแสดงชื่อครู วันที่บันทึก แผนกวิชา ห้องเรียน และจำนวนนักเรียนที่บันทึกแล้วเทียบกับทั้งหมด
+            สรุปข้อมูลการบันทึกเยี่ยมบ้านของครูที่ปรึกษา โดยแสดงชื่อครู วันที่บันทึกล่าสุด แผนกวิชา
+            ห้องเรียนใน scope ปัจจุบัน และจำนวนนักเรียนที่บันทึกแล้วเทียบกับทั้งหมด
           </Typography>
         </Stack>
       </Box>
@@ -360,7 +375,7 @@ const AdminVisitReportPage = () => {
                       ชื่อครู
                     </TableCell>
                     <TableCell id='admin-visit-report-table-head-date' sx={{ fontWeight: 700 }}>
-                      วันที่บันทึก
+                      วันที่บันทึกล่าสุด
                     </TableCell>
                     <TableCell id='admin-visit-report-table-head-department' sx={{ fontWeight: 700 }}>
                       แผนกวิชา
@@ -380,14 +395,12 @@ const AdminVisitReportPage = () => {
                         {row.teacherName}
                       </TableCell>
                       <TableCell id={`admin-visit-report-table-row-date-${row.id}`}>
-                        {formatVisitDate(row.visitDate)}
+                        {formatVisitDate(getRecordedAt(row))}
                       </TableCell>
                       <TableCell id={`admin-visit-report-table-row-department-${row.id}`}>
                         {row.departmentName}
                       </TableCell>
-                      <TableCell id={`admin-visit-report-table-row-classroom-${row.id}`}>
-                        {row.classroomName}
-                      </TableCell>
+                      <TableCell id={`admin-visit-report-table-row-classroom-${row.id}`}>{row.classroomName}</TableCell>
                       <TableCell id={`admin-visit-report-table-row-count-${row.id}`} align='right'>
                         {formatStudentProgress(row.recordedStudentCount, row.studentCount)}
                       </TableCell>

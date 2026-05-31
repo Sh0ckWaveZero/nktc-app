@@ -20,10 +20,7 @@ export const useGoodnessRecords = (params?: GoodnessQuery) => {
   return useQuery({
     queryKey: queryKeys.goodness.list(params),
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.goodnessIndividualEndpoint}/search`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, params || {});
       return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -36,24 +33,21 @@ export const useGoodnessRecords = (params?: GoodnessQuery) => {
 export const useGoodnessSearch = (params?: GoodnessQuery, options?: { enabled?: boolean }) => {
   const hasSearchQuery = !!(params?.fullName || params?.classroomId || params?.studentId || params?.goodDate);
   const enabled = options?.enabled !== undefined ? options.enabled && hasSearchQuery : hasSearchQuery;
-  
+
   return useQuery({
     queryKey: queryKeys.goodness.list(params),
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.goodnessIndividualEndpoint}/search`,
-        params || {}
-      );
-      
+      const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/search`, params || {});
+
       // Handle different response formats:
       // 1. { success, statusCode, message, data: { data: [...], total }, meta }
       // 2. { data: [...], total }
       // 3. Array directly
-      
+
       if (!data || typeof data !== 'object') {
         return { data: [], total: 0 };
       }
-      
+
       // Check for nested structure: { success, data: { data: [...], total } }
       if ('success' in data && 'data' in data && data.data && typeof data.data === 'object') {
         // Check if data.data has nested data property
@@ -73,7 +67,7 @@ export const useGoodnessSearch = (params?: GoodnessQuery, options?: { enabled?: 
           };
         }
       }
-      
+
       // Check for direct structure: { data: [...], total }
       if ('data' in data && Array.isArray(data.data)) {
         return {
@@ -81,7 +75,7 @@ export const useGoodnessSearch = (params?: GoodnessQuery, options?: { enabled?: 
           total: data.total || data.data.length,
         };
       }
-      
+
       // Check if data is array directly
       if (Array.isArray(data)) {
         return {
@@ -89,7 +83,7 @@ export const useGoodnessSearch = (params?: GoodnessQuery, options?: { enabled?: 
           total: data.length,
         };
       }
-      
+
       // Fallback
       return { data: [], total: 0 };
     },
@@ -106,7 +100,7 @@ export const useStudentGoodnessRecords = (studentId: string, skip: number = 0, t
     queryKey: queryKeys.goodness.student(studentId),
     queryFn: async () => {
       const { data } = await httpClient.get(
-        `${authConfig.goodnessIndividualEndpoint}/${studentId}?skip=${skip}&take=${take}`
+        `${authConfig.goodnessIndividualEndpoint}/${studentId}?skip=${skip}&take=${take}`,
       );
       return data;
     },
@@ -122,10 +116,7 @@ export const useGoodnessSummary = (params?: any) => {
   return useQuery({
     queryKey: [...queryKeys.goodness.all, 'summary', params],
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.goodnessIndividualEndpoint}/summary`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/summary`, params || {});
       return data;
     },
     enabled: !!params,
@@ -158,10 +149,7 @@ export const useCreateGoodnessGroup = () => {
 
   return useMutation({
     mutationFn: async (params: any) => {
-      const { data } = await httpClient.post(
-        `${authConfig.goodnessIndividualEndpoint}/group`,
-        params
-      );
+      const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/group`, params);
       return data;
     },
     onSuccess: () => {

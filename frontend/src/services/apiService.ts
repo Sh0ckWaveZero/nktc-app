@@ -2,7 +2,6 @@ import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 
 class ApiService {
-
   async getStudentsWithCheckInStatus(params?: any) {
     try {
       // First get students
@@ -18,7 +17,7 @@ class ApiService {
           // We'll need teacherId for this - for now we'll use a placeholder or get it from auth
           // This should be enhanced to get the actual teacher ID
           const checkInResponse = await httpClient.get(
-            `${authConfig.activityCheckInEndpoint}/teacher/1/classroom/${params.classroomId}/start-date/${params.date || new Date().toISOString().split('T')[0]}/daily-report`
+            `${authConfig.activityCheckInEndpoint}/teacher/1/classroom/${params.classroomId}/start-date/${params.date || new Date().toISOString().split('T')[0]}/daily-report`,
           );
 
           // If we have existing check-in data, merge it with students
@@ -103,7 +102,7 @@ class ApiService {
   async getCheckInData(teacherId: string, classroomId: string, date: string) {
     try {
       const response = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${teacherId}/classroom/${classroomId}/start-date/${date}/daily-report`
+        `${authConfig.activityCheckInEndpoint}/teacher/${teacherId}/classroom/${classroomId}/start-date/${date}/daily-report`,
       );
       return response.data;
     } catch (error) {

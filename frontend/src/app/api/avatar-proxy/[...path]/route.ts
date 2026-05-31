@@ -4,26 +4,23 @@ import { backendServerConfig } from '@/server/backend';
 
 /**
  * Avatar Proxy Route Handler with Next.js Caching
- * 
+ *
  * This route proxies avatar images from the API server and uses Next.js caching
  * to improve performance and reduce server load.
- * 
+ *
  * Based on: https://nextjs.org/docs/app/getting-started/caching-and-revalidating
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   try {
     const { path } = await params;
     let imagePath = path.join('/');
-    
+
     // Remove query parameters if present (for retry logic)
     // Query params like ?retry=1&t=... should not affect the path
     if (imagePath.includes('?')) {
       imagePath = imagePath.split('?')[0];
     }
-    
+
     // Validate path to prevent directory traversal and ensure it's a statics path
     if (!imagePath || imagePath.includes('..') || !imagePath.startsWith('statics/')) {
       return new NextResponse('Invalid path', { status: 400 });
@@ -38,14 +35,14 @@ export async function GET(
     // Using Next.js fetch caching with revalidation
     // Reference: https://nextjs.org/docs/app/getting-started/caching-and-revalidating
     // Note: We don't cache 429 errors to allow retry after rate limit resets
-     
+
     const response = await fetch(apiUrl, {
       next: {
         revalidate: 3600, // Revalidate after 1 hour (3600 seconds)
         tags: ['avatar', `avatar-${imagePath}`], // Tag for on-demand revalidation with revalidateTag
       },
       headers: {
-        'Accept': 'image/webp,image/avif,image/png,image/jpeg,image/gif,*/*',
+        Accept: 'image/webp,image/avif,image/png,image/jpeg,image/gif,*/*',
       },
       // Don't cache 429 errors - allow retry after rate limit window
       cache: 'default',
@@ -57,11 +54,11 @@ export async function GET(
       // This prevents frontend from retrying and making the problem worse
       if (response.status === 429) {
         const placeholderBytes = new Uint8Array([
-          0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xff, 0xff, 0xff,
-          0x00, 0x00, 0x00, 0x21, 0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00,
-          0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x04, 0x01, 0x00, 0x3b
+          0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00,
+          0x00, 0x21, 0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+          0x00, 0x02, 0x02, 0x04, 0x01, 0x00, 0x3b,
         ]);
-        
+
         return new NextResponse(placeholderBytes, {
           status: 200,
           headers: {
@@ -71,18 +68,18 @@ export async function GET(
           },
         });
       }
-      
+
       // Handle 404 (file doesn't exist) - return 200 with 1x1 transparent GIF to avoid console errors
       // Next.js 16 compatible: Use ArrayBuffer for Edge Runtime compatibility
       if (response.status === 404) {
         // Return 1x1 transparent GIF as placeholder (base64: R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)
         // For Next.js 16 Edge Runtime: Use hardcoded bytes array instead of Buffer/atob
         const placeholderBytes = new Uint8Array([
-          0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xff, 0xff, 0xff,
-          0x00, 0x00, 0x00, 0x21, 0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00,
-          0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x04, 0x01, 0x00, 0x3b
+          0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00,
+          0x00, 0x21, 0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+          0x00, 0x02, 0x02, 0x04, 0x01, 0x00, 0x3b,
         ]);
-        
+
         return new NextResponse(placeholderBytes, {
           status: 200,
           headers: {
@@ -92,7 +89,7 @@ export async function GET(
           },
         });
       }
-      
+
       // Other errors
       return new NextResponse('Image not found', { status: response.status });
     }

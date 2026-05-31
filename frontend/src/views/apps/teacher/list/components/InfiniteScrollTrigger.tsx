@@ -27,7 +27,7 @@ const InfiniteScrollTrigger = ({ onLoadMore, isLoading }: InfiniteScrollTriggerP
         root: null,
         rootMargin: '100px', // Start loading 100px before reaching the trigger
         threshold: 0.1,
-      }
+      },
     );
 
     observerRef.current.observe(triggerRef.current);
@@ -56,4 +56,3 @@ const InfiniteScrollTrigger = ({ onLoadMore, isLoading }: InfiniteScrollTriggerP
 };
 
 export default InfiniteScrollTrigger;
-

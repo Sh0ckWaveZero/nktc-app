@@ -29,6 +29,7 @@ import TableHeader from '@/views/apps/teacher/list/TableHeader';
 import DialogDeleteTeacher from '@/views/apps/admin/teacher/DialogDeleteTeacher';
 import TeacherMobileCard from '@/views/apps/teacher/list/components/TeacherMobileCard';
 import InfiniteScrollTrigger from '@/views/apps/teacher/list/components/InfiniteScrollTrigger';
+import ConfirmDialog, { type ConfirmDialogOptions } from '@/@core/components/dialogs/ConfirmDialog';
 
 import { useTeacherList } from '@/views/apps/teacher/list/hooks/useTeacherList';
 import { getColumns } from '@/views/apps/teacher/list/utils/getColumns';
@@ -99,12 +100,15 @@ const TeacherListPage = () => {
     openDialogEdit,
     openDialogDelete,
     openChangePassword,
+    openResetLoginDays,
     currentTeacher,
     teachers,
     isSubmittingClassroom,
     isLoadingTeachers,
     displayedTeachers,
     isLoadingMore,
+    isResettingLoginDays,
+    isAdmin,
     defaultValue,
 
     // Actions
@@ -116,13 +120,16 @@ const TeacherListPage = () => {
     handleEdit,
     handleDelete,
     handleChangePassword,
+    handleOpenResetLoginDays,
     onHandleEditClose,
     onHandleChangePasswordClose,
     handleDeleteClose,
+    handleResetLoginDaysClose,
     handleEditTeacher,
     handleChangePasswordTeacher,
     onHandleAddTeacher,
     handleDeleteConfirm,
+    handleResetLoginDaysConfirm,
     handleAddClassroom,
     handleLoadMore,
     refreshTeachers,
@@ -149,6 +156,17 @@ const TeacherListPage = () => {
     ],
     [activeTeacherCount, classroomAssignedCount, importToolIsBusy],
   );
+  const resetLoginDaysDialogOptions = useMemo<ConfirmDialogOptions>(() => {
+    return {
+      title: 'ยืนยันการรีเซตวันเข้าใช้งานทั้งหมด',
+      message: `ระบบจะล้างประวัติวันเข้าใช้งานของครู / บุคลากรทั้งหมด ${teachers.length} คน และเริ่มนับใหม่ตั้งแต่การล็อกอินครั้งถัดไป`,
+      severity: 'warning',
+      confirmText: 'รีเซตทั้งหมด',
+      cancelText: 'ยกเลิก',
+      showWarning: true,
+      warningMessage: 'การดำเนินการนี้จะล้างสถิติวันเข้าใช้งานของครูทุกคนพร้อมกัน และไม่สามารถกู้ค่าที่ลบไปแล้วกลับมาได้',
+    };
+  }, [teachers.length]);
 
   // ** Memoized Columns
   const columns = useMemo(
@@ -290,12 +308,16 @@ const TeacherListPage = () => {
               handleFilter={handleFilter}
               toggle={toggleAddUserDrawer}
               onDownloadTemplate={handleDownloadTemplate}
+              onResetLoginDays={handleOpenResetLoginDays}
               onExport={handleExport}
               onImportClick={handleImportClick}
               isDownloadingTemplate={isDownloadingTemplate}
+              isResettingLoginDays={isResettingLoginDays}
               isExporting={isExporting}
               isImporting={isImporting}
               canExport={teachers.length > 0}
+              showResetLoginDays={isAdmin}
+              canResetLoginDays={isAdmin && teachers.length > 0}
             />
             {isMobile ? (
               <Box
@@ -306,7 +328,8 @@ const TeacherListPage = () => {
                   gap: 1.5,
                   px: { xs: 2, sm: 3 },
                   py: { xs: 2, sm: 3 },
-                  backgroundColor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.04 : 0.025),
+                  backgroundColor: (theme) =>
+                    alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.04 : 0.025),
                 }}
               >
                 {isLoadingTeachers ? (
@@ -360,10 +383,7 @@ const TeacherListPage = () => {
                 )}
               </Box>
             ) : (
-              <Box
-                id='teacher-data-grid-container'
-                sx={{ '& .MuiDataGrid-root': { minHeight: 440 } }}
-              >
+              <Box id='teacher-data-grid-container' sx={{ '& .MuiDataGrid-root': { minHeight: 440 } }}>
                 <AppTeacherDataGrid
                   disableColumnMenu
                   rows={teachers}
@@ -451,7 +471,21 @@ const TeacherListPage = () => {
           />
         </Box>
       )}
-      <Dialog id='teacher-import-result-dialog' open={isImportResultOpen} fullWidth maxWidth='sm' aria-labelledby='teacher-import-result-title' onClose={() => setIsImportResultOpen(false)}>
+      <ConfirmDialog
+        open={openResetLoginDays}
+        options={resetLoginDaysDialogOptions}
+        onClose={handleResetLoginDaysClose}
+        onConfirm={handleResetLoginDaysConfirm}
+        isConfirming={isResettingLoginDays}
+      />
+      <Dialog
+        id='teacher-import-result-dialog'
+        open={isImportResultOpen}
+        fullWidth
+        maxWidth='sm'
+        aria-labelledby='teacher-import-result-title'
+        onClose={() => setIsImportResultOpen(false)}
+      >
         <DialogTitle id='teacher-import-result-title'>ผลการนำเข้าข้อมูลครูและบุคลากร</DialogTitle>
         <DialogContent>
           {importResult && (
@@ -478,7 +512,11 @@ const TeacherListPage = () => {
                   { label: 'ทั้งหมด', value: importResult.total, color: 'primary' },
                   { label: 'สำเร็จ', value: importResult.imported, color: 'success' },
                   { label: 'อัปเดต', value: importResult.updated, color: 'info' },
-                  { label: 'ไม่สำเร็จ', value: importResult.failed, color: importResult.failed > 0 ? 'error' : 'secondary' },
+                  {
+                    label: 'ไม่สำเร็จ',
+                    value: importResult.failed,
+                    color: importResult.failed > 0 ? 'error' : 'secondary',
+                  },
                 ].map(({ label, value, color }) => (
                   <Box
                     key={label}
@@ -488,7 +526,10 @@ const TeacherListPage = () => {
                       border: (theme) =>
                         `1px solid ${alpha(theme.palette[color as 'primary' | 'success' | 'info' | 'error' | 'secondary'].main, theme.palette.mode === 'dark' ? 0.28 : 0.18)}`,
                       bgcolor: (theme) =>
-                        alpha(theme.palette[color as 'primary' | 'success' | 'info' | 'error' | 'secondary'].main, theme.palette.mode === 'dark' ? 0.1 : 0.07),
+                        alpha(
+                          theme.palette[color as 'primary' | 'success' | 'info' | 'error' | 'secondary'].main,
+                          theme.palette.mode === 'dark' ? 0.1 : 0.07,
+                        ),
                       textAlign: 'center',
                     }}
                   >
@@ -529,12 +570,23 @@ const TeacherListPage = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 6, pb: 5, pt: 1 }}>
-          <Button id='teacher-import-result-close-button' variant='contained' onClick={() => setIsImportResultOpen(false)}>
+          <Button
+            id='teacher-import-result-close-button'
+            variant='contained'
+            onClick={() => setIsImportResultOpen(false)}
+          >
             ปิด
           </Button>
         </DialogActions>
       </Dialog>
-      <input id='teacher-import-file-input' ref={fileInputRef} hidden type='file' accept='.xlsx' onChange={handleImportFile} />
+      <input
+        id='teacher-import-file-input'
+        ref={fileInputRef}
+        hidden
+        type='file'
+        accept='.xlsx'
+        onChange={handleImportFile}
+      />
     </Fragment>
   );
 };

@@ -22,11 +22,11 @@ type SuggestionPanelPropTypes = {
   ds: DataSourceItem[];
   shouldVisible: boolean;
   onDataSourceItemSelected?: (ds: ThailandAddressValue) => void;
-  containerProps?: React.HTMLAttributes<HTMLElement> & {
-    ref?: React.Ref<HTMLElement>;
+  containerProps?: React.HTMLAttributes<HTMLUListElement> & {
+    ref?: React.Ref<HTMLUListElement>;
   };
-  optionItemProps?: React.LiHTMLAttributes<HTMLElement> & {
-    ref?: React.Ref<HTMLElement>;
+  optionItemProps?: React.LiHTMLAttributes<HTMLLIElement> & {
+    ref?: React.Ref<HTMLLIElement>;
   };
   highlightedItemIndex?: number;
   onOptionMouseEnter?: (i: number) => void;
@@ -277,7 +277,9 @@ export const CustomSuggestionPanel = ({ children }: CustomSuggestionPanelPropTyp
 
 type BoundInputProps = Omit<AddressInputComponentProps, 'fieldName'>;
 
-export const SubdistrictInput = (props: BoundInputProps) => <AddressInputComponent fieldName='subdistrict' {...props} />;
+export const SubdistrictInput = (props: BoundInputProps) => (
+  <AddressInputComponent fieldName='subdistrict' {...props} />
+);
 SubdistrictInput.displayName = 'subdistrictInputField';
 
 export const ProvinceInput = (props: BoundInputProps) => <AddressInputComponent fieldName='province' {...props} />;

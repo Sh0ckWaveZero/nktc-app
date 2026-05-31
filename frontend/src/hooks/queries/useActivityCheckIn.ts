@@ -1,12 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
+import { toApiDate } from '@/utils/datetime';
 
 interface ActivityCheckInParams {
   teacher: string;
   classroom: string;
   date?: string; // YYYY-MM-DD — กรองเฉพาะวันนั้น
+  activityType?: string; // ประเภทกิจกรรม CLUB, AST, SCOUT
 }
 
 interface AddActivityCheckInData {
@@ -16,6 +18,8 @@ interface AddActivityCheckInData {
   absent: string[];
   checkInDate: Date;
   status: string;
+  activityType: string;
+  note?: string;
 }
 
 /**
@@ -26,15 +30,20 @@ export const useActivityCheckIn = (params: ActivityCheckInParams) => {
   return useQuery({
     queryKey: queryKeys.activityCheckIn.report(params),
     queryFn: async () => {
-      // แนบ date เพื่อกรองเฉพาะวันนั้น ไม่เช่นนั้น backend ส่งข้อมูลวันเก่ากลับมา
-      const dateParam = params.date ? `?date=${params.date}` : '';
+      // แนบ date และ activityType เพื่อกรองข้อมูล
+      const queryParams = new URLSearchParams();
+      if (params.date) queryParams.append('date', params.date);
+      if (params.activityType) queryParams.append('activityType', params.activityType);
+      const paramStr = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
       const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/teacher/${params.teacher}/classroom/${params.classroom}${dateParam}`
+        `${authConfig.activityCheckInEndpoint}/teacher/${params.teacher}/classroom/${params.classroom}${paramStr}`,
       );
       return data;
     },
     enabled: !!params.teacher && !!params.classroom,
     staleTime: 30 * 1000, // 30 seconds - short cache for real-time data
+    placeholderData: keepPreviousData,
     retry: 2,
   });
 };
@@ -48,29 +57,24 @@ export const useAddActivityCheckIn = () => {
 
   return useMutation({
     mutationFn: async (data: AddActivityCheckInData) => {
-      const response = await httpClient.post(
-        authConfig.activityCheckInEndpoint as string,
-        data
-      );
+      const response = await httpClient.post(authConfig.activityCheckInEndpoint as string, data);
       return response.data;
     },
     onSuccess: (data, variables) => {
+      const paramKey = {
+        teacher: variables.teacherId,
+        classroom: variables.classroomId,
+        date: toApiDate(variables.checkInDate),
+        activityType: variables.activityType,
+      };
+
       // Invalidate and refetch related queries
       queryClient.invalidateQueries({
-        queryKey: queryKeys.activityCheckIn.report({
-          teacher: variables.teacherId,
-          classroom: variables.classroomId,
-        }),
+        queryKey: queryKeys.activityCheckIn.report(paramKey),
       });
 
       // Optionally update cache directly
-      queryClient.setQueryData(
-        queryKeys.activityCheckIn.report({
-          teacher: variables.teacherId,
-          classroom: variables.classroomId,
-        }),
-        data
-      );
+      queryClient.setQueryData(queryKeys.activityCheckIn.report(paramKey), data);
     },
   });
 };

@@ -27,6 +27,7 @@ export interface VisitMapData {
 
 export interface VisitDetailData {
   mapData?: VisitMapData | null;
+  sdqAssessments?: any[] | null;
 }
 
 export interface TeacherVisitStudentRow {
@@ -50,6 +51,7 @@ export interface AdminVisitSummaryRow {
   id: string;
   teacherName: string;
   visitDate: string;
+  latestRecordedAt?: string;
   departmentName: string;
   classroomName: string;
   recordedStudentCount: number;
@@ -72,12 +74,17 @@ interface TeacherVisitStudentsOptions {
   advisorClassroomIds?: readonly string[];
 }
 
-const unwrapVisitArrayResponse = <T,>(response: unknown): T[] => {
+const unwrapVisitArrayResponse = <T>(response: unknown): T[] => {
   if (Array.isArray(response)) {
     return response as T[];
   }
 
-  if (response && typeof response === 'object' && 'data' in response && Array.isArray((response as { data: unknown[] }).data)) {
+  if (
+    response &&
+    typeof response === 'object' &&
+    'data' in response &&
+    Array.isArray((response as { data: unknown[] }).data)
+  ) {
     return (response as { data: T[] }).data;
   }
 
@@ -127,7 +134,8 @@ export const useTeacherVisitStudents = (
 };
 
 /**
- * Hook to fetch admin visit summary report grouped by teacher and visit date.
+ * Hook to fetch admin visit summary rows scoped by advisor classrooms
+ * with the latest saved date for each teacher/department scope.
  */
 export const useAdminVisitSummaryReport = (
   params?: Pick<VisitQuery, 'classroomId' | 'academicYear' | 'visitNo' | 'departmentId'>,
@@ -185,9 +193,7 @@ export const useStudentVisits = (studentId: string, skip: number = 0, take: numb
   return useQuery({
     queryKey: queryKeys.visits.student(studentId),
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.visitEndpoint}/${studentId}?skip=${skip}&take=${take}`
-      );
+      const { data } = await httpClient.get(`${authConfig.visitEndpoint}/${studentId}?skip=${skip}&take=${take}`);
       return data;
     },
     enabled: !!studentId,

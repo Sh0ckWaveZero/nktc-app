@@ -14,22 +14,24 @@ interface ClassroomDeleteDialogProps {
   onConfirm: () => void;
 }
 
-const ClassroomDeleteDialog = memo(({ open, classroom, isDeleting, onClose, onConfirm }: ClassroomDeleteDialogProps) => {
-  const name = classroom?.name || 'ห้องเรียน';
+const ClassroomDeleteDialog = memo(
+  ({ open, classroom, isDeleting, onClose, onConfirm }: ClassroomDeleteDialogProps) => {
+    const name = classroom?.name || 'ห้องเรียน';
 
-  return (
-    <GenericDeleteDialog
-      open={open}
-      title='ยืนยันการลบห้องเรียน'
-      itemName={name}
-      itemIdentifier={classroom?.classroomId}
-      isDeleting={isDeleting}
-      onClose={onClose}
-      onConfirm={onConfirm}
-      warningMessage='ลบแล้วกู้คืนอัตโนมัติไม่ได้ ระบบจะยอมลบได้เฉพาะห้องเรียนที่ยังไม่มีนักเรียน ครู รายวิชา หรือรายงานเชื่อมอยู่เท่านั้น'
-    />
-  );
-});
+    return (
+      <GenericDeleteDialog
+        open={open}
+        title='ยืนยันการลบห้องเรียน'
+        itemName={name}
+        itemIdentifier={classroom?.classroomId}
+        isDeleting={isDeleting}
+        onClose={onClose}
+        onConfirm={onConfirm}
+        warningMessage='ลบแล้วกู้คืนอัตโนมัติไม่ได้ ระบบจะยอมลบได้เฉพาะห้องเรียนที่ยังไม่มีนักเรียน ครู รายวิชา หรือรายงานเชื่อมอยู่เท่านั้น'
+      />
+    );
+  },
+);
 
 ClassroomDeleteDialog.displayName = 'ClassroomDeleteDialog';
 

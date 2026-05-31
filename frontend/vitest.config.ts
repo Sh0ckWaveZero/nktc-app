@@ -1,12 +1,13 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
   test: {
     // Use happy-dom for faster DOM operations (lighter than jsdom)
     environment: 'happy-dom',
+
+    // Bun on Windows is stable with forked workers here; thread workers can crash.
+    pool: 'forks',
 
     // Global test setup
     globals: true,

@@ -2,15 +2,7 @@
 
 import { alpha } from '@mui/material/styles';
 import { Box, Stack, Typography } from '@mui/material';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import type { DailyChartDatum } from '@/hooks/queries/useStatistics';
 

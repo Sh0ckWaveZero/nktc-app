@@ -249,4 +249,3 @@ export const TablePaginationCustom = styled(TablePagination)<{ component?: React
     fontSize: '0.875rem',
   },
 }));
-

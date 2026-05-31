@@ -23,7 +23,13 @@ import type { Theme } from '@mui/material/styles';
 import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
 import React, { memo, useMemo, useCallback } from 'react';
-import { RiContactsBookLine, RiUserSearchLine, RiUserUnfollowLine, RiGraduationCapLine, RiArrowUpLine } from 'react-icons/ri';
+import {
+  RiContactsBookLine,
+  RiUserSearchLine,
+  RiUserUnfollowLine,
+  RiGraduationCapLine,
+  RiArrowUpLine,
+} from 'react-icons/ri';
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import RenderAvatar from '@/@core/components/avatar';
@@ -40,8 +46,7 @@ import type { StudentImportResult } from '@/hooks/queries/useStudents';
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const StudentNameCell = memo(({ row }: { row: any }) => {
-  const isGrad =
-    row.isGraduation === true || row.studentStatus === 'graduated' || row.studentStatus === 'จบการศึกษา';
+  const isGrad = row.isGraduation === true || row.studentStatus === 'graduated' || row.studentStatus === 'จบการศึกษา';
   const isDropped = row.studentStatus === 'ออกก่อนกำหนด';
 
   return (
@@ -99,7 +104,14 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
   const processedLabel = result.updated && result.updated > 0 ? 'สำเร็จ' : 'นำเข้าได้';
 
   return (
-    <Dialog id='student-import-result-dialog' open={open} fullWidth maxWidth='sm' aria-labelledby='student-import-result-title' onClose={onClose}>
+    <Dialog
+      id='student-import-result-dialog'
+      open={open}
+      fullWidth
+      maxWidth='sm'
+      aria-labelledby='student-import-result-title'
+      onClose={onClose}
+    >
       <DialogTitle id='student-import-result-title'>ผลการนำเข้าข้อมูลนักเรียน</DialogTitle>
       <DialogContent>
         <Alert severity={alertSeverity} sx={{ mb: 4 }}>
@@ -109,9 +121,12 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
 
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 2, mb: 4 }}>
           <Box sx={{ p: 3, borderRadius: 1, bgcolor: 'action.hover' }}>
-            <Typography variant='caption' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              variant='caption'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               ทั้งหมด
             </Typography>
             <Typography variant='h6'>{result.total}</Typography>
@@ -124,9 +139,12 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
               border: (theme) => `1px solid ${theme.palette.success.light}`,
             }}
           >
-            <Typography variant='caption' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              variant='caption'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {processedLabel}
             </Typography>
             <Typography variant='h6'>{result.imported}</Typography>
@@ -140,9 +158,12 @@ const StudentImportResultDialog = memo(({ open, result, onClose }: StudentImport
                 result.failed > 0 ? `1px solid ${theme.palette.error.light}` : `1px solid ${theme.palette.divider}`,
             }}
           >
-            <Typography variant='caption' sx={{
-              color: 'text.secondary'
-            }}>
+            <Typography
+              variant='caption'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               ไม่สำเร็จ
             </Typography>
             <Typography variant='h6'>{result.failed}</Typography>

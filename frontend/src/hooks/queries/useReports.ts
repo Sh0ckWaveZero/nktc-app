@@ -22,10 +22,7 @@ export const useCheckInSummaryReport = (params?: ReportQuery) => {
   return useQuery({
     queryKey: [...queryKeys.checkIn.all, 'summary', params],
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.reportCheckInEndpoint}/summary`,
-        { params }
-      );
+      const { data } = await httpClient.get(`${authConfig.reportCheckInEndpoint}/summary`, { params });
       return data;
     },
     enabled: !!(params?.classroomId || params?.teacherId),
@@ -40,10 +37,7 @@ export const useActivityCheckInSummaryReport = (params?: ReportQuery) => {
   return useQuery({
     queryKey: [...queryKeys.checkIn.all, 'activity-summary', params],
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.activityCheckInEndpoint}/summary`,
-        { params }
-      );
+      const { data } = await httpClient.get(`${authConfig.activityCheckInEndpoint}/summary`, { params });
       return data;
     },
     enabled: !!(params?.classroomId || params?.teacherId),
@@ -58,10 +52,7 @@ export const useGoodnessReport = (params?: ReportQuery) => {
   return useQuery({
     queryKey: [...queryKeys.goodness.all, 'report', params],
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.goodnessIndividualEndpoint}/report`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${authConfig.goodnessIndividualEndpoint}/report`, params || {});
       return data;
     },
     enabled: !!(params?.classroomId || params?.studentId),
@@ -76,10 +67,7 @@ export const useBadnessReport = (params?: ReportQuery) => {
   return useQuery({
     queryKey: [...queryKeys.badness.all, 'report', params],
     queryFn: async () => {
-      const { data } = await httpClient.post(
-        `${authConfig.badnessIndividualEndpoint}/report`,
-        params || {}
-      );
+      const { data } = await httpClient.post(`${authConfig.badnessIndividualEndpoint}/report`, params || {});
       return data;
     },
     enabled: !!(params?.classroomId || params?.studentId),
@@ -94,9 +82,7 @@ export const useStudentSummaryReport = (studentId: string) => {
   return useQuery({
     queryKey: ['student-summary', studentId],
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.studentEndpoint}/${studentId}/summary`
-      );
+      const { data } = await httpClient.get(`${authConfig.studentEndpoint}/${studentId}/summary`);
       return data;
     },
     enabled: !!studentId,
@@ -110,11 +96,9 @@ export const useStudentSummaryReport = (studentId: string) => {
 export const useExportReportPDF = () => {
   return useMutation({
     mutationFn: async (params: any) => {
-      const response = await httpClient.post(
-        `${authConfig.reportCheckInEndpoint}/export/pdf`,
-        params,
-        { responseType: 'arraybuffer' }
-      );
+      const response = await httpClient.post(`${authConfig.reportCheckInEndpoint}/export/pdf`, params, {
+        responseType: 'arraybuffer',
+      });
       return response;
     },
   });
@@ -126,11 +110,9 @@ export const useExportReportPDF = () => {
 export const useExportReportExcel = () => {
   return useMutation({
     mutationFn: async (params: any) => {
-      const response = await httpClient.post(
-        `${authConfig.reportCheckInEndpoint}/export/excel`,
-        params,
-        { responseType: 'arraybuffer' }
-      );
+      const response = await httpClient.post(`${authConfig.reportCheckInEndpoint}/export/excel`, params, {
+        responseType: 'arraybuffer',
+      });
       return response;
     },
   });
@@ -143,10 +125,7 @@ export const useAttendanceStatistics = (params?: ReportQuery) => {
   return useQuery({
     queryKey: ['attendance-statistics', params],
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.reportCheckInEndpoint}/statistics`,
-        { params }
-      );
+      const { data } = await httpClient.get(`${authConfig.reportCheckInEndpoint}/statistics`, { params });
       return data;
     },
     enabled: !!(params?.classroomId || params?.teacherId),
@@ -161,10 +140,7 @@ export const useBehaviorStatistics = (params?: ReportQuery) => {
   return useQuery({
     queryKey: ['behavior-statistics', params],
     queryFn: async () => {
-      const { data } = await httpClient.get(
-        `${authConfig.reportCheckInEndpoint}/behavior-statistics`,
-        { params }
-      );
+      const { data } = await httpClient.get(`${authConfig.reportCheckInEndpoint}/behavior-statistics`, { params });
       return data;
     },
     enabled: !!(params?.classroomId || params?.studentId),

@@ -19,6 +19,11 @@ interface CellType {
   row: any;
 }
 
+const ACTIVITY_TYPES = [
+  { value: 'CLUB', label: 'กิจกรรมชมรมวิชาชีพ' },
+  { value: 'AST', label: 'กิจกรรม อวท.' },
+  { value: 'SCOUT', label: 'กิจกรรมลูกเสือ' },
+];
 
 const ActivityCheckInSummaryReportPage = () => {
   const auth = useAuth();
@@ -44,12 +49,14 @@ const ActivityCheckInSummaryReportPage = () => {
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
+  const [activityType, setActivityType] = useState<string>('CLUB');
 
-  const fetchDailyReport = async (classroom: any = '') => {
+  const fetchDailyReport = async (classroom: any = '', actType: string = activityType) => {
     setLoading(true);
     await findSummaryReport({
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
+      activityType: actType,
     }).then(async (data: any) => {
       const students = await data;
       setCurrentStudents(students);
@@ -63,7 +70,7 @@ const ActivityCheckInSummaryReportPage = () => {
       fetchTeachClassroom(auth?.user?.teacher?.id as string).then(async (result: any) => {
         setClassroomName((await result) ? result[0] : []);
         setClassrooms((await result) ? result : []);
-        await fetchDailyReport((await result) ? result[0].id : {});
+        await fetchDailyReport((await result) ? result[0].id : {}, activityType);
       });
     };
 
@@ -233,6 +240,14 @@ const ActivityCheckInSummaryReportPage = () => {
     await fetchDailyReport(date);
   };
 
+  const handleActivityTypeChange = async (event: any) => {
+    const newActType = event.target.value;
+    setActivityType(newActType);
+    if (classroomName?.id) {
+      await fetchDailyReport(classroomName.id, newActType);
+    }
+  };
+
   const handleSelectChange = async (event: any) => {
     event.preventDefault();
     const {
@@ -241,7 +256,7 @@ const ActivityCheckInSummaryReportPage = () => {
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
     setClassroomName(classroomName);
-    await fetchDailyReport(classroomName.id);
+    await fetchDailyReport(classroomName.id, activityType);
   };
 
   return (
@@ -268,6 +283,9 @@ const ActivityCheckInSummaryReportPage = () => {
                 selectedDate={selectedDate}
                 handleDateChange={handleDateChange}
                 isDisabled={isEmpty(currentStudents)}
+                activityType={activityType}
+                onActivityTypeChange={handleActivityTypeChange}
+                activityTypes={ACTIVITY_TYPES}
               />
               <DataGrid
                 columns={columns}

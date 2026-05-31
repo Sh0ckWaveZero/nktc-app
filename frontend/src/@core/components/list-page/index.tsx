@@ -106,8 +106,7 @@ export const AppListCardHeader = ({
               px: 1.4,
               py: 0.6,
               borderRadius: 999,
-              bgcolor: (theme) =>
-                alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
+              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.14 : 0.08),
               border: (theme) =>
                 `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)}`,
               color: 'primary.main',

@@ -218,4 +218,22 @@ export abstract class BadnessService {
   static async delete(id: string) {
     await prisma.badnessIndividual.delete({ where: { id } });
   }
+
+  static async resetAllRecords(resetBy: string) {
+    const count = await prisma.badnessIndividual.count();
+    await prisma.$transaction([
+      prisma.badnessIndividual.deleteMany({}),
+      prisma.auditLog.create({
+        data: {
+          action: "RESET_ALL_BADNESS_RECORDS",
+          model: "BadnessIndividual",
+          detail: `Reset all badness summary records (${count} records)`,
+          oldValue: String(count),
+          newValue: "0",
+          createdBy: resetBy,
+        },
+      }),
+    ]);
+    return { deleted: count };
+  }
 }

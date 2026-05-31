@@ -16,7 +16,7 @@ export const GoodnessReportHeader = ({
 }: GoodnessReportHeaderProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-  
+
   return (
     <Box
       id='goodness-report-header'
@@ -27,14 +27,14 @@ export const GoodnessReportHeader = ({
         backgroundColor: 'transparent',
       }}
     >
-      <Box 
-        id='goodness-report-header-content' 
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+      <Box
+        id='goodness-report-header-content'
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
           gap: 4,
           flexDirection: isMobile ? 'column' : 'row',
-          textAlign: isMobile ? 'center' : 'left'
+          textAlign: isMobile ? 'center' : 'left',
         }}
       >
         <Box
@@ -45,7 +45,7 @@ export const GoodnessReportHeader = ({
             bgcolor: (theme) => hexToRGBA(theme.palette.warning.main, 0.12),
             color: 'warning.main',
             display: 'flex',
-            boxShadow: (theme) => `0 4px 12px ${hexToRGBA(theme.palette.warning.main, 0.2)}`
+            boxShadow: (theme) => `0 4px 12px ${hexToRGBA(theme.palette.warning.main, 0.2)}`,
           }}
         >
           <HiStar fontSize='2rem' />
@@ -54,11 +54,11 @@ export const GoodnessReportHeader = ({
           <Typography
             id='goodness-report-title'
             variant='h5'
-            sx={{ 
-              fontWeight: 800, 
-              mb: 1, 
+            sx={{
+              fontWeight: 800,
+              mb: 1,
               letterSpacing: -1,
-              color: 'text.primary'
+              color: 'text.primary',
             }}
           >
             รายงานสรุปผลการบันทึกความดี
@@ -82,21 +82,31 @@ export const GoodnessReportHeader = ({
                   bgcolor: (theme) => hexToRGBA(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                   fontSize: '0.8125rem',
-                  fontWeight: 700
+                  fontWeight: 700,
                 }}
               >
                 ชั้น {selectedClassroomName}
               </Box>
             )}
-            
-            <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}>
-              <Box component='span' sx={{ display: 'flex' }}><Icon icon='mdi:account-group-outline' fontSize='1.1rem' /></Box>
+
+            <Typography
+              variant='body2'
+              sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}
+            >
+              <Box component='span' sx={{ display: 'flex' }}>
+                <Icon icon='mdi:account-group-outline' fontSize='1.1rem' />
+              </Box>
               จำนวน {totalItems} รายการ
             </Typography>
 
             {selectedDate && (
-              <Typography variant='body2' sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}>
-                <Box component='span' sx={{ display: 'flex' }}><Icon icon='mdi:calendar-check-outline' fontSize='1.1rem' /></Box>
+              <Typography
+                variant='body2'
+                sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'text.secondary', fontWeight: 500 }}
+              >
+                <Box component='span' sx={{ display: 'flex' }}>
+                  <Icon icon='mdi:calendar-check-outline' fontSize='1.1rem' />
+                </Box>
                 {selectedDate instanceof Date
                   ? selectedDate.toLocaleDateString('th-TH', {
                       year: 'numeric',
@@ -108,14 +118,14 @@ export const GoodnessReportHeader = ({
             )}
           </Box>
           {!selectedClassroomName && !selectedDate && (
-            <Typography 
-              id='goodness-report-hint' 
-              variant='caption' 
-              sx={{ 
-                mt: 1, 
-                display: 'block', 
+            <Typography
+              id='goodness-report-hint'
+              variant='caption'
+              sx={{
+                mt: 1,
+                display: 'block',
                 color: 'text.disabled',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
               }}
             >
               * กรุณาเลือกเงื่อนไขการค้นหาเพื่อแสดงข้อมูลที่ต้องการ
@@ -126,4 +136,3 @@ export const GoodnessReportHeader = ({
     </Box>
   );
 };
-

@@ -88,14 +88,14 @@ const StyledToastContainer = ({ toastTheme = 'light', ...props }: StyledToastCon
     ...props,
     theme: toastTheme,
   };
-  
+
   // Wrap ToastContainer in StyledWrapper for MUI theme styling
   // ToastContainer receives theme prop directly without MUI interference
   // Use suppressHydrationWarning to prevent hydration mismatch warnings
   return React.createElement(
     StyledWrapper,
     { suppressHydrationWarning: true },
-    React.createElement(ToastContainer, toastContainerProps)
+    React.createElement(ToastContainer, toastContainerProps),
   );
 };
 

@@ -12,10 +12,14 @@ import { ReportCheckIn } from '@/types/apps/reportCheckIn';
 import Spinner from '@/@core/components/spinner';
 import TableCollapsible from '@/views/apps/admin/reports/activity-check-in/TableCollapsible';
 import TableHeaderWeekly from '@/views/apps/admin/reports/check-in/TableHeaderWeekly';
-import { isEmpty } from '@/@core/utils/utils';
 import { shallow } from 'zustand/shallow';
 import { useActivityCheckInStore } from '@/store/index';
 import { formatLongDateThai } from '@/utils/datetime';
+import {
+  ADMIN_ACTIVITY_TYPES,
+  exportAdminActivityCheckInReport,
+  getActivityTypeLabel,
+} from '@/views/apps/admin/reports/activity-check-in/report-utils';
 
 const AdminActivityCheckInWeeklyReportPage = () => {
   // ** Store Vars
@@ -31,24 +35,44 @@ const AdminActivityCheckInWeeklyReportPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [startOfWeekDate, setStartOfWeekDate] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [endOfWeekDate, setEndOfWeekDate] = useState<Date>(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 4));
+  const [activityType, setActivityType] = useState<string>('CLUB');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const activityTypeLabel = getActivityTypeLabel(activityType);
 
   useEffect(() => {
     const fetch = async () => {
+      setLoading(true);
       const start = startOfWeek(selectedDate, { weekStartsOn: 1 });
       setStartOfWeekDate(start);
       const end = addDays(start, 4); // Friday
       setEndOfWeekDate(end);
-      await findDailyReportAdmin({ startDate: start, endDate: end }).then(async (res: any) => {
+      await findDailyReportAdmin({ startDate: start, endDate: end, activityType }).then(async (res: any) => {
         setValue(await res);
+        setLoading(false);
       });
     };
     fetch();
-  }, [selectedDate]);
+  }, [activityType, selectedDate]);
 
   const handleSelectedDate = (date: Date | null) => {
     if (date) {
       setSelectedDate(date);
     }
+  };
+
+  const handleActivityTypeChange = (event: any) => {
+    setActivityType(event.target.value);
+  };
+
+  const handleExportExcel = async () => {
+    await exportAdminActivityCheckInReport({
+      report: value,
+      activityType,
+      reportTitle: 'รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน',
+      periodLabel: `สัปดาห์ที่ ${formatLongDateThai(startOfWeekDate)} - ${formatLongDateThai(endOfWeekDate)}`,
+      filePrefix: 'admin_activity_checkin_weekly',
+    });
   };
 
   return (
@@ -62,15 +86,23 @@ const AdminActivityCheckInWeeklyReportPage = () => {
               </Avatar>
             }
             sx={{ color: 'text.primary' }}
-            title={`รายงานสถิติการเข้าร่วมกิจกรรมของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
+            title={`รายงานสถิติการเข้าร่วม${activityTypeLabel} ของนักเรียน ทั้งหมด ${value?.students ?? 0} คน`}
             subheader={`ประจำสัปดาห์ที่ ${formatLongDateThai(startOfWeekDate)} - ${formatLongDateThai(endOfWeekDate)}`}
           />
         </Card>
       </Grid>
       <Grid size={12}>
         <Card>
-          <TableHeaderWeekly selectedDate={selectedDate} handleSelectedDate={handleSelectedDate} />
-          {isEmpty(value.checkIn) ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
+          <TableHeaderWeekly
+            selectedDate={selectedDate}
+            handleSelectedDate={handleSelectedDate}
+            activityType={activityType}
+            handleActivityTypeChange={handleActivityTypeChange}
+            activityTypes={ADMIN_ACTIVITY_TYPES}
+            onExport={handleExportExcel}
+            isExportDisabled={loading || !(value.checkIn?.length ?? 0)}
+          />
+          {loading ? <Spinner /> : <TableCollapsible values={value.checkIn ?? []} />}
         </Card>
       </Grid>
     </Grid>
