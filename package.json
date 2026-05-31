@@ -1,6 +1,6 @@
 {
   "name": "nktc-app-monorepo",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "private": true,
   "description": "NKTC Student Management System - Monorepo",
   "scripts": {
@@ -29,10 +29,15 @@
     "deploy:x86:up": "bash ./deploy/deploy.sh x86 up",
     "deploy:pi4:up": "bash ./deploy/deploy.sh pi4 up",
     "deploy:x86:down": "bash ./deploy/deploy.sh x86 down",
-    "deploy:pi4:down": "bash ./deploy/deploy.sh pi4 down"
+    "deploy:pi4:down": "bash ./deploy/deploy.sh pi4 down",
+    "version:status": "bun ./scripts/bump.ts",
+    "version:patch": "bun ./scripts/bump.ts patch",
+    "version:minor": "bun ./scripts/bump.ts minor",
+    "version:major": "bun ./scripts/bump.ts major",
+    "version:set": "bun ./scripts/bump.ts set"
   },
   "devDependencies": {
-    "turbo": "^2.9.14"
+    "turbo": "^2.9.16"
   },
   "packageManager": "bun@1.3.3",
   "engines": {
@@ -49,7 +54,7 @@
     "happy-dom": "^20.9.0",
     "minio": "^8.0.7",
     "validator": "^13.15.35",
-    "vitest": "^4.1.6",
+    "vitest": "^4.1.7",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.4.3"
   },
