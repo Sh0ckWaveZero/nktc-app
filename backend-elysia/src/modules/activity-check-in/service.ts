@@ -183,15 +183,12 @@ export abstract class ActivityCheckInService {
 					})
 					: null;
 
-				const presentIds = new Set(records.flatMap((record) => record.present ?? []));
-				const absentIds = new Set(records.flatMap((record) => record.absent ?? []));
+				const present = records.reduce((sum, r) => sum + (r.present?.length ?? 0), 0);
+				const absent = records.reduce((sum, r) => sum + (r.absent?.length ?? 0), 0);
 				const noteEntries = records.map((record) => ({
 					date: record.checkInDate?.toISOString() ?? null,
 					note: record.note ?? null,
 				}));
-
-				const present = presentIds.size;
-				const absent = absentIds.size;
 				const total = present + absent;
 				const pct = (n: number) => (total > 0 ? Math.round((n / total) * 10000) / 100 : 0);
 
