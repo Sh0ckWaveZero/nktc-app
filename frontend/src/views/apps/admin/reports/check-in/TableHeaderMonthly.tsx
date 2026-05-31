@@ -41,7 +41,7 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
         id='admin-checkin-monthly-download-button'
         startIcon={<FaFileExcel fontSize='small' color={theme.palette.success.dark} />}
         onClick={() => void onExport?.()}
-        disabled={Boolean(onExport) ? isExportDisabled : false}
+        disabled={onExport ? isExportDisabled : false}
       >
         ดาวน์โหลด
       </Button>
