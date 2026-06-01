@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "../../generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
 import { logger } from "../infrastructure/logging/index.ts";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -28,36 +27,14 @@ logger.info("🗄️ Initializing database connection", {
   database: dbInfo.database,
 });
 
-const pool = new pg.Pool({
+// Pass connection config directly to PrismaPg so it uses its own internal pg.Pool.
+// Passing an external pg.Pool fails instanceof check (different module instances) -> ECONNREFUSED.
+const adapter = new PrismaPg({
   connectionString: DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
-  allowExitOnIdle: true,
-});
-
-// Log pool events
-pool.on("connect", () => {
-  logger.debug("Database pool: new client connected");
-});
-
-pool.on("acquire", () => {
-  logger.debug("Database pool: client acquired");
-});
-
-pool.on("release", () => {
-  logger.debug("Database pool: client released");
-});
-
-pool.on("remove", () => {
-  logger.debug("Database pool: client removed");
-});
-
-pool.on("error", (err) => {
-  logger.error("Database pool error", { error: err.message });
-});
-
-const adapter = new PrismaPg(pool as any);
+} as any);
 
 export const prisma = new PrismaClient({ 
   adapter,
@@ -123,7 +100,6 @@ process.on("beforeExit", async () => {
   logger.info("Closing database connections");
   try {
     await prisma.$disconnect();
-    await pool.end();
   } catch (error) {
     logger.error("Error during graceful shutdown", {
       error: error instanceof Error ? error.message : String(error),
