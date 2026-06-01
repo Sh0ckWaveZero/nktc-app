@@ -3,6 +3,7 @@ import { useClassroomStore, useTeacherStore, useUserStore } from '@/store/index'
 import { useEffectOnce } from '@/hooks/userCommon';
 import { useResponsive } from '@/@core/hooks/useResponsive';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { generateErrorMessages } from '@/utils/event';
@@ -45,7 +46,7 @@ export const useTeacherList = () => {
 
   // ** Hooks
   const { user } = useAuth();
-  const isAdmin = user?.role === 'Admin';
+  const { isAdmin } = useRole();
   const { isMobile } = useResponsive();
 
   const { resetPasswordByAdmin } = useUserStore(

@@ -7,6 +7,7 @@ import { CircularProgress } from '@mui/material';
 import { calculateTimeAgo } from '@/utils/datetime';
 import useImageQuery from '@/hooks/useImageQuery';
 import IconifyIcon from '@/@core/components/icon';
+import { Roles } from '@/configs/roles';
 
 interface Props {
   info: any[];
@@ -127,7 +128,7 @@ const TimelineBadness = ({ info, user, onDeleted }: Props) => {
                       <Box sx={{ width: 200, height: 'auto' }}>
                         <ImageDisplay image={item?.image} />
                       </Box>
-                      {user?.role === 'Admin' && (
+                      {user?.role === Roles.Admin && (
                         <Box sx={{ ml: 2 }}>
                           <Tooltip title='ลบการบันทึกความประพฤติ'>
                             <Button

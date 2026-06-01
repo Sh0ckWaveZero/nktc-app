@@ -60,6 +60,7 @@ import IconifyIcon from '@/@core/components/icon';
 
 // ** Hooks & Contexts
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
 import { useTeacherVisitStudents } from '@/hooks/queries/useVisits';
 import { useCheckInReportsByClassrooms } from '@/hooks/queries/useCheckIn';
@@ -161,10 +162,10 @@ const StarAvatar = styled(Avatar)(({ theme }) => ({
 
 const TeacherHomePage = () => {
   const auth = useAuth();
+  const { isAdmin, isTeacher } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
   const theme = useTheme();
-  const isTeacher = auth.user?.role?.toLowerCase() === 'teacher';
 
   // ** States
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -1008,7 +1009,7 @@ const TeacherHomePage = () => {
                           </span>
                         ) : (
                           <span>
-                            {auth?.user?.role === 'Admin'
+                            {isAdmin
                               ? 'ผู้ดูแลระบบ NKTC (ภาพรวมวิทยาลัย)'
                               : 'ครูผู้สอน / บุคลากรวิทยาลัยเทคนิคหนองคาย'}
                           </span>

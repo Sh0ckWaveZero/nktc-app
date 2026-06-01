@@ -39,6 +39,7 @@ import {
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import React from 'react';
 import { toApiDate } from '@/utils/datetime';
 
@@ -106,6 +107,7 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 
 const ActivityCheckInDailyReportPage = () => {
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -175,7 +177,7 @@ const ActivityCheckInDailyReportPage = () => {
 
   // Authorization check
   useEffectOnce(() => {
-    if (!ability?.can('read', 'report-check-in-daily-page') || (auth?.user?.role as string) === 'Admin') {
+    if (!ability?.can('read', 'report-check-in-daily-page') || isAdmin) {
       router.push('/401');
       return;
     }
@@ -425,7 +427,7 @@ const ActivityCheckInDailyReportPage = () => {
 
   return (
     ability?.can('read', 'report-check-in-daily-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

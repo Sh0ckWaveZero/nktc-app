@@ -7,6 +7,7 @@ import { AbilityContext } from '@/layouts/components/acl/Can';
 import CloseIcon from '@mui/icons-material/Close';
 import TableHeader from '@/views/apps/reports/goodness/TableHeader';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import TimelineBadness from '@/views/apps/student/view/TimelineBadness';
 import { useBadnessReport } from './hooks/useBadnessReport';
 import { useBadnessReportColumns } from './components/BadnessReportColumns';
@@ -45,6 +46,7 @@ DialogCloseButton.displayName = 'DialogCloseButton';
 const BadnessAllReportPage = () => {
   // ** Hooks
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
@@ -103,7 +105,7 @@ const BadnessAllReportPage = () => {
 
   return (
     ability?.can('read', 'report-badness-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Box id='badness-report-page' sx={{ borderRadius: '8px', overflow: 'hidden' }}>
           <Grid id='badness-report-grid-container' container spacing={responsiveConfig.containerSpacing}>
