@@ -621,7 +621,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     const checkInData = {
       teacherId: auth.user.teacher.id,
       classroomId: defaultClassroom.id,
-      checkInDate: new Date(checkInDate).toISOString(),
+      checkInDate,
       present: isPresentCheck || [],
       absent: isAbsentCheck || [],
       late: isLateCheck || [],

@@ -16,7 +16,7 @@ interface AddActivityCheckInData {
   classroomId: string;
   present: string[];
   absent: string[];
-  checkInDate: Date;
+  checkInDate: Date | string;
   status: string;
   activityType: string;
   note?: string;

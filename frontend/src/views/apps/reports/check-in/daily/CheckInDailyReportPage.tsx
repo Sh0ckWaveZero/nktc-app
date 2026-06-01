@@ -36,7 +36,7 @@ import {
   AccountLockOutline,
   AlertOctagramOutline,
 } from 'mdi-material-ui';
-import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
+import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import React from 'react';
@@ -284,8 +284,9 @@ const CheckInDailyReportPage = () => {
   };
 
   const handleDateChange = async (date: Date | null) => {
-    setDateSelected(date);
-    await fetchDailyReport(date, defaultClassroom?.id, activityType);
+    const nextDate = date ?? new Date();
+    setDateSelected(nextDate);
+    await fetchDailyReport(nextDate, defaultClassroom?.id, activityType);
   };
 
   const handleSelectChange = async (event: any) => {
