@@ -220,6 +220,8 @@ const getActiveGitHubUser = (): string | null => {
 
 const getWorkingTreeStatus = (): string => runCapture('git', ['status', '--short']).stdout;
 
+const hasGitRef = (ref: string): boolean => runCapture('git', ['show-ref', '--verify', '--quiet', ref], true).status === 0;
+
 const getBranchDivergence = (baseRef: string, headRef: string): BranchDivergence => {
   const counts = runCapture('git', ['rev-list', '--left-right', '--count', `${baseRef}...${headRef}`]).stdout;
   const [baseAheadRaw = '0', headAheadRaw = '0'] = counts.split(/\s+/u);
@@ -367,6 +369,42 @@ const warnIfWorkingTreeDirty = (status: string): void => {
   }
 };
 
+const buildBaseBranchMessage = (options: ResolvedOptions, workingTreeStatus: string): string => {
+  const lines = [`Current branch is ${options.baseBranch}.`];
+  const upstreamRef = `refs/remotes/upstream/${options.baseBranch}`;
+
+  if (hasGitRef(upstreamRef)) {
+    const divergence = getBranchDivergence(`upstream/${options.baseBranch}`, 'HEAD');
+
+    if (divergence.headAhead > 0) {
+      lines.push(`Local ${options.baseBranch} is ahead of upstream/${options.baseBranch} by ${divergence.headAhead} commit(s).`);
+      lines.push('Create a feature/fix branch from the current HEAD so those commits are included in the PR branch:');
+      lines.push(`git switch -c fix/your-change`);
+      lines.push('bun run pr');
+    } else if (divergence.baseAhead > 0) {
+      lines.push(`Local ${options.baseBranch} is behind upstream/${options.baseBranch} by ${divergence.baseAhead} commit(s).`);
+      lines.push(`Update ${options.baseBranch}, then create a feature/fix branch:`);
+      lines.push(`git pull upstream ${options.baseBranch}`);
+      lines.push('git switch -c fix/your-change');
+      lines.push('bun run pr');
+    } else {
+      lines.push('Create a feature/fix branch first, then rerun the command:');
+      lines.push('git switch -c fix/your-change');
+      lines.push('bun run pr');
+    }
+  } else {
+    lines.push('Switch to a feature/fix branch or pass --branch explicitly.');
+    lines.push('Example: git switch -c fix/your-change');
+    lines.push('Then rerun: bun run pr');
+  }
+
+  if (workingTreeStatus) {
+    lines.push('Uncommitted changes will stay in your working tree when you switch branches.');
+  }
+
+  return lines.join('\n');
+};
+
 const openBrowser = (url: string, dryRun: boolean): void => {
   if (dryRun) {
     log(`[dry-run] Open browser: ${url}`);
@@ -399,7 +437,7 @@ const main = (): void => {
   const workingTreeStatus = getWorkingTreeStatus();
 
   if (options.branch === options.baseBranch) {
-    throw new Error(`Current branch is ${options.baseBranch}. Switch to a feature/fix branch or pass --branch explicitly.`);
+    throw new Error(buildBaseBranchMessage(options, workingTreeStatus));
   }
 
   warnIfWorkingTreeDirty(workingTreeStatus);
