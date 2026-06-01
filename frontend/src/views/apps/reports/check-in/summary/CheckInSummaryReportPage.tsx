@@ -14,6 +14,7 @@ import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -54,7 +55,7 @@ const CheckInSummaryReportPage = () => {
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
-      const students = await data;
+      const students = sortStudentRecordsByStudentId(await data);
       setCurrentStudents(students);
       setPageSize(Array.isArray(students) && students.length > 0 ? students.length : 10);
       setCurrentPage(0);

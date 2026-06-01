@@ -15,6 +15,15 @@ interface ClassroomWithStudents<TStudent extends StudentSortItem = StudentSortIt
   students?: readonly TStudent[] | null;
 }
 
+interface StudentRecordSortItem {
+  id?: string | number | null;
+  student?: StudentSortItem | null;
+  account?: {
+    firstName?: string | null;
+    lastName?: string | null;
+  } | null;
+}
+
 const STUDENT_ID_COLLATOR = new Intl.Collator('th', {
   numeric: true,
   sensitivity: 'base',
@@ -56,6 +65,41 @@ export const compareStudentsByStudentId = (left: StudentSortItem, right: Student
  */
 export const sortStudentsByStudentId = <TStudent extends StudentSortItem>(students?: readonly TStudent[] | null) => {
   return [...(students ?? [])].sort(compareStudentsByStudentId);
+};
+
+/**
+ * Sort report rows by nested `student.studentId`.
+ * ใช้กับข้อมูลรายงานที่มี student/account แยก object เพื่อให้เลขนักเรียนเรียงเหมือนหน้าหลัก
+ */
+export const compareStudentRecordsByStudentId = <TRecord extends StudentRecordSortItem>(
+  left: TRecord,
+  right: TRecord,
+) => {
+  const leftStudent = left.student ?? {};
+  const rightStudent = right.student ?? {};
+
+  return compareStudentsByStudentId(
+    {
+      id: leftStudent.id ?? left.id,
+      studentId: leftStudent.studentId,
+      firstName: left.account?.firstName ?? leftStudent.firstName,
+      lastName: left.account?.lastName ?? leftStudent.lastName,
+      user: leftStudent.user,
+    },
+    {
+      id: rightStudent.id ?? right.id,
+      studentId: rightStudent.studentId,
+      firstName: right.account?.firstName ?? rightStudent.firstName,
+      lastName: right.account?.lastName ?? rightStudent.lastName,
+      user: rightStudent.user,
+    },
+  );
+};
+
+export const sortStudentRecordsByStudentId = <TRecord extends StudentRecordSortItem>(
+  records?: readonly TRecord[] | null,
+) => {
+  return [...(records ?? [])].sort(compareStudentRecordsByStudentId);
 };
 
 /**

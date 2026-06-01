@@ -14,6 +14,7 @@ import TableHeaderSummary from '@/views/apps/reports/activity-check-in/TableHead
 import { useAuth } from '@/hooks/useAuth';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -58,7 +59,7 @@ const ActivityCheckInSummaryReportPage = () => {
       classroomId: classroom ? classroom : classroomName.id,
       activityType: actType,
     }).then(async (data: any) => {
-      const students = await data;
+      const students = sortStudentRecordsByStudentId(await data);
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: Array.isArray(students) && students.length > 0 ? students.length : 10 });
       setLoading(false);

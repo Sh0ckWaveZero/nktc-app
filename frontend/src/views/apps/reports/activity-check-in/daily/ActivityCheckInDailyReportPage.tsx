@@ -41,6 +41,7 @@ import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
 import React from 'react';
 import { toApiDate } from '@/utils/datetime';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -161,7 +162,7 @@ const ActivityCheckInDailyReportPage = () => {
 
       const dataArray = Array.isArray(data) ? data : [];
       const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
-      const students = reportCheckInData?.students ?? [];
+      const students = sortStudentRecordsByStudentId(reportCheckInData?.students ?? []);
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
