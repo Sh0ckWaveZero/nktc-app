@@ -345,7 +345,7 @@ const ActivityCheckInReportPage = () => {
       classroomId: defaultClassroom.id,
       present: isPresentCheck,
       absent: isAbsentCheck,
-      checkInDate: selectedDate || new Date(),
+      checkInDate: selectedDate ? toApiDate(selectedDate) : toApiDate(),
       status: '1',
       activityType: activityType,
       note: note.trim() || undefined,
