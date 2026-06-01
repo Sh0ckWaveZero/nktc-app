@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRole } from '@/hooks/useRole';
 
 import AdminHomePage from './AdminHomePage';
-import TeacherHomePage from './TeacherHomePage';
+import TeacherHomePage from '@/views/apps/teacher/home/TeacherHomePage';
 
 const HomePage = () => {
   const auth = useAuth();
