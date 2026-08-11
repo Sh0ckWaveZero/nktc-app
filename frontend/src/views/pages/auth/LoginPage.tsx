@@ -1,7 +1,7 @@
 'use client';
 
 // ** React Imports
-import { useState, type MouseEvent, useCallback, useEffect, useRef } from 'react';
+import { useState, type MouseEvent, useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 
 // ** MUI Components
 import Box from '@mui/material/Box';
@@ -17,6 +17,9 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import CircularProgress from '@mui/material/CircularProgress';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiCard, { type CardProps } from '@mui/material/Card';
@@ -34,7 +37,13 @@ import { z } from 'zod';
 import { useSearchParams } from 'next/navigation';
 
 // ** Hooks & Utils
-import { useLogin } from '@/hooks/queries/useAuth';
+import httpClient from '@/@core/utils/http';
+import { useSettings } from '@/@core/hooks/useSettings';
+import ModeToggler from '@/@core/layouts/components/shared-components/ModeToggler';
+import { authConfig } from '@/configs/auth';
+import OtpInput from '@/@core/components/otp-input/otp-input';
+import { authClient } from '@/libs/better-auth/client';
+import { exchangeBetterAuthSession } from '@/libs/better-auth/exchange-session';
 import { toast } from 'react-toastify';
 
 // ** Components
@@ -64,6 +73,8 @@ const TOAST_MESSAGES = {
   loading: 'กำลังเข้าสู่ระบบ\u2026',
   success: 'เข้าสู่ระบบสำเร็จ',
   error: 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+  mfaError: 'รหัสยืนยันไม่ถูกต้องหรือหมดอายุ',
+  passkeyError: 'ไม่สามารถเข้าสู่ระบบด้วย Passkey ได้',
 } as const;
 
 const TOAST_OPTIONS = {
@@ -74,6 +85,9 @@ const TOAST_OPTIONS = {
   pauseOnHover: true,
   draggable: true,
 } as const;
+
+const emptySubscribe = () => () => {};
+const getPasskeySupport = (): boolean => window.isSecureContext && 'PublicKeyCredential' in window;
 
 // ** Styled Components
 const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
@@ -198,7 +212,7 @@ const UsernameField = ({ control, errors, inputRef, shouldAutoFocus }: UsernameF
         autoFocus={shouldAutoFocus}
         fullWidth
         label='ชื่อผู้ใช้งาน'
-        autoComplete='username'
+        autoComplete='username webauthn'
         spellCheck={false}
         sx={{
           mb: { xs: 1.5, sm: 2.5, md: 3, lg: 3.5 },
@@ -350,18 +364,134 @@ const SubmitButton = ({ isLoading }: SubmitButtonProps) => (
   </Button>
 );
 
+interface MfaFormProps {
+  code: string;
+  isBackupCode: boolean;
+  isLoading: boolean;
+  error?: string;
+  trustDevice: boolean;
+  onBack: () => void;
+  onCodeChange: (value: string) => void;
+  onAutoSubmit: (value: string) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onToggleBackupCode: () => void;
+  onTrustDeviceChange: (value: boolean) => void;
+}
+
+const MfaForm = ({
+  code,
+  isBackupCode,
+  isLoading,
+  error,
+  trustDevice,
+  onBack,
+  onCodeChange,
+  onAutoSubmit,
+  onSubmit,
+  onToggleBackupCode,
+  onTrustDeviceChange,
+}: MfaFormProps) => (
+  <Box
+    component={isBackupCode ? 'form' : 'div'}
+    id='login-mfa-form'
+    onSubmit={isBackupCode ? onSubmit : undefined}
+    sx={{ width: '100%' }}
+  >
+    <Typography variant='h6' component='h2' sx={{ mb: 1, textAlign: 'center' }}>
+      ยืนยันตัวตนสองขั้นตอน
+    </Typography>
+    <Typography variant='body2' color='text.secondary' sx={{ mb: 3, textAlign: 'center' }}>
+      {isBackupCode ? 'กรอกรหัสสำรองหนึ่งรหัส' : 'กรอกรหัส 6 หลักจากแอปยืนยันตัวตน'}
+    </Typography>
+    {isBackupCode ? (
+      <TextField
+        id='login-mfa-code'
+        autoFocus
+        fullWidth
+        required
+        label='รหัสสำรอง'
+        value={code}
+        onChange={(event) => onCodeChange(event.target.value)}
+        autoComplete='one-time-code'
+        error={Boolean(error)}
+        helperText={error}
+        slotProps={{
+          htmlInput: {
+            inputMode: 'text',
+            maxLength: 64,
+          },
+        }}
+        sx={{ mb: 1.5 }}
+      />
+    ) : (
+      <Box sx={{ mb: 1.5, width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <OtpInput
+          id='login-mfa-code'
+          value={code}
+          onChange={(value) => {
+            onCodeChange(value);
+            if (value.length === 6 && !isLoading) onAutoSubmit(value);
+          }}
+          label=''
+          helperText={error || (isLoading ? 'กำลังตรวจสอบรหัสยืนยัน…' : '')}
+          error={Boolean(error)}
+          disabled={isLoading}
+          autoFocus
+        />
+      </Box>
+    )}
+    <FormControlLabel
+      control={
+        <Checkbox
+          checked={trustDevice}
+          onChange={(event) => onTrustDeviceChange(event.target.checked)}
+          slotProps={{ input: { 'aria-label': 'เชื่อถืออุปกรณ์นี้ 30 วัน' } }}
+        />
+      }
+      label='เชื่อถืออุปกรณ์นี้ 30 วัน'
+      sx={{ mb: 1 }}
+    />
+    {isBackupCode ? (
+      <Button
+        id='login-mfa-submit'
+        fullWidth
+        size='large'
+        type='submit'
+        variant='contained'
+        disabled={isLoading || !code.trim()}
+        sx={{ minHeight: 48, mb: 1.5 }}
+      >
+        {isLoading ? <CircularProgress size={20} color='inherit' aria-label='กำลังตรวจสอบ' /> : 'ยืนยันและเข้าสู่ระบบ'}
+      </Button>
+    ) : null}
+    <Button fullWidth type='button' onClick={onToggleBackupCode} disabled={isLoading}>
+      {isBackupCode ? 'ใช้รหัสจากแอปยืนยันตัวตน' : 'ใช้รหัสสำรอง'}
+    </Button>
+    <Button fullWidth type='button' color='secondary' onClick={onBack} disabled={isLoading}>
+      กลับไปหน้าเข้าสู่ระบบ
+    </Button>
+  </Box>
+);
+
 // ** Main Component
 const LoginPage = () => {
   // ** State
   const [showPassword, setShowPassword] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isBackupCode, setIsBackupCode] = useState(false);
+  const [isMfaStep, setIsMfaStep] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaError, setMfaError] = useState<string>();
+  const [trustDevice, setTrustDevice] = useState(false);
 
   // ** Refs
   const usernameRef = useRef<HTMLInputElement>(null);
 
   // ** Hooks
-  const { mutateAsync: loginMutation, isPending } = useLogin();
   const searchParams = useSearchParams();
   const theme = useTheme();
+  const { settings, saveSettings } = useSettings();
+  const isPasskeySupported = useSyncExternalStore(emptySubscribe, getPasskeySupport, () => false);
 
   // autoFocus only on desktop — avoids keyboard pop-up on mobile
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
@@ -395,16 +525,39 @@ const LoginPage = () => {
     event.preventDefault();
   }, []);
 
+  const completeLogin = useCallback(async () => {
+    await exchangeBetterAuthSession();
+    const returnUrl = searchParams.get('returnUrl');
+    const isSafeUrl = returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') && returnUrl !== '/';
+    window.location.href = isSafeUrl ? returnUrl : '/home';
+  }, [searchParams]);
+
   const onSubmit = useCallback(
     async (data: LoginFormData) => {
       const toastId = toast.loading(TOAST_MESSAGES.loading, TOAST_OPTIONS);
+      setIsAuthenticating(true);
       try {
-        await loginMutation({ username: data.username, password: data.password });
+        await httpClient.post(authConfig.prepareBetterAuthEndpoint as string, data);
+        const result = await authClient.signIn.username({
+          username: data.username,
+          password: data.password,
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message || 'Better Auth sign-in failed');
+        }
+
+        const authData = result.data as { twoFactorRedirect?: boolean } | null;
+        if (authData?.twoFactorRedirect) {
+          toast.dismiss(toastId);
+          setMfaCode('');
+          setMfaError(undefined);
+          setIsMfaStep(true);
+          return;
+        }
+
+        await completeLogin();
         toast.dismiss(toastId);
-        // Use hard redirect so initAuth re-runs with the fresh token from localStorage
-        const returnUrl = searchParams.get('returnUrl');
-        const isSafeUrl = returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') && returnUrl !== '/';
-        window.location.href = isSafeUrl ? returnUrl : '/home';
       } catch {
         toast.update(toastId, {
           render: TOAST_MESSAGES.error,
@@ -412,10 +565,65 @@ const LoginPage = () => {
           isLoading: false,
           autoClose: TOAST_OPTIONS.autoClose,
         });
+      } finally {
+        setIsAuthenticating(false);
       }
     },
-    [loginMutation, searchParams],
+    [completeLogin],
   );
+
+  const handleMfaSubmit = useCallback(
+    async (code = mfaCode) => {
+      if (!code.trim() || isAuthenticating) return;
+
+      setIsAuthenticating(true);
+      setMfaError(undefined);
+      try {
+        const result = isBackupCode
+          ? await authClient.twoFactor.verifyBackupCode({ code: code.trim(), trustDevice })
+          : await authClient.twoFactor.verifyTotp({ code: code.trim(), trustDevice });
+
+        if (result.error) {
+          throw new Error(result.error.message || 'MFA verification failed');
+        }
+
+        if (!result.data) {
+          throw new Error('MFA verification did not return an authenticated session');
+        }
+
+        await completeLogin();
+      } catch {
+        setMfaError(TOAST_MESSAGES.mfaError);
+      } finally {
+        setIsAuthenticating(false);
+      }
+    },
+    [completeLogin, isAuthenticating, isBackupCode, mfaCode, trustDevice],
+  );
+
+  const handlePasskeyLogin = useCallback(async () => {
+    setIsAuthenticating(true);
+    try {
+      const result = await authClient.signIn.passkey();
+      if (result.error) {
+        if ('code' in result.error && result.error.code === 'AUTH_CANCELLED') return;
+        throw new Error(result.error.message || 'Passkey sign-in failed');
+      }
+      await completeLogin();
+    } catch {
+      toast.error(TOAST_MESSAGES.passkeyError, TOAST_OPTIONS);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  }, [completeLogin]);
+
+  const handleBackToCredentials = useCallback(async () => {
+    await authClient.signOut();
+    setIsMfaStep(false);
+    setIsBackupCode(false);
+    setMfaCode('');
+    setMfaError(undefined);
+  }, []);
 
   return (
     <>
@@ -461,6 +669,22 @@ const LoginPage = () => {
           margin: 0,
         }}
       >
+        <Box
+          id='login-theme-toggle'
+          sx={{
+            position: 'fixed',
+            top: { xs: 'max(12px, env(safe-area-inset-top))', sm: 20 },
+            right: { xs: 'max(12px, env(safe-area-inset-right))', sm: 24 },
+            zIndex: 1300,
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: '50%',
+            bgcolor: 'background.paper',
+            boxShadow: 1,
+          }}
+        >
+          <ModeToggler settings={settings} saveSettings={saveSettings} />
+        </Box>
         <Card id='login-card' sx={{ zIndex: { xs: 0, sm: 1 } }}>
           <CardContent
             id='login-card-content'
@@ -493,29 +717,72 @@ const LoginPage = () => {
               }}
             >
               <Logo />
-              <WelcomeText />
+              {!isMfaStep ? <WelcomeText /> : null}
 
-              <Box
-                component='form'
-                id='login-form'
-                noValidate
-                onSubmit={handleSubmit(onSubmit)}
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <UsernameField control={control} errors={errors} inputRef={usernameRef} shouldAutoFocus={isDesktop} />
-                <PasswordField
-                  control={control}
-                  errors={errors}
-                  showPassword={showPassword}
-                  onTogglePassword={handleTogglePassword}
-                  onMouseDownPassword={handleMouseDownPassword}
+              {isMfaStep ? (
+                <MfaForm
+                  code={mfaCode}
+                  isBackupCode={isBackupCode}
+                  isLoading={isAuthenticating}
+                  error={mfaError}
+                  trustDevice={trustDevice}
+                  onBack={handleBackToCredentials}
+                  onCodeChange={(value) => {
+                    setMfaCode(value);
+                    if (mfaError) setMfaError(undefined);
+                  }}
+                  onAutoSubmit={(value) => void handleMfaSubmit(value)}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void handleMfaSubmit();
+                  }}
+                  onToggleBackupCode={() => {
+                    setIsBackupCode((value) => !value);
+                    setMfaCode('');
+                    setMfaError(undefined);
+                  }}
+                  onTrustDeviceChange={setTrustDevice}
                 />
-                <SubmitButton isLoading={isPending} />
-              </Box>
+              ) : (
+                <Box
+                  component='form'
+                  id='login-form'
+                  noValidate
+                  onSubmit={handleSubmit(onSubmit)}
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <UsernameField control={control} errors={errors} inputRef={usernameRef} shouldAutoFocus={isDesktop} />
+                  <PasswordField
+                    control={control}
+                    errors={errors}
+                    showPassword={showPassword}
+                    onTogglePassword={handleTogglePassword}
+                    onMouseDownPassword={handleMouseDownPassword}
+                  />
+                  <SubmitButton isLoading={isAuthenticating} />
+                  {isPasskeySupported ? (
+                    <>
+                      <Divider sx={{ my: 2.5 }}>หรือ</Divider>
+                      <Button
+                        id='login-passkey-button'
+                        fullWidth
+                        size='large'
+                        type='button'
+                        variant='outlined'
+                        disabled={isAuthenticating}
+                        onClick={handlePasskeyLogin}
+                        sx={{ minHeight: { xs: 44, sm: 48 }, textTransform: 'none' }}
+                      >
+                        เข้าสู่ระบบด้วย Passkey
+                      </Button>
+                    </>
+                  ) : null}
+                </Box>
+              )}
             </Box>
           </CardContent>
         </Card>

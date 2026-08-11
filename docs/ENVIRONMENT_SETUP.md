@@ -4,11 +4,14 @@ This guide explains how to properly configure environment variables for NKTC App
 
 ## 📋 Overview
 
-The project uses separate environment files for different configurations:
+The canonical setup uses one root selector file and one runtime file per app:
 
-- `.env.example` - Template files (safe to commit)
-- `.env` / `.env.local` - Actual credentials (NEVER commit these)
-- `.env.development` / `.env.production` - Environment-specific configs
+- Root `.env.example` - Committed template with `local`/`prod` blocks
+- Root `.env` - Local selector/source of truth (NEVER commit)
+- `frontend/.env` - Frontend runtime output
+- `backend-elysia/.env` - Backend runtime output
+
+Run `bun run env` from the repository root to switch profiles and sync both runtime files.
 
 **IMPORTANT**: All `.env` files are in `.gitignore`. Never commit actual credentials!
 
@@ -16,51 +19,18 @@ The project uses separate environment files for different configurations:
 
 ## 🚀 Quick Start: Local Development Setup
 
-### Frontend Setup
+### Frontend and Backend Setup
 
-1. Navigate to frontend directory:
-
-```bash
-cd frontend
-```
-
-2. Copy the example file:
-
-```bash
-cp .env.example .env.local
-```
-
-3. Edit `.env.local` with your local configuration:
-
-```bash
-# Frontend configuration
-NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_EDUCATION_YEARS=2567
-ANALYZE=false
-```
-
-4. Your `.env.local` is automatically ignored by git:
-
-```bash
-# Verify .gitignore is working
-git status  # Should NOT show .env.local
-```
-
-### Backend Setup
-
-1. Navigate to backend directory:
-
-```bash
-cd backend-elysia
-```
-
-2. Copy the example file:
+From the repository root, copy the central template and select the profile:
 
 ```bash
 cp .env.example .env
+bun run env -- --env local
 ```
 
-3. Edit `.env` with your local configuration:
+The script writes only `frontend/.env` and `backend-elysia/.env`. Edit the selected block in the root `.env`, then rerun the selector instead of creating `.env.local` or `.env.prod` files.
+
+The backend block contains the runtime configuration:
 
 ```bash
 # Application
@@ -240,7 +210,7 @@ env:
 
 ### ✅ DO
 
-- ✅ Copy from `.env.example` to `.env.local`
+- ✅ Copy root `.env.example` to root `.env`, then run `bun run env`
 - ✅ Use `.gitignore` to prevent committing `.env` files
 - ✅ Use strong, unique secrets (min 32 chars for JWT)
 - ✅ Rotate credentials regularly
@@ -256,7 +226,7 @@ env:
 - ❌ Use weak or default passwords
 - ❌ Hardcode secrets in source code
 - ❌ Store credentials in comments
-- ❌ Commit `.env.local` or development credentials
+- ❌ Commit root `.env` or app runtime credentials
 
 ---
 
@@ -265,17 +235,20 @@ env:
 **IMMEDIATE ACTIONS** (Within 1 hour):
 
 1. **Stop Using Exposed Credentials**:
+
    - Rotate all exposed secrets immediately
    - Generate new JWT_SECRET, JWT_REFRESH_SECRET
    - Update database passwords
    - Regenerate MinIO access keys
 
 2. **Notify Your Team**:
+
    - Alert all developers
    - Notify DevOps/Infrastructure team
    - Document what was exposed
 
 3. **Update All Systems**:
+
    - Update backend/.env
    - Update deployment configurations
    - Update CI/CD secrets
@@ -295,7 +268,7 @@ See `SECURITY_REMEDIATION.md` for detailed procedures.
 
 ### Issue: "Cannot find module .env"
 
-**Solution**: Create the `.env.local` file with required variables
+**Solution**: Create root `.env` from `.env.example`, then run `bun run env`
 
 ### Issue: Environment variables not loading
 

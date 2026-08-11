@@ -15,6 +15,7 @@ import { authConfig } from '@/configs/auth';
 import { AuthValuesType, RegisterParams, LoginParams, ErrCallbackType, UserDataType } from './types';
 
 import httpClient from '@/@core/utils/http';
+import { authClient } from '@/libs/better-auth/client';
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -91,8 +92,11 @@ const AuthProvider = ({ children }: Props) => {
             localStorage.removeItem('accessToken');
             setUser(null);
             setLoading(false);
-            // Force redirect immediately
-            window.location.href = '/login';
+            // The login page is already the safe destination. Redirecting to
+            // itself would reload the MFA form and discard its local state.
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
           });
       } else {
         setLoading(false);
@@ -133,9 +137,10 @@ const AuthProvider = ({ children }: Props) => {
 
   const handleLogout = async () => {
     try {
-      if (authConfig.logoutEndpoint) {
-        await httpClient.post(authConfig.logoutEndpoint);
-      }
+      await Promise.allSettled([
+        authConfig.logoutEndpoint ? httpClient.post(authConfig.logoutEndpoint) : Promise.resolve(),
+        authClient.signOut(),
+      ]);
     } catch {
       // Proceed with logout even if API call fails
     } finally {

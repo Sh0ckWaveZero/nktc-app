@@ -135,10 +135,18 @@ const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
             requestUrl.includes('/auth/login') ||
             (loginEndpoint && (fullUrl.includes(loginEndpoint) || requestUrl.includes(loginEndpoint)));
 
+          const authFlowEndpoints = [authConfig.prepareBetterAuthEndpoint, authConfig.tokenExchangeEndpoint].filter(
+            (endpoint): endpoint is string => Boolean(endpoint),
+          );
+          const isAuthFlowEndpoint = authFlowEndpoints.some(
+            (endpoint) => fullUrl.includes(endpoint) || requestUrl.includes(endpoint),
+          );
+
           const isRefreshEndpoint = fullUrl.includes('/auth/refresh') || requestUrl.includes('/auth/refresh');
 
-          // For login and refresh endpoints - just reject, don't try to refresh
-          if (isLoginEndpoint || isRefreshEndpoint) {
+          // Login/MFA exchange failures belong to the current auth flow. Do not
+          // refresh a legacy token or redirect while the user is still signing in.
+          if (isLoginEndpoint || isAuthFlowEndpoint || isRefreshEndpoint) {
             return Promise.reject(error);
           }
 

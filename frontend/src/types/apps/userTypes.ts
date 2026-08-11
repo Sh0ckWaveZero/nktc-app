@@ -5,8 +5,9 @@ export type { UserDataType, Account, Teacher, Student, Department };
 
 // API Request/Response types
 export interface ChangePasswordRequest {
-  old_password: string;
-  new_password: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface ChangePasswordResponse {

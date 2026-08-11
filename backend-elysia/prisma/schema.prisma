@@ -25,6 +25,7 @@ model User {
   account      Account?
   student      Student?
   teacher      Teacher?
+  authUser     AuthUser?
   sessions     Session[]
   userRole     UserRole[]
   status       String?    @default("active")
@@ -42,6 +43,109 @@ model User {
   @@index([status], name: "users_index_status")
   @@index([createdAt], name: "users_index_created_at")
   @@map("user")
+}
+
+// บัญชี auth ที่ผูกกับผู้ใช้เดิมแบบหนึ่งต่อหนึ่ง
+model AuthUser {
+  id               String          @id
+  name             String
+  email            String          @unique
+  emailVerified    Boolean         @default(false)
+  image            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  username         String?         @unique
+  displayUsername  String?
+  twoFactorEnabled Boolean?        @default(false)
+  legacyUserId     String          @unique
+  legacyUser       User            @relation(fields: [legacyUserId], references: [id], onDelete: Cascade)
+  sessions         AuthSession[]
+  accounts         AuthAccount[]
+  twoFactors       AuthTwoFactor[]
+  passkeys         AuthPasskey[]
+
+  @@map("auth_user")
+}
+
+model AuthSession {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_session")
+}
+
+model AuthAccount {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("auth_account")
+}
+
+model AuthVerification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("auth_verification")
+}
+
+model AuthTwoFactor {
+  id                      String    @id
+  secret                  String
+  backupCodes             String
+  userId                  String
+  user                    AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
+  @@index([secret])
+  @@index([userId])
+  @@map("auth_two_factor")
+}
+
+model AuthPasskey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  user         AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+  aaguid       String?
+
+  @@index([userId])
+  @@index([credentialID])
+  @@map("auth_passkey")
 }
 
 model RolePermisssion {

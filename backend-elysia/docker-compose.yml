@@ -6,7 +6,7 @@ services:
     container_name: ${BACKEND_APP_CONTAINER_NAME:-backend1}
     restart: unless-stopped
     env_file:
-      - .env.prod
+      - .env
     environment:
       NODE_ENV: production
       TZ: Asia/Bangkok
@@ -34,7 +34,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       TZ: Asia/Bangkok
     env_file:
-      - .env.prod
+      - .env
     ports:
       - "${POSTGRES_PORT:-5434}:5432"
     healthcheck:
@@ -63,7 +63,7 @@ services:
       MINIO_SERVER_URL: http://localhost:${MINIO_API_PORT:-9010}
       TZ: Asia/Bangkok
     env_file:
-      - .env.prod
+      - .env
     command: server /data --console-address ":9001"
     ports:
       - "${MINIO_API_PORT:-9010}:9000"
@@ -90,7 +90,7 @@ services:
       minio:
         condition: service_healthy
     env_file:
-      - .env.prod
+      - .env
     volumes:
       - ./scripts/minio-init.sh:/scripts/minio-init.sh:ro
     entrypoint:

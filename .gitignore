@@ -44,13 +44,15 @@ backend/build/
 # Never commit any .env files - always use .env.example as template
 .env
 .env.local
+.env.prod
+.env.production
 .env.development
 .env.development.local
-.env.production
 .env.production.local
 .env.test
 .env.test.local
-.env*.local
+.env*
+!.env.example
 # Workspace specific env files
 backend/.env
 backend/.env.dev
