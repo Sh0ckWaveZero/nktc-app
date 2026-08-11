@@ -28,7 +28,17 @@ cp .env.example .env
 bun run env -- --env local
 ```
 
-The script writes only `frontend/.env` and `backend-elysia/.env`. Edit the selected block in the root `.env`, then rerun the selector instead of creating `.env.local` or `.env.prod` files.
+The script writes only `frontend/.env` and `backend-elysia/.env`. Edit the selected block in the root `.env`, then rerun the selector instead of creating `.env.local` files.
+
+The production Docker Compose stack is separate from the local selector and reads `backend-elysia/.env.prod`. Create that runtime-only file from the committed template before starting the stack:
+
+```bash
+cp backend-elysia/.env.prod.example backend-elysia/.env.prod
+# Fill in production secrets and service URLs in backend-elysia/.env.prod.
+docker compose -f backend-elysia/docker-compose.yml up -d
+```
+
+`backend-elysia/.env.prod` is intentionally ignored by Git; never commit its real credentials.
 
 The backend block contains the runtime configuration:
 
