@@ -38,6 +38,8 @@ cp backend-elysia/.env.prod.example backend-elysia/.env.prod
 docker compose -f backend-elysia/docker-compose.yml up -d
 ```
 
+Compose จะรัน `prisma migrate deploy` ใน service `migrate` หลัง PostgreSQL healthy และจะเริ่ม `app` ต่อเมื่อ migration สำเร็จ
+
 `backend-elysia/.env.prod` is intentionally ignored by Git; never commit its real credentials.
 
 The backend block contains the runtime configuration:

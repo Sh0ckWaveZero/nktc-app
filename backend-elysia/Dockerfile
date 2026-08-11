@@ -29,6 +29,8 @@ ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
 COPY --from=prisma /app/generated ./generated
 COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 COPY package.json ./
 
 EXPOSE 3001
