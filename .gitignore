@@ -173,3 +173,5 @@ $RECYCLE.BIN/
 backend/src/database/generated/*
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+deploy/env/backend.env
+deploy/env/frontend.env

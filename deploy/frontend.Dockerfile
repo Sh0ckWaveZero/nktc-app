@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.11-alpine AS deps
+FROM oven/bun:1.3.14-alpine AS deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -16,7 +16,8 @@ WORKDIR /app/frontend
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN bun run build
+# Keep production builds on Webpack; Bun 1.3.11/Turbopack can fail while loading Next's CJS runtime.
+RUN bun --version && bun run build -- --webpack
 
 FROM node:20-alpine AS runner
 WORKDIR /app
