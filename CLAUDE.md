@@ -376,7 +376,7 @@ When working with frontend state:
 
 ### Required Environment Variables
 
-**Frontend (.env.local):**
+**Frontend (.env):**
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3001

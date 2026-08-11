@@ -104,6 +104,47 @@ bun run dev:frontend
 bun run dev:backend
 ```
 
+### เลือก Environment และแยกไฟล์ให้ Frontend/Backend
+
+คัดลอก `.env.example` เป็น `.env` ที่ root ไฟล์เดียว แล้วเก็บค่า `local` และ `prod` ไว้ใน block ที่มี marker:
+
+```dotenv
+# >>> NKTC_ENV:local
+KEY=value
+# <<< NKTC_ENV:local
+
+# >>> NKTC_ENV:prod
+# KEY=value
+# <<< NKTC_ENV:prod
+```
+
+เมื่อเลือก environment script จะเปิดบรรทัดของ block ที่เลือก เติม `#` ให้ block อื่นอัตโนมัติ และรันคำสั่งของ environment ต่อทันที โดยไม่ถามว่าจะรัน service ใด
+
+จากนั้นใช้ script กลางของโปรเจกต์:
+
+```bash
+# เลือก environment แบบ interactive แล้วรัน dev:tui อัตโนมัติเมื่อเลือก local
+bun run env
+
+# ดู environment ล่าสุดที่จำไว้
+bun run env:status
+
+# ใช้แบบไม่ต้องถาม (local จะรัน dev:tui, prod จะรัน start)
+bun run env -- --env local
+bun run env -- --env prod
+```
+
+Script จะแสดงชื่อ `NKTC Student Management System`, แยกเฉพาะตัวแปร `NEXT_PUBLIC_*` และ frontend settings ไปที่ `frontend/` ส่วนค่า database/auth/storage จะไปที่ `backend-elysia/`, พร้อมจำค่าปัจจุบันไว้ใน `.dev/current-env.json` (ไฟล์ local ที่ไม่ถูก commit) และไม่แสดงค่า secret ใน log
+
+แต่ละแอปใช้ env runtime เพียงไฟล์เดียวคือ `frontend/.env` และ `backend-elysia/.env`; เมื่อสลับ `local/prod` script จะเขียนค่าที่เลือกทับลงสองไฟล์นี้ ไม่มีไฟล์ profile เพิ่ม
+
+ตัวแปรควบคุมการสมัครสมาชิกของ legacy endpoint (`POST /api/auth/register`):
+
+- `ALLOW_REGISTRATION=true` เปิดให้สมัครใน production; ค่าอื่นหรือไม่ตั้งค่าจะปิดการสมัคร
+- `REGISTRATION_SECRET` เป็น optional backend-only secret; ถ้าตั้งค่า request ต้องส่ง header `x-registration-secret` ให้ตรงกัน
+
+สองค่านี้ไม่ใช่ Better Auth sign-up เพราะ Better Auth ปิด `/sign-up/email` ไว้ และไม่ควรเปิด secret ฝั่ง frontend
+
 ### การ Build
 
 ```bash
@@ -289,7 +330,7 @@ bun run dev:tui     # สำหรับ UI ที่สวยงาม
 
 ## 🔧 การตั้งค่าสภาพแวดล้อม
 
-### Frontend Environment Variables (.env.local)
+### Frontend Environment Variables (.env)
 
 ```env
 # API Configuration

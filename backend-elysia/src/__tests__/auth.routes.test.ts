@@ -4,10 +4,14 @@ process.env.JWT_SECRET = "test-jwt-secret-minimum-32-chars!!";
 process.env.JWT_REFRESH_SECRET = "test-refresh-secret-minimum-32chars!";
 
 const mockLogin = mock();
+const mockPrepareBetterAuthLogin = mock();
+const mockIsMfaEnabled = mock(() => Promise.resolve(false));
 const mockRegister = mock();
 const mockHashToken = mock(() => Promise.resolve("hashed-token"));
 const mockValidateRefresh = mock();
-const mockGetUser = mock(() => Promise.resolve({ id: "u1", username: "admin" }));
+const mockGetUser = mock(() =>
+  Promise.resolve({ id: "u1", username: "admin" })
+);
 const mockLogout = mock(() => Promise.resolve());
 const mockUpdatePassword = mock(() => Promise.resolve());
 const mockUserUpdate = mock(() => Promise.resolve({}));
@@ -16,6 +20,8 @@ const mockAuditLogCreate = mock(() => Promise.resolve({}));
 mock.module("@/modules/auth/service", () => ({
   AuthService: {
     login: mockLogin,
+    prepareBetterAuthLogin: mockPrepareBetterAuthLogin,
+    isMfaEnabled: mockIsMfaEnabled,
     register: mockRegister,
     hashToken: mockHashToken,
     validateRefreshToken: mockValidateRefresh,
@@ -27,14 +33,22 @@ mock.module("@/modules/auth/service", () => ({
 
 mock.module("@/libs/prisma", () => ({
   prisma: {
-    user: { update: mockUserUpdate, findUnique: mock(() => Promise.resolve(null)) },
+    user: {
+      update: mockUserUpdate,
+      findUnique: mock(() => Promise.resolve(null)),
+    },
     auditLog: { create: mockAuditLogCreate },
   },
 }));
 
 mock.module("@/infrastructure/logging", () => ({
   logger: { info: mock(), warn: mock(), error: mock(), debug: mock() },
-  createLogger: () => ({ info: mock(), warn: mock(), error: mock(), debug: mock() }),
+  createLogger: () => ({
+    info: mock(),
+    warn: mock(),
+    error: mock(),
+    debug: mock(),
+  }),
 }));
 
 const { Elysia } = await import("elysia");
@@ -43,7 +57,10 @@ const { auth } = await import("@/modules/auth/index");
 
 const app = new Elysia().use(errorHandler).use(auth);
 
-const VALID_LOGIN_BODY = JSON.stringify({ username: "admin", password: "Admin@1234" });
+const VALID_LOGIN_BODY = JSON.stringify({
+  username: "admin",
+  password: "Admin@1234",
+});
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 describe("auth routes: registration guards", () => {
@@ -68,8 +85,12 @@ describe("auth routes: registration guards", () => {
       new Request("http://localhost/auth/register", {
         method: "POST",
         headers: JSON_HEADERS,
-        body: JSON.stringify({ username: "new", password: "Pass@123", role: "Student" }),
-      }),
+        body: JSON.stringify({
+          username: "new",
+          password: "Pass@123",
+          role: "Student",
+        }),
+      })
     );
     expect(res.status).toBe(403);
   });
@@ -83,10 +104,32 @@ describe("auth routes: registration guards", () => {
       new Request("http://localhost/auth/register", {
         method: "POST",
         headers: JSON_HEADERS,
-        body: JSON.stringify({ username: "new", password: "Pass@123", role: "Student" }),
-      }),
+        body: JSON.stringify({
+          username: "new",
+          password: "Pass@123",
+          role: "Student",
+        }),
+      })
     );
     expect(res.status).toBe(201);
+  });
+
+  it("blocks registration in production when ALLOW_REGISTRATION=false", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.ALLOW_REGISTRATION = "false";
+
+    const res = await app.handle(
+      new Request("http://localhost/auth/register", {
+        method: "POST",
+        headers: JSON_HEADERS,
+        body: JSON.stringify({
+          username: "new",
+          password: "Pass@123",
+          role: "Student",
+        }),
+      })
+    );
+    expect(res.status).toBe(403);
   });
 
   it("blocks registration with wrong REGISTRATION_SECRET", async () => {
@@ -96,8 +139,12 @@ describe("auth routes: registration guards", () => {
       new Request("http://localhost/auth/register", {
         method: "POST",
         headers: { ...JSON_HEADERS, "x-registration-secret": "wrong-secret" },
-        body: JSON.stringify({ username: "new", password: "Pass@123", role: "Student" }),
-      }),
+        body: JSON.stringify({
+          username: "new",
+          password: "Pass@123",
+          role: "Student",
+        }),
+      })
     );
     expect(res.status).toBe(403);
   });
@@ -110,8 +157,12 @@ describe("auth routes: registration guards", () => {
       new Request("http://localhost/auth/register", {
         method: "POST",
         headers: { ...JSON_HEADERS, "x-registration-secret": "correct-secret" },
-        body: JSON.stringify({ username: "new", password: "Pass@123", role: "Student" }),
-      }),
+        body: JSON.stringify({
+          username: "new",
+          password: "Pass@123",
+          role: "Student",
+        }),
+      })
     );
     expect(res.status).toBe(201);
   });
@@ -120,6 +171,8 @@ describe("auth routes: registration guards", () => {
 describe("auth routes: login", () => {
   beforeEach(() => {
     mockLogin.mockReset();
+    mockIsMfaEnabled.mockReset();
+    mockIsMfaEnabled.mockResolvedValue(false);
     mockUserUpdate.mockReset();
     mockAuditLogCreate.mockReset();
     mockUserUpdate.mockResolvedValue({});
@@ -139,10 +192,10 @@ describe("auth routes: login", () => {
         method: "POST",
         headers: JSON_HEADERS,
         body: VALID_LOGIN_BODY,
-      }),
+      })
     );
     expect(res.status).toBe(200);
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, unknown>;
     expect(typeof body.token).toBe("string");
     expect(typeof body.refreshToken).toBe("string");
     expect(body.success).toBe(true);
@@ -153,7 +206,12 @@ describe("auth routes: login", () => {
       userId: "u1",
       username: "admin",
       roles: "Admin",
-      user: { id: "u1", username: "admin", password: "hashed-password", role: "Admin" },
+      user: {
+        id: "u1",
+        username: "admin",
+        password: "hashed-password",
+        role: "Admin",
+      },
     });
 
     const res = await app.handle(
@@ -161,9 +219,9 @@ describe("auth routes: login", () => {
         method: "POST",
         headers: JSON_HEADERS,
         body: VALID_LOGIN_BODY,
-      }),
+      })
     );
-    const body = await res.json() as { data: Record<string, unknown> };
+    const body = (await res.json()) as { data: Record<string, unknown> };
     expect(body.data.password).toBeUndefined();
   });
 
@@ -184,7 +242,7 @@ describe("auth routes: login", () => {
           "user-agent": "BunTest/1.0",
         },
         body: VALID_LOGIN_BODY,
-      }),
+      })
     );
 
     expect(res.status).toBe(200);
@@ -200,6 +258,54 @@ describe("auth routes: login", () => {
       },
     });
   });
+
+  it("blocks the legacy token response when MFA is enabled", async () => {
+    mockLogin.mockResolvedValueOnce({
+      userId: "u1",
+      username: "admin",
+      roles: "Admin",
+      user: { id: "u1", username: "admin", password: "hashed", role: "Admin" },
+    });
+    mockIsMfaEnabled.mockResolvedValueOnce(true);
+
+    const res = await app.handle(
+      new Request("http://localhost/auth/login", {
+        method: "POST",
+        headers: JSON_HEADERS,
+        body: VALID_LOGIN_BODY,
+      })
+    );
+
+    expect(res.status).toBe(401);
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe("auth routes: Better Auth compatibility", () => {
+  beforeEach(() => {
+    mockPrepareBetterAuthLogin.mockReset();
+  });
+
+  it("prepares a legacy credential account for Better Auth", async () => {
+    mockPrepareBetterAuthLogin.mockResolvedValueOnce({
+      id: "u1",
+      username: "admin",
+    });
+
+    const res = await app.handle(
+      new Request("http://localhost/auth/prepare-better-auth", {
+        method: "POST",
+        headers: JSON_HEADERS,
+        body: VALID_LOGIN_BODY,
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockPrepareBetterAuthLogin).toHaveBeenCalledWith({
+      username: "admin",
+      password: "Admin@1234",
+    });
+  });
 });
 
 describe("auth routes: rate limiting", () => {
@@ -213,7 +319,7 @@ describe("auth routes: rate limiting", () => {
           method: "POST",
           headers: { ...JSON_HEADERS, "x-forwarded-for": ip },
           body: VALID_LOGIN_BODY,
-        }),
+        })
       );
 
     // loginRateLimiter max = 5
@@ -221,7 +327,7 @@ describe("auth routes: rate limiting", () => {
 
     const res = await makeRequest(); // 6th request
     expect(res.status).toBe(429);
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.errorCode).toBe("RATE_LIMITED");
     expect(typeof body.retryAfter).toBe("number");
   });
@@ -235,8 +341,12 @@ describe("auth routes: rate limiting", () => {
         new Request("http://localhost/auth/register", {
           method: "POST",
           headers: { ...JSON_HEADERS, "x-forwarded-for": ip },
-          body: JSON.stringify({ username: "x", password: "Pass@123", role: "Student" }),
-        }),
+          body: JSON.stringify({
+            username: "x",
+            password: "Pass@123",
+            role: "Student",
+          }),
+        })
       );
 
     // registerRateLimiter max = 3
@@ -259,7 +369,7 @@ describe("auth routes: rate limiting", () => {
           method: "POST",
           headers: { ...JSON_HEADERS, "x-forwarded-for": ip1 },
           body: VALID_LOGIN_BODY,
-        }),
+        })
       );
     }
 
@@ -276,7 +386,7 @@ describe("auth routes: rate limiting", () => {
         method: "POST",
         headers: { ...JSON_HEADERS, "x-forwarded-for": ip2 },
         body: VALID_LOGIN_BODY,
-      }),
+      })
     );
     expect(res.status).toBe(200);
   });
@@ -284,7 +394,9 @@ describe("auth routes: rate limiting", () => {
 
 // ─── Helper: sign a real JWT via app ────────────────────────────────────────
 
-async function signAuthToken(payload: Record<string, unknown>): Promise<string> {
+async function signAuthToken(
+  payload: Record<string, unknown>
+): Promise<string> {
   const { Elysia: E2 } = await import("elysia");
   const { jwt: jwtPlugin } = await import("@elysiajs/jwt");
   const res = await new E2()
@@ -294,11 +406,19 @@ async function signAuthToken(payload: Record<string, unknown>): Promise<string> 
   return res.text();
 }
 
-async function signRefreshToken(payload: Record<string, unknown>): Promise<string> {
+async function signRefreshToken(
+  payload: Record<string, unknown>
+): Promise<string> {
   const { Elysia: E2 } = await import("elysia");
   const { jwt: jwtPlugin } = await import("@elysiajs/jwt");
   const res = await new E2()
-    .use(jwtPlugin({ name: "refreshJwt", secret: process.env.JWT_REFRESH_SECRET!, exp: "7d" }))
+    .use(
+      jwtPlugin({
+        name: "refreshJwt",
+        secret: process.env.JWT_REFRESH_SECRET!,
+        exp: "7d",
+      })
+    )
     .get("/sign", ({ refreshJwt }: any) => refreshJwt.sign(payload))
     .handle(new Request("http://localhost/sign"));
   return res.text();
@@ -314,18 +434,25 @@ describe("auth routes: refresh", () => {
   });
 
   it("returns new token and refreshToken on valid refresh token", async () => {
-    const refreshToken = await signRefreshToken({ sub: "u1", username: "admin" });
-    mockValidateRefresh.mockResolvedValueOnce({ userId: "u1", username: "admin", roles: "Admin" });
+    const refreshToken = await signRefreshToken({
+      sub: "u1",
+      username: "admin",
+    });
+    mockValidateRefresh.mockResolvedValueOnce({
+      userId: "u1",
+      username: "admin",
+      roles: "Admin",
+    });
 
     const res = await app.handle(
       new Request("http://localhost/auth/refresh", {
         method: "POST",
         headers: JSON_HEADERS,
         body: JSON.stringify({ refreshToken }),
-      }),
+      })
     );
     expect(res.status).toBe(200);
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, unknown>;
     expect(typeof body.token).toBe("string");
     expect(typeof body.refreshToken).toBe("string");
   });
@@ -336,7 +463,7 @@ describe("auth routes: refresh", () => {
         method: "POST",
         headers: JSON_HEADERS,
         body: JSON.stringify({ refreshToken: "bad.token.value" }),
-      }),
+      })
     );
     expect(res.status).toBe(401);
   });
@@ -358,34 +485,42 @@ describe("auth routes: /me, /logout, /update/password", () => {
   });
 
   it("GET /auth/me returns user with valid token", async () => {
-    const token = await signAuthToken({ sub: "u1", username: "admin", roles: "Admin" });
+    const token = await signAuthToken({
+      sub: "u1",
+      username: "admin",
+      roles: "Admin",
+    });
 
     const res = await app.handle(
       new Request("http://localhost/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
-      }),
+      })
     );
     expect(res.status).toBe(200);
   });
 
   it("POST /auth/logout returns 401 without token", async () => {
     const res = await app.handle(
-      new Request("http://localhost/auth/logout", { method: "POST" }),
+      new Request("http://localhost/auth/logout", { method: "POST" })
     );
     expect(res.status).toBe(401);
   });
 
   it("POST /auth/logout returns success with valid token", async () => {
-    const token = await signAuthToken({ sub: "u1", username: "admin", roles: "Admin" });
+    const token = await signAuthToken({
+      sub: "u1",
+      username: "admin",
+      roles: "Admin",
+    });
 
     const res = await app.handle(
       new Request("http://localhost/auth/logout", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-      }),
+      })
     );
     expect(res.status).toBe(200);
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.success).toBe(true);
   });
 
@@ -394,21 +529,33 @@ describe("auth routes: /me, /logout, /update/password", () => {
       new Request("http://localhost/auth/update/password", {
         method: "PUT",
         headers: JSON_HEADERS,
-        body: JSON.stringify({ currentPassword: "old", newPassword: "New@1234", confirmPassword: "New@1234" }),
-      }),
+        body: JSON.stringify({
+          currentPassword: "old",
+          newPassword: "New@1234",
+          confirmPassword: "New@1234",
+        }),
+      })
     );
     expect(res.status).toBe(401);
   });
 
   it("PUT /auth/update/password succeeds with valid token", async () => {
-    const token = await signAuthToken({ sub: "u1", username: "admin", roles: "Admin" });
+    const token = await signAuthToken({
+      sub: "u1",
+      username: "admin",
+      roles: "Admin",
+    });
 
     const res = await app.handle(
       new Request("http://localhost/auth/update/password", {
         method: "PUT",
         headers: { ...JSON_HEADERS, Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ currentPassword: "old", newPassword: "New@1234", confirmPassword: "New@1234" }),
-      }),
+        body: JSON.stringify({
+          currentPassword: "old",
+          newPassword: "New@1234",
+          confirmPassword: "New@1234",
+        }),
+      })
     );
     expect(res.status).toBe(200);
   });

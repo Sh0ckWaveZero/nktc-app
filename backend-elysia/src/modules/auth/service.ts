@@ -8,6 +8,82 @@ import {
 	BadRequestError,
 } from "@/libs/errors";
 
+interface LegacyCredentialUser {
+	id: string;
+	username: string;
+	password: string;
+	email: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+	account?: {
+		firstName?: string | null;
+		lastName?: string | null;
+		avatar?: string | null;
+	} | null;
+}
+
+const provisionBetterAuthCredential = async (user: LegacyCredentialUser): Promise<void> => {
+	const displayName = [user.account?.firstName, user.account?.lastName]
+		.filter(Boolean)
+		.join(" ") || user.username;
+	const email = user.email || `${user.id}@legacy.nktc.invalid`;
+
+	await prisma.$transaction(async (transaction) => {
+		await transaction.authUser.upsert({
+			where: { legacyUserId: user.id },
+			create: {
+				id: user.id,
+				legacyUserId: user.id,
+				name: displayName,
+				email,
+				emailVerified: Boolean(user.email),
+				image: user.account?.avatar,
+				username: user.username,
+				displayUsername: user.username,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+			},
+			update: {
+				name: displayName,
+				email,
+				emailVerified: Boolean(user.email),
+				image: user.account?.avatar,
+				username: user.username,
+				displayUsername: user.username,
+			},
+		});
+
+		const credentialAccount = await transaction.authAccount.findFirst({
+			where: {
+				userId: user.id,
+				providerId: "credential",
+			},
+			select: { id: true },
+		});
+
+		if (credentialAccount) {
+			await transaction.authAccount.update({
+				where: { id: credentialAccount.id },
+				data: {
+					accountId: user.id,
+					password: user.password,
+				},
+			});
+			return;
+		}
+
+		await transaction.authAccount.create({
+			data: {
+				id: crypto.randomUUID(),
+				accountId: user.id,
+				providerId: "credential",
+				userId: user.id,
+				password: user.password,
+			},
+		});
+	});
+};
+
 export abstract class AuthService {
 	static async register(data: {
 		username: string;
@@ -99,6 +175,20 @@ export abstract class AuthService {
 			username: user.username,
 			roles: user.role,
 		};
+	}
+
+	static async prepareBetterAuthLogin(data: { username: string; password: string }) {
+		const result = await this.login(data);
+		await provisionBetterAuthCredential(result.user);
+		return { id: result.userId, username: result.username };
+	}
+
+	static async isMfaEnabled(userId: string): Promise<boolean> {
+		const user = await prisma.authUser.findUnique({
+			where: { id: userId },
+			select: { twoFactorEnabled: true },
+		});
+		return user?.twoFactorEnabled === true;
 	}
 
 	static async validateRefreshToken(
@@ -200,9 +290,26 @@ export abstract class AuthService {
 		}
 
 		const hashed = await Bun.password.hash(data.newPassword);
-		await prisma.user.update({
-			where: { id: userData.id },
-			data: { password: hashed },
+		await prisma.$transaction(async (transaction) => {
+			await transaction.user.update({
+				where: { id: userData.id },
+				data: { password: hashed },
+			});
+
+			const credentialAccount = await transaction.authAccount.findFirst({
+				where: {
+					userId: userData.id,
+					providerId: "credential",
+				},
+				select: { id: true },
+			});
+
+			if (credentialAccount) {
+				await transaction.authAccount.update({
+					where: { id: credentialAccount.id },
+					data: { password: hashed },
+				});
+			}
 		});
 	}
 

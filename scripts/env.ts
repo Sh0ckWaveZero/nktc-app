@@ -1,0 +1,620 @@
+import { spawnSync } from "node:child_process";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { join, relative } from "node:path";
+import { createInterface } from "node:readline/promises";
+
+const PROJECT_NAME = "NKTC Student Management System";
+const LOGO_LINES = [
+  "███╗   ██╗██╗  ██╗████████╗ ██████╗",
+  "████╗  ██║██║ ██╔╝╚══██╔══╝██╔════╝",
+  "██╔██╗ ██║█████╔╝    ██║   ██║     ",
+  "██║╚██╗██║██╔═██╗    ██║   ██║     ",
+  "██║ ╚████║██║  ██╗   ██║   ╚██████╗",
+  "╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝    ╚═════╝",
+];
+const LOGO_COLORS = [
+  "38;2;34;211;238",
+  "38;2;45;202;232",
+  "38;2;99;179;237",
+  "38;2;139;148;244",
+  "38;2;168;123;250",
+  "38;2;192;96;255",
+];
+const repoRoot = process.cwd();
+const frontendRoot = join(repoRoot, "frontend");
+const backendRoot = join(repoRoot, "backend-elysia");
+const runtimeDirectory = join(repoRoot, ".dev");
+const stateFilePath = join(runtimeDirectory, "current-env.json");
+const rootEnvFilePath = join(repoRoot, ".env");
+
+type Environment = "local" | "prod";
+type RunTarget = "none" | "frontend" | "backend" | "both";
+type EnvMap = Map<string, string>;
+
+type EnvState = {
+  environment: Environment;
+  frontendFile: string;
+  backendFile: string;
+  sourceFile: string;
+  updatedAt: string;
+};
+
+type CliOptions = {
+  environment?: Environment;
+  run?: RunTarget;
+  dryRun: boolean;
+  status: boolean;
+};
+
+const profileTargets: Record<Environment, { nodeEnv: string }> = {
+  local: {
+    nodeEnv: "development",
+  },
+  prod: {
+    nodeEnv: "production",
+  },
+};
+
+const log = (message: string): void => {
+  process.stdout.write(`[${PROJECT_NAME}] ${message}\n`);
+};
+
+const logError = (message: string): void => {
+  process.stderr.write(`[${PROJECT_NAME}] ${message}\n`);
+};
+
+const printProjectBanner = (): void => {
+  const useColor = Boolean(process.stdout.isTTY && !process.env.NO_COLOR);
+  const logo = LOGO_LINES.map((line, index) =>
+    useColor ? `\u001b[${LOGO_COLORS[index]}m${line}\u001b[0m` : line
+  ).join("\n");
+  const subtitle = "Environment Setup  •  local / prod";
+  const renderedSubtitle = useColor
+    ? `\u001b[2m${subtitle}\u001b[0m`
+    : subtitle;
+
+  process.stdout.write(`${logo}\n${renderedSubtitle}\n\n`);
+};
+
+const toRelativePath = (filePath: string): string =>
+  relative(repoRoot, filePath) || ".";
+
+const stripWrappingQuotes = (value: string): string => {
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    return value.slice(1, -1);
+  }
+
+  return value;
+};
+
+const parseEnvText = (fileContent: string): EnvMap => {
+  const values: EnvMap = new Map();
+
+  for (const rawLine of fileContent.split(/\r?\n/u)) {
+    const line = rawLine.trim();
+
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+
+    const match = line.match(
+      /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/u
+    );
+
+    if (!match) {
+      continue;
+    }
+
+    values.set(match[1], stripWrappingQuotes(match[2].trim()));
+  }
+
+  return values;
+};
+
+const environmentBlockStart =
+  /^\s*#\s*>>>\s*NKTC_ENV\s*[:=]\s*(local|prod)\s*$/iu;
+const environmentBlockEnd =
+  /^\s*#\s*<<<\s*NKTC_ENV\s*[:=]\s*(local|prod)\s*$/iu;
+const environmentAssignment = /^(?:export\s+)?[A-Za-z_][A-Za-z0-9_]*\s*=/u;
+
+const toggleAssignmentComment = (line: string, enabled: boolean): string => {
+  const parts = line.match(/^(\s*)(#\s*)?(.*)$/u);
+
+  if (!parts || !environmentAssignment.test(parts[3].trim())) {
+    return line;
+  }
+
+  const indentation = parts[1];
+  const assignment = parts[3].trim();
+
+  return enabled
+    ? `${indentation}${assignment}`
+    : `${indentation}# ${assignment}`;
+};
+
+const toggleEnvironmentBlocks = (
+  fileContent: string,
+  environment: Environment
+): { content: string; hasBlocks: boolean } => {
+  const lines = fileContent.split(/\r?\n/u);
+  let currentBlock: Environment | null = null;
+  let hasBlocks = false;
+
+  const toggledLines = lines.map((line) => {
+    const startMatch = line.match(environmentBlockStart);
+
+    if (startMatch) {
+      currentBlock = startMatch[1].toLowerCase() as Environment;
+      hasBlocks = true;
+      return line;
+    }
+
+    const endMatch = line.match(environmentBlockEnd);
+
+    if (endMatch) {
+      currentBlock = null;
+      return line;
+    }
+
+    if (!currentBlock) {
+      return line;
+    }
+
+    return toggleAssignmentComment(line, currentBlock === environment);
+  });
+
+  return { content: toggledLines.join("\n"), hasBlocks };
+};
+
+const formatEnvValue = (value: string): string => {
+  if (!value || /^[A-Za-z0-9_./:@?,&=+%-]+$/u.test(value)) {
+    return value;
+  }
+
+  return JSON.stringify(value);
+};
+
+const serializeEnvFile = (
+  values: EnvMap,
+  environment: Environment,
+  sourceFile: string
+): string => {
+  const header = [
+    `# Generated by ${PROJECT_NAME} environment selector.`,
+    `# Environment: ${environment}`,
+    `# Source: ${toRelativePath(sourceFile)}`,
+    "# Do not edit this generated file; update the selected block in root .env instead.",
+    "",
+  ];
+  const entries = [...values.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, value]) => `${key}=${formatEnvValue(value)}`);
+
+  return `${[...header, ...entries].join("\n")}\n`;
+};
+
+const assign = (target: EnvMap, key: string, value: string): void => {
+  target.set(key, value);
+};
+
+const splitEnvironment = (
+  source: EnvMap,
+  environment: Environment
+): { frontend: EnvMap; backend: EnvMap } => {
+  const frontend: EnvMap = new Map();
+  const backend: EnvMap = new Map();
+
+  for (const [sourceKey, value] of source.entries()) {
+    if (sourceKey === "NODE_ENV") {
+      continue;
+    }
+
+    if (sourceKey === "BACKEND_INTERNAL_URL") {
+      assign(frontend, sourceKey, value);
+      continue;
+    }
+
+    if (sourceKey.startsWith("FRONTEND_")) {
+      assign(frontend, sourceKey.slice("FRONTEND_".length), value);
+      continue;
+    }
+
+    if (sourceKey.startsWith("BACKEND_")) {
+      assign(backend, sourceKey.slice("BACKEND_".length), value);
+      continue;
+    }
+
+    if (
+      sourceKey.startsWith("NEXT_PUBLIC_") ||
+      sourceKey === "ANALYZE" ||
+      sourceKey === "CUSTOM_KEY" ||
+      sourceKey.startsWith("MUI_X_") ||
+      sourceKey === "HOSTNAME"
+    ) {
+      assign(frontend, sourceKey, value);
+      continue;
+    }
+
+    assign(backend, sourceKey, value);
+  }
+
+  assign(frontend, "NODE_ENV", profileTargets[environment].nodeEnv);
+  assign(backend, "NODE_ENV", profileTargets[environment].nodeEnv);
+
+  return { frontend, backend };
+};
+
+const readState = (): EnvState | null => {
+  if (!existsSync(stateFilePath)) {
+    return null;
+  }
+
+  try {
+    const state = JSON.parse(readFileSync(stateFilePath, "utf8")) as EnvState;
+
+    if (state.environment !== "local" && state.environment !== "prod") {
+      return null;
+    }
+
+    return state;
+  } catch {
+    return null;
+  }
+};
+
+const writeFile = (
+  filePath: string,
+  content: string,
+  dryRun: boolean
+): void => {
+  if (dryRun) {
+    return;
+  }
+
+  writeFileSync(filePath, content, "utf8");
+  chmodSync(filePath, 0o600);
+};
+
+const writeState = (state: EnvState, dryRun: boolean): void => {
+  if (dryRun) {
+    return;
+  }
+
+  mkdirSync(runtimeDirectory, { recursive: true });
+  writeFileSync(stateFilePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+};
+
+const parseEnvironment = (value: string): Environment => {
+  const normalized = value.trim().toLowerCase();
+
+  if (
+    normalized === "local" ||
+    normalized === "dev" ||
+    normalized === "development" ||
+    normalized === "1"
+  ) {
+    return "local";
+  }
+
+  if (
+    normalized === "prod" ||
+    normalized === "production" ||
+    normalized === "2"
+  ) {
+    return "prod";
+  }
+
+  throw new Error(`Environment must be local or prod, received: ${value}`);
+};
+
+const parseRunTarget = (value: string): RunTarget => {
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === "none" || normalized === "no" || normalized === "4") {
+    return "none";
+  }
+
+  if (
+    normalized === "frontend" ||
+    normalized === "front" ||
+    normalized === "1"
+  ) {
+    return "frontend";
+  }
+
+  if (normalized === "backend" || normalized === "back" || normalized === "2") {
+    return "backend";
+  }
+
+  if (normalized === "both" || normalized === "all" || normalized === "3") {
+    return "both";
+  }
+
+  throw new Error(
+    `Run target must be none, frontend, backend, or both, received: ${value}`
+  );
+};
+
+const parseArgs = (): CliOptions => {
+  const options: CliOptions = { dryRun: false, status: false };
+  const args = process.argv.slice(2);
+
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
+
+    const readValue = (flag: string): string => {
+      const value = args[index + 1];
+
+      if (!value || value.startsWith("-")) {
+        throw new Error(`Missing value for ${flag}`);
+      }
+
+      index += 1;
+      return value;
+    };
+
+    switch (argument) {
+      case "--env":
+      case "-e":
+        options.environment = parseEnvironment(readValue(argument));
+        break;
+      case "--run":
+      case "-r":
+        options.run = parseRunTarget(readValue(argument));
+        break;
+      case "--dry-run":
+        options.dryRun = true;
+        break;
+      case "--status":
+        options.status = true;
+        break;
+      case "--help":
+      case "-h":
+        process.stdout.write(
+          `Usage: bun run env [options]\n\n` +
+            `Select ${PROJECT_NAME} environment, split variables, and run the selected environment.\n\n` +
+            `Runtime files: frontend/.env and backend-elysia/.env (one file per app).\n\n` +
+            `Default run: local starts bun run dev:tui; prod starts bun run start.\n\n` +
+            `Options:\n` +
+            `  -e, --env <local|prod>       Select environment without prompting\n` +
+            `  -r, --run <none|frontend|backend|both>  Optional run override\n` +
+            `      --status                Show the remembered environment\n` +
+            `      --dry-run               Show actions without writing or running\n` +
+            `  -h, --help                 Show this help\n\n` +
+            `Examples:\n` +
+            `  bun run env\n` +
+            `  bun run env -- --env local\n` +
+            `  bun run env -- --env prod\n`
+        );
+        process.exit(0);
+      default:
+        throw new Error(`Unknown option: ${argument}`);
+    }
+  }
+
+  return options;
+};
+
+const promptForOptions = async (
+  options: CliOptions,
+  currentState: EnvState | null
+): Promise<CliOptions> => {
+  if (options.environment) {
+    return options;
+  }
+
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    return {
+      ...options,
+      environment: options.environment || currentState?.environment || "local",
+    };
+  }
+
+  const readline = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  try {
+    const currentLabel = currentState?.environment || "none";
+    const environmentAnswer = options.environment
+      ? ""
+      : await readline.question(
+          `Environment [1] local  [2] prod  [Enter=${currentLabel}]: `
+        );
+    const environment =
+      options.environment ||
+      (environmentAnswer.trim()
+        ? parseEnvironment(environmentAnswer)
+        : currentState?.environment || "local");
+
+    return { ...options, environment };
+  } finally {
+    readline.close();
+  }
+};
+
+const printStatus = (state: EnvState | null): void => {
+  if (!state) {
+    log(
+      "No environment has been selected yet. Run `bun run env` to choose one."
+    );
+    return;
+  }
+
+  log(`Current environment: ${state.environment}`);
+  log(`Source: ${state.sourceFile}`);
+  log(`Frontend: ${state.frontendFile}`);
+  log(`Backend: ${state.backendFile}`);
+  log(`Updated: ${state.updatedAt}`);
+};
+
+const getRunCommand = (
+  environment: Environment,
+  target?: RunTarget
+): string | null => {
+  if (!target) {
+    return environment === "local" ? "dev:tui" : "start";
+  }
+
+  if (target === "none") {
+    return null;
+  }
+
+  if (environment === "local") {
+    return target === "both"
+      ? "dev:tui"
+      : target === "frontend"
+      ? "dev:frontend"
+      : "dev:backend";
+  }
+
+  return target === "both"
+    ? "start"
+    : target === "frontend"
+    ? "start:frontend"
+    : "start:backend";
+};
+
+const runServices = (
+  command: string,
+  environment: EnvMap,
+  dryRun: boolean
+): number => {
+  const args = ["run", command];
+  log(`${dryRun ? "[dry-run] " : ""}Running bun ${args.join(" ")}...`);
+
+  if (dryRun) {
+    return 0;
+  }
+
+  const result = spawnSync(process.execPath, args, {
+    cwd: repoRoot,
+    env: { ...process.env, ...Object.fromEntries(environment.entries()) },
+    shell: false,
+    stdio: "inherit",
+  });
+
+  return result.status ?? 1;
+};
+
+const run = async (): Promise<void> => {
+  printProjectBanner();
+  const options = parseArgs();
+  const currentState = readState();
+
+  if (options.status) {
+    printStatus(currentState);
+    return;
+  }
+
+  const selected = await promptForOptions(options, currentState);
+  const environment =
+    selected.environment || currentState?.environment || "local";
+  if (!existsSync(rootEnvFilePath)) {
+    throw new Error(
+      "Root env file not found. Copy .env.example to .env, then fill in the values."
+    );
+  }
+
+  const rootEnv = readFileSync(rootEnvFilePath, "utf8");
+  const toggledRootEnv = toggleEnvironmentBlocks(rootEnv, environment);
+
+  if (!toggledRootEnv.hasBlocks) {
+    log(
+      "Warning: .env has no NKTC_ENV blocks; using all uncommented values and only updating NODE_ENV."
+    );
+  }
+
+  const source = parseEnvText(toggledRootEnv.content);
+  const split = splitEnvironment(source, environment);
+  const activeFrontendFile = join(frontendRoot, ".env");
+  const activeBackendFile = join(backendRoot, ".env");
+  const frontendContent = serializeEnvFile(
+    split.frontend,
+    environment,
+    rootEnvFilePath
+  );
+  const backendContent = serializeEnvFile(
+    split.backend,
+    environment,
+    rootEnvFilePath
+  );
+  const state: EnvState = {
+    environment,
+    frontendFile: toRelativePath(activeFrontendFile),
+    backendFile: toRelativePath(activeBackendFile),
+    sourceFile: toRelativePath(rootEnvFilePath),
+    updatedAt: new Date().toISOString(),
+  };
+
+  log(`Selected environment: ${environment}`);
+  log(
+    `Source: ${toRelativePath(rootEnvFilePath)} (${
+      source.size
+    } active variables)`
+  );
+  log(
+    `Frontend output: ${toRelativePath(activeFrontendFile)} (${
+      split.frontend.size
+    } variables)`
+  );
+  log(
+    `Backend output: ${toRelativePath(activeBackendFile)} (${
+      split.backend.size
+    } variables)`
+  );
+
+  if (!selected.dryRun) {
+    mkdirSync(frontendRoot, { recursive: true });
+    mkdirSync(backendRoot, { recursive: true });
+  }
+
+  writeFile(rootEnvFilePath, toggledRootEnv.content, selected.dryRun);
+  writeFile(activeFrontendFile, frontendContent, selected.dryRun);
+  writeFile(activeBackendFile, backendContent, selected.dryRun);
+  writeState(state, selected.dryRun);
+
+  log(
+    `${
+      selected.dryRun ? "Dry-run complete" : "Environment files synced"
+    }; current environment is ${environment}.`
+  );
+
+  const runTarget = selected.run;
+  const command = getRunCommand(environment, runTarget);
+
+  if (command) {
+    const runEnvironment =
+      runTarget === "frontend"
+        ? split.frontend
+        : runTarget === "backend"
+        ? split.backend
+        : new Map(
+            [...split.backend, ...split.frontend].filter(
+              ([key]) => key !== "PORT"
+            )
+          );
+    const exitCode = runServices(command, runEnvironment, selected.dryRun);
+
+    if (exitCode !== 0) {
+      process.exitCode = exitCode;
+    }
+  } else {
+    log("No service started.");
+  }
+};
+
+run().catch((error: unknown) => {
+  logError(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});

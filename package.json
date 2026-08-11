@@ -6,6 +6,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "bun ./scripts/dev.ts",
+    "env": "bun ./scripts/env.ts",
+    "env:local": "bun ./scripts/env.ts --env local",
+    "env:prod": "bun ./scripts/env.ts --env prod",
+    "env:status": "bun ./scripts/env.ts --status",
     "pr": "bun ./scripts/pr.ts",
     "pr:create": "bun ./scripts/pr.ts --create",
     "dev:stream": "turbo run dev --ui=stream",
@@ -17,6 +21,8 @@
     "clean": "turbo run clean",
     "dev:frontend": "bun run --cwd frontend dev",
     "dev:backend": "turbo run dev --filter=backend-elysia",
+    "start:frontend": "turbo run start --filter=nktc-app",
+    "start:backend": "turbo run start --filter=backend-elysia",
     "build:frontend": "turbo run build --filter=nktc-app",
     "build:backend": "turbo run build --filter=backend-elysia",
     "dev:all": "turbo run dev",
@@ -37,7 +43,7 @@
     "version:set": "bun ./scripts/bump.ts set"
   },
   "devDependencies": {
-    "turbo": "^2.9.16"
+    "turbo": "^2.10.9"
   },
   "packageManager": "bun@1.3.3",
   "engines": {
@@ -49,27 +55,26 @@
     "backend-elysia"
   ],
   "dependencies": {
-    "body-parser": "^2.2.2",
-    "esbuild": "^0.28.0",
-    "happy-dom": "^20.9.0",
+    "body-parser": "^2.3.0",
+    "esbuild": "^0.28.2",
+    "happy-dom": "^20.11.2",
     "minio": "^8.0.7",
     "validator": "^13.15.35",
-    "vitest": "^4.1.7",
+    "vitest": "^4.1.10",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.4.3"
   },
   "resolutions": {
-    "happy-dom": "^20.0.8",
+    "happy-dom": "^20.11.2",
     "esbuild": "^0.25.11",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "tmp": "^0.2.5"
   },
   "overrides": {
-
     "vite": "^7.3.2",
     "yaml": "^1.10.3",
     "flatted": "^3.4.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.26",
     "fast-uri": "^3.1.2",
     "picomatch": "^2.3.2",
     "hono": "^4.12.18",

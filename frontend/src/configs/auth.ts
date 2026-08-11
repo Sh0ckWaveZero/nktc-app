@@ -6,6 +6,8 @@ export type AuthConfig = {
   loginEndpoint?: string;
   logoutEndpoint?: string;
   refreshEndpoint?: string;
+  prepareBetterAuthEndpoint?: string;
+  tokenExchangeEndpoint?: string;
   changePasswordEndpoint?: string;
   teacherEndpoint?: string;
   studentEndpoint?: string;
@@ -31,6 +33,8 @@ export const authConfig: AuthConfig = {
   loginEndpoint: apiConfig.endpoint('/auth/login'),
   logoutEndpoint: apiConfig.endpoint('/auth/logout'),
   refreshEndpoint: apiConfig.endpoint('/auth/refresh'),
+  prepareBetterAuthEndpoint: apiConfig.endpoint('/auth/prepare-better-auth'),
+  tokenExchangeEndpoint: apiConfig.endpoint('/auth/token-exchange'),
   changePasswordEndpoint: apiConfig.endpoint('/auth/update/password'),
   teacherEndpoint: apiConfig.endpoint('/teachers'),
   studentEndpoint: apiConfig.endpoint('/students'),

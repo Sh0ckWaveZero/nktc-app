@@ -29,9 +29,8 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormHelperText } from '@mui/material';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/hooks/useAuth';
 import { useChangePassword } from '@/hooks/queries/useUser';
-import { useLogin } from '@/hooks/queries/useAuth';
+import AuthenticationMethods from './AuthenticationMethods';
 
 interface State {
   showNewPassword: boolean;
@@ -50,6 +49,8 @@ const schema = z.object({
   newPassword: z.string().min(1, 'กรุณากรอกรหัสผ่านใหม่').min(8, 'รหัสผ่านใหม่ต้องมีความยาว 8 ตัวอักษร'),
   confirmNewPassword: z.string().min(1, 'กรุณายืนยันรหัสผ่านใหม่').min(8, 'ยืนยันรหัสผ่านต้องมีความยาว 8 ตัวอักษร'),
 }) satisfies z.ZodType<IFormInputs>;
+
+const SCORE_WORDS = ['สั้นเกินไป', 'ง่าย', 'พอใช้ได้', 'ดี', 'ยอดเยี่ยม'];
 
 const TabSecurity = () => {
   // hooks
@@ -70,9 +71,7 @@ const TabSecurity = () => {
     resolver: zodResolver(schema),
   });
 
-  const auth = useAuth();
   const { mutate: changePassword, isPending } = useChangePassword();
-  const { mutate: login } = useLogin();
 
   // ** States
   const [values, setValues] = useState<State>({
@@ -83,8 +82,6 @@ const TabSecurity = () => {
 
   const watchNewPassword = watch('newPassword', '');
   const watchConfirmNewPassword = watch('confirmNewPassword', '');
-
-  const scoreWords = ['สั้นเกินไป', 'ง่าย', 'พอใช้ได้', 'ดี', 'ยอดเยี่ยม'];
 
   const handleClickShowCurrentPassword = () => {
     setValues({ ...values, showCurrentPassword: !values.showCurrentPassword });
@@ -101,9 +98,7 @@ const TabSecurity = () => {
     });
   };
 
-  const onSubmit: SubmitHandler<IFormInputs> = async (data: IFormInputs, e: any) => {
-    e.preventDefault();
-
+  const onSubmit: SubmitHandler<IFormInputs> = async (data: IFormInputs) => {
     if (watchNewPassword !== watchConfirmNewPassword) {
       setError('confirmNewPassword', { type: 'string', message: 'รหัสผ่านไม่ตรงกัน' });
       return;
@@ -111,32 +106,14 @@ const TabSecurity = () => {
 
     changePassword(
       {
-        old_password: data.currentPassword,
-        new_password: data.newPassword,
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmNewPassword,
       },
       {
         onSuccess: () => {
           toast.success('เปลี่ยนรหัสผ่านสำเร็จ');
           reset();
-
-          // Re-login with new password
-          login(
-            {
-              username: auth?.user?.username as string,
-              password: data.newPassword,
-            },
-            {
-              onSuccess: (loginData) => {
-                auth?.setUser(loginData);
-                setTimeout(() => {
-                  location.reload();
-                }, 500);
-              },
-              onError: () => {
-                toast.error('กรุณาเข้าสู่ระบบอีกครั้ง');
-              },
-            },
-          );
         },
         onError: (error: any) => {
           toast.error(error?.response?.data?.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน');
@@ -235,8 +212,8 @@ const TabSecurity = () => {
                       <FormHelperText sx={{ color: 'error.main' }}>{errors.newPassword.message}</FormHelperText>
                     )}
                     <PasswordStrengthBar
-                      scoreWords={scoreWords}
-                      shortScoreWord={scoreWords[0]}
+                      scoreWords={SCORE_WORDS}
+                      shortScoreWord={SCORE_WORDS[0]}
                       password={watchNewPassword}
                     />
                   </FormControl>
@@ -277,8 +254,8 @@ const TabSecurity = () => {
                       <FormHelperText sx={{ color: 'error.main' }}>{errors.confirmNewPassword.message}</FormHelperText>
                     )}
                     <PasswordStrengthBar
-                      scoreWords={scoreWords}
-                      shortScoreWord={scoreWords[0]}
+                      scoreWords={SCORE_WORDS}
+                      shortScoreWord={SCORE_WORDS[0]}
                       password={watchConfirmNewPassword}
                     />
                   </FormControl>
@@ -308,6 +285,7 @@ const TabSecurity = () => {
           </Box>
         </CardContent>
       </form>
+      <AuthenticationMethods />
     </React.Fragment>
   );
 };

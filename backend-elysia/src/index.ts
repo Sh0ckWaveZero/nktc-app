@@ -8,6 +8,7 @@ import { responsePlugin } from "./plugins/response";
 import { logger } from "./libs/logger";
 import { createLogger } from "./infrastructure/logging";
 import { initializeDatabase } from "./libs/prisma";
+import { auth as betterAuthServer } from "./libs/better-auth";
 
 // Modules
 import { auth } from "./modules/auth";
@@ -136,6 +137,7 @@ const app = new Elysia()
       .use(badnessIndividual)
       .use(statics),
   )
+  .mount(betterAuthServer.handler)
   .listen(process.env.PORT || 3001);
 
 appLogger.info("🦊 Server started", {
