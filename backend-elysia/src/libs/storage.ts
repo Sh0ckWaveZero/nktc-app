@@ -24,8 +24,6 @@ function getClient(): MinioClient {
     const secretKey = process.env.MINIO_SECRET_KEY || process.env.MINIO_ROOT_PASSWORD || process.env.STORAGE_SECRET_KEY || "minioadmin";
 
     logger.info("📀 Initializing storage client", {
-      endpoint,
-      port,
       useSSL,
       bucket: BUCKET_NAME,
     });

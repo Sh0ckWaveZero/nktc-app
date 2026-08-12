@@ -98,7 +98,7 @@ async function seedAdmin() {
             : { create: { firstName: "แอดมิน", lastName: "ระบบ", ...meta } },
         },
       });
-      console.log(`✅ Admin user '${existing.username}' updated successfully`);
+      console.log("✅ Admin user updated successfully");
     } else {
       await prisma.user.create({
         data: {
@@ -115,7 +115,7 @@ async function seedAdmin() {
           },
         },
       });
-      console.log(`✅ Admin user '${username}' created successfully`);
+      console.log("✅ Admin user created successfully");
     }
   }
 }
