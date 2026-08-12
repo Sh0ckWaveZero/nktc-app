@@ -4,7 +4,7 @@ import AdminVisitReportPage from '@/views/apps/admin/reports/visit/AdminVisitRep
 
 export const metadata: Metadata = {
   title: 'รายงานการเยี่ยมบ้าน',
-  description: 'รายงานการเยี่ยมบ้าน - NKTC',
+  description: 'รายงานการเยี่ยมบ้าน',
 };
 
 export default function Page() {

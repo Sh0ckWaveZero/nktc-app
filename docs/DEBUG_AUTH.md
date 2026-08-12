@@ -146,15 +146,15 @@ useEffect(() => {
 ### ตรวจสอบ Backend Logs
 
 ```bash
-cd backend
-npm run start:dev
+cd backend-elysia
+bun run dev
 # ดู console logs เมื่อมี 401 error
 ```
 
 ### ตรวจสอบ JWT Validation
 
 ```typescript
-// ใน backend/src/apis/auth/jwt.strategy.ts
+// ใน backend-elysia/src/modules/auth/index.ts
 async validate(payload: any) {
   console.log('JWT Payload:', payload); // เพิ่ม log เพื่อดู payload
   const user = await this.authService.validateUser(payload);

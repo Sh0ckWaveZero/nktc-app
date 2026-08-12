@@ -12,7 +12,7 @@
 
 ## Exposed Credentials Summary
 
-### Backend Environment Variables (backend/.env)
+### Backend Environment Variables (backend-elysia/.env)
 
 The following secrets were found in git history and MUST be rotated:
 
@@ -51,13 +51,13 @@ The following secrets were found in git history and MUST be rotated:
 ### 1. ✅ COMPLETED: Update .gitignore
 
 - ✅ Added comprehensive .env file patterns to root .gitignore
-- ✅ Added workspace-specific .env file patterns (backend/.env, frontend/.env)
+- ✅ Added workspace-specific .env file patterns (backend-elysia/.env, frontend/.env)
 - ✅ Added comment warning about never committing .env files
 
 ### 2. ✅ COMPLETED: Create .env.example Files
 
 - ✅ Created `frontend/.env.example` with placeholder values
-- ✅ Updated `backend/.env.example` with all required variables
+- ✅ Updated `backend-elysia/.env.example` with all required variables
 - ✅ Used generic placeholders (username, password, localhost, etc.)
 
 ### 3. 🔴 TODO: Rotate All Exposed Credentials
@@ -67,7 +67,7 @@ The following secrets were found in git history and MUST be rotated:
 - [ ] Change PostgreSQL password for `adminpostgres` user
 - [ ] Change PostgreSQL password in all connection strings
 - [ ] Update DATABASE_URL in:
-  - backend/.env (local development)
+  - backend-elysia/.env (local development)
   - Deployment environment variables (production)
   - Docker container environment variables
 - [ ] Rotate MongoDB Atlas credentials
@@ -78,7 +78,7 @@ The following secrets were found in git history and MUST be rotated:
 
 - [ ] Generate new JWT_SECRET (min 32 characters)
 - [ ] Generate new JWT_REFRESH_SECRET/Refresh Token Secret (min 64 characters)
-- [ ] Update in backend/.env and all deployment configs
+- [ ] Update in backend-elysia/.env and all deployment configs
 - [ ] NOTE: This will invalidate all existing JWT tokens (users will need to re-login)
 
 **MinIO/S3 Credentials**:
@@ -175,7 +175,7 @@ openssl rand -hex 20
 After generating new credentials, update:
 
 1. **Local Development**:
-   - [ ] backend/.env
+   - [ ] backend-elysia/.env
    - [ ] frontend/.env
    - [ ] docker-compose.yml (if embedded)
 
@@ -260,7 +260,7 @@ pre-commit install -t pre-commit
 ### ✅ Completed
 
 1. **`.gitignore`** - Updated with comprehensive .env file patterns
-2. **`backend/.env.example`** - Updated with missing variables (JWT_SECRET, JWT_REFRESH_SECRET)
+2. **`backend-elysia/.env.example`** - Updated with missing variables (JWT_SECRET, JWT_REFRESH_SECRET)
 3. **`frontend/.env.example`** - Created with placeholder values
 
 ### 📋 Pending

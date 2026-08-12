@@ -22,6 +22,7 @@ import themeConfig from '@/configs/themeConfig';
 
 // ** Hooks
 import { useSettings } from '@/@core/hooks/useSettings';
+import { useSystemSettings } from '@/hooks/queries';
 
 // ** Demo Imports
 import FooterIllustrationsV2 from '@/views/pages/auth/FooterIllustrationsV2';
@@ -78,7 +79,8 @@ const ForgotPasswordPage = () => {
   const theme = useTheme();
   const { settings } = useSettings();
 
-  // ** Vars
+  // ** Hooks & Vars
+  const { settings: systemSettings } = useSystemSettings();
   const { skin } = settings;
   const hidden = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -201,7 +203,7 @@ const ForgotPasswordPage = () => {
                   fontSize: '1.5rem !important',
                 }}
               >
-                {themeConfig.templateName}
+                {systemSettings?.collegeAcronym ? `${systemSettings.collegeAcronym}-SYSTEM` : themeConfig.templateName}
               </Typography>
             </Box>
             <Box sx={{ mb: 6 }}>

@@ -21,11 +21,7 @@ function parseDbUrl(url: string): { host: string; port: string; database: string
 
 const dbInfo = parseDbUrl(DATABASE_URL || "");
 
-logger.info("🗄️ Initializing database connection", {
-  host: dbInfo.host,
-  port: dbInfo.port,
-  database: dbInfo.database,
-});
+logger.info("🗄️ Initializing database connection");
 
 // Pass connection config directly to PrismaPg so it uses its own internal pg.Pool.
 // Passing an external pg.Pool fails instanceof check (different module instances) -> ECONNREFUSED.
@@ -54,7 +50,6 @@ export const prisma = new PrismaClient({
 if (process.env.NODE_ENV === "development") {
   prisma.$on("query", (e) => {
     logger.debug("Query executed", {
-      query: e.query.substring(0, 200),
       duration: `${e.duration}ms`,
     });
   });
@@ -73,14 +68,9 @@ async function testConnection() {
   try {
     await prisma.$connect();
     await prisma.$queryRaw`SELECT 1`;
-    logger.info("✅ Database connected successfully", {
-      host: dbInfo.host,
-      database: dbInfo.database,
-    });
+    logger.info("✅ Database connected successfully");
   } catch (error) {
     logger.error("❌ Database connection failed", {
-      host: dbInfo.host,
-      database: dbInfo.database,
       error: error instanceof Error ? error.message : String(error),
     });
   }

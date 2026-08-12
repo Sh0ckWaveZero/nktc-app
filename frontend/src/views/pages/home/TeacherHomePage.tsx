@@ -61,6 +61,7 @@ import IconifyIcon from '@/@core/components/icon';
 // ** Hooks & Contexts
 import { useAuth } from '@/hooks/useAuth';
 import { useRole } from '@/hooks/useRole';
+import { useSystemSettings } from '@/hooks/queries';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
 import { useTeacherVisitStudents } from '@/hooks/queries/useVisits';
 import { useCheckInReportsByClassrooms } from '@/hooks/queries/useCheckIn';
@@ -163,6 +164,7 @@ const StarAvatar = styled(Avatar)(({ theme }) => ({
 const TeacherHomePage = () => {
   const auth = useAuth();
   const { isAdmin, isTeacher } = useRole();
+  const { settings } = useSystemSettings();
   const ability = useContext(AbilityContext);
   const router = useRouter();
   const theme = useTheme();
@@ -798,8 +800,8 @@ const TeacherHomePage = () => {
       badge: 'action',
     },
     {
-      title: 'จัดการข้อมูลครู/บุคลากร',
-      subtitle: 'สืบค้นฐานข้อมูลอาจารย์ NKTC',
+      title: 'บุคลากรอาจารย์',
+      subtitle: `สืบค้นฐานข้อมูลอาจารย์ ${settings.collegeAcronym}`,
       color: '#f08383',
       icon: <MdManageAccounts />,
       navLink: {
@@ -961,7 +963,7 @@ const TeacherHomePage = () => {
     <Box sx={{ py: 2 }}>
       {/* 🚀 Dynamic Premium SEO H1 Heading (Hidden visually but available for screen readers & SEO structures) */}
       <Typography variant='h1' sx={{ display: 'none' }}>
-        NKTC Student Management System - หน้าหลักแดชบอร์ดคุณครูประจำชั้น
+        {`${settings.collegeAcronym} Student Management System - หน้าหลักแดชบอร์ดคุณครูประจำชั้น`}
       </Typography>
 
       <Grid container spacing={6}>
@@ -1010,15 +1012,15 @@ const TeacherHomePage = () => {
                         ) : (
                           <span>
                             {isAdmin
-                              ? 'ผู้ดูแลระบบ NKTC (ภาพรวมวิทยาลัย)'
-                              : 'ครูผู้สอน / บุคลากรวิทยาลัยเทคนิคหนองคาย'}
+                              ? `ผู้ดูแลระบบ ${settings.collegeAcronym} (ภาพรวมวิทยาลัย)`
+                              : `ครูผู้สอน / บุคลากร${settings.collegeName}`}
                           </span>
                         )}
                       </Typography>
                     </Box>
                   </Box>
                   <Typography variant='body2' sx={{ color: 'rgba(255, 255, 255, 0.75)', maxWidth: '600px' }}>
-                    ยินดีต้อนรับเข้าสู่ระบบจัดการสถานศึกษาอัจฉริยะ NKTC
+                    ยินดีต้อนรับเข้าสู่ระบบจัดการสถานศึกษาอัจฉริยะ {settings.collegeAcronym}
                     แดชบอร์ดนี้ออกแบบขึ้นเพื่อสนับสนุนการติดตามพฤติกรรม สถิติความก้าวหน้า และการเข้าชั้นเรียนของนักเรียน
                     เพื่อความร่วมมือพัฒนาทักษะและการศึกษาที่ดีขึ้นอย่างต่อเนื่อง
                   </Typography>

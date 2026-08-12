@@ -22,10 +22,23 @@ const trustedOrigins = Array.from(
 	new Set(
 		[
 			appOrigin,
+			"http://localhost:3000",
+			"http://127.0.0.1:3000",
+			"http://localhost:3001",
+			"http://127.0.0.1:3001",
 			...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "")
 				.split(",")
 				.map((origin) => trimTrailingSlash(origin.trim()))
 				.filter(Boolean),
+			...(process.env.CORS_DEV_ORIGINS || "")
+				.split(",")
+				.map((origin) => trimTrailingSlash(origin.trim()))
+				.filter(Boolean),
+			...(process.env.CORS_ALLOWED_DOMAINS || "")
+				.split(",")
+				.map((domain) => domain.trim().replace(/^\./, ""))
+				.filter(Boolean)
+				.flatMap((domain) => [`http://${domain}`, `https://${domain}`]),
 		],
 	),
 );
