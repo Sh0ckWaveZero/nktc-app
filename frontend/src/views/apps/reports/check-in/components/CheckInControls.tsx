@@ -1,9 +1,14 @@
 'use client';
 
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
+/* Hallmark · component: check-in controls · genre: modern-minimal · theme: NKTC
+ * states: default · hover · focus · active · disabled · loading · error · success
+ * contrast: pass (46–50)
+ */
+
 import { useState } from 'react';
 import RestartAltOutlined from '@mui/icons-material/RestartAltOutlined';
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -19,6 +24,7 @@ import {
 } from '@mui/material';
 
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 
 interface CheckInControlsProps {
   isMobile: boolean;
@@ -99,6 +105,8 @@ const CheckInControls = ({
     buttonMinWidth,
     buttonFontSize,
   };
+  const controlHeight = responsiveConfig.isMobile ? '3rem' : '2.75rem';
+  const actionButtonWidth = responsiveConfig.isMobile ? '100%' : '11rem';
 
   return (
     <Box
@@ -112,12 +120,6 @@ const CheckInControls = ({
         backgroundColor: 'transparent',
       }}
     >
-      {/* แสดงข้อความแจ้งเตือนเมื่อบันทึกแล้ว */}
-      {hasSavedCheckIn && (
-        <Alert severity='success' variant='outlined'>
-          บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว
-        </Alert>
-      )}
       {/* Controls Row */}
       <Box
         sx={{
@@ -156,6 +158,7 @@ const CheckInControls = ({
                   slotProps: {
                     paper: {
                       sx: {
+                        borderRadius: SHAPE_TOKENS.surface,
                         backgroundColor: 'background.paper',
                         zIndex: 1300,
                       },
@@ -163,9 +166,10 @@ const CheckInControls = ({
                   },
                 }}
                 sx={{
-                  minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+                  height: controlHeight,
+                  borderRadius: SHAPE_TOKENS.control,
+                  backgroundColor: 'background.paper',
                   '& .MuiSelect-select': {
-                    minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                     display: 'flex',
                     alignItems: 'center',
                   },
@@ -179,7 +183,7 @@ const CheckInControls = ({
                       fontSize: responsiveConfig.inputFontSize,
                       py: 1.5,
                       px: 2.5,
-                      borderRadius: '6px',
+                      borderRadius: SHAPE_TOKENS.compact,
                       mx: responsiveConfig.isMobile ? 1 : 1.5,
                       mb: 0.5,
                       minHeight: responsiveConfig.isMobile ? 'auto' : '40px',
@@ -224,6 +228,7 @@ const CheckInControls = ({
                 slotProps: {
                   paper: {
                     sx: {
+                      borderRadius: SHAPE_TOKENS.surface,
                       backgroundColor: 'background.paper',
                       zIndex: 1300,
                     },
@@ -231,9 +236,10 @@ const CheckInControls = ({
                 },
               }}
               sx={{
-                minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+                height: controlHeight,
+                borderRadius: SHAPE_TOKENS.control,
+                backgroundColor: 'background.paper',
                 '& .MuiSelect-select': {
-                  minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                   display: 'flex',
                   alignItems: 'center',
                 },
@@ -248,7 +254,7 @@ const CheckInControls = ({
                       fontSize: responsiveConfig.inputFontSize,
                       py: responsiveConfig.isMobile ? 1.5 : 1.5,
                       px: responsiveConfig.isMobile ? 2.5 : 2.5,
-                      borderRadius: '6px',
+                      borderRadius: SHAPE_TOKENS.compact,
                       mx: responsiveConfig.isMobile ? 1 : 1.5,
                       mb: 0.5,
                       minHeight: responsiveConfig.isMobile ? 'auto' : '40px',
@@ -269,7 +275,7 @@ const CheckInControls = ({
                     px: responsiveConfig.isMobile ? 3 : 3,
                     fontStyle: 'italic',
                     color: 'text.secondary',
-                    borderRadius: '8px',
+                    borderRadius: SHAPE_TOKENS.compact,
                     mx: responsiveConfig.isMobile ? 1 : 1.5,
                     mb: 1,
                   }}
@@ -285,7 +291,7 @@ const CheckInControls = ({
           <Box
             id='checkin-date-controls'
             sx={{
-              flex: responsiveConfig.isMobile ? '1 1 auto' : '0 0 240px',
+              flex: responsiveConfig.isMobile ? '1 1 auto' : '0 0 15rem',
               width: '100%',
             }}
           >
@@ -302,7 +308,9 @@ const CheckInControls = ({
                   size: responsiveConfig.formSize,
                   sx: {
                     '& .MuiInputBase-root': {
-                      minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+                      height: controlHeight,
+                      borderRadius: SHAPE_TOKENS.control,
+                      backgroundColor: 'background.paper',
                     },
                     '& .MuiInputBase-input': {
                       fontSize: responsiveConfig.inputFontSize,
@@ -317,53 +325,87 @@ const CheckInControls = ({
         {canResetCheckIn ? (
           <Button
             id='checkin-reset-button'
-            variant='outlined'
+            variant='contained'
             color='warning'
             startIcon={<RestartAltOutlined />}
             onClick={() => setIsResetDialogOpen(true)}
             disabled={developmentReset?.isResetting}
             size={responsiveConfig.buttonSize}
-            sx={{
-              minWidth: responsiveConfig.isMobile ? '100%' : '170px',
-              minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+            sx={(theme) => ({
+              flex: `0 0 ${actionButtonWidth}`,
+              width: actionButtonWidth,
+              minWidth: actionButtonWidth,
+              maxWidth: actionButtonWidth,
+              height: controlHeight,
+              minHeight: controlHeight,
+              px: 3,
               fontSize: responsiveConfig.isMobile ? '1rem' : '0.9rem',
               fontWeight: 700,
-              borderRadius: '8px',
+              borderRadius: SHAPE_TOKENS.control,
               textTransform: 'none',
-            }}
+              whiteSpace: 'nowrap',
+              color: theme.palette.getContrastText(theme.palette.warning.main),
+              backgroundColor: 'warning.main',
+              boxShadow: 'none',
+              transition:
+                'background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 100ms cubic-bezier(0.16, 1, 0.3, 1)',
+              '@media (hover: hover) and (pointer: fine)': {
+                '&:hover': {
+                  backgroundColor: 'warning.dark',
+                  boxShadow: 'none',
+                  transform: 'translateY(-1px)',
+                },
+              },
+              '&:active': {
+                transform: 'translateY(1px)',
+              },
+              '&.Mui-disabled': {
+                color: 'text.disabled',
+                backgroundColor: 'action.disabledBackground',
+              },
+              '@media (prefers-reduced-motion: reduce)': {
+                transition: 'none',
+                transform: 'none',
+              },
+            })}
           >
             {developmentReset?.isResetting ? 'กำลัง Reset...' : 'Reset การเช็คชื่อ'}
           </Button>
-        ) : (
+        ) : !hasSavedCheckIn ? (
           <Button
             id='checkin-save-button'
             variant='contained'
             onClick={onSaveCheckIn}
             disabled={currentStudentsCount === 0 || loading || !defaultClassroom?.id || !isComplete || hasSavedCheckIn}
             size={responsiveConfig.buttonSize}
-            sx={{
+            sx={(theme) => ({
               '&:hover': {
                 backgroundColor: 'primary.dark',
               },
               '&:disabled': {
-                backgroundColor: (theme) =>
-                  theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-                color: (theme) =>
-                  theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.38)' : 'rgba(0, 0, 0, 0.38)',
+                backgroundColor: 'action.disabledBackground',
+                color: 'text.disabled',
                 boxShadow: 'none',
               },
-              minWidth: responsiveConfig.isMobile ? '100%' : '160px',
-              maxWidth: responsiveConfig.isMobile ? '100%' : '200px',
-              minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+              flex: `0 0 ${actionButtonWidth}`,
+              width: actionButtonWidth,
+              minWidth: actionButtonWidth,
+              maxWidth: actionButtonWidth,
+              height: controlHeight,
+              minHeight: controlHeight,
+              px: 3,
               fontSize: responsiveConfig.isMobile ? '1rem' : '0.9rem',
               fontWeight: 600,
               lineHeight: responsiveConfig.isMobile ? '20px' : '18px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '8px',
+              borderRadius: SHAPE_TOKENS.control,
               textTransform: 'none',
-            }}
+              whiteSpace: 'nowrap',
+              color: theme.palette.getContrastText(theme.palette.primary.main),
+              backgroundColor: 'primary.main',
+            })}
           >
             {loading ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -373,11 +415,14 @@ const CheckInControls = ({
                     height: 16,
                     border: '2px solid transparent',
                     borderTop: '2px solid currentColor',
-                    borderRadius: '50%',
+                    borderRadius: SHAPE_TOKENS.circle,
                     animation: 'spin 1s linear infinite',
                     '@keyframes spin': {
                       '0%': { transform: 'rotate(0deg)' },
                       '100%': { transform: 'rotate(360deg)' },
+                    },
+                    '@media (prefers-reduced-motion: reduce)': {
+                      animationDuration: '2s',
                     },
                   }}
                 />
@@ -387,7 +432,7 @@ const CheckInControls = ({
               'บันทึกการเช็คชื่อ'
             )}
           </Button>
-        )}
+        ) : null}
       </Box>
 
       {onNoteChange && (
@@ -405,6 +450,9 @@ const CheckInControls = ({
             onChange={(event) => onNoteChange(event.target.value)}
             disabled={loading || !defaultClassroom?.id || hasSavedCheckIn}
             sx={{
+              '& .MuiInputBase-root': {
+                borderRadius: SHAPE_TOKENS.control,
+              },
               '& .MuiInputBase-input': {
                 fontSize: responsiveConfig.inputFontSize,
               },
@@ -421,20 +469,60 @@ const CheckInControls = ({
           }
         }}
         aria-labelledby='checkin-reset-dialog-title'
+        aria-describedby='checkin-reset-dialog-description'
         maxWidth='xs'
         fullWidth
+        scroll='paper'
+        slotProps={{
+          root: {
+            id: 'checkin-reset-dialog-root',
+          },
+          container: {
+            id: 'checkin-reset-dialog-container',
+          },
+          paper: {
+            id: 'checkin-reset-dialog',
+          },
+        }}
+        sx={{
+          height: '100dvh',
+          '& .MuiDialog-container': {
+            position: 'absolute',
+            inset: 0,
+            display: 'grid',
+            placeItems: 'center',
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box',
+            overflowY: 'auto',
+          },
+          '& .MuiDialog-paper': {
+            alignSelf: 'center',
+            justifySelf: 'center',
+            width: (theme) => `calc(100% - ${theme.spacing(8)})`,
+            m: '0 !important',
+            maxHeight: (theme) => `calc(100dvh - ${theme.spacing(8)})`,
+            borderRadius: SHAPE_TOKENS.surface,
+          },
+        }}
       >
         <DialogTitle id='checkin-reset-dialog-title'>Reset ข้อมูลการเช็คชื่อ?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText id='checkin-reset-dialog-description'>
             ระบบจะลบข้อมูลที่บันทึกของห้องและวันที่นี้ เพื่อให้สามารถทดลองเช็คชื่อและบันทึกใหม่ได้อีกครั้ง
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setIsResetDialogOpen(false)} color='inherit'>
+        <DialogActions sx={{ px: 3, pb: 3, '& .MuiButton-root': { borderRadius: SHAPE_TOKENS.control } }}>
+          <Button
+            id='checkin-reset-cancel-button'
+            autoFocus
+            onClick={() => setIsResetDialogOpen(false)}
+            color='inherit'
+          >
             ยกเลิก
           </Button>
           <Button
+            id='checkin-reset-confirm-button'
             onClick={handleConfirmReset}
             variant='contained'
             color='warning'

@@ -3,6 +3,7 @@
 import { Box, Checkbox, Chip, CircularProgress, Typography } from '@mui/material';
 import RenderAvatar from '@/@core/components/avatar';
 import { TableEmptyState } from '@/@core/components/check-in/CustomNoRowsOverlay';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 import {
   TableContainerCustom,
   TableCustom,
@@ -158,7 +159,7 @@ const CheckInDataGrid = ({
         minHeight: 400,
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 1,
+        borderRadius: SHAPE_TOKENS.surface,
         overflow: 'hidden',
       }}
     >

@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MobileStudentList from '../MobileStudentList';
 
@@ -46,6 +46,10 @@ const defaultProps = {
 };
 
 describe('MobileStudentList', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -57,7 +61,10 @@ describe('MobileStudentList', () => {
 
     render(<MobileStudentList {...defaultProps} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'สุ่มนักเรียนเพื่อเช็คชื่อ' }));
+    const randomButton = screen.getByRole('button', { name: 'สุ่มนักเรียนเพื่อเช็คชื่อ' });
+
+    expect(randomButton).toHaveClass('MuiButton-contained', 'MuiButton-colorPrimary');
+    fireEvent.click(randomButton);
 
     const randomStudentRegion = screen.getByRole('region', { name: 'นักเรียนที่สุ่มได้' });
 
@@ -70,10 +77,52 @@ describe('MobileStudentList', () => {
     expect(screen.getByText('เลือกสถานะ มาสาย แล้ว')).toBeInTheDocument();
     expect(defaultProps.onStatusChange).not.toHaveBeenCalled();
 
-    act(() => {
-      vi.advanceTimersByTime(320);
-    });
+    act(() => vi.advanceTimersByTime(199));
+
+    expect(defaultProps.onStatusChange).not.toHaveBeenCalled();
+
+    act(() => vi.advanceTimersByTime(1));
 
     expect(defaultProps.onStatusChange).toHaveBeenCalledWith('student-2', 'late');
+    expect(screen.getByText('เลือกสถานะ มาสาย แล้ว')).toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(200));
+
+    expect(screen.queryByText('เลือกสถานะ มาสาย แล้ว')).not.toBeInTheDocument();
+  });
+
+  it('ซ่อนปุ่มสุ่มเมื่อเช็คชื่อครบและคงตัวกรองไว้สำหรับดูรายชื่อ', () => {
+    render(
+      <MobileStudentList
+        {...defaultProps}
+        pendingStudents={[]}
+        paginatedStudents={[]}
+        pendingStudentsCount={0}
+        filteredStudentsCount={0}
+        hasSavedCheckIn
+        statusSelections={{ present: students, absent: [], late: [], leave: [], internship: [] }}
+      />,
+    );
+
+    expect(screen.queryByRole('button', { name: 'สุ่มนักเรียนเพื่อเช็คชื่อ' })).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'กรองรายชื่อนักเรียน' })).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'สรุปการเช็คชื่อครบ 2 คน' })).toBeInTheDocument();
+  });
+
+  it('คำนวณรัศมีปุ่มตัวกรองจากรัศมีกรอบนอกและระยะ inset', () => {
+    render(<MobileStudentList {...defaultProps} />);
+
+    const filterGroup = screen.getByRole('group', { name: 'กรองรายชื่อนักเรียน' });
+    const pendingFilter = screen.getByRole('button', { name: 'แสดงนักเรียนที่รอเช็คชื่อ' });
+    const filterStyle = window.getComputedStyle(filterGroup);
+
+    expect(filterStyle.getPropertyValue('--checkin-filter-inset')).toBe('4px');
+    expect(
+      Number.parseFloat(filterStyle.getPropertyValue('--checkin-filter-outer-radius')) -
+        Number.parseFloat(filterStyle.getPropertyValue('--checkin-filter-inset')),
+    ).toBe(4);
+    expect(pendingFilter).toHaveStyle({
+      borderRadius: 'max(0px, calc(var(--checkin-filter-outer-radius) - var(--checkin-filter-inset)))',
+    });
   });
 });

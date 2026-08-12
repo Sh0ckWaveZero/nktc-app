@@ -13,7 +13,9 @@ describe('CheckInCompletionSummary', () => {
       />,
     );
 
-    expect(screen.getByRole('status', { name: 'สรุปการเช็คชื่อครบ 12 คน' })).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'สรุปการเช็คชื่อครบ 12 คน' })).toHaveStyle({ borderRadius: '8px' });
+    expect(screen.getByText('สรุปการเช็คชื่อ')).toBeInTheDocument();
+    expect(screen.getByText('เช็คครบแล้ว · พร้อมบันทึก · รวม 12 คน')).toBeInTheDocument();
     expect(screen.getByLabelText('มาเรียน 7 คน')).toBeInTheDocument();
     expect(screen.getByLabelText('ขาดเรียน 2 คน')).toBeInTheDocument();
     expect(screen.getByLabelText('มาสาย 1 คน')).toBeInTheDocument();

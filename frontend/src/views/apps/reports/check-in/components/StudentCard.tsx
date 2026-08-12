@@ -9,6 +9,7 @@ import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material
 import { alpha } from '@mui/material/styles';
 
 import RenderAvatar from '@/@core/components/avatar';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 
 const STATUS_OPTIONS = [
   { value: 'present', label: 'มาเรียน', color: 'success' as const, icon: HowToRegOutlined },
@@ -61,6 +62,7 @@ const StudentCard = ({
       id={`checkin-student-card-${student.id}`}
       sx={{
         border: 0,
+        borderRadius: SHAPE_TOKENS.surface,
         backgroundColor: 'transparent',
         boxShadow: 'none',
       }}
@@ -124,6 +126,7 @@ const StudentCard = ({
                   minWidth: 0,
                   minHeight: 44,
                   px: 1,
+                  borderRadius: SHAPE_TOKENS.control,
                   gridColumn: option.value === 'internship' ? '1 / -1' : 'auto',
                   backgroundColor: (theme) =>
                     isSelected

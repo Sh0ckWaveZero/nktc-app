@@ -4,6 +4,8 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import { Box, Button, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
 
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
+
 interface MobilePaginationControlsProps {
   currentPage: number;
   totalPages: number;
@@ -47,7 +49,7 @@ const MobilePaginationControls = ({
           disabled={currentPage === 0}
           onClick={() => onPageChange(currentPage - 1)}
           startIcon={<ChevronLeft />}
-          sx={{ minHeight: 44 }}
+          sx={{ minHeight: 44, borderRadius: SHAPE_TOKENS.control }}
         >
           ก่อนหน้า
         </Button>
@@ -62,7 +64,7 @@ const MobilePaginationControls = ({
           disabled={currentPage >= totalPages - 1}
           onClick={() => onPageChange(currentPage + 1)}
           endIcon={<ChevronRight />}
-          sx={{ minHeight: 44 }}
+          sx={{ minHeight: 44, borderRadius: SHAPE_TOKENS.control }}
         >
           ถัดไป
         </Button>
@@ -79,7 +81,7 @@ const MobilePaginationControls = ({
               value={pageSize}
               onChange={(event) => onPageSizeChange(Number(event.target.value))}
               inputProps={{ 'aria-label': 'จำนวนรายชื่อต่อหน้า' }}
-              sx={{ minWidth: 80 }}
+              sx={{ minWidth: 80, borderRadius: SHAPE_TOKENS.control }}
             >
               {[2, 5, 10, 20, 50].map((size) => (
                 <MenuItem key={size} value={size}>

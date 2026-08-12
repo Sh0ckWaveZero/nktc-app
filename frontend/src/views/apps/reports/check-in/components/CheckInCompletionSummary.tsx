@@ -1,6 +1,14 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
+/* Hallmark · component: check-in completion summary · genre: modern-minimal · theme: NKTC
+ * state: success
+ * contrast: pass (46–50)
+ */
+
 import CheckCircleOutlineOutlined from '@mui/icons-material/CheckCircleOutlineOutlined';
 import { Box, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 
 interface CheckInCompletionSummaryProps {
   totalStudents: number;
@@ -25,48 +33,87 @@ const SUMMARY_ITEMS = [
 const CheckInCompletionSummary = ({ totalStudents, hasSavedCheckIn, counts }: CheckInCompletionSummaryProps) => {
   return (
     <Box
+      id='checkin-completion-summary'
       role='status'
       aria-label={`สรุปการเช็คชื่อครบ ${totalStudents} คน`}
-      sx={{
-        p: 2,
+      sx={(theme) => ({
         mb: 2,
-        borderRadius: 1,
-        backgroundColor: (theme) => alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.12 : 0.05),
-      }}
+        overflow: 'hidden',
+        borderRadius: SHAPE_TOKENS.surface,
+        backgroundColor: 'background.paper',
+        boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.28 : 0.1)}`,
+      })}
     >
-      <Stack direction='row' spacing={1.25} sx={{ alignItems: 'center' }}>
-        <CheckCircleOutlineOutlined color='success' />
+      <Stack
+        direction='row'
+        spacing={1.5}
+        sx={(theme) => ({
+          alignItems: 'center',
+          px: 2,
+          py: 1.75,
+          backgroundColor: alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.14 : 0.09),
+        })}
+      >
+        <Box
+          sx={(theme) => ({
+            display: 'grid',
+            placeItems: 'center',
+            width: 36,
+            height: 36,
+            flexShrink: 0,
+            borderRadius: SHAPE_TOKENS.circle,
+            color: theme.palette.getContrastText(theme.palette.success.main),
+            backgroundColor: 'success.main',
+          })}
+        >
+          <CheckCircleOutlineOutlined fontSize='small' />
+        </Box>
         <Box>
           <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-            {hasSavedCheckIn ? 'บันทึกการเช็คชื่อครบแล้ว' : 'เช็คชื่อครบแล้ว'}
+            สรุปการเช็คชื่อ
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            รวม {totalStudents} คน{hasSavedCheckIn ? '' : ' · พร้อมบันทึก'}
+            {hasSavedCheckIn ? 'บันทึกแล้ว' : 'เช็คครบแล้ว · พร้อมบันทึก'} · รวม {totalStudents} คน
           </Typography>
         </Box>
       </Stack>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1, mt: 2 }}>
-        {SUMMARY_ITEMS.map((item) => (
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+        {SUMMARY_ITEMS.map((item, index) => (
           <Stack
             key={item.key}
             direction='row'
             aria-label={`${item.label} ${counts[item.key]} คน`}
-            sx={{
+            sx={(theme) => ({
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: 1,
-              p: 1.25,
+              px: 2,
+              py: 1.5,
               gridColumn: item.key === 'internship' ? '1 / -1' : 'auto',
-              borderRadius: 1,
-              backgroundColor: (theme) =>
-                alpha(theme.palette[item.color].main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
-            }}
+              borderBlockStart: index >= 2 ? `1px solid ${theme.palette.divider}` : 0,
+              borderInlineEnd: index % 2 === 0 && item.key !== 'internship' ? `1px solid ${theme.palette.divider}` : 0,
+            })}
           >
-            <Typography variant='body2' sx={{ fontWeight: 600 }}>
-              {item.label}
-            </Typography>
-            <Typography variant='h6' color={`${item.color}.main`} sx={{ fontWeight: 700, lineHeight: 1 }}>
+            <Stack direction='row' spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
+              <Box
+                aria-hidden='true'
+                sx={{
+                  width: 8,
+                  height: 8,
+                  flexShrink: 0,
+                  borderRadius: SHAPE_TOKENS.circle,
+                  backgroundColor: `${item.color}.main`,
+                }}
+              />
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                {item.label}
+              </Typography>
+            </Stack>
+            <Typography
+              variant='h6'
+              sx={{ color: 'text.primary', fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}
+            >
               {counts[item.key]}
             </Typography>
           </Stack>

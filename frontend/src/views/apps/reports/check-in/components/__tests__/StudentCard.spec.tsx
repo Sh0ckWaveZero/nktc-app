@@ -31,7 +31,10 @@ describe('StudentCard', () => {
       />,
     );
 
-    expect(document.querySelector('#checkin-student-card-student-1')).toHaveStyle({ backgroundColor: 'transparent' });
+    expect(document.querySelector('#checkin-student-card-student-1')).toHaveStyle({
+      borderRadius: '8px',
+      backgroundColor: 'transparent',
+    });
   });
 
   it('ส่งรหัสนักเรียนและสถานะเมื่อกดปุ่มเช็คชื่อ', () => {

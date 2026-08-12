@@ -9,6 +9,7 @@ import { alpha } from '@mui/material/styles';
 
 import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
 import CustomAvatar from '@/@core/components/mui/avatar';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 
 import CheckInControls from './components/CheckInControls';
 import CheckInDataGrid from './components/CheckInDataGrid';
@@ -76,6 +77,8 @@ const CheckInReportPage = () => {
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              overflow: 'hidden',
+              borderRadius: SHAPE_TOKENS.surface,
               backgroundColor: 'background.paper',
               boxShadow: {
                 xs: 'none',
@@ -153,7 +156,7 @@ const CheckInReportPage = () => {
               {/* Loading State */}
               {classroomLoading && (
                 <Box sx={{ p: 4 }}>
-                  <Alert severity='info' variant='outlined'>
+                  <Alert severity='info' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
                     กำลังโหลดข้อมูลห้องเรียน...
                   </Alert>
                 </Box>
@@ -161,7 +164,7 @@ const CheckInReportPage = () => {
 
               {!classroomLoading && classroomError && (
                 <Box sx={{ p: 4 }}>
-                  <Alert severity='error' variant='outlined'>
+                  <Alert severity='error' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
                     ไม่สามารถโหลดข้อมูลห้องเรียนได้ กรุณาลองใหม่อีกครั้ง
                   </Alert>
                 </Box>
@@ -170,7 +173,7 @@ const CheckInReportPage = () => {
               {/* Empty State */}
               {!classroomLoading && !classroomError && !classrooms.length && (
                 <Box sx={{ p: 4 }}>
-                  <Alert severity='info' variant='outlined'>
+                  <Alert severity='info' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
                     ไม่พบข้อมูลห้องเรียน
                   </Alert>
                 </Box>
@@ -204,9 +207,7 @@ const CheckInReportPage = () => {
                     loading={isSaving}
                     hasSavedCheckIn={hasSavedCheckIn}
                     developmentReset={
-                      process.env.NODE_ENV === 'development'
-                        ? { isResetting, onReset: handleResetCheckIn }
-                        : undefined
+                      process.env.NODE_ENV === 'development' ? { isResetting, onReset: handleResetCheckIn } : undefined
                     }
                     selectedDate={selectedDate}
                     formSize={responsiveConfig.formSize}
