@@ -8,6 +8,9 @@ import { PaletteMode, Direction } from '@mui/material';
 
 // ** ThemeConfig Import
 import themeConfig from '@/configs/themeConfig';
+import { DEFAULT_FONT_SCALE, isFontScale } from '@/@core/utils/font-scale';
+
+import type { FontScale } from '@/@core/utils/font-scale';
 
 // ** Types Import
 import { Skin, AppBar, Footer, ThemeColor, ContentWidth, VerticalNavToggle } from '@/@core/layouts/types';
@@ -26,6 +29,7 @@ export type Settings = {
   layout?: 'vertical' | 'horizontal';
   lastLayout?: 'vertical' | 'horizontal';
   verticalNavToggleType: VerticalNavToggle;
+  fontScale: FontScale;
   toastPosition?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 };
 
@@ -43,6 +47,7 @@ export type PageSpecificSettings = {
   layout?: 'vertical' | 'horizontal';
   lastLayout?: 'vertical' | 'horizontal';
   verticalNavToggleType?: VerticalNavToggle;
+  fontScale?: FontScale;
   toastPosition?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 };
 export type SettingsContextValue = {
@@ -53,7 +58,10 @@ export type SettingsContextValue = {
 interface SettingsProviderProps {
   children: React.ReactNode;
   pageSettings?: PageSpecificSettings | void;
+  storageKey?: string;
 }
+
+const DEFAULT_SETTINGS_STORAGE_KEY = 'settings';
 
 const initialSettings: Settings = {
   themeColor: 'primary',
@@ -68,6 +76,7 @@ const initialSettings: Settings = {
   contentWidth: themeConfig.contentWidth,
   toastPosition: themeConfig.toastPosition,
   verticalNavToggleType: themeConfig.verticalNavToggleType,
+  fontScale: DEFAULT_FONT_SCALE,
   skin: themeConfig.layout === 'horizontal' && themeConfig.skin === 'semi-dark' ? 'default' : themeConfig.skin,
   appBar: themeConfig.layout === 'horizontal' && themeConfig.appBar === 'hidden' ? 'fixed' : themeConfig.appBar,
 };
@@ -81,15 +90,22 @@ const staticSettings = {
   toastPosition: initialSettings.toastPosition,
 };
 
-const restoreSettings = (): Settings | null => {
+const restoreSettings = (storageKey: string): Settings | null => {
   let settings = null;
 
   if (typeof window !== 'undefined') {
     try {
-      const storedData: string | null = window.localStorage.getItem('settings');
+      const storedData: string | null = window.localStorage.getItem(storageKey);
 
       if (storedData) {
-        settings = { ...JSON.parse(storedData), ...staticSettings };
+        const storedSettings = JSON.parse(storedData) as Partial<Settings>;
+
+        settings = {
+          ...initialSettings,
+          ...storedSettings,
+          ...staticSettings,
+          fontScale: isFontScale(storedSettings.fontScale) ? storedSettings.fontScale : DEFAULT_FONT_SCALE,
+        };
       } else {
         settings = initialSettings;
       }
@@ -104,7 +120,7 @@ const restoreSettings = (): Settings | null => {
 };
 
 // set settings in localStorage
-const storeSettings = (settings: Settings) => {
+const storeSettings = (settings: Settings, storageKey: string) => {
   if (typeof window !== 'undefined') {
     const initSettings = Object.assign({}, settings);
 
@@ -114,7 +130,7 @@ const storeSettings = (settings: Settings) => {
     delete initSettings.navHidden;
     delete initSettings.lastLayout;
     delete initSettings.toastPosition;
-    window.localStorage.setItem('settings', JSON.stringify(initSettings));
+    window.localStorage.setItem(storageKey, JSON.stringify(initSettings));
   }
 };
 
@@ -124,14 +140,18 @@ export const SettingsContext = createContext<SettingsContextValue>({
   settings: initialSettings,
 });
 
-export const SettingsProvider = ({ children, pageSettings }: SettingsProviderProps) => {
+export const SettingsProvider = ({
+  children,
+  pageSettings,
+  storageKey = DEFAULT_SETTINGS_STORAGE_KEY,
+}: SettingsProviderProps) => {
   // ** State
   const [settings, setSettings] = useState<Settings>({ ...initialSettings });
 
   useEffect(() => {
     // Only restore settings in browser environment
     if (typeof window !== 'undefined') {
-      const restoredSettings = restoreSettings();
+      const restoredSettings = restoreSettings(storageKey);
 
       if (restoredSettings) {
         setSettings({ ...restoredSettings });
@@ -140,11 +160,11 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
     if (pageSettings) {
       setSettings((prev) => ({ ...prev, ...pageSettings }));
     }
-  }, [pageSettings]);
+  }, [pageSettings, storageKey]);
 
   const saveSettings = (updatedSettings: Settings) => {
     if (typeof window !== 'undefined') {
-      storeSettings(updatedSettings);
+      storeSettings(updatedSettings, storageKey);
     }
     setSettings(updatedSettings);
   };
