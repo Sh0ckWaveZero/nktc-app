@@ -1,8 +1,15 @@
 import { Elysia } from "elysia";
 import { UserService } from "./service";
 import { UserModel } from "./model";
-import { authGuard } from "@/middleware/auth";
-import { ForbiddenError } from "@/libs/errors";
+import { authGuard, type JwtPayload } from "@/middleware/auth";
+import { UnauthorizedError, ForbiddenError } from "@/libs/errors";
+
+function requireAdmin(user: unknown): JwtPayload {
+	const payload = user as JwtPayload | null;
+	if (!payload) throw new UnauthorizedError();
+	if (payload.roles !== "Admin") throw new ForbiddenError();
+	return payload;
+}
 
 export const users = new Elysia({ prefix: "/users" })
 	.use(authGuard)
@@ -43,9 +50,7 @@ export const users = new Elysia({ prefix: "/users" })
 			.put(
 				"/update/password/:id",
 				async ({ params: { id }, body, user }) => {
-					if ((user as any).roles !== "Admin") {
-						throw new ForbiddenError();
-					}
+					requireAdmin(user);
 					await UserService.updatePasswordByAdmin(id, body.newPassword);
 					return { message: "password_update_success" };
 				},
@@ -53,6 +58,43 @@ export const users = new Elysia({ prefix: "/users" })
 					body: UserModel.updatePasswordById,
 					detail: {
 						summary: "Update user password by Admin",
+					},
+				},
+			)
+			.get(
+				"/:id/security",
+				async ({ params: { id } }) => {
+					return UserService.getSecurityStatus(id);
+				},
+				{
+					detail: {
+						summary: "Get user security status (MFA, passkey, sessions)",
+					},
+				},
+			)
+			.post(
+				"/:id/reset-mfa",
+				async ({ params: { id }, user }) => {
+					const payload = requireAdmin(user);
+					const result = await UserService.resetMfa(id, payload.username);
+					return { message: "mfa_reset_success", ...result };
+				},
+				{
+					detail: {
+						summary: "Admin reset user MFA (TOTP) and revoke sessions",
+					},
+				},
+			)
+			.post(
+				"/:id/reset-passkey",
+				async ({ params: { id }, user }) => {
+					const payload = requireAdmin(user);
+					const result = await UserService.resetPasskey(id, payload.username);
+					return { message: "passkey_reset_success", ...result };
+				},
+				{
+					detail: {
+						summary: "Admin reset user passkeys and revoke sessions",
 					},
 				},
 			)

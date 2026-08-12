@@ -41,3 +41,39 @@ export const useUpdatePasswordForAdmin = () => {
     },
   });
 };
+
+// Fetch security status (MFA, passkey, sessions) for a user
+export const useUserSecurityStatus = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.users.security(id),
+    queryFn: () => apiService.get(`/users/${id}/security`),
+    enabled: !!id,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+};
+
+// Admin reset MFA for a user
+export const useResetMfaForAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiService.post(`/users/${id}/reset-mfa`),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.security(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(id) });
+    },
+  });
+};
+
+// Admin reset passkey for a user
+export const useResetPasskeyForAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiService.post(`/users/${id}/reset-passkey`),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.security(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(id) });
+    },
+  });
+};

@@ -1,7 +1,7 @@
 'use client';
 
 import { DeleteOutline, DotsVertical, EyeOutline, PencilOutline } from 'mdi-material-ui';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import React, { MouseEvent, useState } from 'react';
 import Link from 'next/link';
@@ -13,11 +13,26 @@ interface RowOptionsProps {
   handleDelete: (data: Teacher) => void;
   handleEdit: (data: Teacher) => void;
   handleChangePassword: (data: Teacher) => void;
+  handleResetMfa?: (data: Teacher) => void;
+  handleResetPasskey?: (data: Teacher) => void;
+  isAdmin?: boolean;
 }
 
-const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: RowOptionsProps) => {
+const RowOptions = ({
+  row,
+  handleDelete,
+  handleEdit,
+  handleChangePassword,
+  handleResetMfa,
+  handleResetPasskey,
+  isAdmin,
+}: RowOptionsProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const rowOptionsOpen = Boolean(anchorEl);
+
+  const mfaEnabled = row.user?.authUser?.twoFactorEnabled === true;
+  const passkeyCount = row.user?.authUser?._count?.passkeys ?? 0;
+  const hasPasskey = passkeyCount > 0;
 
   const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -34,6 +49,16 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
 
   const handleChangePasswordRow = () => {
     handleChangePassword(row);
+    handleRowOptionsClose();
+  };
+
+  const handleResetMfaRow = () => {
+    handleResetMfa?.(row);
+    handleRowOptionsClose();
+  };
+
+  const handleResetPasskeyRow = () => {
+    handleResetPasskey?.(row);
     handleRowOptionsClose();
   };
 
@@ -101,6 +126,62 @@ const RowOptions = ({ row, handleDelete, handleEdit, handleChangePassword }: Row
           />
           เปลี่ยนรหัสผ่าน
         </MenuItem>
+
+        {isAdmin && handleResetMfa && (
+          <Tooltip
+            id={`teacher-reset-mfa-tooltip-${row.id}`}
+            title={mfaEnabled ? 'รีเซ็ตการยืนยันตัวตนสองขั้นตอน' : 'ผู้ใช้รายนี้ยังไม่ได้เปิดใช้งาน MFA'}
+            placement='left'
+          >
+            <span style={{ display: 'block' }}>
+              <MenuItem
+                id={`teacher-reset-mfa-${row.id}`}
+                disabled={!mfaEnabled}
+                onClick={handleResetMfaRow}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
+                  },
+                }}
+              >
+                <IconifyIcon
+                  icon='mdi:two-factor-authentication'
+                  fontSize='1.3rem'
+                  style={{ marginRight: '10px', color: 'var(--mui-palette-error-main)' }}
+                />
+                รีเซ็ต MFA
+              </MenuItem>
+            </span>
+          </Tooltip>
+        )}
+
+        {isAdmin && handleResetPasskey && (
+          <Tooltip
+            id={`teacher-reset-passkey-tooltip-${row.id}`}
+            title={hasPasskey ? 'รีเซ็ต Passkey ทั้งหมด' : 'ผู้ใช้รายนี้ยังไม่มี Passkey'}
+            placement='left'
+          >
+            <span style={{ display: 'block' }}>
+              <MenuItem
+                id={`teacher-reset-passkey-${row.id}`}
+                disabled={!hasPasskey}
+                onClick={handleResetPasskeyRow}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
+                  },
+                }}
+              >
+                <IconifyIcon
+                  icon='mdi:fingerprint'
+                  fontSize='1.3rem'
+                  style={{ marginRight: '10px', color: 'var(--mui-palette-error-main)' }}
+                />
+                รีเซ็ต Passkey
+              </MenuItem>
+            </span>
+          </Tooltip>
+        )}
 
         <MenuItem
           id={`teacher-view-${row.id}`}

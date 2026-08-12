@@ -93,7 +93,17 @@ export type StudentModel = {
 };
 
 export const studentInclude = {
-  user: { select: userPublicSelect },
+  user: {
+    select: {
+      ...userPublicSelect,
+      authUser: {
+        select: {
+          twoFactorEnabled: true,
+          _count: { select: { passkeys: true } },
+        },
+      },
+    },
+  },
   classroom: { include: { program: true, department: true, level: true } },
   program: true,
   department: true,
