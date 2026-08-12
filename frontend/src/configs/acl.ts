@@ -47,11 +47,13 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['manage'], 'settings-program-list-pages');
     can(['read'], 'calendar-page');
     can(['read'], 'admin-statistics-page');
+    can(['read'], 'security-page');
   } else if (role === 'Teacher') {
     can(['create'], 'add-student-page');
     can(['read', 'update'], 'account-settings');
     can(['read'], 'about-the-system');
     can(['read'], 'account-page');
+    can(['read'], 'security-page');
     can(['read'], 'activity-check-in-page');
     can(['read'], 'check-in-page');
     can(['read'], 'daily-check-in-report-activity-page');
@@ -88,8 +90,10 @@ const defineRulesFor = (role: string, subject: string) => {
     can(['read'], 'student-sorting-goodness-report');
     can(['read'], 'student-goodness-summary-report');
     can(['read'], 'student-badness-summary-report');
+    can(['read'], 'security-page');
   } else if (role === 'Parent') {
     can(['read'], 'home-page');
+    can(['read'], 'security-page');
   } else {
     // User
     can(['read', 'create', 'update', 'delete'], subject);

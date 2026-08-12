@@ -18,8 +18,9 @@ import RecordCircleOutline from 'mdi-material-ui/RecordCircleOutline';
 // ** Type Import
 import { Settings } from '@/@core/context/settingsContext';
 
-// ** Configs
+// ** Configs & Hooks
 import themeConfig from '@/configs/themeConfig';
+import { useSystemSettings } from '@/hooks/queries';
 
 interface Props {
   hidden: boolean;
@@ -80,6 +81,7 @@ const VerticalNavHeader = (props: Props) => {
 
   // ** Hooks & Vars
   const theme = useTheme();
+  const { settings: systemSettings } = useSystemSettings();
   const { navCollapsed } = settings;
 
   const menuCollapsedStyles = navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 };
@@ -150,7 +152,7 @@ const VerticalNavHeader = (props: Props) => {
                 ...(navCollapsed && !navHover ? {} : { ml: 3 }),
               }}
             >
-              {themeConfig.templateName}
+              {systemSettings?.collegeAcronym ? `${systemSettings.collegeAcronym}-SYSTEM` : themeConfig.templateName}
             </HeaderTitle>
           </StyledLink>
         </LinkStyled>

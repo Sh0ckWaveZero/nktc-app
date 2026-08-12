@@ -22,8 +22,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import EyeOutline from 'mdi-material-ui/EyeOutline';
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline';
 
-// ** Configs
+// ** Configs & Hooks
 import themeConfig from '@/configs/themeConfig';
+import { useSystemSettings } from '@/hooks/queries';
 
 // ** Layout Import
 import BlankLayout from '@/@core/layouts/BlankLayout';
@@ -60,6 +61,7 @@ const RegisterPage = () => {
 
   // ** Hook
   const theme = useTheme();
+  const { settings } = useSystemSettings();
 
   const handleChange = (prop: keyof State) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -88,7 +90,7 @@ const RegisterPage = () => {
                 fontSize: '1.5rem !important',
               }}
             >
-              {themeConfig.templateName}
+              {settings?.collegeAcronym ? `${settings.collegeAcronym}-SYSTEM` : themeConfig.templateName}
             </Typography>
           </Box>
           <Box sx={{ mb: 6 }}>

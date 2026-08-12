@@ -22,7 +22,7 @@ NKTC Student Management System - ระบบจัดการและดู�
 ```
 nktc-app/
 ├── frontend/           # Next.js 16.0.1 + React 19.2.0 + TypeScript + Material-UI
-├── backend/            # NestJS 11.x + TypeScript + Prisma + PostgreSQL/MongoDB
+├── backend-elysia/     # ElysiaJS + TypeScript + Prisma + PostgreSQL
 ├── turbo.json          # Turbo Repo configuration
 └── package.json        # Root workspace configuration
 ```
@@ -53,13 +53,12 @@ nktc-app/
 
 #### Backend
 
-- **NestJS 11.x** with TypeScript
-- **Prisma ORM 6.19.0** with PostgreSQL (primary) and MongoDB (secondary)
-- **JWT authentication** with Passport.js
+- **ElysiaJS** with Bun & TypeScript
+- **Prisma ORM 7.x** with PostgreSQL (primary) and MongoDB (secondary)
+- **JWT authentication** with Better-Auth / Elysia Auth
 - **MinIO 8.0.6** for file storage
-- **Class Validator** for DTO validation
+- **Zod** for DTO validation
 - **Swagger** for API documentation
-- **SWC** for fast compilation
 
 ## Language Rules
 
@@ -77,7 +76,7 @@ bun install
 
 # Install for specific workspace
 bun install --cwd frontend
-bun install --cwd backend
+bun install --cwd backend-elysia
 ```
 
 ### Development
@@ -91,7 +90,7 @@ bun run dev:stream
 
 # Run individual services
 bun run dev:frontend    # Next.js on http://localhost:3000
-bun run dev:backend     # NestJS on http://localhost:3001
+bun run dev:backend     # ElysiaJS on http://localhost:3001
 ```
 
 ### Build & Production
@@ -115,14 +114,14 @@ bun run start
 bun run lint
 
 # Frontend linting with auto-fix
-cd frontend && npm run lint
+cd frontend && bun run lint
 
 # Backend linting with auto-fix
-cd backend && npm run lint
+cd backend-elysia && bun run lint
 
 # Format code
-cd frontend && npm run format
-cd backend && npm run format
+cd frontend && bun run format
+cd backend-elysia && bun run format
 ```
 
 ### Testing
@@ -132,30 +131,28 @@ cd backend && npm run format
 bun run test
 
 # Frontend-specific testing
-cd frontend && npm run test
-cd frontend && npm run test:ui
-cd frontend && npm run test:coverage
+cd frontend && bun run test
+cd frontend && bun run test:ui
+cd frontend && bun run test:coverage
 
 # Backend-specific testing
-cd backend && npm run test
-cd backend && npm run test:e2e
-cd backend && npm run test:cov
+cd backend-elysia && bun run test
 ```
 
 ### Database Operations
 
 ```bash
 # Generate Prisma client
-cd backend && npm run prisma:generate
+cd backend-elysia && bun run prisma:generate
 
 # Database migrations
-cd backend && npm run prisma:migrate
+cd backend-elysia && bun run prisma:migrate
 
 # Database push (development)
-cd backend && npm run prisma:push
+cd backend-elysia && bun run prisma:push
 
 # Seed database
-cd backend && npm run seed
+cd backend-elysia && bun run seed
 ```
 
 ## Frontend Architecture
@@ -349,7 +346,7 @@ When working with frontend state:
 
 ### Adding a New Feature Module
 
-1. Create API module in `backend/src/apis/[feature]/`
+1. Create API module in `backend-elysia/src/modules/[feature]/`
 2. Add corresponding frontend views in `frontend/src/views/[feature]/`
 3. Create React Query hooks in `frontend/src/hooks/queries/[feature].ts`
 4. Create Zustand store if needed in `frontend/src/store/apps/[feature]/`
@@ -358,8 +355,8 @@ When working with frontend state:
 
 ### Database Schema Changes
 
-1. Modify `backend/src/database/prisma/schema.prisma`
-2. Run `bun run prisma:migrate` (from backend dir) to create migration
+1. Modify `backend-elysia/src/database/prisma/schema.prisma`
+2. Run `bun run prisma:migrate` (from backend-elysia dir) to create migration
 3. Update DTOs and entities accordingly
 4. Run `bun run prisma:generate` to update Prisma client
 5. Update frontend types if schema changes affect API responses

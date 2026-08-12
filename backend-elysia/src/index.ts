@@ -28,6 +28,7 @@ import { classrooms } from "./modules/classrooms";
 import { teachers } from "./modules/teachers";
 import { students } from "./modules/students";
 import { statics } from "./modules/statics";
+import { systemSettings } from "./modules/system-settings";
 
 const appLogger = createLogger();
 
@@ -135,7 +136,8 @@ const app = new Elysia()
       .use(activityCheckIn)
       .use(goodnessIndividual)
       .use(badnessIndividual)
-      .use(statics),
+      .use(statics)
+      .use(systemSettings),
   )
   .mount(betterAuthServer.handler)
   .listen(process.env.PORT || 3001);

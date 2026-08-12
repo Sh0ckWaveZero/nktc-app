@@ -590,6 +590,28 @@ model VisitStudent {
   @@map("visitStudent")
 }
 
+// การตั้งค่าระบบระดับสถาบัน
+model SystemSetting {
+  id                   String   @id @default(cuid())
+  key                  String   @unique // คีย์อ้างอิง เช่น 'system_config'
+  collegeAcronym       String
+  collegeName          String
+  collegeNameEn        String?
+  securityEmail        String
+  primaryDataResidency String
+  primaryServerDetail  String
+  drRegion             String?
+  systemUptime         String   @default("99.99%")
+  latestAuditCycle     String?
+  latestAuditMonth     String?
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  updatedBy            String?
+  createdBy            String?
+
+  @@map("system_setting")
+}
+
 enum Role {
   Admin
   User

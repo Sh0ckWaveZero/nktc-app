@@ -74,12 +74,12 @@ nktc-app/
 ### การติดตั้ง Dependencies
 
 ```bash
-# ติดตั้ง dependencies ทั้งหมด
+# ติดตั้ง dependencies ทั้งหมดใน monorepo
 bun install
 
-# หรือติดตั้งแยกตาม workspace
+# ติดตั้งเฉพาะ workspace
 bun install --cwd frontend
-bun install --cwd backend
+bun install --cwd backend-elysia
 ```
 
 ### การรันโปรเจกต์

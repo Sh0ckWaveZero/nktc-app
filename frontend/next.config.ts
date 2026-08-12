@@ -8,7 +8,7 @@ const nextConfig = {
   // Basic Configuration
   trailingSlash: true,
   reactStrictMode: false,
-  output: 'standalone',
+  output: process.env.NEXT_STANDALONE === 'true' ? 'standalone' : undefined,
 
   // Cross-Origin Configuration for Development
   allowedDevOrigins: [

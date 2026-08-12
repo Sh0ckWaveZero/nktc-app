@@ -138,7 +138,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
 - [ ] MongoDB Atlas:
 
   ```bash
-  # Update connection string in backend/.env
+  # Update connection string in backend-elysia/.env
   MONGODB_DATABASE_URL="new-connection-string"
   # Test connection
   ```
@@ -161,7 +161,7 @@ PHASE 5: ARCHITECTURE (Target: Week 5-6)
   - Update MINIO_ACCESS_KEY and MINIO_SECRET_KEY
   ```
 
-- [ ] Update backend/.env:
+- [ ] Update backend-elysia/.env:
 
   ```
   MINIO_ACCESS_KEY=<new-key>
@@ -775,7 +775,7 @@ Enable stricter TypeScript and create proper types for all API contracts.
 **Files to Check**:
 
 - [ ] Read through `PHASE1_SUMMARY.md` for complete understanding
-- [ ] Review `backend/tsconfig.json` for strict mode settings
+- [ ] Review `backend-elysia/tsconfig.json` for strict mode settings
 - [ ] List all files with `any` type usage
 
 **Task Order**:

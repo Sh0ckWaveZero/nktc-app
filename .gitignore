@@ -175,3 +175,9 @@ backend/src/database/generated/*
 .claude/scheduled_tasks.lock
 deploy/env/backend.env
 deploy/env/frontend.env
+
+# ===== LOCAL SEED DATA (DO NOT COMMIT TO GIT) =====
+backend-elysia/prisma/*.local.*
+backend-elysia/prisma/seed-local.*
+prisma/*.local.*
+

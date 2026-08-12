@@ -173,6 +173,14 @@ export const userKeys = {
 };
 
 /**
+ * System Settings Query Keys
+ */
+export const systemSettingsKeys = {
+  all: ['system-settings'] as const,
+  config: () => [...systemSettingsKeys.all, 'config'] as const,
+};
+
+/**
  * Helper function to invalidate all queries for an entity
  *
  * Example:
@@ -194,6 +202,7 @@ export const queryKeys = {
   badness: badnessKeys,
   visits: visitKeys,
   users: userKeys,
+  systemSettings: systemSettingsKeys,
 } as const;
 
 /**

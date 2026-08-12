@@ -31,7 +31,7 @@ import IconifyIcon from '@/@core/components/icon';
 import { formatDateForAPI, formatThaiDate, getStartOfMonth } from '@/@core/components/mui/date-picker-thai/utils';
 import { apiConfig } from '@/configs/api';
 import { useAuth } from '@/hooks/useAuth';
-import { useTermStatistics } from '@/hooks/queries';
+import { useSystemSettings, useTermStatistics } from '@/hooks/queries';
 import { useAdminVisitSummaryReport } from '@/hooks/queries/useVisits';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 
@@ -132,6 +132,7 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
 
 const AdminHomePage = () => {
   const auth = useAuth();
+  const { settings } = useSystemSettings();
   const ability = useContext(AbilityContext);
   const router = useRouter();
   const theme = useTheme();
@@ -309,7 +310,7 @@ const AdminHomePage = () => {
   return (
     <Box sx={{ py: 2 }}>
       <Typography variant='h1' sx={{ display: 'none' }}>
-        NKTC Student Management System - หน้าหลักแดชบอร์ดผู้ดูแลระบบ
+        {settings.collegeAcronym} Student Management System - หน้าหลักแดชบอร์ดผู้ดูแลระบบ
       </Typography>
 
       <Grid container spacing={4}>

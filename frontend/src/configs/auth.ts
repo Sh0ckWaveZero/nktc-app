@@ -25,6 +25,7 @@ export type AuthConfig = {
   levelEndpoint?: string;
   visitEndpoint?: string;
   statisticsEndpoint?: string;
+  systemSettingsEndpoint?: string;
 };
 
 export const authConfig: AuthConfig = {
@@ -52,4 +53,5 @@ export const authConfig: AuthConfig = {
   levelEndpoint: apiConfig.endpoint('/levels'),
   visitEndpoint: apiConfig.endpoint('/visits'),
   statisticsEndpoint: apiConfig.endpoint('/statistics'),
+  systemSettingsEndpoint: apiConfig.endpoint('/system-settings'),
 };

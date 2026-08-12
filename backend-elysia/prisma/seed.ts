@@ -1,4 +1,6 @@
 import "dotenv/config";
+import fs from "fs";
+import path from "path";
 import { PrismaClient } from "../generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
@@ -7,11 +9,11 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || process.env.USER_ADMIN;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.USER_PASSWORD;
 
 if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-  console.error("❌ ADMIN_USERNAME and ADMIN_PASSWORD environment variables are required for seeding");
+  console.error("❌ ADMIN_USERNAME/USER_ADMIN and ADMIN_PASSWORD/USER_PASSWORD environment variables are required for seeding");
   process.exit(1);
 }
 
@@ -66,33 +68,132 @@ async function seedDepartments() {
 }
 
 async function seedAdmin() {
-  console.log("Seeding admin user...");
+  console.log("Seeding admin users...");
 
-  const existing = await prisma.user.findUnique({
-    where: { username: ADMIN_USERNAME },
-  });
-
-  if (existing) {
-    return;
-  }
-
+  const usernames = Array.from(
+    new Set(["superadmin", "admin", ADMIN_USERNAME].filter((u): u is string => Boolean(u)))
+  );
   const password = await Bun.password.hash(ADMIN_PASSWORD, { algorithm: "bcrypt", cost: 12 });
 
-  await prisma.user.create({
-    data: {
-      username: ADMIN_USERNAME,
-      password,
-      role: "Admin",
-      ...meta,
-      account: {
-        create: {
-          firstName: "แอดมิน",
-          lastName: "ระบบ",
-          ...meta,
-        },
+  for (const username of usernames) {
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username },
+          { username: username.toLowerCase() },
+        ],
       },
-    },
-  });
+      include: { account: true },
+    });
+
+    if (existing) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          password,
+          role: "Admin",
+          updatedBy: "Admin",
+          account: existing.account
+            ? { update: { firstName: "แอดมิน", lastName: "ระบบ", updatedBy: "Admin" } }
+            : { create: { firstName: "แอดมิน", lastName: "ระบบ", ...meta } },
+        },
+      });
+      console.log(`✅ Admin user '${existing.username}' updated successfully`);
+    } else {
+      await prisma.user.create({
+        data: {
+          username,
+          password,
+          role: "Admin",
+          ...meta,
+          account: {
+            create: {
+              firstName: "แอดมิน",
+              lastName: "ระบบ",
+              ...meta,
+            },
+          },
+        },
+      });
+      console.log(`✅ Admin user '${username}' created successfully`);
+    }
+  }
+}
+
+async function seedSystemSettings() {
+  console.log("Seeding system settings...");
+
+  let localSettings: any = {};
+  const localSeedPath = path.join(__dirname, "seed-data.local.json");
+
+  if (fs.existsSync(localSeedPath)) {
+    try {
+      const fileData = fs.readFileSync(localSeedPath, "utf-8");
+      localSettings = JSON.parse(fileData);
+      console.log("📍 Loaded local seed configuration from seed-data.local.json");
+    } catch (e) {
+      console.warn("⚠️ Failed to parse seed-data.local.json, using environment defaults:", e);
+    }
+  }
+
+  const collegeAcronym = localSettings.collegeAcronym || "COLLEGE";
+  const collegeName = localSettings.collegeName || "วิทยาลัย";
+  const collegeNameEn = localSettings.collegeNameEn || "Technical College";
+  const securityEmail = localSettings.securityEmail || `security@${collegeAcronym.toLowerCase()}.ac.th`;
+  const primaryDataResidency = localSettings.primaryDataResidency || collegeName;
+  const primaryServerDetail = localSettings.primaryServerDetail || `${collegeName} Server`;
+  const drRegion = localSettings.drRegion || "ภูมิภาคเอเชียตะวันออกเฉียงใต้ (Southeast Asia Cloud Region)";
+  const systemUptime = localSettings.systemUptime || "99.98%";
+  const latestAuditCycle = localSettings.latestAuditCycle || "มิถุนายน 2026 (Q2 2026 Audit Cycle)";
+  const latestAuditMonth = localSettings.latestAuditMonth || "มิถุนายน 2026";
+
+  try {
+    const existing = await prisma.systemSetting.findFirst({
+      where: { key: "system_config" },
+    });
+
+    if (existing) {
+      await prisma.systemSetting.update({
+        where: { id: existing.id },
+        data: {
+          collegeAcronym,
+          collegeName,
+          collegeNameEn,
+          securityEmail,
+          primaryDataResidency,
+          primaryServerDetail,
+          drRegion,
+          systemUptime,
+          latestAuditCycle,
+          latestAuditMonth,
+        },
+      });
+      console.log("✅ SystemSettings: updated 1 record");
+    } else {
+      await prisma.systemSetting.create({
+        data: {
+          key: "system_config",
+          collegeAcronym,
+          collegeName,
+          collegeNameEn,
+          securityEmail,
+          primaryDataResidency,
+          primaryServerDetail,
+          drRegion,
+          systemUptime,
+          latestAuditCycle,
+          latestAuditMonth,
+        },
+      });
+      console.log("✅ SystemSettings: created 1 record");
+    }
+  } catch (error: any) {
+    if (error?.code === "P2021" || error?.message?.includes("does not exist")) {
+      console.warn("⚠️ Table system_setting does not exist in DB yet. Please run 'bun run prisma:push' first!");
+    } else {
+      throw error;
+    }
+  }
 }
 
 async function main() {
@@ -100,6 +201,7 @@ async function main() {
   await seedLevels();
   await seedDepartments();
   await seedAdmin();
+  await seedSystemSettings();
   console.log("🎉 Seed complete");
 }
 

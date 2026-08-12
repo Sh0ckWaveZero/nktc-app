@@ -27,10 +27,10 @@ export const metadata: Metadata = {
     default: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
   },
   description: `${themeConfig.templateName} - ระบบดูแลช่วยเหลือนักเรียน`,
-  keywords: [themeConfig.templateName, 'NKTC', 'Student Management', 'Education'],
+  keywords: [themeConfig.templateName, 'Student Management', 'Education'],
   authors: [{ name: 'Midseelee' }],
   creator: 'Midseelee',
-  publisher: 'NKTC',
+  publisher: themeConfig.templateName,
   icons: {
     icon: [{ url: '/favicon.ico' }, { url: '/icon.ico', type: 'image/x-icon' }],
     shortcut: '/favicon.ico',

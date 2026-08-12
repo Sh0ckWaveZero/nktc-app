@@ -1,4 +1,5 @@
 import "dotenv/config";
+import fs from "fs";
 import * as crypto from "crypto";
 import { Client as MinioClient } from "minio";
 import { logger } from "../infrastructure/logging/index.ts";
@@ -10,11 +11,17 @@ let isConnected = false;
 
 function getClient(): MinioClient {
   if (!storageClient) {
-    const endpoint = process.env.MINIO_ENDPOINT || process.env.STORAGE_ENDPOINT || "localhost";
+    let endpoint = process.env.MINIO_ENDPOINT || process.env.STORAGE_ENDPOINT || "localhost";
+    
+    // If endpoint is set to 'minio' (Docker container hostname) but app is running outside Docker, fallback to localhost
+    if (endpoint === "minio" && !fs.existsSync("/.dockerenv") && !process.env.DOCKER_CONTAINER) {
+      endpoint = "localhost";
+    }
+
     const port = parseInt(process.env.MINIO_PORT || process.env.STORAGE_PORT || "9000");
     const useSSL = (process.env.MINIO_USE_SSL || process.env.STORAGE_USE_SSL) === "true";
-    const accessKey = process.env.MINIO_ACCESS_KEY || process.env.STORAGE_ACCESS_KEY || "minioadmin";
-    const secretKey = process.env.MINIO_SECRET_KEY || process.env.STORAGE_SECRET_KEY || "minioadmin";
+    const accessKey = process.env.MINIO_ACCESS_KEY || process.env.MINIO_ROOT_USER || process.env.STORAGE_ACCESS_KEY || "minioadmin";
+    const secretKey = process.env.MINIO_SECRET_KEY || process.env.MINIO_ROOT_PASSWORD || process.env.STORAGE_SECRET_KEY || "minioadmin";
 
     logger.info("📀 Initializing storage client", {
       endpoint,
