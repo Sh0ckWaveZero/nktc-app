@@ -144,6 +144,7 @@ export default function DialogClassroomGoodnessGroup({
   const [localSelection, setLocalSelection] = useState<string[]>([]);
 
   // Reset local selection when classroom changes
+  const currentClassroomId = defaultClassroom?.id ?? null;
   const [prevClassroomId, setPrevClassroomId] = useState<string | null>(currentClassroomId);
   if (prevClassroomId !== currentClassroomId) {
     setPrevClassroomId(currentClassroomId);
