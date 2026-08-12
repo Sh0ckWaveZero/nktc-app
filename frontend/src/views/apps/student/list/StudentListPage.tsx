@@ -22,7 +22,7 @@ import { alpha } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
 import AppListDataGrid from '@/@core/components/data-grid/AppListDataGrid';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback, useState } from 'react';
 import {
   RiContactsBookLine,
   RiUserSearchLine,
@@ -33,6 +33,7 @@ import {
 import { AccountEditOutline } from 'mdi-material-ui';
 import CustomNoRowsOverlay from '@/@core/components/check-in/CustomNoRowsOverlay';
 import RenderAvatar from '@/@core/components/avatar';
+import Icon from '@/@core/components/icon';
 import TableHeader from '@/views/apps/student/list/TableHeader';
 import ClassroomPromotionDialog from '@/views/apps/settings/classroom/ClassroomPromotionDialog';
 import StudentDeleteDialog from '@/components/dialogs/StudentDeleteDialog';
@@ -41,6 +42,11 @@ import StudentGraduationDialog from '@/components/dialogs/StudentGraduationDialo
 import StudentBulkGraduationDialog from '@/components/dialogs/StudentBulkGraduationDialog';
 import StudentIndividualPromotionDialog from '@/components/dialogs/StudentIndividualPromotionDialog';
 import { useStudentList } from '@/hooks/features/student';
+import { useResetMfaForAdmin, useResetPasskeyForAdmin } from '@/hooks/queries';
+import { useQueryClient } from '@tanstack/react-query';
+import { studentKeys } from '@/libs/react-query/queryKeys';
+import { toast } from 'react-toastify';
+import ConfirmResetDialog from '@/views/apps/user/view/ConfirmResetDialog';
 import type { StudentImportResult } from '@/hooks/queries/useStudents';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -274,6 +280,28 @@ const StudentListPage = () => {
     handleExportStudents,
   } = useStudentList();
 
+  const queryClient = useQueryClient();
+  const resetMfaMutation = useResetMfaForAdmin();
+  const resetPasskeyMutation = useResetPasskeyForAdmin();
+  const [resetTarget, setResetTarget] = useState<{ student: any; type: 'mfa' | 'passkey' } | null>(null);
+
+  const handleResetMfa = useCallback((student: any) => setResetTarget({ student, type: 'mfa' }), []);
+  const handleResetPasskey = useCallback((student: any) => setResetTarget({ student, type: 'passkey' }), []);
+
+  const handleConfirmSecurityReset = async () => {
+    if (!resetTarget) return;
+    const { student, type } = resetTarget;
+    const mutation = type === 'mfa' ? resetMfaMutation : resetPasskeyMutation;
+    try {
+      await mutation.mutateAsync(student.id);
+      toast.success(type === 'mfa' ? 'รีเซ็ต MFA สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่' : 'รีเซ็ต Passkey สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่');
+      setResetTarget(null);
+      queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    } catch (error: any) {
+      toast.error(error?.message || 'เกิดข้อผิดพลาดในการรีเซ็ต');
+    }
+  };
+
   const handlePaginationModelChange = useCallback(
     (model: { pageSize: number; page: number }) => setPageSize(model.pageSize),
     [setPageSize],
@@ -393,6 +421,40 @@ const StudentListPage = () => {
               direction='row'
               sx={{ alignItems: 'center', justifyContent: 'center', gap: 0.75, width: '100%' }}
             >
+              {isAdmin && (
+                <Tooltip title={row?.user?.authUser?.twoFactorEnabled ? 'รีเซ็ต MFA' : 'ผู้ใช้ยังไม่ได้เปิด MFA'}>
+                  <span style={{ display: 'inline-flex' }}>
+                    <IconButton
+                      id={`student-reset-mfa-${row?.id}`}
+                      disabled={row?.user?.authUser?.twoFactorEnabled !== true}
+                      sx={getActionIconSx('error')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleResetMfa(row);
+                      }}
+                    >
+                      <Icon icon='mdi:two-factor-authentication' fontSize='1rem' />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              )}
+              {isAdmin && (
+                <Tooltip title={(row?.user?.authUser?._count?.passkeys ?? 0) > 0 ? 'รีเซ็ต Passkey' : 'ผู้ใช้ยังไม่มี Passkey'}>
+                  <span style={{ display: 'inline-flex' }}>
+                    <IconButton
+                      id={`student-reset-passkey-${row?.id}`}
+                      disabled={(row?.user?.authUser?._count?.passkeys ?? 0) === 0}
+                      sx={getActionIconSx('error')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleResetPasskey(row);
+                      }}
+                    >
+                      <Icon icon='mdi:fingerprint' fontSize='1rem' />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              )}
               <Tooltip title='ดูรายละเอียด'>
                 <IconButton
                   id={`view-student-${row?.id}`}
@@ -454,7 +516,7 @@ const StudentListPage = () => {
         },
       },
     ],
-    [currentClassroomId, handleDeleteClick, handleGraduationClick, handleIndividualPromoteClick],
+    [currentClassroomId, handleDeleteClick, handleGraduationClick, handleIndividualPromoteClick, handleResetMfa, handleResetPasskey, isAdmin],
   );
 
   return (
@@ -588,6 +650,28 @@ const StudentListPage = () => {
         open={openImportResultDialog}
         result={importResult}
         onClose={handleCloseImportResultDialog}
+      />
+      <ConfirmResetDialog
+        dialogId='student-reset-mfa'
+        open={resetTarget?.type === 'mfa'}
+        title={`รีเซ็ต MFA ของ ${resetTarget?.student ? `${resetTarget.student.user?.account?.firstName || ''} ${resetTarget.student.user?.account?.lastName || ''}`.trim() : ''}`}
+        description='การรีเซ็ตจะลบรหัส TOTP และรหัสสำรองทั้งหมดของนักเรียนรายนี้ นักเรียนจะต้องตั้งค่า MFA ใหม่อีกครั้ง'
+        warning='นักเรียนจะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต MFA'
+        loading={resetMfaMutation.isPending}
+        onConfirm={handleConfirmSecurityReset}
+        onClose={() => setResetTarget(null)}
+      />
+      <ConfirmResetDialog
+        dialogId='student-reset-passkey'
+        open={resetTarget?.type === 'passkey'}
+        title={`รีเซ็ต Passkey ของ ${resetTarget?.student ? `${resetTarget.student.user?.account?.firstName || ''} ${resetTarget.student.user?.account?.lastName || ''}`.trim() : ''}`}
+        description='การรีเซ็ตจะลบ passkey ทั้งหมดของนักเรียนรายนี้ นักเรียนจะต้องลงทะเบียน passkey ใหม่อีกครั้ง'
+        warning='นักเรียนจะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต Passkey'
+        loading={resetPasskeyMutation.isPending}
+        onConfirm={handleConfirmSecurityReset}
+        onClose={() => setResetTarget(null)}
       />
     </React.Fragment>
   );

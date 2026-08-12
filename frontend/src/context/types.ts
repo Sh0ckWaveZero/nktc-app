@@ -30,6 +30,10 @@ export interface UserDataType {
   teacher?: Teacher;
   student?: Student;
   teacherOnClassroom?: any;
+  authUser?: {
+    twoFactorEnabled?: boolean;
+    _count?: { passkeys?: number };
+  };
 }
 
 export interface Account {
