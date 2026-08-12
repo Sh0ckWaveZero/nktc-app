@@ -17,12 +17,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import { alpha, styled, useTheme } from '@mui/material/styles';
-import {
-  HiOutlineClipboardList,
-  HiOutlineDatabase,
-  HiOutlineDocumentReport,
-  HiOutlineUsers,
-} from 'react-icons/hi';
+import { HiOutlineClipboardList, HiOutlineDatabase, HiOutlineDocumentReport, HiOutlineUsers } from 'react-icons/hi';
 import { MdManageAccounts, MdOutlineClass, MdOutlineHome } from 'react-icons/md';
 import { TbChartBar, TbProgressCheck } from 'react-icons/tb';
 
@@ -31,34 +26,31 @@ import IconifyIcon from '@/@core/components/icon';
 import { formatDateForAPI, formatThaiDate, getStartOfMonth } from '@/@core/components/mui/date-picker-thai/utils';
 import { apiConfig } from '@/configs/api';
 import { useAuth } from '@/hooks/useAuth';
-import { useSystemSettings, useTermStatistics } from '@/hooks/queries';
+import { useTermStatistics } from '@/hooks/queries';
 import { useAdminVisitSummaryReport } from '@/hooks/queries/useVisits';
 import { AbilityContext } from '@/layouts/components/acl/Can';
 
 import { buildAdminVisitOverview } from './admin-home.utils';
 
-const WelcomeCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-  color: theme.palette.common.white,
-  position: 'relative',
-  overflow: 'hidden',
-  boxShadow: `0 20px 50px ${alpha(theme.palette.primary.main, 0.22)}`,
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    inset: 'auto -80px -120px auto',
-    width: 280,
-    height: 280,
-    borderRadius: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    filter: 'blur(8px)',
-  },
-}));
+const WelcomeCard = styled(Card)(({ theme }) => {
+  const isDark = theme.palette.mode === 'dark';
+
+  return {
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    boxShadow: `0 14px 36px ${alpha(theme.palette.common.black, isDark ? 0.22 : 0.06)}`,
+  };
+});
 
 const MetricCard = styled(Card)(({ theme }) => ({
   height: '100%',
-  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
-  boxShadow: `0 12px 32px ${alpha(theme.palette.common.black, 0.05)}`,
+  border: `1px solid ${theme.palette.divider}`,
+  boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.16 : 0.04)}`,
+}));
+
+const SurfaceCard = styled(Card)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.16 : 0.04)}`,
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
@@ -74,6 +66,10 @@ const ActionButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     borderColor: alpha(theme.palette.primary.main, 0.28),
     backgroundColor: alpha(theme.palette.primary.main, 0.04),
+  },
+  '&:focus-visible': {
+    outline: `3px solid ${alpha(theme.palette.primary.main, 0.28)}`,
+    outlineOffset: 2,
   },
 }));
 
@@ -132,7 +128,6 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
 
 const AdminHomePage = () => {
   const auth = useAuth();
-  const { settings } = useSystemSettings();
   const ability = useContext(AbilityContext);
   const router = useRouter();
   const theme = useTheme();
@@ -309,14 +304,10 @@ const AdminHomePage = () => {
 
   return (
     <Box sx={{ py: 2 }}>
-      <Typography variant='h1' sx={{ display: 'none' }}>
-        {settings.collegeAcronym} Student Management System - หน้าหลักแดชบอร์ดผู้ดูแลระบบ
-      </Typography>
-
       <Grid container spacing={4}>
         <Grid size={12}>
           <WelcomeCard>
-            <CardContent sx={{ p: { xs: 5, md: 7 }, position: 'relative', zIndex: 1 }}>
+            <CardContent sx={{ p: { xs: 4, md: 6 } }}>
               <Stack spacing={3}>
                 <Stack
                   direction={{ xs: 'column', md: 'row' }}
@@ -324,56 +315,48 @@ const AdminHomePage = () => {
                   sx={{ alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'space-between' }}
                 >
                   <Box>
-                    <Typography variant='overline' sx={{ color: 'rgba(255, 255, 255, 0.72)', letterSpacing: 1.2 }}>
+                    <Typography variant='overline' sx={{ color: 'text.secondary', letterSpacing: 1.2 }}>
                       Administrator Dashboard
                     </Typography>
-                    <Typography variant='h4' sx={{ fontWeight: 800, color: 'common.white', mt: 1, mb: 1.5 }}>
+                    <Typography component='h1' variant='h4' sx={{ fontWeight: 800, mt: 1, mb: 1.5 }}>
                       ศูนย์ควบคุมภาพรวมของวิทยาลัย
                     </Typography>
-                    <Typography variant='body1' sx={{ color: 'rgba(255, 255, 255, 0.84)', maxWidth: 760 }}>
+                    <Typography variant='body1' sx={{ color: 'text.secondary', maxWidth: 760 }}>
                       สวัสดี {auth.user?.account?.firstName || 'ผู้ดูแลระบบ'} หน้านี้แสดงข้อมูลภาพรวมของทั้งวิทยาลัย
                       โดยแยกขาดจากแดชบอร์ดครูที่ปรึกษา และอิงข้อมูลจริงจากรายงานการเช็คชื่อและการใช้งานระบบ
                     </Typography>
                   </Box>
 
                   <Paper
+                    variant='outlined'
                     sx={{
                       p: 3,
                       minWidth: { xs: '100%', md: 300 },
-                      borderRadius: 3,
-                      color: 'common.white',
-                      backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                      border: '1px solid rgba(255, 255, 255, 0.18)',
-                      backdropFilter: 'blur(10px)',
+                      borderRadius: 2,
+                      backgroundColor: alpha(
+                        theme.palette.background.paper,
+                        theme.palette.mode === 'dark' ? 0.72 : 0.86,
+                      ),
                     }}
                   >
                     <Stack spacing={1.5}>
-                      <Typography variant='caption' sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      <Typography variant='caption' sx={{ color: 'text.secondary' }}>
                         ช่วงข้อมูลที่กำลังแสดง
                       </Typography>
                       <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
                         {formatThaiDate(startDate)} - {formatThaiDate(endDate)}
                       </Typography>
-                      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.18)' }} />
+                      <Divider />
                       <Stack direction='row' spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                         <Chip
                           label={apiConfig.educationYears ? `ปีการศึกษา ${apiConfig.educationYears}` : 'เดือนปัจจุบัน'}
                           size='small'
-                          sx={{
-                            color: 'common.white',
-                            backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                            '& .MuiChip-label': { px: 1.5 },
-                          }}
+                          color='primary'
+                          variant='outlined'
+                          sx={{ '& .MuiChip-label': { px: 1.5 } }}
                         />
                         {isFetchingStatistics || isFetchingVisits ? (
-                          <Chip
-                            label='กำลังอัปเดตข้อมูล'
-                            size='small'
-                            sx={{
-                              color: 'common.white',
-                              backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                            }}
-                          />
+                          <Chip label='กำลังอัปเดตข้อมูล' size='small' color='warning' variant='outlined' />
                         ) : null}
                       </Stack>
                     </Stack>
@@ -407,7 +390,7 @@ const AdminHomePage = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box>
                     <Typography variant='subtitle2' sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                      นักเรียนในขอบเขต
+                      นักเรียนทั้งหมด
                     </Typography>
                     <Typography variant='h4' sx={{ mt: 1, fontWeight: 800, color: 'primary.main' }}>
                       {numberFormatter.format(statistics?.summary.scope.totalStudents ?? 0)}
@@ -450,10 +433,30 @@ const AdminHomePage = () => {
                 </Box>
 
                 <Stack direction='row' spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
-                  <Chip label={`มา ${numberFormatter.format(statistics?.studentCheckInStats.totals.present ?? 0)}`} size='small' color='success' variant='outlined' />
-                  <Chip label={`สาย ${numberFormatter.format(statistics?.studentCheckInStats.totals.late ?? 0)}`} size='small' color='warning' variant='outlined' />
-                  <Chip label={`ลา ${numberFormatter.format(statistics?.studentCheckInStats.totals.leave ?? 0)}`} size='small' color='info' variant='outlined' />
-                  <Chip label={`ขาด ${numberFormatter.format(statistics?.studentCheckInStats.totals.absent ?? 0)}`} size='small' color='error' variant='outlined' />
+                  <Chip
+                    label={`มา ${numberFormatter.format(statistics?.studentCheckInStats.totals.present ?? 0)}`}
+                    size='small'
+                    color='success'
+                    variant='outlined'
+                  />
+                  <Chip
+                    label={`สาย ${numberFormatter.format(statistics?.studentCheckInStats.totals.late ?? 0)}`}
+                    size='small'
+                    color='warning'
+                    variant='outlined'
+                  />
+                  <Chip
+                    label={`ลา ${numberFormatter.format(statistics?.studentCheckInStats.totals.leave ?? 0)}`}
+                    size='small'
+                    color='info'
+                    variant='outlined'
+                  />
+                  <Chip
+                    label={`ขาด ${numberFormatter.format(statistics?.studentCheckInStats.totals.absent ?? 0)}`}
+                    size='small'
+                    color='error'
+                    variant='outlined'
+                  />
                 </Stack>
               </Stack>
             </CardContent>
@@ -470,8 +473,7 @@ const AdminHomePage = () => {
                       ครูที่ใช้งานเช็คชื่อ
                     </Typography>
                     <Typography variant='h4' sx={{ mt: 1, fontWeight: 800, color: 'secondary.main' }}>
-                      {numberFormatter.format(statistics?.teacherUsageStats.activeTeachers ?? 0)} /
-                      {' '}
+                      {numberFormatter.format(statistics?.teacherUsageStats.activeTeachers ?? 0)} /{' '}
                       {numberFormatter.format(statistics?.teacherUsageStats.totalTeachers ?? 0)}
                     </Typography>
                   </Box>
@@ -522,7 +524,8 @@ const AdminHomePage = () => {
                     sx={{ height: 8, borderRadius: 999, mb: 1.25 }}
                   />
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    ครอบคลุมนักเรียน {numberFormatter.format(visitOverview.totalStudentPopulation)} คน จาก scope ครูที่ปรึกษา
+                    ครอบคลุมนักเรียน {numberFormatter.format(visitOverview.totalStudentPopulation)} คน
+                    ในความดูแลของครูที่ปรึกษา
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
                     รายงานล่าสุด {formatDisplayDate(visitOverview.latestRecordedAt)}
@@ -534,15 +537,19 @@ const AdminHomePage = () => {
         </Grid>
 
         <Grid size={12}>
-          <Card>
+          <SurfaceCard>
             <CardContent sx={{ p: 4 }}>
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ justifyContent: 'space-between', mb: 3 }}>
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                sx={{ justifyContent: 'space-between', mb: 3 }}
+              >
                 <Box>
                   <Typography variant='h6' sx={{ fontWeight: 800 }}>
                     ทางลัดสำหรับผู้ดูแลระบบ
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    ลิงก์ทั้งหมดในส่วนนี้อิงจากสิทธิ์ของ admin โดยตรง และไม่ปะปนกับ flow ของครูที่ปรึกษา
+                    เมนูในส่วนนี้แสดงตามสิทธิ์ของผู้ดูแลระบบ เพื่อให้เข้าถึงงานส่วนกลางได้รวดเร็ว
                   </Typography>
                 </Box>
                 <Button
@@ -581,11 +588,11 @@ const AdminHomePage = () => {
                 ))}
               </Grid>
             </CardContent>
-          </Card>
+          </SurfaceCard>
         </Grid>
 
         <Grid size={{ xs: 12, lg: 7 }}>
-          <Card sx={{ height: '100%' }}>
+          <SurfaceCard sx={{ height: '100%' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack spacing={3}>
                 <Box>
@@ -593,7 +600,7 @@ const AdminHomePage = () => {
                     ภาพรวมการติดตามประจำเดือน
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    ใช้ยืนยันว่า admin กำลังดูข้อมูลส่วนกลางของวิทยาลัย ไม่ใช่ขอบเขตห้องเรียนของครูรายบุคคล
+                    สรุปข้อมูลส่วนกลางของวิทยาลัย เพื่อช่วยเลือกประเด็นที่ควรติดตามก่อน
                   </Typography>
                 </Box>
 
@@ -608,7 +615,8 @@ const AdminHomePage = () => {
                           {dailyHighlights.bestDay ? formatDisplayDate(dailyHighlights.bestDay.date) : '-'}
                         </Typography>
                         <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                          อัตราเข้าแถว {dailyHighlights.bestDay ? dailyHighlights.bestDay.attendanceRate.toFixed(2) : '0.00'}%
+                          อัตราเข้าแถว{' '}
+                          {dailyHighlights.bestDay ? dailyHighlights.bestDay.attendanceRate.toFixed(2) : '0.00'}%
                         </Typography>
                       </Stack>
                     </Paper>
@@ -623,7 +631,8 @@ const AdminHomePage = () => {
                           {dailyHighlights.worstDay ? formatDisplayDate(dailyHighlights.worstDay.date) : '-'}
                         </Typography>
                         <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                          อัตราเข้าแถว {dailyHighlights.worstDay ? dailyHighlights.worstDay.attendanceRate.toFixed(2) : '0.00'}%
+                          อัตราเข้าแถว{' '}
+                          {dailyHighlights.worstDay ? dailyHighlights.worstDay.attendanceRate.toFixed(2) : '0.00'}%
                         </Typography>
                       </Stack>
                     </Paper>
@@ -635,8 +644,8 @@ const AdminHomePage = () => {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    borderColor: alpha(theme.palette.primary.main, 0.16),
-                    backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                    borderColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.3 : 0.16),
+                    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.1 : 0.03),
                   }}
                 >
                   <Stack spacing={1.5}>
@@ -644,7 +653,8 @@ const AdminHomePage = () => {
                       จุดที่ควรติดตามต่อ
                     </Typography>
                     <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                      ครูที่ยังไม่มีข้อมูลเช็คชื่อในช่วงนี้ {numberFormatter.format(statistics?.teacherUsageStats.inactiveTeachers ?? 0)} คน
+                      ครูที่ยังไม่มีข้อมูลเช็คชื่อในช่วงนี้{' '}
+                      {numberFormatter.format(statistics?.teacherUsageStats.inactiveTeachers ?? 0)} คน
                     </Typography>
                     <Typography variant='body2' sx={{ color: 'text.secondary' }}>
                       รายการเยี่ยมบ้านที่ถูกรวมในรายงาน {numberFormatter.format(visitOverview.totalRows)} รายการ
@@ -656,11 +666,11 @@ const AdminHomePage = () => {
                 </Paper>
               </Stack>
             </CardContent>
-          </Card>
+          </SurfaceCard>
         </Grid>
 
         <Grid size={{ xs: 12, lg: 5 }}>
-          <Card sx={{ height: '100%' }}>
+          <SurfaceCard sx={{ height: '100%' }}>
             <CardContent sx={{ p: 4 }}>
               <Stack spacing={3}>
                 <Box>
@@ -688,7 +698,8 @@ const AdminHomePage = () => {
                               {teacher.department || 'ไม่ระบุแผนก'} {teacher.program ? `• ${teacher.program}` : ''}
                             </Typography>
                             <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.75 }}>
-                              เช็คชื่อ {numberFormatter.format(teacher.checkInCount)} ครั้ง • ล่าสุด {formatDisplayDate(teacher.lastCheckInDate)}
+                              เช็คชื่อ {numberFormatter.format(teacher.checkInCount)} ครั้ง • ล่าสุด{' '}
+                              {formatDisplayDate(teacher.lastCheckInDate)}
                             </Typography>
                           </Box>
                         </Stack>
@@ -704,19 +715,23 @@ const AdminHomePage = () => {
                 )}
               </Stack>
             </CardContent>
-          </Card>
+          </SurfaceCard>
         </Grid>
 
         <Grid size={12}>
-          <Card>
+          <SurfaceCard>
             <CardContent sx={{ p: 4 }}>
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ justifyContent: 'space-between', mb: 3 }}>
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                sx={{ justifyContent: 'space-between', mb: 3 }}
+              >
                 <Box>
                   <Typography variant='h6' sx={{ fontWeight: 800, mb: 1 }}>
                     รายงานเยี่ยมบ้านล่าสุด
                   </Typography>
                   <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    แสดงรายการล่าสุดตามครู วันที่บันทึกล่าสุด ห้องเรียน และจำนวนนักเรียนใน scope ของครูที่ปรึกษา
+                    แสดงครูผู้บันทึก วันที่ล่าสุด ห้องเรียน และจำนวนนักเรียนในความดูแล
                   </Typography>
                 </Box>
                 <Button
@@ -780,11 +795,11 @@ const AdminHomePage = () => {
                 </Paper>
               )}
             </CardContent>
-          </Card>
+          </SurfaceCard>
         </Grid>
 
         <Grid size={12}>
-          <Card>
+          <SurfaceCard>
             <CardContent sx={{ p: 4 }}>
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, md: 3 }}>
@@ -849,7 +864,7 @@ const AdminHomePage = () => {
                 </Grid>
               </Grid>
             </CardContent>
-          </Card>
+          </SurfaceCard>
         </Grid>
       </Grid>
     </Box>
