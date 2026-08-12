@@ -110,12 +110,20 @@ Vary spacing between sections for visual rhythm. Never uniform padding top-to-bo
 
 ## Shape
 
-```
-borderRadius: 6   // global (theme.shape.borderRadius)
-borderRadius: 5   // Button override
-```
+Source of truth: `src/@core/theme/tokens/shape.ts`.
 
-Cards, Dialogs, Chips, Inputs all inherit 6px unless overridden.
+| Token     |  Value | Usage                                          |
+| --------- | -----: | ---------------------------------------------- |
+| `compact` |    4px | Nested controls and dense menu items           |
+| `control` |    6px | Button, Input, Select and pagination controls  |
+| `surface` |    8px | Card, Dialog, Alert, summary and data surfaces |
+| `inset`   |    4px | Standard inset used by segmented controls      |
+| `full`    | 9999px | Status chips and pill controls                 |
+| `circle`  |    50% | Avatar, status dot and circular progress       |
+
+For concentric nested rectangles, calculate the inner radius from `R_inner = R_outer - inset`. Do not assign an unrelated radius to the inner element.
+
+`theme.shape.borderRadius` resolves to `surface` (8px). Feature migrations should use the semantic tokens directly; legacy component overrides remain unchanged until their owning screens are visually verified.
 
 ---
 
