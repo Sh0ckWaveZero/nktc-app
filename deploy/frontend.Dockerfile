@@ -15,6 +15,7 @@ COPY frontend ./frontend
 WORKDIR /app/frontend
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_STANDALONE=true
 
 # Keep production builds on Webpack; Bun 1.3.11/Turbopack can fail while loading Next's CJS runtime.
 RUN bun --version && bun run build -- --webpack
