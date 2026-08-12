@@ -153,12 +153,8 @@ export const useTeacherList = () => {
   }, []);
 
   const toggleAddClassroomDrawer = useCallback(() => {
-    setAddClassroomOpen((prev) => {
-      if (prev) {
-        setIsSubmittingClassroom(false);
-      }
-      return !prev;
-    });
+    setAddClassroomOpen((prev) => !prev);
+    setIsSubmittingClassroom(false);
   }, []);
 
   const onSubmittedClassroom = useCallback(

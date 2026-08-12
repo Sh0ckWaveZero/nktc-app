@@ -14,6 +14,8 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import Icon from '@/@core/components/icon';
@@ -39,6 +41,9 @@ export const BadnessReportMobileView = ({
   onPageChange,
   onPageSizeChange,
 }: BadnessReportMobileViewProps) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Box id='badness-report-mobile-view-section' sx={{ px: { xs: 4, sm: 6 }, py: { xs: 4, sm: 6 } }}>
       <Stack id='badness-report-mobile-cards' spacing={3}>
@@ -205,7 +210,7 @@ export const BadnessReportMobileView = ({
               onChange={(_event, page) => onPageChange(page - 1)}
               renderItem={(item) => <PaginationItem slots={{ previous: ChevronLeft, next: ChevronRight }} {...item} />}
               shape='rounded'
-              size={window.innerWidth < 600 ? 'small' : 'medium'}
+              size={isSmallScreen ? 'small' : 'medium'}
               showFirstButton
               showLastButton
             />
