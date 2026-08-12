@@ -2,9 +2,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
-import { useTeacherClassroomsAndStudents, useSaveCheckIn, useCheckInReports } from '@/hooks/queries/useCheckIn';
+import {
+  useTeacherClassroomsAndStudents,
+  useSaveCheckIn,
+  useDeleteCheckIn,
+  useCheckInReports,
+} from '@/hooks/queries/useCheckIn';
 import { toApiDate } from '@/utils/datetime';
 import { sortClassroomStudentsByStudentId, sortStudentsByStudentId } from '@/utils/student-sort';
+
+const MOBILE_PAGE_SIZE = 2;
 
 interface UseCheckInReportReturn {
   // Responsive config
@@ -43,6 +50,10 @@ interface UseCheckInReportReturn {
   currentPage: number;
   mobilePage: number;
   mobilePageSize: number;
+  mobileStudentFilter: 'pending' | 'all';
+  mobilePendingStudents: any[];
+  mobileFilteredStudentsCount: number;
+  mobilePendingStudentsCount: number;
 
   // Check-in states
   isPresentCheck: any[];
@@ -60,15 +71,17 @@ interface UseCheckInReportReturn {
 
   // Loading states
   isSaving: boolean;
+  isResetting: boolean;
 
   // Handlers
   handleSelectChange: (event: any) => void;
   handleCellClick: (params: any) => void;
   handleColumnHeaderClick: (params: any) => void;
   handleSaveCheckIn: () => void;
+  handleResetCheckIn: () => void;
   handleDateChange: (date: Date | null) => void;
   handleMobilePageChange: (newPage: number) => void;
-  handleMobilePageSizeChange: (newPageSize: number) => void;
+  handleMobileStudentFilterChange: (filter: 'pending' | 'all') => void;
   handlePaginationModelChange: (model: { page: number; pageSize: number }) => void;
   getPaginatedStudents: () => any[];
   getTotalMobilePages: () => number;
@@ -76,8 +89,27 @@ interface UseCheckInReportReturn {
     status: string;
     color: 'success' | 'error' | 'warning' | 'info' | 'secondary' | 'default';
   };
-  onHandleToggle: (action: string, param: any) => void;
+  onHandleToggle: (action: string, param: StudentToggleParam) => void;
 }
+
+type StudentToggleParam = string | { id: string };
+
+const getStudentId = (param: StudentToggleParam): string => (typeof param === 'string' ? param : param.id);
+
+const onSetToggle = (prevSelection: string[], param: StudentToggleParam): string[] => {
+  const studentId = getStudentId(param);
+  const index = prevSelection.indexOf(studentId);
+
+  if (index === -1) return [...prevSelection, studentId];
+
+  return [...prevSelection.slice(0, index), ...prevSelection.slice(index + 1)];
+};
+
+const onRemoveToggle = (prevSelection: string[], param: StudentToggleParam): string[] => {
+  const studentId = getStudentId(param);
+
+  return prevSelection.filter((selectedStudentId) => selectedStudentId !== studentId);
+};
 
 // Flatten nested student data from API: student.user.account.* → student.*
 const flattenStudent = (student: any) => {
@@ -106,6 +138,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     error: classroomError,
   } = useTeacherClassroomsAndStudents(auth.user?.teacher?.id || '');
   const { mutate: saveCheckIn, isPending: isSaving } = useSaveCheckIn();
+  const { mutate: deleteCheckIn, isPending: isResetting } = useDeleteCheckIn();
 
   // Memoize responsive values to prevent unnecessary re-renders
   const responsiveConfig = useMemo(
@@ -141,7 +174,8 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [mobilePage, setMobilePage] = useState<number>(0);
-  const [mobilePageSize, setMobilePageSize] = useState<number>(5);
+  const mobilePageSize = MOBILE_PAGE_SIZE;
+  const [mobileStudentFilter, setMobileStudentFilter] = useState<'pending' | 'all'>('pending');
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const checkInDate = useMemo(() => toApiDate(selectedDate ?? new Date()), [selectedDate]);
   const [classroomDropdownOpen, setClassroomDropdownOpen] = useState<boolean>(false);
@@ -158,6 +192,17 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   const [isInternshipCheck, setIsInternshipCheck] = useState<any>([]);
   const [isInternshipCheckAll, setIsInternshipCheckAll] = useState(false);
   const [hasSavedCheckIn, setHasSavedCheckIn] = useState<boolean>(false);
+  const [savedCheckInId, setSavedCheckInId] = useState<string | null>(null);
+
+  const checkedStudentIds = useMemo(
+    () => new Set<string>([...isPresentCheck, ...isAbsentCheck, ...isLateCheck, ...isLeaveCheck, ...isInternshipCheck]),
+    [isPresentCheck, isAbsentCheck, isLateCheck, isLeaveCheck, isInternshipCheck],
+  );
+  const pendingMobileStudents = useMemo(
+    () => currentStudents.filter((student: any) => !checkedStudentIds.has(student.id)),
+    [checkedStudentIds, currentStudents],
+  );
+  const filteredMobileStudents = mobileStudentFilter === 'pending' ? pendingMobileStudents : currentStudents;
 
   // Fetch check-in report for current date and classroom
   const { data: checkInReport } = useCheckInReports({
@@ -181,8 +226,6 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       return;
     }
 
-    console.log('classroomData:', classroomData);
-
     // Handle nested data structure: { data: { data: { classrooms: [...] } } }
     let actualData = classroomData;
     if (classroomData?.data) {
@@ -199,13 +242,6 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     );
 
     if (!classrooms || !classrooms.length) {
-      console.log('No classrooms found:', {
-        actualData,
-        hasClassrooms: !!classrooms,
-        length: classrooms?.length,
-        teacherId: auth.user?.teacher?.id,
-      });
-
       // Reset states when no classrooms found
       setClassrooms([]);
       setCurrentStudents([]);
@@ -252,12 +288,14 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   useEffect(() => {
     if (!defaultClassroom?.id) {
       setHasSavedCheckIn(false);
+      setSavedCheckInId(null);
       return;
     }
 
     // checkInReport เป็น null/undefined = ยังไม่มีข้อมูลวันนี้
     if (!checkInReport) {
       setHasSavedCheckIn(false);
+      setSavedCheckInId(null);
       setIsPresentCheck([]);
       setIsAbsentCheck([]);
       setIsLateCheck([]);
@@ -291,6 +329,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
 
     if (hasData) {
       setHasSavedCheckIn(true);
+      setSavedCheckInId(typeof reportData?.id === 'string' ? reportData.id : null);
       setIsPresentCheck(present);
       setIsAbsentCheck(absent);
       setIsLateCheck(late);
@@ -305,6 +344,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       setIsInternshipCheckAll((prev) => prev);
     } else {
       setHasSavedCheckIn(false);
+      setSavedCheckInId(null);
     }
   }, [checkInReport, defaultClassroom?.id, checkInDate]);
 
@@ -321,6 +361,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       setDefaultClassroom(classroomObj);
       // Reset saved check-in status when changing classroom
       setHasSavedCheckIn(false);
+      setSavedCheckInId(null);
       // Ensure pageSize is in pageSizeOptions [5, 10, 25, 50, 100]
       const studentCount = classroomObj.students?.length || 0;
       const validPageSizes = [5, 10, 25, 50, 100];
@@ -358,7 +399,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   };
 
   // Handle individual checkbox changes
-  const onHandleToggle = (action: string, param: any): void => {
+  const onHandleToggle = (action: string, param: StudentToggleParam): void => {
     switch (action) {
       case 'present':
         handleTogglePresent(param);
@@ -379,57 +420,45 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
         break;
     }
     onRemoveToggleOthers(action, param);
+
+    if (isMobile && mobileStudentFilter === 'pending' && action) {
+      const remainingStudentsCount = Math.max(filteredMobileStudents.length - 1, 0);
+      const lastPage = Math.max(Math.ceil(remainingStudentsCount / mobilePageSize) - 1, 0);
+      setMobilePage((previousPage) => Math.min(previousPage, lastPage));
+    }
   };
 
-  const handleTogglePresent = (param: any): void => {
+  const handleTogglePresent = (param: StudentToggleParam): void => {
     setIsPresentCheck((prevState: any) => {
       return onSetToggle(prevState, param);
     });
   };
 
-  const handleToggleAbsent = (param: any): void => {
+  const handleToggleAbsent = (param: StudentToggleParam): void => {
     setIsAbsentCheck((prevState: any) => {
       return onSetToggle(prevState, param);
     });
   };
 
-  const handleToggleLate = (param: any): void => {
+  const handleToggleLate = (param: StudentToggleParam): void => {
     setIsLateCheck((prevState: any) => {
       return onSetToggle(prevState, param);
     });
   };
 
-  const handleToggleLeave = (param: any): void => {
+  const handleToggleLeave = (param: StudentToggleParam): void => {
     setIsLeaveCheck((prevState: any) => {
       return onSetToggle(prevState, param);
     });
   };
 
-  const handleToggleInternship = (param: any): void => {
+  const handleToggleInternship = (param: StudentToggleParam): void => {
     setIsInternshipCheck((prevState: any) => {
       return onSetToggle(prevState, param);
     });
   };
 
-  const onSetToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
-
-    let newSelection: any[] = [];
-
-    if (index === -1) {
-      newSelection = newSelection.concat(prevSelection, param.id);
-    } else if (index === 0) {
-      newSelection = newSelection.concat(prevSelection.slice(1));
-    } else if (index === prevSelection.length - 1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, -1));
-    } else if (index > 0) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
-    }
-    return newSelection;
-  };
-
-  const onRemoveToggleOthers = (action: string, param: any): void => {
+  const onRemoveToggleOthers = (action: string, param: StudentToggleParam): void => {
     switch (action) {
       case 'present':
         onHandleAbsentChecked(param);
@@ -462,61 +491,53 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
         onHandleLeaveChecked(param);
         break;
       default:
+        onHandlePresentChecked(param);
+        onHandleAbsentChecked(param);
+        onHandleLateChecked(param);
+        onHandleLeaveChecked(param);
+        onHandleInternshipChecked(param);
         break;
     }
   };
 
-  const onHandlePresentChecked = (param: any): void => {
-    if (isPresentCheck.includes(param.id)) {
+  const onHandlePresentChecked = (param: StudentToggleParam): void => {
+    if (isPresentCheck.includes(getStudentId(param))) {
       setIsPresentCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
   };
 
-  const onHandleAbsentChecked = (param: any): void => {
-    if (isAbsentCheck.includes(param.id)) {
+  const onHandleAbsentChecked = (param: StudentToggleParam): void => {
+    if (isAbsentCheck.includes(getStudentId(param))) {
       setIsAbsentCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
   };
 
-  const onHandleLateChecked = (param: any): void => {
-    if (isLateCheck.includes(param.id)) {
+  const onHandleLateChecked = (param: StudentToggleParam): void => {
+    if (isLateCheck.includes(getStudentId(param))) {
       setIsLateCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
   };
 
-  const onHandleLeaveChecked = (param: any): void => {
-    if (isLeaveCheck.includes(param.id)) {
+  const onHandleLeaveChecked = (param: StudentToggleParam): void => {
+    if (isLeaveCheck.includes(getStudentId(param))) {
       setIsLeaveCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
   };
 
-  const onHandleInternshipChecked = (param: any): void => {
-    if (isInternshipCheck.includes(param.id)) {
+  const onHandleInternshipChecked = (param: StudentToggleParam): void => {
+    if (isInternshipCheck.includes(getStudentId(param))) {
       setIsInternshipCheck((prevState: any) => {
         return onRemoveToggle(prevState, param);
       });
     }
-  };
-
-  const onRemoveToggle = (prevState: any, param: any): any => {
-    const prevSelection = prevState;
-    const index = prevSelection.indexOf(param.id);
-
-    let newSelection: any[] = [];
-
-    if (index !== -1) {
-      newSelection = newSelection.concat(prevSelection.slice(0, index), prevSelection.slice(index + 1));
-    }
-
-    return newSelection;
   };
 
   // Handle select all checkboxes
@@ -609,6 +630,7 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
   const handleDateChange = (date: Date | null): void => {
     setSelectedDate(date ?? new Date());
     setHasSavedCheckIn(false);
+    setSavedCheckInId(null);
     onClearAll('');
   };
 
@@ -628,13 +650,12 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
       leave: isLeaveCheck || [],
       internship: isInternshipCheck || [],
     };
-
-    console.log('Check-in Data:', checkInData);
-
     saveCheckIn(checkInData, {
-      onSuccess: () => {
+      onSuccess: (savedReport) => {
         // Mark as saved - React Query will refresh the data
         setHasSavedCheckIn(true);
+        const reportData = savedReport?.data ?? savedReport;
+        setSavedCheckInId(typeof reportData?.id === 'string' ? reportData.id : null);
         toast.success('บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว');
       },
       onError: (error: any) => {
@@ -645,11 +666,39 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     });
   };
 
+  const handleResetCheckIn = (): void => {
+    if (process.env.NODE_ENV !== 'development') return;
+
+    if (!savedCheckInId) {
+      toast.error('ไม่พบข้อมูลการเช็คชื่อที่ต้องการ Reset');
+      return;
+    }
+
+    deleteCheckIn(savedCheckInId, {
+      onSuccess: () => {
+        setHasSavedCheckIn(false);
+        setSavedCheckInId(null);
+        onClearAll('');
+        setMobileStudentFilter('pending');
+        setMobilePage(0);
+        setCurrentPage(0);
+        toast.success('Reset ข้อมูลการเช็คชื่อสำหรับทดสอบแล้ว');
+      },
+      onError: (error: any) => {
+        console.error('Error resetting check-in data:', error);
+        const errorMessage = error?.response?.data?.message || error?.message || 'ไม่สามารถ Reset ข้อมูลการเช็คชื่อได้';
+        toast.error(errorMessage);
+      },
+    });
+  };
+
   // Mobile pagination functions
   const getPaginatedStudents = () => {
-    const startIndex = mobilePage * mobilePageSize;
+    const lastPage = Math.max(Math.ceil(filteredMobileStudents.length / mobilePageSize) - 1, 0);
+    const safePage = Math.min(mobilePage, lastPage);
+    const startIndex = safePage * mobilePageSize;
     const endIndex = startIndex + mobilePageSize;
-    return currentStudents.slice(startIndex, endIndex);
+    return filteredMobileStudents.slice(startIndex, endIndex);
   };
 
   const handleMobilePageChange = (newPage: number) => {
@@ -661,13 +710,13 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     }
   };
 
-  const handleMobilePageSizeChange = (newPageSize: number) => {
-    setMobilePageSize(newPageSize);
-    setMobilePage(0); // Reset to first page when changing page size
+  const handleMobileStudentFilterChange = (filter: 'pending' | 'all') => {
+    setMobileStudentFilter(filter);
+    setMobilePage(0);
   };
 
   const getTotalMobilePages = () => {
-    return Math.ceil((currentStudents?.length ?? 0) / mobilePageSize);
+    return Math.ceil(filteredMobileStudents.length / mobilePageSize);
   };
 
   const handlePaginationModelChange = (model: { page: number; pageSize: number }) => {
@@ -695,6 +744,10 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     currentPage,
     mobilePage,
     mobilePageSize,
+    mobileStudentFilter,
+    mobilePendingStudents: pendingMobileStudents,
+    mobileFilteredStudentsCount: filteredMobileStudents.length,
+    mobilePendingStudentsCount: pendingMobileStudents.length,
     isPresentCheck,
     isPresentCheckAll,
     isAbsentCheck,
@@ -708,13 +761,15 @@ export const useCheckInReport = (): UseCheckInReportReturn => {
     hasSavedCheckIn,
     selectedDate,
     isSaving,
+    isResetting,
     handleSelectChange,
     handleCellClick,
     handleColumnHeaderClick,
     handleSaveCheckIn,
+    handleResetCheckIn,
     handleDateChange,
     handleMobilePageChange,
-    handleMobilePageSizeChange,
+    handleMobileStudentFilterChange,
     handlePaginationModelChange,
     getPaginatedStudents,
     getTotalMobilePages,

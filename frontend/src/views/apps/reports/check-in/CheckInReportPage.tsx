@@ -1,15 +1,21 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Avatar, Box, Grid, Typography, useTheme } from '@mui/material';
-import { HiFlag } from 'react-icons/hi';
+import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
+import FlagOutlined from '@mui/icons-material/FlagOutlined';
+import GroupsOutlined from '@mui/icons-material/GroupsOutlined';
+import { Alert, Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+
 import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
+import CustomAvatar from '@/@core/components/mui/avatar';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
+
 import CheckInControls from './components/CheckInControls';
 import CheckInDataGrid from './components/CheckInDataGrid';
+import MobileStudentList from './components/MobileStudentList';
 
 const CheckInReportPage = () => {
-  const theme = useTheme();
-
   const {
     responsiveConfig,
     currentStudents,
@@ -19,6 +25,12 @@ const CheckInReportPage = () => {
     classroomError,
     pageSize,
     currentPage,
+    mobilePage,
+    mobilePageSize,
+    mobileStudentFilter,
+    mobilePendingStudents,
+    mobileFilteredStudentsCount,
+    mobilePendingStudentsCount,
     isPresentCheck,
     isPresentCheckAll,
     isAbsentCheck,
@@ -32,12 +44,19 @@ const CheckInReportPage = () => {
     hasSavedCheckIn,
     selectedDate,
     isSaving,
+    isResetting,
     handleSelectChange,
     handleCellClick,
     handleColumnHeaderClick,
     handleSaveCheckIn,
+    handleResetCheckIn,
     handleDateChange,
+    handleMobilePageChange,
+    handleMobileStudentFilterChange,
     handlePaginationModelChange,
+    getPaginatedStudents,
+    getTotalMobilePages,
+    onHandleToggle,
   } = useCheckInReport();
 
   const currentDateString = useMemo(() => {
@@ -50,60 +69,79 @@ const CheckInReportPage = () => {
   }, [selectedDate]);
 
   return (
-    <div id='checkin-page-fragment' style={{ borderRadius: '8px', overflow: 'hidden' }}>
+    <Box id='checkin-page-fragment' sx={{ py: { xs: 0, md: 2 } }}>
       <Grid id='checkin-main-container' container spacing={responsiveConfig.containerSpacing}>
         <Grid size={{ xs: 12 }}>
-          <Box
+          <Card
             id='checkin-main-container-box'
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              overflow: 'hidden',
+              borderRadius: SHAPE_TOKENS.surface,
               backgroundColor: 'background.paper',
+              boxShadow: {
+                xs: 'none',
+                md: (theme) =>
+                  `0 8px 24px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.16 : 0.04)}`,
+              },
             }}
           >
             {/* Header Section */}
             <Box
               id='checkin-header'
               sx={{
-                p: 3,
-                pb: 2,
+                p: { xs: 2, sm: 3, md: 4 },
                 backgroundColor: 'background.paper',
-                borderBottom: 1,
-                borderColor: 'divider',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                <Avatar sx={{ bgcolor: theme.palette.warning.main, mt: 0.5 }}>
-                  <HiFlag style={{ color: theme.palette.common.white }} />
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant='h6' component='div' sx={{ fontWeight: 600, mb: 0.5 }}>
-                    เช็คชื่อตอนเข้า กิจกรรมหน้าเสาธง
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: 'text.secondary',
-                      fontWeight: 500,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mb: 0.5,
-                    }}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={{ xs: 2, sm: 3 }}
+                sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between' }}
+              >
+                <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
+                  <CustomAvatar
+                    skin='light'
+                    color='primary'
+                    sx={{ width: { xs: 36, sm: 44 }, height: { xs: 36, sm: 44 }, flexShrink: 0 }}
                   >
-                    <Box component='span' sx={{ color: 'primary.main', fontWeight: 600 }}>
-                      ชั้น {defaultClassroom?.name || 'ไม่ระบุ'}
-                    </Box>
-                    <Box component='span' sx={{ color: 'text.secondary' }}>
-                      •
-                    </Box>
-                    <Box component='span'>จำนวน {currentStudents?.length ?? 0} คน</Box>
-                  </Typography>
-                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    {currentDateString}
-                  </Typography>
-                </Box>
-              </Box>
+                    <FlagOutlined fontSize='small' />
+                  </CustomAvatar>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      variant='h5'
+                      component='h1'
+                      sx={{ fontWeight: 700, lineHeight: 1.3, fontSize: { xs: '1.125rem', sm: '1.5rem' } }}
+                    >
+                      เช็คชื่อกิจกรรมหน้าเสาธง
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: 'text.secondary', display: { xs: 'none', sm: 'block' } }}>
+                      เลือกสถานะของนักเรียนแต่ละคน แล้วบันทึกเมื่อเช็คชื่อครบทุกคน
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Stack
+                  direction='row'
+                  spacing={2}
+                  useFlexGap
+                  sx={{ alignItems: 'center', flexWrap: 'wrap', color: 'text.secondary' }}
+                >
+                  <Stack direction='row' spacing={0.75} sx={{ alignItems: 'center' }}>
+                    <GroupsOutlined fontSize='small' />
+                    <Typography variant='body2' sx={{ color: 'inherit', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      {currentStudents?.length ?? 0} คน
+                    </Typography>
+                  </Stack>
+                  <Stack direction='row' spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
+                    <CalendarMonthOutlined fontSize='small' />
+                    <Typography variant='body2' sx={{ color: 'inherit', fontWeight: 500 }}>
+                      {currentDateString}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Stack>
             </Box>
 
             {/* Content Section */}
@@ -117,21 +155,27 @@ const CheckInReportPage = () => {
             >
               {/* Loading State */}
               {classroomLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography>กำลังโหลดข้อมูล...</Typography>
+                <Box sx={{ p: 4 }}>
+                  <Alert severity='info' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
+                    กำลังโหลดข้อมูลห้องเรียน...
+                  </Alert>
+                </Box>
+              )}
+
+              {!classroomLoading && classroomError && (
+                <Box sx={{ p: 4 }}>
+                  <Alert severity='error' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
+                    ไม่สามารถโหลดข้อมูลห้องเรียนได้ กรุณาลองใหม่อีกครั้ง
+                  </Alert>
                 </Box>
               )}
 
               {/* Empty State */}
               {!classroomLoading && !classroomError && !classrooms.length && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                  <Typography
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
+                <Box sx={{ p: 4 }}>
+                  <Alert severity='info' variant='outlined' sx={{ borderRadius: SHAPE_TOKENS.surface }}>
                     ไม่พบข้อมูลห้องเรียน
-                  </Typography>
+                  </Alert>
                 </Box>
               )}
 
@@ -140,8 +184,9 @@ const CheckInReportPage = () => {
                 <Box
                   sx={{
                     flexShrink: 0,
-                    p: responsiveConfig.cardPadding,
-                    pb: 2,
+                    px: responsiveConfig.cardPadding,
+                    py: 2,
+                    backgroundColor: 'action.hover',
                   }}
                 >
                   <CheckInControls
@@ -161,6 +206,9 @@ const CheckInReportPage = () => {
                     }
                     loading={isSaving}
                     hasSavedCheckIn={hasSavedCheckIn}
+                    developmentReset={
+                      process.env.NODE_ENV === 'development' ? { isResetting, onReset: handleResetCheckIn } : undefined
+                    }
                     selectedDate={selectedDate}
                     formSize={responsiveConfig.formSize}
                     inputFontSize={responsiveConfig.inputFontSize}
@@ -175,33 +223,70 @@ const CheckInReportPage = () => {
                 </Box>
               )}
 
-              <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CheckInDataGrid
-                  students={currentStudents}
-                  loading={classroomLoading}
-                  pageSize={pageSize}
-                  currentPage={currentPage}
-                  isPresentCheckAll={isPresentCheckAll}
-                  isAbsentCheckAll={isAbsentCheckAll}
-                  isLateCheckAll={isLateCheckAll}
-                  isLeaveCheckAll={isLeaveCheckAll}
-                  isInternshipCheckAll={isInternshipCheckAll}
-                  isPresentCheck={isPresentCheck}
-                  isAbsentCheck={isAbsentCheck}
-                  isLateCheck={isLateCheck}
-                  isLeaveCheck={isLeaveCheck}
-                  isInternshipCheck={isInternshipCheck}
-                  hasSavedCheckIn={hasSavedCheckIn}
-                  onPaginationModelChange={handlePaginationModelChange}
-                  onCellClick={handleCellClick}
-                  onColumnHeaderClick={handleColumnHeaderClick}
-                />
-              </Box>
+              {!classroomLoading && !classroomError && classrooms.length > 0 && (
+                <Box
+                  sx={{
+                    width: '100%',
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: { xs: 2, md: 3 },
+                  }}
+                >
+                  {responsiveConfig.isMobile ? (
+                    <Box id='checkin-mobile-scroll-container'>
+                      <MobileStudentList
+                        students={currentStudents}
+                        pendingStudents={mobilePendingStudents}
+                        paginatedStudents={getPaginatedStudents()}
+                        pendingStudentsCount={mobilePendingStudentsCount}
+                        filteredStudentsCount={mobileFilteredStudentsCount}
+                        studentFilter={mobileStudentFilter}
+                        statusSelections={{
+                          present: isPresentCheck,
+                          absent: isAbsentCheck,
+                          late: isLateCheck,
+                          leave: isLeaveCheck,
+                          internship: isInternshipCheck,
+                        }}
+                        hasSavedCheckIn={hasSavedCheckIn}
+                        currentPage={mobilePage}
+                        totalPages={getTotalMobilePages()}
+                        pageSize={mobilePageSize}
+                        onFilterChange={handleMobileStudentFilterChange}
+                        onStatusChange={(studentId, checkInStatus) => onHandleToggle(checkInStatus, studentId)}
+                        onPageChange={handleMobilePageChange}
+                      />
+                    </Box>
+                  ) : (
+                    <CheckInDataGrid
+                      students={currentStudents}
+                      loading={classroomLoading}
+                      pageSize={pageSize}
+                      currentPage={currentPage}
+                      isPresentCheckAll={isPresentCheckAll}
+                      isAbsentCheckAll={isAbsentCheckAll}
+                      isLateCheckAll={isLateCheckAll}
+                      isLeaveCheckAll={isLeaveCheckAll}
+                      isInternshipCheckAll={isInternshipCheckAll}
+                      isPresentCheck={isPresentCheck}
+                      isAbsentCheck={isAbsentCheck}
+                      isLateCheck={isLateCheck}
+                      isLeaveCheck={isLeaveCheck}
+                      isInternshipCheck={isInternshipCheck}
+                      hasSavedCheckIn={hasSavedCheckIn}
+                      onPaginationModelChange={handlePaginationModelChange}
+                      onCellClick={handleCellClick}
+                      onColumnHeaderClick={handleColumnHeaderClick}
+                    />
+                  )}
+                </Box>
+              )}
             </Box>
-          </Box>
+          </Card>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 };
 

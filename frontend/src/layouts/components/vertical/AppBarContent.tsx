@@ -10,6 +10,7 @@ import { Settings } from '@/@core/context/settingsContext';
 
 // ** Components
 import ModeToggler from '@/@core/layouts/components/shared-components/ModeToggler';
+import TextSizeControls from '@/@core/layouts/components/shared-components/TextSizeControls';
 import UserDropdown from '@/layouts/components/UserDropdown';
 import Autocomplete from '@/layouts/components/Autocomplete';
 
@@ -51,6 +52,7 @@ const AppBarContent = (props: Props) => {
         className='actions-right'
         sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
       >
+        <TextSizeControls />
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <UserDropdown settings={settings} />
       </Box>

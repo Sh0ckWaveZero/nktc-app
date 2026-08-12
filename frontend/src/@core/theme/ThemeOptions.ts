@@ -13,6 +13,7 @@ import palette from './palette';
 import spacing from './spacing';
 import shadows from './shadows';
 import breakpoints from './breakpoints';
+import SHAPE_TOKENS from './tokens/shape';
 
 const themeOptions = (settings: Settings): ThemeOptions => {
   // ** Vars
@@ -55,7 +56,7 @@ const themeOptions = (settings: Settings): ThemeOptions => {
       ...spacing,
       breakpoints: breakpoints(),
       shape: {
-        borderRadius: 6,
+        borderRadius: Number.parseFloat(SHAPE_TOKENS.surface),
       },
       mixins: {
         toolbar: {

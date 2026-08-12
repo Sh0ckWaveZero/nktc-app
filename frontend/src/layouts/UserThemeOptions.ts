@@ -1,6 +1,8 @@
 // ** MUI Imports
 import { ThemeOptions } from '@mui/material';
 
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
+
 // ** To use core palette, uncomment the below import
 // import corePalette from '@/@core/theme/palette'
 
@@ -118,7 +120,7 @@ const UserThemeOptions = (): ThemeOptions => {
       },
     },
     shape: {
-      borderRadius: 8,
+      borderRadius: Number.parseFloat(SHAPE_TOKENS.surface),
     },
     typography: {
       fontFamily: 'var(--font-prompt), "Prompt", sans-serif',
