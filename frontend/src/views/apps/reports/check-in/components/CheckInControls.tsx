@@ -1,6 +1,22 @@
 'use client';
 
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { useState } from 'react';
+import RestartAltOutlined from '@mui/icons-material/RestartAltOutlined';
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material';
 
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
 
@@ -14,6 +30,10 @@ interface CheckInControlsProps {
   isComplete: boolean;
   loading: boolean;
   hasSavedCheckIn: boolean;
+  developmentReset?: {
+    isResetting: boolean;
+    onReset: () => void;
+  };
   selectedDate?: Date | null;
   formSize: 'small' | 'medium';
   inputFontSize: string;
@@ -41,6 +61,7 @@ const CheckInControls = ({
   isComplete,
   loading,
   hasSavedCheckIn,
+  developmentReset,
   selectedDate,
   formSize,
   inputFontSize,
@@ -57,6 +78,15 @@ const CheckInControls = ({
   noteValue,
   onNoteChange,
 }: CheckInControlsProps) => {
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+
+  const canResetCheckIn = hasSavedCheckIn && Boolean(developmentReset);
+
+  const handleConfirmReset = (): void => {
+    developmentReset?.onReset();
+    setIsResetDialogOpen(false);
+  };
+
   // Responsive configuration
   const responsiveConfig = {
     isMobile,
@@ -76,35 +106,17 @@ const CheckInControls = ({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 3,
-        mb: responsiveConfig.isMobile ? 2 : 0,
+        gap: 2,
         width: '100%',
-        px: 0,
-        py: 3,
+        p: 0,
         backgroundColor: 'transparent',
-        borderRadius: '0px',
-        border: 'none',
-        boxShadow: 'none',
       }}
     >
       {/* แสดงข้อความแจ้งเตือนเมื่อบันทึกแล้ว */}
       {hasSavedCheckIn && (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 1.5,
-            backgroundColor: 'success.light',
-            color: 'success.contrastText',
-            borderRadius: 1,
-            fontSize: responsiveConfig.isMobile ? '0.875rem' : '0.9375rem', // เพิ่มขนาดตัวอักษร
-            fontWeight: 500,
-            width: '100%',
-          }}
-        >
-          ✓ บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว
-        </Box>
+        <Alert severity='success' variant='outlined'>
+          บันทึกข้อมูลการเช็คชื่อเรียบร้อยแล้ว
+        </Alert>
       )}
       {/* Controls Row */}
       <Box
@@ -151,10 +163,8 @@ const CheckInControls = ({
                   },
                 }}
                 sx={{
-                  height: responsiveConfig.isMobile ? '48px' : '44px',
                   minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                   '& .MuiSelect-select': {
-                    height: responsiveConfig.isMobile ? '48px' : '44px',
                     minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                     display: 'flex',
                     alignItems: 'center',
@@ -174,7 +184,7 @@ const CheckInControls = ({
                       mb: 0.5,
                       minHeight: responsiveConfig.isMobile ? 'auto' : '40px',
                       '&:hover': {
-                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        backgroundColor: 'action.hover',
                       },
                     }}
                   >
@@ -221,10 +231,8 @@ const CheckInControls = ({
                 },
               }}
               sx={{
-                height: responsiveConfig.isMobile ? '48px' : '44px',
                 minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                 '& .MuiSelect-select': {
-                  height: responsiveConfig.isMobile ? '48px' : '44px',
                   minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                   display: 'flex',
                   alignItems: 'center',
@@ -245,7 +253,7 @@ const CheckInControls = ({
                       mb: 0.5,
                       minHeight: responsiveConfig.isMobile ? 'auto' : '40px',
                       '&:hover': {
-                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        backgroundColor: 'action.hover',
                       },
                     }}
                   >
@@ -294,7 +302,7 @@ const CheckInControls = ({
                   size: responsiveConfig.formSize,
                   sx: {
                     '& .MuiInputBase-root': {
-                      height: responsiveConfig.isMobile ? '48px' : '44px',
+                      minHeight: responsiveConfig.isMobile ? '48px' : '44px',
                     },
                     '& .MuiInputBase-input': {
                       fontSize: responsiveConfig.inputFontSize,
@@ -306,86 +314,80 @@ const CheckInControls = ({
           </Box>
         )}
 
-        {/* Save button */}
-        <Button
-          id='checkin-save-button'
-          variant='contained'
-          onClick={onSaveCheckIn}
-          disabled={currentStudentsCount === 0 || loading || !defaultClassroom?.id || !isComplete || hasSavedCheckIn}
-          size={responsiveConfig.buttonSize}
-          sx={{
-            background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 8px 20px rgba(25, 118, 210, 0.4)',
-            },
-            '&:active': {
-              transform: 'translateY(-1px)',
-            },
-            '&:disabled': {
-              background: (theme) =>
-                theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-              color: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.38)' : 'rgba(0, 0, 0, 0.38)'),
-              boxShadow: 'none',
-              transform: 'none',
-            },
-            minWidth: responsiveConfig.isMobile ? '100%' : '160px',
-            maxWidth: responsiveConfig.isMobile ? '100%' : '200px',
-            height: responsiveConfig.isMobile ? '48px' : '44px',
-            minHeight: responsiveConfig.isMobile ? '48px' : '44px',
-            fontSize: responsiveConfig.isMobile ? '1rem' : '0.9rem',
-            fontWeight: 600,
-            lineHeight: responsiveConfig.isMobile ? '20px' : '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '8px',
-            textTransform: 'none',
-            letterSpacing: '0.3px',
-            boxShadow: responsiveConfig.isMobile
-              ? '0 3px 10px rgba(25, 118, 210, 0.25)'
-              : '0 4px 12px rgba(25, 118, 210, 0.3)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: '-100%',
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-              transition: 'left 0.6s',
-            },
-            '&:hover::before': {
-              left: '100%',
-            },
-          }}
-        >
-          {loading ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box
-                sx={{
-                  width: 16,
-                  height: 16,
-                  border: '2px solid transparent',
-                  borderTop: '2px solid currentColor',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  '@keyframes spin': {
-                    '0%': { transform: 'rotate(0deg)' },
-                    '100%': { transform: 'rotate(360deg)' },
-                  },
-                }}
-              />
-              กำลังบันทึก...
-            </Box>
-          ) : (
-            'บันทึกการเช็คชื่อ'
-          )}
-        </Button>
+        {canResetCheckIn ? (
+          <Button
+            id='checkin-reset-button'
+            variant='outlined'
+            color='warning'
+            startIcon={<RestartAltOutlined />}
+            onClick={() => setIsResetDialogOpen(true)}
+            disabled={developmentReset?.isResetting}
+            size={responsiveConfig.buttonSize}
+            sx={{
+              minWidth: responsiveConfig.isMobile ? '100%' : '170px',
+              minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+              fontSize: responsiveConfig.isMobile ? '1rem' : '0.9rem',
+              fontWeight: 700,
+              borderRadius: '8px',
+              textTransform: 'none',
+            }}
+          >
+            {developmentReset?.isResetting ? 'กำลัง Reset...' : 'Reset การเช็คชื่อ'}
+          </Button>
+        ) : (
+          <Button
+            id='checkin-save-button'
+            variant='contained'
+            onClick={onSaveCheckIn}
+            disabled={currentStudentsCount === 0 || loading || !defaultClassroom?.id || !isComplete || hasSavedCheckIn}
+            size={responsiveConfig.buttonSize}
+            sx={{
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+              '&:disabled': {
+                backgroundColor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+                color: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.38)' : 'rgba(0, 0, 0, 0.38)',
+                boxShadow: 'none',
+              },
+              minWidth: responsiveConfig.isMobile ? '100%' : '160px',
+              maxWidth: responsiveConfig.isMobile ? '100%' : '200px',
+              minHeight: responsiveConfig.isMobile ? '48px' : '44px',
+              fontSize: responsiveConfig.isMobile ? '1rem' : '0.9rem',
+              fontWeight: 600,
+              lineHeight: responsiveConfig.isMobile ? '20px' : '18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              textTransform: 'none',
+            }}
+          >
+            {loading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    border: '2px solid transparent',
+                    borderTop: '2px solid currentColor',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    '@keyframes spin': {
+                      '0%': { transform: 'rotate(0deg)' },
+                      '100%': { transform: 'rotate(360deg)' },
+                    },
+                  }}
+                />
+                กำลังบันทึก...
+              </Box>
+            ) : (
+              'บันทึกการเช็คชื่อ'
+            )}
+          </Button>
+        )}
       </Box>
 
       {onNoteChange && (
@@ -410,6 +412,39 @@ const CheckInControls = ({
           />
         </Box>
       )}
+
+      <Dialog
+        open={isResetDialogOpen}
+        onClose={(_, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            setIsResetDialogOpen(false);
+          }
+        }}
+        aria-labelledby='checkin-reset-dialog-title'
+        maxWidth='xs'
+        fullWidth
+      >
+        <DialogTitle id='checkin-reset-dialog-title'>Reset ข้อมูลการเช็คชื่อ?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ระบบจะลบข้อมูลที่บันทึกของห้องและวันที่นี้ เพื่อให้สามารถทดลองเช็คชื่อและบันทึกใหม่ได้อีกครั้ง
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setIsResetDialogOpen(false)} color='inherit'>
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={handleConfirmReset}
+            variant='contained'
+            color='warning'
+            startIcon={<RestartAltOutlined />}
+            disabled={developmentReset?.isResetting}
+          >
+            ยืนยัน Reset
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

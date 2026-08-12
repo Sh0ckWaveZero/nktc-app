@@ -1,75 +1,85 @@
 'use client';
 
-import { Card, CardContent, Box, Typography, Button, Chip } from '@mui/material';
-import { useMediaQuery, useTheme } from '@mui/material';
+import AccessTimeOutlined from '@mui/icons-material/AccessTimeOutlined';
+import EventNoteOutlined from '@mui/icons-material/EventNoteOutlined';
+import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
+import PersonOffOutlined from '@mui/icons-material/PersonOffOutlined';
+import WorkOutlineOutlined from '@mui/icons-material/WorkOutlineOutlined';
+import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+
 import RenderAvatar from '@/@core/components/avatar';
+
+const STATUS_OPTIONS = [
+  { value: 'present', label: 'มาเรียน', color: 'success' as const, icon: HowToRegOutlined },
+  { value: 'absent', label: 'ขาดเรียน', color: 'error' as const, icon: PersonOffOutlined },
+  { value: 'late', label: 'มาสาย', color: 'warning' as const, icon: AccessTimeOutlined },
+  { value: 'leave', label: 'ลา', color: 'info' as const, icon: EventNoteOutlined },
+  { value: 'internship', label: 'ฝึกงาน', color: 'secondary' as const, icon: WorkOutlineOutlined },
+];
 
 interface StudentCardProps {
   student: any;
-  status: string;
-  color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
   isPresentCheck: any[];
   isAbsentCheck: any[];
   isLateCheck: any[];
   isLeaveCheck: any[];
   isInternshipCheck: any[];
   hasSavedCheckIn: boolean;
+  previewStatus?: string;
   onCheckboxChange: (studentId: string, status: string) => void;
 }
 
 const StudentCard = ({
   student,
-  status,
-  color,
   isPresentCheck,
   isAbsentCheck,
   isLateCheck,
   isLeaveCheck,
   isInternshipCheck,
   hasSavedCheckIn,
+  previewStatus,
   onCheckboxChange,
 }: StudentCardProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  // Responsive configuration
-  const responsiveConfig = {
-    isMobile,
-    isSmallMobile,
-    cardPadding: isMobile ? 2 : 3,
-    buttonSize: 'small' as 'small' | 'medium',
-    buttonFontSize: isMobile ? '0.8rem' : '0.875rem',
-    chipSize: (isMobile ? 'small' : 'medium') as 'small' | 'medium',
-    chipMinWidth: isMobile ? 60 : 80,
-  };
+  const isTransitioning = previewStatus !== undefined;
+  const selectedStatus =
+    previewStatus ??
+    (isPresentCheck.includes(student.id)
+      ? 'present'
+      : isAbsentCheck.includes(student.id)
+        ? 'absent'
+        : isLateCheck.includes(student.id)
+          ? 'late'
+          : isLeaveCheck.includes(student.id)
+            ? 'leave'
+            : isInternshipCheck.includes(student.id)
+              ? 'internship'
+              : '');
 
   return (
     <Card
       id={`checkin-student-card-${student.id}`}
       sx={{
-        mb: responsiveConfig.isSmallMobile ? 1 : 1.5,
-        border: 1,
-        borderColor: 'divider',
-        backgroundColor: 'background.paper',
+        border: 0,
+        backgroundColor: 'transparent',
+        boxShadow: 'none',
       }}
     >
       <CardContent
         sx={{
-          p: responsiveConfig.cardPadding,
-          pb: responsiveConfig.isMobile ? 2 : 2.5,
+          p: 2,
           '&.MuiCardContent-root': {
-            paddingBottom: responsiveConfig.isMobile ? '16px' : '20px',
+            pb: 2,
           },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
           <RenderAvatar row={student} />
-          <Box sx={{ ml: responsiveConfig.isMobile ? 1.5 : 2, flex: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography
               id={`checkin-student-name-${student.id}`}
-              variant={responsiveConfig.isMobile ? 'subtitle1' : 'h6'}
-              sx={{ fontWeight: 600 }}
+              variant='subtitle1'
+              sx={{ fontWeight: 600, lineHeight: 1.35 }}
             >
               {student.title + '' + student.firstName + ' ' + student.lastName}
             </Typography>
@@ -82,110 +92,75 @@ const StudentCard = ({
             >
               @{student.studentId}
             </Typography>
-            <Typography
-              id={`checkin-student-class-${student.id}`}
-              variant='body2'
-              sx={{
-                color: 'text.secondary',
-              }}
-            >
-              {student.classroom?.name || student.classroom}
-            </Typography>
           </Box>
-          <Chip
-            id={`checkin-student-status-${student.id}`}
-            label={status}
-            color={color as any}
-            size={responsiveConfig.chipSize}
-            sx={{ minWidth: responsiveConfig.chipMinWidth }}
-          />
-        </Box>
+        </Stack>
 
         <Box
-          id={`checkin-student-buttons-${student.id}`}
+          role='group'
+          aria-label={`เลือกสถานะเช็คชื่อของ ${student.firstName} ${student.lastName}`}
+          aria-busy={isTransitioning}
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
             gap: 1,
-            width: '100%',
+            pointerEvents: isTransitioning ? 'none' : 'auto',
           }}
         >
-          <Button
-            id={`checkin-student-present-btn-${student.id}`}
-            variant={isPresentCheck.includes(student.id) ? 'contained' : 'outlined'}
-            color='success'
-            size={responsiveConfig.buttonSize}
-            onClick={() => onCheckboxChange(student.id, 'present')}
-            disabled={hasSavedCheckIn}
-            fullWidth
-            sx={{
-              fontSize: responsiveConfig.buttonFontSize,
-              fontWeight: 500,
-            }}
-          >
-            มาเรียน
-          </Button>
-          <Button
-            id={`checkin-student-absent-btn-${student.id}`}
-            variant={isAbsentCheck.includes(student.id) ? 'contained' : 'outlined'}
-            color='error'
-            size={responsiveConfig.buttonSize}
-            onClick={() => onCheckboxChange(student.id, 'absent')}
-            disabled={hasSavedCheckIn}
-            fullWidth
-            sx={{
-              fontSize: responsiveConfig.buttonFontSize,
-              fontWeight: 500,
-            }}
-          >
-            ขาดเรียน
-          </Button>
-          <Button
-            id={`checkin-student-late-btn-${student.id}`}
-            variant={isLateCheck.includes(student.id) ? 'contained' : 'outlined'}
-            color='warning'
-            size={responsiveConfig.buttonSize}
-            onClick={() => onCheckboxChange(student.id, 'late')}
-            disabled={hasSavedCheckIn}
-            fullWidth
-            sx={{
-              fontSize: responsiveConfig.buttonFontSize,
-              fontWeight: 500,
-            }}
-          >
-            มาสาย
-          </Button>
-          <Button
-            id={`checkin-student-leave-btn-${student.id}`}
-            variant={isLeaveCheck.includes(student.id) ? 'contained' : 'outlined'}
-            color='info'
-            size={responsiveConfig.buttonSize}
-            onClick={() => onCheckboxChange(student.id, 'leave')}
-            disabled={hasSavedCheckIn}
-            fullWidth
-            sx={{
-              fontSize: responsiveConfig.buttonFontSize,
-              fontWeight: 500,
-            }}
-          >
-            ลา
-          </Button>
-          <Button
-            id={`checkin-student-internship-btn-${student.id}`}
-            variant={isInternshipCheck.includes(student.id) ? 'contained' : 'outlined'}
-            color='secondary'
-            size={responsiveConfig.buttonSize}
-            onClick={() => onCheckboxChange(student.id, 'internship')}
-            disabled={hasSavedCheckIn}
-            fullWidth
-            sx={{
-              fontSize: responsiveConfig.buttonFontSize,
-              fontWeight: 500,
-              gridColumn: '1 / -1', // Span full width across both columns
-            }}
-          >
-            ฝึกงาน
-          </Button>
+          {STATUS_OPTIONS.map((option) => {
+            const isSelected = selectedStatus === option.value;
+            const StatusIcon = option.icon;
+
+            return (
+              <Button
+                key={option.value}
+                id={`checkin-student-${option.value}-btn-${student.id}`}
+                variant={isSelected ? 'contained' : 'outlined'}
+                color={option.color}
+                disabled={hasSavedCheckIn}
+                aria-pressed={isSelected}
+                startIcon={<StatusIcon fontSize='small' />}
+                onClick={() => onCheckboxChange(student.id, isSelected ? '' : option.value)}
+                sx={{
+                  minWidth: 0,
+                  minHeight: 44,
+                  px: 1,
+                  gridColumn: option.value === 'internship' ? '1 / -1' : 'auto',
+                  backgroundColor: (theme) =>
+                    isSelected
+                      ? undefined
+                      : alpha(theme.palette[option.color].main, theme.palette.mode === 'dark' ? 0.16 : 0.08),
+                  borderColor: (theme) =>
+                    isSelected
+                      ? undefined
+                      : alpha(theme.palette[option.color].main, theme.palette.mode === 'dark' ? 0.64 : 0.4),
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  transform: isSelected && isTransitioning ? 'scale(1.025)' : 'scale(1)',
+                  '& .MuiButton-startIcon': {
+                    ml: 0,
+                    mr: 0.75,
+                  },
+                  transition: (theme) =>
+                    theme.transitions.create(['background-color', 'border-color', 'transform'], { duration: 160 }),
+                  '&:hover': {
+                    backgroundColor: (theme) =>
+                      isSelected
+                        ? undefined
+                        : alpha(theme.palette[option.color].main, theme.palette.mode === 'dark' ? 0.24 : 0.14),
+                    borderColor: `${option.color}.main`,
+                  },
+                  '&:active': { transform: 'scale(0.96)' },
+                  '@media (prefers-reduced-motion: reduce)': {
+                    transition: 'none',
+                    '&:active': { transform: 'none' },
+                  },
+                }}
+              >
+                {option.label}
+              </Button>
+            );
+          })}
         </Box>
       </CardContent>
     </Card>
