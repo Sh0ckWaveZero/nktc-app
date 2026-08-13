@@ -1,10 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
 import FlagOutlined from '@mui/icons-material/FlagOutlined';
 import GroupsOutlined from '@mui/icons-material/GroupsOutlined';
-import { Alert, Box, Card, Grid, Stack, Typography } from '@mui/material';
+import ViewAgendaOutlined from '@mui/icons-material/ViewAgendaOutlined';
+import ViewColumnOutlined from '@mui/icons-material/ViewColumnOutlined';
+import { Alert, Box, Card, Grid, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 import { useCheckInReport } from '@/hooks/features/check-in/useCheckInReport';
@@ -16,6 +18,9 @@ import CheckInDataGrid from './components/CheckInDataGrid';
 import MobileStudentList from './components/MobileStudentList';
 
 const CheckInReportPage = () => {
+  // บนมือถือ: ค่าเริ่มต้นแสดงตารางแบบ desktop ('table') ผู้ใช้สามารถสลับไปมุมมองการ์ด ('cards') ได้
+  const [mobileViewMode, setMobileViewMode] = useState<'table' | 'cards'>('table');
+
   const {
     responsiveConfig,
     currentStudents,
@@ -233,7 +238,60 @@ const CheckInReportPage = () => {
                     p: { xs: 2, md: 3 },
                   }}
                 >
-                  {responsiveConfig.isMobile ? (
+                  {responsiveConfig.isMobile && (
+                    <ToggleButtonGroup
+                      value={mobileViewMode}
+                      exclusive
+                      fullWidth
+                      size='small'
+                      onChange={(_, value: 'table' | 'cards' | null) => {
+                        if (value) setMobileViewMode(value);
+                      }}
+                      aria-label='สลับรูปแบบการแสดงผลรายชื่อนักเรียน'
+                      sx={(theme) => ({
+                        '--checkin-view-inset': SHAPE_TOKENS.inset,
+                        '--checkin-view-outer-radius': SHAPE_TOKENS.surface,
+                        gap: 'var(--checkin-view-inset)',
+                        p: 'var(--checkin-view-inset)',
+                        mb: 2,
+                        borderRadius: 'var(--checkin-view-outer-radius)',
+                        backgroundColor: 'action.hover',
+                        '& .MuiToggleButtonGroup-grouped': {
+                          minHeight: 40,
+                          border: '0 !important',
+                          borderRadius:
+                            'max(0px, calc(var(--checkin-view-outer-radius) - var(--checkin-view-inset))) !important',
+                          color: 'text.secondary',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'background-color 150ms cubic-bezier(0.65, 0, 0.35, 1)',
+                          '&.Mui-selected': {
+                            color: 'text.primary',
+                            backgroundColor: 'background.paper',
+                            boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, theme.palette.mode === 'dark' ? 0.24 : 0.1)}`,
+                            '&:hover': {
+                              backgroundColor: 'background.paper',
+                            },
+                          },
+                        },
+                      })}
+                    >
+                      <ToggleButton id='checkin-view-table-btn' value='table' aria-label='แสดงแบบตาราง'>
+                        <ViewColumnOutlined fontSize='small' />
+                        <Typography component='span' variant='body2' sx={{ fontWeight: 600, ml: 0.5 }}>
+                          ตาราง
+                        </Typography>
+                      </ToggleButton>
+                      <ToggleButton id='checkin-view-cards-btn' value='cards' aria-label='แสดงแบบการ์ด'>
+                        <ViewAgendaOutlined fontSize='small' />
+                        <Typography component='span' variant='body2' sx={{ fontWeight: 600, ml: 0.5 }}>
+                          การ์ด
+                        </Typography>
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  )}
+
+                  {responsiveConfig.isMobile && mobileViewMode === 'cards' ? (
                     <Box id='checkin-mobile-scroll-container'>
                       <MobileStudentList
                         students={currentStudents}
