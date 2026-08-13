@@ -29,13 +29,6 @@ const CARD_ENTER_STAGGER_SECONDS = 0.04;
 const MAX_CARD_STAGGER_SECONDS = 0.08;
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 const EASE_IN = [0.7, 0, 0.84, 0] as const;
-const STATUS_LABELS: Record<string, string> = {
-  present: 'มาเรียน',
-  absent: 'ขาดเรียน',
-  late: 'มาสาย',
-  leave: 'ลา',
-  internship: 'ฝึกงาน',
-};
 
 interface StatusTransition {
   studentId: string;
@@ -356,10 +349,6 @@ const MobileStudentList = ({
             onPageChange={onPageChange}
           />
         )}
-
-        <Box component='span' aria-live='polite' sx={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }}>
-          {statusTransition ? `เลือกสถานะ ${STATUS_LABELS[statusTransition.status]} แล้ว` : ''}
-        </Box>
       </>
     </LazyMotion>
   );
