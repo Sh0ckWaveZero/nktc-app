@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.11-alpine AS deps
+FROM oven/bun:1.4.4-alpine AS deps
 WORKDIR /app/backend-elysia
 
 COPY backend-elysia/package.json backend-elysia/bun.lock ./
@@ -23,7 +23,7 @@ COPY backend-elysia/tsconfig.json ./
 
 RUN bun run build
 
-FROM oven/bun:1.3.11-alpine AS runner
+FROM oven/bun:1.4.4-alpine AS runner
 WORKDIR /app/backend-elysia
 
 ENV NODE_ENV=production

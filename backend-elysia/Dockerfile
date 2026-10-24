@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.10-alpine AS base
+FROM oven/bun:1.4.4-alpine AS base
 WORKDIR /app
 
 # Install dependencies
@@ -20,7 +20,7 @@ COPY tsconfig.json ./
 RUN bun build src/index.ts --outdir ./dist --target bun --minify
 
 # Production image
-FROM oven/bun:1.3.10-alpine AS runner
+FROM oven/bun:1.4.4-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
