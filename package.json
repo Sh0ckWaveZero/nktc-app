@@ -60,7 +60,7 @@
     "backend-elysia"
   ],
   "dependencies": {
-    "body-parser": "^2.3.0",
+    "body-parser": "^2.4.0",
     "esbuild": "^0.28.2",
     "happy-dom": "^20.11.2",
     "minio": "^8.0.7",
