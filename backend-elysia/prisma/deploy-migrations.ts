@@ -7,6 +7,7 @@ import { join, resolve } from "node:path";
 import { Client } from "pg";
 
 const INITIAL_MIGRATION = "20261026143100_init";
+const ACTIVITY_MIGRATION = "20260530220000_add_activity_type_and_note";
 const INITIAL_CHECKSUM = "d78fcce5e80c72ca9093a415df586e296ef949a330dc130a7f320a6ecf8cdb33";
 const CALENDAR_MIGRATION = "20261027140000_academic_calendar";
 const CALENDAR_CHECKSUM = "48b5a4a2706b180db39740314f0a5e85c2a404a2340bbeb9ab6ee40d0c3b8b74";
@@ -114,6 +115,19 @@ export const validateLegacyPendingMigrations = (pending: string[], allowReviewed
   }
 };
 
+/** วางแผน migration หลังรวมประวัติ upstream โดยไม่รัน baseline หรือ activity columns ซ้ำ */
+export const planMigrations = (names: string[], applied: string[]): { bootstrap: string[]; deploy: string[] } => {
+  const isInitialApplied = applied.includes(INITIAL_MIGRATION);
+  const hasEarlierHistory = applied.some((name) => name < INITIAL_MIGRATION);
+  return {
+    bootstrap: !isInitialApplied && !hasEarlierHistory ? [INITIAL_MIGRATION] : [],
+    deploy: names.filter((name) =>
+      (name !== INITIAL_MIGRATION || isInitialApplied || !hasEarlierHistory)
+      && (name !== ACTIVITY_MIGRATION || applied.includes(name)),
+    ),
+  };
+};
+
 const runPrisma = async (args: string[], migrationsDir?: string): Promise<void> => {
   const env = { ...process.env };
   if (migrationsDir) env[MIGRATIONS_DIR_ENV] = migrationsDir;
@@ -174,12 +188,11 @@ const getMigrationNames = async (): Promise<string[]> => {
   return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
 };
 
-const createLegacyDirectory = async (names: string[]): Promise<string> => {
+const createMigrationDirectory = async (names: string[]): Promise<string> => {
   const directory = await mkdtemp(join(tmpdir(), "nktc-prisma-migrations-"));
   try {
     await copyFile(join(MIGRATIONS_DIR, "migration_lock.toml"), join(directory, "migration_lock.toml"));
     for (const name of names) {
-      if (name === INITIAL_MIGRATION) continue;
       await mkdir(join(directory, name));
       await copyFile(join(MIGRATIONS_DIR, name, "migration.sql"), join(directory, name, "migration.sql"));
     }
@@ -201,11 +214,25 @@ const deploy = async (checkOnly: boolean): Promise<void> => {
   try {
     await client.query("SET default_transaction_read_only = on");
     const history = await getMigrationHistory(client, schema);
+    const names = await getMigrationNames();
+    const appliedNames = new Set(history.filter(isApplied).map((row) => row.migration_name));
+    const plan = planMigrations(names, [...appliedNames]);
     const initialApplied = history.some((row) => row.migration_name === INITIAL_MIGRATION && isApplied(row));
     const hasEarlierHistory = history.some((row) => row.migration_name < INITIAL_MIGRATION && isApplied(row));
     if (initialApplied || !hasEarlierHistory) {
-      if (checkOnly) console.log("The normal Prisma migration path will be used.");
-      else await runPrisma(["deploy"]);
+      if (checkOnly) {
+        console.log("The initial schema will precede upstream migrations; duplicate activity columns will be skipped.");
+        return;
+      }
+      for (const migrations of [plan.bootstrap, plan.deploy]) {
+        if (!migrations.length) continue;
+        const directory = await createMigrationDirectory(migrations);
+        try {
+          await runPrisma(["deploy"], directory);
+        } finally {
+          await rm(directory, { recursive: true, force: true });
+        }
+      }
       return;
     }
 
@@ -226,11 +253,9 @@ const deploy = async (checkOnly: boolean): Promise<void> => {
       throw new Error("The failed initial migration is not the expected duplicate Role error.");
     }
     const actualColumns = await validateLegacySchema(client, schema, initialSql);
-    const names = await getMigrationNames();
     if (!names.includes(CALENDAR_MIGRATION)) throw new Error("The calendar migration is missing.");
-    const appliedNames = new Set(history.filter(isApplied).map((row) => row.migration_name));
     const missingHistory = [...appliedNames].filter((name) => !names.includes(name));
-    const pending = names.filter((name) => name !== INITIAL_MIGRATION && !appliedNames.has(name));
+    const pending = plan.deploy.filter((name) => !appliedNames.has(name));
     const allowReviewed = process.env[ALLOW_REVIEWED_ENV];
     if (allowReviewed !== undefined && allowReviewed !== "true" && allowReviewed !== "false") {
       throw new Error(`${ALLOW_REVIEWED_ENV} must be "true" or "false".`);
@@ -269,7 +294,7 @@ const deploy = async (checkOnly: boolean): Promise<void> => {
       console.log("Legacy schema checks passed; no database changes were made.");
       return;
     }
-    const directory = await createLegacyDirectory(names);
+    const directory = await createMigrationDirectory(plan.deploy);
     try {
       if (failedInitial) await runPrisma(["resolve", "--rolled-back", INITIAL_MIGRATION]);
       await runPrisma(["deploy"], directory);

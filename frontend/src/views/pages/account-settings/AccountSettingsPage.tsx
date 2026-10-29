@@ -23,6 +23,7 @@ import TabSecurity from '@/views/pages/account-settings/TabSecurity';
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import FallbackSpinner from '@/@core/components/spinner';
 import { isEmpty } from '@/@core/utils/utils';
 import React from 'react';
@@ -53,6 +54,7 @@ const AccountSettingsPage = () => {
 
   // Hooks
   const auth = useAuth();
+  const { isTeacher } = useRole();
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     event.preventDefault();
     setValue(newValue);
@@ -89,7 +91,7 @@ const AccountSettingsPage = () => {
           <TabPanel sx={{ p: 0 }} value='account'>
             {isEmpty(auth?.user) ? (
               <FallbackSpinner />
-            ) : auth?.user?.role === 'Teacher' ? (
+            ) : isTeacher ? (
               <TabTeacherAccount />
             ) : (
               <TabAccount />

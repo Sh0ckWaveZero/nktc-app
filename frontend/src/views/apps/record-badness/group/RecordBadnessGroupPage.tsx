@@ -11,6 +11,7 @@ import { HiThumbDown } from 'react-icons/hi';
 import Icon from '@/@core/components/icon';
 import TableHeaderGroup from '@/views/apps/record-goodness/TableHeaderGroup';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { useClassrooms, useStudentsSearch } from '@/hooks/queries';
 import { deepOrange } from '@mui/material/colors';
 import DialogAddGroup from '@/views/apps/record-badness/DialogAddGroup';
@@ -29,6 +30,7 @@ export interface DialogTitleProps {
 
 const RecordBadnessGroupPage = () => {
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
 
   const [students, setStudents] = useState<any>([]);
@@ -249,7 +251,7 @@ const RecordBadnessGroupPage = () => {
 
   return (
     ability?.can('read', 'report-badness-group-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

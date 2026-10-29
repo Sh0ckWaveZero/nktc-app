@@ -15,7 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import { HumanMaleBoard } from 'mdi-material-ui';
-import React, { Fragment, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import React, { Fragment, useCallback, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useResponsive } from '@/@core/hooks/useResponsive';
 import { AppTeacherDataGrid } from '@/@core/components/data-grid/AppListDataGrid';
 import { AppListCard, AppListCardHeader, type ListSummaryItem } from '@/@core/components/list-page';
@@ -36,7 +36,9 @@ import { getColumns } from '@/views/apps/teacher/list/utils/getColumns';
 import { PAGE_SIZE_OPTIONS } from '@/views/apps/teacher/list/constants';
 import httpClient from '@/@core/utils/http';
 import { authConfig } from '@/configs/auth';
-import { useImportTeachers, type TeacherImportResult } from '@/hooks/queries';
+import { useImportTeachers, useResetMfaForAdmin, useResetPasskeyForAdmin, type TeacherImportResult } from '@/hooks/queries';
+import ConfirmResetDialog from '@/views/apps/user/view/ConfirmResetDialog';
+import { type Teacher, getFullName } from '@/views/apps/teacher/list/utils/teacherUtils';
 
 const getErrorMessage = (error: any, fallback: string) => {
   if (typeof error?.response?.data?.message === 'string') {
@@ -135,6 +137,26 @@ const TeacherListPage = () => {
     refreshTeachers,
   } = useTeacherList();
   const { mutate: importTeachers, isPending: isImporting } = useImportTeachers();
+  const resetMfaMutation = useResetMfaForAdmin();
+  const resetPasskeyMutation = useResetPasskeyForAdmin();
+  const [resetTarget, setResetTarget] = useState<{ teacher: Teacher; type: 'mfa' | 'passkey' } | null>(null);
+
+  const handleResetMfa = useCallback((teacher: Teacher) => setResetTarget({ teacher, type: 'mfa' }), []);
+  const handleResetPasskey = useCallback((teacher: Teacher) => setResetTarget({ teacher, type: 'passkey' }), []);
+
+  const handleConfirmSecurityReset = async () => {
+    if (!resetTarget) return;
+    const { teacher, type } = resetTarget;
+    const mutation = type === 'mfa' ? resetMfaMutation : resetPasskeyMutation;
+    try {
+      await mutation.mutateAsync(teacher.id);
+      toast.success(type === 'mfa' ? 'รีเซ็ต MFA สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่' : 'รีเซ็ต Passkey สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่');
+      setResetTarget(null);
+      refreshTeachers();
+    } catch (error: any) {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการรีเซ็ต'));
+    }
+  };
   const activeTeacherCount = useMemo(
     () => teachers.filter((teacher) => String(teacher.status).toLowerCase() === 'active').length,
     [teachers],
@@ -176,10 +198,13 @@ const TeacherListPage = () => {
         handleEdit,
         handleDelete,
         handleChangePassword,
+        handleResetMfa,
+        handleResetPasskey,
+        isAdmin,
         onAddClassroom: handleAddClassroom,
         theme,
       }),
-    [handleEdit, handleDelete, handleChangePassword, handleAddClassroom, isMobile, theme],
+    [handleEdit, handleDelete, handleChangePassword, handleResetMfa, handleResetPasskey, isAdmin, handleAddClassroom, isMobile, theme],
   );
 
   const handleDownloadTemplate = async () => {
@@ -372,6 +397,9 @@ const TeacherListPage = () => {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onChangePassword={handleChangePassword}
+                        onResetMfa={handleResetMfa}
+                        onResetPasskey={handleResetPasskey}
+                        isAdmin={isAdmin}
                         onAddClassroom={handleAddClassroom}
                       />
                     ))}
@@ -461,6 +489,28 @@ const TeacherListPage = () => {
           />
         </Box>
       )}
+      <ConfirmResetDialog
+        dialogId='teacher-reset-mfa'
+        open={resetTarget?.type === 'mfa'}
+        title={`รีเซ็ต MFA ของ ${resetTarget?.teacher ? getFullName(resetTarget.teacher) : ''}`}
+        description='การรีเซ็ตจะลบรหัส TOTP และรหัสสำรองทั้งหมดของผู้ใช้รายนี้ ผู้ใช้จะต้องตั้งค่า MFA ใหม่อีกครั้ง'
+        warning='ผู้ใช้จะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต MFA'
+        loading={resetMfaMutation.isPending}
+        onConfirm={handleConfirmSecurityReset}
+        onClose={() => setResetTarget(null)}
+      />
+      <ConfirmResetDialog
+        dialogId='teacher-reset-passkey'
+        open={resetTarget?.type === 'passkey'}
+        title={`รีเซ็ต Passkey ของ ${resetTarget?.teacher ? getFullName(resetTarget.teacher) : ''}`}
+        description='การรีเซ็ตจะลบ passkey ทั้งหมดของผู้ใช้รายนี้ ผู้ใช้จะต้องลงทะเบียน passkey ใหม่อีกครั้ง'
+        warning='ผู้ใช้จะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต Passkey'
+        loading={resetPasskeyMutation.isPending}
+        onConfirm={handleConfirmSecurityReset}
+        onClose={() => setResetTarget(null)}
+      />
       {openDialogDelete && (
         <Box id='teacher-delete-dialog-container'>
           <DialogDeleteTeacher

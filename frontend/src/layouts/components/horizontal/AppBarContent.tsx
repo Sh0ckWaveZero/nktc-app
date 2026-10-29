@@ -6,6 +6,7 @@ import { Settings } from '@/@core/context/settingsContext';
 
 // ** Components
 import ModeToggler from '@/@core/layouts/components/shared-components/ModeToggler';
+import TextSizeControls from '@/@core/layouts/components/shared-components/TextSizeControls';
 import UserDropdown from '@/layouts/components/UserDropdown';
 import AcademicYearSwitcher from '@/layouts/components/academic-year-switcher';
 
@@ -20,6 +21,7 @@ const AppBarContent = (props: Props) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <AcademicYearSwitcher />
+      <TextSizeControls />
       <ModeToggler settings={settings} saveSettings={saveSettings} />
       <UserDropdown settings={settings} />
     </Box>

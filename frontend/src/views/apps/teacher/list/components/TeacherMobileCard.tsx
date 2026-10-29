@@ -24,6 +24,9 @@ interface TeacherMobileCardProps {
   onEdit: (teacher: Teacher) => void;
   onDelete: (teacher: Teacher) => void;
   onChangePassword: (teacher: Teacher) => void;
+  onResetMfa?: (teacher: Teacher) => void;
+  onResetPasskey?: (teacher: Teacher) => void;
+  isAdmin?: boolean;
   onAddClassroom: (teacher: Teacher) => void;
 }
 
@@ -34,7 +37,7 @@ const InfoLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const TeacherMobileCard = React.memo(
-  ({ teacher, onEdit, onDelete, onChangePassword, onAddClassroom }: TeacherMobileCardProps) => {
+  ({ teacher, onEdit, onDelete, onChangePassword, onResetMfa, onResetPasskey, isAdmin, onAddClassroom }: TeacherMobileCardProps) => {
     const theme = useTheme();
     const displayData = getTeacherDisplayData(teacher);
     const fullName = getFullName(teacher);
@@ -92,6 +95,9 @@ const TeacherMobileCard = React.memo(
             handleEdit={onEdit}
             handleDelete={onDelete}
             handleChangePassword={onChangePassword}
+            handleResetMfa={onResetMfa}
+            handleResetPasskey={onResetPasskey}
+            isAdmin={isAdmin}
           />
         </Box>
 

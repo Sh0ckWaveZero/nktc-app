@@ -1,9 +1,8 @@
-/**
- * Get Home URL based on User Roles
- */
+import { Roles } from '@/configs/roles';
+
 export const getHomeRoute = (role: string): string => {
-  if (role === 'Teacher') return '/home';
-  if (role === 'Student') return '/apps/student/overview';
+  if (role === Roles.Teacher) return '/home';
+  if (role === Roles.Student) return '/apps/student/overview';
   return '/home';
 };
 

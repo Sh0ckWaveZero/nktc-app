@@ -6,27 +6,7 @@ import { academicYearExtension } from "./academic-year-extension";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
-// Parse database URL for logging (hide password)
-function parseDbUrl(url: string): { host: string; port: string; database: string } {
-  try {
-    const parsed = new URL(url);
-    return {
-      host: parsed.hostname,
-      port: parsed.port || "5432",
-      database: parsed.pathname.slice(1),
-    };
-  } catch {
-    return { host: "unknown", port: "5432", database: "unknown" };
-  }
-}
-
-const dbInfo = parseDbUrl(DATABASE_URL || "");
-
-logger.info("🗄️ Initializing database connection", {
-  host: dbInfo.host,
-  port: dbInfo.port,
-  database: dbInfo.database,
-});
+logger.info("🗄️ Initializing database connection");
 
 // The adapter must create its own pool when multiple versions of pg are installed.
 const adapter = new PrismaPg(
@@ -63,7 +43,6 @@ export const prisma = unscopedPrisma.$extends(academicYearExtension);
 if (process.env.NODE_ENV === "development") {
   unscopedPrisma.$on("query", (e) => {
     logger.debug("Query executed", {
-      query: e.query.substring(0, 200),
       duration: `${e.duration}ms`,
     });
   });
@@ -82,14 +61,9 @@ async function testConnection() {
   try {
     await prisma.$connect();
     await prisma.$queryRaw`SELECT 1`;
-    logger.info("✅ Database connected successfully", {
-      host: dbInfo.host,
-      database: dbInfo.database,
-    });
+    logger.info("✅ Database connected successfully");
   } catch (error) {
     logger.error("❌ Database connection failed", {
-      host: dbInfo.host,
-      database: dbInfo.database,
       error: error instanceof Error ? error.message : String(error),
     });
   }

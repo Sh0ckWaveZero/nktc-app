@@ -4,7 +4,7 @@ import AclGuard from '@/@core/components/auth/AclGuard';
 
 export const metadata: Metadata = {
   title: 'สถิติการใช้งานระบบตามเทอม',
-  description: 'สถิติการใช้งานระบบตามเทอม - NKTC',
+  description: 'สถิติการใช้งานระบบตามเทอม',
 };
 
 export default function Page() {

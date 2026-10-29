@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authConfig } from '@/configs/auth';
 import httpClient from '@/@core/utils/http';
 import { queryKeys } from '@/libs/react-query/queryKeys';
+import { authClient } from '@/libs/better-auth/client';
 
 interface LoginParams {
   username: string;
@@ -103,9 +104,10 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      if (authConfig.logoutEndpoint) {
-        await httpClient.post(authConfig.logoutEndpoint);
-      }
+      await Promise.allSettled([
+        authConfig.logoutEndpoint ? httpClient.post(authConfig.logoutEndpoint) : Promise.resolve(),
+        authClient.signOut(),
+      ]);
     },
     onSuccess: () => {
       // Clear localStorage

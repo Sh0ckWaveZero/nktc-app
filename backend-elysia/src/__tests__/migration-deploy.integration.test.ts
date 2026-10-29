@@ -9,13 +9,19 @@ const initialName = "20261026143100_init";
 const initialChecksum = "d78fcce5e80c72ca9093a415df586e296ef949a330dc130a7f320a6ecf8cdb33";
 const calendarName = "20261027140000_academic_calendar";
 const calendarChecksum = "48b5a4a2706b180db39740314f0a5e85c2a404a2340bbeb9ab6ee40d0c3b8b74";
+const upstreamNames: string[] = [
+  "20260101000000_baseline",
+  "20260811124000_add_auth_mfa_passkeys",
+  "20260812113000_add_system_setting",
+];
+const academicYearName = "20261028090000_academic_years";
 const schemas: string[] = [];
 const quote = (value: string): string => `"${value.replaceAll('"', '""')}"`;
 
 const runDeploy = async (url: string, args: string[] = []) => {
   const child = Bun.spawn([process.execPath, "prisma/deploy-migrations.ts", ...args], {
     cwd: root,
-    env: { ...process.env, DATABASE_URL: url },
+    env: { ...process.env, DATABASE_URL: url, NKTC_ALLOW_REVIEWED_LEGACY_MIGRATIONS: "true" },
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -94,7 +100,9 @@ describe.skipIf(!databaseUrl)("migration deployment with PostgreSQL", () => {
       `SELECT migration_name FROM ${quote(schema)}."_prisma_migrations"
        WHERE finished_at IS NOT NULL ORDER BY migration_name`,
     );
-    expect(rows.map((row) => row.migration_name)).toEqual([initialName, calendarName]);
+    expect(rows.map((row) => row.migration_name)).toEqual([...upstreamNames, initialName, calendarName, academicYearName]);
+    const repeat = await runDeploy(url);
+    expect(repeat.exitCode, repeat.stderr).toBe(0);
   }, 30_000);
 
   it("rolls back only the failed history entry and preserves legacy data", async () => {

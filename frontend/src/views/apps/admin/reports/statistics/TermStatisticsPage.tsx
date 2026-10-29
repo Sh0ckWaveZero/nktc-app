@@ -11,12 +11,7 @@ import { MdAssessment } from 'react-icons/md';
 import * as XLSX from 'xlsx';
 
 import ThaiDatePicker from '@/@core/components/mui/date-picker-thai';
-import {
-  formatDateForAPI,
-  formatThaiDate,
-  getEndOfMonth,
-  getStartOfMonth,
-} from '@/@core/components/mui/date-picker-thai/utils';
+import { formatDateForAPI, formatThaiDate } from '@/@core/components/mui/date-picker-thai/utils';
 import { useDepartments, usePrograms, useTermStatistics, type DailyBreakdownDatum } from '@/hooks/queries';
 
 import AttendanceChart from './components/AttendanceChart';
@@ -29,6 +24,7 @@ import TeacherUsageChart from './components/TeacherUsageChart';
 const PANEL_RADIUS = 14;
 const SECTION_RADIUS = 12;
 const CONTROL_RADIUS = 10;
+const ACADEMIC_YEAR_START_MONTH_INDEX = 4;
 
 const HeroCard = styled(Card)(({ theme }) => ({
   position: 'relative',
@@ -184,6 +180,14 @@ const findBestAndWorstDay = (dailyBreakdown: DailyBreakdownDatum[]) => {
   };
 };
 
+const getDefaultStatisticsStartDate = (): Date => {
+  const today = new Date();
+  const startYear =
+    today.getMonth() >= ACADEMIC_YEAR_START_MONTH_INDEX ? today.getFullYear() : today.getFullYear() - 1;
+
+  return new Date(startYear, ACADEMIC_YEAR_START_MONTH_INDEX, 1);
+};
+
 const StatisticsSkeleton = () => (
   <Grid container spacing={3}>
     <Grid size={12}>
@@ -211,8 +215,8 @@ const StatisticsSkeleton = () => (
 );
 
 const TermStatisticsPage = () => {
-  const [termStartDate, setTermStartDate] = useState<Date | null>(getStartOfMonth());
-  const [termEndDate, setTermEndDate] = useState<Date | null>(getEndOfMonth());
+  const [termStartDate, setTermStartDate] = useState<Date | null>(() => getDefaultStatisticsStartDate());
+  const [termEndDate, setTermEndDate] = useState<Date | null>(() => new Date());
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [programFilter, setProgramFilter] = useState<string>('all');
 

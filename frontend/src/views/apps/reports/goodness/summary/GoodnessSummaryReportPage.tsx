@@ -29,6 +29,7 @@ import { goodnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import TimelineGoodness from '@/views/apps/student/view/TimelineGoodness';
 import ConfirmDialog, { type ConfirmDialogOptions } from '@/@core/components/dialogs/ConfirmDialog';
 import { SectionBox } from '@/@core/components/filter-panel';
@@ -54,7 +55,7 @@ const GoodnessSummaryReportPage = () => {
   // ** Hooks
   const { user }: any = useAuth();
   const ability = useContext(AbilityContext);
-  const isAdmin = user?.role === 'Admin';
+  const { isAdmin } = useRole();
 
   const { deleteGoodnessIndividualById, resetAllGoodnessRecords, summary }: any = goodnessIndividualStore(
     (state: any) => ({

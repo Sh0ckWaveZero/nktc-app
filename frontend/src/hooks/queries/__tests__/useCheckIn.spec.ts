@@ -4,7 +4,7 @@ import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import httpClient from '@/@core/utils/http';
-import { aggregateCheckInReports, useCheckInReportsByClassrooms } from '../useCheckIn';
+import { aggregateCheckInReports, useCheckInReportsByClassrooms, useDeleteCheckIn } from '../useCheckIn';
 
 vi.mock('@/@core/utils/http', () => ({
   default: {
@@ -102,5 +102,19 @@ describe('useCheckIn', () => {
     expect(result.current.data.absent).toHaveLength(3);
     expect(result.current.data.leave).toHaveLength(1);
     expect(result.current.data.totalChecked).toBe(8);
+  });
+
+  it('deletes a saved check-in record by id', async () => {
+    vi.mocked(httpClient.delete).mockResolvedValueOnce({ data: { success: true } } as never);
+
+    const { result } = renderHook(() => useDeleteCheckIn(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate('report-1');
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(httpClient.delete).toHaveBeenCalledWith('/reportCheckIn/report-1');
   });
 });

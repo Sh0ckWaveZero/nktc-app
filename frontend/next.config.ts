@@ -8,13 +8,14 @@ const nextConfig = {
   // Basic Configuration
   trailingSlash: true,
   reactStrictMode: false,
-  output: 'standalone',
+  output: process.env.NEXT_STANDALONE === 'false' ? undefined : 'standalone',
 
   // Cross-Origin Configuration for Development
   allowedDevOrigins: [
     'app-test.midseelee.com',
     'localhost',
     '127.0.0.1',
+    '192.168.100.197',
   ],
 
   // Performance & Optimization

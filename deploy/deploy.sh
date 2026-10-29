@@ -67,6 +67,13 @@ migrate() {
   compose run --rm backend bun run prisma:migrate:deploy
 }
 
+migrate_baseline() {
+  log "Marking baseline migration as applied (first-time setup only)"
+  compose run --rm backend bunx --bun prisma migrate resolve --applied 20260101000000_baseline
+  log "Running prisma migrate deploy"
+  compose run --rm backend bun run prisma:migrate:deploy
+}
+
 up() {
   log "Starting services"
   compose up -d --no-build
@@ -131,7 +138,11 @@ case "$ACTION" in
   logs)
     logs
     ;;
+  migrate:baseline)
+    ensure_network
+    migrate_baseline
+    ;;
   *)
-    fail "Unknown action: $ACTION. Use deploy, build, migrate, up, down, ps, or logs."
+    fail "Unknown action: $ACTION. Use deploy, build, migrate, migrate:baseline, up, down, ps, or logs."
     ;;
 esac

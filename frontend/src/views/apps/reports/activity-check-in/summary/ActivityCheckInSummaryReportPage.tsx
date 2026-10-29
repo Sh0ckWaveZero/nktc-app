@@ -12,8 +12,10 @@ import { useRouter } from 'next/navigation';
 import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/activity-check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -27,6 +29,7 @@ const ACTIVITY_TYPES = [
 
 const ActivityCheckInSummaryReportPage = () => {
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -58,7 +61,7 @@ const ActivityCheckInSummaryReportPage = () => {
       classroomId: classroom ? classroom : classroomName.id,
       activityType: actType,
     }).then(async (data: any) => {
-      const students = await data;
+      const students = sortStudentRecordsByStudentId(await data);
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: Array.isArray(students) && students.length > 0 ? students.length : 10 });
       setLoading(false);
@@ -74,7 +77,7 @@ const ActivityCheckInSummaryReportPage = () => {
       });
     };
 
-    if (ability?.can('read', 'summary-check-in-report-activity-page') && auth?.user?.role !== 'Admin') {
+    if (ability?.can('read', 'summary-check-in-report-activity-page') && !isAdmin) {
       if (isEmpty(auth?.user?.teacherOnClassroom)) {
         toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
         router.push('/pages/account-settings');
@@ -261,7 +264,7 @@ const ActivityCheckInSummaryReportPage = () => {
 
   return (
     ability?.can('read', 'summary-check-in-report-activity-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

@@ -52,6 +52,7 @@ export default [
         HTMLOptionElement: 'readonly',
         HTMLFormElement: 'readonly',
         HTMLLIElement: 'readonly',
+        HTMLUListElement: 'readonly',
 
         // Web APIs
         IntersectionObserver: 'readonly',

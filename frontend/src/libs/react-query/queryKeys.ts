@@ -183,8 +183,17 @@ export const userKeys = {
   details: () => [...userKeys.all, 'detail'] as const,
   detail: (id: string) => [...userKeys.details(), id] as const,
   current: () => [...userKeys.all, 'current'] as const,
+  security: (id: string) => [...userKeys.detail(id), 'security'] as const,
   auditLogs: (userName: string, skip?: number, take?: number) =>
     [...userKeys.all, 'audit-logs', userName, { skip, take }] as const,
+};
+
+/**
+ * System Settings Query Keys
+ */
+export const systemSettingsKeys = {
+  all: ['system-settings'] as const,
+  config: () => [...systemSettingsKeys.all, 'config'] as const,
 };
 
 /**
@@ -215,6 +224,7 @@ export const queryKeys = {
   badness: badnessKeys,
   visits: visitKeys,
   users: userKeys,
+  systemSettings: systemSettingsKeys,
 } as const;
 
 /**

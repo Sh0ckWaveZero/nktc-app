@@ -3,7 +3,7 @@ import { jwt } from "@elysiajs/jwt";
 import { prisma } from "@/libs/prisma";
 import { UnauthorizedError } from "@/libs/errors";
 
-export type JwtPayload = { sub: string; username: string; roles: string };
+export type JwtPayload = { id: string; sub: string; username: string; roles: string };
 
 type CacheEntry = { user: JwtPayload; expiresAt: number };
 const userCache = new Map<string, CacheEntry>();
@@ -25,7 +25,7 @@ export const authGuard = new Elysia({ name: "auth-guard" })
       return { user: null };
     }
 
-    const sub = payload.sub as string;
+    const sub = (payload.sub || payload.id) as string;
     const cached = userCache.get(sub);
     if (cached && cached.expiresAt > Date.now()) {
       return { user: cached.user };
@@ -43,7 +43,7 @@ export const authGuard = new Elysia({ name: "auth-guard" })
       return { user: null };
     }
 
-    const user: JwtPayload = { sub: dbUser.id, username: dbUser.username, roles: dbUser.role as string };
+    const user: JwtPayload = { id: dbUser.id, sub: dbUser.id, username: dbUser.username, roles: dbUser.role as string };
     userCache.set(sub, { user, expiresAt: Date.now() + CACHE_TTL_MS });
     return { user };
   })

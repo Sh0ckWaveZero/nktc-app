@@ -60,8 +60,9 @@ export const useAuditLogs = (params: AuditLogParams) => {
  *
  * const handleSubmit = (data) => {
  *   changePassword({
- *     old_password: data.currentPassword,
- *     new_password: data.newPassword
+ *     currentPassword: data.currentPassword,
+ *     newPassword: data.newPassword,
+ *     confirmPassword: data.confirmNewPassword
  *   }, {
  *     onSuccess: () => {
  *       toast.success('Password changed successfully');

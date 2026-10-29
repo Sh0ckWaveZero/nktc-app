@@ -83,6 +83,18 @@ const SettingsInnerProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+const UserScopedSettingsProvider = ({ children }: { children: ReactNode }) => {
+  const auth = use(AuthContext);
+  const userIdentity = auth.user?.id ?? auth.user?.username ?? 'guest';
+  const storageKey = `nktc-settings:${encodeURIComponent(userIdentity)}`;
+
+  return (
+    <SettingsProvider key={storageKey} storageKey={storageKey}>
+      {children}
+    </SettingsProvider>
+  );
+};
+
 // ** Toast Container Wrapper Component
 const ToastContainerWrapper = ({ children }: { children: ReactNode }) => {
   const isClient = useSyncExternalStore(
@@ -143,9 +155,9 @@ export default function Providers({ children, emotionCache = clientSideEmotionCa
           <AuthProvider>
             <ACLProvider>
               <AxiosInterceptor>
-                <SettingsProvider>
+                <UserScopedSettingsProvider>
                   <SettingsInnerProvider>{children}</SettingsInnerProvider>
-                </SettingsProvider>
+                </UserScopedSettingsProvider>
               </AxiosInterceptor>
             </ACLProvider>
           </AuthProvider>

@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Typography, Chip, Paper, CircularProgress } from '@mui/material';
+import { Box, Checkbox, Chip, CircularProgress, Typography } from '@mui/material';
 import RenderAvatar from '@/@core/components/avatar';
 import { TableEmptyState } from '@/@core/components/check-in/CustomNoRowsOverlay';
+import SHAPE_TOKENS from '@/@core/theme/tokens/shape';
 import {
-  CheckboxStyled,
   TableContainerCustom,
   TableCustom,
   TableHeadCustom,
@@ -156,13 +156,14 @@ const CheckInDataGrid = ({
       id='checkin-students-datagrid'
       sx={{
         width: '100%',
-        height: '100%',
         minHeight: 400,
         display: 'flex',
         flexDirection: 'column',
+        borderRadius: SHAPE_TOKENS.surface,
+        overflow: 'hidden',
       }}
     >
-      <TableContainerCustom id='checkin-students-table-container' component={Paper}>
+      <TableContainerCustom id='checkin-students-table-container' component='div'>
         <TableCustom id='checkin-students-table' stickyHeader size='small'>
           <TableHeadCustom id='checkin-students-table-head'>
             <TableHeaderRowCustom id='checkin-students-table-header-row'>
@@ -214,7 +215,7 @@ const CheckInDataGrid = ({
                       >
                         {column.label}
                       </Typography>
-                      <CheckboxStyled
+                      <Checkbox
                         id={`checkin-${column.field}-select-all`}
                         color={column.color}
                         checked={state.checkAll || false}
@@ -339,7 +340,7 @@ const CheckInDataGrid = ({
                           }}
                           onClick={() => !hasSavedCheckIn && handleCellClick(column.field, row)}
                         >
-                          <CheckboxStyled
+                          <Checkbox
                             id={`checkin-${column.field}-${row.id}`}
                             color={column.color}
                             checked={state.checks.includes(row.id) || false}

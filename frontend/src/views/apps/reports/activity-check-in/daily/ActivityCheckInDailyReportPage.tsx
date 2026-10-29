@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { DataGrid, gridClasses, GridColDef } from '@mui/x-data-grid';
 import CustomChip from '@/@core/components/mui/chip';
-import { useActivityCheckInStore } from '@/store/apps/activity-check-in';
+import { useReportCheckInStore } from '@/store/apps/report-check-in';
 import { useTeacherStudents } from '@/hooks/queries/useTeachers';
 import { useEffectOnce } from '@/hooks/userCommon';
 import { toast } from 'react-toastify';
@@ -39,8 +39,10 @@ import {
 import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import React from 'react';
 import { toApiDate } from '@/utils/datetime';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -67,13 +69,38 @@ const checkInStatueColor: any = {
 };
 
 const checkInStatueName: any = {
-  present: 'เข้าร่วม',
-  absent: 'ไม่เข้าร่วม',
+  present: 'มาเรียน',
+  absent: 'ขาดเรียน',
   late: 'มาสาย',
   leave: 'ลา',
   notCheckIn: 'ยังไม่เช็คชื่อ',
   none: 'ยังไม่เช็คชื่อ',
   internship: 'นักศึกษาฝึกงาน',
+};
+
+const REPORT_CHECK_IN_STATUSES = ['present', 'absent', 'late', 'leave', 'internship'] as const;
+
+const buildUpdatedReportStatusBuckets = (reportCheckInData: any, selectedStatus: string, studentRecordId: string) => {
+  const buckets = REPORT_CHECK_IN_STATUSES.reduce(
+    (result, status) => ({
+      ...result,
+      [status]: Array.isArray(reportCheckInData?.[status]) ? [...reportCheckInData[status]] : [],
+    }),
+    {} as Record<(typeof REPORT_CHECK_IN_STATUSES)[number], string[]>,
+  );
+
+  if (!REPORT_CHECK_IN_STATUSES.includes(selectedStatus as (typeof REPORT_CHECK_IN_STATUSES)[number])) {
+    return buckets;
+  }
+
+  REPORT_CHECK_IN_STATUSES.forEach((status) => {
+    buckets[status] = buckets[status].filter((id) => id !== studentRecordId);
+  });
+
+  const status = selectedStatus as (typeof REPORT_CHECK_IN_STATUSES)[number];
+  buckets[status] = [...buckets[status], studentRecordId];
+
+  return buckets;
 };
 
 const NORMAL_OPACITY = 0.2;
@@ -106,6 +133,7 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 
 const ActivityCheckInDailyReportPage = () => {
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -113,23 +141,21 @@ const ActivityCheckInDailyReportPage = () => {
   const teacherId = auth?.user?.teacher?.id as string;
   const { data: teacherData, isLoading: isLoadingTeacherData } = useTeacherStudents(teacherId);
 
-  const { findDailyReport, updateActivityCheckIn, removeActivityCheckIn, addActivityCheckIn }: any =
-    useActivityCheckInStore(
-      (state) => ({
-        findDailyReport: state.findDailyReport,
-        updateActivityCheckIn: state.updateActivityCheckIn,
-        removeActivityCheckIn: state.removeActivityCheckIn,
-        addActivityCheckIn: state.addActivityCheckIn,
-      }),
-      shallow,
-    );
+  const { findDailyReport, updateReportCheckIn, removeReportCheckIn, addReportCheckIn }: any = useReportCheckInStore(
+    (state) => ({
+      findDailyReport: state.findDailyReport,
+      updateReportCheckIn: state.updateReportCheckIn,
+      removeReportCheckIn: state.removeReportCheckIn,
+      addReportCheckIn: state.addReportCheckIn,
+    }),
+    shallow,
+  );
 
   const [currentStudents, setCurrentStudents] = useState<any>([]);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [defaultClassroom, setDefaultClassroom] = useState<any>(null);
   const [classrooms, setClassrooms] = useState<any>([]);
   const [selectedDate, setDateSelected] = useState<Date | null>(new Date());
-  const [activityType, setActivityType] = useState<string>('CLUB');
   const [loading, setLoading] = useState<boolean>(true);
   const [openEditDrawer, setOpenEditDrawer] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -140,13 +166,12 @@ const ActivityCheckInDailyReportPage = () => {
   const isLoading = isLoadingTeacherData || loading;
 
   // Fetch daily report
-  const fetchDailyReport = async (date: Date | null = null, classroom: any = '', selectedActivity: string = '') => {
+  const fetchDailyReport = async (date: Date | null = null, classroom: any = '') => {
     setLoading(true);
     const classroomInfo = classroom || defaultClassroom?.id;
     const dateInfo = date || selectedDate;
-    const activityInfo = selectedActivity || activityType;
 
-    if (!classroomInfo) {
+    if (!classroomInfo || !dateInfo) {
       setLoading(false);
       return;
     }
@@ -156,12 +181,11 @@ const ActivityCheckInDailyReportPage = () => {
         teacherId: auth?.user?.teacher?.id,
         classroomId: classroomInfo,
         startDate: toApiDate(dateInfo as Date),
-        activityType: activityInfo,
       });
 
       const dataArray = Array.isArray(data) ? data : [];
       const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
-      const students = reportCheckInData?.students ?? [];
+      const students = sortStudentRecordsByStudentId(reportCheckInData?.students ?? []);
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
@@ -175,7 +199,7 @@ const ActivityCheckInDailyReportPage = () => {
 
   // Authorization check
   useEffectOnce(() => {
-    if (!ability?.can('read', 'report-check-in-daily-page') || (auth?.user?.role as string) === 'Admin') {
+    if (!ability?.can('read', 'report-check-in-daily-page') || isAdmin) {
       router.push('/401');
       return;
     }
@@ -210,7 +234,7 @@ const ActivityCheckInDailyReportPage = () => {
     setClassrooms(classrooms);
 
     // Fetch daily report for this classroom
-    fetchDailyReport(null, classroom.id, activityType);
+    fetchDailyReport(null, classroom.id);
   }, [teacherData, isLoadingTeacherData]);
 
   const handleOpenEditCheckIn = (param: any): void => {
@@ -222,38 +246,20 @@ const ActivityCheckInDailyReportPage = () => {
     event.preventDefault();
     const classroomId = values?.data?.classroomName?.id;
     const { reportCheckInData } = values?.data || {};
-    let present = Array.isArray(reportCheckInData?.present) ? [...reportCheckInData.present] : [];
-    let absent = Array.isArray(reportCheckInData?.absent) ? [...reportCheckInData.absent] : [];
-
     const studentRecordId = values?.data?.student?.id || values?.data?.id;
-
-    if (values?.isCheckInStatus === 'present') {
-      if (!present.includes(studentRecordId)) {
-        present.push(studentRecordId);
-      }
-      absent = absent.filter((id) => id !== studentRecordId);
-    } else if (values?.isCheckInStatus === 'absent') {
-      if (!absent.includes(studentRecordId)) {
-        absent.push(studentRecordId);
-      }
-      present = present.filter((id) => id !== studentRecordId);
-    }
+    const statusBuckets = buildUpdatedReportStatusBuckets(reportCheckInData, values?.isCheckInStatus, studentRecordId);
 
     const updated = {
       ...reportCheckInData,
-      present,
-      absent,
-      activityType: activityType,
+      ...statusBuckets,
       updateBy: auth?.user?.id,
     };
 
     const created = {
       teacherId: auth?.user?.teacher?.id,
       classroomId,
-      present,
-      absent,
-      activityType: activityType,
-      checkInDate: toApiDate(selectedDate as Date | string),
+      ...statusBuckets,
+      checkInDate: toApiDate(selectedDate ?? new Date()),
       status: '1',
     };
 
@@ -265,11 +271,11 @@ const ActivityCheckInDailyReportPage = () => {
 
     try {
       if (reportCheckInData) {
-        await toast.promise(updateActivityCheckIn(updated), options);
+        await toast.promise(updateReportCheckIn(updated), options);
       } else {
-        await toast.promise(addActivityCheckIn(created), options);
+        await toast.promise(addReportCheckIn(created), options);
       }
-      await fetchDailyReport(selectedDate, classroomId, activityType);
+      await fetchDailyReport(selectedDate, classroomId);
       toggleCloseEditCheckIn();
     } catch (error) {
       console.error('Save failed:', error);
@@ -277,8 +283,9 @@ const ActivityCheckInDailyReportPage = () => {
   };
 
   const handleDateChange = async (date: Date | null) => {
-    setDateSelected(date);
-    await fetchDailyReport(date, defaultClassroom?.id, activityType);
+    const nextDate = date ?? new Date();
+    setDateSelected(nextDate);
+    await fetchDailyReport(nextDate, defaultClassroom?.id);
   };
 
   const handleSelectChange = async (event: any) => {
@@ -289,7 +296,7 @@ const ActivityCheckInDailyReportPage = () => {
     const classroomName: any = classrooms.filter((item: any) => item.name === value)[0];
     setLoading(true);
     setDefaultClassroom(classroomName);
-    await fetchDailyReport(selectedDate, classroomName.id, activityType);
+    await fetchDailyReport(selectedDate, classroomName.id);
   };
 
   const toggleCloseEditCheckIn = () => setOpenEditDrawer(!openEditDrawer);
@@ -299,7 +306,7 @@ const ActivityCheckInDailyReportPage = () => {
   const handleClickOpenDeletedConfirm = () => setOpenDeletedConfirm(true);
 
   const handDeletedConfirm = async () => {
-    toast.promise(removeActivityCheckIn(reportCheckInData?.id), {
+    toast.promise(removeReportCheckIn(reportCheckInData?.id), {
       pending: 'กำลังลบการเช็คชื่อ...',
       success: 'ลบการเช็คชื่อสำเร็จ',
       error: 'เกิดข้อผิดพลาด',
@@ -307,7 +314,7 @@ const ActivityCheckInDailyReportPage = () => {
 
     setOpenDeletedConfirm(false);
     setTimeout(() => {
-      fetchDailyReport(selectedDate, defaultClassroom?.id, activityType);
+      fetchDailyReport(selectedDate, defaultClassroom?.id);
     }, 200);
   };
 
@@ -425,7 +432,7 @@ const ActivityCheckInDailyReportPage = () => {
 
   return (
     ability?.can('read', 'report-check-in-daily-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

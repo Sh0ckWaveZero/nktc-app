@@ -4,13 +4,14 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 
 import AdminHomePage from './AdminHomePage';
 import TeacherHomePage from './TeacherHomePage';
 
 const HomePage = () => {
   const auth = useAuth();
-  const role = auth.user?.role?.toLowerCase();
+  const { isAdmin } = useRole();
 
   if (!auth.isInitialized || auth.loading) {
     return (
@@ -20,7 +21,7 @@ const HomePage = () => {
     );
   }
 
-  return role === 'admin' ? <AdminHomePage /> : <TeacherHomePage />;
+  return isAdmin ? <AdminHomePage /> : <TeacherHomePage />;
 };
 
 export default HomePage;

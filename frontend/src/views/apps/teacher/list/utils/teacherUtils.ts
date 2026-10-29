@@ -17,12 +17,18 @@ export interface TeacherAccount {
   phone?: string;
 }
 
+export interface TeacherAuthUser {
+  twoFactorEnabled?: boolean;
+  _count?: { passkeys?: number };
+}
+
 export interface TeacherUser {
   id: string;
   username: string;
   email?: string;
   role: string;
   account?: TeacherAccount;
+  authUser?: TeacherAuthUser;
 }
 
 export interface Teacher {

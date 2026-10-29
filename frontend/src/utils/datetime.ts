@@ -143,6 +143,10 @@ export function getBuddhistYear(date: Date | string | number): string {
  * toApiDate("2026-04-06T03:01:31.593Z") // "2026-04-06"
  */
 export function toApiDate(date: Date | string | number = new Date()): string {
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
+
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');

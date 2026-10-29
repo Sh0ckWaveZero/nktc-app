@@ -406,6 +406,13 @@ const navigation = (): VerticalNavItemsType => {
       action: 'read',
       subject: 'student-academic-performance-report',
     },
+    {
+      title: 'ศูนย์ความปลอดภัย (Trust Center)',
+      icon: 'mdi:shield-check-outline',
+      path: '/pages/security',
+      action: 'read',
+      subject: 'security-page',
+    },
   ];
 };
 

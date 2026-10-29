@@ -1,18 +1,31 @@
 import { prisma } from "@/libs/prisma";
 import { ConflictError } from "@/libs/errors";
+import { getBangkokDayRange, toStoredCheckInDate } from "@/libs/date";
 
 export abstract class ActivityCheckInService {
 	static async create(data: any) {
 		const { teacherId, classroomId, checkInDate, activityType, ...rest } = data;
 		const actType = activityType ?? "CLUB";
+		const { start, end } = getBangkokDayRange(checkInDate);
 		const existing = await prisma.activityCheckInReport.findFirst({
-			where: { teacherId, classroomId, checkInDate: new Date(checkInDate), activityType: actType },
+			where: {
+				teacherId,
+				classroomId,
+				checkInDate: { gte: start, lte: end },
+				activityType: actType,
+			},
 		});
 		if (existing) {
 			throw new ConflictError("Activity check-in already exists for this date");
 		}
 		return prisma.activityCheckInReport.create({
-			data: { teacherId, classroomId, checkInDate: new Date(checkInDate), activityType: actType, ...rest },
+			data: {
+				teacherId,
+				classroomId,
+				checkInDate: toStoredCheckInDate(checkInDate),
+				activityType: actType,
+				...rest,
+			},
 		});
 	}
 
@@ -20,15 +33,12 @@ export abstract class ActivityCheckInService {
 		// ถ้ามี date ให้กรองเฉพาะวันนั้น ไม่เช่นนั้นจะส่งข้อมูลวันเก่ากลับมาผิดๆ
 		const actType = activityType ?? "CLUB";
 		const baseWhere: any = { teacherId, classroomId, activityType: actType };
-		
+
 		const where = date
 			? (() => {
-				const start = new Date(date);
-				const end = new Date(date);
-				start.setHours(0, 0, 0, 0);
-				end.setHours(23, 59, 59, 999);
-				return { ...baseWhere, checkInDate: { gte: start, lte: end } };
-			})()
+					const { start, end } = getBangkokDayRange(date);
+					return { ...baseWhere, checkInDate: { gte: start, lte: end } };
+				})()
 			: baseWhere;
 
 		const record = await prisma.activityCheckInReport.findFirst({
@@ -39,10 +49,7 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async getByDate(teacherId: string, classroomId: string, date: string, activityType?: string) {
-		const startDate = new Date(date);
-		const endDate = new Date(date);
-		startDate.setHours(0, 0, 0, 0);
-		endDate.setHours(23, 59, 59, 999);
+		const { start: startDate, end: endDate } = getBangkokDayRange(date);
 
 		const teacherUser = await prisma.user.findFirstOrThrow({
 			where: { teacher: { id: teacherId } },
@@ -50,15 +57,29 @@ export abstract class ActivityCheckInService {
 				id: true,
 				username: true,
 				account: {
-					select: { id: true, title: true, firstName: true, lastName: true, avatar: true },
+					select: {
+						id: true,
+						title: true,
+						firstName: true,
+						lastName: true,
+						avatar: true,
+					},
 				},
 				teacher: {
-					select: { id: true, teacherId: true, jobTitle: true, academicStanding: true, status: true },
+					select: {
+						id: true,
+						teacherId: true,
+						jobTitle: true,
+						academicStanding: true,
+						status: true,
+					},
 				},
 			},
 		});
 
-		const classroom = await prisma.classroom.findUnique({ where: { id: classroomId } });
+		const classroom = await prisma.classroom.findUnique({
+			where: { id: classroomId },
+		});
 		if (!classroom) return [];
 
 		const reportCheckIn = await prisma.activityCheckInReport.findFirst({
@@ -77,7 +98,13 @@ export abstract class ActivityCheckInService {
 				username: true,
 				student: { select: { id: true, studentId: true, status: true } },
 				account: {
-					select: { id: true, title: true, firstName: true, lastName: true, avatar: true },
+					select: {
+						id: true,
+						title: true,
+						firstName: true,
+						lastName: true,
+						avatar: true,
+					},
 				},
 			},
 			orderBy: [{ account: { firstName: "asc" } }, { account: { lastName: "asc" } }],
@@ -85,13 +112,7 @@ export abstract class ActivityCheckInService {
 
 		const students = studentsInfo.map((student) => ({
 			...student,
-			checkInStatus: reportCheckIn
-				? reportCheckIn.present.includes(student.student?.id ?? "")
-					? "present"
-					: reportCheckIn.absent.includes(student.student?.id ?? "")
-						? "absent"
-						: "none"
-				: "notCheckIn",
+			checkInStatus: reportCheckIn ? (reportCheckIn.present.includes(student.student?.id ?? "") ? "present" : reportCheckIn.absent.includes(student.student?.id ?? "") ? "absent" : "none") : "notCheckIn",
 			teacher: teacherUser,
 		}));
 
@@ -99,10 +120,8 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async getByDateRange(startDate: string, endDate: string, activityType?: string) {
-		const start = new Date(startDate);
-		const end = new Date(endDate);
-		start.setHours(0, 0, 0, 0);
-		end.setHours(23, 59, 59, 999);
+		const { start } = getBangkokDayRange(startDate);
+		const { end } = getBangkokDayRange(endDate);
 		const selectedActivityType = activityType ?? "CLUB";
 
 		const classrooms = await prisma.classroom.findMany({
@@ -166,21 +185,21 @@ export abstract class ActivityCheckInService {
 
 				const checkInBy = latest?.createdBy
 					? await prisma.user.findFirst({
-						where: { teacher: { id: latest.createdBy } },
-						select: {
-							id: true,
-							username: true,
-							account: {
-								select: {
-									id: true,
-									title: true,
-									firstName: true,
-									lastName: true,
-									avatar: true,
+							where: { teacher: { id: latest.createdBy } },
+							select: {
+								id: true,
+								username: true,
+								account: {
+									select: {
+										id: true,
+										title: true,
+										firstName: true,
+										lastName: true,
+										avatar: true,
+									},
 								},
 							},
-						},
-					})
+						})
 					: null;
 
 				const present = records.reduce((sum, r) => sum + (r.present?.length ?? 0), 0);
@@ -228,10 +247,7 @@ export abstract class ActivityCheckInService {
 					},
 				},
 			},
-			orderBy: [
-				{ account: { firstName: "asc" } },
-				{ account: { lastName: "asc" } },
-			],
+			orderBy: [{ account: { firstName: "asc" } }, { account: { lastName: "asc" } }],
 		});
 
 		const checkIns = await prisma.activityCheckInReport.findMany({
@@ -258,8 +274,7 @@ export abstract class ActivityCheckInService {
 	}
 
 	static async update(id: string, data: any) {
-		const { updateBy, id: _id, teacherId, classroomId, checkInDate, checkInTime,
-			createdAt, updatedAt, createdBy, teacherKey, classroomKey, ...rest } = data;
+		const { updateBy, id: _id, teacherId, classroomId, checkInDate, checkInTime, createdAt, updatedAt, createdBy, teacherKey, classroomKey, ...rest } = data;
 		return prisma.activityCheckInReport.update({
 			where: { id },
 			data: rest,

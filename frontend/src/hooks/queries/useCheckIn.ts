@@ -97,8 +97,6 @@ export const useTeacherClassroomsAndStudents = (teacherId: string) => {
     queryKey: [teacherId, 'teacher-classrooms-students'],
     queryFn: async () => {
       const response = await httpClient.get(`${authConfig.teacherEndpoint}/${teacherId}/classrooms-and-students`);
-      console.log('API Response:', response);
-      console.log('Response data:', response.data);
       return response.data;
     },
     enabled: !!teacherId,
@@ -172,6 +170,24 @@ export const useSaveCheckIn = () => {
         queryKey: [variables.teacherId, 'teacher-classrooms-students'],
       });
     },
+  });
+};
+
+/**
+ * Hook to delete a saved check-in record for development retesting.
+ */
+export const useDeleteCheckIn = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reportId: string) => {
+      const response = await httpClient.delete(`${authConfig.reportCheckInEndpoint}/${reportId}`);
+      return response.data;
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.checkIn.all,
+      }),
   });
 };
 

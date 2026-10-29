@@ -4,7 +4,7 @@ Codebase conventions and commands for agentic coding agents.
 
 ## Project Overview
 
-NKTC Student Management System - Monorepo with Next.js frontend and NestJS backend.
+NKTC Student Management System - Monorepo with Next.js frontend and ElysiaJS backend.
 
 ## Build Commands
 
@@ -17,7 +17,7 @@ bun run dev
 
 # Development (individual)
 bun run dev:frontend    # Next.js on :3000
-bun run dev:backend    # NestJS on :3001
+bun run dev:backend     # ElysiaJS on :3001
 
 # Build
 bun run build
@@ -27,11 +27,11 @@ bun run build:backend
 # Lint
 bun run lint
 cd frontend && bun run lint
-cd backend && bun run lint
+cd backend-elysia && bun run lint
 
 # Format
 cd frontend && bun run format
-cd backend && bun run format
+cd backend-elysia && bun run format
 ```
 
 ## Test Commands
@@ -48,19 +48,18 @@ bun run test -- --run path/to/test.spec.ts  # Run once (no watch)
 bun run test:ui                 # Open Vitest UI
 bun run test:coverage           # Run with coverage
 
-# Backend tests (Jest)
-cd backend
+# Backend tests (Vitest)
+cd backend-elysia
 bun run test                     # Run all tests
 bun run test -- path/to/test.spec.ts  # Run single test file
 bun run test:watch               # Watch mode
 bun run test:cov                 # With coverage
-bun run test:e2e                 # E2E tests
 ```
 
 ## Database Commands
 
 ```bash
-cd backend
+cd backend-elysia
 bun run prisma:generate    # Generate Prisma client
 bun run prisma:migrate     # Run migrations
 bun run prisma:push        # Push schema (dev)
@@ -116,11 +115,16 @@ import { unwrapResponse } from './utils';
 - Use React Query for server state, Zustand for UI state
 - Use React Hook Form + Yup for forms
 
-### Material-UI
+### Material-UI & UI Design Conventions
 
 - Prefer MUI components over custom HTML
 - Use `sx` prop for styling (avoid CSS files)
 - Use MUI breakpoints for responsive design
+- **Backend Framework**: Backend is ElysiaJS (`backend-elysia`), NOT NestJS
+- **MUI v9 Grid**: Do NOT use `item` prop on Grid. Use `<Grid size={{ xs: ..., md: ... }}>` and pass flex alignment in `sx`
+- **MUI Typography**: Do NOT use deprecated `paragraph` prop. Use `gutterBottom` or `sx={{ mb: ... }}`
+- **Icons**: Prefer `@mui/icons-material` or `mdi-material-ui` native SVG React components over string-based Iconify
+- **60-30-10 Color System**: Apply 60-30-10 color ratio (60% Neutral Canvas, 30% Structural Surfaces, 10% Focal Accents), but do not render design-system explanation banners in user-facing UI
 
 ### State Management Pattern
 
@@ -208,7 +212,7 @@ describe('useStudents', () => {
 | `frontend/src/configs/auth.ts` | API endpoints config |
 | `frontend/src/libs/react-query/queryKeys.ts` | Centralized query keys |
 | `frontend/src/hooks/queries/index.ts` | Query hooks exports |
-| `backend/src/database/prisma/schema.prisma` | Database schema |
+| `backend-elysia/src/database/prisma/schema.prisma` | Database schema |
 
 ## Additional Rules
 

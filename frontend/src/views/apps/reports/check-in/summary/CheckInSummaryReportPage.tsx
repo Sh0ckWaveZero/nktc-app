@@ -12,8 +12,10 @@ import { useRouter } from 'next/navigation';
 import { BsBarChartLine } from 'react-icons/bs';
 import TableHeaderSummary from '@/views/apps/reports/check-in/TableHeaderSummary';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -22,6 +24,7 @@ interface CellType {
 const CheckInSummaryReportPage = () => {
   // ** Hooks
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -54,7 +57,7 @@ const CheckInSummaryReportPage = () => {
       teacherId: auth?.user?.teacher?.id,
       classroomId: classroom ? classroom : classroomName.id,
     }).then(async (data: any) => {
-      const students = await data;
+      const students = sortStudentRecordsByStudentId(await data);
       setCurrentStudents(students);
       setPageSize(Array.isArray(students) && students.length > 0 ? students.length : 10);
       setCurrentPage(0);
@@ -72,7 +75,7 @@ const CheckInSummaryReportPage = () => {
       });
     };
     // check permission
-    if (ability?.can('read', 'report-check-in-summary-page') && auth?.user?.role !== 'Admin') {
+    if (ability?.can('read', 'report-check-in-summary-page') && !isAdmin) {
       // check teacher on classroom
       if (isEmpty(auth?.user?.teacherOnClassroom)) {
         toast.error('ไม่พบข้อมูลที่ปรีกษาประจำชั้น');
@@ -365,7 +368,7 @@ const CheckInSummaryReportPage = () => {
 
   return (
     ability?.can('read', 'report-check-in-summary-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

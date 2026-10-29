@@ -14,8 +14,9 @@ import { styled, useTheme } from '@mui/material/styles';
 // ** Type Import
 import { Settings } from '@/@core/context/settingsContext';
 
-// ** Theme Config Import
+// ** Theme Config & Hooks Import
 import themeConfig from '@/configs/themeConfig';
+import { useSystemSettings } from '@/hooks/queries';
 
 interface Props {
   hidden: boolean;
@@ -41,6 +42,7 @@ const AppBarContent = (props: Props) => {
 
   // ** Hooks
   const theme = useTheme();
+  const { settings: systemSettings } = useSystemSettings();
 
   return (
     <Box
@@ -124,7 +126,7 @@ const AppBarContent = (props: Props) => {
                 textTransform: 'uppercase',
               }}
             >
-              {themeConfig.templateName}
+              {systemSettings?.collegeAcronym ? `${systemSettings.collegeAcronym}-SYSTEM` : themeConfig.templateName}
             </Typography>
           </StyledLink>
         </Link>

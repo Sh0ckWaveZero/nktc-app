@@ -9,8 +9,9 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
 
-// ** Configs
+// ** Configs & Hooks
 import themeConfig from '@/configs/themeConfig';
+import { useSystemSettings } from '@/hooks/queries';
 
 const StyledLink = styled('a')(({ theme }) => ({
   display: 'flex',
@@ -22,6 +23,7 @@ const StyledLink = styled('a')(({ theme }) => ({
 const BlankLayoutAppBar = () => {
   // ** Hooks
   const theme = useTheme();
+  const { settings: systemSettings } = useSystemSettings();
 
   return (
     <AppBar elevation={3} color='default' position='sticky'>
@@ -102,7 +104,7 @@ const BlankLayoutAppBar = () => {
                 textTransform: 'uppercase',
               }}
             >
-              {themeConfig.templateName}
+              {systemSettings?.collegeAcronym ? `${systemSettings.collegeAcronym}-SYSTEM` : themeConfig.templateName}
             </Typography>
           </StyledLink>
         </Link>

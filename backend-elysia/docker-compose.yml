@@ -17,10 +17,30 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     logging:
       options:
         max-size: 10m
         max-file: "3"
+    networks:
+      - nktc-network
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${BACKEND_MIGRATE_CONTAINER_NAME:-backend1-migrate}
+    env_file:
+      - .env.prod
+    environment:
+      NODE_ENV: production
+      TZ: Asia/Bangkok
+    command: ["bun", "run", "prisma:migrate:deploy"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
     networks:
       - nktc-network
 

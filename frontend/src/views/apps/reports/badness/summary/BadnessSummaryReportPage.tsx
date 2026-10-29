@@ -30,6 +30,7 @@ import { badnessIndividualStore } from '@/store/index';
 import { shallow } from 'zustand/shallow';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import ConfirmDialog, { type ConfirmDialogOptions } from '@/@core/components/dialogs/ConfirmDialog';
 import { SectionBox } from '@/@core/components/filter-panel';
 import { ToolButton, ToolButtonSlot } from '@/@core/components/toolbar';
@@ -54,7 +55,7 @@ const BadnessSummaryReportPage = () => {
   // ** Hooks
   const { user }: any = useAuth();
   const ability = useContext(AbilityContext);
-  const isAdmin = user?.role === 'Admin';
+  const { isAdmin } = useRole();
 
   const { deleteBadnessIndividualById, resetAllBadnessRecords, summary }: any = badnessIndividualStore(
     (state: any) => ({

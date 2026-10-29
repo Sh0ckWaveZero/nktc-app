@@ -137,6 +137,8 @@ docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run 
 
 การตรวจนี้ไม่ได้ยืนยันว่าดัชนี ค่า default และ foreign key ตรงกันทั้งหมด หากมีไฟล์ migration เก่าขาดไป ให้กู้ไฟล์เดิมที่ตรงกับประวัติและตรวจสอบ schema ก่อนสร้าง migration ใหม่ คำสั่ง `prisma migrate status` โดยตรงอาจยังรายงานประวัติที่ขาดหรือ initial ที่ถูกข้าม; script จะไม่ปิดบังสถานะดังกล่าว สำหรับฐานเดิมให้ใช้ `bun run prisma:migrate:deploy` จาก image ที่ build ใหม่เสมอ ไม่รัน `bunx prisma migrate deploy` โดยตรง เพราะจะพยายามใช้ initial ซ้ำ
 
+หลังรวม upstream ฐานข้อมูลใหม่จะสร้าง schema จาก `20261026143100_init` ก่อน แล้วจึงใช้ migration ของ Auth, System Settings, ปฏิทิน และปีการศึกษา ส่วน `20260530220000_add_activity_type_and_note` จะถูกข้ามเมื่อไม่มีประวัติว่า applied เพราะ initial schema มีคอลัมน์และดัชนีเหล่านี้แล้ว ฐานเดิมต้องผ่านการตรวจ schema ก่อนข้าม migration ที่ซ้ำ โดยไม่แก้ไฟล์ SQL หรือทำเครื่องหมายว่า applied แทนการรัน
+
 script จะหยุดเมื่อพบ migration ใหม่อื่นบนฐานเดิม หากสำรองข้อมูลและตรวจสอบ migration เหล่านั้นแล้วเท่านั้น สามารถอนุญาตเป็นครั้งคราวด้วย `NKTC_ALLOW_REVIEWED_LEGACY_MIGRATIONS=true` อย่านำผล `prisma migrate diff --script` ไปรันโดยอัตโนมัติ เพราะอาจมีคำสั่งลบตารางหรือข้อมูลเดิม
 
 ## 4. Start services บน Intel x86

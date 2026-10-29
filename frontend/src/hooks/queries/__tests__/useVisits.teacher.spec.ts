@@ -59,7 +59,7 @@ describe('useTeacherVisitStudents', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(httpClient.get).toHaveBeenCalledWith('/api/backend/visits/teacher/students', {
+    expect(httpClient.get).toHaveBeenCalledWith('/visits/teacher/students', {
       params: { classroomId: 'class-1', academicYear: '2569' },
     });
     expect(result.current.data).toEqual(mockRows);

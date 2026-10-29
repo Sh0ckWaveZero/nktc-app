@@ -25,6 +25,7 @@ import {
 import { isEmpty } from '@/@core/utils/utils';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { useStudentsSearch } from '@/hooks/queries/useStudents';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/libs/react-query/queryKeys';
@@ -38,6 +39,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 const RecordBadnessIndividualPage = () => {
   // ** Hooks
   const { user } = useAuth();
+  const { isAdmin } = useRole();
   const queryClient = useQueryClient();
 
   // ** State
@@ -64,10 +66,9 @@ const RecordBadnessIndividualPage = () => {
       return [];
     }
 
-    const role = user?.role?.toLowerCase();
     const teacherOnClassroom = user?.teacherOnClassroom;
 
-    if (role === 'admin') {
+    if (isAdmin) {
       return allStudents;
     }
 

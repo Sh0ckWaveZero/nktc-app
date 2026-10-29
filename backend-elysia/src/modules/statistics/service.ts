@@ -110,6 +110,14 @@ export abstract class StatisticsService {
 			...(normalizedProgramId ? { programId: normalizedProgramId } : {}),
 		};
 
+		const hasClassroomScope = Object.keys(classroomWhere).length > 0;
+		const scopedClassrooms = hasClassroomScope
+			? await prisma.classroom.findMany({
+				where: classroomWhere,
+				select: { id: true },
+			})
+			: [];
+		const scopedClassroomIds = scopedClassrooms.map((classroom) => classroom.id);
 		const reportWhere = {
 			...(normalizedStartDate || normalizedEndDate
 				? {
@@ -119,9 +127,12 @@ export abstract class StatisticsService {
 					},
 				}
 				: {}),
-			...(Object.keys(classroomWhere).length > 0
+			...(hasClassroomScope
 				? {
-					classroom: classroomWhere,
+					OR: [
+						{ classroomId: { in: scopedClassroomIds } },
+						{ classroomKey: { in: scopedClassroomIds } },
+					],
 				}
 				: {}),
 		};
@@ -285,14 +296,6 @@ export abstract class StatisticsService {
 			dailyAggregate.internship += report.internship.length;
 
 			dailyMap.set(dateKey, dailyAggregate);
-		}
-
-		const activeTeacherIds = new Set<string>();
-
-		for (const teacher of teachers) {
-			if (activityMap.has(teacher.id)) {
-				activeTeacherIds.add(teacher.id);
-			}
 		}
 
 		const teacherActivityDetails = teachers

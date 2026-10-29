@@ -44,13 +44,15 @@ backend/build/
 # Never commit any .env files - always use .env.example as template
 .env
 .env.local
+.env.prod
+.env.production
 .env.development
 .env.development.local
-.env.production
 .env.production.local
 .env.test
 .env.test.local
-.env*.local
+.env*
+!.env.example
 # Workspace specific env files
 backend/.env
 backend/.env.dev
@@ -171,3 +173,11 @@ $RECYCLE.BIN/
 backend/src/database/generated/*
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+deploy/env/backend.env
+deploy/env/frontend.env
+
+# ===== LOCAL SEED DATA (DO NOT COMMIT TO GIT) =====
+backend-elysia/prisma/*.local.*
+backend-elysia/prisma/seed-local.*
+prisma/*.local.*
+

@@ -44,7 +44,7 @@ type ThemeConfig = {
 
 const themeConfig: ThemeConfig = {
   // ** Layout Configs
-  templateName: 'NKTC-STUDENT' /* App Name */,
+  templateName: 'STUDENT-MANAGEMENT' /* App Name */,
   layout: 'vertical' /* vertical | horizontal */,
   mode: 'dark' /* light | dark */,
   direction: 'ltr' /* ltr | rtl */,

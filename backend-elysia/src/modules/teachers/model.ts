@@ -68,6 +68,12 @@ export const teacherInclude = {
     select: {
       ...userPublicSelect,
       email: true,
+      authUser: {
+        select: {
+          twoFactorEnabled: true,
+          _count: { select: { passkeys: true } },
+        },
+      },
     },
   },
   department: true,

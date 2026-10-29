@@ -8,6 +8,7 @@ import { responsePlugin } from "./plugins/response";
 import { logger } from "./libs/logger";
 import { createLogger } from "./infrastructure/logging";
 import { initializeDatabase } from "./libs/prisma";
+import { auth as betterAuthServer } from "./libs/better-auth";
 
 // Modules
 import { auth } from "./modules/auth";
@@ -31,6 +32,7 @@ import { statics } from "./modules/statics";
 import { academicCalendar } from "./modules/academic-calendar";
 import { academicYears } from "./modules/academic-years";
 import { withAcademicYearRequest } from "./modules/academic-years/request-scope";
+import { systemSettings } from "./modules/system-settings";
 
 const appLogger = createLogger();
 
@@ -142,8 +144,10 @@ const app = new Elysia()
       .use(badnessIndividual)
       .use(academicYears)
       .use(academicCalendar)
-      .use(statics),
-  );
+      .use(statics)
+      .use(systemSettings),
+  )
+  .mount(betterAuthServer.handler);
 
 const server = Bun.serve({
   port: process.env.PORT || 3001,

@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import { getInitials } from '@/@core/utils/get-initials';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import useImageQuery from '@/hooks/useImageQuery';
 import { useRouter } from 'next/navigation';
 
@@ -41,6 +42,7 @@ const UserDropdown = (props: Props) => {
   // ** Hooks
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { isAdmin } = useRole();
 
   // ** Vars
   const { direction } = settings;
@@ -101,7 +103,7 @@ const UserDropdown = (props: Props) => {
   };
 
   const avatarAccount = () => {
-    return user?.role === 'Admin' ? (
+    return isAdmin ? (
       <Avatar alt={user?.username} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
     ) : (
       customAvatar(user?.account)

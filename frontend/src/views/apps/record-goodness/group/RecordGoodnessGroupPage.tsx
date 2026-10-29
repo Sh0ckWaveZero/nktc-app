@@ -24,6 +24,7 @@ import {
   TablePaginationCustom,
 } from '@/@core/components/mui/table';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { useClassrooms, useStudents } from '@/hooks/queries';
 import { toast } from 'react-toastify';
 import { getStudentName, getStudentId, getStudentClassroom } from '@/utils/student';
@@ -37,6 +38,7 @@ export interface DialogTitleProps {
 const RecordGoodnessGroupPage = () => {
   // ** Hooks
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
 
   // ** Local State
@@ -194,7 +196,7 @@ const RecordGoodnessGroupPage = () => {
 
   return (
     ability?.can('read', 'report-goodness-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

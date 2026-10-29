@@ -9,7 +9,7 @@ import { hexToRGBA } from '@/@core/utils/hex-to-rgba';
 
 const GlobalStyles = (theme: Theme, settings: Settings) => {
   // ** Vars
-  const { skin } = settings;
+  const { fontScale, skin } = settings;
 
   return {
     ':root': {
@@ -17,6 +17,7 @@ const GlobalStyles = (theme: Theme, settings: Settings) => {
     },
     html: {
       height: '100%',
+      fontSize: `${fontScale * 100}%`,
       backgroundColor: theme.palette.background.default,
       colorScheme: theme.palette.mode,
     },

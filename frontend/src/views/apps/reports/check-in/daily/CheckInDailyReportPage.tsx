@@ -36,11 +36,13 @@ import {
   AccountLockOutline,
   AlertOctagramOutline,
 } from 'mdi-material-ui';
-import SidebarEditCheckInDrawer from '@/views/apps/reports/check-in/EditCheckInDrawer';
+import SidebarEditCheckInDrawer from '@/views/apps/reports/activity-check-in/EditCheckInDrawer';
 import { shallow } from 'zustand/shallow';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import React from 'react';
 import { toApiDate } from '@/utils/datetime';
+import { sortStudentRecordsByStudentId } from '@/utils/student-sort';
 
 interface CellType {
   row: any;
@@ -112,6 +114,7 @@ const DataGridCustom = styled(DataGrid)(({ theme }) => ({
 
 const CheckInDailyReportPage = () => {
   const auth = useAuth();
+  const { isAdmin } = useRole();
   const ability = useContext(AbilityContext);
   const router = useRouter();
 
@@ -167,7 +170,7 @@ const CheckInDailyReportPage = () => {
 
       const dataArray = Array.isArray(data) ? data : [];
       const reportCheckInData = dataArray.find((item: any) => item.id === classroomInfo);
-      const students = reportCheckInData?.students ?? [];
+      const students = sortStudentRecordsByStudentId(reportCheckInData?.students ?? []);
       setCurrentStudents(students);
       setPaginationModel({ page: 0, pageSize: students.length > 0 ? students.length : 10 });
       setReportCheckInData(reportCheckInData?.reportCheckIn ?? null);
@@ -181,7 +184,7 @@ const CheckInDailyReportPage = () => {
 
   // Authorization check
   useEffectOnce(() => {
-    if (!ability?.can('read', 'daily-check-in-report-activity-page') || (auth?.user?.role as string) === 'Admin') {
+    if (!ability?.can('read', 'daily-check-in-report-activity-page') || isAdmin) {
       router.push('/401');
       return;
     }
@@ -283,8 +286,9 @@ const CheckInDailyReportPage = () => {
   };
 
   const handleDateChange = async (date: Date | null) => {
-    setDateSelected(date);
-    await fetchDailyReport(date, defaultClassroom?.id, activityType);
+    const nextDate = date ?? new Date();
+    setDateSelected(nextDate);
+    await fetchDailyReport(nextDate, defaultClassroom?.id, activityType);
   };
 
   const handleSelectChange = async (event: any) => {
@@ -437,7 +441,7 @@ const CheckInDailyReportPage = () => {
 
   return (
     ability?.can('read', 'daily-check-in-report-activity-page') &&
-    auth?.user?.role !== 'Admin' && (
+    !isAdmin && (
       <React.Fragment>
         <Grid container spacing={6}>
           <Grid size={12}>

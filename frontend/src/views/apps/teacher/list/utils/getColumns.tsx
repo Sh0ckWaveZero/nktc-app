@@ -25,6 +25,9 @@ interface GetColumnsParams {
   handleEdit: (data: Teacher) => void;
   handleDelete: (data: Teacher) => void;
   handleChangePassword: (data: Teacher) => void;
+  handleResetMfa?: (data: Teacher) => void;
+  handleResetPasskey?: (data: Teacher) => void;
+  isAdmin?: boolean;
   onAddClassroom: (teacher: Teacher) => void;
   theme: Theme;
 }
@@ -34,6 +37,9 @@ export const getColumns = ({
   handleEdit,
   handleDelete,
   handleChangePassword,
+  handleResetMfa,
+  handleResetPasskey,
+  isAdmin,
   onAddClassroom,
   theme,
 }: GetColumnsParams): GridColDef<Teacher>[] => [
@@ -314,6 +320,9 @@ export const getColumns = ({
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         handleChangePassword={handleChangePassword}
+        handleResetMfa={handleResetMfa}
+        handleResetPasskey={handleResetPasskey}
+        isAdmin={isAdmin}
       />
     ),
   },

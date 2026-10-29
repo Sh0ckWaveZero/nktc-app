@@ -10,13 +10,18 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 import Icon from '@/@core/components/icon';
-import { useUser } from '@/hooks/queries';
+import { useUser, useUserSecurityStatus, useResetMfaForAdmin, useResetPasskeyForAdmin } from '@/hooks/queries';
+import { useAuth } from '@/hooks/useAuth';
 import UserViewLeft from './UserViewLeft';
+import ConfirmResetDialog from './ConfirmResetDialog';
 import useImageQuery from '@/hooks/useImageQuery';
 
 const LinkStyled = styled(Link)(({ theme }) => ({
@@ -50,20 +55,43 @@ const MuiTabList = styled(TabList)(({ theme }) => ({
 
 const UserViewPage = ({ id }: UserViewPageProps) => {
   const [activeTab, setActiveTab] = useState<string>('overview');
+  const [resetTarget, setResetTarget] = useState<'mfa' | 'passkey' | null>(null);
 
   const theme = useTheme();
   const hideText = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const { user: currentUser } = useAuth();
+  const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
+
   const { data: userData, isLoading, error } = useUser(id);
+  const { data: securityRes, isLoading: securityLoading } = useUserSecurityStatus(id);
+  const resetMfaMutation = useResetMfaForAdmin();
+  const resetPasskeyMutation = useResetPasskeyForAdmin();
 
   // Extract user data (safe to do before conditional returns)
   const user = userData?.data;
+  const security = securityRes?.data;
 
   // Get user image - MUST be called before any conditional returns
   const { image, isLoading: imageLoading } = useImageQuery(user?.account?.avatar || '');
 
   const handleChange = (_event: SyntheticEvent, value: string) => {
     setActiveTab(value);
+  };
+
+  const handleConfirmReset = async () => {
+    if (!resetTarget) return;
+    const isMfa = resetTarget === 'mfa';
+    const mutation = isMfa ? resetMfaMutation : resetPasskeyMutation;
+    const successMsg = isMfa ? 'รีเซ็ต MFA สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่' : 'รีเซ็ต Passkey สำเร็จ ผู้ใช้จะต้องเข้าสู่ระบบใหม่';
+
+    try {
+      await mutation.mutateAsync(id);
+      toast.success(successMsg);
+      setResetTarget(null);
+    } catch (error: any) {
+      toast.error(error?.message || 'เกิดข้อผิดพลาดในการรีเซ็ต');
+    }
   };
 
   // Handle error state
@@ -194,26 +222,142 @@ const UserViewPage = ({ id }: UserViewPageProps) => {
                 </Card>
               </TabPanel>
               <TabPanel sx={{ p: 0 }} value='security'>
-                <Card>
+                {/* MFA card */}
+                <Card id={`user-security-mfa-card-${id}`} sx={{ mb: 6 }}>
                   <CardContent>
-                    <Typography variant='h6' sx={{ mb: 3 }}>
-                      ความปลอดภัย
-                    </Typography>
-                    <Typography
-                      variant='body2'
-                      sx={{
-                        color: 'text.secondary',
-                      }}
-                    >
-                      ข้อมูลความปลอดภัยและการตั้งค่าบัญชีผู้ใช้
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Icon icon='mdi:two-factor-authentication' fontSize={28} />
+                        <Box>
+                          <Typography variant='h6'>การยืนยันตัวตนสองขั้นตอน (MFA)</Typography>
+                          <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                            เพิ่มความปลอดภัยด้วยรหัส TOTP
+                          </Typography>
+                        </Box>
+                      </Box>
+                      {securityLoading ? (
+                        <Chip id={`user-security-mfa-status-${id}`} label='กำลังโหลด...' color='default' size='small' />
+                      ) : (
+                        <Chip
+                          id={`user-security-mfa-status-${id}`}
+                          label={security?.twoFactorEnabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                          color={security?.twoFactorEnabled ? 'success' : 'default'}
+                          size='small'
+                        />
+                      )}
+                    </Box>
+                    <Divider sx={{ my: 2 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                        {security?.twoFactorCount
+                          ? `พบการตั้งค่า MFA ${security.twoFactorCount} รายการ`
+                          : 'ยังไม่ได้ตั้งค่า MFA'}
+                      </Typography>
+                      {isAdmin && (
+                        <Button
+                          id={`user-reset-mfa-btn-${id}`}
+                          variant='outlined'
+                          color='error'
+                          size='small'
+                          disabled={!security?.twoFactorEnabled || resetMfaMutation.isPending}
+                          onClick={() => setResetTarget('mfa')}
+                          startIcon={<Icon icon='mdi:lock-reset' />}
+                        >
+                          รีเซ็ต MFA
+                        </Button>
+                      )}
+                    </Box>
                   </CardContent>
                 </Card>
+
+                {/* Passkey card */}
+                <Card id={`user-security-passkey-card-${id}`} sx={{ mb: 6 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Icon icon='mdi:fingerprint' fontSize={28} />
+                        <Box>
+                          <Typography variant='h6'>Passkey</Typography>
+                          <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                            ล็อกอินด้วยลายนิ้วมือ/ Face ID/ กุญแจฮาร์ดแวร์
+                          </Typography>
+                        </Box>
+                      </Box>
+                      {securityLoading ? (
+                        <Chip id={`user-security-passkey-status-${id}`} label='กำลังโหลด...' color='default' size='small' />
+                      ) : (
+                        <Chip
+                          id={`user-security-passkey-status-${id}`}
+                          label={security?.passkeyCount ? `${security.passkeyCount} รายการ` : 'ไม่มี'}
+                          color={security?.passkeyCount ? 'success' : 'default'}
+                          size='small'
+                        />
+                      )}
+                    </Box>
+                    <Divider sx={{ my: 2 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                        {security?.passkeyCount
+                          ? `ลงทะเบียน passkey ${security.passkeyCount} รายการ`
+                          : 'ยังไม่มี passkey ลงทะเบียน'}
+                      </Typography>
+                      {isAdmin && (
+                        <Button
+                          id={`user-reset-passkey-btn-${id}`}
+                          variant='outlined'
+                          color='error'
+                          size='small'
+                          disabled={!security?.passkeyCount || resetPasskeyMutation.isPending}
+                          onClick={() => setResetTarget('passkey')}
+                          startIcon={<Icon icon='mdi:lock-reset' />}
+                        >
+                          รีเซ็ต Passkey
+                        </Button>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                {!isAdmin && (
+                  <Card>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Icon icon='mdi:information-outline' fontSize={20} />
+                        <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                          เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถรีเซ็ต MFA และ Passkey ได้
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )}
               </TabPanel>
             </Grid>
           </Grid>
         </TabContext>
       </Grid>
+      {/* Reset confirmation dialog (MFA / Passkey) */}
+      <ConfirmResetDialog
+        dialogId='user-reset-mfa'
+        open={resetTarget === 'mfa'}
+        title='รีเซ็ตการยืนยันตัวตนสองขั้นตอน (MFA)'
+        description='การรีเซ็ตจะลบรหัส TOTP และรหัสสำรองทั้งหมดของผู้ใช้รายนี้ ผู้ใช้จะต้องตั้งค่า MFA ใหม่อีกครั้ง'
+        warning='ผู้ใช้จะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต MFA'
+        loading={resetMfaMutation.isPending}
+        onConfirm={handleConfirmReset}
+        onClose={() => setResetTarget(null)}
+      />
+      <ConfirmResetDialog
+        dialogId='user-reset-passkey'
+        open={resetTarget === 'passkey'}
+        title='รีเซ็ต Passkey'
+        description='การรีเซ็ตจะลบ passkey ทั้งหมดของผู้ใช้รายนี้ ผู้ใช้จะต้องลงทะเบียน passkey ใหม่อีกครั้ง'
+        warning='ผู้ใช้จะถูกออกจากระบบทันทีและต้องเข้าสู่ระบบใหม่'
+        confirmText='ยืนยันรีเซ็ต Passkey'
+        loading={resetPasskeyMutation.isPending}
+        onConfirm={handleConfirmReset}
+        onClose={() => setResetTarget(null)}
+      />
     </Grid>
   );
 };
