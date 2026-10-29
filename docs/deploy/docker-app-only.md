@@ -7,7 +7,7 @@
 - Public ingress มีแค่ `frontend` ผ่าน Cloudflare Tunnel
 - `backend` อยู่ใน internal Docker network เท่านั้น
 - `Postgres`, `MinIO`, `Cloudflare Tunnel` แยกติดตั้งคนละส่วน
-- Production database ใช้ `prisma migrate deploy`
+- Production database ใช้ `bun run prisma:migrate:deploy` เพื่อตรวจสอบฐานเดิมก่อนเรียก Prisma
 
 ## Topology
 
@@ -111,9 +111,33 @@ docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run 
 
 หมายเหตุ:
 
-- Production ต้องใช้ `prisma migrate deploy`
+- Production ต้องใช้ `bun run prisma:migrate:deploy` แทนการเรียก Prisma โดยตรง
 - ห้ามใช้ `prisma migrate dev` บน Production
 - ห้ามใช้ `prisma db push` บน Production
+
+### แก้ไข initial migration ที่ล้มเหลว
+
+หาก `20261026143100_init` ล้มเหลวด้วย `P3018` และ `type "Role" already exists` แสดงว่าฐานข้อมูลอาจมีประวัติ migration เดิมอยู่แล้ว อย่าใช้ `migrate reset` หรือทำเครื่องหมาย initial migration ว่า applied โดยตรวจแค่การมีอยู่ของ enum
+
+1. สำรองฐานข้อมูล ตรวจสอบ `DATABASE_URL` และ build image จากโค้ดล่าสุด
+2. ตรวจสอบแผนแบบอ่านอย่างเดียวก่อน deploy:
+
+   ```bash
+   docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run --rm backend \
+     bun prisma/deploy-migrations.ts --check-only
+   ```
+
+3. หากการตรวจผ่าน ให้รันคำสั่ง deploy ปกติ:
+   ```bash
+   docker compose -f deploy/compose.app.yml -f deploy/compose.x86.override.yml run --rm backend \
+     bun run prisma:migrate:deploy
+   ```
+
+สำหรับฐานเดิมที่มี migration ก่อน initial script จะตรวจตาราง คอลัมน์ ชนิดข้อมูล และ enum รวมถึง checksum ของ migration ที่เกี่ยวข้อง หาก initial ล้มเหลวด้วย duplicate `Role` โดยไม่มีขั้นตอนที่สำเร็จ จะทำเครื่องหมาย **เฉพาะรายการที่ล้มเหลวว่า rolled back** และข้าม initial ชั่วคราวโดยไม่ระบุว่า applied จากนั้นจึง deploy calendar migration ฐานข้อมูลใหม่ยังใช้ initial migration ตามปกติ
+
+การตรวจนี้ไม่ได้ยืนยันว่าดัชนี ค่า default และ foreign key ตรงกันทั้งหมด หากมีไฟล์ migration เก่าขาดไป ให้กู้ไฟล์เดิมที่ตรงกับประวัติและตรวจสอบ schema ก่อนสร้าง migration ใหม่ คำสั่ง `prisma migrate status` โดยตรงอาจยังรายงานประวัติที่ขาดหรือ initial ที่ถูกข้าม; script จะไม่ปิดบังสถานะดังกล่าว สำหรับฐานเดิมให้ใช้ `bun run prisma:migrate:deploy` จาก image ที่ build ใหม่เสมอ ไม่รัน `bunx prisma migrate deploy` โดยตรง เพราะจะพยายามใช้ initial ซ้ำ
+
+script จะหยุดเมื่อพบ migration ใหม่อื่นบนฐานเดิม หากสำรองข้อมูลและตรวจสอบ migration เหล่านั้นแล้วเท่านั้น สามารถอนุญาตเป็นครั้งคราวด้วย `NKTC_ALLOW_REVIEWED_LEGACY_MIGRATIONS=true` อย่านำผล `prisma migrate diff --script` ไปรันโดยอัตโนมัติ เพราะอาจมีคำสั่งลบตารางหรือข้อมูลเดิม
 
 ## 4. Start services บน Intel x86
 
@@ -143,7 +167,7 @@ bun run deploy:x86
 
 1. สร้าง network `app-net` ถ้ายังไม่มี
 2. build image
-3. run `prisma migrate deploy`
+3. run `bun run prisma:migrate:deploy`
 4. `up -d --no-build`
 5. แสดงสถานะ container
 
@@ -225,7 +249,7 @@ git pull
 bash ./deploy/deploy.sh x86 deploy
 ```
 
-ถ้าไม่มี migration ใหม่ `prisma migrate deploy` จะไม่ทำอะไรเพิ่ม
+หลังตรวจสอบผ่าน หากไม่มี migration ค้าง คำสั่งจะไม่ deploy migration เพิ่ม
 
 ## 11. Rollback
 

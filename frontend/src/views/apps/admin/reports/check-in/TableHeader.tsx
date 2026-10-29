@@ -7,6 +7,8 @@ interface TableHeaderProps {
   value?: any;
   selectedDate: Date | null;
   handleSelectedDate: (newDate: Date | null) => any;
+  minDate?: Date;
+  maxDate?: Date;
   activityType?: string;
   handleActivityTypeChange?: (event: any) => void;
   activityTypes?: { value: string; label: string }[];
@@ -17,6 +19,8 @@ interface TableHeaderProps {
 const TableHeader = ({
   selectedDate,
   handleSelectedDate,
+  minDate,
+  maxDate,
   activityType,
   handleActivityTypeChange,
   activityTypes,
@@ -74,8 +78,8 @@ const TableHeader = ({
         value={selectedDate}
         onChange={handleSelectedDate}
         format='dd/MM/yyyy'
-        minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
-        maxDate={new Date()}
+        minDate={minDate ?? new Date(new Date().getFullYear() - 1, 0, 1)}
+        maxDate={maxDate ?? new Date()}
         placeholder='วัน เดือน ปี (พ.ศ.)'
         sx={{ width: 250 }}
       />

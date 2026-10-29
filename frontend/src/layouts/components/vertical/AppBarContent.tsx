@@ -12,6 +12,7 @@ import { Settings } from '@/@core/context/settingsContext';
 import ModeToggler from '@/@core/layouts/components/shared-components/ModeToggler';
 import UserDropdown from '@/layouts/components/UserDropdown';
 import Autocomplete from '@/layouts/components/Autocomplete';
+import AcademicYearSwitcher from '@/layouts/components/academic-year-switcher';
 
 interface Props {
   hidden: boolean;
@@ -51,6 +52,7 @@ const AppBarContent = (props: Props) => {
         className='actions-right'
         sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
       >
+        <AcademicYearSwitcher />
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <UserDropdown settings={settings} />
       </Box>

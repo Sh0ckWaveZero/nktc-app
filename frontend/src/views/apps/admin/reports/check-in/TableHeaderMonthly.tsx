@@ -11,6 +11,8 @@ interface TableHeaderProps {
   value?: any;
   selectedDate: Date | null;
   handleSelectedDate: (newDate: Date | null) => any;
+  minDate?: Date;
+  maxDate?: Date;
   activityType?: string;
   handleActivityTypeChange?: (event: any) => void;
   activityTypes?: { value: string; label: string }[];
@@ -20,7 +22,17 @@ interface TableHeaderProps {
 
 const TableHeaderMonthly = (props: TableHeaderProps) => {
   // ** Props
-  const { selectedDate, handleSelectedDate, activityType, handleActivityTypeChange, activityTypes, onExport, isExportDisabled } = props;
+  const {
+    selectedDate,
+    handleSelectedDate,
+    minDate,
+    maxDate,
+    activityType,
+    handleActivityTypeChange,
+    activityTypes,
+    onExport,
+    isExportDisabled,
+  } = props;
 
   // ** Hooks
   const theme = useTheme();
@@ -71,8 +83,8 @@ const TableHeaderMonthly = (props: TableHeaderProps) => {
           onChange={handleSelectedDate}
           format='MMMM yyyy'
           views={['month', 'year']}
-          minDate={new Date(new Date().getFullYear() - 1, 0, 1)}
-          maxDate={new Date()}
+          minDate={minDate ?? new Date(new Date().getFullYear() - 1, 0, 1)}
+          maxDate={maxDate ?? new Date()}
           placeholder='เดือน ปี (พ.ศ.)'
           sx={{ mr: 4, mb: 2, width: 250 }}
         />

@@ -1,11 +1,12 @@
 // ** React Imports
 import { useEffect } from 'react';
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, CanceledError, InternalAxiosRequestConfig } from 'axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { apiConfig } from '@/configs/api';
 import { useAuth } from '../../hooks/useAuth';
 import { authConfig } from '@/configs/auth';
+import { useAcademicYearStore } from '@/store/academic-year';
 
 const httpClient = axios.create({
   baseURL: apiConfig.basePath,
@@ -76,6 +77,11 @@ const refreshAccessToken = async () => {
 // Request interceptor for adding auth token
 httpClient.interceptors.request.use(
   (config) => {
+    const scope = useAcademicYearStore.getState();
+    if (scope.academicYear !== null && !config.url?.startsWith('/academic-years')) {
+      config.headers.set('X-Academic-Year', String(scope.academicYear));
+      config.headers.set('X-Academic-Year-Version', String(scope.version));
+    }
     if (typeof window !== 'undefined') {
       const token = window.localStorage.getItem('accessToken');
       if (token) {
@@ -108,6 +114,15 @@ const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const interceptor = httpClient.interceptors.response.use(
       (response) => {
+        const scope = useAcademicYearStore.getState();
+        const responseVersion = Number(response.headers['x-academic-year-version']);
+        if (scope.version !== null && responseVersion > scope.version && !response.config.url?.startsWith('/academic-years/context')) {
+          window.dispatchEvent(new Event('academic-year-changed'));
+        }
+        const requestedYear = response.config.headers.get('X-Academic-Year');
+        if (requestedYear && String(scope.selectedAcademicYear ?? scope.activeAcademicYear) !== String(requestedYear)) {
+          throw new CanceledError('Academic year changed');
+        }
         // Extract data from wrapped response: { success, statusCode, message, data, meta }
         // But don't extract if there are other important fields like token, refreshToken at top level
         if (
@@ -183,6 +198,14 @@ const AxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
         }
 
         // For other errors (not 401)
+        const yearError = error.response?.data as { errorCode?: string; message?: string } | undefined;
+        if (error.response?.status === 409 && yearError?.errorCode?.startsWith('ACADEMIC_YEAR_')) {
+          await Swal.fire({
+            title: 'ตรวจสอบปีการศึกษา', text: yearError.message,
+            icon: 'info', confirmButtonText: 'ตกลง',
+          });
+          if (yearError.errorCode === 'ACADEMIC_YEAR_CHANGED') window.dispatchEvent(new Event('academic-year-changed'));
+        }
         if (error?.response?.status === 403) {
           await Swal.fire({
             title: 'ไม่มีสิทธิ์เข้าถึง',

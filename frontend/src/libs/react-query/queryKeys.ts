@@ -29,6 +29,14 @@ export const statisticsKeys = {
   }) => [...statisticsKeys.all, 'term', params] as const,
 };
 
+export const academicCalendarKeys = {
+  all: ['academic-calendar'] as const,
+  settings: () => [...academicCalendarKeys.all, 'settings'] as const,
+  events: () => [...academicCalendarKeys.all, 'events'] as const,
+  eventList: (filters: import('@/types/apps/academic-calendar').CalendarEventFilters) =>
+    [...academicCalendarKeys.events(), filters] as const,
+};
+
 /**
  * Students Query Keys
  */
@@ -98,6 +106,12 @@ export const classroomKeys = {
 export const checkInKeys = {
   all: ['check-in'] as const,
   reports: () => [...checkInKeys.all, 'report'] as const,
+  termSummaries: () => [...checkInKeys.reports(), 'term-summary'] as const,
+  summaryOptions: () => [...checkInKeys.termSummaries(), 'options'] as const,
+  termSummary: (params: { academicYear: number | null; term: 1 | 2 }) =>
+    [...checkInKeys.termSummaries(), params] as const,
+  adminReport: (params: { startDate: string; endDate: string }) =>
+    [...checkInKeys.reports(), 'admin', params] as const,
   report: (params: { teacherId?: string; classroomId?: string; date?: string }) =>
     [...checkInKeys.reports(), params] as const,
   daily: (params: { teacherId: string; classroomId: string; date: string }) =>
@@ -110,6 +124,8 @@ export const checkInKeys = {
 export const activityCheckInKeys = {
   all: ['activity-check-in'] as const,
   reports: () => [...activityCheckInKeys.all, 'report'] as const,
+  adminReport: (params: { startDate: string; endDate: string; activityType: string }) =>
+    [...activityCheckInKeys.reports(), 'admin', params] as const,
   report: (params: { teacher: string; classroom: string; date?: string; activityType?: string }) =>
     [...activityCheckInKeys.reports(), params] as const,
   daily: (params: { teacherId: string; classroomId: string; startDate: string; activityType?: string }) =>
@@ -180,6 +196,12 @@ export const userKeys = {
  * ```
  */
 export const queryKeys = {
+  academicYears: {
+    all: ['academic-years'] as const,
+    context: () => ['academic-years', 'context'] as const,
+    management: () => ['academic-years', 'management'] as const,
+  },
+  academicCalendar: academicCalendarKeys,
   statistics: statisticsKeys,
   students: studentKeys,
   departments: departmentKeys,

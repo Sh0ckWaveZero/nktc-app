@@ -1,0 +1,51 @@
+import { describe, expect, it } from "bun:test";
+
+import {
+  findColumnMismatches,
+  parseInitialColumns,
+  validateLegacyPendingMigrations,
+} from "../../prisma/deploy-migrations";
+
+describe("legacy migration safeguards", () => {
+  it("checks every table and column in the initial migration", async () => {
+    const sql = await Bun.file("prisma/migrations/20261026143100_init/migration.sql").text();
+    const columns = parseInitialColumns(sql);
+    expect(new Set(columns.map((column) => column.table)).size).toBe(22);
+    expect(columns).toHaveLength(254);
+    expect(columns).toContainEqual({ table: "user", column: "role", type: '"Role"', required: true });
+  });
+
+  it("rejects unknown column definitions instead of skipping them", async () => {
+    const sql = await Bun.file("prisma/migrations/20261026143100_init/migration.sql").text();
+    expect(() => parseInitialColumns(sql.replace('"username" TEXT', '"username" UUID'))).toThrow(
+      "Unsupported migration column",
+    );
+  });
+
+  it("detects missing columns, incompatible types, and nullability changes", () => {
+    const expected = [
+      { table: "user", column: "id", type: "TEXT" as const, required: true },
+      { table: "user", column: "role", type: '"Role"' as const, required: true },
+      { table: "user", column: "updated_at", type: "TIMESTAMP(3)" as const, required: true },
+    ];
+    const actual = [
+      { table_name: "user", column_name: "id", data_type: "text", udt_name: "text", udt_schema: "pg_catalog", datetime_precision: null, is_nullable: "NO" },
+      { table_name: "user", column_name: "role", data_type: "USER-DEFINED", udt_name: "Role", udt_schema: "public", datetime_precision: null, is_nullable: "NO" },
+      { table_name: "user", column_name: "updated_at", data_type: "timestamp without time zone", udt_name: "timestamp", udt_schema: "pg_catalog", datetime_precision: 3, is_nullable: "NO" },
+    ];
+    expect(findColumnMismatches(expected, actual, "public")).toEqual([]);
+    expect(findColumnMismatches(expected, [
+      { ...actual[0], is_nullable: "YES" },
+      { ...actual[1], udt_schema: "other" },
+    ], "public")).toEqual(["user.id", "user.role", "user.updated_at"]);
+  });
+
+  it("blocks unrelated pending migrations until legacy history is reconciled", () => {
+    expect(() => validateLegacyPendingMigrations([], false)).not.toThrow();
+    expect(() => validateLegacyPendingMigrations(["20261027140000_academic_calendar"], false)).not.toThrow();
+    expect(() => validateLegacyPendingMigrations(["20261101000000_other"], false)).toThrow(
+      "Legacy migration history needs review",
+    );
+    expect(() => validateLegacyPendingMigrations(["20261101000000_other"], true)).not.toThrow();
+  });
+});

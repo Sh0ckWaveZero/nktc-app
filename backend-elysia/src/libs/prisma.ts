@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { PrismaClient } from "../../generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
 import { logger } from "../infrastructure/logging/index.ts";
+import { academicYearExtension } from "./academic-year-extension";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -28,38 +28,22 @@ logger.info("🗄️ Initializing database connection", {
   database: dbInfo.database,
 });
 
-const pool = new pg.Pool({
-  connectionString: DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
-  allowExitOnIdle: true,
-});
+// The adapter must create its own pool when multiple versions of pg are installed.
+const adapter = new PrismaPg(
+  {
+    connectionString: DATABASE_URL,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+    allowExitOnIdle: true,
+  },
+  {
+    onPoolError: (error) => logger.error("Database pool error", { error: error.message }),
+    onConnectionError: (error) => logger.error("Database connection error", { error: error.message }),
+  },
+);
 
-// Log pool events
-pool.on("connect", () => {
-  logger.debug("Database pool: new client connected");
-});
-
-pool.on("acquire", () => {
-  logger.debug("Database pool: client acquired");
-});
-
-pool.on("release", () => {
-  logger.debug("Database pool: client released");
-});
-
-pool.on("remove", () => {
-  logger.debug("Database pool: client removed");
-});
-
-pool.on("error", (err) => {
-  logger.error("Database pool error", { error: err.message });
-});
-
-const adapter = new PrismaPg(pool as any);
-
-export const prisma = new PrismaClient({ 
+export const unscopedPrisma = new PrismaClient({
   adapter,
   // Log queries in development
   log: process.env.NODE_ENV === "development" 
@@ -73,9 +57,11 @@ export const prisma = new PrismaClient({
       ],
 });
 
+export const prisma = unscopedPrisma.$extends(academicYearExtension);
+
 // Query logging
 if (process.env.NODE_ENV === "development") {
-  prisma.$on("query", (e) => {
+  unscopedPrisma.$on("query", (e) => {
     logger.debug("Query executed", {
       query: e.query.substring(0, 200),
       duration: `${e.duration}ms`,
@@ -83,11 +69,11 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-prisma.$on("error", (e) => {
+unscopedPrisma.$on("error", (e) => {
   logger.error("Prisma error", { error: e.message });
 });
 
-prisma.$on("warn", (e) => {
+unscopedPrisma.$on("warn", (e) => {
   logger.warn("Prisma warning", { message: e.message });
 });
 
@@ -123,7 +109,6 @@ process.on("beforeExit", async () => {
   logger.info("Closing database connections");
   try {
     await prisma.$disconnect();
-    await pool.end();
   } catch (error) {
     logger.error("Error during graceful shutdown", {
       error: error instanceof Error ? error.message : String(error),
