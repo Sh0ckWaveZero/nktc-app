@@ -64,7 +64,8 @@ services:
         max-file: "3"
         max-size: 10m
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3010:3000"
+      - "100.81.117.104:3010:3000"
     restart: unless-stopped
     networks:
       - app-net

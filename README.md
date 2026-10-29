@@ -16,6 +16,7 @@
 - **สาขาวิชา** - จัดการสาขาวิชาและหลักสูตร
 - **ห้องเรียน** - จัดการห้องเรียนและการจัดกลุ่มนักเรียน
 - **ระดับชั้น** - จัดการระดับการศึกษา (ปวช., ปวส.)
+- **ปฏิทินการศึกษา** - ผู้ดูแลกำหนดวันเปิดเทอม 1 และ 2 แยกตามปีการศึกษา เลือกเริ่มสัปดาห์วันจันทร์หรือวันเปิดเทอม และจัดการวันหยุด/กิจกรรม/สอบ/ประชุม โดยปฏิทินคำนวณ ปวส. 15 สัปดาห์และ ปวช. 18 สัปดาห์อัตโนมัติ
 
 ### ✅ ระบบเช็คชื่อ
 
@@ -178,7 +179,8 @@ Production deployment แบบ Docker app-only ถูกแยกไว้ท�
 - เปิด public แค่ `frontend` ผ่าน Cloudflare Tunnel
 - ไม่ publish `backend` ออก host
 - ใช้ external `Postgres` และ `MinIO`
-- ใช้ `prisma migrate deploy` สำหรับ Production database
+- ใช้ `bun run prisma:migrate:deploy` สำหรับ Production database โดยตรวจสอบฐานเดิมก่อนเรียก Prisma
+- ก่อนใช้งานปฏิทิน ต้อง deploy Prisma migration ของ `backend-elysia` และ generate Prisma client ให้ตรงกับ schema ใหม่ ฐานข้อมูลเดิมต้องตรวจสอบประวัติตาม [คู่มือแก้ migration ที่ล้มเหลว](docs/deploy/docker-app-only.md#แก้ไข-initial-migration-ที่ล้มเหลว)
 
 คำสั่งลัด:
 

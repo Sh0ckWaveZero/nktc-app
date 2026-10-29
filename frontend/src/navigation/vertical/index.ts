@@ -1,4 +1,5 @@
 // ** Icon imports
+import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
 import { HumanMaleBoard } from 'mdi-material-ui';
 import { RiSurveyLine, RiTeamLine } from 'react-icons/ri';
 
@@ -70,6 +71,13 @@ const navigation = (): VerticalNavItemsType => {
       action: 'read',
       subject: 'setting-system-page',
       children: [
+        {
+          title: 'ปีการศึกษา',
+          icon: CalendarMonthOutlined,
+          path: '/apps/settings/academic-year',
+          action: 'manage',
+          subject: 'settings-academic-year-page',
+        },
         {
           title: 'แผนกวิชา',
           icon: 'tabler:building-community',
@@ -243,6 +251,13 @@ const navigation = (): VerticalNavItemsType => {
           action: 'read',
           subject: 'admin-report-check-in-page',
           path: '/apps/admin/reports/check-in/monthly',
+        },
+        {
+          title: 'สรุปสถิติรายภาคเรียน',
+          icon: 'tabler:chart-bar',
+          action: 'read',
+          subject: 'admin-report-check-in-page',
+          path: '/apps/admin/reports/check-in/summary',
         },
       ],
     },

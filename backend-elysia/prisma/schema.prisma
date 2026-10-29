@@ -461,6 +461,8 @@ model Level {
 // รายงานการเช็คชื่อหน้่าเสาธง
 model ReportCheckIn {
   id           String     @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
   teacherId    String // รหัสอาจารย์
   teacherKey   String? // รหัสอาจารย์/ครู
   teacher      Teacher?   @relation(fields: [teacherKey], references: [id])
@@ -480,12 +482,15 @@ model ReportCheckIn {
   updatedBy    String?
   createdBy    String?
 
+  @@index([academicYearId, checkInDate])
   @@map("reportCheckIn")
 }
 
 // รายงานการเช็คชื่อกิจกรรม
 model ActivityCheckInReport {
   id           String     @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
   teacherId    String // รหัสอาจารย์
   teacherKey   String? // รหัสอาจารย์/ครู
   teacher      Teacher?   @relation(fields: [teacherKey], references: [id])
@@ -507,6 +512,7 @@ model ActivityCheckInReport {
   @@index([teacherId, classroomId, activityType])
   @@index([classroomId, checkInDate])
   @@index([checkInDate])
+  @@index([academicYearId, checkInDate])
   @@map("activityCheckInReport")
 }
 
@@ -531,6 +537,8 @@ model AuditLog {
 
 model GoodnessIndividual {
   id             String     @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
   studentId      String // รหัสนักเรียน
   studentKey     String // รหัสนักเรียน
   student        Student?   @relation(fields: [studentKey], references: [id])
@@ -545,12 +553,15 @@ model GoodnessIndividual {
   updatedBy      String?
   createdBy      String?
 
+  @@index([academicYearId, studentId])
   @@map("goodnessIndividual")
 }
 
 // บันทึกพฤติกรรมที่ไม่เหมาะสม
 model BadnessIndividual {
   id            String     @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
   studentId     String // รหัสนักเรียน
   studentKey    String // รหัสนักเรียน
   student       Student?   @relation(fields: [studentKey], references: [id])
@@ -565,12 +576,15 @@ model BadnessIndividual {
   updatedBy     String?
   createdBy     String?
 
+  @@index([academicYearId, studentId])
   @@map("badnessIndividual")
 }
 
 // การเยี่ยมบ้านนักเรียน
 model VisitStudent {
   id           String     @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  year AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
   studentId    String // รหัสนักเรียน
   studentKey   String // รหัสนักเรียน
   student      Student?   @relation(fields: [studentKey], references: [id])
@@ -587,7 +601,86 @@ model VisitStudent {
   updatedBy    String?
   createdBy    String?
 
+  @@index([academicYearId, studentId])
   @@map("visitStudent")
+}
+
+// รายชื่อและโครงสร้างใช้ร่วมกัน ส่วนบันทึกการดำเนินงานแยกตามปี
+model AcademicYear {
+  academicYear Int @id
+  activatedAt DateTime?
+  activatedBy String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?
+  calendar AcademicCalendarYear?
+  activeState AcademicYearState?
+  attendance ReportCheckIn[]
+  activities ActivityCheckInReport[]
+  goodness GoodnessIndividual[]
+  badness BadnessIndividual[]
+  visits VisitStudent[]
+  events AcademicCalendarEvent[]
+
+  @@map("academic_year")
+}
+
+model AcademicYearState {
+  id String @id @default("current")
+  academicYear Int @unique
+  year AcademicYear @relation(fields: [academicYear], references: [academicYear], onDelete: Restrict)
+  version Int @default(1)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String?
+
+  @@map("academic_year_state")
+}
+
+model AcademicCalendarYear {
+  academicYear      Int                    @id
+  year AcademicYear @relation(fields: [academicYear], references: [academicYear], onDelete: Restrict)
+  selectedTerm      Int
+  term1Start        DateTime               @db.Date
+  term2Start        DateTime               @db.Date
+  term1Name         String
+  term2Name         String
+  startWeekOnMonday Boolean                @default(true)
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+  createdBy         String?
+  updatedBy         String?
+  activeState       AcademicCalendarState?
+
+  @@map("academic_calendar_year")
+}
+
+model AcademicCalendarState {
+  id           String               @id @default("current")
+  academicYear Int                  @unique
+  year         AcademicCalendarYear @relation(fields: [academicYear], references: [academicYear], onUpdate: Cascade, onDelete: Restrict)
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  updatedBy    String?
+
+  @@map("academic_calendar_state")
+}
+
+model AcademicCalendarEvent {
+  id          String   @id @default(cuid())
+  academicYearId Int @default(dbgenerated("current_academic_year()"))
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYear], onDelete: Restrict)
+  title       String
+  category    String
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdBy   String?
+  updatedBy   String?
+
+  @@index([startDate, endDate])
+  @@index([academicYearId, startDate])
+  @@map("academic_calendar_event")
 }
 
 // การตั้งค่าระบบระดับสถาบัน
