@@ -1,7 +1,11 @@
 import { Elysia } from "elysia";
-import { ReportCheckInService } from "./service";
-import { ReportCheckInModel } from "./model";
+import { ForbiddenError } from "@/libs/errors";
 import { authGuard } from "@/middleware/auth";
+import { AttendanceResetModel } from "@/modules/attendance-reset/model";
+import { AttendanceResetService } from "@/modules/attendance-reset/service";
+
+import { ReportCheckInModel } from "./model";
+import { ReportCheckInService } from "./service";
 
 export const reportCheckIn = new Elysia({ prefix: "/reportCheckIn" })
 	.use(authGuard)
@@ -12,6 +16,17 @@ export const reportCheckIn = new Elysia({ prefix: "/reportCheckIn" })
 		},
 	}, (app) =>
 		app
+			.delete(
+				"/reset-term",
+				({ user, body }) => {
+					if (user?.roles !== "Admin") throw new ForbiddenError();
+					return AttendanceResetService.resetTerm(body, user.username);
+				},
+				{
+					body: AttendanceResetModel.flagpole,
+					detail: { summary: "Reset flagpole check-in records for a configured academic term" },
+				},
+			)
 			.post(
 				"/",
 				async ({ body, set }) => {

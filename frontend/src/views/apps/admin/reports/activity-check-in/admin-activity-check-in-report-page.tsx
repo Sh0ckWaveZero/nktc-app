@@ -54,6 +54,7 @@ const AdminActivityCheckInReportPage = ({ period }: AdminActivityCheckInReportPa
     <AcademicCheckInReportPage
       period={period}
       report={report}
+      activityType={activityType}
       title={`รายงานสถิติการเข้าร่วม${activityTypeLabel} ของนักเรียน ทั้งหมด ${reportQuery.data?.students ?? 0} คน`}
     >
       <AdminCheckInReportToolbar

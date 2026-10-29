@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { queryKeys } from '@/libs/react-query/queryKeys';
+import { useAcademicYearStore } from '@/store/academic-year';
 
 import type { ReactElement } from 'react';
 import type { ThaiDatePickerProps } from '@/@core/components/mui/date-picker-thai/types';
@@ -15,9 +16,11 @@ import AdminCheckInDailyReportPage from '../daily/AdminCheckInDailyReportPage';
 import AdminCheckInMonthlyReportPage from '../monthly/AdminCheckInMonthlyReportPage';
 import AdminCheckInWeeklyReportPage from '../weekly/AdminCheckInWeeklyReportPage';
 
-const api = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }));
+const api = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), delete: vi.fn() }));
+const notifications = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 
 vi.mock('@/@core/utils/http', () => ({ default: api }));
+vi.mock('react-toastify', () => ({ toast: notifications }));
 vi.mock('@/@core/components/mui/date-picker-thai', () => ({
   default: ({ label, value, onChange, minDate, maxDate }: ThaiDatePickerProps): ReactElement => (
     <input
@@ -79,6 +82,9 @@ describe('admin flagpole check-in report academic terms', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-05-14T12:00:00+07:00'));
     savedSettings = { ...initialSettings };
+    useAcademicYearStore.getState().setScope(2569, 2569, 1);
+    api.delete.mockReset();
+    api.delete.mockResolvedValue({ data: { deleted: 8 } });
     api.get.mockImplementation(async (url: string) => {
       if (url === '/academic-calendar/settings') return { data: { settings: savedSettings } };
       if (url.startsWith('/reportCheckIn/start-date/')) return { data: { students: 12, checkIn: [] } };
@@ -88,6 +94,75 @@ describe('admin flagpole check-in report academic terms', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it.each(['daily', 'weekly', 'monthly'] as const)(
+    'resets the selected whole term from the $period page after confirmation',
+    async (period) => {
+      const client: QueryClient = renderReport(period);
+      const invalidate = vi.spyOn(client, 'invalidateQueries');
+      await selectOption('ภาคเรียน', initialSettings.term2Name);
+      fireEvent.click(screen.getByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+      const dialog: HTMLElement = await screen.findByRole('dialog');
+      expect(dialog).toHaveTextContent('การเช็คชื่อหน้าเสาธงทุกห้องเรียน');
+      expect(dialog).toHaveTextContent('ภาคเรียนพิเศษ 2/2569');
+      expect(dialog).toHaveTextContent('28 ตุลาคม 2569 - 28 กุมภาพันธ์ 2570');
+      expect(api.delete).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' }));
+      await waitFor(() =>
+        expect(api.delete).toHaveBeenCalledWith('/reportCheckIn/reset-term', { data: { academicYear: 2569, term: 2 } }),
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.checkIn.all });
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.statistics.all });
+      expect(notifications.success).toHaveBeenCalledWith(expect.stringContaining('8 รายการ'));
+    },
+  );
+
+  it('allows cancelling without deleting data', async () => {
+    renderReport('daily');
+    fireEvent.click(await screen.findByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+    expect(await screen.findByRole('dialog')).toHaveTextContent('13 พฤษภาคม 2569 - 13 กันยายน 2569');
+    fireEvent.click(screen.getByRole('button', { name: 'ยกเลิก' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(api.delete).not.toHaveBeenCalled();
+  });
+
+  it('prevents duplicate resets while a request is pending', async () => {
+    let resolveReset: ((value: { data: { deleted: number } }) => void) | undefined;
+    api.delete.mockImplementation(
+      () =>
+        new Promise<{ data: { deleted: number } }>((resolve): void => {
+          resolveReset = resolve;
+        }),
+    );
+    renderReport('daily');
+    fireEvent.click(await screen.findByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' }));
+    expect(await screen.findByRole('button', { name: 'กำลังดำเนินการ...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'ยกเลิก' })).toBeDisabled();
+    await act(async (): Promise<void> => {
+      resolveReset?.({ data: { deleted: 8 } });
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(api.delete).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the confirmation open and shows an error when reset fails', async () => {
+    api.delete.mockRejectedValueOnce(new Error('Reset unavailable'));
+    renderReport('daily');
+    fireEvent.click(await screen.findByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' }));
+    await waitFor(() => expect(notifications.error).toHaveBeenCalledWith('ไม่สามารถรีเซ็ตข้อมูลได้ กรุณาลองอีกครั้ง'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' })).toBeEnabled();
+  });
+
+  it('disables reset while viewing an archived academic year', async () => {
+    useAcademicYearStore.getState().setScope(2569, 2570, 2);
+    renderReport('daily');
+    expect(await screen.findByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' })).toBeDisabled();
+    expect(api.delete).not.toHaveBeenCalled();
   });
 
   it.each([

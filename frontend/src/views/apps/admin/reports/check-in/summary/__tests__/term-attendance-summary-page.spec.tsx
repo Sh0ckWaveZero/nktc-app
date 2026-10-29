@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createAttendanceSummaryFixture } from '@/test-utils/attendance-summary-fixture';
+import { useAcademicYearStore } from '@/store/academic-year';
 
 import type { ReactElement } from 'react';
 import type { AttendanceSummary } from '@/types/apps/attendance-summary';
@@ -10,8 +11,10 @@ import type { AttendanceSummaryOptions } from '@/types/apps/attendance-summary-o
 
 import TermAttendanceSummaryPage from '../term-attendance-summary-page';
 
-const api = vi.hoisted(() => ({ get: vi.fn() }));
+const api = vi.hoisted(() => ({ get: vi.fn(), delete: vi.fn() }));
+const notifications = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('@/@core/utils/http', () => ({ default: api }));
+vi.mock('react-toastify', () => ({ toast: notifications }));
 vi.mock('../attendance-weekly-chart', () => ({
   default: (): ReactElement => <div role='img' aria-label='กราฟอัตรามาตรงเวลารายสัปดาห์' />,
 }));
@@ -66,6 +69,8 @@ const expectSummaryRequest = async (academicYear: number, term: 1 | 2): Promise<
 describe('term attendance dashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAcademicYearStore.getState().setScope(2569, 2569, 1);
+    api.delete.mockResolvedValue({ data: { deleted: 3 } });
     api.get.mockImplementation(async (url: string, config?: ApiConfig) => {
       if (url === '/attendance-summary/options') return { data: options };
       const data: AttendanceSummary = createAttendanceSummaryFixture();
@@ -83,6 +88,28 @@ describe('term attendance dashboard', () => {
         };
       return { data };
     });
+  });
+  it('shows a reset action for the selected term and refreshes the summary after confirming', async () => {
+    renderPage();
+    await screen.findByText('70.00%');
+    fireEvent.click(screen.getByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+    const dialog: HTMLElement = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('ภาคเรียนที่ 2/2569');
+    expect(dialog).toHaveTextContent('26 ตุลาคม 2569 - 28 กุมภาพันธ์ 2570');
+    expect(api.delete).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' }));
+    await waitFor(() =>
+      expect(api.delete).toHaveBeenCalledWith('/reportCheckIn/reset-term', { data: { academicYear: 2569, term: 2 } }),
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(api.get.mock.calls.filter((call) => call[0] === '/attendance-summary/term')).toHaveLength(2);
+    expect(notifications.success).toHaveBeenCalledWith(expect.stringContaining('3 รายการ'));
+  });
+  it('keeps reset disabled for an archived academic year selected in the summary', async () => {
+    renderPage();
+    await selectOption('ปีการศึกษา', '2568');
+    expect(screen.getByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' })).toBeDisabled();
+    expect(api.delete).not.toHaveBeenCalled();
   });
   it('opens the active academic term and shows understandable dashboard metrics', async () => {
     renderPage();

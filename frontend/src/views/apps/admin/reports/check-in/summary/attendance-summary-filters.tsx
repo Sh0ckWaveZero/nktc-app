@@ -9,6 +9,8 @@ import type { ReactElement } from 'react';
 import type { useAttendanceSummary } from '@/hooks/use-attendance-summary';
 import type { AcademicTerm } from '@/types/apps/academic-calendar';
 
+import ResetAttendanceTermButton from '../reset-attendance-term-button';
+
 interface AttendanceSummaryFiltersProps {
   state: ReturnType<typeof useAttendanceSummary>;
 }
@@ -63,6 +65,15 @@ const AttendanceSummaryFilters = ({ state }: AttendanceSummaryFiltersProps): Rea
         <Button component={Link} href='/apps/calendar' startIcon={<CalendarMonthOutlined />}>
           ปฏิทินการศึกษา
         </Button>
+        {state.academicYear !== null && state.selectedPeriod && (
+          <ResetAttendanceTermButton
+            academicYear={state.academicYear}
+            term={state.selectedTerm}
+            termName={state.selectedPeriod.name}
+            startDate={parseISO(state.selectedPeriod.startDate)}
+            endDate={parseISO(state.selectedPeriod.endDate)}
+          />
+        )}
       </Stack>
       {state.selectedPeriod && (
         <Stack direction='row' spacing={1.5} useFlexGap sx={{ mt: 2, flexWrap: 'wrap', alignItems: 'center' }}>

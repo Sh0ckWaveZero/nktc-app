@@ -13,11 +13,14 @@ import type { useAdminCheckInReport } from '@/hooks/queries/use-admin-check-in-r
 import type { AcademicTerm } from '@/types/apps/academic-calendar';
 import type { AdminCheckInReportPeriod } from '@/utils/admin-check-in-report';
 
+import ResetAttendanceTermButton from './reset-attendance-term-button';
+
 interface AcademicCheckInReportPageProps {
   period: AdminCheckInReportPeriod;
   report: ReturnType<typeof useAdminCheckInReport>;
   title: string;
   children: ReactNode;
+  activityType?: string;
 }
 
 const AcademicCheckInReportPage = ({
@@ -25,6 +28,7 @@ const AcademicCheckInReportPage = ({
   report,
   title,
   children,
+  activityType,
 }: AcademicCheckInReportPageProps): ReactElement => {
   const { settingsQuery, settings, selectedTerm, weeks, range, handleSelectedTerm } = report;
   const settingsLink: ReactElement = (
@@ -91,6 +95,14 @@ const AcademicCheckInReportPage = ({
               วันเปิดเทอม {formatThaiDate(termStart)} · อ้างอิงปฏิทินการศึกษา
             </Typography>
             {settingsLink}
+            <ResetAttendanceTermButton
+              academicYear={settings.academicYear}
+              term={selectedTerm}
+              termName={termName}
+              startDate={weeks[0].start}
+              endDate={weeks[weeks.length - 1].end}
+              activityType={activityType}
+            />
           </Box>
           {children}
         </Card>

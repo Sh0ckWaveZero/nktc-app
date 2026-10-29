@@ -3,6 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { format, parseISO } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { queryKeys } from '@/libs/react-query/queryKeys';
+
 import type { ReactElement } from 'react';
 import type { ThaiDatePickerProps } from '@/@core/components/mui/date-picker-thai/types';
 import type { AcademicCalendarSettings } from '@/types/apps/academic-calendar';
@@ -13,8 +15,8 @@ import AdminActivityCheckInDailyReportPage from '../daily/AdminActivityCheckInDa
 import AdminActivityCheckInMonthlyReportPage from '../monthly/AdminActivityCheckInMonthlyReportPage';
 import AdminActivityCheckInWeeklyReportPage from '../weekly/AdminActivityCheckInWeeklyReportPage';
 
-const api = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }));
-const notifications = vi.hoisted(() => ({ error: vi.fn() }));
+const api = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), delete: vi.fn() }));
+const notifications = vi.hoisted(() => ({ error: vi.fn(), success: vi.fn() }));
 const spreadsheet = vi.hoisted(() => ({
   utils: {
     book_new: vi.fn(() => ({})),
@@ -80,7 +82,7 @@ const pages: Record<AdminCheckInReportPeriod, () => ReactElement> = {
 };
 let savedSettings: AcademicCalendarSettings | null;
 
-const renderReport = (period: AdminCheckInReportPeriod): void => {
+const renderReport = (period: AdminCheckInReportPeriod): QueryClient => {
   const client: QueryClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const Page: () => ReactElement = pages[period];
   render(
@@ -88,6 +90,7 @@ const renderReport = (period: AdminCheckInReportPeriod): void => {
       <Page />
     </QueryClientProvider>,
   );
+  return client;
 };
 
 const selectOption = async (label: string, name: string | RegExp): Promise<void> => {
@@ -110,6 +113,8 @@ describe('admin activity check-in report academic terms', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-05-14T12:00:00+07:00'));
     savedSettings = { ...settings };
+    api.delete.mockReset();
+    api.delete.mockResolvedValue({ data: { deleted: 5 } });
     api.get.mockImplementation(async (url: string) => {
       if (url === '/academic-calendar/settings') return { data: { settings: savedSettings } };
       if (url.startsWith('/activity-check-in/start-date/')) return { data: report };
@@ -120,6 +125,32 @@ describe('admin activity check-in report academic terms', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
+
+  it.each(['daily', 'weekly', 'monthly'] as const)(
+    'resets only the selected activity and term from the $period page',
+    async (period) => {
+      const client: QueryClient = renderReport(period);
+      const invalidate = vi.spyOn(client, 'invalidateQueries');
+      await selectOption('ประเภทกิจกรรม', 'กิจกรรมลูกเสือ');
+      await selectOption('ภาคเรียน', settings.term2Name);
+      fireEvent.click(screen.getByRole('button', { name: 'รีเซ็ตข้อมูลภาคเรียนนี้' }));
+      const dialog: HTMLElement = await screen.findByRole('dialog');
+      expect(dialog).toHaveTextContent('การเช็คชื่อกิจกรรมลูกเสือทุกห้องเรียน');
+      expect(dialog).toHaveTextContent('ภาคเรียนที่ 2/2569');
+      expect(dialog).toHaveTextContent('28 ตุลาคม 2569 - 28 กุมภาพันธ์ 2570');
+      expect(api.delete).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: 'ยืนยันรีเซ็ตข้อมูล' }));
+      await waitFor(() =>
+        expect(api.delete).toHaveBeenCalledWith('/activity-check-in/reset-term', {
+          data: { academicYear: 2569, term: 2, activityType: 'SCOUT' },
+        }),
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.activityCheckIn.all });
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.statistics.all });
+      expect(notifications.success).toHaveBeenCalledWith(expect.stringContaining('5 รายการ'));
+    },
+  );
 
   it.each([
     { period: 'daily' as const, start: '2026-05-14', end: '2026-05-14' },
