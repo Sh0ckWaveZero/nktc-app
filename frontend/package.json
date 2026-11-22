@@ -33,7 +33,7 @@
     "@mui/material": "^9.0.1",
     "@mui/material-nextjs": "^9.0.1",
     "@mui/system": "^9.0.1",
-    "@mui/utils": "^9.0.1",
+    "@mui/utils": "^9.5.0",
     "@mui/x-data-grid": "^8.28.7",
     "@mui/x-date-pickers": "^9.3.0",
     "@next/bundle-analyzer": "^16.3.0",
