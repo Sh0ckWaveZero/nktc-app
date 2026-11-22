@@ -25,7 +25,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.1",
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^7.0.7",
     "@iconify/react": "^6.0.2",
     "@midseelee/date-fns-buddhist-adapter": "^1.0.8",
     "@mui/icons-material": "^9.0.1",
