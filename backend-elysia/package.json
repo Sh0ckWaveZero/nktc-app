@@ -28,7 +28,7 @@
     "@prisma/client-runtime-utils": "^7.9.1",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.6.26",
-    "dotenv": "^16.6.1",
+    "dotenv": "^18.0.10",
     "elysia": "^1.4.29",
     "minio": "^8.0.7",
     "pg": "^8.22.0",
