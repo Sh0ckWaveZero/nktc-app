@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@better-auth/passkey": "^1.6.26",
-    "@better-auth/prisma-adapter": "^1.6.26",
+    "@better-auth/prisma-adapter": "^1.7.26",
     "@elysiajs/cors": "^1.4.2",
     "@elysiajs/jwt": "^1.4.2",
     "@elysiajs/swagger": "^1.3.1",
