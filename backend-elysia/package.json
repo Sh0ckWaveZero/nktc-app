@@ -18,7 +18,7 @@
     "postinstall": "bun run prisma:generate"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.6.26",
+    "@better-auth/passkey": "^1.7.26",
     "@better-auth/prisma-adapter": "^1.6.26",
     "@elysiajs/cors": "^1.4.2",
     "@elysiajs/jwt": "^1.4.2",

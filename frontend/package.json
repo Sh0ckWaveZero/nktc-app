@@ -17,7 +17,7 @@
     "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.6.26",
+    "@better-auth/passkey": "^1.7.26",
     "@casl/ability": "^6.8.1",
     "@casl/react": "^6.0.0",
     "@date-io/date-fns": "3.2.1",
