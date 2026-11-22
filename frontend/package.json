@@ -107,7 +107,7 @@
     "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "prettier": "^3.8.3",
-    "react-doctor": "^0.2.14",
+    "react-doctor": "^0.9.23",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7"
   },
