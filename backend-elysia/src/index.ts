@@ -21,6 +21,7 @@ import { auditLog } from "./modules/audit-log";
 import { visits } from "./modules/visits";
 import { statistics } from "./modules/statistics";
 import { reportCheckIn } from "./modules/report-check-in";
+import { attendanceSummary } from "./modules/attendance-summary";
 import { activityCheckIn } from "./modules/activity-check-in";
 import { goodnessIndividual } from "./modules/goodness-individual";
 import { badnessIndividual } from "./modules/badness-individual";
@@ -28,6 +29,9 @@ import { classrooms } from "./modules/classrooms";
 import { teachers } from "./modules/teachers";
 import { students } from "./modules/students";
 import { statics } from "./modules/statics";
+import { academicCalendar } from "./modules/academic-calendar";
+import { academicYears } from "./modules/academic-years";
+import { withAcademicYearRequest } from "./modules/academic-years/request-scope";
 import { systemSettings } from "./modules/system-settings";
 
 const appLogger = createLogger();
@@ -68,7 +72,8 @@ const app = new Elysia()
       methods: (process.env.CORS_PRODUCTION_METHODS || "GET,POST,PUT,PATCH,DELETE,OPTIONS")
         .split(",")
         .map((m) => m.trim()),
-      allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+      allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Academic-Year", "X-Academic-Year-Version"],
+      exposeHeaders: ["X-Academic-Year", "X-Active-Academic-Year", "X-Academic-Year-Version"],
       credentials: true,
       maxAge: Number(process.env.CORS_MAX_AGE) || 86400,
     }),
@@ -133,17 +138,24 @@ const app = new Elysia()
       .use(teachers)
       .use(students)
       .use(reportCheckIn)
+      .use(attendanceSummary)
       .use(activityCheckIn)
       .use(goodnessIndividual)
       .use(badnessIndividual)
+      .use(academicYears)
+      .use(academicCalendar)
       .use(statics)
       .use(systemSettings),
   )
-  .mount(betterAuthServer.handler)
-  .listen(process.env.PORT || 3001);
+  .mount(betterAuthServer.handler);
+
+const server = Bun.serve({
+  port: process.env.PORT || 3001,
+  fetch: (request) => withAcademicYearRequest(request, () => app.fetch(request)),
+});
 
 appLogger.info("🦊 Server started", {
-  url: `http://${app.server?.hostname}:${app.server?.port}`,
-  port: app.server?.port,
+  url: `http://${server.hostname}:${server.port}`,
+  port: server.port,
   environment: isDev ? "development" : "production",
 });

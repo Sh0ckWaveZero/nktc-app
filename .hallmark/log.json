@@ -1,0 +1,65 @@
+[
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "60-30-10 app-wide audit — student list classroom chip tinted→text, settings ×3 ID badge primary→neutral mono, badness/goodness toolbar primary-shadow→neutral; terminology note added to design.md (60-30-10 'primary' = paper, theme.primary = the 10% accent)"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "60-30-10 rebalance visit/list — row avatars primary→neutral, classroom chip tinted→plain text, action tiles 3-hue→primary(main)+neutral(view); SDQ row avatar matched"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "Grid uniformity — rowHeight auto→56 fixed on 4 main list grids (visit/sdq/teacher/student), SDQ row avatar 36→40px; rule added to design.md"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "List pages final pass — AppListCardHeader avatar primary-glow removed, border 0.22→0.12 (visit/student/teacher lists)"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "@core components conformance — AppFilter* borders text.primary→divider + radius 12→6/8, AppListCard last gradient wash flattened (killed final pre-existing TS error), pills/checkbox/OTP/backup-codes radii tokenized, avatar rings 2px→1px. Radius scan now zero across src"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "Header unification — flattened 180deg washes to flat tint hero (settings ×3 + student add/edit), neutralized all primary-colored glow shadows, CTA glow removed, headings h1-h5 weight 500→600 (older-teacher audience)"
+  },
+  {
+    "date": "2026-08-15",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA (Materio blue + Kanit)",
+    "designSystem": "design.md",
+    "enrichment": "none",
+    "brief": "visit/list conformance — neutral standard shadows (removed primary glow), divider thumbnail border, PaperProps → slotProps.paper (fixed pre-existing TS error)"
+  }
+]

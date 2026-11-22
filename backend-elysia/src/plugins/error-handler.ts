@@ -68,6 +68,13 @@ export const errorHandler = new Elysia({ name: "error-handler" }).onError(
 		}
 
 		// Prisma known errors
+		if (error instanceof Error && /ACADEMIC_YEAR_(READ_ONLY|CHANGED|IMMUTABLE)/.test(error.message)) {
+			set.status = 409;
+			return {
+				success: false, statusCode: 409, errorCode: "ACADEMIC_YEAR_CHANGED",
+				message: "ปีการศึกษาที่ใช้งานเปลี่ยนแล้ว หรือบันทึกนี้เป็นของปีเดิม กรุณาโหลดข้อมูลใหม่", meta,
+			};
+		}
 		const prismaErrorName = (error as any)?.constructor?.name;
 		if (prismaErrorName === "PrismaClientKnownRequestError") {
 			const prismaCode = (error as any).code as string;

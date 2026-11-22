@@ -1,5 +1,6 @@
 import { degrees, PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
+import { apiConfig } from '@/configs/api';
 import SarabunBase64 from './font-base64';
 
 interface UserData {
@@ -26,7 +27,7 @@ async function generateCertificatePdf(blob: any, userData: UserData): Promise<Ui
   const firstPage = pages[0];
   const { width, height } = firstPage.getSize();
   const fullName = `${userData.account.title} ${userData.account.firstName} ${userData.account.lastName}`;
-  const educationYears = process.env.NEXT_PUBLIC_EDUCATION_YEARS || '';
+  const educationYears = apiConfig.educationYears;
   const currentDate = new Date().toLocaleDateString('th-TH', {
     year: 'numeric',
     month: 'long',

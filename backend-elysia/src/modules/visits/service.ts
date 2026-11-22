@@ -1,5 +1,6 @@
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/libs/errors";
 import { prisma } from "@/libs/prisma";
+import { getAcademicYearContext } from "@/libs/academic-year-context";
 
 const VISIT_ACCOUNT_SELECT = {
 	firstName: true,
@@ -657,6 +658,6 @@ export abstract class VisitService {
 	}
 
 	private static getCurrentAcademicYear() {
-		return String(new Date().getFullYear() + 543);
+		return String(getAcademicYearContext()?.academicYear ?? new Date().getFullYear() + 543);
 	}
 }

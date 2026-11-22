@@ -1,3 +1,5 @@
+import { useAcademicYearStore } from '@/store/academic-year';
+
 const DEFAULT_API_BASE_PATH = '/api/backend';
 const DEFAULT_APP_URL = 'http://localhost:3000';
 
@@ -10,7 +12,6 @@ const ensureLeadingSlash = (value: string): string => {
 
   return value.startsWith('/') ? value : `/${value}`;
 };
-
 const normalizeBasePath = (value: string | undefined): string => {
   const trimmedValue = trimTrailingSlash((value || '').trim());
 
@@ -140,7 +141,10 @@ const toStaticsPath = (value: string): string => {
 export const apiConfig = {
   appUrl: APP_URL,
   basePath: API_BASE_PATH,
-  educationYears: process.env.NEXT_PUBLIC_EDUCATION_YEARS || '',
+  get educationYears(): string {
+    const year = useAcademicYearStore.getState().academicYear;
+    return year === null ? process.env.NEXT_PUBLIC_EDUCATION_YEARS || '' : String(year);
+  },
   endpoint: (value: string): string => toEndpointPath(value),
   browserUrl: (value: string): string => toBrowserPath(value),
   legacyApiUrl: LEGACY_API_URL,

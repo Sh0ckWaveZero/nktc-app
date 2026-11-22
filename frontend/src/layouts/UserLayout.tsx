@@ -28,6 +28,8 @@ import { useSettings } from '@/@core/hooks/useSettings';
 // ** Auth Guard Import
 import AuthGuard from '@/@core/components/auth/AuthGuard';
 import FallbackSpinner from '@/@core/components/spinner';
+import { AcademicYearProvider } from '@/context/academic-year-context';
+import AcademicYearBanner from './components/academic-year-banner';
 
 interface Props {
   children: ReactNode;
@@ -54,43 +56,46 @@ const UserLayout = ({ children }: Props) => {
 
   return (
     <AuthGuard fallback={<FallbackSpinner />}>
-      <Layout
-        hidden={hidden}
-        settings={settings}
-        saveSettings={saveSettings}
-        {...(settings.layout === 'horizontal'
-          ? {
-              // ** Navigation Items
-              horizontalNavItems: HorizontalNavItems(),
+      <AcademicYearProvider>
+        <Layout
+          hidden={hidden}
+          settings={settings}
+          saveSettings={saveSettings}
+          {...(settings.layout === 'horizontal'
+            ? {
+                // ** Navigation Items
+                horizontalNavItems: HorizontalNavItems(),
 
-              // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
-              // horizontalNavItems: ServerSideHorizontalNavItems(),
+                // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
+                // horizontalNavItems: ServerSideHorizontalNavItems(),
 
-              // ** AppBar Content
-              horizontalAppBarContent: () => (
-                <HorizontalAppBarContent settings={settings} saveSettings={saveSettings} />
-              ),
-            }
-          : {
-              // ** Navigation Items
-              verticalNavItems: VerticalNavItems(),
+                // ** AppBar Content
+                horizontalAppBarContent: () => (
+                  <HorizontalAppBarContent settings={settings} saveSettings={saveSettings} />
+                ),
+              }
+            : {
+                // ** Navigation Items
+                verticalNavItems: VerticalNavItems(),
 
-              // Uncomment the below line when using server-side menu in vertical layout and comment the above line
-              // verticalNavItems: ServerSideVerticalNavItems(),
+                // Uncomment the below line when using server-side menu in vertical layout and comment the above line
+                // verticalNavItems: ServerSideVerticalNavItems(),
 
-              // ** AppBar Content
-              verticalAppBarContent: (props: any) => (
-                <VerticalAppBarContent
-                  hidden={hidden}
-                  settings={settings}
-                  saveSettings={saveSettings}
-                  toggleNavVisibility={props.toggleNavVisibility}
-                />
-              ),
-            })}
-      >
-        {children}
-      </Layout>
+                // ** AppBar Content
+                verticalAppBarContent: (props: any) => (
+                  <VerticalAppBarContent
+                    hidden={hidden}
+                    settings={settings}
+                    saveSettings={saveSettings}
+                    toggleNavVisibility={props.toggleNavVisibility}
+                  />
+                ),
+              })}
+        >
+          <AcademicYearBanner />
+          {children}
+        </Layout>
+      </AcademicYearProvider>
     </AuthGuard>
   );
 };

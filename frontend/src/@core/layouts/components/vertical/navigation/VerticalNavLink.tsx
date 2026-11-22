@@ -3,6 +3,7 @@ import { ElementType } from 'react';
 
 // ** Navigation Components
 import NavMenuText from './NavMenuText';
+import NavMenuIcon from './nav-menu-icon';
 
 // ** Next Imports
 import Link from 'next/link';
@@ -15,7 +16,6 @@ import { styled } from '@mui/material/styles';
 import Box, { BoxProps } from '@mui/material/Box';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
-import Icon from '@/@core/components/icon';
 
 // ** Configs Import
 import themeConfig from '@/configs/themeConfig';
@@ -182,7 +182,7 @@ const VerticalNavLink = ({
                 },
               }}
             >
-              <Icon icon={icon as string} />
+              <NavMenuIcon icon={icon} />
             </ListItemIcon>
           )}
 

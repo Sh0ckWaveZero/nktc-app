@@ -1,7 +1,11 @@
 import { Elysia, t } from "elysia";
-import { ActivityCheckInService } from "./service";
-import { ActivityCheckInModel } from "./model";
+import { ForbiddenError } from "@/libs/errors";
 import { authGuard } from "@/middleware/auth";
+import { AttendanceResetModel } from "@/modules/attendance-reset/model";
+import { AttendanceResetService } from "@/modules/attendance-reset/service";
+
+import { ActivityCheckInModel } from "./model";
+import { ActivityCheckInService } from "./service";
 
 export const activityCheckIn = new Elysia({ prefix: "/activity-check-in" })
 	.use(authGuard)
@@ -12,6 +16,17 @@ export const activityCheckIn = new Elysia({ prefix: "/activity-check-in" })
 		},
 	}, (app) =>
 		app
+			.delete(
+				"/reset-term",
+				({ user, body }) => {
+					if (user?.roles !== "Admin") throw new ForbiddenError();
+					return AttendanceResetService.resetTerm(body, user.username);
+				},
+				{
+					body: AttendanceResetModel.activity,
+					detail: { summary: "Reset selected activity check-in records for a configured academic term" },
+				},
+			)
 			.post(
 				"/",
 				async ({ body, set }) => {

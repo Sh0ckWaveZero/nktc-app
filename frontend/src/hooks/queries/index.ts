@@ -44,5 +44,8 @@ export * from './useVisits';
 // Reports hooks
 export * from './useReports';
 
+// Academic calendar hooks
+export * from './useAcademicCalendar';
+
 // System Settings hooks
 export * from './useSystemSettings';
