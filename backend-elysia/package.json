@@ -48,7 +48,6 @@
   },
   "overrides": {
     "decode-uri-component": "^0.5.1",
-    "stream-json": "^3.9.0",
     "toml": "^5.0.1",
     "effect@3": "^3.22.5"
   }
