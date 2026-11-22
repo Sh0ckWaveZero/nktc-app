@@ -65,7 +65,7 @@
     "happy-dom": "^21.0.4",
     "minio": "^8.0.7",
     "validator": "^13.15.35",
-    "vitest": "^4.1.10",
+    "vitest": "^5.1.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.4.3"
   },
